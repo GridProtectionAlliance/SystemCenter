@@ -159,7 +159,7 @@ const LocationWindow = (props: IProps) => {
     }
 
     return (
-        <div className="card" style={{ marginBottom: 10, maxHeight: window.innerHeight - 215 }}>
+        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
@@ -167,7 +167,7 @@ const LocationWindow = (props: IProps) => {
                     </div>
                 </div>
             </div>
-            <div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto' }}>
+            <div className="card-body" style={{ flex: 1, overflowY: 'auto' }}>
                 <MeterLocationProperties Meter={meter} Location={location} Locationlist={locationList}
                     SetLocation={(loc) => { setLocation(loc); setHasChanged(true); }}
                     UpdateMeter={(m) => {

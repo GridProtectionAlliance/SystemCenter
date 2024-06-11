@@ -169,7 +169,7 @@ function Meter(props: IProps) {
         { Id: "maintenance", Label: "Maintenance" }];
 
     return (
-        <div style={{ width: '100%', height: '100%', overflow: 'hidden', padding: 15 }}>
+        <div style={{ width: '100%', height: '100%', overflow: 'hidden', padding: 15, display: 'flex', flexDirection: 'column' }}>
             <div className="row">
                 <div className="col">
                     <h2>{meter.Name} ({meter.AssetKey})</h2>
@@ -180,48 +180,21 @@ function Meter(props: IProps) {
                 </div>
             </div>
             <hr />
-
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
-            <div className="tab-content" style={{ maxHeight: window.innerHeight - 215, overflow: 'hidden' }}>
-                {tab === 'notes'? <div className={"tab-pane active"} style={{ maxHeight: window.innerHeight - 215 }}>
-                    <NoteWindow ID={props.MeterID} Type='Meter' />
-                </div> : null}
-                {tab === 'meterInfo' ? <div className={"tab-pane active"} id="meterInfo" style={{ maxHeight: window.innerHeight - 215 }}>
-                    <MeterInfoWindow Meter={meter} StateSetter={(meter: OpenXDA.Types.Meter) => setMeter(meter)} />
-                </div> : null}
-                {tab === 'additionalFields' ?<div className={"tab-pane active" } id="additionalFields" style={{ maxHeight: window.innerHeight - 215 }}>
-                    <AdditionalFieldsWindow ID={props.MeterID} Type='Meter' Tab={tab} />
-                </div> : null}
-                {tab === 'substation' ?<div className={"tab-pane active"} id="substation" style={{ maxHeight: window.innerHeight - 215 }}>
-                    <MeterLocationWindow Meter={meter} StateSetter={(meter: OpenXDA.Types.Meter) => setMeter(meter)} />
-                </div> : null}
-                {tab === 'eventChannels' ?<div className={"tab-pane active"} id="eventChannels">
-                    <MeterEventChannelWindow Meter={meter} IsVisible={tab === "eventChannels"} />
-                </div> : null}
-                {tab === 'trendChannels' ?<div className={"tab-pane active"} id="trendChannels">
-                    <MeterTrendChannelWindow Meter={meter} IsVisible={tab === "trendChannels"} />
-                </div> : null}
-                {tab === 'channelScaling' ?<div className={"tab-pane active"} id="channelScaling">
-                    <ChannelScalingWindow Meter={meter} IsVisible={tab === "channelScaling"} />
-                </div> : null}
-                {tab === 'assets'? <div className={"tab-pane active"} id="assets">
-                    <MeterAssetWindow Meter={meter} /> 
-                </div>: null}
-                {tab == "configurationHistory" ?<div className={"tab-pane active" }>
-                    <MeterConfigurationHistoryWindow Meter={meter} />
-                </div> : null}
-                {tab == "dataRescue" ? <div className={"tab-pane active"}>
-                    {dataRescueWindow}
-                </div> : null }
-                {tab == "dataMerge" ?<div className={"tab-pane active"} id="dataMerge">
-                    {dataMergeWindow}
-                </div> : null}
-                {tab == "dataDelete" ?<div className={"tab-pane active"} id="dataDelete">
-                    {dataDeleteWindow}
-                </div> : null}
-                {tab == "maintenance" ?<div className={"tab-pane active"} id="maintenance">
-                    <MeterMaintenanceWindow Meter={meter} />
-                </div> : null}
+            <div className="tab-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                {tab === 'notes' ? <NoteWindow ID={props.MeterID} Type='Meter' /> : null}
+                {tab === 'meterInfo' ? <MeterInfoWindow Meter={meter} StateSetter={(meter: OpenXDA.Types.Meter) => setMeter(meter)} /> : null}
+                {tab === 'additionalFields' ? <AdditionalFieldsWindow ID={props.MeterID} Type='Meter' Tab={tab} /> : null}
+                {tab === 'substation' ? <MeterLocationWindow Meter={meter} StateSetter={(meter: OpenXDA.Types.Meter) => setMeter(meter)} /> : null}
+                {tab === 'eventChannels' ? <MeterEventChannelWindow Meter={meter} IsVisible={tab === "eventChannels"} /> : null}
+                {tab === 'trendChannels' ? <MeterTrendChannelWindow Meter={meter} IsVisible={tab === "trendChannels"} /> : null}
+                {tab === 'channelScaling' ? <ChannelScalingWindow Meter={meter} IsVisible={tab === "channelScaling"} /> : null}
+                {tab === 'assets' ? <MeterAssetWindow Meter={meter} /> : null}
+                {tab === 'configurationHistory' ? <MeterConfigurationHistoryWindow Meter={meter} /> : null}
+                {tab === 'dataRescue' ? dataRescueWindow : null}
+                {tab === 'dataMerge' ? dataMergeWindow : null}
+                {tab === 'dataDelete' ? dataDeleteWindow : null}
+                {tab === 'maintenance' ? <MeterMaintenanceWindow Meter={meter} /> : null}
             </div>
 
             <Modal Title={'Advanced Options'} Show={showAdvanced} CallBack={() => setShowAdvanced(false)} ShowCancel={false} ConfirmText={'Close'}>

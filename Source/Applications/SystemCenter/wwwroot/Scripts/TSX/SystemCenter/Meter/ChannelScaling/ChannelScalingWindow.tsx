@@ -86,7 +86,7 @@ const ChannelScalingWindow = (props: IProps) => {
     }
 
     return (
-        <div className="card" style={{ marginBottom: 10, maxHeight: window.innerHeight - 215 }}>
+        <div className="card" style={{ flex: 1, overflow: 'hidden' }}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">

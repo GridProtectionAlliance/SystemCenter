@@ -58,13 +58,13 @@ function MeterConfigurationHistoryWindow(props: { Meter: OpenXDA.Types.Meter }) 
     }
 
     function handleSelect(item: MeterConfiguration) {
-        history.push({ pathname: `${homePath}index.cshtml`, search: `?name=ConfigurationHistory&MeterKey=${props.Meter.AssetKey}&MeterConfigurationID=${item.ID}`})
+        history.push({ pathname: `${homePath}index.cshtml`, search: `?name=ConfigurationHistory&MeterKey=${props.Meter.AssetKey}&MeterConfigurationID=${item.ID}` })
     }
 
     return (
         <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
-            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                <div className="card" style={{ width: '100%', height: '100%' }}>
+            <div className="row" style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+                <div className="card" style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
                     <div className="card-header">
                         <div className="row">
                             <div className="col">
@@ -72,7 +72,7 @@ function MeterConfigurationHistoryWindow(props: { Meter: OpenXDA.Types.Meter }) 
                             </div>
                         </div>
                     </div>
-                    <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
+                    <div className="card-body" style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
                         <ReactTable.Table<MeterConfiguration>
                             TableClass="table table-hover"
                             Data={meterConfigurations}
@@ -80,8 +80,9 @@ function MeterConfigurationHistoryWindow(props: { Meter: OpenXDA.Types.Meter }) 
                             Ascending={false}
                             OnSort={(d) => { }}
                             OnClick={(d) => handleSelect(d.row)}
+                            TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
                             TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 420, width: '100%' }}
+                            TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1, width: '100%' }}
                             RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                             Selected={(item) => false}
                             KeySelector={(item) => item.ID}

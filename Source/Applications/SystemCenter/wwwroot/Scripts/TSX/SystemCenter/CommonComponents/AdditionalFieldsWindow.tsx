@@ -66,7 +66,6 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
 
     const roles = useAppSelector(SelectRoles);
 
-
     React.useEffect(() => {
         // This line autosaves data on navigation away via props.ID so that anything unsaved is saved before it goes away
         if (HasValueChanged() && !HasInvalidChanges() && (props.InnerOnly ?? false))
@@ -156,7 +155,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
     }
 
     function HasValueChanged(): boolean {
-        
+
         return additionalFieldValuesWorking.some((item, index) => {
             let i = additionalFieldValues.findIndex(val => val.AdditionalFieldID == item.AdditionalFieldID)
             if (i == -1 && item.Value == null)
@@ -238,7 +237,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                 </div>
             </div>);
 
-                        
+
     if (state == 'error')
         return (
             <div style={{ width: '100%', height: '200px' }}>
@@ -264,12 +263,9 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                     setSortKey(d.colKey);
                 }
             }}
-            TableStyle={(props.InnerOnly ?? false) ? {
-                padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
-                tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
-            } : undefined}
+            TableStyle={{ padding: 0, width: '100%', height: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
             TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-            TbodyStyle={(props.InnerOnly ?? false) ? { display: 'block', overflowY: 'scroll', flex: 1 } : { display: 'block', overflow: 'fixed', maxHeight: window.innerHeight - 455, }}
+            TbodyStyle={{ display: 'block', width: '100%', overflowY: 'auto', flex: 1 }}
             RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
             Selected={(item) => false}
             KeySelector={(item) => item.ID}
@@ -335,19 +331,19 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                 RowStyle={{ width: '100px' }}
                 Content={({ item }) =>
                     item.IsKey ?
-                    <>
-                        <button data-tooltip={`${item.ID}_edit`} onMouseEnter={() => setHoverEdit(`${item.ID}_edit`)} onMouseLeave={() => setHoverEdit('None')}
-                            className="btn btn-sm pull-left" onClick={(e) => {
-                                e.preventDefault();
-                                setShowExt(true);
-                                setKeyField(item);
-                            }}>{Pencil}</button>
-                        <button data-tooltip={`${item.ID}_delete`} onMouseEnter={() => setHoverDelete(`${item.ID}_delete`)} onMouseLeave={() => setHoverDelete('None')}
-                            className="btn btn-sm pull-right" onClick={(e) => {
-                                e.preventDefault();
-                                KeyModalCallback(null);
-                            }}>{CrossMark}</button>
-                    </> : null}
+                        <>
+                            <button data-tooltip={`${item.ID}_edit`} onMouseEnter={() => setHoverEdit(`${item.ID}_edit`)} onMouseLeave={() => setHoverEdit('None')}
+                                className="btn btn-sm pull-left" onClick={(e) => {
+                                    e.preventDefault();
+                                    setShowExt(true);
+                                    setKeyField(item);
+                                }}>{Pencil}</button>
+                            <button data-tooltip={`${item.ID}_delete`} onMouseEnter={() => setHoverDelete(`${item.ID}_delete`)} onMouseLeave={() => setHoverDelete('None')}
+                                className="btn btn-sm pull-right" onClick={(e) => {
+                                    e.preventDefault();
+                                    KeyModalCallback(null);
+                                }}>{CrossMark}</button>
+                        </> : null}
             > <p></p>
             </ReactTable.Column>
         </ReactTable.Table>
@@ -366,11 +362,11 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
         </>);
 
     return (
-        <div className="card" style={{ marginBottom: 10, maxHeight: window.innerHeight - 215, height: '100%'}}>
+        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="card-header">
                 <h4>Additional Fields:</h4>
             </div>
-            <div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto' }}>
+            <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
                 {tableComponent}
                 <ToolTip Show={hoverEdit !== 'None'} Position={'left'} Theme={'dark'} Target={hoverEdit}>
                     Select Key Field Value
@@ -379,7 +375,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                     Clear Key Field Value
                 </ToolTip>
             </div>
-            <div className="card-footer">  
+            <div className="card-footer">
                 <div className="btn-group mr-2">
                     <button className={"btn btn-primary" + (!HasValueChanged() || HasInvalidChanges() ? ' disabled' : '')} onClick={() => { if (HasValueChanged() && !HasInvalidChanges()) addOrUpdateValues(); }}
                         onMouseEnter={() => setHover('Save')} onMouseLeave={() => setHover('None')} data-tooltip={'SaveValues'}>Update</button>
