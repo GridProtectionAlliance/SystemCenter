@@ -4,133 +4,6 @@
         <name>openXDA.APIAuthentication</name>
     </assembly>
     <members>
-        <member name="T:openXDA.APIAuthentication.APIAuthenticationMiddleware">
-            <summary>
-            Middleware to authenticate users of the API via <see cref="T:openXDA.APIAuthentication.APIAccessKey"/>.
-            </summary>
-            <summary>
-            Middleware to authenticate users of the API via <see cref="T:openXDA.APIAuthentication.APIAccessKey"/>.
-            </summary>
-        </member>
-        <member name="M:openXDA.APIAuthentication.APIAuthenticationMiddleware.#ctor(Microsoft.Owin.OwinMiddleware,System.Func{GSF.Data.AdoDataConnection})">
-            <summary>
-            Creates a new instance of the <see cref="T:openXDA.APIAuthentication.APIAuthenticationMiddleware"/> class.
-            </summary>
-            <param name="next">The next middleware in the pipeline.</param>
-            <param name="connectionFactory">Factory function for creating database connections.</param>
-        </member>
-        <member name="M:openXDA.APIAuthentication.APIAuthenticationMiddleware.Invoke(Microsoft.Owin.IOwinContext)">
-            <summary>
-            Process an individual request.
-            </summary>
-            <param name="context">The context in which the request is made.</param>
-            <returns>The task that indicates when the request has been processed.</returns>
-        </member>
-        <member name="T:openXDA.APIAuthentication.APIConsoleController">
-            <summary>
-            Base Class that includes the endpoints needed for the API based Console.
-            </summary>
-        </member>
-        <member name="T:openXDA.APIAuthentication.APIConsoleController.ConsoleMessage">
-            <summary>
-            Represents a Console Message and the corresponding <see cref="T:GSF.UpdateType"/>
-            </summary>
-        </member>
-        <member name="P:openXDA.APIAuthentication.APIConsoleController.ConsoleMessage.Message">
-            <summary>
-            Gets or sets the text of the message.
-            </summary>
-        </member>
-        <member name="P:openXDA.APIAuthentication.APIConsoleController.ConsoleMessage.Type">
-            <summary>
-            Gets or sets the type of the message.
-            </summary>
-        </member>
-        <member name="P:openXDA.APIAuthentication.APIConsoleController.Host">
-            <summary>
-            The <see cref="T:openXDA.APIAuthentication.IAPIConsoleHost"/> that the console is attached to
-            </summary>
-        </member>
-        <member name="M:openXDA.APIAuthentication.APIConsoleController.Connect">
-            <summary>
-            Connects a new Client to the console
-            </summary>
-            <returns>The Session ID of the new connection</returns>
-        </member>
-        <member name="M:openXDA.APIAuthentication.APIConsoleController.Retrieve(System.String)">
-            <summary>
-            Retrieves the messages for this session
-            </summary>
-        </member>
-        <member name="M:openXDA.APIAuthentication.APIConsoleController.Send(System.String,System.String)">
-            <summary>
-            Send a command to the console
-            </summary>
-        </member>
-        <member name="T:openXDA.APIAuthentication.IAPIConsoleHost">
-            <summary>
-            Interface for a Program.Host to include all required pieces for a <see cref="T:openXDA.APIAuthentication.APIConsoleController"/> to hook into.
-            </summary>
-        </member>
-        <member name="E:openXDA.APIAuthentication.IAPIConsoleHost.UpdatedStatus">
-            <summary>
-            Raised when there is a new status message reported to service.
-            </summary>
-        </member>
-        <member name="E:openXDA.APIAuthentication.IAPIConsoleHost.SendingClientResponse">
-            <summary>
-            Raise when a response is being sent to one or more clients.
-            </summary>
-        </member>
-        <member name="M:openXDA.APIAuthentication.IAPIConsoleHost.SendRequest(System.Guid,System.Security.Principal.IPrincipal,System.String)">
-            <summary>
-            Sends a command request to the service.
-            </summary>
-            <param name="clientID">Client ID of sender.</param>
-            <param name="principal">The principal used for role-based security.</param>
-            <param name="userInput">Request string.</param>
-        </member>
-        <member name="M:openXDA.APIAuthentication.IAPIConsoleHost.DisconnectClient(System.Guid)">
-            <summary>
-            Disconnects a client from the service.
-            </summary>
-            <param name="clientID">Client ID</param>
-        </member>
-        <member name="T:openXDA.APIAuthentication.RequestVerificationHeaderTokenController">
-            <summary>
-            Provides the endpoint for requests to retrieve CSRF anti-forgery tokens.
-            This needs to be included in all apps that support APIAuthentication.
-            </summary>
-        </member>
-        <member name="M:openXDA.APIAuthentication.RequestVerificationHeaderTokenController.Get">
-            <summary>
-            Generates a new request verification header token and sends it to the client.
-            </summary>
-            <returns>The HTTP response that contains the token.</returns>
-        </member>
-        <member name="T:openXDA.APIAuthentication.Extensions.RequestVerificationHeaderTokenControllerExtensions">
-            <summary>
-            Extension methods for using request verification header tokens.
-            </summary>
-        </member>
-        <member name="M:openXDA.APIAuthentication.Extensions.RequestVerificationHeaderTokenControllerExtensions.MapRequestVerificationHeaderTokenRoute(System.Web.Http.HttpRouteCollection)">
-            <summary>
-            Maps the <see cref="T:openXDA.APIAuthentication.RequestVerificationHeaderTokenController"/> to the <c>api/rvht</c> path.
-            </summary>
-            <param name="routes">The route collection</param>
-        </member>
-        <member name="T:openXDA.APIAuthentication.Extensions.APIAuthenticationMiddlewareExtensions">
-            <summary>
-            Extension methods for hosting API authentication.
-            </summary>
-        </member>
-        <member name="M:openXDA.APIAuthentication.Extensions.APIAuthenticationMiddlewareExtensions.UseAPIAuthentication(Owin.IAppBuilder,System.Func{GSF.Data.AdoDataConnection})">
-            <summary>
-            Enables use of the API authentication middleware in the app.
-            </summary>
-            <param name="app">The app in which the middlware will be used.</param>
-            <param name="connectionFactory">Factory for creating database connections.</param>
-        </member>
         <member name="T:openXDA.APIAuthentication.APIQueryException">
             <summary>
             Exceptions thrown during an API query.
@@ -207,36 +80,77 @@
             <param name="cancellationToken">Token used to cancel the request before it has completed.</param>
             <returns>The HTTP response returned by the host that handled the request.</returns>
         </member>
-        <member name="T:openXDA.APIAuthentication.APIAccessKey">
+        <member name="T:openXDA.APIAuthentication.XDAAPIHelper">
             <summary>
-            Model that represents a valid set of credentials to access the API.
+            Helper class that provides openXDA API Calls
             </summary>
         </member>
-        <member name="P:openXDA.APIAuthentication.APIAccessKey.ID">
+        <member name="P:openXDA.APIAuthentication.XDAAPIHelper.Token">
             <summary>
-            Unique identifier for the API access key.
+            API Token used to access OpenXDA
             </summary>
         </member>
-        <member name="P:openXDA.APIAuthentication.APIAccessKey.RegistrationKey">
+        <member name="P:openXDA.APIAuthentication.XDAAPIHelper.Key">
             <summary>
-            Unique registration key to identify the user.
+            API Key used to access OpenXDA
             </summary>
         </member>
-        <member name="P:openXDA.APIAuthentication.APIAccessKey.APIToken">
+        <member name="P:openXDA.APIAuthentication.XDAAPIHelper.Host">
             <summary>
-            The access token used to authenticate the user.
+            API Key used to access OpenXDA
             </summary>
         </member>
-        <member name="P:openXDA.APIAuthentication.APIAccessKey.Expires">
+        <member name="M:openXDA.APIAuthentication.XDAAPIHelper.GetResponseTask(System.String,System.Net.Http.HttpContent)">
             <summary>
-            The date and time at which the access key is no longer valid.
+            Gets Response Task from XDA 
             </summary>
+            <param name="requestURI">Path to specific API request</param>
+            <param name="content"> The <see cref="T:System.Net.Http.HttpContent"/> of the request </param>
+            <returns> response as a <see cref="T:System.IO.Stream"/></returns>
         </member>
-        <member name="P:openXDA.APIAuthentication.APIAccessKey.AllowImpersonation">
+        <member name="M:openXDA.APIAuthentication.XDAAPIHelper.GetAsync(System.String)">
             <summary>
-            A Flag indicating if this key is allowed to impersonate regular users.
-            see <see cref="T:openXDA.APIAuthentication.APIAuthenticationMiddleware"/> for how to impersonate a user in a request.
+            Makes a Get Request to OpenXDA to obtain a string
             </summary>
+            <param name="requestURI">Path to specific API request</param>
+            <returns>string</returns>
+        </member>
+        <member name="M:openXDA.APIAuthentication.XDAAPIHelper.GetStreamAsync(System.String)">
+            <summary>
+            Makes a Get Request to OpenXDA to obtain a stream
+            </summary>
+            <param name="requestURI">Path to specific API request</param>
+            <returns>stream</returns>
+        </member>
+        <member name="M:openXDA.APIAuthentication.XDAAPIHelper.GetAsync``1(System.String)">
+            <summary>
+            Makes a Get Request to OpenXDA to obtain an object
+            </summary>
+            <param name="requestURI">Path to specific API request</param>
+            <returns> a <see cref="T:System.Threading.Tasks.Task`1"/> object</returns>
+        </member>
+        <member name="M:openXDA.APIAuthentication.XDAAPIHelper.PostAsync(System.String,System.Net.Http.HttpContent)">
+            <summary>
+            Makes Post request on OpenXDA
+            </summary>
+            <param name="requestURI">Path to specific API request</param>
+            <param name="content"> The <see cref="T:System.Net.Http.HttpContent"/> of the request </param>
+            <returns> response as a <see cref="T:System.String"/></returns>
+        </member>
+        <member name="M:openXDA.APIAuthentication.XDAAPIHelper.PostAllAsync``1(System.String,System.Net.Http.HttpContent)">
+            <summary>
+            Makes Post request on OpenXDA
+            </summary>
+            <param name="endpoint">Path to specific API request</param>
+            <param name="content"> The <see cref="T:System.Net.Http.HttpContent"/> of the request </param>
+            <returns> response as a <see cref="T:System.String"/></returns>
+        </member>
+        <member name="M:openXDA.APIAuthentication.XDAAPIHelper.GetAllAsync``1(System.String)">
+            <summary>
+            Makes a Get Request to OpenXDA to obtain a <see cref="T:System.Collections.Generic.List`1"/> objects
+            </summary>
+            <param name="requestURI">Path to specific API request</param>
+            <returns> a <see cref="T:System.Collections.Generic.List`1"/> object</returns>
         </member>
     </members>
 </doc>

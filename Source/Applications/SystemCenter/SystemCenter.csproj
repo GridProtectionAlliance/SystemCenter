@@ -203,6 +203,9 @@
     <Reference Include="openXDA.APIAuthentication">
       <HintPath>..\..\Dependencies\openXDA\openXDA.APIAuthentication.dll</HintPath>
     </Reference>
+    <Reference Include="openXDA.APIMiddleware">
+      <HintPath>..\..\Dependencies\openXDA\openXDA.APIMiddleware.dll</HintPath>
+    </Reference>
     <Reference Include="openXDA.Configuration">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Dependencies\openXDA\openXDA.Configuration.dll</HintPath>

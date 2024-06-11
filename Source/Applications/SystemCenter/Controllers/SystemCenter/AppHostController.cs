@@ -26,6 +26,7 @@ using GSF.Data;
 using GSF.Data.Model;
 using GSF.Reflection;
 using Newtonsoft.Json;
+using openXDA.APIMiddleware;
 using openXDA.APIAuthentication;
 using openXDA.Model;
 using System;
@@ -346,7 +347,7 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/SystemCenter/Console")]
     public class ConsoleController : APIConsoleController
     {
-        protected override IAPIConsoleHost Host => Program.Host;
+        protected override IAPIConsoleHost Host => (IAPIConsoleHost) Program.Host;
     }
 
 }
