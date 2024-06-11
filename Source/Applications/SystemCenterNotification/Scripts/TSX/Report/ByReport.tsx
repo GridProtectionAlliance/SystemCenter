@@ -146,7 +146,7 @@ const ByReport = (props: IProps) => {
                             if (d.colKey === null) return;
                             dispatch(ScheduledEmailTypeSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                         }}
-                        OnClick={(item) => navigate(`/ReportEmail/${item.row.ID}`)}
+                        OnClick={(item) => navigate(`${homePath}ReportEmail/${item.row.ID}`)}
                         TableStyle={{
                             padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
                             tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'

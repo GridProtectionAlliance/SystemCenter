@@ -107,7 +107,7 @@ const ByEmailCategory = (props: IProps) => {
                             if (d.colKey === null) return;
                             dispatch(EmailCategorySlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                         }}
-                        OnClick={(item) => navigate(`/Category/${item.row.ID}`)}
+                        OnClick={(item) => navigate(`${homePath}Category/${item.row.ID}`)}
                         TableStyle={{
                             padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
                             tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
