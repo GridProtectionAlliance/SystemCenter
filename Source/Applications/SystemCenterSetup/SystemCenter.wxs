@@ -442,7 +442,7 @@
         <File Id="openXDA.APIAuthentication.dll" Name="openXDA.APIAuthentication.dll" Source="$(var.SolutionDir)\Dependencies\openXDA\openXDA.APIAuthentication.dll" />
       </Component>
       <Component Id="openXDA.APIMiddleware">
-        <File Id="openXDA.APIAuthentication.dll" Name="openXDA.APIAuthentication.dll" Source="$(var.SolutionDir)\Dependencies\openXDA\openXDA.APIAuthentication.dll" />
+        <File Id="openXDA.APIMiddleware.dll" Name="openXDA.APIMiddleware.dll" Source="$(var.SolutionDir)\Dependencies\openXDA\openXDA.APIMiddleware.dll" />
       </Component>
       <Component Id="openXDA.Configuration">
         <File Id="openXDA.Configuration.dll" Name="openXDA.Configuration.dll" Source="$(var.SolutionDir)\Dependencies\openXDA\openXDA.Configuration.dll" />
