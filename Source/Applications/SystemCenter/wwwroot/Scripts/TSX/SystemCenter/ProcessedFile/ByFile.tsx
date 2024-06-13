@@ -117,7 +117,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
     }
 
     function reprocess(file: OpenXDA.Types.DataFile) {
-       
+        setShowWarning('loading')
         $.ajax({
             type: "GET",
             url: `${homePath}api/OpenXDA/DataFile/Reprocess/${selectedID.FileGroupID}` ,
@@ -129,7 +129,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
     }
 
     function reprocessAll() {
-
+        setShowWarning('loading')
         $.ajax({
             type: "POST",
             url: `${homePath}api/OpenXDA/DataFile/ReprocessMany`,
