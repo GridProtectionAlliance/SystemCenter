@@ -86,7 +86,6 @@ export default function WidgetForm(props: IProps) {
                     SetSetting={(s) => props.stateSetter({ ...props.Widget, Setting: s })}
                     Type={props.Widget.Type} />
                 }
-            <CheckBox Record={props.Widget} Field={'Enabled'} Setter={(record) => props.stateSetter(record)} Label={'Enabled'} />
 
         </div>
     )

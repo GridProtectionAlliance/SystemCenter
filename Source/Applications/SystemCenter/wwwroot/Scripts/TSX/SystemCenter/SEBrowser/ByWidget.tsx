@@ -36,7 +36,7 @@ import { AllWidgets } from '../../../../../EventWidgets/TSX/WidgetWrapper';
 
 
 declare var homePath: string;
-const emptyWidget: LocalXDA.IWidget = { ID: 0, Name: '', Enabled: true, Setting: '{}', Type: AllWidgets[0].Name };
+const emptyWidget: LocalXDA.IWidget = { ID: 0, Name: '', Setting: '{}', Type: AllWidgets[0].Name };
 
 const ByWidget: Application.Types.iByComponent = (props) => {
     let dispatch = useAppDispatch();
