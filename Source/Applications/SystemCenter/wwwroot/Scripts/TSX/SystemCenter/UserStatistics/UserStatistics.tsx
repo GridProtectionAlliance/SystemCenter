@@ -23,40 +23,32 @@
 
 import * as React from 'react';
 import { ReactTable } from '@gpa-gemstone/react-table';
-import { Application } from '@gpa-gemstone/application-typings'
+import { Application } from '@gpa-gemstone/application-typings';
+import { Plot, Line } from '@gpa-gemstone/react-graph';
 import * as _ from 'lodash';
-import * as d3 from 'd3';
-import { useHistory } from "react-router-dom";
 import { GetAccessLogAggregates, GetAccessLogTable, } from './../../../TS/Services/User';
-import moment from 'moment';
 
 interface Aggregate {
     Date: string,
     Count: number
 }
 
-interface AccesLogTable {
+interface AccessLogTable {
     UserName: string,
     Logins: number,
     LastAccess: string
 }
 
 const UserStatistics: Application.Types.iByComponent = (props) => {
-    let history = useHistory();
     let svgWidth = window.innerWidth - 250 - 30;
     let svgHeight = (window.innerHeight - 75) * .33;
     let margin = { top: 20, right: 20, bottom: 20, left: 50 };
-    let width = svgWidth - margin.left - margin.right;
-    let height = svgHeight - margin.top - margin.bottom;
-    //let svg = d3.select('svg').attr("width", svgWidth).attr("height", svgHeight);
     
     const [scAggregates, setScAggregates] = React.useState<Array<Aggregate>>([]);
     const [xdaAggregates, setXDAAggregates] = React.useState<Array<Aggregate>>([]);
     const [days, setDays] = React.useState<number>(30);
-    const [x, setX] = React.useState<d3.ScaleTime<number, number>>(null);
-    const [Y, setY] = React.useState<d3.ScaleLinear<number, number>>(null);
     const [tab, setTab] = React.useState<Application.Types.AttachedDatabases>('SystemCenter');
-    const [tableData, setTableData] = React.useState<Array<AccesLogTable>>([]);
+    const [tableData, setTableData] = React.useState<Array<AccessLogTable>>([]);
     const [sortField, setSortField] = React.useState<string>('Logins');
     const [ascending, setAscending] = React.useState<boolean>(false);
 
@@ -67,7 +59,8 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
     async function GetData(d: number, t: Application.Types.AttachedDatabases) {
         let sca = await GetAccessLogAggregates("SystemCenter", d);
         let xdaa = await GetAccessLogAggregates("OpenXDA", d);
-        DrawChart(sca, xdaa);
+        setScAggregates(sca);
+        setXDAAggregates(xdaa);
         GetTableData(t)
     }
 
@@ -77,23 +70,31 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
         setTableData(ordered);
     }
 
-    function DrawChart(sca: Array<Aggregate>, xdaa: Array<Aggregate>) {
-        let maxCounts = sca.map((value, index) => Math.max(sca[index].Count, xdaa[index].Count));
-
-        let x = d3.scaleTime().rangeRound([0, width]);
-        let y = d3.scaleLinear().rangeRound([height - 15, 0]);
-
-        let line = d3.line<Aggregate>().x(d => x(moment(d.Date))).y(d => y(d.Count));
-        y.domain(d3.extent(maxCounts, d => d));
-        x.domain(d3.extent(sca, d => moment(d.Date)));
-        d3.select('#yaxis').call(() => d3.axisLeft(y)).call(g => g.select(".domain").remove());
-        d3.select('#xaxis').call(() => d3.axisBottom(x)).call(g => g.select(".domain").remove());
-        d3.select('#scapath').datum(sca).attr('d', line)
-        d3.select('#xdapath').datum(xdaa).attr('d', line)
-
-    }
-
     if (props.Roles.indexOf('Administrator') < 0) return null;
+
+    const hasData = scAggregates.length > 0 && xdaAggregates.length > 0;
+
+    const defaultTdomain: [number, number] = hasData ? [
+        new Date(scAggregates[0]?.Date).getTime(),
+        new Date(scAggregates[scAggregates.length - 1]?.Date).getTime()
+    ] : [0, 0];
+
+    const defaultYdomain: [number, number] = hasData ? [
+        0,
+        Math.max(
+            ...scAggregates.map(d => d.Count),
+            ...xdaAggregates.map(d => d.Count)
+        )
+    ] : [0, 1];
+
+    const transformData = (data: Array<Aggregate>): [number, number][] => {
+        return data.map(d => [new Date(d.Date).getTime(), d.Count] as [number, number])
+            .filter(d => !isNaN(d[0]) && !isNaN(d[1]));
+    };
+
+    const scData = transformData(scAggregates);
+    const xdaData = transformData(xdaAggregates);
+
     return (
         <div style={{ width: '100%', height: '100%', padding: '10px 10px 10px 20px' }}>
             <div className="row">
@@ -116,14 +117,32 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
             </div>
             <hr/>
             <div style={{ width: '100%', height: 'calc( 100%)' }}>
-                <svg width={svgWidth} height={svgHeight } style={{ border: '1px solid lightgray'/*, position: "absolute", left: 20*/ }}>
-                    <g id='xaxis' transform={`translate(${margin.left - 20},${height + 10})`}></g>
-                    <g id='yaxis' transform={"translate(" + (margin.left - 20) + ",25)"}></g>
-                    <g transform={"translate(" + (margin.left - 20) + ",25)"}>
-                        <path id='scapath' fill='none' strokeLinejoin='round' strokeWidth='1.5' stroke='steelblue'/>
-                        <path id='xdapath' fill='none' strokeLinejoin='round' strokeWidth='1.5' stroke='red'/>
-                    </g>
-                </svg>
+                {hasData && (
+                    <Plot
+                        defaultTdomain={defaultTdomain}
+                        defaultYdomain={defaultYdomain}
+                        height={svgHeight}
+                        width={svgWidth}
+                        showGrid={true}
+                        XAxisType='time'
+                        legend='bottom'
+                        Ylabel='Count'
+                        Tlabel='Date'
+                    >
+                        <Line
+                            data={scData}
+                            color='steelblue'
+                            lineStyle='solid'
+                            legend='System Center'
+                        />
+                        <Line
+                            data={xdaData}
+                            color='red'
+                            lineStyle='solid'
+                            legend='OpenXDA'
+                        />
+                    </Plot>
+                )}
                 <div style={{ width: '100%', height: `calc(100% - ${svgHeight}px)` }}>
                     <ul className="nav nav-tabs">
                         <li className="nav-item">                         
@@ -152,7 +171,7 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
 
                     <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
                         <div className="tab-pane  active">
-                            <ReactTable.Table<AccesLogTable>
+                            <ReactTable.Table<AccessLogTable>
                                 TableClass="table table-hover"
                                 Data={tableData}
                                 SortKey={sortField}
@@ -175,7 +194,7 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
                                 Selected={(item) => false}
                                 KeySelector={(item) => item.UserName}
                             >
-                                <ReactTable.Column<AccesLogTable>
+                                <ReactTable.Column<AccessLogTable>
                                     Key={'UserName'}
                                     AllowSort={true}
                                     Field={'UserName'}
@@ -183,7 +202,7 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
                                     RowStyle={{ width: '10%' }}
                                 > User
                                 </ReactTable.Column>
-                                <ReactTable.Column<AccesLogTable>
+                                <ReactTable.Column<AccessLogTable>
                                     Key={'Logins'}
                                     AllowSort={true}
                                     Field={'Logins'}
@@ -191,7 +210,7 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
                                     RowStyle={{ width: '10%' }}
                                 > Logins for Period
                                 </ReactTable.Column>
-                                <ReactTable.Column<AccesLogTable>
+                                <ReactTable.Column<AccessLogTable>
                                     Key={'LastAccess'}
                                     AllowSort={true}
                                     Field={'LastAccess'}
