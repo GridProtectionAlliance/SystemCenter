@@ -328,10 +328,10 @@ const ByFile: Application.Types.iByComponent = (props) => {
                 
             </Modal>
             <Modal Show={showWarning == 'complete'} Size={'sm'} Title={'Started Reprocessing'} CallBack={(c) => setShowWarning('hide')} ShowCancel={false} ShowX={true} ConfirmText={'Close'}>
-                openXDA has begun to reprocess this file. Note that this may take several minutes.
+                openXDA has begun to reprocess the selected file(s). Note that this may take several minutes.
             </Modal>
             <Modal Show={showWarning == 'error'} Size={'sm'} Title={'Error Reprocessing'} CallBack={(c) => setShowWarning('hide')} ShowCancel={false} ShowX={true} ConfirmText={'Close'}>
-                openXDA was unable to reprocess this file. If this error continues to occur please contact your system administrator.
+                openXDA was unable to reprocess the selected file(s). If this error continues to occur please contact your system administrator.
             </Modal>
         </div>
     )
