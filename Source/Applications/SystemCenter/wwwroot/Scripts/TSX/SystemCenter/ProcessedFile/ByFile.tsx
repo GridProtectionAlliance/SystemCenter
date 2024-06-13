@@ -87,7 +87,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
 
     React.useEffect(() => {
         dispatch(DataFileSlice.PagedSearch({ sortField: sortKey, ascending, filter: search, page }))
-    }, [search, ascending, sortKey, page]);
+    }, [search, ascending, sortKey, page, update]);
 
     React.useEffect(() => {
         if (cState == 'unintiated' || cState == 'changed')
@@ -100,10 +100,6 @@ const ByFile: Application.Types.iByComponent = (props) => {
         const h = loadEvents(selectedID.ID);
         return () => { if (h !== null && h.abort != null) h.abort(); }
     }, [selectedID])
-
-    React.useEffect(() => {
-        dispatch(DataFileSlice.SetChanged());
-    }, [update]);
 
     function loadEvents(fileID: number) {
         if (fileID < 0)
