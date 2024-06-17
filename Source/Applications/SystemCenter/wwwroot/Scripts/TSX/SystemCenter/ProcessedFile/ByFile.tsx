@@ -87,7 +87,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
 
     React.useEffect(() => {
         dispatch(DataFileSlice.PagedSearch({ sortField: sortKey, ascending, filter: search, page }))
-    }, [search, ascending, sortKey, page]);
+    }, [search, ascending, sortKey, page, update]);
 
     React.useEffect(() => {
         if (cState == 'unintiated' || cState == 'changed')
@@ -100,10 +100,6 @@ const ByFile: Application.Types.iByComponent = (props) => {
         const h = loadEvents(selectedID.ID);
         return () => { if (h !== null && h.abort != null) h.abort(); }
     }, [selectedID])
-
-    React.useEffect(() => {
-        dispatch(DataFileSlice.SetChanged());
-    }, [update]);
 
     function loadEvents(fileID: number) {
         if (fileID < 0)
@@ -121,7 +117,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
     }
 
     function reprocess(file: OpenXDA.Types.DataFile) {
-       
+        setShowWarning('loading')
         $.ajax({
             type: "GET",
             url: `${homePath}api/OpenXDA/DataFile/Reprocess/${selectedID.FileGroupID}` ,
@@ -133,7 +129,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
     }
 
     function reprocessAll() {
-
+        setShowWarning('loading')
         $.ajax({
             type: "POST",
             url: `${homePath}api/OpenXDA/DataFile/ReprocessMany`,
@@ -332,10 +328,10 @@ const ByFile: Application.Types.iByComponent = (props) => {
                 
             </Modal>
             <Modal Show={showWarning == 'complete'} Size={'sm'} Title={'Started Reprocessing'} CallBack={(c) => setShowWarning('hide')} ShowCancel={false} ShowX={true} ConfirmText={'Close'}>
-                openXDA has begun to reprocess this file. Note that this may take several minutes.
+                openXDA has begun to reprocess the selected file(s). Note that this may take several minutes.
             </Modal>
             <Modal Show={showWarning == 'error'} Size={'sm'} Title={'Error Reprocessing'} CallBack={(c) => setShowWarning('hide')} ShowCancel={false} ShowX={true} ConfirmText={'Close'}>
-                openXDA was unable to reprocess this file. If this error continues to occur please contact your system administrator.
+                openXDA was unable to reprocess the selected file(s). If this error continues to occur please contact your system administrator.
             </Modal>
         </div>
     )
