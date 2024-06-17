@@ -120,8 +120,7 @@ export namespace OpenXDA {
         ID: number,
         Name: string,
         Type: string,
-        Setting: string,
-        Enabled: boolean
+        Setting: string
     }
 
 }
