@@ -25,7 +25,6 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { AssetAttributes } from './Asset';
-import {   } from '../../../TS/Services/Asset';
 import LineSegmentAttributes from './LineSegment';
 import { LoadingScreen, Modal, Warning, Search, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
 import { ReactTable } from '@gpa-gemstone/react-table';
@@ -181,7 +180,7 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
                     SortKey={'AssetLocationID'}
                     Ascending={true}
                         OnSort={(d) => { }}
-                    TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+                    TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden', height: '100%'}}
                     TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
                     RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
