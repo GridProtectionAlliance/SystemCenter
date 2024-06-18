@@ -76,7 +76,7 @@ function Applications(props: IProps) {
     }, [dispatch, status, parentID]);
 
     React.useEffect(() => {
-        dispatch(PQApplicationsSlice.Sort({ SortField: sortField, Ascending: ascending}));
+        dispatch(PQApplicationsSlice.Sort({ SortField: sortField, Ascending: ascending }));
     }, [ascending, sortField]);
 
     React.useEffect(() => {
@@ -88,7 +88,7 @@ function Applications(props: IProps) {
 
     React.useEffect(() => {
         if (Options.length > 0)
-            setEditApplication({ ...EditApplication, Image: Options[0], CategoryID: props.ID})
+            setEditApplication({ ...EditApplication, Image: Options[0], CategoryID: props.ID })
     }, [Options]);
 
     function getTileImages() {
@@ -109,7 +109,7 @@ function Applications(props: IProps) {
     }
 
     return (
-        <div className="card" style={{ marginBottom: 10, maxHeight: window.innerHeight - 215 }}>
+        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
@@ -117,7 +117,7 @@ function Applications(props: IProps) {
                     </div>
                 </div>
             </div>
-            <div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto' }}>
+            <div className="card-body" style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
                 <ReactTable.Table<PQApplications>
                     TableClass="table table-hover"
                     Data={data}
@@ -134,9 +134,10 @@ function Applications(props: IProps) {
                             setSortField(d.colField);
                         }
                     }}
+                    TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
                     OnClick={(item) => { setEditApplication(item.row); setShowModal(true); setHasChanged(false); }}
                     TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                    TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1, width: '100%' }}
                     RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     Selected={(item) => false}
                     KeySelector={(item) => item.ID}
@@ -174,15 +175,15 @@ function Applications(props: IProps) {
                     > Image
                     </ReactTable.Column>
                 </ReactTable.Table>
-                <div className="card-footer">
-                    <div className="btn-group mr-2">
-                        <button className={"btn btn-primary"} onClick={() => {
-                            { setShowModal(true); setHasChanged(false); setEditApplication({ ...EmptyApplication, Image: (Options.length > 0 ? Options[0] : EmptyApplication.Image), CategoryID: props.ID }) }
-                        }} data-tooltip={'New'} >Add Application</button>
-                    </div>
+            </div>
+            <div className="card-footer">
+                <div className="btn-group mr-2">
+                    <button className={"btn btn-primary"} onClick={() => {
+                        { setShowModal(true); setHasChanged(false); setEditApplication({ ...EmptyApplication, Image: (Options.length > 0 ? Options[0] : EmptyApplication.Image), CategoryID: props.ID }) }
+                    }} data-tooltip={'New'} >Add Application</button>
                 </div>
             </div>
-            <Modal Title={isNew(EditApplication) ?  'Add New Application' : 'Edit ' + (EditApplication?.Name ?? 'Application')}
+            <Modal Title={isNew(EditApplication) ? 'Add New Application' : 'Edit ' + (EditApplication?.Name ?? 'Application')}
                 Show={showModal} ShowX={true} Size={'lg'} ShowCancel={!isNew(EditApplication)} ConfirmText={'Save'} CancelText={'Delete'}
                 CallBack={(conf, isBtn) => {
                     if (conf) {
