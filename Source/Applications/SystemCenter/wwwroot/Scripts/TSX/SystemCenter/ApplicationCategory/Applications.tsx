@@ -76,7 +76,7 @@ function Applications(props: IProps) {
     }, [dispatch, status, parentID]);
 
     React.useEffect(() => {
-        dispatch(PQApplicationsSlice.Sort({ SortField: sortField, Ascending: ascending}));
+        dispatch(PQApplicationsSlice.Sort({ SortField: sortField, Ascending: ascending }));
     }, [ascending, sortField]);
 
     React.useEffect(() => {
@@ -88,7 +88,7 @@ function Applications(props: IProps) {
 
     React.useEffect(() => {
         if (Options.length > 0)
-            setEditApplication({ ...EditApplication, Image: Options[0], CategoryID: props.ID})
+            setEditApplication({ ...EditApplication, Image: Options[0], CategoryID: props.ID })
     }, [Options]);
 
     function getTileImages() {
@@ -117,7 +117,7 @@ function Applications(props: IProps) {
                     </div>
                 </div>
             </div>
-            <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
+            <div className="card-body" style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
                 <ReactTable.Table<PQApplications>
                     TableClass="table table-hover"
                     Data={data}
