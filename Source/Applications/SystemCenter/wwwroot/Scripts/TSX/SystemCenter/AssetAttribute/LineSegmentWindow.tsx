@@ -73,8 +73,9 @@ function LineSegmentWindow(props: IProps): JSX.Element {
                 SortKey={'AssetName'}
                 Ascending={true}
                 OnSort={(d) => { }}
+                TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
                 TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
                 RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                 Selected={(item) => false}
                 KeySelector={(item) => item.ID}
@@ -175,14 +176,12 @@ function LineSegmentWindow(props: IProps): JSX.Element {
         )
 
     return (
-        <div className="card" style={{ marginBottom: 10 }}>
+        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="card-header">
                     {header}
             </div>
-            <div className="card-body">
-                <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
+            <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
                     {tableContent}
-                </div>
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">

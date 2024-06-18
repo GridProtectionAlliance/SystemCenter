@@ -154,7 +154,7 @@ function Asset(props: IProps) {
     }
     
     return (
-        <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
+        <div style={{ width: '100%', height: '100%', overflow: 'hidden', padding: 15, display: 'flex', flexDirection: 'column' }}>
             <div className="row">
                 <div className="col">
                     <h2>{asset != null ? asset.AssetName + ' (' + asset.AssetKey + ')': ''}</h2>
@@ -166,34 +166,16 @@ function Asset(props: IProps) {
             <hr />
 
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
-            <div className="tab-content" style={{maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
-            {tab === 'notes'? <div className={"tab-pane active"}>
-                    <NoteWindow ID={asset.ID} Type='Asset' />
-                </div>: null}
-                {tab === 'assetInfo'? <div className={"tab-pane active"}>
-                    <AssetInfoWindow Asset={asset} StateSetter={setAsset} />
-                </div>: null}
-                {tab === 'additionalFields'? <div className={"tab-pane active"}>
-                    <AdditionalFieldsWindow ID={asset.ID} Type={(assetType == null) ? "Asset" : assetType} Tab={tab}/>
-                </div>: null}
-                {tab === 'substations'? <div className={"tab-pane active"} >
-                    <AssetLocationWindow Asset={asset} />
-                </div>: null}
-                {tab === 'meters'? <div className={"tab-pane active"}>
-                    <AssetMeterWindow Asset={asset} />
-                </div>: null}
-                {tab == "channels" ? <div className={"tab-pane active" }>
-                    <AssetChannelWindow Name={asset.AssetName} ID={asset.ID}/>
-                </div> : null}
-                {tab === 'connections'? <div className={"tab-pane active"}>
-                    <AssetConnectionWindow Name={asset.AssetName} ID={asset.ID} TypeID={asset["AssetTypeID"]}/>
-                </div>: null }
-                {tab === 'sourceImpedances'? <div className={"tab-pane active"}>
-                    <SourceImpedanceWindow ID={asset.ID} />
-                </div> : null}
-                {tab === 'segments' ? <div className={"tab-pane active"} >
-                    <LineSegmentWindow ID={asset.ID} OnChange={() => { setForceReload( x=> !x) }} />
-                </div>: null}
+            <div className="tab-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                {tab === 'notes' ? <NoteWindow ID={asset.ID} Type='Asset' /> : null}
+                {tab === 'assetInfo' ? <AssetInfoWindow Asset={asset} StateSetter={setAsset} />: null}
+                {tab === 'additionalFields' ? <AdditionalFieldsWindow ID={asset.ID} Type={(assetType == null) ? "Asset" : assetType} Tab={tab} />: null}
+                {tab === 'substations' ? <AssetLocationWindow Asset={asset} />: null}
+                {tab === 'meters' ? <AssetMeterWindow Asset={asset} />: null}
+                {tab === "channels" ? <AssetChannelWindow Name={asset.AssetName} ID={asset.ID} />: null}
+                {tab === 'connections' ? <AssetConnectionWindow Name={asset.AssetName} ID={asset.ID} TypeID={asset["AssetTypeID"]} />: null}
+                {tab === 'sourceImpedances' ? <SourceImpedanceWindow ID={asset.ID} />: null}
+                {tab === 'segments' ? <LineSegmentWindow ID={asset.ID} OnChange={() => { setForceReload(x => !x) }} />: null}
             </div>
 
             <Warning Message={'This will permanently delete this Asset and cannot be undone.'} Show={showDelete} Title={'Delete ' + (asset?.AssetName ?? 'Asset')} CallBack={(conf) => { if (conf) deleteAsset(); setShowDelete(false); }} />

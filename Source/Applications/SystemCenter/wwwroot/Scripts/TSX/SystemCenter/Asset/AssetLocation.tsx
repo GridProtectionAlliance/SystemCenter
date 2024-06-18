@@ -123,7 +123,7 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
     }
 
     return (
-        <div className="card" style={{ marginBottom: 10 }}>
+        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
@@ -131,8 +131,8 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
                     </div>
                 </div>
             </div>
-            <div className="card-body">
-                <div style={{ width: '100%', maxHeight: window.innerHeight - 381, padding: 30 }}>
+            <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
+                <div style={{ width: '100%', height: '100%', padding: 30, display: 'flex', flexDirection: 'column' }}>
                     <ReactTable.Table<OpenXDA.Types.Location>
                         TableClass="table table-hover"
                         Data={locations}
@@ -151,8 +151,9 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
                                 setSortField(d.colField);
                             }
                         }}
+                        TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                        TbodyStyle={{ display: 'block', width: '100%', overflowY: 'auto', flex: 1 }}
                         RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         OnClick={handleSelect}
                         Selected={(item) => false}

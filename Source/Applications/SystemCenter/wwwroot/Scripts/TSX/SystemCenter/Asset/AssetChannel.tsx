@@ -140,7 +140,7 @@ const AssetChannelWindow = (props: IProps) => {
         </div>
 
     return (
-        <div className="card" style={{ marginBottom: 10 }}>
+        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
@@ -148,82 +148,81 @@ const AssetChannelWindow = (props: IProps) => {
                     </div>
                 </div>
             </div>
-            <div className="card-body">
-                <div style={{ width: '100%', maxHeight: window.innerHeight - 381, padding: 30 }}>
-                    <ReactTable.Table<ChannelDetail>
-                        TableClass="table table-hover"
-                        Data={assetChannels}
-                        SortKey={sortField}
-                        Ascending={ascending}
-                        OnSort={(d) => {
-                            if (d.colKey == sortField) {
-                                var ordered = _.orderBy(assetChannels, [d.colKey], [(!ascending ? "asc" : "desc")]);
-                                setAscending(!ascending);
-                                setAssetChannels(ordered);
-                            }
-                            else {
-                                var ordered = _.orderBy(assetChannels, [d.colKey], ["asc"]);
-                                setAscending(!ascending);
-                                setAssetChannels(ordered);
-                                setSortField(d.colField);
-                            }
-                        }}
-                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        Selected={(item) => false}
-                        KeySelector={(item) => item.ID}
-                    >
-                        <ReactTable.Column<ChannelDetail>
-                            Key={'Name'}
-                            AllowSort={true}
-                            Field={'Name'}
-                            HeaderStyle={{ width: '15%' }}
-                            RowStyle={{ width: '15%' }}
-                        > Channel Name
-                        </ReactTable.Column>
-                        <ReactTable.Column<ChannelDetail>
-                            Key={'MeterName'}
-                            AllowSort={true}
-                            Field={'MeterName'}
-                            HeaderStyle={{ width: '15%' }}
-                            RowStyle={{ width: '15%' }}
-                        > Meter Name
-                        </ReactTable.Column>
-                        <ReactTable.Column<ChannelDetail>
-                            Key={'AssetName'}
-                            AllowSort={true}
-                            Field={'AssetName'}
-                            HeaderStyle={{ width: '15%' }}
-                            RowStyle={{ width: '15%' }}
-                        > Asset Name
-                        </ReactTable.Column>
-                        <ReactTable.Column<ChannelDetail>
-                            Key={'MeasurementType'}
-                            AllowSort={true}
-                            Field={'MeasurementType'}
-                            HeaderStyle={{ width: '10%' }}
-                            RowStyle={{ width: '10%' }}
-                        > Type
-                        </ReactTable.Column>
-                        <ReactTable.Column<ChannelDetail>
-                            Key={'Phase'}
-                            AllowSort={true}
-                            Field={'Phase'}
-                            HeaderStyle={{ width: '10%' }}
-                            RowStyle={{ width: '10%' }}
-                        > Phase
-                        </ReactTable.Column>
-                        <ReactTable.Column<ChannelDetail>
-                            Key={'Description'}
-                            AllowSort={true}
-                            Field={'Description'}
-                            HeaderStyle={{ width: '35%' }}
-                            RowStyle={{ width: '35%' }}
-                        > Description
-                        </ReactTable.Column>
-                    </ReactTable.Table>
-                </div>
+            <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
+                <ReactTable.Table<ChannelDetail>
+                    TableClass="table table-hover"
+                    Data={assetChannels}
+                    SortKey={sortField}
+                    Ascending={ascending}
+                    OnSort={(d) => {
+                        if (d.colKey == sortField) {
+                            var ordered = _.orderBy(assetChannels, [d.colKey], [(!ascending ? "asc" : "desc")]);
+                            setAscending(!ascending);
+                            setAssetChannels(ordered);
+                        }
+                        else {
+                            var ordered = _.orderBy(assetChannels, [d.colKey], ["asc"]);
+                            setAscending(!ascending);
+                            setAssetChannels(ordered);
+                            setSortField(d.colField);
+                        }
+                    }}
+                    TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
+                    RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    Selected={(item) => false}
+                    KeySelector={(item) => item.ID}
+                >
+                    <ReactTable.Column<ChannelDetail>
+                        Key={'Name'}
+                        AllowSort={true}
+                        Field={'Name'}
+                        HeaderStyle={{ width: '15%' }}
+                        RowStyle={{ width: '15%' }}
+                    > Channel Name
+                    </ReactTable.Column>
+                    <ReactTable.Column<ChannelDetail>
+                        Key={'MeterName'}
+                        AllowSort={true}
+                        Field={'MeterName'}
+                        HeaderStyle={{ width: '15%' }}
+                        RowStyle={{ width: '15%' }}
+                    > Meter Name
+                    </ReactTable.Column>
+                    <ReactTable.Column<ChannelDetail>
+                        Key={'AssetName'}
+                        AllowSort={true}
+                        Field={'AssetName'}
+                        HeaderStyle={{ width: '15%' }}
+                        RowStyle={{ width: '15%' }}
+                    > Asset Name
+                    </ReactTable.Column>
+                    <ReactTable.Column<ChannelDetail>
+                        Key={'MeasurementType'}
+                        AllowSort={true}
+                        Field={'MeasurementType'}
+                        HeaderStyle={{ width: '10%' }}
+                        RowStyle={{ width: '10%' }}
+                    > Type
+                    </ReactTable.Column>
+                    <ReactTable.Column<ChannelDetail>
+                        Key={'Phase'}
+                        AllowSort={true}
+                        Field={'Phase'}
+                        HeaderStyle={{ width: '10%' }}
+                        RowStyle={{ width: '10%' }}
+                    > Phase
+                    </ReactTable.Column>
+                    <ReactTable.Column<ChannelDetail>
+                        Key={'Description'}
+                        AllowSort={true}
+                        Field={'Description'}
+                        HeaderStyle={{ width: '35%' }}
+                        RowStyle={{ width: '35%' }}
+                    > Description
+                    </ReactTable.Column>
+                </ReactTable.Table>
             </div>
             <div className="card-footer">
             </div>
