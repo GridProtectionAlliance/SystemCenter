@@ -59,7 +59,7 @@ const ChannelGroupInfoWindow = (props: { Record: SystemCenter.Types.ChannelGroup
                     </div>
                 </div>
             </div>
-            <div className="card-body" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <div className="card-body" style={{ flex: 1, overflowY: 'auto' }}>
                 <ChannelGroupForm Record={record} Setter={(r) => setRecord(r)} />
             </div>
             <div className="card-footer">
