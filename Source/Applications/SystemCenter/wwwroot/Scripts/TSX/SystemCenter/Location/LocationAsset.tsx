@@ -281,7 +281,7 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
     const assetChanged = !_.isEqual(editAsset, newEditAsset);
 
     return (
-        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <div className="card" style={{ flex: 1, overflow: 'hidden' }}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
@@ -289,7 +289,7 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
                     </div>
                 </div>
             </div>
-            <div className="card-body" style={{ flex: 1, overflowY: 'auto' }}>
+            <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
                 <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
                     <ReactTable.Table<OpenXDA.Types.Asset>
                         TableClass="table table-hover"
