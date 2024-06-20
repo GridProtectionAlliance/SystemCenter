@@ -91,9 +91,9 @@ export default function ChannelGroupDetails(props: IProps) {
                     </div>
                 </div>
             </div>
-            <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
-                <div className="row">
-                    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', padding: 0 }}>
+            <div className="card-body" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
                         <ReactTable.Table<SystemCenter.Types.ChannelGroupDetails>
                             TableClass="table table-hover"
                             Data={data}
