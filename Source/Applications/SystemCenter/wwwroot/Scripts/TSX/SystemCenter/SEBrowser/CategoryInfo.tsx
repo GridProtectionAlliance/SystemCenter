@@ -61,7 +61,7 @@ export default function CategoryInfo(props: IProps) {
                     </div>
                 </div>
             </div>
-            <div className="card-body" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <div className="card-body" style={{ flex: 1, overflow: 'auto' }}>
                 <CategoryForm Category={tab} stateSetter={setTab} setErrors={setError} />
             </div>
             <div className="card-footer">
