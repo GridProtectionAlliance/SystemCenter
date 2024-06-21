@@ -239,7 +239,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
 
     return (
         <>
-            <div style={{ width: '100%', height: '100%' }}>
+            <div className="container-fluid d-flex h-100 flex-column">
                 <DefaultSearch.AssetGroup Slice={AssetGroupSlice} GetEnum={getEnum} StorageID="AssetGroupsFilter" GetAddlFields={() => { return () => {}}} >
                         <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
                             <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
@@ -253,7 +253,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
                             </fieldset>
                     </li>
                 </DefaultSearch.AssetGroup>
-                <div style={{ width: '100%', height: 'calc( 100% - 180px)' }}>
+                <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
                     <ReactTable.Table<OpenXDA.Types.AssetGroup>
                         TableClass="table table-hover"
                         Data={data}
@@ -267,8 +267,12 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
                             }
                         }}
                         OnClick={handleSelect}
+                        TableStyle={{
+                            padding: 0, width: '100%', height: '100%',
+                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column', marginBottom: 0
+                        }}
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
                         RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
