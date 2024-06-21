@@ -93,7 +93,7 @@ const ByLocation: Application.Types.iByComponent = (props) => {
 
     React.useEffect(() => {
         if (searchStatus == 'changed' || searchStatus == 'unintiated')
-            dispatch(ByLocationSlice.DBSearch({filter: searchFields}));
+            dispatch(ByLocationSlice.DBSearch({ filter: searchFields }));
     }, [searchStatus])
 
     function getNewLocation() {
@@ -184,26 +184,26 @@ const ByLocation: Application.Types.iByComponent = (props) => {
     }
 
     return (
-        <div style={{ width: '100%', height: '100%' }}>
-            <DefaultSearch.Location Slice={ByLocationSlice} GetEnum={getEnum} GetAddlFields={getAdditionalFields} StorageID={'LocationsFilter'}> 
-            <li className="nav-item" style={{ width: '20%', paddingRight: 10 }}>
-                <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                    <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
-                    <form>
-                        <div className="form-group">
-                            <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0}
-                                onClick={(event) => { event.preventDefault(); setShowNew(true); }}>Add Substation</button>
-                        </div>
-                        <div className="form-group">
-                            <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0}
-                                onClick={(event) => { event.preventDefault(); setShowExtModal(true); }}>External Database</button>
-                        </div>
-                    </form>
-                </fieldset>
-            </li>
+        <div className="container-fluid d-flex h-100 flex-column">
+            <DefaultSearch.Location Slice={ByLocationSlice} GetEnum={getEnum} GetAddlFields={getAdditionalFields} StorageID={'LocationsFilter'}>
+                <li className="nav-item" style={{ width: '20%', paddingRight: 10 }}>
+                    <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                        <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
+                        <form>
+                            <div className="form-group">
+                                <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0}
+                                    onClick={(event) => { event.preventDefault(); setShowNew(true); }}>Add Substation</button>
+                            </div>
+                            <div className="form-group">
+                                <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0}
+                                    onClick={(event) => { event.preventDefault(); setShowExtModal(true); }}>External Database</button>
+                            </div>
+                        </form>
+                    </fieldset>
+                </li>
             </DefaultSearch.Location>
 
-            <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
+            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
                 <ReactTable.Table<SystemCenter.Types.DetailedLocation>
                     TableClass="table table-hover"
                     Data={data}
@@ -217,8 +217,12 @@ const ByLocation: Application.Types.iByComponent = (props) => {
                         }
                     }}
                     OnClick={handleSelect}
+                    TableStyle={{
+                        padding: 0, width: '100%', height: '100%',
+                        tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
+                    }}
                     TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                    TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
                     RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     Selected={(item) => false}
                     KeySelector={(item) => item.ID}
@@ -283,7 +287,7 @@ const ByLocation: Application.Types.iByComponent = (props) => {
                     <div className="col">
                         <Input<SystemCenter.Types.DetailedLocation> Record={newLocation} Label='Latitude' Field={'Latitude'} Feedback={'A numeric Latitude value between -180 and 180 is required.'} Valid={valid} Setter={setNewLocation} />
                         <Input<SystemCenter.Types.DetailedLocation> Record={newLocation} Label='Longitude' Field={'Longitude'} Feedback={'A numeric Longitude value between -180 and 180 is required.'} Valid={valid} Setter={setNewLocation} />
-                        <TextArea<SystemCenter.Types.DetailedLocation> Rows={3} Record={newLocation} Label='Description'  Field={'Description'} Valid={valid} Setter={setNewLocation} />
+                        <TextArea<SystemCenter.Types.DetailedLocation> Rows={3} Record={newLocation} Label='Description' Field={'Description'} Valid={valid} Setter={setNewLocation} />
                     </div>
                 </div>
             </Modal>
@@ -296,7 +300,7 @@ const ByLocation: Application.Types.iByComponent = (props) => {
             </Modal>
         </div>
     )
-   
+
 }
 
 export default ByLocation;
