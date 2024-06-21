@@ -65,6 +65,8 @@ export default function ConnectionPage(props: IProps) {
 
     const [asc, setAsc] = React.useState<boolean>(true);
     const [sortKey, setSortKey] = React.useState<string>('AssetName');
+    // state for tooltip on delete existing button
+    const [hoverOnDelete, setHoverOnDelete] = React.useState<boolean>(false);
 
     React.useEffect(() => {
         if (selectedAssetKey === undefined) return;
