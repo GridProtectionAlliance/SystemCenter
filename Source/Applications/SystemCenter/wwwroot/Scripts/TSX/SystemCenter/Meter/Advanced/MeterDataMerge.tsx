@@ -215,7 +215,7 @@ export default function DataMergeWindow(props: {
         : "UnknownKey";
 
     return <>
-        <div className="card" style={{ marginBottom: 10 }}>
+        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
@@ -223,8 +223,8 @@ export default function DataMergeWindow(props: {
                     </div>
                 </div>
             </div>
-            <div className="card-body">
-                <div style={{ maxHeight: window.innerHeight - 450, overflowX: "hidden", overflowY: "auto" }}>
+            <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
+                <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
                     <SearchBar<Meter>
                         CollumnList={searchColumns}
                         SetFilter={(flds) => setSearch(flds)}
@@ -246,8 +246,9 @@ export default function DataMergeWindow(props: {
                         Ascending={ascending}
                         OnSort={handleSort}
                         OnClick={(d) => setMergeMeter(d.row)}
+                        TableStyle={{ tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 660, width: '100%' }}
+                        TbodyStyle={{ display: 'block', width: '100%', overflowY: 'auto', flex: 1 }}
                         RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         Selected={(item) => item === mergeMeter}
                         KeySelector={(item) => item.ID}
