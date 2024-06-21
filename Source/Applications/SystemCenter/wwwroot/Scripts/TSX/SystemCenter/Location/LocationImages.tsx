@@ -63,8 +63,8 @@ const LocationImagesWindow = (props: { Location: OpenXDA.Types.Location }) => {
                     </div>
                 </div>
             </div>
-            <div className="card-body" style={{ flex: 1, overflowY: 'auto' }}>
-                <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
+            <div className="card-body">
+                <div style={{ width: '100%', height: '100%', padding: 30, flex: 1, overflowY: 'auto' }}>
                     {images.map((img, i) => <div className="col-xs-6 col-md-4 col-lg-2" key={i} onClick={() => {
                         setImage(img);
                     }}>
