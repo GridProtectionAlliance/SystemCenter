@@ -89,7 +89,7 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
     }
 
     return (
-        <div style={{ width: '100%', height: '100%' }}>
+        <div className="container-fluid d-flex h-100 flex-column">
             <SearchBar< SystemCenter.Types.ChannelGroup>
                 CollumnList={ChannelGroupSearchFields as Search.IField<SystemCenter.Types.ChannelGroup>[]}
                 SetFilter={(flds) => dispatch(ChannelGroupSlice.DBSearch({ filter: flds }))}
@@ -113,7 +113,7 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
                 </li>
             </SearchBar>
 
-            <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
+            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
                 <ReactTable.Table<SystemCenter.Types.ChannelGroup>
                     TableClass="table table-hover"
                     Data={data}
@@ -123,8 +123,12 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
                         dispatch(ChannelGroupSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                     }}
                     OnClick={handleSelect}
+                    TableStyle={{
+                        padding: 0, width: '100%', height: '100%',
+                        tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column', marginBottom: 0
+                    }}
                     TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                    TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
                     RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     Selected={(item) => false}
                     KeySelector={(item) => item.ID}
