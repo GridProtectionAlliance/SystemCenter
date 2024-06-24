@@ -213,8 +213,8 @@ export default function ConnectionPage(props: IProps) {
                 <div style={{ height: '40px', marginLeft: 'auto', marginRight: 'auto', marginTop: 'calc(50% - 20 px)' }}>
                     <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
                 </div>
-            </div>;
-    
+        </div>;
+        
     return <>
         <div className="row">
             <div className="d-none d-lg-block col-8 ">
@@ -288,32 +288,13 @@ export default function ConnectionPage(props: IProps) {
                         AllowSort={false}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
-                        Content={({ item }) => item.Connection.ID > 0 ?
-                            <div
-                                onMouseEnter={() => setHoverOnDelete(true)}
-                                onMouseLeave={() => setHoverOnDelete(false)}>
-                                <ToolTip
-                                    Show={hoverOnDelete}
-                                    Position={'bottom'}
-                                    Theme={'dark'}
-                                    Target={`delete-button-${item.Connection.ID}`}
-                                    Zindex={99999}>
-                                    <p>Existing connections cannot be deleted within New Meter Wizard </p>
-                                </ToolTip>
-                                <button
-                                    className="btn btn-sm"
-                                    disabled
-                                    data-tooltip={`delete-button-${item.Connection.ID}`}>
-                                    {TrashCan}
-                                </button>
-                            </div>
-                                :
-                            <button className="btn btn-sm"
-                                onClick={(e) => deleteAssetConnection(item.Connection)}>
-                                {TrashCan}
-                            </button>
+                        Content={({item}) => 
+                            <StatefulButton
+                                TargetID={item.Connection.ID}
+                                OnClick={(e) => deleteAssetConnection(item.Connection)}
+                            />
                         }
-                    > <p></p>
+                    >
                     </ReactTable.Column>
                 </ReactTable.Table>
             </div>
@@ -371,3 +352,39 @@ export default function ConnectionPage(props: IProps) {
     </>;
 }
 
+interface IButtonProps {
+    /**
+     * Callback fn to provide onClick functionality to button.
+     */
+    OnClick: (e: any) => void;
+    /**
+     * Property to give the ToolTip a target. Won't display tooltip without eMessage.
+     */
+    TargetID: number;
+}
+
+const StatefulButton: React.FC<IButtonProps> = ({ TargetID, OnClick }) => {
+    const [showToolTip, setShowToolTip] = React.useState(false);
+    return (
+        <>
+            <button
+                onMouseEnter={() => setShowToolTip(true)}
+                onMouseLeave={() => setShowToolTip(false)}
+                className={`btn btn-sm ${TargetID > 0 ? `disabled` : null}`}
+                data-tooltip={`button-${TargetID}`}
+                onClick={OnClick}
+            >
+                {TrashCan}
+            </button>
+            <ToolTip
+                Show={showToolTip}
+                Position={'bottom'}
+                Theme={'dark'}
+                Target={`button-${TargetID}`}
+                Zindex={99999}
+            >
+                <p>{`Existing connections cannot be deleted within New Meter Wizard`}</p>
+            </ToolTip>
+        </>
+    );
+};
