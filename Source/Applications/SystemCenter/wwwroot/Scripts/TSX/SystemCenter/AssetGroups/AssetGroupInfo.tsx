@@ -78,7 +78,7 @@ function AssetgroupInfoWindow(props: { AssetGroup: OpenXDA.Types.AssetGroup, Sta
 
     if (assetGroup == null) return null;
     return (
-        <div className="card" style={{ marginBottom: 10 }}>
+        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
@@ -86,8 +86,8 @@ function AssetgroupInfoWindow(props: { AssetGroup: OpenXDA.Types.AssetGroup, Sta
                     </div>
                 </div>
             </div>
-            <div className="card-body">
-                <div className="row" style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
+            <div className="card-body" style={{ flex: 1, overflowY: 'auto' }}>
+                <div className="row">
                     <div className="col">
                         <Input<OpenXDA.Types.AssetGroup> Record={assetGroup} Field={'Name'} Label={'Name'} Feedback={'A unique Name of less than 50 characters is required.'} Valid={valid} Setter={setAssetGroup} Disabled={hasPermissions()} />
                         <CheckBox<OpenXDA.Types.AssetGroup> Record={assetGroup} Field={'DisplayDashboard'} Label={'Show Asset Group in PQ Dashboard'} Setter={setAssetGroup} Disabled={hasPermissions()} />

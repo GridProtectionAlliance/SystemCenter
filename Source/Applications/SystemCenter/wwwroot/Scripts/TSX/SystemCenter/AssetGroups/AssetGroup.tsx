@@ -99,7 +99,7 @@ function AssetGroup(props: IProps) {
         { Id: "assetgroup", Label: "Asset Subgroups" }];
 
     return (
-        <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
+        <div style={{ width: '100%', height: '100%', overflow: 'hidden', padding: 15, display: 'flex', flexDirection: 'column' }}>
             <div className="row">
                 <div className="col">
                     <h2>{group.Name}</h2>
@@ -111,19 +111,13 @@ function AssetGroup(props: IProps) {
             <hr />
 
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
-            <div className="tab-content" style={{maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
-                <div className={"tab-pane " + (tab == "info" ? " active" : "fade")} id="info">
-                    <AssetgroupInfoWindow AssetGroup={group} StateSetter={(data) => dispatch(AssetGroupSlice.DBAction({ verb: 'PATCH', record: data }))} AllAssetGroups={allAssetGroup} />
-                </div>
-                <div className={"tab-pane " + (tab == "asset" ? " active" : "fade")} id="asset">
-                    <AssetAssetGroupWindow AssetGroupID={props.AssetGroupID} />
-                </div>
-                <div className={"tab-pane " + (tab == "meter" ? " active" : "fade")} id="meter">
-                    <MeterAssetGroupWindow AssetGroupID={props.AssetGroupID} />
-                </div>
-                <div className={"tab-pane " + (tab == "assetgroup" ? " active" : "fade")} id="assetgroup">
-                    <AssetGroupAssetGroupWindow AssetGroupID={props.AssetGroupID} />
-                </div>
+
+            <div className="tab-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                {tab === 'info' ? (
+                    <AssetgroupInfoWindow AssetGroup={group} StateSetter={(data) => dispatch(AssetGroupSlice.DBAction({ verb: 'PATCH', record: data }))} AllAssetGroups={allAssetGroup} /> ) : null}
+                {tab === 'asset' ? <AssetAssetGroupWindow AssetGroupID={props.AssetGroupID} /> : null}
+                {tab === 'meter' ? <MeterAssetGroupWindow AssetGroupID={props.AssetGroupID} /> : null}
+                {tab === 'assetgroup' ? <AssetGroupAssetGroupWindow AssetGroupID={props.AssetGroupID} /> : null}
             </div>
 
             <Warning Message={'This will permanently delete this Asset Group and cannot be undone.'} Show={showDelete} Title={'Delete ' + (group?.Name ?? 'Asset Group')} CallBack={(conf) => { if (conf) deleteAssetGroup(); setShowDelete(false); }} />
