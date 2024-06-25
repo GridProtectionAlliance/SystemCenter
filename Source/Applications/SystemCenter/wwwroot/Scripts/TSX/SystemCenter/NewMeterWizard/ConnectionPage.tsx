@@ -26,7 +26,7 @@ import * as _ from 'lodash';
 import { OpenXDA, Application } from '@gpa-gemstone/application-typings';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { AssetConnectionTypeSlice } from '../Store/Store';
-import { LoadingIcon, Modal, Search, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { LoadingIcon, Modal, Search, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
 import { ReactTable } from '@gpa-gemstone/react-table';
 import { CrossMark, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { cross } from 'd3';
@@ -211,8 +211,8 @@ export default function ConnectionPage(props: IProps) {
                 <div style={{ height: '40px', marginLeft: 'auto', marginRight: 'auto', marginTop: 'calc(50% - 20 px)' }}>
                     <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
                 </div>
-            </div>;
-    
+        </div>;
+        
     return <>
         <div className="row">
             <div className="d-none d-lg-block col-8 ">
@@ -286,13 +286,13 @@ export default function ConnectionPage(props: IProps) {
                         AllowSort={false}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
-                        Content={({ item }) => item.Connection.ID > 0 ? null :
-                            <button className="btn btn-sm"
-                                onClick={(e) => deleteAssetConnection(item.Connection)}>
-                                {TrashCan}
-                            </button>
+                        Content={({item}) => 
+                            <StatefulButton
+                                TargetID={item.Connection.ID}
+                                OnClick={(e) => deleteAssetConnection(item.Connection)}
+                            />
                         }
-                    > <p></p>
+                    >
                     </ReactTable.Column>
                 </ReactTable.Table>
             </div>
@@ -350,3 +350,39 @@ export default function ConnectionPage(props: IProps) {
     </>;
 }
 
+interface IButtonProps {
+    /**
+     * Callback fn to provide onClick functionality to button.
+     */
+    OnClick: (e: any) => void;
+    /**
+     * Property to give the ToolTip a target. Won't display tooltip without eMessage.
+     */
+    TargetID: number;
+}
+
+const StatefulButton: React.FC<IButtonProps> = ({ TargetID, OnClick }) => {
+    const [showToolTip, setShowToolTip] = React.useState(false);
+    return (
+        <>
+            <button
+                onMouseEnter={() => setShowToolTip(true)}
+                onMouseLeave={() => setShowToolTip(false)}
+                className={`btn btn-sm ${TargetID > 0 ? `disabled` : null}`}
+                data-tooltip={`button-${TargetID}`}
+                onClick={OnClick}
+            >
+                {TrashCan}
+            </button>
+            <ToolTip
+                Show={showToolTip}
+                Position={'bottom'}
+                Theme={'dark'}
+                Target={`button-${TargetID}`}
+                Zindex={99999}
+            >
+                <p>{`Existing connections cannot be deleted within New Meter Wizard`}</p>
+            </ToolTip>
+        </>
+    );
+};
