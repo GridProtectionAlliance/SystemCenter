@@ -60,6 +60,8 @@ export default function ChannelPage(props: IProps) {
     const [currentChannels, setCurrentChannels] = React.useState<OpenXDA.Types.Channel[]>([]);
     const [parsedChannels, setParsedChannels] = React.useState<OpenXDA.Types.Channel[]>([]);
     const [channelStatus, setChannelStatus] = React.useState<Application.Types.Status>('idle');
+    const [showVirtualChannelModal, setShowVirtualChannelModal] = React.useState<boolean>(false);
+    const [disableModalConfirm, setDisableModalConfirm] = React.useState<boolean>(true);
 
     const [sortKey, setSortKey] = React.useState<string>('Series');
     const [asc, setAsc] = React.useState<boolean>(false);
@@ -339,8 +341,8 @@ export default function ChannelPage(props: IProps) {
 
     return <>
         <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
-            <div className="row">
-                <div className="col-lg-2 col-4">
+            <div className="row justify-content-between">
+                <div className="col-lg-2 col text-center">
                     <TemplateWindow IsEngineer={props.IsEngineer} TrendChannels={props.TrendChannels}
                         Upload={(d, f) => {
                             setChannelStatus('loading');
@@ -355,40 +357,82 @@ export default function ChannelPage(props: IProps) {
                         </div>
                     </div>
                 </div>
-            <div className="col-4 col-lg-3 col-xl-2">
+                <div className="col col-lg-3 col-xl-2 text-center">
                     <BtnDropdown Label='Remove Spare' Callback={() => setShowSpareWarning(true)}
-                        Size={'sm'} Disabled={NSpare == 0}
-                    Options={[{
-                        Label: 'Remove All', Disabled: currentChannels.length === 0, Callback: () => {
-                            props.UpdateChannels(getCurrentChannels(!props.TrendChannels));
-                            setSelectedFile('');
+                        Size={'sm'}
+                        Disabled={NSpare == 0}
+                        Options={[{
+                            Label: 'Remove All', Disabled: currentChannels.length === 0, Callback: () => {
+                                props.UpdateChannels(getCurrentChannels(!props.TrendChannels));
+                                setSelectedFile('');
+                            }
+                        }]}
+                        ShowToolTip={true}
+                        BtnClass={'btn-primary' }
+                        TooltipContent={
+                            <>
+                            {NSpare == 0 ? <p>No spare channels were identified.</p> : null}
+                            {NSpare > 0 ? <p>Channels are considered Spare if the Description is
+                                "spare", "virtual spare", "voltage spare", "current spare", "spare virtual",
+                                "spare channel", "spare voltage", "spare current", "spare trigger" or they are digital with description "A00 analog channel 00". </p> : null}
+                            </>
                         }
-                    }]}
-                    ShowToolTip={true}
-                    BtnClass={'btn-primary' }
-                    TooltipContent={<>
-                        {NSpare == 0 ? <p>No spare channels were identified.</p> : null}
-                        {NSpare > 0 ? <p>Channels are considered Spare if the Description is
-                            "spare", "virtual spare", "voltage spare", "current spare", "spare virtual",
-                            "spare channel", "spare voltage", "spare current", "spare trigger" or they are digital with description "A00 analog channel 00". </p> : null}
-                    </>}
-                />
+                    />
                 </div>
-            <div className="d-none col-2 d-xl-block">
-                    <button className="btn btn-primary btn-block" disabled={currentChannels.length == 0} onClick={() => {
+                <div className="d-none col col-lg-2 d-xl-block text-center">
+                    <button className="btn btn-primary btn-sm" disabled={currentChannels.length == 0} onClick={() => {
                         setShowScaling(true);
                     }
                     }>Scale</button>
                 </div>
 
-                {props.TrendChannels ? null :
-                    <div className="col-4 col-lg-2">
-                        <button className="btn btn-primary btn-block" onClick={() => {
-                            let channel: OpenXDA.Types.Channel = { ID: props.Channels.length == 0 ? 1 : Math.max(...props.Channels.map(ch => ch.ID)) + 1, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0, Trend: false } as OpenXDA.Types.Channel
-                            let channels: Array<OpenXDA.Types.Channel> = [channel].concat(_.cloneDeep(props.Channels));
-                            props.UpdateChannels(channels);
-                        }}>Add</button>
-                    </div>}
+                {props.TrendChannels ? null :<>
+                    <div className="col col-lg-2">
+                        <BtnDropdown Label='Add'
+                            Callback={() => {
+                                let channel: OpenXDA.Types.Channel = {
+                                    ID: props.Channels.length == 0 ? 1 : Math.max(...props.Channels.map(ch => ch.ID)) + 1,
+                                    Meter: props.MeterKey, Asset: '',
+                                    MeasurementType: 'Voltage',
+                                    MeasurementCharacteristic: 'Instantaneous',
+                                    Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1,
+                                    SamplesPerHour: 0, PerUnitValue: null,
+                                    HarmonicGroup: 0, Description: 'Voltage AN',
+                                    Enabled: true, Series: [{
+                                        ID: 0,
+                                        ChannelID: 0,
+                                        SeriesType: 'Values',
+                                        SourceIndexes: ''
+                                    } as OpenXDA.Types.Series],
+                                    ConnectionPriority: 0, Trend: false
+                                } as OpenXDA.Types.Channel
+                                let channels: Array<OpenXDA.Types.Channel> = [channel].concat(_.cloneDeep(props.Channels));
+                                props.UpdateChannels(channels);
+                            }}
+                            BtnClass={'btn-primary'}
+                            Size={'sm'}
+                            Options={[
+                                {
+                                    Label: 'Add Virtual Channel', Callback: () => {setShowVirtualChannelModal(true)}
+                                }
+                            ]}
+                            
+                        />
+                    </div>
+                    <Modal
+                        Title={'Virtual Channel'}
+                        Show={showVirtualChannelModal}
+                        CallBack={() => { }}
+                        ConfirmText={'Add'}
+                        ConfirmBtnClass={'btn-primary'}
+                        DisableConfirm={disableModalConfirm}
+                        ShowCancel={true}
+                        Size={'lg'}
+                    >
+                    COOOOOOOOOOOOOOOOOOOOOOOOOOOOntent
+                    </Modal>
+                    </>
+                }
             </div>
             {props.TrendChannels && currentChannels.length == 0 ? <div className="row"> <div className="col-12">
                 <div className="alert alert-info">
