@@ -447,7 +447,7 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
             case lineSegmentStep:
                 return <MultipleAssetsPage Assets={lines} SkipExisting={false} GetInnerComponent={(currentAsset) => <LineSegmentWindow ID={currentAsset.ID} InnerOnly={true} />} />
             case additionalFieldAssetStep:
-                return <MultipleAssetsPage Assets={assets} SkipExisting={true} GetInnerComponent={(currentAsset) => <AdditionalFieldsWindow ID={currentAsset.ID} Type='Asset' InnerOnly={true} HideExternal={true} />}/>
+                return <MultipleAssetsPage Assets={assets} SkipExisting={true} GetInnerComponent={(currentAsset) => <AdditionalFieldsWindow ID={currentAsset.ID} Type={currentAsset.AssetType} InnerOnly={true} HideExternal={true} />}/>
             case customerAssetGroupMeterStep:
                 return <CustomerAssetGroupPage ID={meterID} Type={'Meter'} Name={meterInfo.AssetKey} SetWarning={setWarning} />
             case customerAssetGroupAssetStep:
