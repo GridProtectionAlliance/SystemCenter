@@ -87,7 +87,7 @@ function MDMKeys(props: IProps) {
 
     return (
         <>
-            <div className="card" style={{ marginBottom: 10 }}>
+            <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                 <div className="card-header">
                     <div className="row">
                         <div className="col">
@@ -95,8 +95,8 @@ function MDMKeys(props: IProps) {
                         </div>
                     </div>
                 </div>
-                <div className="card-body">
-                    <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540 }}>
+                <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
+                    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
                         <ReactTable.Table<SystemCenter.Types.LSCVSAccount>
                             TableClass="table table-hover"
                             Data={data}
@@ -110,8 +110,9 @@ function MDMKeys(props: IProps) {
                                     setSortField(d.colField);
                                 }
                             }}
+                            TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
                             TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                            TbodyStyle={{ display: 'block', width: '100%', overflowY: 'auto', flex: 1 }}
                             RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                             Selected={(item) => false}
                             KeySelector={(item) => item.ID}

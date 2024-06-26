@@ -99,7 +99,7 @@ export default function Customer(props: IProps) {
     }
 
     return (
-        <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
+        <div style={{ width: '100%', height: '100%', overflow: 'hidden', padding: 15, display: 'flex', flexDirection: 'column' }}>
             <div className="row">
                 <div className="col">
                     <h2>{customer != null ? customer.Name : ''}</h2>
@@ -111,25 +111,13 @@ export default function Customer(props: IProps) {
             <hr />
 
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
-            <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
-                <div className={"tab-pane " + (tab == "info" ? " active" : "fade")} id="customerInfo">
-                    <CustomerInfo Customer={customer} stateSetter={(record) => dispatch(CustomerSlice.DBAction({ verb: 'PATCH', record: record }))} />
-                </div>
-                <div className={"tab-pane " + (tab == "additionalFields" ? " active" : "fade")} id="additionalFields">
-                    <AdditionalFieldsWindow ID={customer.ID} Type='Customer' Tab={tab} />
-                </div>
-                <div className={"tab-pane " + (tab == "meters" ? " active" : "fade")} id="meters">
-                    <CustomerMeterWindow Customer={customer} />
-                </div>
-                <div className={"tab-pane " + (tab == "assets" ? " active" : "fade")} id="assets">
-                    <CustomerAssetWindow Customer={customer} />
-                </div>
-                <div className={"tab-pane " + (tab == "notes" ? " active" : "fade")} id="notes" >
-                    <NoteWindow ID={props.CustomerID} Type='Customer' />
-                </div>
-                <div className={"tab-pane " + (tab == "mdm" ? " active" : "fade")} id="mdm" >
-                    <MDMKeys CustomerID={customer.ID} />
-                </div>
+            <div className="tab-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                {tab === 'info' ? ( <CustomerInfo Customer={customer} stateSetter={(record) => dispatch(CustomerSlice.DBAction({ verb: 'PATCH', record: record }))} /> ) : null}
+                {tab === 'additionalFields' ? ( <AdditionalFieldsWindow ID={customer.ID} Type='Customer' Tab={tab} /> ) : null}
+                {tab === 'meters' ? <CustomerMeterWindow Customer={customer} /> : null}
+                {tab === 'assets' ? <CustomerAssetWindow Customer={customer} /> : null}
+                {tab === 'notes' ? <NoteWindow ID={props.CustomerID} Type='Customer' /> : null}
+                {tab === 'mdm' ? <MDMKeys CustomerID={customer.ID} /> : null}
             </div>
 
             <Warning Title={'Delete ' + (customer?.Name ?? 'Customer')} Show={showWarning} Message={'This will permanently delete this Customer.'} CallBack={(c) => { if (c) deleteCustomer(); setShowWarning(false)}} />
