@@ -371,7 +371,9 @@ const ByAsset: Application.Types.iByComponent = (props) => {
                 }
             </div>
             <div className='row'>
-                <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p-1)} />
+                <div className="col">
+                    <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p - 1)} />
+                </div>
             </div>
             <Modal Show={showNewModal} Size={'xlg'} Title={'Add New Asset'}
                 ConfirmText={'Save'}
