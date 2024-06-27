@@ -74,6 +74,17 @@ function AssetInfoWindow(props: IProps) {
     const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
     const roles = useAppSelector(SelectRoles);
 
+    const titleTypeName = React.useMemo(() => {
+        switch (editAsset.AssetType) {
+            case 'LineSegment': return 'Line';
+            case 'CapacitorBank': return 'Capacitor Bank';
+            case 'CapacitorBankRelay': return 'Capacitor Bank Relay';
+            case 'StationAux': return 'Station Auxiliary';
+            case 'StationBattery': return 'Station Battery';
+            default: return editAsset.AssetType;
+        }
+    }, [editAsset.AssetType]);
+
     React.useEffect(() => {
         setState('loading')
         let handle = getAssetTypes();
@@ -333,7 +344,7 @@ function AssetInfoWindow(props: IProps) {
             <div className="card-header">
                 <div className="row">
                     <div className="col">
-                        <h4>Asset Information:</h4>
+                        <h4>{titleTypeName} Information:</h4>
                     </div>
                 </div>
             </div>
@@ -376,7 +387,7 @@ function AssetInfoWindow(props: IProps) {
         <div className="card-header">
             <div className="row">
                 <div className="col">
-                    <h4>{editAsset.AssetType === 'LineSegment' ? 'Line Segment' : 'Asset'} Information:</h4>
+                    <h4>{titleTypeName} Information:</h4>
                 </div>
             </div>
         </div>
