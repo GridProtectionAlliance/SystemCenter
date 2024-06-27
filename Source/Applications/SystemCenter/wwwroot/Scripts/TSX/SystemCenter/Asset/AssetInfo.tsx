@@ -383,7 +383,7 @@ function AssetInfoWindow(props: IProps) {
         <div className="card-body" style={{ flex: 1, overflowY: 'auto' }}>
             <div className="row">
                 <div className="col">
-                    <AssetAttributes.AssetAttributeFields Asset={editAsset} NewEdit='Edit' AssetTypes={assetTypes} AllAssets={allAssets} UpdateState={setEditAsset} GetDifferentAsset={() => { }} HideAssetType={editAsset.AssetType === 'LineSegment'} HideSelectAsset={true} />
+                    <AssetAttributes.AssetAttributeFields Asset={editAsset} NewEdit='Edit' AssetTypes={assetTypes} AllAssets={allAssets} UpdateState={setEditAsset} GetDifferentAsset={() => { }} HideAssetType={true} HideSelectAsset={true} />
                     <AdditionalFieldsProperties ID={editAsset.ID} ParentTable={"Asset"} AddlFieldSaveRef={saveAddlAsset} SetChangedList={setAddlFieldChangedAsset} SetErrorList={setAddlFieldErrorAsset} ResetAddlFieldRef={resetAddlAsset} SingleColumn={true} />
                 </div>
                 <div className="col">
