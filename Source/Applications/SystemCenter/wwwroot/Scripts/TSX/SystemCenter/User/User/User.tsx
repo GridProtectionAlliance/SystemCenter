@@ -75,7 +75,7 @@ function User(props: IProps) {
 	];
 
 	return (
-		<div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
+		<div style={{ width: '100%', height: '100%', overflow: 'hidden', padding: 15, display: 'flex', flexDirection: 'column' }}>
 			<div className="row">
 				<div className="col">
 					<h2>{user != null ? `${user.FirstName} ${user.LastName} (${user.DisplayName})` : ''}</h2>
@@ -88,14 +88,10 @@ function User(props: IProps) {
 			<hr />
 
 			<TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
-			<div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
-				<div className={"tab-pane " + (tab === "userInfo" ? " active" : "fade")}>
-					<UserInfo AccountId={props.UserID} />
-				</div>
-				<div className={"tab-pane " + (tab === "permissions" ? " active" : "fade")}>
-					{user == null ? null : <UserPermissions UserID={user.ID} />}
-				</div>
-				<div className={"tab-pane " + (tab === "additionalFields" ? " active" : "fade")} style={{ maxHeight: window.innerHeight - 215 }}>
+			<div className="tab-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+				{tab === "userInfo" ? <UserInfo AccountId={props.UserID} /> : null}
+				{tab === "permissions" ? (user == null ? null : <UserPermissions UserID={user.ID} />) : null}
+				{tab === "additionalFields" ? (
 					<AdditionalField
 						Id={props.UserID}
 						EmptyField={{ ID: -1, IsSecure: false, FieldName: '', Type: 'string' }}
@@ -106,7 +102,7 @@ function User(props: IProps) {
 						FieldUI={(fld, setter) => <CheckBox<Application.Types.iAdditionalUserField> Record={fld} Field='IsSecure' Label="Secure Data" Setter={setter} />}
 						CreateValue={(fld) => ({ Value: '', ID: 0, UserAccountID: props.UserID, AdditionalUserFieldID: fld.ID })}
 					/>
-				</div>
+				) : null}
 			</div>
 
 			<Warning Message={
