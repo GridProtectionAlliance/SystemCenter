@@ -74,6 +74,17 @@ function AssetInfoWindow(props: IProps) {
     const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
     const roles = useAppSelector(SelectRoles);
 
+    const titleTypeName = React.useMemo(() => {
+        switch (editAsset.AssetType) {
+            case 'LineSegment': return 'Line';
+            case 'CapacitorBank': return 'Capacitor Bank';
+            case 'CapacitorBankRelay': return 'Capacitor Bank Relay';
+            case 'StationAux': return 'Station Auxiliary';
+            case 'StationBattery': return 'Station Battery';
+            default: return editAsset.AssetType;
+        }
+    }, [editAsset.AssetType]);
+
     React.useEffect(() => {
         setState('loading')
         let handle = getAssetTypes();
@@ -333,7 +344,7 @@ function AssetInfoWindow(props: IProps) {
             <div className="card-header">
                 <div className="row">
                     <div className="col">
-                        <h4>Asset Information:</h4>
+                        <h4>{titleTypeName} Information:</h4>
                     </div>
                 </div>
             </div>
@@ -376,14 +387,14 @@ function AssetInfoWindow(props: IProps) {
         <div className="card-header">
             <div className="row">
                 <div className="col">
-                    <h4>{editAsset.AssetType === 'LineSegment' ? 'Line Segment' : 'Asset'} Information:</h4>
+                    <h4>{titleTypeName} Information:</h4>
                 </div>
             </div>
         </div>
         <div className="card-body" style={{ flex: 1, overflowY: 'auto' }}>
             <div className="row">
                 <div className="col">
-                    <AssetAttributes.AssetAttributeFields Asset={editAsset} NewEdit='Edit' AssetTypes={assetTypes} AllAssets={allAssets} UpdateState={setEditAsset} GetDifferentAsset={() => { }} HideAssetType={editAsset.AssetType === 'LineSegment'} HideSelectAsset={true} />
+                    <AssetAttributes.AssetAttributeFields Asset={editAsset} NewEdit='Edit' AssetTypes={assetTypes} AllAssets={allAssets} UpdateState={setEditAsset} GetDifferentAsset={() => { }} HideAssetType={true} HideSelectAsset={true} />
                     <AdditionalFieldsProperties ID={editAsset.ID} ParentTable={"Asset"} AddlFieldSaveRef={saveAddlAsset} SetChangedList={setAddlFieldChangedAsset} SetErrorList={setAddlFieldErrorAsset} ResetAddlFieldRef={resetAddlAsset} SingleColumn={true} />
                 </div>
                 <div className="col">
