@@ -90,8 +90,8 @@ export default function ResultDisplay(props: IProps) {
             Label = { 'Could not query external database table. Please contact your administrator.'}
             />
     
-        <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-            <div className="col" style={{ flex: 1, overflow: 'hidden' }}>
+        <div className="row" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <div className="col" style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
                 {countstatus !== 'error' && datastatus !== 'error' ?
                     <FilterableTable<any>
                         cols={cols}
@@ -111,12 +111,9 @@ export default function ResultDisplay(props: IProps) {
                         onClick={(d) => {
                             if (props.OnSelection !== undefined) props.OnSelection!(d.row);
                         }}
-                        tableStyle={{
-                            padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
-                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
-                        }}
+                        tableStyle={{ padding: 0, width: '100%', height: '100%', tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
                         theadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                        tbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
                         rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', overflowX: 'scroll' }}
                         selected={(item) => props.Selected === undefined? false : props.Selected!(item) ?? false}
                     /> : null}
