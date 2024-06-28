@@ -103,7 +103,7 @@ const WidgetByCategory = (props: IProps) => {
         </div>
 
     return <>
-    <div className="card" style={{ marginBottom: 10 }}>
+    <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <div className="card-header">
             <div className="row">
                 <div className="col">
@@ -111,8 +111,8 @@ const WidgetByCategory = (props: IProps) => {
                 </div>
             </div>
         </div>
-        <div className="card-body">
-            <div style={{ width: '100%', height: window.innerHeight - 420 }}>
+        <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
+            <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', padding: 0 }}>
                 <ReactTable.Table<EventWidget.IWidgetView>
                     TableClass="table table-hover"
                     Data={data}
@@ -123,9 +123,10 @@ const WidgetByCategory = (props: IProps) => {
                             return;
 
                         dispatch(SEBrowserWidgetViewSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
-                    }}
+                        }}
+                    TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
                     TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 500, width: '100%' }}
+                    TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1, width: '100%' }}
                     RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     Selected={(item) => false}
                     KeySelector={(item) => item.ID}
