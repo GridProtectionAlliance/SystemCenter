@@ -70,73 +70,71 @@ export default function ValueListGroupItems(props: IProps) {
                 </div>
             </div>
             <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
-                <div className="row">
-                    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', padding: 0 }}>
-                        <ReactTable.Table<SystemCenter.Types.ValueListItem>
-                            TableClass="table table-hover"
-                            Data={data}
-                            SortKey={sortKey}
-                            Ascending={asc}
-                            OnSort={(d) => {
-                                if (d.colKey == 'btns')
-                                    return;
-                                if (d.colKey === sortKey)
-                                    dispatch(ValueListSlice.Sort({ SortField: d.colField, Ascending: !asc }));
-                                else
-                                    dispatch(ValueListSlice.Sort({ SortField: d.colField, Ascending: true }));
-                            }}
-                            TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
-                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1, width: '100%' }}
-                            RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            Selected={(item) => false}
-                            KeySelector={(item) => item.ID}
-                        >
-                            <ReactTable.Column<SystemCenter.Types.ValueListItem>
-                                Key={'Value'}
-                                AllowSort={true}
-                                Field={'Value'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                            > Value
-                            </ReactTable.Column>
-                            <ReactTable.Column<SystemCenter.Types.ValueListItem>
-                                Key={'AltValue'}
-                                AllowSort={true}
-                                Field={'AltValue'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                            > Label
-                            </ReactTable.Column>
-                            <ReactTable.Column<SystemCenter.Types.ValueListItem>
-                                Key={'SortOrder'}
-                                AllowSort={true}
-                                Field={'SortOrder'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                            > Sort Order
-                            </ReactTable.Column>
-                            <ReactTable.Column<SystemCenter.Types.ValueListItem>
-                                Key={'btns'}
-                                AllowSort={false}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                                Content={({ item }) => <>
-                                    <button className="btn btn-sm" onClick={(e) => {
-                                        e.preventDefault();
-                                        setRecord(item);
-                                        setShowModal(true);
-                                    }}>{Pencil}</button>
-                                    <button className="btn btn-sm" onClick={(e) => {
-                                        e.preventDefault();
-                                        setRecord(item);
-                                        setShowWarning(true)
-                                    }}>{TrashCan}</button>
-                                </> }
-                            > <p></p>
-                            </ReactTable.Column>
-                        </ReactTable.Table>
-                    </div>
+                <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', padding: 0 }}>
+                    <ReactTable.Table<SystemCenter.Types.ValueListItem>
+                        TableClass="table table-hover"
+                        Data={data}
+                        SortKey={sortKey}
+                        Ascending={asc}
+                        OnSort={(d) => {
+                            if (d.colKey == 'btns')
+                                return;
+                            if (d.colKey === sortKey)
+                                dispatch(ValueListSlice.Sort({ SortField: d.colField, Ascending: !asc }));
+                            else
+                                dispatch(ValueListSlice.Sort({ SortField: d.colField, Ascending: true }));
+                        }}
+                        TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1, width: '100%' }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        Selected={(item) => false}
+                        KeySelector={(item) => item.ID}
+                    >
+                        <ReactTable.Column<SystemCenter.Types.ValueListItem>
+                            Key={'Value'}
+                            AllowSort={true}
+                            Field={'Value'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Value
+                        </ReactTable.Column>
+                        <ReactTable.Column<SystemCenter.Types.ValueListItem>
+                            Key={'AltValue'}
+                            AllowSort={true}
+                            Field={'AltValue'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Label
+                        </ReactTable.Column>
+                        <ReactTable.Column<SystemCenter.Types.ValueListItem>
+                            Key={'SortOrder'}
+                            AllowSort={true}
+                            Field={'SortOrder'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Sort Order
+                        </ReactTable.Column>
+                        <ReactTable.Column<SystemCenter.Types.ValueListItem>
+                            Key={'btns'}
+                            AllowSort={false}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={({ item }) => <>
+                                <button className="btn btn-sm" onClick={(e) => {
+                                    e.preventDefault();
+                                    setRecord(item);
+                                    setShowModal(true);
+                                }}>{Pencil}</button>
+                                <button className="btn btn-sm" onClick={(e) => {
+                                    e.preventDefault();
+                                    setRecord(item);
+                                    setShowWarning(true)
+                                }}>{TrashCan}</button>
+                            </> }
+                        > <p></p>
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
             </div>
             <div className="card-footer">
