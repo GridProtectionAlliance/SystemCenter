@@ -130,7 +130,7 @@ export default function DataDeleteWindow(props: {
     }
 
     return <>
-        <div className="card" style={{ marginBottom: 10 }}>
+        <div className="card" style={{ flex: 1, overflow: 'hidden' }}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
@@ -138,8 +138,8 @@ export default function DataDeleteWindow(props: {
                     </div>
                 </div>
             </div>
-            <div className="card-body">
-                <div style={{ maxHeight: window.innerHeight - 450, overflowX: 'hidden', overflowY: 'auto' }}>
+            <div className="card-body" style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+                <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
                     <form>
                         <div className="form-group row">
                             <DateInput
