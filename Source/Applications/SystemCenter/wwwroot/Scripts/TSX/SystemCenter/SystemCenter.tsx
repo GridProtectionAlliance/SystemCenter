@@ -177,7 +177,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                             </ul>
 
                             <div hidden={roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0}>
-                                <hr />
+                            <hr />
                             </div>
                             <h6 style={{ fontWeight: 'bold', marginLeft: 10 }} className="sidebar-heading" hidden={roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0}>File Processing</h6>
                             <ul style={{ marginLeft: 10 }} className="nav flex-column" hidden={roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0}>
@@ -201,9 +201,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                             <div hidden={roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0}>
                                 <hr />
                             </div>
-                            <h6 style={{ fontWeight: 'bold', marginLeft: 10 }} className="sidebar-heading" hidden={roles.indexOf('Administrator') < 0 && roles.indexOf("Engineer") < 0}>External Links</h6>
-                            <ul style={{ marginLeft: 10 }} className="nav flex-column" hidden={roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0}>
-                                <li className="nav-item" hidden={roles.indexOf('Administrator') < 0 && roles.indexOf("Engineer") < 0}>
+                            <h6 style={{ fontWeight: 'bold', marginLeft: 10 }} className="sidebar-heading" hidden={roles.indexOf('Administrator') < 0 && roles.indexOf("Transmission SME") < 0}>External Links</h6>
+                            <ul style={{ marginLeft: 10 }} className="nav flex-column" hidden={roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0}>
+                                <li className="nav-item" hidden={roles.indexOf('Administrator') < 0 && roles.indexOf("Transmission SME") < 0}>
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=RemoteXDAInstance")} to={controllerViewPath + "?name=RemoteXDAInstanceMain"}>Remote openXDA Instances</NavLink>
                                 </li>
                                 <li className="nav-item" hidden={roles.indexOf('Administrator') < 0}>
@@ -215,7 +215,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                             </ul>
 
                             <div hidden={roles.indexOf('Administrator') < 0}>
-                                <hr />
+                            <hr />
                             </div>
                             <h6 style={{ fontWeight: 'bold', marginLeft: 10 }} className="sidebar-heading" hidden={roles.indexOf('Administrator') < 0}>UI Configuration</h6>
                             <ul style={{ marginLeft: 10 }} className="nav flex-column" hidden={roles.indexOf('Administrator') < 0}>
