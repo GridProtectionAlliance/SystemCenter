@@ -1,26 +1,3 @@
-//******************************************************************************************************
-//  ExternalDBForm.tsx - Gbtc
-//
-//  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
-//
-//  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
-//  the NOTICE file distributed with this work for additional information regarding copyright ownership.
-//  The GPA licenses this file to you under the MIT License (MIT), the "License"; you may not use this
-//  file except in compliance with the License. You may obtain a copy of the License at:
-//
-//      http://opensource.org/licenses/MIT
-//
-//  Unless agreed to in writing, the subject software distributed under the License is distributed on an
-//  "AS-IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. Refer to the
-//  License for the specific language governing permissions and limitations.
-//
-//  Code Modification History:
-//  ----------------------------------------------------------------------------------------------------
-//  11/4/2021 - Samuel Robinson
-//       Generated original version of source code.
-//
-//******************************************************************************************************
-
 import * as React from 'react';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { Input, TextArea, CheckBox } from '@gpa-gemstone/react-forms';
@@ -80,7 +57,8 @@ export default function ExternalDBForm(props: {
             }
             <button className="btn btn-primary pull-left" hidden={!(props.ShowTestButton ?? false)}
                 onClick={TestExternal}>Test DB Connection</button>
-            <Modal Title="Connection Test Results" Show={requestStatus === 'error' || requestStatus === 'idle'} ConfirmBtnClass={'btn-secondary'} ConfirmText={'Close'}
+            <Modal Title="Connection Test Results" Show={requestStatus === 'error' || requestStatus === 'idle'}
+                ConfirmBtnClass={requestStatus === 'idle' ? 'btn-success' : 'btn-danger'} ConfirmText={'Close'}
                 ShowX={true} ShowCancel={false} Size={'sm'} CallBack={() => setRequestStatus('unintiated')}>
                 <p>{requestStatus === 'idle' ? "Connection to database successful." : "Unable to connect to external database. Check connection settings."}</p>
             </Modal>
