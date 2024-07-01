@@ -35,7 +35,7 @@ const ValueListInfoWindow = (props: { Record: SystemCenter.Types.ValueListGroup 
 
     if (record == null) return;
     return (
-        <div className="card" style={{ marginBottom: 10 }}>
+        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
@@ -43,7 +43,7 @@ const ValueListInfoWindow = (props: { Record: SystemCenter.Types.ValueListGroup 
                     </div>
                 </div>
             </div>
-            <div className="card-body">
+            <div className="card-body" style={{ flex: 1, overflowY: 'auto' }}>
                 <ValueListGroupForm Record={record} Setter={(r) => setRecord(r)} />
             </div>
             <div className="card-footer">
