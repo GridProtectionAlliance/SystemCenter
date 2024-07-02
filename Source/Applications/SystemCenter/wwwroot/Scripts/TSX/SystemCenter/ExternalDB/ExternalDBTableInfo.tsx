@@ -72,7 +72,7 @@ export default function ExternalDBInfo(props: { Record: SystemCenter.Types.Detai
                             </div>
                         </div>
                     </div>
-                    <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
+                    <div className="card-body" style={{ flex: 1, overflowY: 'auto' }}>
                         <ExternalDBTableForm Record={record} Setter={setRecord} ShowTestButton={true} />
                     </div>
                     <div className="card-footer">

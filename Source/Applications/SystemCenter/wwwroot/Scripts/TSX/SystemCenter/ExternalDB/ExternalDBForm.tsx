@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  ExternalDBForm.tsx - Gbtc
 //
-//  Copyright Â© 2020, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -80,7 +80,8 @@ export default function ExternalDBForm(props: {
             }
             <button className="btn btn-primary pull-left" hidden={!(props.ShowTestButton ?? false)}
                 onClick={TestExternal}>Test DB Connection</button>
-            <Modal Title="Connection Test Results" Show={requestStatus === 'error' || requestStatus === 'idle'} ConfirmBtnClass={'btn-secondary'} ConfirmText={'Close'}
+            <Modal Title="Connection Test Results" Show={requestStatus === 'error' || requestStatus === 'idle'}
+                ConfirmBtnClass={requestStatus === 'idle' ? 'btn-success' : 'btn-danger'} ConfirmText={'Close'}
                 ShowX={true} ShowCancel={false} Size={'sm'} CallBack={() => setRequestStatus('unintiated')}>
                 <p>{requestStatus === 'idle' ? "Connection to database successful." : "Unable to connect to external database. Check connection settings."}</p>
             </Modal>
