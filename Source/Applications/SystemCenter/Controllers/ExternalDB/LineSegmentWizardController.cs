@@ -207,7 +207,7 @@ public class LineSegmentWizardController : ApiController
                 }
             }
 
-            Func<(string key, string segmentNumber)> generatekey = () =>
+            Func<string> generatekey = () =>
             {
                 int i = 1;
                 string key = line.AssetKey + "-S" + i.ToString("00");
@@ -217,15 +217,15 @@ public class LineSegmentWizardController : ApiController
                     i++;
                     key = line.AssetKey + "-S" + i.ToString("00");
                 }
-                return (key, i.ToString("00"));
+                return i.ToString("00");
             };
 
             // Add any new Segments
             List<Segment> newSegments = record.Sections.SelectMany(s => s.Segments).Where(s => s.ID == 0).ToList();
             foreach (Segment newSegment in newSegments)
             {
-                (string key, string segmentNumber) = generatekey();
-                string assetName = newSegment.AssetName + " Line Segment " + segmentNumber;
+                string key = generatekey();
+                string assetName = newSegment.AssetName + " Line Segment " + key;
                 LineSegment segment = new LineSegment()
                 {
                     R0 = newSegment.R0,
@@ -233,7 +233,7 @@ public class LineSegmentWizardController : ApiController
                     X1 = newSegment.X1,
                     X0 = newSegment.X0,
                     Length = newSegment.Length,
-                    AssetKey = key,
+                    AssetKey = line.AssetKey + "-S" + key,
                     AssetName = assetName,
                     FromBus = newSegment.FromBus,
                     ToBus = newSegment.ToBus,

@@ -102,8 +102,8 @@ function SectionEdit(props: IProps): JSX.Element {
 
     function generateKey() {
         let key = 1;
-        const IDs = props.Section.Segments.map((segment) => segment.AssetKey.slice(-2));
-        while (IDs.includes(key.toString().padStart(2, '0'))) {
+        const assetKeys = props.Section.Segments.map((segment) => segment.AssetKey.slice(-2));
+        while (assetKeys.includes(key.toString().padStart(2, '0'))) {
             key++;
         }
         return key.toString().padStart(2, '0');
