@@ -191,7 +191,7 @@ function AdditionalField(props: IProps) {
 				</div>
 
 			</div>
-			<div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
+			<div className="card-body" style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
 				<ReactTable.Table<Application.Types.iAdditionalUserField>
 					TableClass="table table-hover"
 					Data={fields}
