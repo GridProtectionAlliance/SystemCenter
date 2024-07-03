@@ -100,13 +100,23 @@ function SectionEdit(props: IProps): JSX.Element {
         props.SetSection({ ...props.Section, Segments: updated })
     }
 
+    function generateKey() {
+        let key = 1;
+        const IDs = props.Section.Segments.map((segment) => segment.AssetKey.slice(-2));
+        while (IDs.includes(key.toString().padStart(2, '0'))) {
+            key++;
+        }
+        return key.toString().padStart(2, '0');
+    }
+
     function addSegment() {
+        const key = generateKey();
         const newSegment: ISegment = {
             ID: 0,
             VoltageKV: 0,
-            AssetKey: props.LineKey + '-S1',
+            AssetKey: props.LineKey + ' -S' + key,
             Description: '',
-            AssetName: 'Segment 1',
+            AssetName: props.LineName + ' Line Segment ' + key,
             AssetType: 'LineSegment',
             Spare: false,
             Channels: [],
