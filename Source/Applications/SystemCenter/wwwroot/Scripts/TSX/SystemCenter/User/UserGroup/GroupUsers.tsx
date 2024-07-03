@@ -94,7 +94,7 @@ const GroupUser = (props: {Group: ISecurityGroup}) => {
                 </div>
             </div>
             <LoadingScreen Show={status === 'loading'} />
-            <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
+            <div className="card-body" style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
                 {props.Group.Type == 'Azure' ? <div className="alert alert-info">
                     Users in an Azure Group cannot be edited in System Center. To add or remove Users, please contact your Azure Administrator.
                 </div> : null}
