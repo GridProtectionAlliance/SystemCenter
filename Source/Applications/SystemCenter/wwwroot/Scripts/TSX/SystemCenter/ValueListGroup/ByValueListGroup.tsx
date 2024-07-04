@@ -58,7 +58,7 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
 
     React.useEffect(() => {
         if (status == 'unintiated' || status == 'changed')
-            dispatch(ValueListGroupSlice.DBSearch({ filter: search, sortField: sortField, ascending: ascending}));
+            dispatch(ValueListGroupSlice.DBSearch({ filter: search, sortField: sortField, ascending: ascending }));
 
         return function () {
         }
@@ -84,9 +84,9 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
 
 
     return (
-        <div style={{ width: '100%', height: '100%' }}>
+        <div className="container-fluid d-flex h-100 flex-column">
             <SearchBar< SystemCenter.Types.ValueListGroup>
-                CollumnList={SearchFields.ValueListGroup as Search.IField<SystemCenter.Types.ValueListGroup>[] }
+                CollumnList={SearchFields.ValueListGroup as Search.IField<SystemCenter.Types.ValueListGroup>[]}
                 SetFilter={(flds) => setSearch(flds)}
                 Direction={'left'}
                 defaultCollumn={DefaultSearchField.ValueListGroup as Search.IField<SystemCenter.Types.ValueListGroup>}
@@ -126,7 +126,7 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
                 </li>
             </SearchBar>
 
-            <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
+            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
                 <ReactTable.Table<SystemCenter.Types.ValueListGroup>
                     TableClass="table table-hover"
                     Data={data}
@@ -139,8 +139,12 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
                             setAscending(!d.ascending)
                     }}
                     OnClick={handleSelect}
+                    TableStyle={{
+                        padding: 0, width: '100%', height: '100%',
+                        tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column', marginBottom: 0
+                    }}
                     TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                    TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
                     RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     Selected={(item) => false}
                     KeySelector={(item) => item.ID}
@@ -167,7 +171,7 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
                         Field={'Items'}
                         HeaderStyle={{ width: '10%' }}
                         RowStyle={{ width: '10%' }}
-                        Content={({ item }) => items.filter(i => i.GroupID == item.ID).length }
+                        Content={({ item }) => items.filter(i => i.GroupID == item.ID).length}
                     > Items
                     </ReactTable.Column>
                 </ReactTable.Table>
@@ -191,4 +195,3 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
 }
 
 export default ValueListGroups;
-
