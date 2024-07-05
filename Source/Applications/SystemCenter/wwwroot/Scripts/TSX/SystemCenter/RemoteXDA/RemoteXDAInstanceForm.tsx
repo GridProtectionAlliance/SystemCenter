@@ -124,9 +124,12 @@ export default function RemoteXDAInstanceForm(props: IProps) {
 
     React.useEffect(() => {
         let e = [];
-        if (!RemoteXDAInstanceComparator(props.BaseInstance, formInstance) && !hasPermissions()) { e.push("Your role does not have permission. Please contact your Administrator if you believe this to be in error."); }
-        else { e.push("No changes made."); }
+        const formModified = RemoteXDAInstanceComparator(props.BaseInstance, formInstance);
 
+        if (formModified && !hasPermissions())
+            e.push("Your role does not have permission. Please contact your Administrator if you believe this to be in error.");
+        if (!formModified)
+            e.push("No changes made.");
         if (!valid('Name'))
             e.push('A Name of less than 200 characters is required.');
         if (!valid('Address'))
@@ -214,24 +217,26 @@ export default function RemoteXDAInstanceForm(props: IProps) {
         <div id='rXDAFormRoot'>
             {loading ? <LoadingScreen Show={true} /> :
                 <form>
-                    <div className="col" style={{ width: '50%', float: "left" }}>
-                        <Input<OpenXDA.Types.RemoteXDAInstance> Record={formInstance} Field={'Name'} Label={'Name'} Feedback={"A Name of less than 200 characters is required."} Valid={valid} Setter={setFormInstance} Disabled={!hasPermissions()} />
-                        <Input<OpenXDA.Types.RemoteXDAInstance> Record={formInstance} Field={'Address'} Label={'URL'} Feedback={"A URL of less than 200 characters is required."} Valid={valid} Setter={setFormInstance} Disabled={!hasPermissions()} />
-                        <Input<OpenXDA.Types.RemoteXDAInstance> Record={formInstance} Field={'Frequency'} Label={'Frequency'} Feedback={"Frequency in a valid cron format is required."} Valid={valid} Setter={setFormInstance} Help={'In order of minutes, hours, day of the month, month, weekday. For example, a Frequency of every midnight would be * 0 * * *'}
-                            Disabled={!hasPermissions()}/>
-                    </div>
-                    <div className="col" style={{ width: '50%', float: "right" }}>
-                        <Input<Application.Types.iUserAccount> Record={instanceUser} Field={'Name'} Label={'User'} Valid={() => instanceUser.Name !== null} Setter={() => { }} Disabled={true} />
-                        <button type="button" className={"btn btn-primary btn-block" + (hasPermissions() ? '' : ' disabled')} data-tooltip='EditUser' onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')}
+                    <div className="row">
+                        <div className="col-6">
+                            <Input<OpenXDA.Types.RemoteXDAInstance> Record={formInstance} Field={'Name'} Label={'Name'} Feedback={"A Name of less than 200 characters is required."} Valid={valid} Setter={setFormInstance} Disabled={!hasPermissions()} />
+                            <Input<OpenXDA.Types.RemoteXDAInstance> Record={formInstance} Field={'Address'} Label={'URL'} Feedback={"A URL of less than 200 characters is required."} Valid={valid} Setter={setFormInstance} Disabled={!hasPermissions()} />
+                            <Input<OpenXDA.Types.RemoteXDAInstance> Record={formInstance} Field={'Frequency'} Label={'Frequency'} Feedback={"Frequency in a valid cron format is required."} Valid={valid} Setter={setFormInstance} Help={'In order of minutes, hours, day of the month, month, weekday. For example, a Frequency of every midnight would be * 0 * * *'}
+                                Disabled={!hasPermissions()} />
+                        </div>
+                        <div className="col-6">
+                            <Input<Application.Types.iUserAccount> Record={instanceUser} Field={'Name'} Label={'User'} Valid={() => instanceUser.Name !== null} Setter={() => { }} Disabled={true} />
+                            <button type="button" className={"btn btn-primary btn-block" + (hasPermissions() ? '' : ' disabled')} data-tooltip='EditUser' onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')}
                                 onClick={() => { if (hasPermissions()) setShowUserSearch(true); }}> Add or Change User </button>
-                        {formInstance.ID > 0 ? <>
+                            {formInstance.ID > 0 ? <>
 
-                            <button type="button" className={"btn btn-primary btn-block" + (hasPermissions() ? '' : ' disabled')} data-tooltip='TestConnection' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}
-                                onClick={() => { if (hasPermissions()) testConnection }}> Test Remote Connection </button>
+                                <button type="button" className={"btn btn-primary btn-block" + (hasPermissions() ? '' : ' disabled')} data-tooltip='TestConnection' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}
+                                    onClick={() => { if (hasPermissions()) testConnection() }}> Test Remote Connection </button>
 
-                            <button type="button" className={"btn btn-primary btn-block" + (hasPermissions() ? '' : ' disabled')} data-tooltip='PushRemote' onMouseEnter={() => setHover('reset')} onMouseLeave={() => setHover('none')}
-                                onClick={() => { if (hasPermissions()) pushRemoteConfig }}> Push Meters and Assets to Remote </button>
-                        </> : null}
+                                <button type="button" className={"btn btn-primary btn-block" + (hasPermissions() ? '' : ' disabled')} data-tooltip='PushRemote' onMouseEnter={() => setHover('reset')} onMouseLeave={() => setHover('none')}
+                                    onClick={() => { if (hasPermissions()) pushRemoteConfig() }}> Push Meters and Assets to Remote </button>
+                            </> : null}
+                        </div>
                     </div>
                     <ToolTip Show={hover == 'submit' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"TestConnection"}>
                         {<p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>}
@@ -296,7 +301,7 @@ export default function RemoteXDAInstanceForm(props: IProps) {
                     GetEnum={() => () => { }}
                     GetAddlFields={() => () => { }}
                 />
-                </>, portalContainer) : null}
+            </>, portalContainer) : null}
         </div>
     );
 }
