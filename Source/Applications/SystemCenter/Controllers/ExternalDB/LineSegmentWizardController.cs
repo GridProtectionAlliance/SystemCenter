@@ -224,8 +224,8 @@ public class LineSegmentWizardController : ApiController
             List<Segment> newSegments = record.Sections.SelectMany(s => s.Segments).Where(s => s.ID == 0).ToList();
             foreach (Segment newSegment in newSegments)
             {
-                string key = generatekey();
-                string assetName = newSegment.AssetName + " Line Segment " + key;
+                string num = generatekey();
+                string key = line.AssetKey + "-S" + num;
                 LineSegment segment = new LineSegment()
                 {
                     R0 = newSegment.R0,
@@ -233,8 +233,8 @@ public class LineSegmentWizardController : ApiController
                     X1 = newSegment.X1,
                     X0 = newSegment.X0,
                     Length = newSegment.Length,
-                    AssetKey = line.AssetKey + "-S" + key,
-                    AssetName = assetName,
+                    AssetKey = key,
+                    AssetName = newSegment.AssetName,
                     FromBus = newSegment.FromBus,
                     ToBus = newSegment.ToBus,
                     Description = newSegment.Description,
