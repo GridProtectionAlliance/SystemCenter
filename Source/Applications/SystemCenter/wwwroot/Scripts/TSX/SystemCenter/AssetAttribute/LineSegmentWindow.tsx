@@ -32,7 +32,7 @@ import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
 import { ToolTip } from '@gpa-gemstone/react-interactive';
 
-interface IProps { ID: number, InnerOnly?: boolean, OnChange?: () => void; }
+interface IProps { ID: number, InnerOnly?: boolean, OnChange?: () => void; LineKey: string; LineName: string; }
 function LineSegmentWindow(props: IProps): JSX.Element {
     const [segments, setSegments] = React.useState<Array<OpenXDA.Types.LineSegment>>([]);
     const [showFawg, setShowFawg] = React.useState<boolean>(false);
@@ -162,7 +162,7 @@ function LineSegmentWindow(props: IProps): JSX.Element {
                 > End?
                 </ReactTable.Column>
             </ReactTable.Table>
-            {showFawg ? <LineSegmentWizard LineID={props.ID} closeWizard={() => { setShowFawg(false); getSegments(); }} LineKey={''} LineName={''} /> : null}
+            {showFawg ? <LineSegmentWizard LineID={props.ID} LineKey={props.LineKey} LineName={props.LineName} closeWizard={() => { setShowFawg(false); getSegments(); }} /> : null}
         </>);
     const wizardButton = (<button className={"btn btn-primary" + ((props.InnerOnly ?? false) ? " pull-right" : "") + (!hasPermissions() ? ' disabled' : '')} data-tooltip='LineSegWiz'
         onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={(evt) => { if (hasPermissions()) setShowFawg(true)}}>Line Segment Wizard</button>);

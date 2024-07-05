@@ -175,7 +175,7 @@ function Asset(props: IProps) {
                 {tab === "channels" ? <AssetChannelWindow Name={asset.AssetName} ID={asset.ID} />: null}
                 {tab === 'connections' ? <AssetConnectionWindow Name={asset.AssetName} ID={asset.ID} TypeID={asset["AssetTypeID"]} />: null}
                 {tab === 'sourceImpedances' ? <SourceImpedanceWindow ID={asset.ID} />: null}
-                {tab === 'segments' ? <LineSegmentWindow ID={asset.ID} OnChange={() => { setForceReload(x => !x) }} />: null}
+                {tab === 'segments' ? <LineSegmentWindow ID={asset.ID} LineKey={asset.AssetKey} LineName={asset.AssetName} OnChange={() => { setForceReload(x => !x) }} />: null}
             </div>
 
             <Warning Message={'This will permanently delete this Asset and cannot be undone.'} Show={showDelete} Title={'Delete ' + (asset?.AssetName ?? 'Asset')} CallBack={(conf) => { if (conf) deleteAsset(); setShowDelete(false); }} />

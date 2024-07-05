@@ -210,21 +210,22 @@ public class LineSegmentWizardController : ApiController
             Func<string> generatekey = () =>
             {
                 int i = 1;
-                string key = line.AssetKey + "-S" + i;
+                string key = line.AssetKey + "-S" + i.ToString("00");
                 TableOperations<Asset> assetTbl = new TableOperations<Asset>(connection);
                 while (assetTbl.QueryRecordCountWhere("Assetkey = {0}", key) > 0)
                 {
                     i++;
-                    key = line.AssetKey + "-S" + i;
+                    key = line.AssetKey + "-S" + i.ToString("00");
                 }
-                return key;
+                return i.ToString("00");
             };
 
             // Add any new Segments
             List<Segment> newSegments = record.Sections.SelectMany(s => s.Segments).Where(s => s.ID == 0).ToList();
             foreach (Segment newSegment in newSegments)
             {
-                string key = generatekey();
+                string num = generatekey();
+                string key = line.AssetKey + "-S" + num;
                 LineSegment segment = new LineSegment()
                 {
                     R0 = newSegment.R0,
