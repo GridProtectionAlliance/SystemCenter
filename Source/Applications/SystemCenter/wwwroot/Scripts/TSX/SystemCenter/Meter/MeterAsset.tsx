@@ -24,7 +24,6 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-
 import BusAttributes from '../AssetAttribute/Bus';
 import BreakerAttributes from '../AssetAttribute/Breaker';
 import CapBankAttributes from '../AssetAttribute/CapBank';
@@ -33,9 +32,9 @@ import TransformerAttributes from '../AssetAttribute/Transformer';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { getAssetTypes, getAssetWithAdditionalFields } from '../../../TS/Services/Asset';
 import { DBActionAsset, DBMeterAction, SelectAssetStatus } from '../Store/AssetSlice'
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { ReactTable, Paging } from '@gpa-gemstone/react-table';
 import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
-import { Warning, Modal, LoadingScreen, ToolTip } from '@gpa-gemstone/react-interactive';
+import { Warning, Modal, LoadingScreen, ToolTip, GenericController, Search, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import DERAttributes from '../AssetAttribute/DER';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import AssetSelect from '../Asset/AssetSelect';
@@ -49,6 +48,9 @@ declare var homePath: string;
 interface IProps { Meter: OpenXDA.Types.Meter }
 
 const MeterAssetWindow = (props: IProps) => {
+    const MeterAssetController = new GenericController<OpenXDA.Types.MeterAsset>(`${homePath}api/OpenXDA/DetailedMeterAsset/${props.Meter.ID}`, "AssetName", true);
+    const PagingID = 'MeterAssetPage'
+
     const [assetTypes, setAssetTypes] = React.useState<OpenXDA.Types.AssetType[]>([]);
     const [newEdit, setNewEdit] = React.useState<Application.Types.NewEdit>('New');
 
@@ -56,18 +58,22 @@ const MeterAssetWindow = (props: IProps) => {
     const [showEditNew, setShoweditNew] = React.useState<boolean>(false);
     const [showDeleteWarning, setShowDeleteWarning] = React.useState<boolean>(false);
 
-    const [showLoading, setShowLoading] = React.useState<boolean>(false);
     const [showSelect, setShowSelect] = React.useState<boolean>(false);
 
     // Asset Slice Consts
+    const [data, setData] = React.useState<OpenXDA.Types.MeterAsset[]>([]);
     const dispatch = useAppDispatch();
     const status = useAppSelector(SelectAssetStatus) as Application.Types.Status;
     const [sortKey, setSortKey] = React.useState<keyof OpenXDA.Types.MeterAsset>('AssetName');
     const [ascending, setAscending] = React.useState<boolean>(true);
-    const [allAssets, setAllAssets] = React.useState<OpenXDA.Types.MeterAsset[]>([]);
 
     const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
     const roles = useAppSelector(SelectRoles);
+
+    // Pagination states
+    const [page, setPage] = React.useState<number>(0);
+    const [pageInfo, setPageInfo] = React.useState<{ RecordsPerPage: number, NumberOfPages: number, TotalRecords: number }>({ RecordsPerPage: 0, NumberOfPages: 0, TotalRecords: 0 });
+    const [pageState, setPageState] = React.useState<'error' | 'idle' | 'loading'>('idle');
 
     React.useEffect(() => {
         let h = getAssetTypes()
@@ -79,28 +85,15 @@ const MeterAssetWindow = (props: IProps) => {
     }, []);
 
     React.useEffect(() => {
+        const storedInfo = JSON.parse(localStorage.getItem(PagingID) as string);
+        if (storedInfo == null) return;
+        setPage(storedInfo);
+    }, []);
 
-        setShowLoading(true);
+    React.useEffect(() => {
+        localStorage.setItem(PagingID, JSON.stringify(page));
+    }, [page]);
 
-        const handle = $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/DetailedMeterAsset/${props.Meter.ID}/${sortKey}/${ascending ? 1 : 0}`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: true,
-            async: true
-        });
-
-        handle.done((jsonString) => {
-            const meterAssets = JSON.parse(jsonString);
-            setAllAssets(meterAssets);
-        });
-
-        return () => {
-            if (handle != null && handle.abort != null)
-                handle.abort();
-        };
-    }, [props.Meter, sortKey, ascending, status]);
 
     React.useEffect(() => {
         setPageState('loading');
@@ -139,104 +132,104 @@ const MeterAssetWindow = (props: IProps) => {
                         </div>
                     </div>
                 </div>
-                <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
-                            <div style={{ width: '100%', height: '100%', padding: 30, display: 'flex', flexDirection: 'column' }}>
-                                <ReactTable.Table<OpenXDA.Types.MeterAsset>
-                                    TableClass="table table-hover"
-                                    Data={allAssets}
-                                    SortKey={sortKey}
-                                    Ascending={ascending}
-                                    OnSort={(d) => {
-                                        if (d.colKey === 'EditDelete')
-                                            return;
-                                        if (d.colKey == sortKey)
-                                            setAscending(!ascending);
-                                        else {
-                                            setAscending(true);
-                                            setSortKey(d.colKey as keyof OpenXDA.Types.Asset);
-                                        }
-                                    }}
-                                    TableStyle={{ tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
-                                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                    TbodyStyle={{ display: 'block', width: '100%', overflowY: 'auto', flex: 1 }}
-                                    RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                    Selected={(item) => false}
-                                    KeySelector={(item) => item.ID}
-                                >
-                                    <ReactTable.Column<OpenXDA.Types.MeterAsset>
-                                        Key={'AssetKey'}
-                                        AllowSort={true}
-                                        Field={'AssetKey'}
-                                        HeaderStyle={{ width: 'calc(20%-16px)' }}
-                                        RowStyle={{ width: 'calc(20%-16px)' }}
-                                    > Key
-                                    </ReactTable.Column>
-                                    <ReactTable.Column<OpenXDA.Types.MeterAsset>
-                                        Key={'AssetName'}
-                                        AllowSort={true}
-                                        Field={'AssetName'}
-                                        HeaderStyle={{ width: 'calc(30%-16px)' }}
-                                        RowStyle={{ width: 'calc(30%-16px)' }}
-                                    > Name
-                                    </ReactTable.Column>
-                                    <ReactTable.Column<OpenXDA.Types.MeterAsset>
-                                        Key={'AssetType'}
-                                        AllowSort={true}
-                                        Field={'AssetType'}
-                                        HeaderStyle={{ width: 'calc(10%-16px)' }}
-                                        RowStyle={{ width: 'calc(10%-16px)' }}
-                                    > Type
-                                    </ReactTable.Column>
-                                    <ReactTable.Column<OpenXDA.Types.MeterAsset>
-                                        Key={'VoltageKV'}
-                                        AllowSort={true}
-                                        Field={'VoltageKV'}
-                                        HeaderStyle={{ width: 'calc(5%-16x)' }}
-                                        RowStyle={{ width: 'calc(5%-16x)' }}
-                                    > Base kV
-                                    </ReactTable.Column>
-                                    <ReactTable.Column<OpenXDA.Types.MeterAsset>
-                                        Key={'FaultDetectionLogic'}
-                                        AllowSort={true}
-                                        Field={'FaultDetectionLogic'}
-                                        HeaderStyle={{ width: 'calc(10%-16px)' }}
-                                        RowStyle={{ width: 'calc(10%-16px)' }}
-                                    > Fault Detection Logic
-                                    </ReactTable.Column>
-                                    <ReactTable.Column<OpenXDA.Types.MeterAsset>
-                                        Key={'Designation'}
-                                        AllowSort={true}
-                                        Field={'Designation'}
-                                        HeaderStyle={{ width: 'calc(10%-16px)' }}
-                                        RowStyle={{ width: 'calc(10%-16px)' }}
-                                    > Designation
-                                    </ReactTable.Column>
-                                    <ReactTable.Column<OpenXDA.Types.MeterAsset>
-                                        Key={'EditDelete'}
-                                        AllowSort={false}
-                                        HeaderStyle={{ width: 80, paddingLeft: 0, paddingRight: 5 }}
-                                        RowStyle={{ width: 80, paddingLeft: 0, paddingRight: 5 }}
-                                        Content={({ item }) => <>
-                                            <button className={"btn btn-sm" + (hasPermissions() ? '' : ' disabled')}
-                                                onClick={(e) => {
-                                                    if (hasPermissions()) {
-                                                        e.preventDefault();
-                                                        setActiveAsset(item.ID, item.AssetType);
-                                                        setShoweditNew(true);
-                                                    }
-                                                }}><span>{Pencil}</span></button>
-                                            <button className={"btn btn-sm" + (hasPermissions() ? '' : ' disabled')}
-                                                onClick={(e) => {
-                                                    if (hasPermissions()) {
-                                                        e.preventDefault();
-                                                        setActiveAsset(item.ID, item.AssetType);
-                                                        setShowDeleteWarning(true)
-                                                    }
-                                                }}><span>{TrashCan}</span></button>
-                                        </>}
-                                    > <p></p>
-                                    </ReactTable.Column>
-                                </ReactTable.Table>
+                <div className="card-body" style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden', paddingBottom: '0px' }}>
+                    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                        <ReactTable.Table<OpenXDA.Types.MeterAsset>
+                            TableClass="table table-hover"
+                            Data={data}
+                            SortKey={sortKey}
+                            Ascending={ascending}
+                            OnSort={(d) => {
+                                if (d.colKey === 'EditDelete')
+                                    return;
+                                if (d.colKey == sortKey)
+                                    setAscending(!ascending);
+                                else {
+                                    setAscending(true);
+                                    setSortKey(d.colKey as keyof OpenXDA.Types.Asset);
+                                }
+                            }}
+                            TableStyle={{ tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            TbodyStyle={{ display: 'block', width: '100%', overflowY: 'auto', flex: 1 }}
+                            RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            Selected={(item) => false}
+                            KeySelector={(item) => item.ID}
+                        >
+                            <ReactTable.Column<OpenXDA.Types.MeterAsset>
+                                Key={'AssetKey'}
+                                AllowSort={true}
+                                Field={'AssetKey'}
+                                HeaderStyle={{ width: 'calc(20%-16px)' }}
+                                RowStyle={{ width: 'calc(20%-16px)' }}
+                            > Key
+                            </ReactTable.Column>
+                            <ReactTable.Column<OpenXDA.Types.MeterAsset>
+                                Key={'AssetName'}
+                                AllowSort={true}
+                                Field={'AssetName'}
+                                HeaderStyle={{ width: 'calc(30%-16px)' }}
+                                RowStyle={{ width: 'calc(30%-16px)' }}
+                            > Name
+                            </ReactTable.Column>
+                            <ReactTable.Column<OpenXDA.Types.MeterAsset>
+                                Key={'AssetType'}
+                                AllowSort={true}
+                                Field={'AssetType'}
+                                HeaderStyle={{ width: 'calc(10%-16px)' }}
+                                RowStyle={{ width: 'calc(10%-16px)' }}
+                            > Type
+                            </ReactTable.Column>
+                            <ReactTable.Column<OpenXDA.Types.MeterAsset>
+                                Key={'VoltageKV'}
+                                AllowSort={true}
+                                Field={'VoltageKV'}
+                                HeaderStyle={{ width: 'calc(5%-16x)' }}
+                                RowStyle={{ width: 'calc(5%-16x)' }}
+                            > Base kV
+                            </ReactTable.Column>
+                            <ReactTable.Column<OpenXDA.Types.MeterAsset>
+                                Key={'FaultDetectionLogic'}
+                                AllowSort={true}
+                                Field={'FaultDetectionLogic'}
+                                HeaderStyle={{ width: 'calc(10%-16px)' }}
+                                RowStyle={{ width: 'calc(10%-16px)' }}
+                            > Fault Detection Logic
+                            </ReactTable.Column>
+                            <ReactTable.Column<OpenXDA.Types.MeterAsset>
+                                Key={'Designation'}
+                                AllowSort={true}
+                                Field={'Designation'}
+                                HeaderStyle={{ width: 'calc(10%-16px)' }}
+                                RowStyle={{ width: 'calc(10%-16px)' }}
+                            > Designation
+                            </ReactTable.Column>
+                            <ReactTable.Column<OpenXDA.Types.MeterAsset>
+                                Key={'EditDelete'}
+                                AllowSort={false}
+                                HeaderStyle={{ width: 80, paddingLeft: 0, paddingRight: 5 }}
+                                RowStyle={{ width: 80, paddingLeft: 0, paddingRight: 5 }}
+                                Content={({ item }) => <>
+                                    <button className={"btn btn-sm" + (hasPermissions() ? '' : ' disabled')}
+                                        onClick={(e) => {
+                                            if (hasPermissions()) {
+                                                e.preventDefault();
+                                                setActiveAsset(item.ID, item.AssetType);
+                                                setShoweditNew(true);
+                                            }
+                                        }}><span>{Pencil}</span></button>
+                                    <button className={"btn btn-sm" + (hasPermissions() ? '' : ' disabled')}
+                                        onClick={(e) => {
+                                            if (hasPermissions()) {
+                                                e.preventDefault();
+                                                setActiveAsset(item.ID, item.AssetType);
+                                                setShowDeleteWarning(true)
+                                            }
+                                        }}><span>{TrashCan}</span></button>
+                                </>}
+                            > <p></p>
+                            </ReactTable.Column>
+                        </ReactTable.Table>
 
                         <Warning Show={showDeleteWarning} CallBack={(confirmed) => { if (confirmed) dispatch(DBMeterAction({ verb: 'DELETE', assetID: activeAsset.ID, meterID: props.Meter.ID, locationID: props.Meter.LocationID })); setShowDeleteWarning(false); }} Title={'Remove ' + (activeAsset?.AssetName ?? 'Asset') + ' from ' + (props.Meter?.Name ?? 'Meter')} Message={'This will permanently remove the Asset from this Meter.'} />
                         <LoadingScreen Show={pageState == 'loading'} />
@@ -273,10 +266,10 @@ const MeterAssetWindow = (props: IProps) => {
                             </div>
                         </Modal>
                     </div>
-                    <div className="row">
-                        <div className="col">
-                            <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p - 1)} />
-                        </div>
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p - 1)} />
                     </div>
                 </div>
                 <div className="card-footer">

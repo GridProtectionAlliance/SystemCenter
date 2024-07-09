@@ -24,9 +24,9 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { ReactTable, Paging } from '@gpa-gemstone/react-table';
 import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
-import { Warning, Modal, LoadingScreen, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
+import { Warning, Modal, LoadingScreen, ServerErrorIcon, ToolTip, GenericController } from '@gpa-gemstone/react-interactive';
 import { Warning as WarningIcon } from '@gpa-gemstone/gpa-symbols';
 import { DatePicker, Select } from '@gpa-gemstone/react-forms';
 import moment from 'moment';
@@ -46,6 +46,8 @@ interface MaintenanceWindow {
 }
 
 const MeterMaintenanceWindow = (props: IProps) => {
+    const MeterMaintenanceController = new GenericController<MaintenanceWindow>(`${homePath}api/OpenXDA/MaintenanceWindow`, "ID", true);
+    const PagingID = 'MeterMaintenancePage'
     // Table Consts
     const [sortKey, setSortKey] = React.useState<keyof MaintenanceWindow>('StartTime');
     const [ascending, setAscending] = React.useState<boolean>(true);
@@ -58,6 +60,10 @@ const MeterMaintenanceWindow = (props: IProps) => {
     const [activeWindow, setActiveWindow] = React.useState<MaintenanceWindow>(null);
     const [reset, setReset] = React.useState<number>(0);
 
+    const [page, setPage] = React.useState<number>(0);
+    const [pageInfo, setPageInfo] = React.useState<{ RecordsPerPage: number, NumberOfPages: number, TotalRecords: number }>({ RecordsPerPage: 0, NumberOfPages: 0, TotalRecords: 0 });
+    const [pageState, setPageState] = React.useState<'error' | 'idle' | 'loading'>('idle');
+
     const roles = useAppSelector(SelectRoles);
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None' | 'Add')>('None');
 
@@ -68,27 +74,19 @@ const MeterMaintenanceWindow = (props: IProps) => {
         if (storedInfo != null) setPage(storedInfo);
     }, []);
 
-    function getMaintenanceWindows(): JQuery.jqXHR<MaintenanceWindow[]> {
-        setStatus('loading');
-        let handle = $.ajax({
-            type: 'POST',
-            url: `${homePath}api/OpenXDA/MaintenanceWindow/SearchableList`,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify({
-                Searches: [{ FieldName: 'MeterID', Operator: "=", SearchText: props.Meter.ID, Type: 'string', IsPivotColumn: false }],
-                OrderBy: sortKey,
-                Ascending: ascending
-            }),
-            dataType: 'json',
-            cache: false,
-            async: true
-        });
-        handle.done((data) => {
-            setTableData(JSON.parse(data.toString()));
-            setStatus('idle');
-        }).fail(() => setStatus('error'));
-        return handle;
-    }
+    React.useEffect(() => {
+        localStorage.setItem(PagingID, JSON.stringify(page));
+    }, [page]);
+
+    React.useEffect(() => {
+        setPageState('loading');
+        const handle = MeterMaintenanceController.PagedSearch([], sortKey, ascending, page, props.Meter.ID).done((result) => {
+            setTableData(JSON.parse(result.Data as unknown as string));
+            setPageInfo(result);
+            setPageState('idle');
+        }).fail(() => setPageState('error'));
+        return () => { if (handle != null && handle?.abort != null) handle.abort(); }
+    }, [sortKey, ascending, page, props.Meter.ID, reset])
 
     function dbMaintenanceWindow(verb: 'POST' | 'DELETE' | 'PATCH', record: MaintenanceWindow): JQuery.jqXHR<MaintenanceWindow[]> {
         setStatus('loading');
@@ -102,7 +100,7 @@ const MeterMaintenanceWindow = (props: IProps) => {
             cache: false,
             async: true
         });
-        handle.done((data) => {
+        handle.done((_data) => {
             setReset(x => x + 1);
             setStatus('idle');
         }).fail(() => setStatus('error'));
@@ -160,7 +158,7 @@ const MeterMaintenanceWindow = (props: IProps) => {
                             Field={'StartTime'}
                             HeaderStyle={{ width: 'calc(50%-40px)' }}
                             RowStyle={{ width: 'calc(50%-40px)' }}
-                                Content={({ item }) => item.StartTime ? moment(item.StartTime, defaultFormat).format('MM/DD/YYYY hh:mm A') : 'This window starts at meter creation' }
+                            Content={({ item }) => item.StartTime ? moment(item.StartTime, defaultFormat).format('MM/DD/YYYY hh:mm A') : 'This window starts at meter creation'}
                         > Start Window Time
                         </ReactTable.Column>
                         <ReactTable.Column<MaintenanceWindow>
@@ -169,7 +167,7 @@ const MeterMaintenanceWindow = (props: IProps) => {
                             Field={'EndTime'}
                             HeaderStyle={{ width: 'calc(50%-40px)' }}
                             RowStyle={{ width: 'calc(50%-40px)' }}
-                                Content={({ item }) => item.EndTime ? moment(item.EndTime, defaultFormat).format('MM/DD/YYYY hh:mm A') : 'This window has no end time' }
+                            Content={({ item }) => item.EndTime ? moment(item.EndTime, defaultFormat).format('MM/DD/YYYY hh:mm A') : 'This window has no end time'}
                         > End Window Time
                         </ReactTable.Column>
                         <ReactTable.Column<MaintenanceWindow>
@@ -190,20 +188,20 @@ const MeterMaintenanceWindow = (props: IProps) => {
                                         setActiveWindow(item);
                                         setShowDeleteWarning(true);
                                     }}><span>{TrashCan}</span></button>
-                                </> }
-                            > <p></p>
-                            </ReactTable.Column>
-                        </ReactTable.Table>
-                        <LoadingScreen Show={pageState == 'loading'} />
-                        <ServerErrorIcon Show={pageState == 'error'} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
-                        <div className="row">
-                            <div className="col">
-                                <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p - 1)} />
-                            </div>
+                            </>}
+                        > <p></p>
+                        </ReactTable.Column>
+                    </ReactTable.Table>
+                    <LoadingScreen Show={pageState == 'loading'} />
+                    <ServerErrorIcon Show={pageState == 'error'} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
+                    <div className="row">
+                        <div className="col">
+                            <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p - 1)} />
                         </div>
                     </div>
                 </div>
-            </div>);
+            </>
+        );
 
         return (
             <>
@@ -215,7 +213,7 @@ const MeterMaintenanceWindow = (props: IProps) => {
                             </div>
                         </div>
                     </div>
-                    <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}> 
+                    <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
                         {cardBody}
                     </div>
                     <div className="card-footer">
@@ -286,8 +284,8 @@ interface ITimeProps<T> {
     DateLabel: string
 }
 function EnableTimeElement<T>(props: ITimeProps<T>): React.ReactElement {
-    const [showElement, setShowElement] = React.useState<{ checked: string }>({ checked: props.Record[props.Field] !== null ? '1' : ''});
-    const options = [{ Value: '1', Label: props.DateLabel }, {Value: '', Label: props.SelectLabel}]
+    const [showElement, setShowElement] = React.useState<{ checked: string }>({ checked: props.Record[props.Field] !== null ? '1' : '' });
+    const options = [{ Value: '1', Label: props.DateLabel }, { Value: '', Label: props.SelectLabel }]
     return (
         <div className="row" style={{ paddingLeft: 20 }}>
             <div className="col" style={{ paddingRight: 20, width: '50%' }}>
@@ -302,7 +300,7 @@ function EnableTimeElement<T>(props: ITimeProps<T>): React.ReactElement {
             <div className="col" style={{ paddingLeft: 20, width: '50%' }}>
                 {showElement.checked ?
                     <DatePicker Record={props.Record} Field={props.Field} Setter={props.Setter} Valid={() => true} Label={''} Type='datetime-local' Disabled={!showElement.checked} />
-                : null}
+                    : null}
             </div>
         </div>);
 }

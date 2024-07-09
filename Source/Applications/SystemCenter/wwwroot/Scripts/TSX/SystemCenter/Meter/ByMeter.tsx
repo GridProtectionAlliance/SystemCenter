@@ -26,11 +26,12 @@ import { ReactTable } from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
-import { Search, Modal } from '@gpa-gemstone/react-interactive';
+import { Search, Modal, LoadingScreen } from '@gpa-gemstone/react-interactive';
 import { DefaultSearch } from '@gpa-gemstone/common-pages';
 import { ByMeterSlice } from '../Store/Store';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { useHistory } from "react-router-dom";
+import { Paging } from '@gpa-gemstone/react-table';
 
 declare var homePath: string;
 
@@ -41,6 +42,12 @@ const ByMeter: Application.Types.iByComponent = (props) => {
     const data = useAppSelector(ByMeterSlice.SearchResults);
     const ascending = useAppSelector(ByMeterSlice.Ascending);
     const sortKey = useAppSelector(ByMeterSlice.SortField);
+
+    const cState = useAppSelector(ByMeterSlice.PagedStatus);
+    const allPages = useAppSelector(ByMeterSlice.TotalPages);
+    const currentPage = useAppSelector(ByMeterSlice.CurrentPage);
+    const [page, setPage] = React.useState<number>(currentPage);
+
     const [showEXTModal, setShowExtModal] = React.useState<boolean>(false);
     const extDbUpdateAll = React.useRef<() => (() => void)>(undefined);
 
@@ -111,96 +118,109 @@ const ByMeter: Application.Types.iByComponent = (props) => {
     }
 
     return (
-        <div className="container-fluid d-flex h-100 flex-column">
-            <DefaultSearch.Meter Slice={ByMeterSlice} GetEnum={getEnum} GetAddlFields={getAdditionalFields} StorageID="MetersFilter">
-                <li className="nav-item" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Engineer') < 0} style={{ width: '15%', paddingRight: 10 }}>
-                    <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                        <legend className="w-auto" style={{ fontSize: 'large' }}>Wizards:</legend>
-                        <button className="btn btn-primary" data-tooltip onClick={goNewMeterWizard}>New Meter</button>
-                    </fieldset>
-                </li>
-                <li className="nav-item" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Engineer') < 0} style={{ width: '20%', paddingRight: 10 }}>
-                    <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                        <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
-                        <form>
-                            <div className="form-group">
-                                <button className="btn btn-primary" 
-                                    onClick={(event) => { event.preventDefault(); setShowExtModal(true); }}>External Database</button>
-                            </div>
-                        </form>
-                    </fieldset>
-                </li>
-            </DefaultSearch.Meter>
-            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                <ReactTable.Table<SystemCenter.Types.DetailedMeter>
-                    TableClass="table table-hover"
-                    Data={data}
-                    SortKey={sortKey}
-                    Ascending={ascending}
-                    OnSort={(d) => {
-                        if (d.colKey === sortKey)
-                            dispatch(ByMeterSlice.Sort({ SortField: sortKey, Ascending: ascending }));
-                        else {
-                            dispatch(ByMeterSlice.Sort({ SortField: d.colField as keyof SystemCenter.Types.DetailedMeter, Ascending: true }));
-                        }
-                    }}
-                    OnClick={handleSelect}
-                    TableStyle={{ width: '100%', height: '100%', tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
-                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
-                    RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    Selected={(item) => false}
-                    KeySelector={(item) => item.ID}
-                >
-                    <ReactTable.Column<SystemCenter.Types.DetailedMeter>
-                        Key={'Name'}
-                        AllowSort={true}
-                        Field={'Name'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                    > Name
-                    </ReactTable.Column>
-                    <ReactTable.Column<SystemCenter.Types.DetailedMeter>
-                        Key={'AssetKey'}
-                        AllowSort={true}
-                        Field={'AssetKey'}
-                        HeaderStyle={{ width: '15%' }}
-                        RowStyle={{ width: '15%' }}
-                    > Key
-                    </ReactTable.Column>
-                    <ReactTable.Column<SystemCenter.Types.DetailedMeter>
-                        Key={'Location'}
-                        AllowSort={true}
-                        Field={'Location'}
-                        HeaderStyle={{ width: '10%' }}
-                        RowStyle={{ width: '10%' }}
-                    > Substation
-                    </ReactTable.Column>
-                    <ReactTable.Column<SystemCenter.Types.DetailedMeter>
-                        Key={'MappedAssets'}
-                        AllowSort={true}
-                        Field={'MappedAssets'}
-                        HeaderStyle={{ width: '10%' }}
-                        RowStyle={{ width: '10%' }}
-                    > Assets
-                    </ReactTable.Column>
-                    <ReactTable.Column<SystemCenter.Types.DetailedMeter>
-                        Key={'Make'}
-                        AllowSort={true}
-                        Field={'Make'}
-                        HeaderStyle={{ width: '10%' }}
-                        RowStyle={{ width: '10%' }}
-                    > Make
-                    </ReactTable.Column>
-                    <ReactTable.Column<SystemCenter.Types.DetailedMeter>
-                        Key={'Model'}
-                        AllowSort={true}
-                        Field={'Model'}
-                        HeaderStyle={{ width: '10%' }}
-                        RowStyle={{ width: '10%' }}
-                    > Model
-                    </ReactTable.Column>
-                </ReactTable.Table>
+        <div style={{ width: '100%', height: '100%' }}>
+            <LoadingScreen Show={cState === 'loading'} />
+            <div className="container-fluid d-flex h-100 flex-column">
+                <div className="row">
+                    <DefaultSearch.Meter Slice={ByMeterSlice} GetEnum={getEnum} GetAddlFields={getAdditionalFields} StorageID="MetersFilter">
+                        <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
+                            <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                                <legend className="w-auto" style={{ fontSize: 'large' }}>Wizards:</legend>
+                                <button className="btn btn-primary" data-tooltip onClick={goNewMeterWizard} hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0}>New Meter</button>
+                            </fieldset>
+                        </li>
+                        <li className="nav-item" style={{ width: '20%', paddingRight: 10 }}>
+                            <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                                <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
+                                <form>
+                                    <div className="form-group">
+                                        <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0}
+                                            onClick={(event) => { event.preventDefault(); setShowExtModal(true); }}>External Database</button>
+                                    </div>
+                                </form>
+                            </fieldset>
+                        </li>
+                    </DefaultSearch.Meter>
+                </div>
+                <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                    <ReactTable.Table<SystemCenter.Types.DetailedMeter>
+                        TableClass="table table-hover"
+                        Data={data}
+                        SortKey={sortKey}
+                        Ascending={ascending}
+                        OnSort={(d) => {
+                            if (d.colKey === sortKey)
+                                dispatch(ByMeterSlice.Sort({ SortField: sortKey, Ascending: !ascending }));
+                            else {
+                                dispatch(ByMeterSlice.Sort({ SortField: d.colField as keyof SystemCenter.Types.DetailedMeter, Ascending: true }));
+                            }
+                        }}
+                        OnClick={handleSelect}
+                        TableStyle={{
+                            padding: 0, width: '100%', height: '100%',
+                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column', marginBottom: 0
+                        }}
+                        TheadStyle={{ fontSize: 'auto', tableLayout: 'fixed', display: 'table', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
+                        RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        Selected={(item) => false}
+                        KeySelector={(item) => item.ID}
+                    >
+                        <ReactTable.Column<SystemCenter.Types.DetailedMeter>
+                            Key={'Name'}
+                            AllowSort={true}
+                            Field={'Name'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Name
+                        </ReactTable.Column>
+                        <ReactTable.Column<SystemCenter.Types.DetailedMeter>
+                            Key={'AssetKey'}
+                            AllowSort={true}
+                            Field={'AssetKey'}
+                            HeaderStyle={{ width: '15%' }}
+                            RowStyle={{ width: '15%' }}
+                        > Key
+                        </ReactTable.Column>
+                        <ReactTable.Column<SystemCenter.Types.DetailedMeter>
+                            Key={'Location'}
+                            AllowSort={true}
+                            Field={'Location'}
+                            HeaderStyle={{ width: '10%' }}
+                            RowStyle={{ width: '10%' }}
+                        > Substation
+                        </ReactTable.Column>
+                        <ReactTable.Column<SystemCenter.Types.DetailedMeter>
+                            Key={'MappedAssets'}
+                            AllowSort={true}
+                            Field={'MappedAssets'}
+                            HeaderStyle={{ width: '10%' }}
+                            RowStyle={{ width: '10%' }}
+                        > Assets
+                        </ReactTable.Column>
+                        <ReactTable.Column<SystemCenter.Types.DetailedMeter>
+                            Key={'Make'}
+                            AllowSort={true}
+                            Field={'Make'}
+                            HeaderStyle={{ width: '10%' }}
+                            RowStyle={{ width: '10%' }}
+                        > Make
+                        </ReactTable.Column>
+                        <ReactTable.Column<SystemCenter.Types.DetailedMeter>
+                            Key={'Model'}
+                            AllowSort={true}
+                            Field={'Model'}
+                            HeaderStyle={{ width: '10%' }}
+                            RowStyle={{ width: '10%' }}
+                        > Model
+                        </ReactTable.Column>
+                    </ReactTable.Table>
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <Paging Current={page + 1} Total={allPages} SetPage={(p) => setPage(p - 1)} />
+                    </div>
+                </div>
             </div>
             <Modal Show={showEXTModal} Size={'xlg'} Title={'Meter External Database Fields'}
                 ShowCancel={true} ConfirmText={'Update All'} CancelText={'Close'} CallBack={(c) => {
@@ -214,4 +234,3 @@ const ByMeter: Application.Types.iByComponent = (props) => {
 }
 
 export default ByMeter;
-
