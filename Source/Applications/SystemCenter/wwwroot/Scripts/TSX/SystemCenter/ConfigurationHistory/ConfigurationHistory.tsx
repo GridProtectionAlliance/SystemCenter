@@ -25,11 +25,11 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { TabSelector } from '@gpa-gemstone/react-interactive';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { ReactTable, Paging } from '@gpa-gemstone/react-table';
 import { useHistory } from 'react-router-dom';
 import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
-import { ToolTip } from '@gpa-gemstone/react-interactive';
+import { ToolTip, ServerErrorIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
 declare var ace: any;
@@ -43,9 +43,13 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
     const roles = useAppSelector(SelectRoles);
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
 
+    const [page, setPage] = React.useState<number>(0);
+    const [pageInfo, setPageInfo] = React.useState<{ RecordsPerPage: number, NumberOfPages: number, TotalRecords: number }>({ RecordsPerPage: 0, NumberOfPages: 0, TotalRecords: 0 });
+    const [pageState, setPageState] = React.useState<'error' | 'idle' | 'loading'>('idle');
+
     React.useEffect(() => {
         getData();
-    }, [props.MeterConfigurationID, tab])
+    }, [props.MeterConfigurationID, tab, page])
 
     function getData() {
         getFilesProcessed();
@@ -70,12 +74,21 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
     function getFilesProcessed(): void {
         $.ajax({
             type: "GET",
-            url: `${homePath}api/OpenXDA/MeterConfiguration/${props.MeterConfigurationID}/FilesProcessed`,
+            url: `${homePath}api/OpenXDA/MeterConfiguration/${props.MeterConfigurationID}/FilesProcessed/${page}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
             async: true
-        }).done((data: Array<OpenXDA.Types.DataFile>) => setFilesProcessed(data));
+        }).done((result) => {
+            const records = JSON.parse(result.Records);
+            setFilesProcessed(records)
+            setPageInfo({
+                RecordsPerPage: result.RecordsPerPage,
+                NumberOfPages: result.NumberOfPages,
+                TotalRecords: result.TotalRecords
+            });
+            setPageState('idle');
+        }).fail(() => setPageState('error'));
     }
 
     function saveEdit(): void {
@@ -202,6 +215,13 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
                                             > Creation Time
                                             </ReactTable.Column>
                                         </ReactTable.Table>
+                                        <LoadingScreen Show={pageState == 'loading'} />
+                                        <ServerErrorIcon Show={pageState == 'error'} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
+                                    </div>
+                                </div>
+                                <div className="row">
+                                    <div className="col">
+                                        <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p - 1)} />
                                     </div>
                                 </div>
                             </div>

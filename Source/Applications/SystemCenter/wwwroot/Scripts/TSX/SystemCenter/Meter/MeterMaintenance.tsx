@@ -64,12 +64,9 @@ const MeterMaintenanceWindow = (props: IProps) => {
     const defaultFormat = 'YYYY-MM-DD[T]hh:mm:ss';
 
     React.useEffect(() => {
-        let handle = getMaintenanceWindows();
-        return () => {
-            if (handle != null && handle.abort != null)
-                handle.abort();
-        };
-    }, [ascending, sortKey, props.Meter, reset]);
+        const storedInfo = JSON.parse(localStorage.getItem(PagingID) as string);
+        if (storedInfo != null) setPage(storedInfo);
+    }, []);
 
     function getMaintenanceWindows(): JQuery.jqXHR<MaintenanceWindow[]> {
         setStatus('loading');
@@ -107,6 +104,7 @@ const MeterMaintenanceWindow = (props: IProps) => {
         });
         handle.done((data) => {
             setReset(x => x + 1);
+            setStatus('idle');
         }).fail(() => setStatus('error'));
         return handle;
     }
@@ -132,71 +130,77 @@ const MeterMaintenanceWindow = (props: IProps) => {
         cardBody = <LoadingScreen Show={true} />
     } else {
         cardBody = (
-            <div className="row" style={{ margin: -20 }}>
-                <div className="col" style={{ padding: 20 }}>
-                    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-                        <ReactTable.Table<MaintenanceWindow>
-                            TableClass="table table-hover"
-                            Data={tableData}
-                            SortKey={sortKey}
-                            Ascending={ascending}
-                            OnSort={(d) => {
-                                if (d.colKey === 'EditDelete')
-                                    return;
-                                if (d.colKey == sortKey)
-                                    setAscending(!ascending);
-                                else {
-                                    setAscending(true);
-                                    setSortKey(d.colKey as keyof MaintenanceWindow);
-                                }
-                            }}
-                            TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
-                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            TbodyStyle={{ display: 'block', width: '100%', overflowY: 'auto', flex: 1 }}
-                            RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            Selected={(item) => false}
-                            KeySelector={(item) => item.ID}
-                        >
-                            <ReactTable.Column<MaintenanceWindow>
-                                Key={'StartTime'}
-                                AllowSort={true}
-                                Field={'StartTime'}
-                                HeaderStyle={{ width: 'calc(50%-40px)' }}
-                                RowStyle={{ width: 'calc(50%-40px)' }}
+            <>
+                <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                    <ReactTable.Table<MaintenanceWindow>
+                        TableClass="table table-hover"
+                        Data={tableData}
+                        SortKey={sortKey}
+                        Ascending={ascending}
+                        OnSort={(d) => {
+                            if (d.colKey === 'EditDelete')
+                                return;
+                            if (d.colKey == sortKey)
+                                setAscending(!ascending);
+                            else {
+                                setAscending(true);
+                                setSortKey(d.colKey as keyof MaintenanceWindow);
+                            }
+                        }}
+                        TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TbodyStyle={{ display: 'block', width: '100%', overflowY: 'auto', flex: 1 }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        Selected={(item) => false}
+                        KeySelector={(item) => item.ID}
+                    >
+                        <ReactTable.Column<MaintenanceWindow>
+                            Key={'StartTime'}
+                            AllowSort={true}
+                            Field={'StartTime'}
+                            HeaderStyle={{ width: 'calc(50%-40px)' }}
+                            RowStyle={{ width: 'calc(50%-40px)' }}
                                 Content={({ item }) => item.StartTime ? moment(item.StartTime, defaultFormat).format('MM/DD/YYYY hh:mm A') : 'This window starts at meter creation' }
-                            > Start Window Time
-                            </ReactTable.Column>
-                            <ReactTable.Column<MaintenanceWindow>
-                                Key={'EndTime'}
-                                AllowSort={true}
-                                Field={'EndTime'}
-                                HeaderStyle={{ width: 'calc(50%-40px)' }}
-                                RowStyle={{ width: 'calc(50%-40px)' }}
+                        > Start Window Time
+                        </ReactTable.Column>
+                        <ReactTable.Column<MaintenanceWindow>
+                            Key={'EndTime'}
+                            AllowSort={true}
+                            Field={'EndTime'}
+                            HeaderStyle={{ width: 'calc(50%-40px)' }}
+                            RowStyle={{ width: 'calc(50%-40px)' }}
                                 Content={({ item }) => item.EndTime ? moment(item.EndTime, defaultFormat).format('MM/DD/YYYY hh:mm A') : 'This window has no end time' }
-                            > End Window Time
-                            </ReactTable.Column>
-                            <ReactTable.Column<MaintenanceWindow>
-                                Key={'EditDelete'}
-                                AllowSort={false}
-                                HeaderStyle={{ width: 80, paddingLeft: 0, paddingRight: 5 }}
-                                RowStyle={{ width: 80, paddingLeft: 0, paddingRight: 5 }}
-                                Content={({ item }) => <>
-                                    <button className="btn btn-sm"
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            setActiveWindow(item);
-                                            setShowEditNew(true);
-                                        }}><span>{Pencil}</span></button>
-                                    <button className="btn btn-sm"
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            setActiveWindow(item);
-                                            setShowDeleteWarning(true);
-                                        }}><span>{TrashCan}</span></button>
+                        > End Window Time
+                        </ReactTable.Column>
+                        <ReactTable.Column<MaintenanceWindow>
+                            Key={'EditDelete'}
+                            AllowSort={false}
+                            HeaderStyle={{ width: 80, paddingLeft: 0, paddingRight: 5 }}
+                            RowStyle={{ width: 80, paddingLeft: 0, paddingRight: 5 }}
+                            Content={({ item }) => <>
+                                <button className="btn btn-sm"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        setActiveWindow(item);
+                                        setShowEditNew(true);
+                                    }}><span>{Pencil}</span></button>
+                                <button className="btn btn-sm"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        setActiveWindow(item);
+                                        setShowDeleteWarning(true);
+                                    }}><span>{TrashCan}</span></button>
                                 </> }
                             > <p></p>
                             </ReactTable.Column>
                         </ReactTable.Table>
+                        <LoadingScreen Show={pageState == 'loading'} />
+                        <ServerErrorIcon Show={pageState == 'error'} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
+                        <div className="row">
+                            <div className="col">
+                                <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p - 1)} />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>);

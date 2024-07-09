@@ -102,7 +102,15 @@ const MeterAssetWindow = (props: IProps) => {
         };
     }, [props.Meter, sortKey, ascending, status]);
 
-    React.useEffect(() => setShowLoading(false), [allAssets]);
+    React.useEffect(() => {
+        setPageState('loading');
+        const handle = MeterAssetController.PagedSearch([], sortKey, ascending, page).done((result) => {
+            setData(JSON.parse(result.Data as unknown as string));
+            setPageInfo(result);
+            setPageState('idle');
+        }).fail(() => setPageState('error'));
+        return () => { if (handle != null && handle?.abort != null) handle.abort(); }
+    }, [sortKey, ascending, page, status])
 
     function setActiveAsset(assetID: number, assetType: OpenXDA.Types.AssetTypeName) {
         if (assetID == 0) {
@@ -230,40 +238,46 @@ const MeterAssetWindow = (props: IProps) => {
                                     </ReactTable.Column>
                                 </ReactTable.Table>
 
-                                <Warning Show={showDeleteWarning} CallBack={(confirmed) => { if (confirmed) dispatch(DBMeterAction({ verb: 'DELETE', assetID: activeAsset.ID, meterID: props.Meter.ID, locationID: props.Meter.LocationID })); setShowDeleteWarning(false); }} Title={'Remove ' + (activeAsset?.AssetName ?? 'Asset') + ' from ' + (props.Meter?.Name ?? 'Meter')} Message={'This will permanently remove the Asset from this Meter.'} />
-                                <LoadingScreen Show={showLoading} />
-                                <Modal Show={showEditNew}
-                                    Title={newEdit == 'New' ? 'Add New Asset to ' + (props.Meter?.Name ?? 'Meter') : 'Edit ' + (activeAsset?.AssetKey ?? 'Asset')}
-                                    Size={'lg'}
-                                    ShowX={true}
-                                    ShowCancel={false}
-                                    ConfirmText={'Save'}
-                                    CallBack={(confirm) => {
-                                        setShoweditNew(false);
-                                        if (confirm) {
-                                            dispatch(DBActionAsset({ verb: 'POST', record: activeAsset, meterID: props.Meter.ID, locationID: props.Meter.LocationID }));
-                                        }
-                                    }}
-                                    ConfirmShowToolTip={AssetAttributes.AttributeError(activeAsset).length > 0}
-                                    DisableConfirm={AssetAttributes.AttributeError(activeAsset).length > 0}
-                                    ConfirmToolTipContent={
-                                        AssetAttributes.AttributeError(activeAsset).map((e, i) => <p key={i}>{CrossMark} {e}</p>)
-                                    }
-                                >
-                                    <div className="row">
-                                        <div className="col">
-                                            <AssetAttributes.AssetAttributeFields Asset={activeAsset} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={allAssets}
-                                                UpdateState={changeActiveAsset}
-                                                GetDifferentAsset={(assetID) => {
-                                                    setActiveAsset(assetID, assetTypes.find(at => (allAssets as any).find(a => a.ID == assetID).AssetTypeID).Name);
-                                                }} HideSelectAsset={true} HideAssetType={false} />
-                                        </div>
-                                        <div className="col">
-                                            {showAttributes()}
-                                        </div>
-                                    </div>
-                                </Modal>
+                        <Warning Show={showDeleteWarning} CallBack={(confirmed) => { if (confirmed) dispatch(DBMeterAction({ verb: 'DELETE', assetID: activeAsset.ID, meterID: props.Meter.ID, locationID: props.Meter.LocationID })); setShowDeleteWarning(false); }} Title={'Remove ' + (activeAsset?.AssetName ?? 'Asset') + ' from ' + (props.Meter?.Name ?? 'Meter')} Message={'This will permanently remove the Asset from this Meter.'} />
+                        <LoadingScreen Show={pageState == 'loading'} />
+                        <ServerErrorIcon Show={pageState == 'error'} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
+                        <Modal Show={showEditNew}
+                            Title={newEdit == 'New' ? 'Add New Asset to ' + (props.Meter?.Name ?? 'Meter') : 'Edit ' + (activeAsset?.AssetKey ?? 'Asset')}
+                            Size={'lg'}
+                            ShowX={true}
+                            ShowCancel={false}
+                            ConfirmText={'Save'}
+                            CallBack={(confirm) => {
+                                setShoweditNew(false);
+                                if (confirm) {
+                                    dispatch(DBActionAsset({ verb: 'POST', record: activeAsset, meterID: props.Meter.ID, locationID: props.Meter.LocationID }));
+                                }
+                            }}
+                            ConfirmShowToolTip={AssetAttributes.AttributeError(activeAsset).length > 0}
+                            DisableConfirm={AssetAttributes.AttributeError(activeAsset).length > 0}
+                            ConfirmToolTipContent={
+                                AssetAttributes.AttributeError(activeAsset).map((e, i) => <p key={i}>{CrossMark} {e}</p>)
+                            }
+                        >
+                            <div className="row">
+                                <div className="col">
+                                    <AssetAttributes.AssetAttributeFields Asset={activeAsset} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={data}
+                                        UpdateState={changeActiveAsset}
+                                        GetDifferentAsset={(assetID) => {
+                                            setActiveAsset(assetID, assetTypes.find(at => (data as any).find(a => a.ID == assetID).AssetTypeID).Name);
+                                        }} HideSelectAsset={true} HideAssetType={false} />
+                                </div>
+                                <div className="col">
+                                    {showAttributes()}
+                                </div>
                             </div>
+                        </Modal>
+                    </div>
+                    <div className="row">
+                        <div className="col">
+                            <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p - 1)} />
+                        </div>
+                    </div>
                 </div>
                 <div className="card-footer">
                     <div className="btn-group mr-2">

@@ -24,7 +24,8 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { ReactTable, Paging } from '@gpa-gemstone/react-table';
+import { ServerErrorIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
 import { useHistory } from "react-router-dom";
 
 declare var homePath: string;
@@ -38,25 +39,38 @@ function MeterConfigurationHistoryWindow(props: { Meter: OpenXDA.Types.Meter }) 
     const history = useHistory();
     const [meterConfigurations, setMeterConfigurations] = React.useState<Array<MeterConfiguration>>([]);
 
+    const [page, setPage] = React.useState<number>(0);
+    const [pageInfo, setPageInfo] = React.useState<{ RecordsPerPage: number, NumberOfPages: number, TotalRecords: number }>({ RecordsPerPage: 0, NumberOfPages: 0, TotalRecords: 0 });
+    const [pageState, setPageState] = React.useState<'error' | 'idle' | 'loading'>('idle');
+
     React.useEffect(() => {
         getData();
-    }, [props.Meter]);
+    }, [props.Meter, page]);
 
     function getData() {
+        setPageState('loading');
         getMeterConfigurations();
     }
 
     function getMeterConfigurations(): void {
         $.ajax({
             type: "GET",
-            url: `${homePath}api/OpenXDA/MeterConfiguration/Meter/${props.Meter.ID}`,
+            url: `${homePath}api/OpenXDA/MeterConfiguration/Meter/${props.Meter.ID}/${page}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
             async: true
-        }).done((data: Array<MeterConfiguration>) => setMeterConfigurations(data));
-    }
-
+        }).done((result) => {
+            const records = JSON.parse(result.Records);
+            setMeterConfigurations(records)
+            setPageInfo({
+                RecordsPerPage: result.RecordsPerPage,
+                NumberOfPages: result.NumberOfPages,
+                TotalRecords: result.TotalRecords
+            });
+            setPageState('idle');
+        }).fail(() => setPageState('error'));
+    };
     function handleSelect(item: MeterConfiguration) {
         history.push({ pathname: `${homePath}index.cshtml`, search: `?name=ConfigurationHistory&MeterKey=${props.Meter.AssetKey}&MeterConfigurationID=${item.ID}` })
     }
@@ -112,6 +126,13 @@ function MeterConfigurationHistoryWindow(props: { Meter: OpenXDA.Types.Meter }) 
                             > Last Processed Time
                             </ReactTable.Column>
                         </ReactTable.Table>
+                        <LoadingScreen Show={pageState == 'loading'} />
+                        <ServerErrorIcon Show={pageState == 'error'} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
+                        <div className="row">
+                            <div className="col">
+                                <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p - 1)} />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
