@@ -44,6 +44,15 @@ const ByMeter: Application.Types.iByComponent = (props) => {
     const [showEXTModal, setShowExtModal] = React.useState<boolean>(false);
     const extDbUpdateAll = React.useRef<() => (() => void)>(undefined);
 
+    React.useEffect(() => {
+        dispatch(ByMeterSlice.PagedSearch({ filter: [], sortField: sortKey, ascending, page }));
+    }, [sortKey, ascending, page]);
+
+    React.useEffect(() => {
+        if (cState === 'unintiated' || cState === 'changed')
+            dispatch(ByMeterSlice.PagedSearch({ filter: [], sortField: sortKey, ascending, page }));
+    }, [cState]);
+
     function handleSelect(item) {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + item.row.ID })
     }
