@@ -89,6 +89,7 @@ export default function RemoteXDAInstanceForm(props: IProps) {
     // Test/Push Modal Const
     const [showTestResult, setShowTestResult] = React.useState<(boolean)>(false);
     const [testResult, setTestResult] = React.useState<(boolean)>(false);
+    const [testErrorMessage, setTestErrorMessage] = React.useState("");
 
     // Test/Push Modal Const
     const [showConfigResult, setShowConfigResult] = React.useState<(boolean)>(false);
@@ -169,7 +170,8 @@ export default function RemoteXDAInstanceForm(props: IProps) {
         });
 
         handle.done((str) => {
-            setTestResult(str === "1")
+            setTestResult(str.Success === true);
+            setTestErrorMessage(str.ErrorMessage);
             setShowTestResult(true);
             setLoading(false);
         }).fail(() => {
@@ -255,7 +257,7 @@ export default function RemoteXDAInstanceForm(props: IProps) {
                     CallBack={() => { setShowTestResult(false); }}
                     ShowX={true} Size={"sm"}
                     ConfirmText={"Close"}>
-                    {testResult ? "Connection made to Remote openXDA server." : "Connection could not be made to remote XDA server."}
+                    {testResult ? "Connection made to Remote openXDA server." : "Connection could not be made to remote XDA server. " + {testErrorMessage}}
                 </Modal>
                 <Modal Show={showConfigResult} Title={`Push Remote Config ${configResult ? "Succeeded" : "Failed"}`}
                     ShowCancel={false}
