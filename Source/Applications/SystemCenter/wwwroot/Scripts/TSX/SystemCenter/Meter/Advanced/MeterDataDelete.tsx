@@ -24,6 +24,7 @@
 import * as React from 'react';
 import { Warning } from '@gpa-gemstone/react-interactive';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
+import { Input } from '@gpa-gemstone/react-forms';
 
 declare let homePath: string;
 
@@ -47,14 +48,18 @@ function HandleError(e: unknown) {
     return `Unknown error of type ${typeof (e)}. See console for details.`;
 }
 
+interface RecordType {
+    startTime: Date | null;
+    endTime: Date | null;
+}
+
 export default function DataDeleteWindow(props: {
     Meter: OpenXDA.Types.Meter;
     OnDelete: () => void;
 }) {
     const now = new Date();
 
-    const [startTime, setStartTime] = React.useState<Date>(now);
-    const [endTime, setEndTime] = React.useState<Date>(now);
+    const [record, setRecord] = React.useState<RecordType>({ startTime: now, endTime: now });
     const [affectedFileCount, setAffectedFileCount] = React.useState<number>(0);
 
     const [startTimeValid, setStartTimeValid] = React.useState<boolean>(true);
@@ -65,8 +70,8 @@ export default function DataDeleteWindow(props: {
     async function queryAffectedFileCount() {
         const queryString = (() => {
             const meterID = props.Meter.ID;
-            const isoStartTime = startTime.toISOString();
-            const isoEndTime = endTime.toISOString();
+            const isoStartTime = record.startTime?.toISOString();
+            const isoEndTime = record.endTime?.toISOString();
             return `meterID=${meterID}&startTime=${isoStartTime}&endTime=${isoEndTime}`;
         })();
 
@@ -89,13 +94,13 @@ export default function DataDeleteWindow(props: {
         })();
     }
 
-    React.useEffect(timeRangeChanged, [startTime, endTime]);
+    React.useEffect(timeRangeChanged, [record.startTime, record.endTime]);
 
     async function deleteMeterData() {
         const query = {
             meterID: props.Meter.ID,
-            startTime: startTime,
-            endTime: endTime
+            startTime: record.startTime,
+            endTime: record.endTime
         }
 
         await $.ajax({
@@ -129,6 +134,20 @@ export default function DataDeleteWindow(props: {
         return startTimeValid && endTimeValid;
     }
 
+    function validateStartTime(value: string): boolean {
+        const date = new Date(value);
+        const isValid = !isNaN(date.getTime());
+        setStartTimeValid(isValid);
+        return isValid;
+    }
+
+    function validateEndTime(value: string): boolean {
+        const date = new Date(value);
+        const isValid = !isNaN(date.getTime());
+        setEndTimeValid(isValid);
+        return isValid;
+    }
+
     return <>
         <div className="card" style={{ flex: 1, overflow: 'hidden' }}>
             <div className="card-header">
@@ -139,25 +158,33 @@ export default function DataDeleteWindow(props: {
                 </div>
             </div>
             <div className="card-body" style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
-                <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
+                <div className="pl-3" style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
                     <form>
                         <div className="form-group row">
-                            <DateInput
-                                ID={"startTimeInput"}
-                                Label={"Start Time"}
-                                Value={startTime}
-                                OnChanged={setStartTime}
-                                OnValidationChanged={setStartTimeValid}
+                            <Input<RecordType>
+                                Record={record}
+                                Field="startTime"
+                                Setter={setRecord}
+                                Valid={() => validateStartTime(record.startTime?.toISOString() || "")}
+                                Label="Start Time"
+                                Type="text"
+                                Feedback="Invalid start time."
+                                Size="large"
+                                AllowNull={false}
                                 Style={{ width: "14em" }}
                             />
                         </div>
                         <div className="form-group row">
-                            <DateInput
-                                ID={"endTimeInput"}
-                                Label={"End Time"}
-                                Value={endTime}
-                                OnChanged={setEndTime}
-                                OnValidationChanged={setEndTimeValid}
+                            <Input<RecordType>
+                                Record={record}
+                                Field="endTime"
+                                Setter={setRecord}
+                                Valid={() => validateEndTime(record.endTime?.toISOString() || "")}
+                                Label="End Time"
+                                Type="text"
+                                Feedback="Invalid end time."
+                                Size="large"
+                                AllowNull={false}
                                 Style={{ width: "14em" }}
                             />
                         </div>
