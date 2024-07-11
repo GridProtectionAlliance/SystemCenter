@@ -67,6 +67,18 @@ const ByExternalTable: Application.Types.iByComponent = (props) => {
             dispatch(ExternalDBTablesSlice.DBSearch({ filter: search }));
     }, [status, parentID]);
 
+    React.useEffect(() => {
+        let e = [];
+        if (record.TableName == null || record.TableName.length == 0)
+            e.push('A Name is required.');
+        else if (record.TableName.length > 200)
+            e.push('A Name of less than 200 characters is required.');
+        if (record.Query == null || record.Query.length == 0)
+            e.push('A Query is required.');
+
+        setErrors(e);
+    }, [record]);
+
     function handleSelect(item) {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=ExternalTable&ID=' + item.row.ID })
     }

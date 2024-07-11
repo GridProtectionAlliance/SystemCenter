@@ -75,7 +75,7 @@ export namespace AssetAttributes {
 
         function valid(field: keyof (OpenXDA.Types.Asset)): boolean {
             if (field == 'AssetKey') {
-                if (props.Asset.AssetKey == null || props.Asset.AssetKey.length == 0) return false;
+                if (props.Asset.AssetKey == null || props.Asset.AssetKey.length == 0 || props.Asset.AssetKey.length > 50) return false;
                 else if (props.NewEdit == 'New') {
                     if (props.Asset.ID == 0) {
                         const keys = _.uniq(currentKeys.concat(...(props.AllAssets != undefined ? props.AllAssets.map(a => a.AssetKey.toLocaleLowerCase()) : [])))
