@@ -75,7 +75,7 @@ function RemoteXDAInstance(props: IProps) {
         setLoading(true);
         if (props.Roles.includes('Administrator')) dispatch(RemoteXDAInstanceSlice.DBAction({ verb: 'DELETE', record: connection }));
         setLoading(false);
-        returnMain;
+        returnMain();
     };
 
     function patchConnection(connection: OpenXDA.Types.RemoteXDAInstance): void {
