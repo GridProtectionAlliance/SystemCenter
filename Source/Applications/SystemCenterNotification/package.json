@@ -38,10 +38,10 @@
     "pretty-data": "0.40.0"
   },
   "scripts": {
-    "build": "set NODE_OPTIONS=--openssl-legacy-provider && npm prune && npm install && webpack --mode=development",
+    "build": "set NODE_OPTIONS=--openssl-legacy-provider && npm prune && npm ci && webpack --mode=development",
     "watch": "webpack --watch --color --mode=development",
     "update": "npx npm-check-updates",
     "builddebug": "set NODE_OPTIONS=--openssl-legacy-provider && webpack --mode=none",
-    "buildrelease": "set NODE_OPTIONS=--openssl-legacy-provider && npm prune && npm install && webpack --mode=production"
+    "buildrelease": "set NODE_OPTIONS=--openssl-legacy-provider && npm prune && npm ci && webpack --mode=production"
   }
 }
