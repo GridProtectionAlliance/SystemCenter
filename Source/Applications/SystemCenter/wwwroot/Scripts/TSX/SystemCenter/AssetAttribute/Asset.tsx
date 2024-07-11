@@ -98,7 +98,7 @@ export namespace AssetAttributes {
                 }
             }
             else if (field == 'AssetName')
-                return props.Asset.AssetName != null && props.Asset.AssetName.length > 0;
+                return props.Asset.AssetName != null && props.Asset.AssetName.length > 0 && props.Asset.AssetName.length <= 200;
             else if (field == 'VoltageKV')
                 return props.Asset.VoltageKV != null && AssetAttributes.isRealNumber(props.Asset.VoltageKV);
             else if (field == 'Description')
