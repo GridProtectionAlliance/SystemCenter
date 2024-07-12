@@ -291,6 +291,7 @@
     <Content Include="Scripts\TSX\EmailTypes\DatasourceUI\DataSourceTesting.tsx" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="package-lock.json" />
     <None Include="packages.config" />
     <Content Include="Views\Login\UserInfo.cshtml" />
   </ItemGroup>

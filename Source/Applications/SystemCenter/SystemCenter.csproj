@@ -374,6 +374,7 @@
     </Content>
     <Content Include="Resources\DocComments.xml" />
     <Content Include="tsconfig.webpack.json" />
+    <Content Include="package-lock.json" />
     <None Include="wwwroot\Content\Site.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
