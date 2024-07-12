@@ -539,9 +539,9 @@ namespace SystemCenter.Controllers.OpenXDA
                 "WHERE MeasurementCharacteristic.Name = 'Instantaneous' AND " +
                 "    (SELECT COUNT(ID) FROM Series WHERE Channel.ID = Series.ChannelID) = 1 AND " +
                 "    (SELECT TOP 1 SeriesTypeID FROM Series WHERE Channel.ID = Series.ChannelID) IN (SELECT ID FROM SeriesType WHERE Name IN ('Values','Instantaneous'))")]
-    [PostRoles("Administrator, Transmission SME")]
-    [PatchRoles("Administrator, Transmission SME")]
-    [DeleteRoles("Administrator, Transmission SME")]
+    [PostRoles("Administrator, Engineer")]
+    [PatchRoles("Administrator, Engineer")]
+    [DeleteRoles("Administrator, Engineer")]
     public class EventChannel : ChannelBase
     {
         [ParentKey(typeof(MeterDetail))]
@@ -691,9 +691,9 @@ namespace SystemCenter.Controllers.OpenXDA
                 "    Phase ON Channel.PhaseID = Phase.ID " +
                 "WHERE " +
                 "   Channel.Trend = 1")]
-    [PostRoles("Administrator, Transmission SME")]
-    [PatchRoles("Administrator, Transmission SME")]
-    [DeleteRoles("Administrator, Transmission SME")]
+    [PostRoles("Administrator, Engineer")]
+    [PatchRoles("Administrator, Engineer")]
+    [DeleteRoles("Administrator, Engineer")]
     public class TrendChannel : ChannelBase
     {
         [ParentKey(typeof(MeterDetail))]

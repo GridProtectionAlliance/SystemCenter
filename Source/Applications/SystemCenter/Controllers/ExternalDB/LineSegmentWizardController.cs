@@ -153,8 +153,8 @@ public class LineSegmentWizardController : ApiController
 
     #region [ Statics ]
 
-    private const string GetRoles = "Administrator,Transmission SME";
-    private const string PostRoles = "Administrator,Transmission SME";
+    private const string GetRoles = "Administrator,Engineer";
+    private const string PostRoles = "Administrator,Engineer";
     private static string Connection = typeof(Line).GetCustomAttribute<SettingsCategoryAttribute>()?.SettingsCategory ?? "systemSettings";
     private static string FAWGConnection = "dbFawg";
     #endregion
