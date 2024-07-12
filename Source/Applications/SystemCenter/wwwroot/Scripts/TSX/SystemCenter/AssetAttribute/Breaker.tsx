@@ -55,7 +55,7 @@ function BreakerAttributes(props: { NewEdit: Application.Types.NewEdit, Asset: O
     const [spares, setSpares] = React.useState<Array<OpenXDA.Types.Breaker>>([]);
 
     function hasPermissions(): boolean {
-        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0)
             return false;
         return true;
     }
