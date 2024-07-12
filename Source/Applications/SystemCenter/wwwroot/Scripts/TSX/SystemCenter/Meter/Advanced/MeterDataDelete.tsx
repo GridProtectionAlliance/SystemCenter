@@ -171,7 +171,7 @@ export default function DataDeleteWindow(props: {
                                 Feedback="Invalid start time."
                                 Size="large"
                                 AllowNull={false}
-                                Style={{ width: "14em" }}
+                                Style={{ width: "18em", height: "5em", fontSize: "1.5em", padding: "0.5em" }}
                             />
                         </div>
                         <div className="form-group row">
@@ -185,7 +185,7 @@ export default function DataDeleteWindow(props: {
                                 Feedback="Invalid end time."
                                 Size="large"
                                 AllowNull={false}
-                                Style={{ width: "14em" }}
+                                Style={{ width: "18em", height: "5em", fontSize: "1.5em", padding: "0.5em" }}
                             />
                         </div>
                     </form>
