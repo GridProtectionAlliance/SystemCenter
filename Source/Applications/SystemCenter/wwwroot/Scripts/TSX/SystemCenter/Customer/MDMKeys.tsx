@@ -80,7 +80,7 @@ function MDMKeys(props: IProps) {
     }
 
     function hasPermissions(): boolean {
-        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0)
             return false;
         return true;
     }
