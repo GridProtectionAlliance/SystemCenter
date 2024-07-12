@@ -69,7 +69,8 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
         let e = [];
         if (record.Name == null || record.Name.length == 0)
             e.push('A Name is required.');
-
+        else if (record.Name.length > 200)
+            e.push('A Name of less than 200 characters is required.');
         if (record.Schedule?.length != 0 && (record.Schedule != null && !IsCron(record.Schedule)))
             e.push('Schedule must be in cron format.');
 

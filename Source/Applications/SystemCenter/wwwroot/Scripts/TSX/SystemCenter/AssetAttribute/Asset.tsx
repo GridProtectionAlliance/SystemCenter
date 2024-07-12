@@ -75,7 +75,7 @@ export namespace AssetAttributes {
 
         function valid(field: keyof (OpenXDA.Types.Asset)): boolean {
             if (field == 'AssetKey') {
-                if (props.Asset.AssetKey == null || props.Asset.AssetKey.length == 0) return false;
+                if (props.Asset.AssetKey == null || props.Asset.AssetKey.length == 0 || props.Asset.AssetKey.length > 50) return false;
                 else if (props.NewEdit == 'New') {
                     if (props.Asset.ID == 0) {
                         const keys = _.uniq(currentKeys.concat(...(props.AllAssets != undefined ? props.AllAssets.map(a => a.AssetKey.toLocaleLowerCase()) : [])))
@@ -98,7 +98,7 @@ export namespace AssetAttributes {
                 }
             }
             else if (field == 'AssetName')
-                return props.Asset.AssetName != null && props.Asset.AssetName.length > 0;
+                return props.Asset.AssetName != null && props.Asset.AssetName.length > 0 && props.Asset.AssetName.length <= 200;
             else if (field == 'VoltageKV')
                 return props.Asset.VoltageKV != null && AssetAttributes.isRealNumber(props.Asset.VoltageKV);
             else if (field == 'Description')

@@ -47,7 +47,7 @@ function AssetgroupInfoWindow(props: { AssetGroup: OpenXDA.Types.AssetGroup, Sta
 
     function valid(field: keyof (OpenXDA.Types.AssetGroup)): boolean {
         if (field == 'Name') {
-            if (assetGroup.Name == null || assetGroup.Name.length == 0) return false;
+            if (assetGroup.Name == null || assetGroup.Name.length == 0 || assetGroup.Name.length > 50) return false;
 
             if (isEqual(assetGroup.Name, props.AssetGroup.Name)) return true;
 
