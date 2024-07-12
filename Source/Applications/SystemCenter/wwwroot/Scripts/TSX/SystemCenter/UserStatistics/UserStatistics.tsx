@@ -125,14 +125,17 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
                         width={svgWidth}
                         showGrid={true}
                         XAxisType='time'
-                        legend='bottom'
+                        legend='right'
                         Ylabel='Count'
                         Tlabel='Date'
+                        pan={false}
+                        zoom={false}
+                        holdMenuOpen={false}
                     >
                         <Line
                             data={scData}
-                            color='steelblue'
                             lineStyle='solid'
+                            color='steelblue'
                             legend='System Center'
                         />
                         <Line
