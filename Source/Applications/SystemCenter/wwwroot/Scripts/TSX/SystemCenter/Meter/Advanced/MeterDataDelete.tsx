@@ -24,7 +24,7 @@
 import * as React from 'react';
 import { Warning } from '@gpa-gemstone/react-interactive';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
-import { Input } from '@gpa-gemstone/react-forms';
+import { DatePicker } from '@gpa-gemstone/react-forms';
 
 declare let homePath: string;
 
@@ -161,31 +161,29 @@ export default function DataDeleteWindow(props: {
                 <div className="pl-3" style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
                     <form>
                         <div className="form-group row">
-                            <Input<RecordType>
+                            <DatePicker<RecordType>
                                 Record={record}
                                 Field="startTime"
                                 Setter={setRecord}
-                                Valid={() => validateStartTime(record.startTime?.toISOString() || "")}
+                                Valid={() => startTimeValid}
                                 Label="Start Time"
-                                Type="text"
+                                Type="datetime-local"
                                 Feedback="Invalid start time."
-                                Size="large"
-                                AllowNull={false}
-                                Style={{ width: "18em", height: "5em", fontSize: "1.5em", padding: "0.5em" }}
+                                AllowEmpty={false}
+                                Accuracy="second"
                             />
                         </div>
                         <div className="form-group row">
-                            <Input<RecordType>
+                            <DatePicker<RecordType>
                                 Record={record}
                                 Field="endTime"
                                 Setter={setRecord}
-                                Valid={() => validateEndTime(record.endTime?.toISOString() || "")}
+                                Valid={() => endTimeValid}
                                 Label="End Time"
-                                Type="text"
+                                Type="datetime-local"
                                 Feedback="Invalid end time."
-                                Size="large"
-                                AllowNull={false}
-                                Style={{ width: "18em", height: "5em", fontSize: "1.5em", padding: "0.5em" }}
+                                AllowEmpty={false}
+                                Accuracy="second"
                             />
                         </div>
                     </form>
