@@ -144,7 +144,7 @@ const MeterProperties = (props: IProps) => {
             <div className="row">
                 <div className="col">
 
-                <Input<OpenXDA.Types.Meter> Help={'Key is used to match the data folder and must match the openMIC setting.'} Record={props.Meter} Field={'AssetKey'} Label={'Key'} Feedback={'A unique Key of less than 50 characters is required.'} Valid={valid} Setter={(meter: OpenXDA.Types.Meter) => props.StateSetter(meter)} Disabled={hasPermissions()} />
+                <Input<OpenXDA.Types.Meter> Help={'By default, Key must be a unique string included in the file path (such as a folder name) so that openXDA can identify and correlate the data in the files to the Meter.'} Record={props.Meter} Field={'AssetKey'} Label={'Key'} Feedback={'A unique Key of less than 50 characters is required.'} Valid={valid} Setter={(meter: OpenXDA.Types.Meter) => props.StateSetter(meter)} Disabled={hasPermissions()} />
                 <Input<OpenXDA.Types.Meter> Record={props.Meter} Field={'Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={valid} Setter={(meter: OpenXDA.Types.Meter) => props.StateSetter(meter)} Disabled={hasPermissions()} />
                 <Input<OpenXDA.Types.Meter> Record={props.Meter} Field={'ShortName'} Label={'Short Name'} Feedback={'Short Name must be less than 50 characters.'} Valid={valid} Setter={(meter: OpenXDA.Types.Meter) => props.StateSetter(meter)} Disabled={hasPermissions()} />
                 <Input<OpenXDA.Types.Meter> Record={props.Meter} Field={'Alias'} Feedback={'Alias must be less than 200 characters.'} Valid={valid} Setter={(meter: OpenXDA.Types.Meter) => props.StateSetter(meter)} Disabled={hasPermissions()} />
