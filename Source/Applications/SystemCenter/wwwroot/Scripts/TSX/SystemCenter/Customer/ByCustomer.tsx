@@ -142,7 +142,7 @@ const ByCustomer: Application.Types.iByComponent = (props) => {
                 }}
 
             >
-                <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
+                <li className="nav-item" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Engineer') < 0} style={{ width: '15%', paddingRight: 10 }}>
                     <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                         <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                         <div className="form-group">
