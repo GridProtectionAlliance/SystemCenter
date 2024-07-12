@@ -186,7 +186,7 @@ const ByLocation: Application.Types.iByComponent = (props) => {
     return (
         <div className="container-fluid d-flex h-100 flex-column">
             <DefaultSearch.Location Slice={ByLocationSlice} GetEnum={getEnum} GetAddlFields={getAdditionalFields} StorageID={'LocationsFilter'}>
-                <li className="nav-item" style={{ width: '20%', paddingRight: 10 }}>
+                <li className="nav-item" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Engineer') < 0} style={{ width: '20%', paddingRight: 10 }}>
                     <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                         <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                         <form>
