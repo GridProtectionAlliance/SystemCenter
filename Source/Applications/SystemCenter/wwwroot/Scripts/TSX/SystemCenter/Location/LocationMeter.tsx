@@ -138,6 +138,13 @@ function LocationMeterWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
                         > Model
                         </ReactTable.Column>
                     </ReactTable.Table>
+                    <LoadingScreen Show={pageState == 'loading'} />
+                    <ServerErrorIcon Show={pageState == 'error'} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
+                </div>
+                <div className="row" style={{ marginTop: '-16px' }}>
+                    <div className="col">
+                        <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p - 1)} />
+                    </div>
                 </div>
             </div>
             <div className="card-footer">
