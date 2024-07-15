@@ -286,8 +286,8 @@ export default function VirtualChannelModal(props: IProps) {
                             </button>
                         </>
                     ))}
-                    {!disableModalConfirm ? null : <div className="col-12 mt-2 alert alert-primary" role="alert">Select channels to add to virtual channel.</div>}
                 </div>
+                {(virtualChannels.length > 0) ? null : <div className="col-12 mt-2 alert alert-primary" role="alert">Select channels to add to virtual channel.</div>}
             </div>
         </Modal>
     </>
