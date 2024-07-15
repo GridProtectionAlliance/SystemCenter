@@ -195,6 +195,11 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                         </div>
                     </div>
                 </div>
+                <div className="row" style={{ marginTop: '-16px' }}>
+                    <div className="col">
+                        <Paging Current={page + 1} Total={allPages} SetPage={(p) => setPage(p - 1)} />
+                    </div>
+                </div>
             </div>
             <div className="card-footer">
                 <button className={"btn btn-primary pull-right" + (!hasPermissions() ? ' disabled' : '')} data-toggle={"modal" + (!hasPermissions() ? ' disabled' : '')} data-target="#exampleModal" data-tooltip='AddDrawing' onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')}
