@@ -201,32 +201,24 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
                             Key={'AssetKey'}
                             AllowSort={true}
                             Field={'AssetKey'}
-                            HeaderStyle={{ width: '30%' }}
-                            RowStyle={{ width: '30%' }}
                         > Key
                         </ReactTable.Column>
                         <ReactTable.Column<OpenXDA.Types.Meter>
                             Key={'Name'}
                             AllowSort={true}
                             Field={'Name'}
-                            HeaderStyle={{ width: '30%' }}
-                            RowStyle={{ width: '30%' }}
                         > Name
                         </ReactTable.Column>
                         <ReactTable.Column<OpenXDA.Types.Meter>
                             Key={'Make'}
                             AllowSort={true}
                             Field={'Make'}
-                            HeaderStyle={{ width: '20%' }}
-                            RowStyle={{ width: '20%' }}
                         > Make
                         </ReactTable.Column>
                         <ReactTable.Column<OpenXDA.Types.Meter>
                             Key={'Model'}
                             AllowSort={true}
                             Field={'Model'}
-                            HeaderStyle={{ width: '20%' }}
-                            RowStyle={{ width: '20%' }}
                         > Model
                         </ReactTable.Column>
                     </ReactTable.Table>
