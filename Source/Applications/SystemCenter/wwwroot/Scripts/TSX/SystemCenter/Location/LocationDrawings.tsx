@@ -30,7 +30,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import { SystemCenter as SCGlobal } from '../global';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { ReactTable, Paging } from '@gpa-gemstone/react-table';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { LocationDrawingSlice } from '../Store/Store';
 import { Input, Select } from '@gpa-gemstone/react-forms';
@@ -53,13 +53,19 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
     const roles = useAppSelector(SelectRoles);
 
+    const allPages = useAppSelector(LocationDrawingSlice.TotalPages);
+    const currentPage = useAppSelector(LocationDrawingSlice.CurrentPage);
+    const [page, setPage] = React.useState<number>(currentPage);
+
     React.useEffect(() => {
-        if (status == 'unintiated' || status == 'changed' || parentID !== props.Location.ID)
-            dispatch(LocationDrawingSlice.Fetch(props.Location.ID));
+        if (status == 'unintiated' || status == 'changed' || parentID !== props.Location.ID) {
+            dispatch(LocationDrawingSlice.PagedSearch({ filter: [], sortField: sortKey, ascending, page }));
+        }
 
         return function () {
         }
-    }, [dispatch, status, props.Location.ID]);
+    }, [dispatch, status, sortKey, ascending, page, props.Location.ID]);
+
 
     React.useEffect(() => {
         let categoryHandle = getValueList("Category", setCategory);
@@ -183,6 +189,11 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                         > <p></p>
                         </ReactTable.Column>
                     </ReactTable.Table>
+                    <div className="row">
+                        <div className="col">
+                            <Paging Current={page + 1} Total={allPages} SetPage={(p) => setPage(p - 1)} />
+                        </div>
+                    </div>
                 </div>
             </div>
             <div className="card-footer">

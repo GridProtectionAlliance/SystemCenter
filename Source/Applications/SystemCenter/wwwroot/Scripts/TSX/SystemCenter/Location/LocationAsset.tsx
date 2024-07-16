@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA, Application } from '@gpa-gemstone/application-typings'
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { ReactTable, Paging } from '@gpa-gemstone/react-table';
 import { useHistory } from "react-router-dom";
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import BreakerAttributes from '../AssetAttribute/Breaker';
@@ -63,7 +63,7 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
     const [assetErrors, setAssetErrors] = React.useState<string[]>([]);
     const [showModal, setShowModal] = React.useState<boolean>(false);
 
-    const [lStatus, setLStatus] = React.useState<'error' | 'loading' | 'idle'>('idle')
+    const [lStatus, setLStatus] = React.useState<'error' | 'loading' | 'idle'>('idle');
 
     const aStatus = useAppSelector(SelectAssetStatus);
     const atStatus = useAppSelector(AssetTypeSlice.Status);
@@ -73,6 +73,9 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
 
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
     const roles = useAppSelector(SelectRoles);
+
+    const [page, setPage] = React.useState<number>(0);
+    const [pageInfo, setPageInfo] = React.useState<{ RecordsPerPage: number, NumberOfPages: number, TotalRecords: number }>({ RecordsPerPage: 0, NumberOfPages: 0, TotalRecords: 0 });
 
     React.useEffect(() => {
         if (atStatus == 'unintiated' || atStatus == 'changed')
@@ -93,7 +96,7 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
         let assetsHandle = getAssets();
         return () => { if (assetsHandle != null && assetsHandle.abort != null) assetsHandle.abort(); }
 
-    }, [props.Location.ID, trigger]);
+    }, [props.Location.ID, page, trigger]);
 
     React.useEffect(() => {
         const errors = AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType);
@@ -112,17 +115,22 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
 
         return $.ajax({
             type: "GET",
-            url: `${homePath}api/OpenXDA/Location/${props.Location.ID}/Assets`,
+            url: `${homePath}api/OpenXDA/Location/${props.Location.ID}/Assets/${page}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
             async: true
-        }).done((d) => {
-            setData(_.orderBy(d, [sortKey], [ascending ? 'asc' : 'desc']));
-            setLStatus('idle')
+        }).done((result) => {
+            const records = JSON.parse(result.Result);
+            setData(_.orderBy(records, [sortKey], [ascending ? 'asc' : 'desc']));
+            setPageInfo({
+                RecordsPerPage: result.RecordsPerPage,
+                NumberOfPages: result.NumberOfPages,
+                TotalRecords: result.TotalRecords
+            });
+            setLStatus('idle');
         }).fail(() => setLStatus('error'));
     }
-
 
     function addNewAsset() {
         setLStatus('loading');
@@ -144,8 +152,6 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
         });
 
     }
-
-    
 
     async function addExistingAsset() {
         setLStatus('loading');
@@ -366,6 +372,11 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
                         > <p></p>
                         </ReactTable.Column>
                     </ReactTable.Table>
+                    <div className="row">
+                        <div className="col">
+                            <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p - 1)} />
+                        </div>
+                    </div>
                 </div>
             </div>
             <div className="card-footer">
