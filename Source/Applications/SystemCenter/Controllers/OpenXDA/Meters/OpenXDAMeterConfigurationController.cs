@@ -55,6 +55,8 @@ namespace SystemCenter.Controllers.OpenXDA
                     FROM MeterConfiguration
                     WHERE MeterID = {meterID}
                     ");
+                    int numberOfPages = (totalRecords + recordsPerPage - 1) / recordsPerPage;
+                    if (numberOfPages == 0) numberOfPages = 1;
                     DataTable records = connection.RetrieveData($@"
                     SELECT
                         MeterConfiguration.ID,
@@ -79,7 +81,7 @@ namespace SystemCenter.Controllers.OpenXDA
                     {
                         Records = JsonConvert.SerializeObject(records),
                         RecordsPerPage = recordsPerPage,
-                        NumberOfPages = (totalRecords + recordsPerPage - 1) / recordsPerPage,
+                        NumberOfPages = numberOfPages,
                         TotalRecords = totalRecords
                     });
                 }
@@ -101,6 +103,8 @@ namespace SystemCenter.Controllers.OpenXDA
                         FROM DataFile
                         WHERE FileGroupID IN (SELECT FileGroupID FROM FileGroupMeterConfiguration WHERE MeterConfigurationID = {meterConfigurationID})
                     ");
+                    int numberOfPages = (totalRecords + recordsPerPage - 1) / recordsPerPage;
+                    if (numberOfPages == 0) numberOfPages = 1;
                     int offset = page * recordsPerPage;
                     string orderByExpression = "ID";
 
@@ -118,7 +122,7 @@ namespace SystemCenter.Controllers.OpenXDA
                     {
                         Records = JsonConvert.SerializeObject(records),
                         RecordsPerPage = recordsPerPage,
-                        NumberOfPages = (totalRecords + recordsPerPage - 1) / recordsPerPage,
+                        NumberOfPages = numberOfPages,
                         TotalRecords = totalRecords
                     });
                 }

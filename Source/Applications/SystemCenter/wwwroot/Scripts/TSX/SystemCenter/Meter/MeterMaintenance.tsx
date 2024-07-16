@@ -82,6 +82,7 @@ const MeterMaintenanceWindow = (props: IProps) => {
         setPageState('loading');
         const handle = MeterMaintenanceController.PagedSearch([], sortKey, ascending, page, props.Meter.ID).done((result) => {
             setTableData(JSON.parse(result.Data as unknown as string));
+            if (result.NumberOfPages == 0) result.NumberOfPages = 1;
             setPageInfo(result);
             setPageState('idle');
         }).fail(() => setPageState('error'));
@@ -194,10 +195,10 @@ const MeterMaintenanceWindow = (props: IProps) => {
                     </ReactTable.Table>
                     <LoadingScreen Show={pageState == 'loading'} />
                     <ServerErrorIcon Show={pageState == 'error'} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
-                    <div className="row">
-                        <div className="col">
-                            <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p - 1)} />
-                        </div>
+                </div>
+                <div className="row" style={{ marginTop: '-16px' }}>
+                    <div className="col">
+                        <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p - 1)} />
                     </div>
                 </div>
             </>

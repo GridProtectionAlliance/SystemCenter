@@ -82,11 +82,7 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
         }).done((result) => {
             const records = JSON.parse(result.Records);
             setFilesProcessed(records)
-            setPageInfo({
-                RecordsPerPage: result.RecordsPerPage,
-                NumberOfPages: result.NumberOfPages,
-                TotalRecords: result.TotalRecords
-            });
+            setPageInfo(result);
             setPageState('idle');
         }).fail(() => setPageState('error'));
     }
