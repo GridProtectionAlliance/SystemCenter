@@ -163,8 +163,8 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
                             Key={'LocationKey'}
                             AllowSort={true}
                             Field={'LocationKey'}
-                            HeaderStyle={{ width: '30%' }}
-                            RowStyle={{ width: '30%' }}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
                         > Key
                         </ReactTable.Column>
                         <ReactTable.Column<OpenXDA.Types.Location>
