@@ -161,8 +161,8 @@ const MeterMaintenanceWindow = (props: IProps) => {
                                 Key={'StartTime'}
                                 AllowSort={true}
                                 Field={'StartTime'}
-                                HeaderStyle={{ width: 'calc(50%-40px)' }}
-                                RowStyle={{ width: 'calc(50%-40px)' }}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
                                 Content={({ item }) => item.StartTime ? moment(item.StartTime, defaultFormat).format('MM/DD/YYYY hh:mm A') : 'This window starts at meter creation' }
                             > Start Window Time
                             </ReactTable.Column>
@@ -170,16 +170,16 @@ const MeterMaintenanceWindow = (props: IProps) => {
                                 Key={'EndTime'}
                                 AllowSort={true}
                                 Field={'EndTime'}
-                                HeaderStyle={{ width: 'calc(50%-40px)' }}
-                                RowStyle={{ width: 'calc(50%-40px)' }}
+                                HeaderStyle={{ width: '50%' }}
+                                RowStyle={{ width: '50%' }}
                                 Content={({ item }) => item.EndTime ? moment(item.EndTime, defaultFormat).format('MM/DD/YYYY hh:mm A') : 'This window has no end time' }
                             > End Window Time
                             </ReactTable.Column>
                             <ReactTable.Column<MaintenanceWindow>
                                 Key={'EditDelete'}
                                 AllowSort={false}
-                                HeaderStyle={{ width: 80, paddingLeft: 0, paddingRight: 5 }}
-                                RowStyle={{ width: 80, paddingLeft: 0, paddingRight: 5 }}
+                                HeaderStyle={{ width: '80px', paddingLeft: 0, paddingRight: 5 }}
+                                RowStyle={{ width: '80px', paddingLeft: 0, paddingRight: 5 }}
                                 Content={({ item }) => <>
                                     <button className="btn btn-sm"
                                         onClick={(e) => {
