@@ -62,12 +62,8 @@ function MeterConfigurationHistoryWindow(props: { Meter: OpenXDA.Types.Meter }) 
             async: true
         }).done((result) => {
             const records = JSON.parse(result.Records);
-            setMeterConfigurations(records)
-            setPageInfo({
-                RecordsPerPage: result.RecordsPerPage,
-                NumberOfPages: result.NumberOfPages,
-                TotalRecords: result.TotalRecords
-            });
+            setMeterConfigurations(records);
+            setPageInfo(result);
             setPageState('idle');
         }).fail(() => setPageState('error'));
     };

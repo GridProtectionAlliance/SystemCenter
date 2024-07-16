@@ -99,6 +99,7 @@ const MeterAssetWindow = (props: IProps) => {
         setPageState('loading');
         const handle = MeterAssetController.PagedSearch([], sortKey, ascending, page).done((result) => {
             setData(JSON.parse(result.Data as unknown as string));
+            if (result.NumberOfPages == 0) result.NumberOfPages = 1;
             setPageInfo(result);
             setPageState('idle');
         }).fail(() => setPageState('error'));
