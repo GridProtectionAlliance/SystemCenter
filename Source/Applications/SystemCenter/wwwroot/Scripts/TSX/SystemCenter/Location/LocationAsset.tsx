@@ -372,11 +372,6 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
                         > <p></p>
                         </ReactTable.Column>
                     </ReactTable.Table>
-                    <div className="row">
-                        <div className="col">
-                            <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p - 1)} />
-                        </div>
-                    </div>
                 </div>
                 <div className="row" style={{ marginTop: '-16px' }}>
                     <div className="col">
