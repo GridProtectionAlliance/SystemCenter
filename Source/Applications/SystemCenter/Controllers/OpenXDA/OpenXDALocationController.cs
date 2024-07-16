@@ -218,6 +218,8 @@ namespace SystemCenter.Controllers.OpenXDA
                     FROM Meter
                     WHERE LocationID = {locationID}
                     ");
+                    int numberOfPages = (totalRecords + recordsPerPage - 1) / recordsPerPage;
+                    if (numberOfPages == 0) numberOfPages = 1;
                     try
                     {
                         int offset = page * recordsPerPage;
@@ -233,7 +235,7 @@ namespace SystemCenter.Controllers.OpenXDA
                         {
                             Result = JsonConvert.SerializeObject(result),
                             RecordsPerPage = recordsPerPage,
-                            NumberOfPages = (totalRecords + recordsPerPage - 1) / recordsPerPage,
+                            NumberOfPages = numberOfPages,
                             TotalRecords = totalRecords
                         });
                     }
@@ -264,7 +266,8 @@ namespace SystemCenter.Controllers.OpenXDA
                     FROM {assetLocationTableName}
                     WHERE LocationID = {locationID}
                     ");
-
+                    int numberOfPages = (totalRecords + recordsPerPage - 1) / recordsPerPage;
+                    if (numberOfPages == 0) numberOfPages = 1;
                     try
                     {
                         DataTable result = connection.RetrieveData($@"
@@ -285,7 +288,7 @@ namespace SystemCenter.Controllers.OpenXDA
                         {
                             Result = JsonConvert.SerializeObject(result),
                             RecordsPerPage = recordsPerPage,
-                            NumberOfPages = (totalRecords + recordsPerPage - 1) / recordsPerPage,
+                            NumberOfPages = numberOfPages,
                             TotalRecords = totalRecords
                         });
                     }
