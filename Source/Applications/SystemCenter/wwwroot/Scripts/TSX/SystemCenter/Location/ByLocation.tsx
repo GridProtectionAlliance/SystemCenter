@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { ReactTable } from '@gpa-gemstone/react-table'
+import { ReactTable, Paging } from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
@@ -52,6 +52,10 @@ const ByLocation: Application.Types.iByComponent = (props) => {
     const [newLocationErrors, setNewLocationErrors] = React.useState<string[]>([]);
     const [showEXTModal, setShowExtModal] = React.useState<boolean>(false);
     const extDbUpdateAll = React.useRef<() => (() => void)>(undefined);
+
+    const allPages = useAppSelector(ByLocationSlice.TotalPages);
+    const currentPage = useAppSelector(ByLocationSlice.CurrentPage);
+    const [page, setPage] = React.useState<number>(currentPage);
 
     const [showNew, setShowNew] = React.useState<boolean>(false);
 
@@ -93,8 +97,8 @@ const ByLocation: Application.Types.iByComponent = (props) => {
 
     React.useEffect(() => {
         if (searchStatus == 'changed' || searchStatus == 'unintiated')
-            dispatch(ByLocationSlice.DBSearch({ filter: searchFields }));
-    }, [searchStatus])
+            dispatch(ByLocationSlice.PagedSearch({ filter: searchFields, sortField: sortKey, ascending, page }));
+    }, [searchStatus, dispatch, searchFields, sortKey, ascending, page]);
 
     function getNewLocation() {
         return {
@@ -260,6 +264,11 @@ const ByLocation: Application.Types.iByComponent = (props) => {
                     > Assets
                     </ReactTable.Column>
                 </ReactTable.Table>
+            </div>
+            <div className="row">
+                <div className="col">
+                    <Paging Current={page + 1} Total={allPages} SetPage={(p) => setPage(p - 1)} />
+                </div>
             </div>
 
             <Modal Show={showNew} Size={'lg'} Title={'Add New Substation'}

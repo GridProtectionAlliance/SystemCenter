@@ -24,7 +24,8 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { ReactTable, Paging } from '@gpa-gemstone/react-table';
+import { ServerErrorIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
 import { useHistory } from "react-router-dom";
 
 declare var homePath: string;
@@ -35,19 +36,32 @@ function LocationMeterWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
     const [sortField, setSortField] = React.useState<keyof(OpenXDA.Types.Meter)>('AssetKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
 
+    const [page, setPage] = React.useState<number>(0);
+    const [pageInfo, setPageInfo] = React.useState<{ RecordsPerPage: number, NumberOfPages: number, TotalRecords: number }>({ RecordsPerPage: 0, NumberOfPages: 0, TotalRecords: 0 });
+    const [pageState, setPageState] = React.useState<'error' | 'idle' | 'loading'>('idle');
+
     React.useEffect(() => {
         getMeters();
-    }, [props.Location.ID]);
+    }, [props.Location.ID, page]);
 
     function getMeters(): void {
         $.ajax({
             type: "GET",
-            url: `${homePath}api/OpenXDA/Location/${props.Location.ID}/Meters`,
+            url: `${homePath}api/OpenXDA/Location/${props.Location.ID}/Meters/${page}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
             async: true
-        }).done(meters => setMeters(meters));
+        }).done((result) => {
+            const records = JSON.parse(result.Result);
+            setMeters(records);
+            setPageInfo({
+                RecordsPerPage: result.RecordsPerPage,
+                NumberOfPages: result.NumberOfPages,
+                TotalRecords: result.TotalRecords
+            });
+            setPageState('idle');
+        }).fail(() => setPageState('error'));
     }
 
     function handleSelect(item) {
