@@ -55,7 +55,8 @@ function AdditionalFieldsKeyModal(props: IProps): JSX.Element {
             cache: true,
             async: true
         })
-            .done((d) => { setDataStatus('idle'); return d }).fail((d) => { setDataStatus('error') });
+            .done((d) => { if (d.length > 0 && d[0][props.KeyField.FieldName] === undefined) setDataStatus('error')
+            else setDataStatus('idle'); return d }).fail((d) => { setDataStatus('error') });
 
         return handle
     };
@@ -92,7 +93,7 @@ function AdditionalFieldsKeyModal(props: IProps): JSX.Element {
             ConfirmText={countStatus === 'error' || dataStatus === 'error' ? 'Close' : 'Select'}
             BodyStyle={{ maxHeight: 'calc(100vh - 210px)', display: 'flex', flexDirection: 'column' }}
         >
-                <ResultDisplay GetCount={getCount} GetTable={getData} Selected={(item) => _.isEqual(item, selectedExternal)} OnSelection={setSelectedExternal} ForceReload={props.Show} />
+            <ResultDisplay GetCount={getCount} GetTable={getData} Selected={(item) => _.isEqual(item, selectedExternal)} OnSelection={setSelectedExternal} ForceReload={props.Show} />
         </Modal>
     );
 }

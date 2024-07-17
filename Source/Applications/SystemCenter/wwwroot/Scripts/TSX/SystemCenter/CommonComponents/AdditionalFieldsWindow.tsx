@@ -223,13 +223,16 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
 
     const KeyModalCallback = React.useCallback((newValue: string) => {
         const newFields = _.cloneDeep(additionalFieldValuesWorking);
-        const alteredID = newFields.findIndex(field => field.AdditionalFieldID === keyField.ID);
-        if (alteredID === -1) return;
-        newFields[alteredID].Value = newValue;
+        const alteredID = newFields.findIndex(field => field.AdditionalFieldID == keyField.ID);
+        if (alteredID < 0) {
+            newFields.push({ ID: 0, AdditionalFieldID: keyField.ID, ParentTableID: props.ID, Value: newValue })
+        } else {
+            newFields[alteredID].Value = newValue;
+        }
         setAdditionalFieldValuesWorking(newFields);
     }, [additionalFieldValuesWorking, setAdditionalFieldValuesWorking, keyField]);
 
-    if (state == 'loading' && !(props.InnerOnly ?? false))
+        if (state == 'loading' && !(props.InnerOnly ?? false))
         return (
             <div style={{ width: '100%', height: '200px', opacity: 0.5, backgroundColor: '#000000', }}>
                 <div style={{ height: '40px', width: '40px', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
@@ -319,7 +322,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                 RowStyle={{ width: 'auto' }}
                 Content={({ item }) => <>
                     <AdditionalFieldsValueField Field={item} ParentTableID={props.ID} Values={additionalFieldValuesWorking}
-                        Setter={(val: SystemCenter.Types.AdditionalFieldValue[]) => setAdditionalFieldValuesWorking(val)} />
+                        Setter={(val: SystemCenter.Types.AdditionalFieldValue[]) => {setAdditionalFieldValuesWorking(val)}} />
                 </> }
             > Value
             </ReactTable.Column>
