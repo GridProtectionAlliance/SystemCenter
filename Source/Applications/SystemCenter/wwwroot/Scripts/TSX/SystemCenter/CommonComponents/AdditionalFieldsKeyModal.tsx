@@ -75,6 +75,12 @@ function AdditionalFieldsKeyModal(props: IProps): JSX.Element {
         return handle;
     };
   
+    React.useEffect(() => {
+        if (props.Show && dataStatus === 'error') {
+            getData(0, 10, [], '', true);
+        }
+    }, [props.Show])
+
     let title = `Select Key Field Value for ${props.KeyField?.FieldName}`;
     return (
         <Modal
@@ -93,7 +99,9 @@ function AdditionalFieldsKeyModal(props: IProps): JSX.Element {
             ConfirmText={countStatus === 'error' || dataStatus === 'error' ? 'Close' : 'Select'}
             BodyStyle={{ maxHeight: 'calc(100vh - 210px)', display: 'flex', flexDirection: 'column' }}
         >
-            <ResultDisplay GetCount={getCount} GetTable={getData} Selected={(item) => _.isEqual(item, selectedExternal)} OnSelection={setSelectedExternal} ForceReload={props.Show} />
+            {dataStatus !== 'error' ? <ResultDisplay GetCount={getCount} GetTable={getData} Selected={(item) => _.isEqual(item, selectedExternal)} OnSelection={setSelectedExternal} ForceReload={props.Show} />
+            : <ServerErrorIcon Show={dataStatus === 'error'} Label={'This table is not setup properly.'} />
+            }
         </Modal>
     );
 }
