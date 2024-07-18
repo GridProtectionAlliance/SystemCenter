@@ -127,12 +127,12 @@ const NewEventSubscription = (props: {}) => {
                             </div>
                         </div>
                     </div>
-                    <div className="row card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
+                    <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
                         {currentStep == 'Selection' ?
-                            <>
+                            <div className="row">
                                 <AssetGroupSelection assetGroupID={assetGroupID} SetAssetGroupID={setAssetGroupID} /> 
                                 <EmailSelect emailTypeID={emailTypeID} SetEmailTypeID={setEmailTypeID} />
-                            </>
+                            </div>
                             : null}
                         {currentStep == 'Email' ? <ConfirmEmail SetConfirmed={() => setCurrentStep('Success')} /> : null}
                         {currentStep == 'Carrier' ? <ConfirmPhoneCarrier /> : null}
