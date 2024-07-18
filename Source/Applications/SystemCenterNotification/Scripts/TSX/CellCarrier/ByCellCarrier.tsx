@@ -136,8 +136,8 @@ const ByCellCarrier = (props: IProps) => {
             </div>
 
             <Modal Show={showModal != 'Hide'} ShowCancel={showModal == 'Edit'} CancelText={'Delete'} ShowX={true} Size='lg' Title={showModal == 'Edit' ? `Edit ${carrier.Name}` : 'Add New Carrier'} ConfirmText={showModal == 'Edit' ? 'Save' : 'Add'}
-                DisableConfirm={carrier.Name == null || carrier.Transform == null || carrier.Name.length == 0 || carrier.Transform.length == 0 || allData.findIndex(c => c.Name == carrier.Name && c.ID != carrier.ID) > -1}
-                ConfirmShowToolTip={carrier.Name == null || carrier.Transform == null || carrier.Name.length == 0 || carrier.Transform.length == 0 || allData.findIndex(c => c.Name == carrier.Name && c.ID != carrier.ID) > -1}
+                DisableConfirm={carrier.Name == null || carrier.Transform == null || carrier.Name.length == 0 || carrier.Transform.length == 0 || carrier.Name.length > 200 || carrier.Transform.length > 200 || allData.findIndex(c => c.Name == carrier.Name && c.ID != carrier.ID) > -1}
+                ConfirmShowToolTip={carrier.Name == null || carrier.Transform == null || carrier.Name.length == 0 || carrier.Transform.length == 0 || carrier.Name.length > 200 || carrier.Transform.length > 200 || allData.findIndex(c => c.Name == carrier.Name && c.ID != carrier.ID) > -1}
                 ConfirmToolTipContent={<>
                     {carrier.Name == null || carrier.Name.length == 0 ? <p> {CrossMark} A Name is required. </p> : null}
                     {carrier.Name.length > 200 ? <p>{CrossMark} Name must not exceed 200 characters.</p> : null}
