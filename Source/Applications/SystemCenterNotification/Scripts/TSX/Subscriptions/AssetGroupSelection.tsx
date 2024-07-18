@@ -130,9 +130,9 @@ const AssetGroupSelection = (props: IProps) => {
     return (<>
             <LoadingIcon Show={parentGroupState == 'loading' || assetGrpStatus == 'loading'} />
             <div className="col">
-                <div className="row">
-                    <div className="col">
-                        <Select<OpenXDA.Types.AssetGroup> Record={selectedParent} Field={'ID'} Label='Asset Group' Setter={setSelectedParent}
+                <div className="col">
+                    <div className="form-group">
+                        <Select<OpenXDA.Types.AssetGroup> Record={selectedParent} Field={'ID'} Label='Asset Category' Setter={setSelectedParent}
                             Options={[{ Label: 'Other', Value: '-1' }].concat(parentGroups.map((p) => {
                                 return { Label: p.Name, Value: p.ID.toString() }
                             }))} />
