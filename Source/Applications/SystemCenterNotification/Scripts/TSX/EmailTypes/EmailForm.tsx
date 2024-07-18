@@ -52,11 +52,13 @@ const EmailForm = (props: IProps) => {
 
     function Valid(field: keyof EmailType) {
         if (field == 'Name')
-            return props.record.Name != null && props.record.Name.length != 0 && emails.findIndex(e => e.Name == props.record.Name && props.record.ID != e.ID) == -1;
+            return props.record.Name != null && props.record.Name.length != 0 && props.record.Name.length <= 50 && emails.findIndex(e => e.Name == props.record.Name && props.record.ID != e.ID) == -1;
         if (field == 'MinDelay')
             return props.record.MinDelay != null && IsNumber(props.record.MinDelay) && props.record.MinDelay >= 0;
         if (field == 'MaxDelay')
             return props.record.MaxDelay != null && IsNumber(props.record.MaxDelay) && props.record.MaxDelay >= 0;
+        if (field == 'FilePath')
+            return props.record.FilePath != null && props.record.FilePath.length <= 200;
         return true;
     }
 
