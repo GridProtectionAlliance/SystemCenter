@@ -75,7 +75,7 @@ const EmailConfirm = (props: IProps) => {
             props.SetConfirmed();
     }, [confirmed]);
 
-    return <> <div className="row">
+    return <>
         <div className="col">
             <div className="alert alert-info">
                 Please Confirm your Email by Clicking on the link provided in the email send to you.
@@ -83,7 +83,6 @@ const EmailConfirm = (props: IProps) => {
                 <button type="button" className="btn btn-secondary" onClick={() => { setForceResend(x=> x+1)}}>Resend Link</button>
             </div>
             </div>
-        </div>
         </>;
 }
 

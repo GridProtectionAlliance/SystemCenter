@@ -65,21 +65,19 @@ const ConfirmPhoneCarrier = (props: IProps) => {
 
 
     return (
-        <div className="row">
-            <div className="col">
-                <div className="row">
-                    <div className="col">
-                        <div className="alert alert-info" style={{ margin: 'auto' }}>
-                        Please confirm your Cell Carrier.
-                        </div>
+        <div className="col">
+            <div className="row">
+                <div className="col">
+                    <div className="alert alert-info" style={{ margin: 'auto' }}>
+                    Please confirm your Cell Carrier.
                     </div>
                 </div>
-                <div className="row" style={{ marginTop: 15 }}>
-                    <div className="col">
-                        <div className="form-group">
-                            <Select<ICellCarrier> Record={currentCarrier} Field={'ID'} Label='Cell Carrier' Setter={(record) => setCurrentCarrier({ ...record, ID: typeof record.ID == 'string' ? parseInt(record.ID) : record.ID })}
-                                Options={carriers.map((e) => { return { Label: e.Name, Value: e.ID.toString() } })} />
-                        </div>
+            </div>
+            <div className="row" style={{ marginTop: 15 }}>
+                <div className="col">
+                    <div className="form-group">
+                        <Select<ICellCarrier> Record={currentCarrier} Field={'ID'} Label='Cell Carrier' Setter={(record) => setCurrentCarrier({ ...record, ID: typeof record.ID == 'string' ? parseInt(record.ID) : record.ID })}
+                            Options={carriers.map((e) => { return { Label: e.Name, Value: e.ID.toString() } })} />
                     </div>
                 </div>
             </div>
