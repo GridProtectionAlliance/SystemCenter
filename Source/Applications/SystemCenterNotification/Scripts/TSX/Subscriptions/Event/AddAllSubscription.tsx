@@ -112,10 +112,11 @@ const AddAllSubscription = (props: IProps) => {
                         save();
                 }}
             >
-                {step == 'Email' ? <>
-                    <AssetGroupSelection assetGroupID={assetGroupIDs} SetAssetGroupID={setAssetGroupIDs} />
-                    <EmailSelect emailTypeID={emailTypeID} SetEmailTypeID={setEmailTypeID} />
-                </> : null}
+                {step == 'Email' ? 
+                    <div className="row">
+                        <AssetGroupSelection assetGroupID={assetGroupIDs} SetAssetGroupID={setAssetGroupIDs} />
+                        <EmailSelect emailTypeID={emailTypeID} SetEmailTypeID={setEmailTypeID} />
+                    </div> : null}
                 {step == 'User' ? <UserSelect UserAccountID={userAccountID} SetUserAccountID={setUserAccountID} /> : null}
             </Modal>
         </>)
