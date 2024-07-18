@@ -129,7 +129,7 @@ const AssetGroupSelection = (props: IProps) => {
 
     return (<>
             <LoadingIcon Show={parentGroupState == 'loading' || assetGrpStatus == 'loading'} />
-            <div className="col">
+            <div className="row">
                 <div className="col">
                     <div className="form-group">
                         <Select<OpenXDA.Types.AssetGroup> Record={selectedParent} Field={'ID'} Label='Asset Category' Setter={setSelectedParent}

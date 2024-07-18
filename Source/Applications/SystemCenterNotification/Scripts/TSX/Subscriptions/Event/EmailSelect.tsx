@@ -104,7 +104,7 @@ const EmailSelect = (props: IProps) => {
 
     return (<>
         <LoadingIcon Show={emailCategoryStatus == 'loading' || emailTypeStatus == 'loading'} />
-        <div className="col">
+        <div className="row">
             <div className="col">
                 <div className="form-group">
                     <Select<EmailCategory> Record={selectedCategory} Field={'ID'} Label='Notification Category' Setter={(record) => setSelectedCategory({ ...record, ID: typeof record.ID == 'string' ? parseInt(record.ID) : record.ID })}
