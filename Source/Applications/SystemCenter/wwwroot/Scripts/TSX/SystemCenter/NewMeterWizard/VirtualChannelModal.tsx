@@ -146,149 +146,149 @@ export default function VirtualChannelModal(props: IProps) {
             ConfirmShowToolTip={!validSelection}
             ConfirmToolTipContent={<p><span>{CrossMark}</span>Selection includes channel with no Series.</p>}
         >
-            <div className={'col-12'} style={{ height: '100%', overflow: 'hidden' }}>
-                <ConfigTable.Table<OpenXDA.Types.Channel>
-                    // LocalStorageKey="ChannelPageConfigTable"
-                    Data={props.CurrentChannels}
-                    SortKey={props.SortKey}
-                    Ascending={props.Ascending}
-                    TheadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
-                    TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
-                    RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    Selected={() => false}
-                    KeySelector={(item) => item.ID}
-                    OnClick={(data, event) => handleChannelClick(data, event)}
-                    OnSort={(d) => {
-                        // if (d.colKey === props.SortKey)
-                        // setAsc((x) => !x);
-                        // else
-                        // setAsc(false);
-                        // setSortKey(d.colKey);
-                    }}
-                >
-                    <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
-                        Key={'Name'}
-                        AllowSort={true}
-                        Field={'Name'}
-                        HeaderStyle={{ maxWidth: 'auto' }}
-                        >Name
-                    </ReactTable.AdjustableColumn>
-                    <ConfigTable.Configurable Key='Series' Label='Channel' Default={false}>
+            <div className="row">
+                <div className={'col-12'} style={{ height: '100%', overflow: 'hidden' }}>
+                    <ConfigTable.Table<OpenXDA.Types.Channel>
+                        // LocalStorageKey="ChannelPageConfigTable"
+                        Data={props.CurrentChannels}
+                        SortKey={props.SortKey}
+                        Ascending={props.Ascending}
+                        TheadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                        RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        Selected={() => false}
+                        KeySelector={(item) => item.ID}
+                        OnClick={(data, event) => handleChannelClick(data, event)}
+                        OnSort={(d) => {
+                            // if (d.colKey === props.SortKey)
+                            // setAsc((x) => !x);
+                            // else
+                            // setAsc(false);
+                            // setSortKey(d.colKey);
+                        }}
+                    >
                         <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
-                            Key={'Series'}
+                            Key={'Name'}
                             AllowSort={true}
+                            Field={'Name'}
                             HeaderStyle={{ maxWidth: 'auto' }}
-                            Content={({ item }) => item.Series[0].SourceIndexes}
-                            >Channel
+                            >Name
                         </ReactTable.AdjustableColumn>
-                    </ConfigTable.Configurable>
-                    <ConfigTable.Configurable Key='MeasurementType' Label='Type' Default={false}>
-                        <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
-                            Key={'MeasurementType'}
-                            AllowSort={true}
-                            HeaderStyle={{ maxWidth: 'auto' }}
-                            Field={'MeasurementType'}
-                            >Type
-                        </ReactTable.AdjustableColumn>
-                    </ConfigTable.Configurable>
-                    <ConfigTable.Configurable Key='MeasurementCharacteristic' Label='Characteristic' Default={false}>
-                        <ReactTable.AdjustableColumn<OpenXDA.Types.Channel> Key={'MeasurementCharacteristic'}
-                            HeaderStyle={{ maxWidth: 'auto' }}
-                            Field={'MeasurementCharacteristic'}
-                        >Characteristic
-                        </ReactTable.AdjustableColumn>
-                    </ConfigTable.Configurable>
-                    <ConfigTable.Configurable Key='Phase' Label='Phase' Default={false}>
-                        <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
-                            Key={'Phase'}
-                            HeaderStyle={{ maxWidth: 'auto' }}
-                            AllowSort={true}
-                            Field={'Phase'}
-                        >Phase
-                        </ReactTable.AdjustableColumn>
-                    </ConfigTable.Configurable>
-                    <ConfigTable.Configurable Key='SamplesPerHour' Label='Sampling Rate' Default={false}>
-                        <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
-                            Key={'SamplesPerHour'}
-                            HeaderStyle={{ maxWidth: 'auto' }}
-                            AllowSort={true}
-                            Field={'SamplesPerHour'}
-                        >Sampling Rate (sph)
-                        </ReactTable.AdjustableColumn>
-                    </ConfigTable.Configurable>
-                    <ConfigTable.Configurable Key='PerUnitValue' Label='Per Unit' Default={false}>
-                        <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
-                            Key={'PerUnitValue'}
-                            HeaderStyle={{ maxWidth: 'auto' }}
-                            AllowSort={true}
-                            Field={'PerUnitValue'}
-                        >Per Unit
-                        </ReactTable.AdjustableColumn>
-                    </ConfigTable.Configurable >
-                    <ConfigTable.Configurable Key='HarmonicGroup' Label='Harmonic' Default={false}>
-                        <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
-                            Key={'HarmonicGroup'}
-                            HeaderStyle={{ maxWidth: 'auto' }}
-                            AllowSort={true}
-                            Field={'HarmonicGroup'}
-                        >Harmonic
-                        </ReactTable.AdjustableColumn>
-                    </ConfigTable.Configurable >
-                    <ConfigTable.Configurable Key='Adder' Label='Adder' Default={false}>
-                        <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
-                            Key={'Adder'}
-                            HeaderStyle={{ maxWidth: 'auto' }}
-                            AllowSort={true}
-                            Field={'Adder'}
-                        >Adder
-                        </ReactTable.AdjustableColumn>
-                    </ConfigTable.Configurable >
-                    <ConfigTable.Configurable Key='Multiplier' Label='Multiplier' Default={false}>
-                        <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
-                            Key={'Multiplier'}
-                            HeaderStyle={{ maxWidth: 'auto' }}
-                            AllowSort={true}
-                            Field={'Multiplier'}
-                        >Multiplier
-                        </ReactTable.AdjustableColumn>
-                    </ConfigTable.Configurable >
-                    <ConfigTable.Configurable Key='Description' Label='Description' Default={true}>
-                        <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
-                            Key={'Description'}
-                            HeaderStyle={{ maxWidth: 'auto' }}
-                            Field={'Description'}
-                        >Description
-                        </ReactTable.AdjustableColumn>
-                    </ConfigTable.Configurable>
-                </ConfigTable.Table>
-            </div>
-            <div className={'col-9 justify-content-center'} style={{ height: '100%', overflow: 'hidden' }}>
-                <div className={'row align-items-center'}>
-                    {virtualChannels.map((channel: IVirtualChannel, index: number) => (
-                        <>
-                            {index === 0 ?
-                                null : <div className={'col-1 text-center'}>+</div>}
-                            <div className='col-2 pl-0'>
-                                <Input<IVirtualChannel>
-                                    Field={'Scale'}
-                                    Label={''}
-                                    Type={'number'}
-                                    Record={channel}
-                                    Valid={() => true}
-                                    Setter={(ch) => updateChannelScale(ch, index)}
-                                    Style={{marginBottom: 0}} />
-                            </div>
-                            <div className="">&times;</div>
-                            <div className="px-3 text-center">{channel.Name}</div>
-                            <button className="btn btn-sm"
-                                onClick={() => removeVC(channel)}>
-                                    <span>{TrashCan}</span>
-                            </button>
-                        </>
-                    ))}
+                        <ConfigTable.Configurable Key='Series' Label='Channel' Default={false}>
+                            <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
+                                Key={'Series'}
+                                AllowSort={true}
+                                HeaderStyle={{ maxWidth: 'auto' }}
+                                Content={({ item }) => item.Series[0].SourceIndexes}
+                                >Channel
+                            </ReactTable.AdjustableColumn>
+                        </ConfigTable.Configurable>
+                        <ConfigTable.Configurable Key='MeasurementType' Label='Type' Default={false}>
+                            <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
+                                Key={'MeasurementType'}
+                                AllowSort={true}
+                                HeaderStyle={{ maxWidth: 'auto' }}
+                                Field={'MeasurementType'}
+                                >Type
+                            </ReactTable.AdjustableColumn>
+                        </ConfigTable.Configurable>
+                        <ConfigTable.Configurable Key='MeasurementCharacteristic' Label='Characteristic' Default={false}>
+                            <ReactTable.AdjustableColumn<OpenXDA.Types.Channel> Key={'MeasurementCharacteristic'}
+                                HeaderStyle={{ maxWidth: 'auto' }}
+                                Field={'MeasurementCharacteristic'}
+                            >Characteristic
+                            </ReactTable.AdjustableColumn>
+                        </ConfigTable.Configurable>
+                        <ConfigTable.Configurable Key='Phase' Label='Phase' Default={false}>
+                            <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
+                                Key={'Phase'}
+                                HeaderStyle={{ maxWidth: 'auto' }}
+                                AllowSort={true}
+                                Field={'Phase'}
+                            >Phase
+                            </ReactTable.AdjustableColumn>
+                        </ConfigTable.Configurable>
+                        <ConfigTable.Configurable Key='SamplesPerHour' Label='Sampling Rate' Default={false}>
+                            <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
+                                Key={'SamplesPerHour'}
+                                HeaderStyle={{ maxWidth: 'auto' }}
+                                AllowSort={true}
+                                Field={'SamplesPerHour'}
+                            >Sampling Rate (sph)
+                            </ReactTable.AdjustableColumn>
+                        </ConfigTable.Configurable>
+                        <ConfigTable.Configurable Key='PerUnitValue' Label='Per Unit' Default={false}>
+                            <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
+                                Key={'PerUnitValue'}
+                                HeaderStyle={{ maxWidth: 'auto' }}
+                                AllowSort={true}
+                                Field={'PerUnitValue'}
+                            >Per Unit
+                            </ReactTable.AdjustableColumn>
+                        </ConfigTable.Configurable >
+                        <ConfigTable.Configurable Key='HarmonicGroup' Label='Harmonic' Default={false}>
+                            <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
+                                Key={'HarmonicGroup'}
+                                HeaderStyle={{ maxWidth: 'auto' }}
+                                AllowSort={true}
+                                Field={'HarmonicGroup'}
+                            >Harmonic
+                            </ReactTable.AdjustableColumn>
+                        </ConfigTable.Configurable >
+                        <ConfigTable.Configurable Key='Adder' Label='Adder' Default={false}>
+                            <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
+                                Key={'Adder'}
+                                HeaderStyle={{ maxWidth: 'auto' }}
+                                AllowSort={true}
+                                Field={'Adder'}
+                            >Adder
+                            </ReactTable.AdjustableColumn>
+                        </ConfigTable.Configurable >
+                        <ConfigTable.Configurable Key='Multiplier' Label='Multiplier' Default={false}>
+                            <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
+                                Key={'Multiplier'}
+                                HeaderStyle={{ maxWidth: 'auto' }}
+                                AllowSort={true}
+                                Field={'Multiplier'}
+                            >Multiplier
+                            </ReactTable.AdjustableColumn>
+                        </ConfigTable.Configurable >
+                        <ConfigTable.Configurable Key='Description' Label='Description' Default={true}>
+                            <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
+                                Key={'Description'}
+                                HeaderStyle={{ maxWidth: 'auto' }}
+                                Field={'Description'}
+                            >Description
+                            </ReactTable.AdjustableColumn>
+                        </ConfigTable.Configurable>
+                    </ConfigTable.Table>
                 </div>
-                {(virtualChannels.length > 0) ? null : <div className="col-12 mt-2 alert alert-primary" role="alert">Select channels to add to virtual channel.</div>}
             </div>
+            <div className={'row justify-content-center'} style={{ height: '100%', overflow: 'hidden' }}>
+                {virtualChannels.map((channel: IVirtualChannel, index: number) => (
+                    <>
+                        <div className='col-2 pl-0 ml-3'>
+                            <Input<IVirtualChannel>
+                                Field={'Scale'}
+                                Label={''}
+                                Type={'number'}
+                                Record={channel}
+                                Valid={() => true}
+                                Setter={(ch) => updateChannelScale(ch, index)}
+                                Style={{marginBottom: 0}} />
+                        </div>
+                        <div>&times;</div>
+                        <div className="col-2 text-center">
+                            {channel.Name}
+                        </div>
+                        <button className="col-1 ml-2 btn btn-sm" onClick={() => removeVC(channel)}>
+                            <span>{TrashCan}</span>
+                        </button>
+                    </>))}
+            </div>
+            {(virtualChannels.length > 0) ? null : <div className="row mt-2 justify-content-center">
+                <div className="alert alert-primary">Select channels to add to virtual channel.</div>
+            </div>}
         </Modal>
     </>
 }
