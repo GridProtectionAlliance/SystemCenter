@@ -280,8 +280,8 @@ namespace SystemCenter.Controllers.OpenXDA
                             {assetLocationTableName} as al ON a.ID = al.AssetID
                         WHERE
                             al.LocationID = {{0}}
-                        ORDER BY al.ID
-                        OFFSET {{page * recordsPerPage}} ROWS FETCH NEXT {{recordsPerPage}} ROWS ONLY
+                        ORDER BY a.ID
+                        OFFSET {page * recordsPerPage} ROWS FETCH NEXT {recordsPerPage} ROWS ONLY
                         ", locationID);
 
                         return Ok(new

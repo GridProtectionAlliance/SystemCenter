@@ -98,7 +98,7 @@ function LocationMeterWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
                             }
                         }}
                         OnClick={handleSelect}
-                        TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+                        TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden', flex: 1 }}
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         TbodyStyle={{ display: 'block', width: '100%', overflowY: 'auto', flex: 1  }}
                         RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
@@ -140,10 +140,10 @@ function LocationMeterWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
                     </ReactTable.Table>
                     <LoadingScreen Show={pageState == 'loading'} />
                     <ServerErrorIcon Show={pageState == 'error'} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
-                </div>
-                <div className="row" style={{ marginTop: '-16px' }}>
-                    <div className="col">
-                        <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p - 1)} />
+                    <div className="row">
+                        <div className="col">
+                            <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p - 1)} />
+                        </div>
                     </div>
                 </div>
             </div>

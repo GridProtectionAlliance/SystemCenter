@@ -127,7 +127,7 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                             if (d.colKey === "EditDelete") return;
                             dispatch(LocationDrawingSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                         }}
-                        TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+                        TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden', flex: 1 }}
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         TbodyStyle={{ display: 'block', width: '100%', overflowY: 'auto', flex: 1 }}
                         RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
@@ -189,10 +189,10 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                         > <p></p>
                         </ReactTable.Column>
                     </ReactTable.Table>
-                </div>
-                <div className="row" style={{ marginTop: '-16px' }}>
-                    <div className="col">
-                        <Paging Current={page + 1} Total={allPages} SetPage={(p) => setPage(p - 1)} />
+                    <div className="row">
+                        <div className="col">
+                            <Paging Current={page + 1} Total={allPages} SetPage={(p) => setPage(p - 1)} />
+                        </div>
                     </div>
                 </div>
             </div>
