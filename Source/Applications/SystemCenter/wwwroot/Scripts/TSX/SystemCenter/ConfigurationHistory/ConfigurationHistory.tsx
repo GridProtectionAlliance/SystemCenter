@@ -177,17 +177,14 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
                         {tab == "filesProcessed" ?
                             <div className="tab-pane active" style={{ height: '100%',display: 'flex', flexDirection: 'column' }}>
                                 <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                                    <div className='col-12' style={{ height: '100%', overflow: 'hidden' }}>
+                                    <div className='col-12' style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
                                         <ReactTable.Table<OpenXDA.Types.DataFile>
                                             TableClass="table table-hover"
                                             Data={filesProcessed}
                                             SortKey={'FilePath'}
                                             Ascending={false}
                                             OnSort={(d) => { }}
-                                            TableStyle={{
-                                                padding: 0, width: '100%', height: '100%',
-                                                tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
-                                            }}
+                                            TableStyle={{ tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden', flex: 1 }} 
                                             TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                                             TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
                                             RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
@@ -213,11 +210,11 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
                                         </ReactTable.Table>
                                         <LoadingScreen Show={pageState == 'loading'} />
                                         <ServerErrorIcon Show={pageState == 'error'} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
-                                    </div>
-                                </div>
-                                <div className="row">
-                                    <div className="col">
-                                        <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p - 1)} />
+                                        <div className="row">
+                                            <div className="col">
+                                                <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p - 1)} />
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

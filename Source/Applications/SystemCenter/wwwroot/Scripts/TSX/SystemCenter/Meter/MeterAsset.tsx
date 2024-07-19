@@ -133,7 +133,7 @@ const MeterAssetWindow = (props: IProps) => {
                         </div>
                     </div>
                 </div>
-                <div className="card-body" style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden', paddingBottom: '0px' }}>
+                <div className="card-body" style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
                     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
                         <ReactTable.Table<OpenXDA.Types.MeterAsset>
                             TableClass="table table-hover"
@@ -150,7 +150,7 @@ const MeterAssetWindow = (props: IProps) => {
                                     setSortKey(d.colKey as keyof OpenXDA.Types.Asset);
                                 }
                             }}
-                            TableStyle={{ tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+                            TableStyle={{ tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden', flex: 1 }}
                             TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                             TbodyStyle={{ display: 'block', width: '100%', overflowY: 'auto', flex: 1 }}
                             RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
@@ -235,6 +235,11 @@ const MeterAssetWindow = (props: IProps) => {
                         <Warning Show={showDeleteWarning} CallBack={(confirmed) => { if (confirmed) dispatch(DBMeterAction({ verb: 'DELETE', assetID: activeAsset.ID, meterID: props.Meter.ID, locationID: props.Meter.LocationID })); setShowDeleteWarning(false); }} Title={'Remove ' + (activeAsset?.AssetName ?? 'Asset') + ' from ' + (props.Meter?.Name ?? 'Meter')} Message={'This will permanently remove the Asset from this Meter.'} />
                         <LoadingScreen Show={pageState == 'loading'} />
                         <ServerErrorIcon Show={pageState == 'error'} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
+                        <div className="row">
+                            <div className="col">
+                                <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p - 1)} />
+                            </div>
+                        </div>
                         <Modal Show={showEditNew}
                             Title={newEdit == 'New' ? 'Add New Asset to ' + (props.Meter?.Name ?? 'Meter') : 'Edit ' + (activeAsset?.AssetKey ?? 'Asset')}
                             Size={'lg'}
@@ -266,11 +271,6 @@ const MeterAssetWindow = (props: IProps) => {
                                 </div>
                             </div>
                         </Modal>
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col">
-                        <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p - 1)} />
                     </div>
                 </div>
                 <div className="card-footer">
