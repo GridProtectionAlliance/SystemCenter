@@ -94,7 +94,7 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
 
     const scData = transformData(scAggregates);
     const xdaData = transformData(xdaAggregates);
-
+  
     return (
         <div style={{ width: '100%', height: '100%', padding: '10px 10px 10px 20px' }}>
             <div className="row">
@@ -117,35 +117,33 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
             </div>
             <hr/>
             <div style={{ width: '100%', height: 'calc( 100%)' }}>
-                {hasData && (
-                    <Plot
-                        defaultTdomain={defaultTdomain}
-                        defaultYdomain={defaultYdomain}
-                        height={svgHeight}
-                        width={svgWidth}
-                        showGrid={true}
-                        XAxisType='time'
-                        legend='right'
-                        Ylabel='Count'
-                        Tlabel='Date'
-                        pan={false}
-                        zoom={false}
-                        holdMenuOpen={false}
-                    >
-                        <Line
-                            data={scData}
-                            lineStyle='solid'
-                            color='steelblue'
-                            legend='System Center'
-                        />
-                        <Line
-                            data={xdaData}
-                            color='red'
-                            lineStyle='solid'
-                            legend='OpenXDA'
-                        />
-                    </Plot>
-                )}
+                <Plot
+                    defaultTdomain={defaultTdomain}
+                    defaultYdomain={defaultYdomain}
+                    height={svgHeight}
+                    width={svgWidth}
+                    showGrid={true}
+                    XAxisType='time'
+                    legend='right'
+                    Ylabel='Count'
+                    Tlabel='Date'
+                    pan={false}
+                    zoom={false}
+                    holdMenuOpen={false}
+                >
+                    <Line
+                        data={scData}
+                        lineStyle='solid'
+                        color='steelblue'
+                        legend='System Center'
+                    />
+                    <Line
+                        data={xdaData}
+                        color='red'
+                        lineStyle='solid'
+                        legend='OpenXDA'
+                    />
+                </Plot>
                 <div style={{ width: '100%', height: `calc(100% - ${svgHeight}px)` }}>
                     <ul className="nav nav-tabs">
                         <li className="nav-item">                         

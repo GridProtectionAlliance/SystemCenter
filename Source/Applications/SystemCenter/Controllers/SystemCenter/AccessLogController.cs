@@ -60,7 +60,7 @@ namespace SystemCenter.Controllers
 	                        SET @endDate = DATEADD(DAY,1,@endDate)
                         END
 
-                        SET @endDate = DATEADD(DAY, -30, @startDate)
+                        SET @endDate = DATEADD(DAY, -" + days + @", @startDate)
 
                         DECLARE @sql nvarchar(max) = N'
                         SELECT '+SUBSTRING(@columns,0, LEN(@columns))+' 

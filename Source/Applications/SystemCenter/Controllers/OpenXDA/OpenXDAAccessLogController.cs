@@ -57,7 +57,7 @@ namespace SystemCenter.Controllers.OpenXDA
 	                        SET @endDate = DATEADD(DAY,1,@endDate)
                         END
 
-                        SET @endDate = DATEADD(DAY, -30, @startDate)
+                        SET @endDate = DATEADD(DAY, -" + days + @", @startDate)
 
 
                         DECLARE @sql nvarchar(max) = N'
