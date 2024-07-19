@@ -54,7 +54,7 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
 
     React.useEffect(() => {
         GetData(days, tab);
-    }, []);
+    }, [days, tab]);
 
     async function GetData(d: number, t: Application.Types.AttachedDatabases) {
         let sca = await GetAccessLogAggregates("SystemCenter", d);
