@@ -116,7 +116,7 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                     </div>
                 </div>
             </div>
-            <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
+            <div className="card-body" style={{ paddingBottom: 0, flex: 1, overflow: 'hidden' }}>
                 <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
                     <ReactTable.Table<SystemCenter.Types.LocationDrawing>
                         TableClass="table table-hover"
@@ -138,16 +138,16 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                             Key={'Name'}
                             AllowSort={true}
                             Field={'Name'}
-                            HeaderStyle={{ width: '15%' }}
-                            RowStyle={{ width: '15%' }}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
                         > Name
                         </ReactTable.Column>
                         <ReactTable.Column<SystemCenter.Types.LocationDrawing>
                             Key={'Link'}
                             AllowSort={true}
                             Field={'Link'}
-                            HeaderStyle={{ width: '15%' }}
-                            RowStyle={{ width: '15%' }}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
                             Content={({ item, key }) => <a href={item[key] as string} target='_blank'>{item[key]}</a> }
                         > Link
                         </ReactTable.Column>
@@ -163,23 +163,23 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                             Key={'Number'}
                             AllowSort={true}
                             Field={'Number'}
-                            HeaderStyle={{ width: '15%' }}
-                            RowStyle={{ width: '15%' }}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
                         > Number
                         </ReactTable.Column>
                         <ReactTable.Column<SystemCenter.Types.LocationDrawing>
                             Key={'Category'}
                             AllowSort={true}
                             Field={'Category'}
-                            HeaderStyle={{ width: '15%' }}
-                            RowStyle={{ width: '15%' }}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
                         > Category
                         </ReactTable.Column>
                         <ReactTable.Column<SystemCenter.Types.LocationDrawing>
                             Key={'EditDelete'}
                             AllowSort={false}
-                            HeaderStyle={{ width: '10%' }}
-                            RowStyle={{ width: '10%' }}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
                             Content={({ item }) =>
                                 <span>
                                     <button title='Edit Link' className={"btn" + (!hasPermissions() ? ' disabled' : '')} data-toggle={"modal" + (!hasPermissions() ? ' disabled' : '')} data-target="#exampleModal" onClick={(e) => {setRecord(item) }}>{Pencil}</button>
