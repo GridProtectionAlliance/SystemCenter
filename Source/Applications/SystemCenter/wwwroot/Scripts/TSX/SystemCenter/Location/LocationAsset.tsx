@@ -295,7 +295,7 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
                     </div>
                 </div>
             </div>
-            <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
+            <div className="card-body" style={{ paddingBottom: 0, flex: 1, overflow: 'hidden' }}>
                 <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
                     <ReactTable.Table<OpenXDA.Types.Asset>
                         TableClass="table table-hover"
@@ -342,8 +342,8 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
                             Key={'AssetType'}
                             AllowSort={true}
                             Field={'AssetType'}
-                            HeaderStyle={{ width: '10%' }}
-                            RowStyle={{ width: '10%' }}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
                         > Type
                         </ReactTable.Column>
                         <ReactTable.Column<OpenXDA.Types.Asset>

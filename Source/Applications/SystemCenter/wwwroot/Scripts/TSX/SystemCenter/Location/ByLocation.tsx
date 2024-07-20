@@ -243,24 +243,24 @@ const ByLocation: Application.Types.iByComponent = (props) => {
                         Key={'LocationKey'}
                         AllowSort={true}
                         Field={'LocationKey'}
-                        HeaderStyle={{ width: '30%' }}
-                        RowStyle={{ width: '30%' }}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
                     > Key
                     </ReactTable.Column>
                     <ReactTable.Column<SystemCenter.Types.DetailedLocation>
                         Key={'Meters'}
                         AllowSort={true}
                         Field={'Meters'}
-                        HeaderStyle={{ width: '10%' }}
-                        RowStyle={{ width: '10%' }}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
                     > Meters
                     </ReactTable.Column>
                     <ReactTable.Column<SystemCenter.Types.DetailedLocation>
                         Key={'Assets'}
                         AllowSort={true}
                         Field={'Assets'}
-                        HeaderStyle={{ width: '10%' }}
-                        RowStyle={{ width: '10%' }}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
                     > Assets
                     </ReactTable.Column>
                 </ReactTable.Table>
