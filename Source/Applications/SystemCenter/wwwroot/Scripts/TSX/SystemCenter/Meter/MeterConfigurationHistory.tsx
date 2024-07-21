@@ -82,7 +82,7 @@ function MeterConfigurationHistoryWindow(props: { Meter: OpenXDA.Types.Meter }) 
                             </div>
                         </div>
                     </div>
-                    <div className="card-body" style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                    <div className="card-body" style={{ paddingBottom: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
                         <ReactTable.Table<MeterConfiguration>
                             TableClass="table table-hover"
                             Data={meterConfigurations}

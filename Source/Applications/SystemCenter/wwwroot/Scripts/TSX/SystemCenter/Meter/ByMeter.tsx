@@ -178,40 +178,40 @@ const ByMeter: Application.Types.iByComponent = (props) => {
                             Key={'AssetKey'}
                             AllowSort={true}
                             Field={'AssetKey'}
-                            HeaderStyle={{ width: '15%' }}
-                            RowStyle={{ width: '15%' }}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
                         > Key
                         </ReactTable.Column>
                         <ReactTable.Column<SystemCenter.Types.DetailedMeter>
                             Key={'Location'}
                             AllowSort={true}
                             Field={'Location'}
-                            HeaderStyle={{ width: '10%' }}
-                            RowStyle={{ width: '10%' }}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
                         > Substation
                         </ReactTable.Column>
                         <ReactTable.Column<SystemCenter.Types.DetailedMeter>
                             Key={'MappedAssets'}
                             AllowSort={true}
                             Field={'MappedAssets'}
-                            HeaderStyle={{ width: '10%' }}
-                            RowStyle={{ width: '10%' }}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
                         > Assets
                         </ReactTable.Column>
                         <ReactTable.Column<SystemCenter.Types.DetailedMeter>
                             Key={'Make'}
                             AllowSort={true}
                             Field={'Make'}
-                            HeaderStyle={{ width: '10%' }}
-                            RowStyle={{ width: '10%' }}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
                         > Make
                         </ReactTable.Column>
                         <ReactTable.Column<SystemCenter.Types.DetailedMeter>
                             Key={'Model'}
                             AllowSort={true}
                             Field={'Model'}
-                            HeaderStyle={{ width: '10%' }}
-                            RowStyle={{ width: '10%' }}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
                         > Model
                         </ReactTable.Column>
                     </ReactTable.Table>
