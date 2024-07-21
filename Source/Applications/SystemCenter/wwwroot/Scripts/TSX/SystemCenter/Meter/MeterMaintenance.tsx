@@ -157,8 +157,8 @@ const MeterMaintenanceWindow = (props: IProps) => {
                             Key={'StartTime'}
                             AllowSort={true}
                             Field={'StartTime'}
-                            HeaderStyle={{ width: 'calc(50%-40px)' }}
-                            RowStyle={{ width: 'calc(50%-40px)' }}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
                             Content={({ item }) => item.StartTime ? moment(item.StartTime, defaultFormat).format('MM/DD/YYYY hh:mm A') : 'This window starts at meter creation'}
                         > Start Window Time
                         </ReactTable.Column>
@@ -166,8 +166,8 @@ const MeterMaintenanceWindow = (props: IProps) => {
                             Key={'EndTime'}
                             AllowSort={true}
                             Field={'EndTime'}
-                            HeaderStyle={{ width: 'calc(50%-40px)' }}
-                            RowStyle={{ width: 'calc(50%-40px)' }}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
                             Content={({ item }) => item.EndTime ? moment(item.EndTime, defaultFormat).format('MM/DD/YYYY hh:mm A') : 'This window has no end time'}
                         > End Window Time
                         </ReactTable.Column>
@@ -214,7 +214,7 @@ const MeterMaintenanceWindow = (props: IProps) => {
                             </div>
                         </div>
                     </div>
-                    <div className="card-body" style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+                    <div className="card-body" style={{ paddingBottom: 0, display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
                         {cardBody}
                     </div>
                     <div className="card-footer">

@@ -133,7 +133,7 @@ const MeterAssetWindow = (props: IProps) => {
                         </div>
                     </div>
                 </div>
-                <div className="card-body" style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+                <div className="card-body" style={{ paddingBottom: 0,  display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
                     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
                         <ReactTable.Table<OpenXDA.Types.MeterAsset>
                             TableClass="table table-hover"
@@ -161,48 +161,48 @@ const MeterAssetWindow = (props: IProps) => {
                                 Key={'AssetKey'}
                                 AllowSort={true}
                                 Field={'AssetKey'}
-                                HeaderStyle={{ width: 'calc(20%-16px)' }}
-                                RowStyle={{ width: 'calc(20%-16px)' }}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
                             > Key
                             </ReactTable.Column>
                             <ReactTable.Column<OpenXDA.Types.MeterAsset>
                                 Key={'AssetName'}
                                 AllowSort={true}
                                 Field={'AssetName'}
-                                HeaderStyle={{ width: 'calc(30%-16px)' }}
-                                RowStyle={{ width: 'calc(30%-16px)' }}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
                             > Name
                             </ReactTable.Column>
                             <ReactTable.Column<OpenXDA.Types.MeterAsset>
                                 Key={'AssetType'}
                                 AllowSort={true}
                                 Field={'AssetType'}
-                                HeaderStyle={{ width: 'calc(10%-16px)' }}
-                                RowStyle={{ width: 'calc(10%-16px)' }}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
                             > Type
                             </ReactTable.Column>
                             <ReactTable.Column<OpenXDA.Types.MeterAsset>
                                 Key={'VoltageKV'}
                                 AllowSort={true}
                                 Field={'VoltageKV'}
-                                HeaderStyle={{ width: 'calc(5%-16x)' }}
-                                RowStyle={{ width: 'calc(5%-16x)' }}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
                             > Base kV
                             </ReactTable.Column>
                             <ReactTable.Column<OpenXDA.Types.MeterAsset>
                                 Key={'FaultDetectionLogic'}
                                 AllowSort={true}
                                 Field={'FaultDetectionLogic'}
-                                HeaderStyle={{ width: 'calc(10%-16px)' }}
-                                RowStyle={{ width: 'calc(10%-16px)' }}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
                             > Fault Detection Logic
                             </ReactTable.Column>
                             <ReactTable.Column<OpenXDA.Types.MeterAsset>
                                 Key={'Designation'}
                                 AllowSort={true}
                                 Field={'Designation'}
-                                HeaderStyle={{ width: 'calc(10%-16px)' }}
-                                RowStyle={{ width: 'calc(10%-16px)' }}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
                             > Designation
                             </ReactTable.Column>
                             <ReactTable.Column<OpenXDA.Types.MeterAsset>
