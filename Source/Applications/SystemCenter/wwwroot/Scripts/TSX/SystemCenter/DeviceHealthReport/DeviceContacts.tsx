@@ -26,7 +26,9 @@ import * as _ from 'lodash';
 import { SystemCenter } from '../global';
 import { ReactTable } from '@gpa-gemstone/react-table';
 import { HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
-import { Application } from '@gpa-gemstone/application-typings'
+import { Application } from '@gpa-gemstone/application-typings';
+import { useAppSelector } from '../hooks';
+import { SelectRoles } from '../Store/UserSettings';
 
 interface UserAccount extends Application.Types.iUserAccount {
     Selected: boolean
@@ -36,6 +38,8 @@ function DeviceContacts(props: {ID: string, Name: string, Field: 'TSC' | 'Sector
     const [data, setData] = React.useState<UserAccount[]>([]);
     const [sortKey, setSortKey] = React.useState<string>('LastName');
     const [ascending, setAscending] = React.useState<boolean>(true);
+    const roles = useAppSelector(SelectRoles);
+
     React.useEffect(() => {
         let handle = $.ajax({
             type: "GET",
@@ -64,7 +68,7 @@ function DeviceContacts(props: {ID: string, Name: string, Field: 'TSC' | 'Sector
                 <div className='col'>
                     <h3>Contacts for {props.Field} {props.Name}</h3>
                 </div>
-                <div className='col'>
+                <div className='col' hidden={roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0}>
                     <a className='btn btn-primary pull-right' style={{ color: 'white' }} href={`mailto:${data.filter(d => d.Selected).map(d => d.Email).join(';')}` } >Email Selected</a>
                     <button className='btn btn-primary pull-right' onClick={() => {
                         let newData = data.map(d => ({...d, Selected: false}));;
