@@ -62,8 +62,6 @@ export default function ChannelPage(props: IProps) {
     const [parsedChannels, setParsedChannels] = React.useState<OpenXDA.Types.Channel[]>([]);
     const [channelStatus, setChannelStatus] = React.useState<Application.Types.Status>('idle');
     const [showVirtualChannelModal, setShowVirtualChannelModal] = React.useState<boolean>(false);
-    const [disableModalConfirm, setDisableModalConfirm] = React.useState<boolean>(true);
-    const [addedVirtualChannels, setAddedVirtualChannels] = React.useState<OpenXDA.Types.Channel[]>([]);
 
     const [sortKey, setSortKey] = React.useState<string>('Series');
     const [asc, setAsc] = React.useState<boolean>(false);
@@ -366,7 +364,26 @@ export default function ChannelPage(props: IProps) {
                     </div>
                 </div>
                 <div className="col col-lg-3 col-xl-2 text-center">
-                    <BtnDropdown Label='Remove Spare' Callback={() => setShowSpareWarning(true)}
+                    {selectedFile === '' ? <><BtnDropdown Label='Remove All' Callback={() => {
+                            props.UpdateChannels(getCurrentChannels(!props.TrendChannels));
+                            setSelectedFile('');
+                        }}
+                        Size={'sm'}
+                        Disabled={currentChannels.length === 0}
+                        Options={[{
+                            Label: 'Remove Spare', Disabled: NSpare == 0, Callback: () => setShowSpareWarning(true)
+                        }]}
+                        ShowToolTip={false}
+                        BtnClass={'btn-primary' }
+                        TooltipContent={
+                            <>
+                            {NSpare > 0 ? <p>Channels are considered Spare if the Description is
+                                "spare", "virtual spare", "voltage spare", "current spare", "spare virtual",
+                                "spare channel", "spare voltage", "spare current", "spare trigger" or they are digital with description "A00 analog channel 00". </p> : null}
+                            </>
+                        }
+                        /></>
+                    :<><BtnDropdown Label='Remove Spare' Callback={() => setShowSpareWarning(true)}
                         Size={'sm'}
                         Disabled={NSpare == 0}
                         Options={[{
@@ -377,15 +394,13 @@ export default function ChannelPage(props: IProps) {
                         }]}
                         ShowToolTip={true}
                         BtnClass={'btn-primary' }
-                        TooltipContent={
-                            <>
+                        TooltipContent={<>
                             {NSpare == 0 ? <p>No spare channels were identified.</p> : null}
                             {NSpare > 0 ? <p>Channels are considered Spare if the Description is
                                 "spare", "virtual spare", "voltage spare", "current spare", "spare virtual",
                                 "spare channel", "spare voltage", "spare current", "spare trigger" or they are digital with description "A00 analog channel 00". </p> : null}
-                            </>
-                        }
-                    />
+                        </>}
+                    /></>}
                 </div>
                 <div className="d-none col col-lg-2 d-xl-block text-center">
                     <button className="btn btn-primary btn-sm" disabled={currentChannels.length == 0} onClick={() => {
@@ -397,7 +412,7 @@ export default function ChannelPage(props: IProps) {
                 {props.TrendChannels ? null :
                     <>
                     <div className="col col-lg-2">
-                        <BtnDropdown Label='Add'
+                        {selectedFile === '' ? <BtnDropdown Label='Add Manual Channel'
                             Callback={() => {
                                 let channel: OpenXDA.Types.Channel = {
                                     ID: props.Channels.length == 0 ? 1 : Math.max(...props.Channels.map(ch => ch.ID)) + 1,
@@ -424,8 +439,33 @@ export default function ChannelPage(props: IProps) {
                                     Label: 'Add Virtual Channel', Callback: () => {setShowVirtualChannelModal(true)}
                                 }
                             ]}
-                            
                         />
+                        : <BtnDropdown Label='Add Virtual Channel'
+                            Callback={() => {setShowVirtualChannelModal(true)}}
+                            BtnClass={'btn-primary'}
+                            Size={'sm'}
+                            Options={[{
+                                Label: 'Add Manual Channel', Callback: () => {
+                                let channel: OpenXDA.Types.Channel = {
+                                    ID: props.Channels.length == 0 ? 1 : Math.max(...props.Channels.map(ch => ch.ID)) + 1,
+                                    Meter: props.MeterKey, Asset: '',
+                                    MeasurementType: 'Voltage',
+                                    MeasurementCharacteristic: 'Instantaneous',
+                                    Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1,
+                                    SamplesPerHour: 0, PerUnitValue: null,
+                                    HarmonicGroup: 0, Description: 'Voltage AN',
+                                    Enabled: true, Series: [{
+                                        ID: 0,
+                                        ChannelID: 0,
+                                        SeriesType: 'Values',
+                                        SourceIndexes: ''
+                                    } as OpenXDA.Types.Series],
+                                    ConnectionPriority: 0, Trend: false
+                                } as OpenXDA.Types.Channel
+                                addChannel(channel);
+                                }
+                            }]}
+                        />}
                     </div>
                     <VirtualChannelModal
                         Channels={props.Channels}

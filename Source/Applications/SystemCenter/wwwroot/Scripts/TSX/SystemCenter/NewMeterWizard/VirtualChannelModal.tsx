@@ -28,7 +28,7 @@ import { Modal } from '@gpa-gemstone/react-interactive';
 import { ConfigTable } from '@gpa-gemstone/react-interactive';
 import { ReactTable } from '@gpa-gemstone/react-table'
 import { Input } from '@gpa-gemstone/react-forms';
-import { CrossMark, TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { CrossMark, Plus, TrashCan } from '@gpa-gemstone/gpa-symbols';
 
 interface IProps {
     Channels: OpenXDA.Types.Channel[],
@@ -279,7 +279,7 @@ export default function VirtualChannelModal(props: IProps) {
                                 Setter={(ch) => updateChannelScale(ch, index)}
                                 Style={{marginBottom: 0}} />
                           </div></>
-                        : <><div className={'col-1 mx-1 text-center'}>+</div>
+                        : <><div className={'col-1 mx-1 text-center'}>{Plus}</div>
                           <div className='col-1 px-0 mx-2'>
                             <Input<IVirtualChannel>
                                 Field={'Scale'}
@@ -291,7 +291,7 @@ export default function VirtualChannelModal(props: IProps) {
                                 Style={{marginBottom: 0}} />
                           </div></>
                           }
-                        <div>&times;</div>
+                        <div className="pl-2">&times;</div>
                         <div className='col-2 text-center'>
                             {channel.Name}
                         </div>
