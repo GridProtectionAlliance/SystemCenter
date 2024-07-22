@@ -267,7 +267,8 @@ export default function VirtualChannelModal(props: IProps) {
             <div className={'row justify-content-center'} style={{ height: '100%', overflow: 'hidden' }}>
                 {virtualChannels.map((channel: IVirtualChannel, index: number) => (
                     <>
-                        <div className='col-2 pl-0 ml-3'>
+                        {index === 0
+                        ? <><div className="col-1"></div><div className='col-1 pl-0 ml-3'>
                             <Input<IVirtualChannel>
                                 Field={'Scale'}
                                 Label={''}
@@ -276,7 +277,19 @@ export default function VirtualChannelModal(props: IProps) {
                                 Valid={() => true}
                                 Setter={(ch) => updateChannelScale(ch, index)}
                                 Style={{marginBottom: 0}} />
-                        </div>
+                        </div></>
+                        : <><div className={'col-1 text-center'}>+</div>
+                          <div className='col-1 pl-0 ml-3'>
+                            <Input<IVirtualChannel>
+                                Field={'Scale'}
+                                Label={''}
+                                Type={'number'}
+                                Record={channel}
+                                Valid={() => true}
+                                Setter={(ch) => updateChannelScale(ch, index)}
+                                Style={{marginBottom: 0}} />
+                          </div></>
+                          }
                         <div>&times;</div>
                         <div className="col-2 text-center">
                             {channel.Name}
