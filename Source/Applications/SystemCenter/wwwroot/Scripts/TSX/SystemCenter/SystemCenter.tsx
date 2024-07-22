@@ -179,15 +179,16 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                             <div hidden={roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0}>
                             <hr />
                             </div>
-                            <ul style={{ marginLeft: 10 }} className="nav flex-column" hidden={roles.indexOf('Administrator') < 0}>
+                            <h6 style={{ fontWeight: 'bold', marginLeft: 10 }} className="sidebar-heading" hidden={roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0}>File Processing</h6>
+                            <ul style={{ marginLeft: 10 }} className="nav flex-column" hidden={roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0}>
                                 <li className="nav-item">
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=DataFiles"} to={controllerViewPath + "?name=DataFiles"}>Data Files</NavLink>
                                 </li>
                                 <li className={"nav-item"}>
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=DataOperations&System=OpenXDA"} to={controllerViewPath + "?name=DataOperations&System=OpenXDA"}>Data Operations</NavLink>
+                                    <NavLink activeClassName='nav-link active' hidden={roles.indexOf('Administrator') < 0} className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=DataOperations&System=OpenXDA"} to={controllerViewPath + "?name=DataOperations&System=OpenXDA"}>Data Operations</NavLink>
                                 </li>
                                 <li className={"nav-item"}>
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=DataReaders&System=OpenXDA"} to={controllerViewPath + "?name=DataReaders&System=OpenXDA"}>Data Readers</NavLink>
+                                    <NavLink activeClassName='nav-link active' hidden={roles.indexOf('Administrator') < 0} className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=DataReaders&System=OpenXDA"} to={controllerViewPath + "?name=DataReaders&System=OpenXDA"}>Data Readers</NavLink>
                                 </li>
                                 <li className={"nav-item"}>
                                     <NavLink activeClassName='nav-link active' hidden={roles.indexOf('Administrator') < 0} className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=MATLABAnalytics")} to={controllerViewPath + "?name=MATLABAnalytics"}>MATLAB Analytics</NavLink>
@@ -200,8 +201,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                             <div hidden={roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0}>
                             <hr />
                             </div>
-                            <ul style={{ marginLeft: 10 }} className="nav flex-column">
-                                <li className="nav-item" hidden={roles.indexOf('Administrator') < 0 && roles.indexOf("Transmission SME") < 0}>
+                            <h6 style={{ fontWeight: 'bold', marginLeft: 10 }} className="sidebar-heading" hidden={roles.indexOf('Administrator') < 0 && roles.indexOf("Engineer") < 0}>External Links</h6>
+                            <ul style={{ marginLeft: 10 }} className="nav flex-column" hidden={roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0}>
+                                <li className="nav-item" hidden={roles.indexOf('Administrator') < 0 && roles.indexOf("Engineer") < 0}>
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=RemoteXDAInstance")} to={controllerViewPath + "?name=RemoteXDAInstanceMain"}>Remote openXDA Instances</NavLink>
                                 </li>
                                 <li className="nav-item" hidden={roles.indexOf('Administrator') < 0}>
