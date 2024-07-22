@@ -139,6 +139,13 @@ export default function VirtualChannelModal(props: IProps) {
         setVirtualChannels(updatedChannels);
     }
 
+    function signedScale(index: number) {
+        const vChannels = _.cloneDeep(virtualChannels);
+
+        if (index > -1) vChannels[index].Scale = -vChannels[index].Scale;
+        setVirtualChannels(vChannels);
+    }
+
     function removeVC(channel: IVirtualChannel) {
         setVirtualChannels(prevChannels => [...prevChannels.filter((element) => element !== channel)]);
     }
@@ -280,8 +287,9 @@ export default function VirtualChannelModal(props: IProps) {
                 {virtualChannels.map((channel: IVirtualChannel, index: number) => (
                     <>
                         {index === 0
-                        ? <><div className='col-1 mx-1'></div>
-                          <div className='col-1 px-0 mx-2'>
+                        ? <div className='col-1 mx-1'></div>
+                        : <div style={{ cursor: 'pointer' }} className={'col-1 mx-1 text-center'} onClick={() => {signedScale(index)}}>{Plus}</div>}
+                        <div className='col-1 px-0 mx-2'>
                             <Input<IVirtualChannel>
                                 Field={'Scale'}
                                 Label={''}
@@ -290,19 +298,7 @@ export default function VirtualChannelModal(props: IProps) {
                                 Valid={() => true}
                                 Setter={(ch) => updateChannelScale(ch, index)}
                                 Style={{marginBottom: 0}} />
-                          </div></>
-                        : <><div className={'col-1 mx-1 text-center'}>{Plus}</div>
-                          <div className='col-1 px-0 mx-2'>
-                            <Input<IVirtualChannel>
-                                Field={'Scale'}
-                                Label={''}
-                                Type={'number'}
-                                Record={channel}
-                                Valid={() => true}
-                                Setter={(ch) => updateChannelScale(ch, index)}
-                                Style={{marginBottom: 0}} />
-                          </div></>
-                          }
+                        </div>
                         <div className="pl-2">&times;</div>
                         <div className='col-2 text-center'>
                             {channel.Name}
@@ -310,7 +306,8 @@ export default function VirtualChannelModal(props: IProps) {
                         <button className='col-1 btn btn-sm' onClick={() => removeVC(channel)}>
                             <span>{TrashCan}</span>
                         </button>
-                    </>))}
+                    </>
+                ))}
             </div>
             {(virtualChannels.length > 0) ? null : <div className='row mt-2 justify-content-center'>
                 <div className='alert alert-primary'>Select channels to add to virtual channel.</div>
