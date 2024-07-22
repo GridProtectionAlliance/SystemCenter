@@ -13,10 +13,6 @@
 
     <Feature Id="AllProducts" Title="All Products" Level="1" Display="expand" ConfigurableDirectory="INSTALLFOLDER" AllowAdvertise="no" Description="All components of the SystemCenter installation.">
       <Feature Id="SystemCenter" Title="SystemCenter" AllowAdvertise="no" Description="Includes the SystemCenter database and service.">
-        <!-- SystemCenter Database-->
-        <Feature Id="DatabaseFeature" Title="SystemCenter Database" AllowAdvertise="no" Description="Installs the SystemCenter database schema to a SQL Server database.">
-          <ComponentRef Id="DBScript" />
-        </Feature>
 
         <!-- SystemCenter Service -->
         <Feature Id="ServiceFeature" Title="SystemCenter Service" AllowAdvertise="no" Description="Installs the SystemCenter Windows service to perform data analytics.">
@@ -49,21 +45,18 @@
       <Publish Dialog="CustomizeDlg" Control="Next" Property="WINDOWSAUTH" Value="1" Order="6">INTEGRATEDSECURITY = "SSPI"</Publish>
       <Publish Dialog="CustomizeDlg" Control="Next" Property="WINDOWSAUTH" Order="6">NOT(INTEGRATEDSECURITY = "SSPI")</Publish>
 
-      <Publish Dialog="CustomizeDlg" Control="Next" Property="INSTALLDATABASEFEATURE" Value="1" Order="7"><![CDATA[&DatabaseFeature=3]]></Publish>
-      <Publish Dialog="CustomizeDlg" Control="Next" Property="INSTALLDATABASEFEATURE" Order="7"><![CDATA[NOT(&DatabaseFeature=3)]]></Publish>
       <Publish Dialog="CustomizeDlg" Control="Next" Property="INSTALLSERVICEFEATURE" Value="1" Order="7"><![CDATA[&ServiceFeature=3 OR (!ServiceFeature=3 AND &ServiceFeature=-1)]]></Publish>
       <Publish Dialog="CustomizeDlg" Control="Next" Property="INSTALLSERVICEFEATURE" Order="7"><![CDATA[NOT(&ServiceFeature=3 OR (!ServiceFeature=3 AND &ServiceFeature=-1))]]></Publish>
       
       <Publish Dialog="CustomizeDlg" Control="Next" Event="NewDialog" Value="ServiceAccountDialog" Order="8">INSTALLSERVICEFEATURE</Publish>
-      <Publish Dialog="CustomizeDlg" Control="Next" Event="NewDialog" Value="DatabaseConnectionDialog" Order="8">NOT(INSTALLSERVICEFEATURE) AND INSTALLDATABASEFEATURE</Publish>
-      <Publish Dialog="CustomizeDlg" Control="Next" Event="NewDialog" Value="VerifyReadyDlg" Order="8">NOT(INSTALLSERVICEFEATURE) AND NOT(INSTALLDATABASEFEATURE)</Publish>
-      <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="DatabaseConnectionDialog">INSTALLSERVICEFEATURE OR INSTALLDATABASEFEATURE</Publish>
-      <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="CustomizeDlg">NOT(INSTALLSERVICEFEATURE OR INSTALLDATABASEFEATURE)</Publish>
+      <Publish Dialog="CustomizeDlg" Control="Next" Event="NewDialog" Value="DatabaseConnectionDialog" Order="8">NOT(INSTALLSERVICEFEATURE)</Publish>
+      <Publish Dialog="CustomizeDlg" Control="Next" Event="NewDialog" Value="VerifyReadyDlg" Order="8">NOT(INSTALLSERVICEFEATURE)</Publish>
+      <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="DatabaseConnectionDialog">INSTALLSERVICEFEATURE</Publish>
+      <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="CustomizeDlg">NOT(INSTALLSERVICEFEATURE)</Publish>
     </UI>
     
     <Icon Id="SystemCenter.ico.exe" SourceFile="$(var.SystemCenter.TargetPath)" />
 
-    <Property Id="INSTALLDATABASEFEATURE" Secure="yes" />
     <Property Id="INSTALLSERVICEFEATURE" Secure="yes" />
 
     <Property Id="SERVICEACCOUNT" Secure="yes" />
@@ -107,8 +100,6 @@
     <SetProperty Id="DATABASENAME" Value="[SERVICENAME]" After="LaunchConditions" Sequence="first" />
     <SetProperty Id="UPDATECONFIGFILEMAPPINGS" Value="[CONNECTIONSTRINGMAPPING];;[COMPANYNAMEMAPPING];;[COMPANYACRONYMMAPPING]" Before="UpdateConfigFileAction.SetProperty" Sequence="execute" />
 
-    <SetProperty Action="INSTALLDATABASEFEATURE0" Id="INSTALLDATABASEFEATURE" Value="1" After="CostFinalize" Sequence="both"><![CDATA[&DatabaseFeature=3]]></SetProperty>
-    <SetProperty Action="INSTALLDATABASEFEATURE1" Id="INSTALLDATABASEFEATURE" Value="" After="CostFinalize" Sequence="both"><![CDATA[NOT(&DatabaseFeature=3)]]></SetProperty>
     <SetProperty Action="INSTALLSERVICEFEATURE0" Id="INSTALLSERVICEFEATURE" Value="1" After="CostFinalize" Sequence="both"><![CDATA[&ServiceFeature=3 OR (!ServiceFeature=3 AND &ServiceFeature=-1)]]></SetProperty>
     <SetProperty Action="INSTALLSERVICEFEATURE1" Id="INSTALLSERVICEFEATURE" Value="" After="CostFinalize" Sequence="both"><![CDATA[NOT(&ServiceFeature=3 OR (!ServiceFeature=3 AND &ServiceFeature=-1))]]></SetProperty>
 
@@ -185,21 +176,6 @@
       <Custom Action="ValidateAssemblyBindingsAction.SetProperty" After="UpdateConfigFileAction">INSTALLSERVICEFEATURE</Custom>
       <Custom Action="ValidateAssemblyBindingsAction" After="ValidateAssemblyBindingsAction.SetProperty">INSTALLSERVICEFEATURE</Custom>
 
-      <Custom Action="CreateDatabase.SetProperty" After="InstallFiles">INSTALLDATABASEFEATURE</Custom>
-      <Custom Action="CreateDatabase" After="CreateDatabase.SetProperty">INSTALLDATABASEFEATURE</Custom>
-      <Custom Action="AlterDatabase.SetProperty" After="CreateDatabase">INSTALLDATABASEFEATURE</Custom>
-      <Custom Action="AlterDatabase" After="AlterDatabase.SetProperty">INSTALLDATABASEFEATURE</Custom>
-      <Custom Action="CreateDBLogin.SetProperty" After="AlterDatabase">INSTALLDATABASEFEATURE</Custom>
-      <Custom Action="CreateDBLogin" After="CreateDBLogin.SetProperty">INSTALLDATABASEFEATURE</Custom>
-      <Custom Action="AlterDBLogin.SetProperty" After="CreateDBLogin">INSTALLDATABASEFEATURE</Custom>
-      <Custom Action="AlterDBLogin" After="AlterDBLogin.SetProperty">INSTALLDATABASEFEATURE</Custom>
-      <Custom Action="CreateDBUser.SetProperty" After="AlterDBLogin">INSTALLDATABASEFEATURE</Custom>
-      <Custom Action="CreateDBUser" After="CreateDBUser.SetProperty">INSTALLDATABASEFEATURE</Custom>
-      <Custom Action="GrantDBPermissions.SetProperty" After="CreateDBUser">INSTALLDATABASEFEATURE</Custom>
-      <Custom Action="GrantDBPermissions" After="GrantDBPermissions.SetProperty">INSTALLDATABASEFEATURE</Custom>
-
-      <Custom Action="SystemCenter.sql.SetProperty" After="GrantDBPermissions">INSTALLDATABASEFEATURE</Custom>
-      <Custom Action="SystemCenter.sql" After="SystemCenter.sql.SetProperty">INSTALLDATABASEFEATURE</Custom>
     </InstallExecuteSequence>
   </Product>
 
@@ -261,15 +237,7 @@
   </Fragment>
 
   <!-- dlls and Components -->
-  <Fragment>
-    <!-- Database Components -->
-    <ComponentGroup Id="DatabaseComponents" Directory="INSTALLFOLDER">
-      <!-- Database Scripts -->
-      <Component Id="DBScript">
-        <File Id="SystemCenter.sql" Name="SystemCenter.sql" Source="$(var.SolutionDir)\Data\SystemCenter.sql" />
-      </Component>
-    </ComponentGroup>
-    
+  <Fragment>    
     <!-- SystemCenter Service Components -->
     <ComponentGroup Id="ServiceComponents" Directory="INSTALLFOLDER">
       <!-- Service Applications -->
@@ -909,10 +877,8 @@
           <!-- Set up the authentication part of the connection string based on user input. -->
           <Publish Property="AUTHSTRING" Value="Integrated Security=SSPI">WINDOWSAUTH</Publish>
           <Publish Property="AUTHSTRING" Value="User Id=[DBUSERNAME];;Password=[DBPASSWORD]">NOT WINDOWSAUTH</Publish>
-          <Publish Property="XDAAUTHSTRING" Value="Integrated Security=SSPI">NOT INSTALLDATABASEFEATURE AND WINDOWSAUTH</Publish>
-          <Publish Property="XDAAUTHSTRING" Value="User Id=[DBUSERNAME];;Password=[DBPASSWORD]">NOT INSTALLDATABASEFEATURE AND NOT WINDOWSAUTH</Publish>
-          <Publish Property="XDAAUTHSTRING" Value="User Id=[XDASERVICELOGIN];;Password=[XDASERVICEPASSWORD]">INSTALLDATABASEFEATURE</Publish>
-
+          <Publish Property="XDAAUTHSTRING" Value="Integrated Security=SSPI">WINDOWSAUTH</Publish>
+          <Publish Property="XDAAUTHSTRING" Value="User Id=[DBUSERNAME];;Password=[DBPASSWORD]">NOT WINDOWSAUTH</Publish>
           <!-- Set up connection strings for connecting to server and database. -->
           <Publish Property="SERVERCONNECTIONSTRING" Value="Data Source=[SERVERNAME];;[AUTHSTRING];;Pooling=false">1</Publish>
           <Publish Property="DBCONNECTIONSTRING" Value="Data Source=[SERVERNAME];;Initial Catalog=[DATABASENAME];;[AUTHSTRING];;Pooling=false">1</Publish>
@@ -927,7 +893,7 @@
           <Publish Property="DBEXISTS" Value="1">1</Publish>
           
           <!-- Move to the next dialog if the validation checks out. -->
-          <Publish Event="NewDialog" Value="VerifyReadyDlg">DBSERVERCONNECTS AND ((INSTALLDATABASEFEATURE AND NOT DBEXISTS) OR (NOT INSTALLDATABASEFEATURE AND DBEXISTS))</Publish>
+          <Publish Event="NewDialog" Value="VerifyReadyDlg">DBSERVERCONNECTS AND DBEXISTS</Publish>
           
         </Control>
         <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="&amp;Back">
@@ -950,9 +916,8 @@
           <!-- Set up the authentication part of the connection string based on user input. -->
           <Publish Property="AUTHSTRING" Value="Integrated Security=SSPI">WINDOWSAUTH</Publish>
           <Publish Property="AUTHSTRING" Value="User Id=[DBUSERNAME];;Password=[DBPASSWORD]">NOT WINDOWSAUTH</Publish>
-          <Publish Property="XDAAUTHSTRING" Value="Integrated Security=SSPI">NOT INSTALLDATABASEFEATURE AND WINDOWSAUTH</Publish>
-          <Publish Property="XDAAUTHSTRING" Value="User Id=[DBUSERNAME];;Password=[DBPASSWORD]">NOT INSTALLDATABASEFEATURE AND NOT WINDOWSAUTH</Publish>
-          <Publish Property="XDAAUTHSTRING" Value="User Id=[XDASERVICELOGIN];;Password=[XDASERVICEPASSWORD]">INSTALLDATABASEFEATURE</Publish>
+          <Publish Property="XDAAUTHSTRING" Value="Integrated Security=SSPI">WINDOWSAUTH</Publish>
+          <Publish Property="XDAAUTHSTRING" Value="User Id=[DBUSERNAME];;Password=[DBPASSWORD]">NOT WINDOWSAUTH</Publish>
           
           <!-- Set up connection strings for connecting to server and database. -->
           <Publish Property="SERVERCONNECTIONSTRING" Value="Data Source=[SERVERNAME];;[AUTHSTRING];;Pooling=false">1</Publish>
@@ -972,12 +937,9 @@
           <Publish Event="DoAction" Value="TestDatabaseConnectionAction">DBSERVERCONNECTS</Publish>
           <Publish Property="DBEXISTS">NOT DATABASECONNECTED</Publish>
           <Publish Property="DBEXISTS" Value="1">DATABASECONNECTED</Publish>
-          <Publish Property="ERRORMESSAGE" Value="Database [DATABASENAME] already exists on the server. Enter a different database name or drop the existing database, then try again. If you do not wish to install the database, return to the Custom Setup screen and modify your feature selections.">INSTALLDATABASEFEATURE AND DBSERVERCONNECTS AND DBEXISTS</Publish>
-          <Publish Property="ERRORMESSAGE" Value="Database [DATABASENAME] does not exist on the server. Enter the name of an existing database, then try again. If you wish to install the database, return to the Custom Setup screen and modify your feature selections.">NOT INSTALLDATABASEFEATURE AND DBSERVERCONNECTS AND NOT DBEXISTS</Publish>
-          <Publish Event="SpawnDialog" Value="ModalErrorDialog">DBSERVERCONNECTS AND ((INSTALLDATABASEFEATURE AND DBEXISTS) OR (NOT INSTALLDATABASEFEATURE AND NOT DBEXISTS))</Publish>
-
+          <Publish Property="ERRORMESSAGE" Value="Database [DATABASENAME] does not exist on the server. Enter the name of an existing database, then try again.">DBSERVERCONNECTS AND NOT DBEXISTS</Publish>
           <!-- Move to the next dialog if the validation checks out. -->
-          <Publish Event="NewDialog" Value="VerifyReadyDlg">DBSERVERCONNECTS AND ((INSTALLDATABASEFEATURE AND NOT DBEXISTS) OR (NOT INSTALLDATABASEFEATURE AND DBEXISTS))</Publish>
+          <Publish Event="NewDialog" Value="VerifyReadyDlg">DBSERVERCONNECTS AND DBEXISTS</Publish>
         </Control>
         <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="Cancel">
           <Publish Event="SpawnDialog" Value="CancelDlg">1</Publish>
