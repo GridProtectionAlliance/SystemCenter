@@ -139,12 +139,12 @@ const ByLineSegment: Application.Types.iByComponent = (props) => {
                 ResultNote={pageStatus === 'error' ?
                     'Could not complete Search' : ('Displaying  Line Segment(s) ' + (pageInfo.TotalRecords > 0 ? (pageInfo.RecordsPerPage * page + 1) : 0) + ' - ' + (pageInfo.RecordsPerPage * page + data.length)) + ' out of ' + pageInfo.TotalRecords}
             >
-                <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
-                    <fieldset className="border" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Engineer') < 0} style={{ padding: '10px', height: '100%' }}>
+                <li className="nav-item" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Engineer') < 0} style={{ width: '15%', paddingRight: 10 }}>
+                    <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                         <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                         <form>
                             <div className="form-group">
-                                <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Engineer') < 0}
+                                <button className="btn btn-primary" 
                                     onClick={(event) => { event.preventDefault(); setShowExtModal(true); }}>External Database</button>
                             </div>
                         </form>
