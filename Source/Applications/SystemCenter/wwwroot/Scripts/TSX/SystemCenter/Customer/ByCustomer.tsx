@@ -146,10 +146,10 @@ const ByCustomer: Application.Types.iByComponent = (props) => {
                     <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                         <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                         <div className="form-group">
-                            <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Engineer') < 0} onClick={(event) => { event.preventDefault(); setNewCustomer(getNewCustomer()); setShowModal(true); }}>Add Customer</button>
+                            <button className="btn btn-primary" onClick={(event) => { event.preventDefault(); setNewCustomer(getNewCustomer()); setShowModal(true); }}>Add Customer</button>
                         </div>
                         <div className="form-group">
-                            <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Engineer') < 0}
+                            <button className="btn btn-primary" 
                                 onClick={(event) => { event.preventDefault(); setShowExtModal(true); }}>External Database</button>
                         </div>
                     </fieldset>
