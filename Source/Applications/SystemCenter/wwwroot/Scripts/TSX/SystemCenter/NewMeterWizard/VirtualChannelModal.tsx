@@ -43,6 +43,8 @@ interface IProps {
 
 interface IVirtualChannel {
     Series: string,
+    Phase: string,
+    MeasurementType: string,
     Scale: number,
     Name: string
 }
@@ -82,6 +84,8 @@ export default function VirtualChannelModal(props: IProps) {
     function addVirtualChannel(channel: OpenXDA.Types.Channel, scale: number) {
         const vChannel: IVirtualChannel = {
             Series: channel.Series[0].SourceIndexes,
+            Phase: channel.Phase,
+            MeasurementType: channel.MeasurementType,
             Scale: scale,
             Name: channel.Name
         }
@@ -89,13 +93,21 @@ export default function VirtualChannelModal(props: IProps) {
     }
 
     function handleVCModalConfirmCallback(conf, isButton) {
+        const mTypeArr = [];
+        const phaseArr = [];
+        for (const ch of virtualChannels) {
+            mTypeArr.push(ch.MeasurementType);
+            phaseArr.push(ch.Phase);
+        }
+
         if (conf) {
             let channel: OpenXDA.Types.Channel = {
                 ID: 0, // gets overwritten by addChannel in ChannelPage
                 Meter: props.MeterKey, Asset: '',
-                MeasurementType: 'Voltage',
+                MeasurementType: mTypeArr.every(v => v === mTypeArr[0]) ? mTypeArr[0] : 'Voltage',   // if all the same return one of the el's
+                Adder: 0, Phase: phaseArr.every(v => v === phaseArr[0]) ? phaseArr[0] : 'AN', 
                 MeasurementCharacteristic: 'Instantaneous',
-                Phase: 'AN', Name: 'New Virtual Channel', Adder: 0, Multiplier: 1,
+                Name: 'New Virtual Channel',  Multiplier: 1,
                 SamplesPerHour: 0, PerUnitValue: null,
                 HarmonicGroup: 0, Description: 'Voltage AN',
                 Enabled: true, Series: [{
