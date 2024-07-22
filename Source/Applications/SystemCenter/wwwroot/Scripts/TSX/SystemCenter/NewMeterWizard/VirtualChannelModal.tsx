@@ -5,13 +5,13 @@
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
-//  The GPA licenses this file to you under the MIT License (MIT), the "License"; you may not use this
+//  The GPA licenses this file to you under the MIT License (MIT), the 'License'; you may not use this
 //  file except in compliance with the License. You may obtain a copy of the License at:
 //
 //      http://opensource.org/licenses/MIT
 //
 //  Unless agreed to in writing, the subject software distributed under the License is distributed on an
-//  "AS-IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. Refer to the
+//  'AS-IS' BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. Refer to the
 //  License for the specific language governing permissions and limitations.
 //
 //  Code Modification History:
@@ -95,7 +95,7 @@ export default function VirtualChannelModal(props: IProps) {
                 Meter: props.MeterKey, Asset: '',
                 MeasurementType: 'Voltage',
                 MeasurementCharacteristic: 'Instantaneous',
-                Phase: 'AN', Name: 'Virtual 1', Adder: 0, Multiplier: 1,
+                Phase: 'AN', Name: 'New Virtual Channel', Adder: 0, Multiplier: 1,
                 SamplesPerHour: 0, PerUnitValue: null,
                 HarmonicGroup: 0, Description: 'Voltage AN',
                 Enabled: true, Series: [{
@@ -146,10 +146,10 @@ export default function VirtualChannelModal(props: IProps) {
             ConfirmShowToolTip={!validSelection}
             ConfirmToolTipContent={<p><span>{CrossMark}</span>Selection includes channel with no Series.</p>}
         >
-            <div className="row">
+            <div className='row'>
                 <div className={'col-12'} style={{ height: '100%', overflow: 'hidden' }}>
                     <ConfigTable.Table<OpenXDA.Types.Channel>
-                        // LocalStorageKey="ChannelPageConfigTable"
+                        // LocalStorageKey='ChannelPageConfigTable'
                         Data={props.CurrentChannels}
                         SortKey={props.SortKey}
                         Ascending={props.Ascending}
@@ -268,7 +268,8 @@ export default function VirtualChannelModal(props: IProps) {
                 {virtualChannels.map((channel: IVirtualChannel, index: number) => (
                     <>
                         {index === 0
-                        ? <><div className="col-1"></div><div className='col-1 pl-0 ml-3'>
+                        ? <><div className='col-1 mx-1'></div>
+                          <div className='col-1 px-0 mx-2'>
                             <Input<IVirtualChannel>
                                 Field={'Scale'}
                                 Label={''}
@@ -277,9 +278,9 @@ export default function VirtualChannelModal(props: IProps) {
                                 Valid={() => true}
                                 Setter={(ch) => updateChannelScale(ch, index)}
                                 Style={{marginBottom: 0}} />
-                        </div></>
-                        : <><div className={'col-1 text-center'}>+</div>
-                          <div className='col-1 pl-0 ml-3'>
+                          </div></>
+                        : <><div className={'col-1 mx-1 text-center'}>+</div>
+                          <div className='col-1 px-0 mx-2'>
                             <Input<IVirtualChannel>
                                 Field={'Scale'}
                                 Label={''}
@@ -291,16 +292,16 @@ export default function VirtualChannelModal(props: IProps) {
                           </div></>
                           }
                         <div>&times;</div>
-                        <div className="col-2 text-center">
+                        <div className='col-2 text-center'>
                             {channel.Name}
                         </div>
-                        <button className="col-1 ml-2 btn btn-sm" onClick={() => removeVC(channel)}>
+                        <button className='col-1 btn btn-sm' onClick={() => removeVC(channel)}>
                             <span>{TrashCan}</span>
                         </button>
                     </>))}
             </div>
-            {(virtualChannels.length > 0) ? null : <div className="row mt-2 justify-content-center">
-                <div className="alert alert-primary">Select channels to add to virtual channel.</div>
+            {(virtualChannels.length > 0) ? null : <div className='row mt-2 justify-content-center'>
+                <div className='alert alert-primary'>Select channels to add to virtual channel.</div>
             </div>}
         </Modal>
     </>
