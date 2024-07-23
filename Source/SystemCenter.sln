@@ -38,12 +38,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GSF", "GSF", "{F5BD3958-FFB
 		Dependencies\GSF\GSF.Web.xml = Dependencies\GSF\GSF.Web.xml
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Data", "Data", "{B554F6A4-C3DF-4D8B-B3EF-7819B44BCE09}"
-	ProjectSection(SolutionItems) = preProject
-		Data\SystemCenter.sql = Data\SystemCenter.sql
-		Data\TVADefaults.sql = Data\TVADefaults.sql
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SystemCenter", "Applications\SystemCenter\SystemCenter.csproj", "{0C461E89-2430-4E47-B5C4-97FCA86E0E21}"
 EndProject
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "SystemCenterSetup", "Applications\SystemCenterSetup\SystemCenterSetup.wixproj", "{36380070-81B6-4D71-A80A-C5AE76B0E357}"
