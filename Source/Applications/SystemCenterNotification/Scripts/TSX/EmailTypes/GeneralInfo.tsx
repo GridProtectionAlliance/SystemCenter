@@ -52,6 +52,10 @@ const GeneralInfo = (props: IProps) => {
         let e = [];
         if (email.Name == undefined || email.Name.length < 1)
             e.push('A Name is required');
+        if (email.Name != undefined && email.Name.length > 50)
+            e.push('Name cannot exceed 50 characters.');
+        if (email.FilePath != undefined && email.FilePath.length > 200)
+            e.push('File path cannot exceed 200 characters.')
         if (allEmails.findIndex(s => s.Name === email.Name && s.ID !== email.ID) >= 0)
             e.push('An Email with this Name already exists');
         if (email.EmailCategoryID < 0)
