@@ -165,7 +165,7 @@ export default function VirtualChannelModal(props: IProps) {
             ConfirmBtnClass={'btn-primary'}
             DisableConfirm={errors?.length > 0 || virtualChannels.length == 0}
             ShowCancel={true}
-            Size={'lg'}
+            Size={'xlg'}
             ConfirmShowToolTip={warnings?.length > 0 || errors?.length > 0}
             ConfirmToolTipContent={<>
                 {errors?.map((e) => <p><ReactIcons.CrossMark Size={10}/> {e}</p>)}
@@ -173,25 +173,19 @@ export default function VirtualChannelModal(props: IProps) {
             </>}
         >
             <div className='row'>
-                <div className={'col-12'} style={{ height: '100%', overflow: 'hidden' }}>
+                <div className={'col-12'}>
                     <ConfigTable.Table<OpenXDA.Types.Channel>
                         // LocalStorageKey='ChannelPageConfigTable'
                         Data={props.CurrentChannels}
                         SortKey={props.SortKey}
                         Ascending={props.Ascending}
                         TheadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
-                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                        TbodyStyle={{ display: 'block', flex: 1 }}
                         RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
                         Selected={() => false}
                         KeySelector={(item) => item.ID}
                         OnClick={(data, event) => handleChannelClick(data, event)}
-                        OnSort={(d) => {
-                            // if (d.colKey === props.SortKey)
-                            // setAsc((x) => !x);
-                            // else
-                            // setAsc(false);
-                            // setSortKey(d.colKey);
-                        }}
+                        OnSort={() => {}}
                     >
                         <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
                             Key={'Name'}
@@ -200,7 +194,7 @@ export default function VirtualChannelModal(props: IProps) {
                             HeaderStyle={{ maxWidth: 'auto' }}
                             >Name
                         </ReactTable.AdjustableColumn>
-                        <ConfigTable.Configurable Key='Series' Label='Channel' Default={false}>
+                        <ConfigTable.Configurable Key='Series' Label='Channel' Default={true}>
                             <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
                                 Key={'Series'}
                                 AllowSort={true}
@@ -209,7 +203,7 @@ export default function VirtualChannelModal(props: IProps) {
                                 >Channel
                             </ReactTable.AdjustableColumn>
                         </ConfigTable.Configurable>
-                        <ConfigTable.Configurable Key='MeasurementType' Label='Type' Default={false}>
+                        <ConfigTable.Configurable Key='MeasurementType' Label='Type' Default={true}>
                             <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
                                 Key={'MeasurementType'}
                                 AllowSort={true}
@@ -225,7 +219,7 @@ export default function VirtualChannelModal(props: IProps) {
                             >Characteristic
                             </ReactTable.AdjustableColumn>
                         </ConfigTable.Configurable>
-                        <ConfigTable.Configurable Key='Phase' Label='Phase' Default={false}>
+                        <ConfigTable.Configurable Key='Phase' Label='Phase' Default={true}>
                             <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
                                 Key={'Phase'}
                                 HeaderStyle={{ maxWidth: 'auto' }}
@@ -294,9 +288,9 @@ export default function VirtualChannelModal(props: IProps) {
                 {virtualChannels.map((channel: IVirtualChannel, index: number) => (
                     <>
                         {index === 0
-                        ? <div className='col-1 mx-1'></div>
-                        : <div style={{ cursor: 'pointer' }} className={'col-1 mx-1 text-center'} onClick={() => {signedScale(index)}}><ReactIcons.Plus /></div>}
-                        <div className='col-1 px-0 mx-2'>
+                        ? <div className='col-1'></div>
+                        : <div style={{ cursor: 'pointer' }} className={'col-1 text-center'} onClick={() => {signedScale(index)}}><ReactIcons.Plus /></div>}
+                        <div className='col-1 px-0'>
                             <Input<IVirtualChannel>
                                 Field={'Scale'}
                                 Label={''}
@@ -306,11 +300,12 @@ export default function VirtualChannelModal(props: IProps) {
                                 Setter={(ch) => updateChannelScale(ch, index)}
                                 Style={{marginBottom: 0}} />
                         </div>
-                        <div className="pl-2">&times;</div>
-                        <div className='col-2 text-center'>
-                            {channel.Name}
+                        <div className="col-1">
+                            <div className='row px-1'> {/* For even spacing of text */}
+                                <div className='col-1'>&times;</div> <div className='col'>{channel.Name}</div>
+                            </div>
                         </div>
-                        <button className='col-1 btn btn-sm' onClick={() => removeVC(channel)}>
+                        <button className='col-1 mt-2 btn btn-sm' onClick={() => removeVC(channel)}>
                             <ReactIcons.TrashCan />
                         </button>
                     </>
