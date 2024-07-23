@@ -25,6 +25,7 @@ import * as React from 'react';
 import { ReactTable } from '@gpa-gemstone/react-table';
 import { Application } from '@gpa-gemstone/application-typings';
 import { Plot, Line } from '@gpa-gemstone/react-graph';
+import { LoadingScreen } from '@gpa-gemstone/react-interactive';
 import * as _ from 'lodash';
 import { GetAccessLogAggregates, GetAccessLogTable, } from './../../../TS/Services/User';
 
@@ -42,61 +43,67 @@ interface AccessLogTable {
 const UserStatistics: Application.Types.iByComponent = (props) => {
     let svgWidth = window.innerWidth - 250 - 30;
     let svgHeight = (window.innerHeight - 75) * .33;
-    let margin = { top: 20, right: 20, bottom: 20, left: 50 };
     
-    const [scAggregates, setScAggregates] = React.useState<Array<Aggregate>>([]);
-    const [xdaAggregates, setXDAAggregates] = React.useState<Array<Aggregate>>([]);
     const [days, setDays] = React.useState<number>(30);
     const [tab, setTab] = React.useState<Application.Types.AttachedDatabases>('SystemCenter');
     const [tableData, setTableData] = React.useState<Array<AccessLogTable>>([]);
     const [sortField, setSortField] = React.useState<string>('Logins');
     const [ascending, setAscending] = React.useState<boolean>(false);
 
+    const [defaultTdomain, setDefaultTdomain] = React.useState<[number, number]>([0, 0]);
+    const [defaultYdomain, setDefaultYdomain] = React.useState<[number, number]>([0, 1]);
+    const [scData, setScData] = React.useState<[number, number][]>([]);
+    const [xdaData, setXdaData] = React.useState<[number, number][]>([]);
+    const [pageStatus, setPageStatus] = React.useState<Application.Types.Status>('unintiated');
+
     React.useEffect(() => {
         GetData(days, tab);
     }, [days, tab]);
 
     async function GetData(d: number, t: Application.Types.AttachedDatabases) {
+        setPageStatus('loading');
         let sca = await GetAccessLogAggregates("SystemCenter", d);
         let xdaa = await GetAccessLogAggregates("OpenXDA", d);
-        setScAggregates(sca);
-        setXDAAggregates(xdaa);
-        GetTableData(t)
+        GetTableData(d, t)
+
+        const hasData = sca.length > 0 && xdaa.length > 0;
+
+        const newDefaultTdomain: [number, number] = hasData ? [
+            new Date(sca[0]?.Date).getTime(),
+            new Date(sca[sca.length - 1]?.Date).getTime()
+        ] : [0, 0];
+
+        const newDefaultYdomain: [number, number] = hasData ? [
+            0,
+            Math.max(
+                ...sca.map(d => d.Count),
+                ...xdaa.map(d => d.Count)
+            )
+        ] : [0, 1];
+
+        const transformData = (data: Array<Aggregate>): [number, number][] => {
+            return data.map(d => [new Date(d.Date).getTime(), d.Count] as [number, number])
+                .filter(d => !isNaN(d[0]) && !isNaN(d[1]));
+        };
+
+        setDefaultTdomain(newDefaultTdomain);
+        setDefaultYdomain(newDefaultYdomain);
+        setScData(transformData(sca));
+        setXdaData(transformData(xdaa));
+        setPageStatus('idle');
     }
 
-    async function GetTableData(db: Application.Types.AttachedDatabases ) {
-        let table = await GetAccessLogTable(db, days);
+    async function GetTableData(d: number, db: Application.Types.AttachedDatabases) {
+        let table = await GetAccessLogTable(db, d);
         var ordered = _.orderBy(table, [sortField], [(ascending ? "asc" : "desc")])
         setTableData(ordered);
     }
 
-    if (props.Roles.indexOf('Administrator') < 0) return null;
-
-    const hasData = scAggregates.length > 0 && xdaAggregates.length > 0;
-
-    const defaultTdomain: [number, number] = hasData ? [
-        new Date(scAggregates[0]?.Date).getTime(),
-        new Date(scAggregates[scAggregates.length - 1]?.Date).getTime()
-    ] : [0, 0];
-
-    const defaultYdomain: [number, number] = hasData ? [
-        0,
-        Math.max(
-            ...scAggregates.map(d => d.Count),
-            ...xdaAggregates.map(d => d.Count)
-        )
-    ] : [0, 1];
-
-    const transformData = (data: Array<Aggregate>): [number, number][] => {
-        return data.map(d => [new Date(d.Date).getTime(), d.Count] as [number, number])
-            .filter(d => !isNaN(d[0]) && !isNaN(d[1]));
-    };
-
-    const scData = transformData(scAggregates);
-    const xdaData = transformData(xdaAggregates);
+    if (props.Roles.indexOf('Administrator') < 0) return null
   
     return (
         <div style={{ width: '100%', height: '100%', padding: '10px 10px 10px 20px' }}>
+            <LoadingScreen Show={pageStatus === 'loading'} />
             <div className="row">
                 <div className="col">
                     <h2>User Statistics</h2>
@@ -116,7 +123,7 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
 
             </div>
             <hr/>
-            <div style={{ width: '100%', height: 'calc( 100%)' }}>
+            <div style={{ width: '100%', height: 'calc(100%)' }}>
                 <Plot
                     defaultTdomain={defaultTdomain}
                     defaultYdomain={defaultYdomain}
@@ -149,7 +156,7 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
                         <li className="nav-item">                         
                             <a className={"nav-link" + (tab == "SystemCenter" ? " active" : "")} onClick={() => {
                                 setTab('SystemCenter')
-                                GetTableData('SystemCenter');
+                                GetTableData(days, 'SystemCenter');
                             }}>
                                 <svg width="20" height="20">
                                     <rect width="20" height="20" fill='steelblue' strokeWidth='3' stroke='rgb(0,0,0)' />
@@ -160,7 +167,7 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
                         <li className="nav-item">
                             <a className={"nav-link" + (tab == "OpenXDA" ? " active" : "")} onClick={() => {
                                 setTab('OpenXDA')
-                                GetTableData('OpenXDA');
+                                GetTableData(days, 'OpenXDA');
                             }}>
                                 <svg width="20" height="20">
                                     <rect width="20" height="20" fill='red' strokeWidth='3' stroke='rgb(0,0,0)' />
