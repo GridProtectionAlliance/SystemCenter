@@ -28,7 +28,7 @@ import { Modal } from '@gpa-gemstone/react-interactive';
 import { ConfigTable } from '@gpa-gemstone/react-interactive';
 import { ReactTable } from '@gpa-gemstone/react-table'
 import { Input } from '@gpa-gemstone/react-forms';
-import { CrossMark, Plus, TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 
 interface IProps {
     Channels: OpenXDA.Types.Channel[],
@@ -50,23 +50,26 @@ interface IVirtualChannel {
 }
 
 export default function VirtualChannelModal(props: IProps) {
-    const [disableModalConfirm, setDisableModalConfirm] = React.useState<boolean>(true);
-    const [validSelection, setValidSelection] = React.useState<boolean>(false);
     const [virtualChannels, setVirtualChannels] = React.useState<IVirtualChannel[]>([]);
 
-    React.useEffect(() => {
-        setDisableModalConfirm(true);
-        if (virtualChannels.length > 0 && validSelection) setDisableModalConfirm(false);
-    }, [virtualChannels, validSelection]);
+    const [warnings, setWarnings] = React.useState<string[]>(undefined);
+    const [errors, setErrors] = React.useState<string[]>(undefined);
 
     React.useEffect(() => {
+        const e = []
+        const w = []
         for (const vChannel of virtualChannels) {
             if (vChannel.Series === null || vChannel.Series == '') {
-                setValidSelection(false);
-                return;
+                e.push(`Channel ${vChannel.Name} does not have a sourceIndex and cannot be used in a calculation.`)
             }
-            setValidSelection(true);
         }
+        setErrors(e);
+
+        if (virtualChannels.length > 0) {
+            if (getChannelInfo(virtualChannels) == undefined) 
+                w.push(`Unknown calculation for Phase and Measurement Type based off selected channels.`);
+        }
+        setWarnings(w);
     }, [virtualChannels])
 
     const handleChannelClick = React.useCallback((data: {
@@ -92,25 +95,26 @@ export default function VirtualChannelModal(props: IProps) {
         setVirtualChannels(prevChannels => [...prevChannels, vChannel])
     }
 
+    function getChannelInfo(channels: IVirtualChannel[]) {
+        if (channels.filter(c => c.Phase == 'A' && c.MeasurementType == 'Voltage').length > 0)
+            return { MeasurementType: 'Voltage', Phase: 'A', Description: '' };
+        return undefined;
+    }
+
     function handleVCModalConfirmCallback(conf, isButton) {
-        const mTypeArr = [];
-        const phaseArr = [];
-        for (const ch of virtualChannels) {
-            mTypeArr.push(ch.MeasurementType);
-            phaseArr.push(ch.Phase);
-        }
+        const result = getChannelInfo(virtualChannels);
 
         if (conf) {
             let channel: OpenXDA.Types.Channel = {
                 ID: 0, // gets overwritten by addChannel in ChannelPage
                 Meter: props.MeterKey, Asset: '',
-                MeasurementType: mTypeArr.every(v => v === mTypeArr[0]) ? mTypeArr[0] : 'Voltage',   // if all the same return one of the el's
-                Adder: 0, Phase: phaseArr.every(v => v === phaseArr[0]) ? phaseArr[0] : 'AN', 
+                MeasurementType: result?.MeasurementType ?? 'Voltage',
+                Adder: 0, Phase: result?.Phase ?? 'AN',
+                Description: result?.Description ?? result?.MeasurementType + ' ' + result?.Phase,
                 MeasurementCharacteristic: 'Instantaneous',
                 Name: 'New Virtual Channel',  Multiplier: 1,
                 SamplesPerHour: 0, PerUnitValue: null,
-                HarmonicGroup: 0, Description: 'Voltage AN',
-                Enabled: true, Series: [{
+                HarmonicGroup: 0, Enabled: true, Series: [{
                     ID: 0,
                     ChannelID: 0,
                     SeriesType: 'Values',
@@ -159,11 +163,14 @@ export default function VirtualChannelModal(props: IProps) {
             }}
             ConfirmText={'Add'}
             ConfirmBtnClass={'btn-primary'}
-            DisableConfirm={disableModalConfirm}
+            DisableConfirm={errors?.length > 0 || virtualChannels.length == 0}
             ShowCancel={true}
             Size={'lg'}
-            ConfirmShowToolTip={!validSelection}
-            ConfirmToolTipContent={<p><span>{CrossMark}</span>Selection includes channel with no Series.</p>}
+            ConfirmShowToolTip={warnings?.length > 0 || errors?.length > 0}
+            ConfirmToolTipContent={<>
+                {errors?.map((e) => <p><ReactIcons.CrossMark Size={10}/> {e}</p>)}
+                {warnings?.map((w) => <p><ReactIcons.Warning Size={10}/> {w}</p>)}
+            </>}
         >
             <div className='row'>
                 <div className={'col-12'} style={{ height: '100%', overflow: 'hidden' }}>
@@ -288,7 +295,7 @@ export default function VirtualChannelModal(props: IProps) {
                     <>
                         {index === 0
                         ? <div className='col-1 mx-1'></div>
-                        : <div style={{ cursor: 'pointer' }} className={'col-1 mx-1 text-center'} onClick={() => {signedScale(index)}}>{Plus}</div>}
+                        : <div style={{ cursor: 'pointer' }} className={'col-1 mx-1 text-center'} onClick={() => {signedScale(index)}}><ReactIcons.Plus /></div>}
                         <div className='col-1 px-0 mx-2'>
                             <Input<IVirtualChannel>
                                 Field={'Scale'}
@@ -304,7 +311,7 @@ export default function VirtualChannelModal(props: IProps) {
                             {channel.Name}
                         </div>
                         <button className='col-1 btn btn-sm' onClick={() => removeVC(channel)}>
-                            <span>{TrashCan}</span>
+                            <ReactIcons.TrashCan />
                         </button>
                     </>
                 ))}
