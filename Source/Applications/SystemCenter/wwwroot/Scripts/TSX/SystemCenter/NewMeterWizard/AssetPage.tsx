@@ -77,6 +77,7 @@ export default function AssetPage(props: IProps) {
 
     const [newEdit, setNewEdit] = React.useState<'New' | 'Edit'>('New');
     const [showAssetModal, setShowAssetModal] = React.useState<boolean>(false);
+    const [searchTerm, setSearchTerm] = React.useState({ primary: '', secondary: '', tertiary: '', channels: '', breaker: '', line: '' });
 
     const [showAssetSelect, setShowAssetSelect] = React.useState<boolean>(false);
     const [selectedAssets, setSelectedAssets] = React.useState<SystemCenter.Types.DetailedAsset[]>([]);
@@ -510,6 +511,13 @@ export default function AssetPage(props: IProps) {
                         {newEditAsset.AssetType != 'Transformer' && newEditAsset.AssetType != 'Breaker' ?
                             <div className="col-12">
                                 <label>Associated Channels</label>
+                                <input
+                                    type="text"
+                                    placeholder="Search Channels..."
+                                    value={searchTerm.channels}
+                                    onChange={(e) => setSearchTerm((prev) => ({ ...prev, channels: e.target.value }))}
+                                    style={{ width: '100%', marginBottom: '10px' }}
+                                />
                                 <select multiple style={{ height: innerHeight - 330, width: '100%' }} onChange={(evt) => {
                                     let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
                                     asset.Channels = ($(evt.target).val() as Array<string>).map(a => props.Channels.find(ch => ch.ID == parseInt(a)))
@@ -518,14 +526,23 @@ export default function AssetPage(props: IProps) {
                                     channels = channels.map(ch => ({ ...ch, ConnectionPriority: 0 }));
                                     props.UpdateChannels(channels);
                                 }} value={newEditAsset.Channels.map(a => a.ID.toString())}>
-                                    {
-                                        props.Channels.map((channel, index) => <option key={index} value={channel.ID} hidden={channel.Asset != newEditAsset.AssetKey && channel.Asset.length > 0}>{channel.Name + ' - ' + channel.Description}</option>)
-                                    }
+                                    {props.Channels.filter(channel => channel.Name.toLowerCase().includes(searchTerm.channels.toLowerCase()) || channel.Description.toLowerCase().includes(searchTerm.channels.toLowerCase())).map((channel, index) => (
+                                        <option key={index} value={channel.ID} hidden={channel.Asset != newEditAsset.AssetKey && channel.Asset.length > 0}>
+                                            {channel.Name + ' - ' + channel.Description}
+                                        </option>
+                                    ))}
                                 </select>
                             </div> : null}
                         {newEditAsset.AssetType == 'Breaker'? <>
                             <div className="col-6">
                                 <label>Associated Channels Bus Side</label>
+                                <input
+                                    type="text"
+                                    placeholder="Search Channels..."
+                                    value={searchTerm.breaker}
+                                    onChange={(e) => setSearchTerm((prev) => ({ ...prev, breaker: e.target.value }))}
+                                    style={{ width: '100%', marginBottom: '10px' }}
+                                />
                                 <select multiple style={{ height: innerHeight - 430, width: '100%' }} onChange={(evt) => {
                                     let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
                                     const selectedID = ($(evt.target).val() as Array<string>).map(a => parseInt(a));
@@ -537,13 +554,22 @@ export default function AssetPage(props: IProps) {
                                     
                                     props.UpdateChannels(channels);
                                 }} value={newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 0).map(a => a.ID.toString())}>
-                                    {
-                                        props.Channels.map((channel, index) => <option key={index} value={channel.ID} hidden={channel.Asset != newEditAsset.AssetKey && channel.Asset.length > 0}>{channel.Name + ' - ' + channel.Description}</option>)
-                                    }
+                                    {props.Channels.filter(channel => channel.Name.toLowerCase().includes(searchTerm.breaker.toLowerCase()) || channel.Description.toLowerCase().includes(searchTerm.breaker.toLowerCase())).map((channel, index) => (
+                                        <option key={index} value={channel.ID} hidden={channel.Asset != newEditAsset.AssetKey && channel.Asset.length > 0}>
+                                            {channel.Name + ' - ' + channel.Description}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
                             <div className="col-6">
                                 <label>Associated Channels Line/XFR Side</label>
+                                <input
+                                    type="text"
+                                    placeholder="Search Channels..."
+                                    value={searchTerm.line}
+                                    onChange={(e) => setSearchTerm((prev) => ({ ...prev, line: e.target.value }))}
+                                    style={{ width: '100%', marginBottom: '10px' }}
+                                />
                                 <select multiple style={{ height: innerHeight - 430, width: '100%' }} onChange={(evt) => {
                                     let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
                                     const selectedID = ($(evt.target).val() as Array<string>).map(a => parseInt(a));
@@ -555,9 +581,11 @@ export default function AssetPage(props: IProps) {
                                    
                                     props.UpdateChannels(channels);
                                 }} value={newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 1).map(a => a.ID.toString())}>
-                                    {
-                                        props.Channels.map((channel, index) => <option key={index} value={channel.ID} hidden={channel.Asset != newEditAsset.AssetKey && channel.Asset.length > 0}>{channel.Name + ' - ' + channel.Description}</option>)
-                                    }
+                                    {props.Channels.filter(channel => channel.Name.toLowerCase().includes(searchTerm.line.toLowerCase()) || channel.Description.toLowerCase().includes(searchTerm.line.toLowerCase())).map((channel, index) => (
+                                        <option key={index} value={channel.ID} hidden={channel.Asset != newEditAsset.AssetKey && channel.Asset.length > 0}>
+                                            {channel.Name + ' - ' + channel.Description}
+                                        </option>
+                                    ))}
                                 </select>
                             </div> </> : null}
                                 {newEditAsset.AssetType === 'Transformer' ? (
@@ -565,6 +593,13 @@ export default function AssetPage(props: IProps) {
                                         <div className="row justify-content-center">
                                             <div className="col-4">
                                                 <label>Associated Channels Primary Side</label>
+                                                <input
+                                                    type="text"
+                                                    placeholder="Search Channels..."
+                                                    value={searchTerm.primary}
+                                                    onChange={(e) => setSearchTerm((prev) => ({ ...prev, primary: e.target.value }))}
+                                                    style={{ width: '100%', marginBottom: '10px' }}
+                                                />
                                                 <select multiple style={{ height: innerHeight - 430, width: '100%', overflowX: 'auto' }} onChange={(evt) => {
                                                     let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
                                                     const selectedID = ($(evt.target).val() as Array<string>).map(a => parseInt(a));
@@ -576,7 +611,7 @@ export default function AssetPage(props: IProps) {
 
                                                     props.UpdateChannels(channels);
                                                 }} value={newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 0).map(a => a.ID.toString())}>
-                                                    {props.Channels.map((channel, index) => (
+                                                    {props.Channels.filter(channel => channel.Name.toLowerCase().includes(searchTerm.primary.toLowerCase()) || channel.Description.toLowerCase().includes(searchTerm.primary.toLowerCase())).map((channel, index) => (
                                                         <option key={index} value={channel.ID} hidden={channel.Asset !== newEditAsset.AssetKey && channel.Asset.length > 0}>
                                                             {channel.Name + ' - ' + channel.Description}
                                                         </option>
@@ -585,6 +620,13 @@ export default function AssetPage(props: IProps) {
                                             </div>
                                             <div className="col-4">
                                                 <label>Associated Channels Secondary Side</label>
+                                                <input
+                                                    type="text"
+                                                    placeholder="Search Channels..."
+                                                    value={searchTerm.secondary}
+                                                    onChange={(e) => setSearchTerm((prev) => ({ ...prev, secondary: e.target.value }))}
+                                                    style={{ width: '100%', marginBottom: '10px' }}
+                                                />
                                                 <select multiple style={{ height: innerHeight - 430, width: '100%', overflowX: 'auto' }} onChange={(evt) => {
                                                     let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
                                                     const selectedID = ($(evt.target).val() as Array<string>).map(a => parseInt(a));
@@ -596,7 +638,7 @@ export default function AssetPage(props: IProps) {
 
                                                     props.UpdateChannels(channels);
                                                 }} value={newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 1).map(a => a.ID.toString())}>
-                                                    {props.Channels.map((channel, index) => (
+                                                    {props.Channels.filter(channel => channel.Name.toLowerCase().includes(searchTerm.secondary.toLowerCase()) || channel.Description.toLowerCase().includes(searchTerm.secondary.toLowerCase())).map((channel, index) => (
                                                         <option key={index} value={channel.ID} hidden={channel.Asset !== newEditAsset.AssetKey && channel.Asset.length > 0}>
                                                             {channel.Name + ' - ' + channel.Description}
                                                         </option>
@@ -605,6 +647,13 @@ export default function AssetPage(props: IProps) {
                                             </div>
                                             <div className="col-4">
                                                 <label>Associated Channels Tertiary Side</label>
+                                                <input
+                                                    type="text"
+                                                    placeholder="Search Channels..."
+                                                    value={searchTerm.tertiary}
+                                                    onChange={(e) => setSearchTerm((prev) => ({ ...prev, tertiary: e.target.value }))}
+                                                    style={{ width: '100%', marginBottom: '10px' }}
+                                                />
                                                 <select multiple style={{ height: innerHeight - 430, width: '100%', overflowX: 'auto' }} onChange={(evt) => {
                                                     let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
                                                     const selectedID = ($(evt.target).val() as Array<string>).map(a => parseInt(a));
@@ -616,7 +665,7 @@ export default function AssetPage(props: IProps) {
 
                                                     props.UpdateChannels(channels);
                                                 }} value={newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 2).map(a => a.ID.toString())}>
-                                                    {props.Channels.map((channel, index) => (
+                                                    {props.Channels.filter(channel => channel.Name.toLowerCase().includes(searchTerm.tertiary.toLowerCase()) || channel.Description.toLowerCase().includes(searchTerm.tertiary.toLowerCase())).map((channel, index) => (
                                                         <option key={index} value={channel.ID} hidden={channel.Asset !== newEditAsset.AssetKey && channel.Asset.length > 0}>
                                                             {channel.Name + ' - ' + channel.Description}
                                                         </option>
