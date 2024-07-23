@@ -139,10 +139,10 @@ const ByCellCarrier = (props: IProps) => {
                 DisableConfirm={carrier.Name == null || carrier.Transform == null || carrier.Name.length == 0 || carrier.Transform.length == 0 || carrier.Name.length > 200 || carrier.Transform.length > 200 || allData.findIndex(c => c.Name == carrier.Name && c.ID != carrier.ID) > -1}
                 ConfirmShowToolTip={carrier.Name == null || carrier.Transform == null || carrier.Name.length == 0 || carrier.Transform.length == 0 || carrier.Name.length > 200 || carrier.Transform.length > 200 || allData.findIndex(c => c.Name == carrier.Name && c.ID != carrier.ID) > -1}
                 ConfirmToolTipContent={<>
-                    {carrier.Name == null || carrier.Name.length == 0 ? <p> {CrossMark} A Name is required. </p> : null}
-                    {carrier.Name.length > 200 ? <p>{CrossMark} Name must not exceed 200 characters.</p> : null}
-                    {carrier.Transform == null || carrier.Transform.length == 0 ? <p> {CrossMark} A Transform is required. </p> : null}
-                    {carrier.Transform.length > 200 ? <p>{CrossMark} Transform must not exceed 200 characters.</p> : null}
+                    {carrier.Name == null || carrier.Name.length == 0  ? <p> {CrossMark} A Name is required. </p> : null}
+                    {carrier.Name !== null && carrier.Name.length > 200 ? <p>{CrossMark} Name must not exceed 200 characters.</p> : null}
+                    {carrier.Transform == null || carrier.Transform.length == 0  ? <p> {CrossMark} A Transform is required. </p> : null}
+                    {carrier.Transform !== null && carrier.Transform.length > 200 ? <p>{CrossMark} Transform must not exceed 200 characters.</p> : null}
                     {allData.findIndex(c => c.Name == carrier.Name && c.ID != carrier.ID) > -1 ? <p> {CrossMark} The Name has to be unique. </p> : null}
                 </>}
                 ConfirmBtnClass={'btn-success'} CallBack={(c, b) => {
