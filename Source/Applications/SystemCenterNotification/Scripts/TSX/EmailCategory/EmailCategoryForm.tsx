@@ -43,7 +43,7 @@ const EmailCategoryForm = (props: IProps) => {
     return ( 
         <div className="row">
             <div className="col">
-                <Input<EmailCategory> Record={props.record} Field={'Name'} Label='Name' Feedback={'A unique Name is required. 50 character limit.'}
+                <Input<EmailCategory> Record={props.record} Field={'Name'} Label='Name' Feedback={'A unique Name of less than 50 characters is required.'}
                     Valid={() => props.record.Name != null && props.record.Name.length > 0 && props.record.Name.length <= 50 && emailCategories.findIndex(s => s.Name === props.record.Name && s.ID !== props.record.ID) < 0}
                     Setter={(record) => { props.setRecord(record) }}
                 />

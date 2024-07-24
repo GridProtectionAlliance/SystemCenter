@@ -98,7 +98,7 @@ const ByEmailType = (props: IProps) => {
         if (allData.findIndex(s => s.Name === newEmail.Name && s.ID !== newEmail.ID) >= 0)
             e.push('An Email with this Name already exists.');
         if (newEmail.FilePath != null && newEmail.FilePath.length > 200)
-            e.push('File path cannot exceed 200 characters.');
+            e.push('File Path cannot exceed 200 characters.');
         if (newEmail.EmailCategoryID < 0)
             e.push('A Category has to be selected.');
         if (!IsNumber(newEmail.MinDelay))
