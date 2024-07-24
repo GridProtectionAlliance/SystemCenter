@@ -77,7 +77,7 @@ function AdditionalFieldsKeyModal(props: IProps): JSX.Element {
   
     React.useEffect(() => {
         if (props.Show && dataStatus === 'error') {
-            getData(0, 10, [], '', true);
+            setDataStatus('unintiated');
         }
     }, [props.Show])
 
@@ -100,7 +100,7 @@ function AdditionalFieldsKeyModal(props: IProps): JSX.Element {
             BodyStyle={{ maxHeight: 'calc(100vh - 210px)', display: 'flex', flexDirection: 'column' }}
         >
             {dataStatus !== 'error' ? <ResultDisplay GetCount={getCount} GetTable={getData} Selected={(item) => _.isEqual(item, selectedExternal)} OnSelection={setSelectedExternal} ForceReload={props.Show} />
-            : <ServerErrorIcon Show={dataStatus === 'error'} Label={'The external table is not setup properly. Please check the external database and table configuration'} />
+            : <ServerErrorIcon Show={dataStatus === 'error'} Label={'The external table is not set up properly. Please check the external database and table configuration'} />
             }
         </Modal>
     );
