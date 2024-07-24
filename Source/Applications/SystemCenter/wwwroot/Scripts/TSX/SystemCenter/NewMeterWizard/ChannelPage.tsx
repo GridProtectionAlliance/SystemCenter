@@ -371,14 +371,15 @@ export default function ChannelPage(props: IProps) {
                         Size={'sm'}
                         Disabled={currentChannels.length === 0}
                         Options={[{
-                            Label: 'Remove Spare', Disabled: NSpare == 0, Callback: () => setShowSpareWarning(true), 
-                            ToolTipContent: <p>No spare channels were identified.</p>, ShowToolTip: true, ToolTipLocation: 'left'
+                            Label: 'Remove Spare', Disabled: NSpare == 0, Callback: () => setShowSpareWarning(true)
                         }]}
-                        ShowToolTip={currentChannels.length === 0}
-                        BtnClass={'btn-primary'}
+                        ShowToolTip={false}
+                        BtnClass={'btn-primary' }
                         TooltipContent={
                             <>
-                            {currentChannels.length === 0 ? <p>No channels to remove.</p> : null}
+                            {NSpare > 0 ? <p>Channels are considered Spare if the Description is
+                                "spare", "virtual spare", "voltage spare", "current spare", "spare virtual",
+                                "spare channel", "spare voltage", "spare current", "spare trigger" or they are digital with description "A00 analog channel 00". </p> : null}
                             </>
                         }
                         /></>
@@ -392,7 +393,7 @@ export default function ChannelPage(props: IProps) {
                             }
                         }]}
                         ShowToolTip={true}
-                        BtnClass={'btn-primary'}
+                        BtnClass={'btn-primary' }
                         TooltipContent={<>
                             {NSpare == 0 ? <p>No spare channels were identified.</p> : null}
                             {NSpare > 0 ? <p>Channels are considered Spare if the Description is
