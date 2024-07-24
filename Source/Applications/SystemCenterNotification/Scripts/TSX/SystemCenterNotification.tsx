@@ -122,7 +122,7 @@ const MainPage = (props: {}) => {
         <App
             DefaultPath={'EventSubscribe'}
             HomePath={homePath}
-            Version={version} Logo={homePath + 'Images/SystemCenter.png'}
+            Version={version} Logo={homePath + 'Images/Notifications.png'}
             UserRoles={roles}
             AllowCollapsed={true}
             OnSignOut={() => { window.location.href = "/Logout"; }}
