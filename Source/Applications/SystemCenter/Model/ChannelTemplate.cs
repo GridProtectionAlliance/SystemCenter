@@ -58,9 +58,9 @@ namespace SystemCenter.Model
 	        ChannelTemplateFile 
     ")]
     [AllowSearch]
-    [PatchRoles("Administrator, Transmission SME")]
-    [PostRoles("Administrator, Transmission SME")]
-    [DeleteRoles("Administrator, Transmission SME")]
+    [PatchRoles("Administrator, Engineer")]
+    [PostRoles("Administrator, Engineer")]
+    [DeleteRoles("Administrator, Engineer")]
     public class ChannelTemplate
     {
         [PrimaryKey(true)]

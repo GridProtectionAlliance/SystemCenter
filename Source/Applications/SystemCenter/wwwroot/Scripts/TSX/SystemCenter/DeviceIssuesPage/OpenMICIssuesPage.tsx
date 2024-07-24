@@ -28,10 +28,12 @@ import { SystemCenter as SC } from '../global';
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import _ from 'lodash';
 import * as React from 'react';
-import { ConfigTable, GenericController } from '@gpa-gemstone/react-interactive';
+import { ConfigTable, GenericController, ToolTip } from '@gpa-gemstone/react-interactive';
 import { ReactTable } from '@gpa-gemstone/react-table'
 import Reason from './Reason';
 import moment from 'moment';
+import { useAppSelector } from '../hooks';
+import { SelectRoles } from '../Store/UserSettings';
 
 const OpenMICDailyStatisticController = new GenericController<SC.OpenMICDailyStatistic>(`${homePath}api/SystemCenter/Statistics/OpenMIC`, "LastSuccessfulConnection", true);
 
@@ -183,6 +185,8 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
 const Test = (props: { Meter: OpenXDA.Types.Meter }) => {
     const [flag, setFlag] = React.useState<boolean>(null);
     const [acronym, setAcronym] = React.useState<string>(undefined);
+    const roles = useAppSelector(SelectRoles);
+    const [hover, setHover] = React.useState<('ping' | 'none')>('none');
 
     React.useEffect(() => {
         let handle = $.ajax({
@@ -217,10 +221,20 @@ const Test = (props: { Meter: OpenXDA.Types.Meter }) => {
         else if (flag != null) return CrossMark;
         else return null;
     }
+
+    function hasPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0)
+            return false;
+        return true;
+    }
         
     return (
         <div style={{width: 100, position: 'absolute', right: 0}}>
-            <button className='btn btn-primary' onClick={RunTest}>Ping Device</button>
+            <button className={"btn btn-primary" + (hasPermissions() ? '' : 'disabled')} data-tooltip='PingDevice' onMouseEnter={() => setHover('ping')} onMouseLeave={() => setHover('none')}
+                onClick={RunTest}>Ping Device</button>
+            <ToolTip Show={hover == 'ping' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"PingDevice"}>
+                <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
+            </ToolTip>
             <span style={{marginLeft: 20}}>{Flag()}</span>
         </div>
     );

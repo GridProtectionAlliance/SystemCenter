@@ -176,17 +176,19 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 </li>
                             </ul>
 
+                            <div hidden={roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0}>
                             <hr />
-                            <h6 style={{ fontWeight: 'bold', marginLeft: 10 }} className="sidebar-heading" hidden={roles.indexOf('Administrator') < 0}>File Processing</h6>
-                            <ul style={{ marginLeft: 10 }} className="nav flex-column" hidden={roles.indexOf('Administrator') < 0}>
+                            </div>
+                            <h6 style={{ fontWeight: 'bold', marginLeft: 10 }} className="sidebar-heading" hidden={roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0}>File Processing</h6>
+                            <ul style={{ marginLeft: 10 }} className="nav flex-column" hidden={roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0}>
                                 <li className="nav-item">
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=DataFiles"} to={controllerViewPath + "?name=DataFiles"}>Data Files</NavLink>
                                 </li>
                                 <li className={"nav-item"}>
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=DataOperations&System=OpenXDA"} to={controllerViewPath + "?name=DataOperations&System=OpenXDA"}>Data Operations</NavLink>
+                                    <NavLink activeClassName='nav-link active' hidden={roles.indexOf('Administrator') < 0} className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=DataOperations&System=OpenXDA"} to={controllerViewPath + "?name=DataOperations&System=OpenXDA"}>Data Operations</NavLink>
                                 </li>
                                 <li className={"nav-item"}>
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=DataReaders&System=OpenXDA"} to={controllerViewPath + "?name=DataReaders&System=OpenXDA"}>Data Readers</NavLink>
+                                    <NavLink activeClassName='nav-link active' hidden={roles.indexOf('Administrator') < 0} className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=DataReaders&System=OpenXDA"} to={controllerViewPath + "?name=DataReaders&System=OpenXDA"}>Data Readers</NavLink>
                                 </li>
                                 <li className={"nav-item"}>
                                     <NavLink activeClassName='nav-link active' hidden={roles.indexOf('Administrator') < 0} className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=MATLABAnalytics")} to={controllerViewPath + "?name=MATLABAnalytics"}>MATLAB Analytics</NavLink>
@@ -196,10 +198,12 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 </li>
                             </ul>
 
-                            <hr />
-                            <h6 style={{ fontWeight: 'bold', marginLeft: 10 }} className="sidebar-heading" hidden={roles.indexOf('Administrator') < 0 && roles.indexOf("Transmission SME") < 0}>External Links</h6>
-                            <ul style={{ marginLeft: 10 }} className="nav flex-column">
-                                <li className="nav-item" hidden={roles.indexOf('Administrator') < 0 && roles.indexOf("Transmission SME") < 0}>
+                            <div hidden={roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0}>
+                                <hr />
+                            </div>
+                            <h6 style={{ fontWeight: 'bold', marginLeft: 10 }} className="sidebar-heading" hidden={roles.indexOf('Administrator') < 0 && roles.indexOf("Engineer") < 0}>External Links</h6>
+                            <ul style={{ marginLeft: 10 }} className="nav flex-column" hidden={roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0}>
+                                <li className="nav-item" hidden={roles.indexOf('Administrator') < 0 && roles.indexOf("Engineer") < 0}>
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=RemoteXDAInstance")} to={controllerViewPath + "?name=RemoteXDAInstanceMain"}>Remote openXDA Instances</NavLink>
                                 </li>
                                 <li className="nav-item" hidden={roles.indexOf('Administrator') < 0}>
@@ -210,7 +214,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 </li>
                             </ul>
 
+                            <div hidden={roles.indexOf('Administrator') < 0}>
                             <hr />
+                            </div>
                             <h6 style={{ fontWeight: 'bold', marginLeft: 10 }} className="sidebar-heading" hidden={roles.indexOf('Administrator') < 0}>UI Configuration</h6>
                             <ul style={{ marginLeft: 10 }} className="nav flex-column" hidden={roles.indexOf('Administrator') < 0}>
                                 <li className="nav-item">
@@ -239,7 +245,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 </li>
                             </ul>
 
-                            <hr />
+                            <div hidden={roles.indexOf('Administrator') < 0}>
+                                <hr />
+                            </div>
                             <h6 style={{fontWeight: 'bold', marginLeft: 10}} className="sidebar-heading" hidden={roles.indexOf('Administrator') < 0}>System Settings</h6>
                             <ul style={{ marginLeft: 10 }} className="nav flex-column" hidden={roles.indexOf('Administrator') < 0}>
                                 <li className="nav-item">
@@ -262,7 +270,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 </li>
                             </ul>
 
-                            <hr />
+                            <div hidden={roles.indexOf('Administrator') < 0}>
+                                <hr />
+                            </div>
                             <h6 style={{ fontWeight: 'bold', marginLeft: 10 }} className="sidebar-heading" hidden={roles.indexOf('Administrator') < 0}>User Settings</h6>
                             <ul style={{ marginLeft: 10 }} className="nav flex-column" hidden={roles.indexOf('Administrator') < 0}>
                                 <li className="nav-item">
@@ -291,117 +301,175 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                             <Switch>
                             <Route children={({ match, ...rest }) => {
                                 let qs = queryString.parse(rest.location.search);
-                                if (qs['?name'] == "Locations") 
-                                    return <ByLocation Roles={roles} />
-                                else if (qs['?name'] == "LineSegments")
-                                    return <ByLineSegment Roles={roles} />
-                                else if (qs['?name'] == "Assets")
-                                    return <ByAsset Roles={roles} />
-                                else if (qs['?name'] == "AssetGroups")
-                                    return <ByAssetGroup Roles={roles} />
-                                else if (qs['?name'] == "Users")
-                                    return <ByUser Roles={roles} />
-                                else if (qs['?name'] == "EventType")
-                                    return <ByEventType Roles={roles} />
-                                else if (qs['?name'] == "RemoteXDAInstanceMain")
-                                    return <RemoteXDAInstanceMain Roles={roles} />
-                                else if (qs['?name'] == "RemoteXDAInstance")
-                                    return <RemoteXDAInstance ID={parseInt(qs.ID as string)} Roles={roles} Tab={qs.Tab as any}/>
-                                else if (qs['?name'] == "ByExternalDB")
-                                    return <ByExternalDB Roles={roles} />
-                                else if (qs['?name'] == "ByExternalTable")
-                                    return <ByExternalTable Roles={roles} />
-                                else if (qs['?name'] == "ExternalDB")
-                                    return <ExternalDB ID={parseInt(qs.ID as string)} Tab={qs.Tab as any} />
-                                else if (qs['?name'] == "ExternalTable")
-                                    return <ExternalDBTable ID={parseInt(qs.ID as string)} Tab={qs.Tab as any} />
-                                else if (qs['?name'] == "ByAdditionalField")
-                                    return <ByAdditionalField Roles={roles} />
-                                else if (qs['?name'] == "User")
-                                    return <User UserID={qs.UserAccountID as string} Tab={qs.Tab as any} />
-                                else if (qs['?name'] == "Group")
-                                    return <UserGroup GroupID={qs.GroupID as string} Tab={qs.Tab as any} />
-                                else if (qs['?name'] == "ByApplicationCategory")
-                                    return <ByApplicationCategory Roles={roles} />
-                                else if (qs['?name'] == "DBCleanup")
-                                    return <DBCleanup Roles={roles} />
-                                else if (qs['?name'] == "ApplicationCategory")
-                                    return <ApplicationCategory ID={parseInt(qs.ID as string)} Tab={qs.Tab as any} />
-                                else if (qs['?name'] == "UserStatistics")
-                                    return <UserStatistics Roles={roles} />
-                                else if (qs['?name'] == "Meter")
+                                if (qs['?name'] == "Meter")
                                     return <Meter MeterID={parseInt(qs.MeterID as string)} Tab={qs.Tab as any} />
+                                else if (qs['?name'] == "NewMeterWizard")
+                                    return <NewMeterWizard IsEngineer={roles.indexOf('Administrator') >= 0 || roles.indexOf('Engineer') >= 0} />
+                                else if (qs['?name'] == "ConfigurationHistory")
+                                    return <ConfigurationHistory MeterConfigurationID={parseInt(qs.MeterConfigurationID as string)} MeterKey={qs.MeterKey as string} />
+                                else if (qs['?name'] == "Locations")
+                                    return <ByLocation Roles={roles} />
                                 else if (qs['?name'] == "Location")
                                     return <Location LocationID={parseInt(qs.LocationID as string)} Tab={qs.Tab as any} />
+                                else if (qs['?name'] == "Assets")
+                                    return <ByAsset Roles={roles} />
                                 else if (qs['?name'] == "Asset" || qs['?name'] == "LineSegment")
                                     return <Asset AssetID={parseInt(qs.AssetID as string)} Tab={qs.Tab as any} />
+                                else if (qs['?name'] == "AssetGroups")
+                                    return <ByAssetGroup Roles={roles} />
                                 else if (qs['?name'] == "AssetGroup")
                                     return <AssetGroup AssetGroupID={parseInt(qs.AssetGroupID as string)} Tab={qs.Tab as any} />
+                                else if (qs['?name'] == "LineSegments")
+                                    return <ByLineSegment Roles={roles} />
                                 else if (qs['?name'] == "Customer")
                                     return <Customer CustomerID={parseInt(qs.CustomerID as string)} Tab={qs.Tab as any} />
-                                else if (qs['?name'] == "PQViewSites")
-                                    return <iframe style={{ width: '100%', height: '100%' }} src={homePath + 'PQViewDataLoader.cshtml'}></iframe>
-                                else if (qs['?name'] == "PQViewCustomers")
-                                    return <ByCustomer Roles={roles} />
-                                else if (qs['?name'] == "NewMeterWizard")
-                                    return <NewMeterWizard IsEngineer={roles.indexOf('Administrator') >= 0 || roles.indexOf('Transmission SME') >= 0} />
-                                else if (qs['?name'] == "ValueListGroup")
-                                    return <ValueListGroup GroupID={parseInt(qs.GroupID as string)} Tab={qs.Tab as any} />
-                                else if (qs['?name'] == "ChannelGroup")
-                                    return <ChannelGroup GroupID={parseInt(qs.GroupID as string)} Tab={qs.Tab as any} />
-                                else if (qs['?name'] == "Settings")
-                                    return <BySettings Roles={roles} System={qs.System as 'SystemCenter' | 'OpenXDA' | 'MiMD'} />
-                                else if (qs['?name'] == "DataOperations")
-                                    return <DataOperations Roles={roles} />
-                                else if (qs['?name'] == "DataReaders")
-                                    return <DataReaders Roles={roles} />
-                                else if (qs['?name'] == "ApplicationNodes")
-                                    return <ByApplicationNode Roles={roles} />
-                                else if (qs['?name'] == "Groups")
-                                    return <BySecuritytGroup Roles={roles} />
-                                else if (qs['?name'] == "AppHost")
-                                    return <AppHost Roles={roles} />
-                                else if (qs['?name'] == "DeviceHealthReport") {
+                                else if (qs['?name'] == "DeviceHealthReport")
                                     return <DeviceHealthReport Roles={roles} />
-                                }
-                                else if (qs['?name'] == "SEBrowserTabs")
-                                    return <BySEBrowserCategory Roles={roles} />
-                                else if (qs['?name'] == "SEBrowserTab")
-                                    return <SEBrowserCategory TabID={parseInt(qs.TabID as string)} Tab={qs.Tab as any} />
-                                else if (qs['?name'] == "SEBrowserWidget")
-                                    return <BySEBrowserWidget Roles={roles} />
-                                else if (qs['?name'] == "MagDurCurves")
-                                    return <ByMagDurCurve Roles={roles} />
-                                else if (qs['?name'] == "Groups")
-                                    return <BySecuritytGroup Roles={roles} />
-                                else if (qs['?name'] == "MATLABAnalytic")
-                                    return <MATLABAnalytic AnalyticID={parseInt(qs.AnalyticID as string)} Tab={qs.Tab as any} />
-                                else if (qs['?name'] == "DownloadedFiles")
-                                    return <DownloadedFiles MeterID={parseInt(qs.MeterID as string)} MeterName={qs.MeterName as string } />
+                                else if (qs['?name'] == "DeviceIssuesPage")
+                                    return <DeviceIssuesPage MeterID={parseInt(qs.MeterID as string)} Tab={qs.Tab as any} OpenMICAcronym={qs.OpenMICAcronym as string} />
                                 else if (qs['?name'] == "DeviceContacts")
                                     return <DeviceContacts ID={qs.ID as string} Name={qs.Name as string} Field={qs.Field as 'TSC' | 'Sector'} />
-                                else if (qs['?name'] == "DeviceIssuesPage")
-                                    return <DeviceIssuesPage MeterID={parseInt(qs.MeterID as string)} Tab={qs.Tab as any} OpenMICAcronym={qs.OpenMICAcronym as string } />
+                                else if (qs['?name'] == "DownloadedFiles")
+                                    return <DownloadedFiles MeterID={parseInt(qs.MeterID as string)} MeterName={qs.MeterName as string} />
+
+                                //TO DO: Add page to gemstone for Users who do not have permission to replace null return
+                                else if (qs['?name'] == "DataFiles") {
+                                    if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0) return null;
+                                    return <DataFile Roles={roles} />
+                                }
+                                else if (qs['?name'] == "DataOperations") {
+                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    return <DataOperations Roles={roles} />
+                                }
+                                else if (qs['?name'] == "DataReaders") {
+                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    return <DataReaders Roles={roles} />
+                                }
+                                else if (qs['?name'] == "DBCleanup") {
+                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    return <DBCleanup Roles={roles} />
+                                }
+                                else if (qs['?name'] == "MATLABAnalytics") {
+                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    return <ByMATLABAnalytic Roles={roles} />
+                                }
+                                else if (qs['?name'] == "MATLABAnalytic") {
+                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    return <MATLABAnalytic AnalyticID={parseInt(qs.AnalyticID as string)} Tab={qs.Tab as any} />
+                                }
+
+                                else if (qs['?name'] == "RemoteXDAInstanceMain") {
+                                    if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0) return null;
+                                    return <RemoteXDAInstanceMain Roles={roles} />
+                                }
+                                else if (qs['?name'] == "RemoteXDAInstance") {
+                                    if (roles.indexOf('Administrator') < 0 || roles.indexOf('Engineer') < 0) return null;
+                                    return <RemoteXDAInstance ID={parseInt(qs.ID as string)} Roles={roles} Tab={qs.Tab as any} />
+                                }
+                                else if (qs['?name'] == "ByExternalDB") {
+                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    return <ByExternalDB Roles={roles} />
+                                }
+                                else if (qs['?name'] == "ExternalDB") {
+                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    return <ExternalDB ID={parseInt(qs.ID as string)} Tab={qs.Tab as any} />
+                                }
+                                else if (qs['?name'] == "ByExternalTable") {
+                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    return <ByExternalTable Roles={roles} />
+                                }
+                                else if (qs['?name'] == "ExternalTable") {
+                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    return <ExternalDBTable ID={parseInt(qs.ID as string)} Tab={qs.Tab as any} />
+                                }
+
+                                else if (qs['?name'] == "EventType") {
+                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    return <ByEventType Roles={roles} />
+                                }
+                                else if (qs['?name'] == "ValueListGroup") {
+                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    return <ValueListGroup GroupID={parseInt(qs.GroupID as string)} Tab={qs.Tab as any} />
+                                }
                                 else if (qs['?name'] == "ValueLists") {
                                     if (roles.indexOf('Administrator') < 0) return null;
                                     return <ByValueListGroup Roles={roles} />
                                 }
-                                else if (qs['?name'] == "ChannelGroups")
+                                else if (qs['?name'] == "ChannelGroups") {
+                                    if (roles.indexOf('Administrator') < 0) return null;
                                     return <ByChannelGroup Roles={roles} />
-                                else if (qs['?name'] == "ConfigurationHistory") {
-                                    return <ConfigurationHistory MeterConfigurationID={parseInt(qs.MeterConfigurationID as string)} MeterKey={qs.MeterKey as string} />
                                 }
-                                else if (qs['?name'] == "DataFiles") {
-                                    if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0) return null;
-                                    return <DataFile Roles={roles} />
+                                else if (qs['?name'] == "ChannelGroup") {
+                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    return <ChannelGroup GroupID={parseInt(qs.GroupID as string)} Tab={qs.Tab as any} />
                                 }
-                                else if (queryString.parse(rest.location.search)['?name'] == "EventTags") {
+                                else if (qs['?name'] == "SEBrowserTabs") {
+                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    return <BySEBrowserCategory Roles={roles} />
+                                }
+                                else if (qs['?name'] == "SEBrowserTab") {
+                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    return <SEBrowserCategory TabID={parseInt(qs.TabID as string)} Tab={qs.Tab as any} />
+                                }
+                                else if (qs['?name'] == "SEBrowserWidget") {
+                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    return <BySEBrowserWidget Roles={roles} />
+                                }
+                                else if (qs['?name'] == "MagDurCurves") {
+                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    return <ByMagDurCurve Roles={roles} />
+                                }
+                                else if (qs['?name'] == "EventTags") {
+                                    if (roles.indexOf('Administrator') < 0) return null;
                                     return <ByEventTag Roles={roles} />
                                 }
-                                else if (queryString.parse(rest.location.search)['?name'] == "MATLABAnalytics") {
+                                else if (qs['?name'] == "ByApplicationCategory") {
                                     if (roles.indexOf('Administrator') < 0) return null;
-                                    return <ByMATLABAnalytic Roles={roles} />
+                                    return <ByApplicationCategory Roles={roles} />
                                 }
+                                else if (qs['?name'] == "ApplicationCategory") {
+                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    return <ApplicationCategory ID={parseInt(qs.ID as string)} Tab={qs.Tab as any} />
+                                }
+
+                                else if (qs['?name'] == "AppHost") {
+                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    return <AppHost Roles={roles} />
+                                }
+                                else if (qs['?name'] == "Settings") {
+                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    return <BySettings Roles={roles} System={qs.System as 'SystemCenter' | 'OpenXDA' | 'MiMD'} />
+                                }
+                                else if (qs['?name'] == "ByAdditionalField") {
+                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    return <ByAdditionalField Roles={roles} />
+                                }
+                                else if (qs['?name'] == "ApplicationNodes") {
+                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    return <ByApplicationNode Roles={roles} />
+                                }
+
+                                else if (qs['?name'] == "UserStatistics") {
+                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    return <UserStatistics Roles={roles} />
+                                }
+                                else if (qs['?name'] == "Users") {
+                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    return <ByUser Roles={roles} />
+                                }
+                                else if (qs['?name'] == "User") {
+                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    return <User UserID={qs.UserAccountID as string} Tab={qs.Tab as any} />
+                                }
+                                else if (qs['?name'] == "Group") {
+                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    return <UserGroup GroupID={qs.GroupID as string} Tab={qs.Tab as any} />
+                                }
+                                else if (qs['?name'] == "Groups") {
+                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    return <BySecuritytGroup Roles={roles} />
+                                }
+                                
                                 else
                                     return <ByMeter Roles={roles} />;
                             }} />

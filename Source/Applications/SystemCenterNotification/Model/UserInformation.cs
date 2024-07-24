@@ -151,7 +151,7 @@ namespace SystemCenter.Notifications.Model
 
             if (User.IsInRole("Administrator")) result.Roles.Add("Administrator");
             if (User.IsInRole("Viewer")) result.Roles.Add("Viewer");
-            if (User.IsInRole("Transmission SME")) result.Roles.Add("Transmission SME");
+            if (User.IsInRole("Engineer")) result.Roles.Add("Engineer");
             if (User.IsInRole("PQ Data Viewer")) result.Roles.Add("PQ Data Viewer");
 
             return Ok(result);

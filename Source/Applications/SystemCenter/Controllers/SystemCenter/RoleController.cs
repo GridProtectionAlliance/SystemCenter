@@ -38,7 +38,7 @@ namespace SystemCenter.Controllers
             List<string> roles = new List<string>();
 
             if (User.IsInRole("Administrator")) roles.Add("Administrator");
-            if (User.IsInRole("Transmission SME")) roles.Add("Transmission SME");
+            if (User.IsInRole("Engineer")) roles.Add("Engineer");
             if (User.IsInRole("PQ Data Viewer")) roles.Add("PQ Data Viewer");
 
             return Ok(roles);

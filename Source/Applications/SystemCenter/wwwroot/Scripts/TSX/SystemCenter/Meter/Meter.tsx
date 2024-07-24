@@ -174,9 +174,9 @@ function Meter(props: IProps) {
                 <div className="col">
                     <h2>{meter.Name} ({meter.AssetKey})</h2>
                 </div>
-                <div className="col" style={{maxHeight: 50}}>
-                    <button className="btn btn-danger pull-right" onClick={() => setShowDelete(true)} hidden={roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0}>Delete Meter</button>
-                    <button className="btn btn-light pull-right" onClick={() => setShowAdvanced(true)} hidden={roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0}>Advanced</button>
+                <div className="col" style={{ maxHeight: 50 }} hidden={roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0}>
+                    <button className="btn btn-danger pull-right" onClick={() => setShowDelete(true)}>Delete Meter</button>
+                    <button className="btn btn-light pull-right" onClick={() => setShowAdvanced(true)}>Advanced</button>
                 </div>
             </div>
             <hr />

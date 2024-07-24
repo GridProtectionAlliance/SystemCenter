@@ -133,7 +133,7 @@ const MATLABAnalytics: Application.Types.iByComponent = (props) => {
                         <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                             <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                             <form>
-                                <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0}
+                                <button className="btn btn-primary" 
                                     onClick={(evt) => { evt.preventDefault(); setRecord({ ...emptyRecord }); setShowNew(true); }}>Add Analytic</button>
                             </form>
                         </fieldset>
