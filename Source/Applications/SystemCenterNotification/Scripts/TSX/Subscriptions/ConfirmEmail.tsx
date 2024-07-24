@@ -75,15 +75,15 @@ const EmailConfirm = (props: IProps) => {
             props.SetConfirmed();
     }, [confirmed]);
 
-    return <>
+    return (
         <div className="col">
             <div className="alert alert-info">
-                Please Confirm your Email by Clicking on the link provided in the email send to you.
+                Please confirm your email by clicking on the link provided in the email send to you.
                 <LoadingIcon Show={status == 'loading'} />
                 <button type="button" className="btn btn-secondary" onClick={() => { setForceResend(x=> x+1)}}>Resend Link</button>
             </div>
-            </div>
-        </>;
+        </div>
+    );
 }
 
 export default EmailConfirm;
