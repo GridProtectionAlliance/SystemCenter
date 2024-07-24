@@ -67,6 +67,8 @@ const ByEmailCategory = (props: IProps) => {
         let e = [];
         if (newEmailCategory.Name == undefined || newEmailCategory.Name.length < 1)
             e.push('A Name is required');
+        if (newEmailCategory.Name !== undefined && newEmailCategory.Name !== null && newEmailCategory.Name.length > 50)
+            e.push('Name cannot exceed 50 characters');
         if (allData.findIndex(s => s.Name === newEmailCategory.Name && s.ID !== newEmailCategory.ID) >= 0)
             e.push('An Email Category with this Name already exists');
         setErrors(e);

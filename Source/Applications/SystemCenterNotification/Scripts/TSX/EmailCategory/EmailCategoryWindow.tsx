@@ -29,7 +29,7 @@ import { EmailCategory } from '../global';
 import { EmailCategorySlice } from '../Store';
 import EmailCategoryForm from './EmailCategoryForm';
 
-interface IProps { Category: EmailCategory}
+interface IProps { Category: EmailCategory }
 
 
 const EmailCategoryWindow = (props: IProps) => {
@@ -47,6 +47,8 @@ const EmailCategoryWindow = (props: IProps) => {
         let e = [];
         if (category.Name == undefined || category.Name.length < 1)
             e.push('A Name is required');
+        if (category.Name !== undefined && category.Name !== null && category.Name.length >= 50)
+            e.push('Name length cannot exceed 50 characters')
         if (categories.findIndex(s => s.Name === category.Name && s.ID !== category.ID) >= 0)
             e.push('An Email Category with this Name already exists');
         setErrors(e);

@@ -43,9 +43,9 @@ const EmailCategoryForm = (props: IProps) => {
     return ( 
         <div className="row">
             <div className="col">
-                <Input<EmailCategory> Record={props.record} Field={'Name'} Label='Name' Feedback={'A unique Name is required.'}
-                    Valid={field => props.record.Name != null && props.record.Name.length > 0 && emailCategories.findIndex(s => s.Name === props.record.Name && s.ID !== props.record.ID) < 0}
-                    Setter={(record) => { props.setRecord(record)}}
+                <Input<EmailCategory> Record={props.record} Field={'Name'} Label='Name' Feedback={'A unique Name of less than 50 characters is required.'}
+                    Valid={() => props.record.Name != null && props.record.Name.length > 0 && props.record.Name.length <= 50 && emailCategories.findIndex(s => s.Name === props.record.Name && s.ID !== props.record.ID) < 0}
+                    Setter={(record) => { props.setRecord(record) }}
                 />
                 <CheckBox<EmailCategory> Record={props.record} Field={'SelfSubscribe'} Label={'Show in Self Subscription'} Setter={(record) => props.setRecord(record)} />
             </div>

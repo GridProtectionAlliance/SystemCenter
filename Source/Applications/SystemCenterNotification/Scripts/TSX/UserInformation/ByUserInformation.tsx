@@ -71,7 +71,7 @@ const ByUserInformation = (props: IProps) => {
     }, [userCarrier, carriers]);
 
     React.useEffect(() => {
-        let r = phone != null && phone.length >= 10;
+        let r = phone != null && phone.length >= 10 && phone.length <= 200;
         r = r && IsInteger(phone.replace('-', ''));
         setValidPhone(r);
     }, [phone]);

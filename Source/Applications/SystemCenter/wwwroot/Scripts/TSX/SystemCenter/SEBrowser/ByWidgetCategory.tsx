@@ -82,7 +82,7 @@ const ByWidgetCategory: Application.Types.iByComponent = (props) => {
                     <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                         <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                         <form>
-                            <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault(); setShowModal(true); }}>Add Tab</button>
+                            <button className="btn btn-primary" onClick={(event) => { event.preventDefault(); setShowModal(true); }}>Add Tab</button>
                         </form>
                     </fieldset>
                 </li>

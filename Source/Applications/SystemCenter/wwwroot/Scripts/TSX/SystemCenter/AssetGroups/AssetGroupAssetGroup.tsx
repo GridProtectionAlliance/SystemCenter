@@ -136,7 +136,7 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
     }
 
     function hasPermissions(): boolean {
-        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0)
             return true;
         return false;
     }

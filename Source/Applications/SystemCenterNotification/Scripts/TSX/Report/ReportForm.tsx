@@ -67,7 +67,7 @@ const ReportForm = (props: IProps) => {
                     Options={categories.map(c => ({ Value: c.ID.toString(), Label: c.Name }))}
                     Setter={(record) => { record.EmailCategoryID = parseInt(record.EmailCategoryID.toString()); props.setRecord(record) }} />
                 <Input<ScheduledEmailType> Record={props.record} Field={'Schedule'} Label={'Schedule'} Valid={Valid} Setter={(record) => props.setRecord(record)}
-                    Feedback={'Schedule needs to be a valid Cron Syntax'} Help={'Schedule is the frequency and time when the report is sent. This field uses CRON syntax. Examples are: daily = "23 59 * * *", weekly = "23 59 * * 5", monthly = "0 0 1 * *"'}
+                    Feedback={'Schedule needs to be a valid Cron Syntax'} Help={'Schedule is the frequency and time when the report is sent. This field uses cron syntax. Examples are: daily = "59 23 * * *", weekly = "59 23 * * 5", monthly = "0 0 1 * *"'}
                 />
             </div>
             <div className="col">
