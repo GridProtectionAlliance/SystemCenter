@@ -86,6 +86,14 @@ export default function ResultDisplay(props: IProps) {
             setCols(updatedCols);
     }, [externalData])
 
+    React.useEffect(() => {
+        console.log(countstatus);
+    }, [countstatus])
+    React.useEffect(() => {
+        console.log(datastatus);
+    }, [datastatus])
+
+
     return <>
         <ServerErrorIcon Show={countstatus === 'error' || datastatus === 'error'} Size = { 40}
             Label = { 'Could not query external database table. Please contact your administrator.'}

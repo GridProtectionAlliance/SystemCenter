@@ -25,7 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import * as $ from 'jquery';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
-import { Modal, Search, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { LoadingScreen, Modal, Search, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { ByMeterSlice, ByAssetSlice, ByLocationSlice, CustomerSlice } from '../../Store/Store';
 import TargetSelection, { RecordTypes } from './TargetSelection';
@@ -50,6 +50,7 @@ export default function QueryTestDialog(props: IProps) {
     const [step, setStep] = React.useState<steps>(steps.PickType);
     const [parentTable, setParentTable] = React.useState<string>('');
     const [recordId, setRecordID] = React.useState<number>(undefined);
+    const [loading, setLoading] = React.useState<boolean>(false);
     const record = useAppSelector((state) => {
         switch (parentTable) {
             case 'Meter': return ByMeterSlice.Datum(state, recordId);
@@ -95,6 +96,7 @@ export default function QueryTestDialog(props: IProps) {
 
     const requestCount = (filters) => {
         let handle;
+        setLoading(true);
         if (record === undefined) {
             handle = $.ajax({
                 type: "POST",
@@ -103,10 +105,13 @@ export default function QueryTestDialog(props: IProps) {
                 cache: false,
                 async: true,
                 data: JSON.stringify({ Ascending: false, OrderBy: '', Searches: filters, externalTable: props.ExtTable })
-            }).fail((d) => { if (d.statusText === 'abort') return; setStep(steps.Error); setErrorMsg(d.statusText); });
+            }).fail((d) => { if (d.statusText === 'abort') return; setStep(steps.Error); setErrorMsg(d.statusText); })
+              .always(() => setLoading(false));
+//console.log(handle); console.log(' reqCount: record === undefined')
         }
         else {
-            handle = Promise.resolve(1);
+            handle = Promise.resolve(1).finally(() => setLoading(false));
+//console.log(handle); console.log(' reqCount: else')
         }
         return handle;
     }
@@ -121,6 +126,7 @@ export default function QueryTestDialog(props: IProps) {
             }
         };
         let handle;
+        setLoading(true);
         if (record === undefined) {
             handle = $.ajax({
                 type: "POST",
@@ -140,7 +146,9 @@ export default function QueryTestDialog(props: IProps) {
                 async: true,
                 data: JSON.stringify({ xdaRecord: record, table: props.ExtTable })
             });
-        return handle.fail((d) => { if (d.statusText === 'abort') return; setStep(steps.Error); setErrorMsg(d.statusText); });
+//console.log(handle); console.log(' reqTable: else')
+        return handle.fail((d) => { if (d.statusText === 'abort') return; setStep(steps.Error); setErrorMsg(d.statusText); })
+                     .always(() => setLoading(false));
     }
 
     return (
@@ -164,9 +172,10 @@ export default function QueryTestDialog(props: IProps) {
                 }}
                 BodyStyle={{ maxHeight: 'calc(100vh - 210px)', display: 'flex', flexDirection: 'column' }}
             >
+                {loading ? <LoadingScreen Show={true}/> : null}
                 {step == steps.PickType ? <TargetTypesSelection SetTable={setParentTable} /> : null}
                 {step == steps.Results ? <ResultDisplay GetCount={requestCount} GetTable={requestTable} ForceReload={step === steps.Results} /> : null}
-                {(step == steps.Error) ? <ServerErrorIcon Show={true} Size={40} Label={errorMsg} /> : null}
+                {(step == steps.Error && !loading) ? <ServerErrorIcon Show={true} Size={40} Label={errorMsg} /> : null}
             </Modal>
             <TargetSelection OnBack={() => setStep(steps.PickType)}
                 SetSelectedID={(id) => { setStep(steps.Results); setRecordID(id); }}
