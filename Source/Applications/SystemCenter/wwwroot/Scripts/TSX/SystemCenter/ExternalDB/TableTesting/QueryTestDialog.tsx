@@ -50,7 +50,6 @@ export default function QueryTestDialog(props: IProps) {
     const [step, setStep] = React.useState<steps>(steps.PickType);
     const [parentTable, setParentTable] = React.useState<string>('');
     const [recordId, setRecordID] = React.useState<number>(undefined);
-    const [loading, setLoading] = React.useState<boolean>(false);
     const record = useAppSelector((state) => {
         switch (parentTable) {
             case 'Meter': return ByMeterSlice.Datum(state, recordId);
@@ -96,7 +95,6 @@ export default function QueryTestDialog(props: IProps) {
 
     const requestCount = (filters) => {
         let handle;
-        setLoading(true);
         if (record === undefined) {
             handle = $.ajax({
                 type: "POST",
@@ -105,13 +103,10 @@ export default function QueryTestDialog(props: IProps) {
                 cache: false,
                 async: true,
                 data: JSON.stringify({ Ascending: false, OrderBy: '', Searches: filters, externalTable: props.ExtTable })
-            }).fail((d) => { if (d.statusText === 'abort') return; setStep(steps.Error); setErrorMsg(d.statusText); })
-              .always(() => setLoading(false));
-//console.log(handle); console.log(' reqCount: record === undefined')
+            }).fail((d) => { if (d.statusText === 'abort') return; setStep(steps.Error); setErrorMsg(d.statusText); });
         }
         else {
-            handle = Promise.resolve(1).finally(() => setLoading(false));
-//console.log(handle); console.log(' reqCount: else')
+            handle = Promise.resolve(1);
         }
         return handle;
     }
@@ -126,7 +121,6 @@ export default function QueryTestDialog(props: IProps) {
             }
         };
         let handle;
-        setLoading(true);
         if (record === undefined) {
             handle = $.ajax({
                 type: "POST",
@@ -136,7 +130,6 @@ export default function QueryTestDialog(props: IProps) {
                 async: true,
                 data: JSON.stringify({ Ascending: ascending, OrderBy: orderBy, Searches: filters, externalTable: props.ExtTable })
             });
-//console.log(handle); console.log(' reqTable: record === undefined')
         }
         else
             handle = $.ajax({
@@ -171,10 +164,9 @@ export default function QueryTestDialog(props: IProps) {
                 }}
                 BodyStyle={{ maxHeight: 'calc(100vh - 210px)', display: 'flex', flexDirection: 'column' }}
             >
-                {loading ? <LoadingScreen Show={true}/> : null}
                 {step == steps.PickType ? <TargetTypesSelection SetTable={setParentTable} /> : null}
                 {step == steps.Results ? <ResultDisplay GetCount={requestCount} GetTable={requestTable} ForceReload={step === steps.Results} /> : null}
-                {(step == steps.Error && !loading) ? <ServerErrorIcon Show={true} Size={40} Label={errorMsg} /> : null}
+                {(step == steps.Error) ? <ServerErrorIcon Show={true} Size={40} Label={errorMsg} /> : null}
             </Modal>
             <TargetSelection OnBack={() => setStep(steps.PickType)}
                 SetSelectedID={(id) => { setStep(steps.Results); setRecordID(id); }}
