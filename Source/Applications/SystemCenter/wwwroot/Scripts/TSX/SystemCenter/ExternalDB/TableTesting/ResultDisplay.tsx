@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
-import { FilterableTable, ServerErrorIcon, Search } from '@gpa-gemstone/react-interactive';
+import { FilterableTable, ServerErrorIcon, Search, LoadingScreen } from '@gpa-gemstone/react-interactive';
 import { Paging } from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 
@@ -86,19 +86,11 @@ export default function ResultDisplay(props: IProps) {
             setCols(updatedCols);
     }, [externalData])
 
-    React.useEffect(() => {
-        console.log(countstatus);
-    }, [countstatus])
-    React.useEffect(() => {
-        console.log(datastatus);
-    }, [datastatus])
-
-
     return <>
         <ServerErrorIcon Show={countstatus === 'error' || datastatus === 'error'} Size = { 40}
             Label = { 'Could not query external database table. Please contact your administrator.'}
             />
-    
+        <LoadingScreen Show={countstatus === 'loading' || datastatus === 'loading'} />
         <div className="row" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="col" style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
                 {countstatus !== 'error' && datastatus !== 'error' ?
