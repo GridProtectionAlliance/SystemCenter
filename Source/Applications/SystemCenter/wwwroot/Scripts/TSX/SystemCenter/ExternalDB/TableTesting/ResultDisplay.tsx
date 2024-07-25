@@ -52,7 +52,8 @@ export default function ResultDisplay(props: IProps) {
         setCountStatus('loading');
         const countHandle = props.GetCount(filters);
 
-        countHandle.then((d) => { setCount(d);  setCountStatus('idle') }, () => setCountStatus('error'))
+        countHandle.then((d) => { setCount(d);  setCountStatus('idle') },
+            (d) => {if (d.statusText === 'abort') return; setCountStatus('error')})
         return () => {
             if (countHandle != null && countHandle.abort != null) countHandle.abort()
         }
@@ -69,7 +70,7 @@ export default function ResultDisplay(props: IProps) {
             setDataStatus('idle');
             if (d == null || d.length == 0)
                 setCount(0);
-        }, () => setDataStatus('error'))
+        }, (d) => {if (d.statusText === 'abort') return; setDataStatus('error')})
         return () => {
             if (dataHandle != null && dataHandle.abort != null) dataHandle.abort()
         }
@@ -84,6 +85,14 @@ export default function ResultDisplay(props: IProps) {
         if (!_.isEqual(updatedCols, cols))
             setCols(updatedCols);
     }, [externalData])
+
+    React.useEffect(() => {
+        console.log(countstatus);
+    }, [countstatus])
+    React.useEffect(() => {
+        console.log(datastatus);
+    }, [datastatus])
+
 
     return <>
         <ServerErrorIcon Show={countstatus === 'error' || datastatus === 'error'} Size = { 40}
