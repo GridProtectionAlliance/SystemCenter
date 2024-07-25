@@ -114,9 +114,6 @@ const EmailSelect = (props: IProps) => {
                     if (e.ShowSubscription) return { Label: e.Name, Value: e.ID.toString() }
                 })} />
         </div>
-                    })} />
-            </div>
-        </div>
     </>);
 }
 
