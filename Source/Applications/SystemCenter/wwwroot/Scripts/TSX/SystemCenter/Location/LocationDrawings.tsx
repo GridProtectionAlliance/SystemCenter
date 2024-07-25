@@ -37,12 +37,13 @@ import { Input, Select } from '@gpa-gemstone/react-forms';
 import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { SelectRoles } from '../Store/UserSettings';
 import { ToolTip } from '@gpa-gemstone/react-interactive';
+import { current } from '@reduxjs/toolkit';
 
 
 const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => {
     const dispatch = useAppDispatch();
 
-    const links: SystemCenter.Types.LocationDrawing[] = useAppSelector(LocationDrawingSlice.Data);
+    const links: SystemCenter.Types.LocationDrawing[] = useAppSelector(LocationDrawingSlice.PagedResults);
     const status: Application.Types.Status = useAppSelector(LocationDrawingSlice.Status);
     const sortKey = useAppSelector(LocationDrawingSlice.SortField);
     const ascending: boolean = useAppSelector(LocationDrawingSlice.Ascending);
@@ -53,13 +54,14 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
     const roles = useAppSelector(SelectRoles);
 
-    const allPages = useAppSelector(LocationDrawingSlice.TotalPages);
+    const allPagesSelector = useAppSelector(LocationDrawingSlice.TotalPages);
+    const allPages = allPagesSelector === 0 ? 1 : allPagesSelector;
     const currentPage = useAppSelector(LocationDrawingSlice.CurrentPage);
     const [page, setPage] = React.useState<number>(currentPage);
 
     React.useEffect(() => {
         if (status == 'unintiated' || status == 'changed' || parentID !== props.Location.ID) {
-            dispatch(LocationDrawingSlice.PagedSearch({ filter: [], sortField: sortKey, ascending, page }));
+            dispatch(LocationDrawingSlice.PagedSearch({ filter: [], sortField: sortKey, ascending, page, parentID: props.Location.ID }));
         }
 
         return function () {
