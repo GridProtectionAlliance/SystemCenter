@@ -85,7 +85,7 @@ const GroupUser = (props: {Group: ISecurityGroup}) => {
     if (props.Group == null)
         return null;
     return (
-        <div className="card" style={{ marginBottom: 10 }}>
+        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
@@ -94,7 +94,7 @@ const GroupUser = (props: {Group: ISecurityGroup}) => {
                 </div>
             </div>
             <LoadingScreen Show={status === 'loading'} />
-            <div className="card-body" style={{ height: window.innerHeight - 440, maxHeight: window.innerHeight - 440, overflowY: 'auto' }}>
+            <div className="card-body" style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
                 {props.Group.Type == 'Azure' ? <div className="alert alert-info">
                     Users in an Azure Group cannot be edited in System Center. To add or remove Users, please contact your Azure Administrator.
                 </div> : null}
@@ -115,8 +115,9 @@ const GroupUser = (props: {Group: ISecurityGroup}) => {
                                 setSortField(d.colField);
                             }
                         }}
+                        TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1, width: '100%' }}
                         RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
