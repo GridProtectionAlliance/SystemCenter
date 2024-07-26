@@ -89,6 +89,10 @@
       <RegistrySearch Id="ServiceAccountRegSearch" Root="HKLM" Key="SYSTEM\CurrentControlSet\Services\[SERVICENAME]" Name="ObjectName" Type="raw" />
     </Property>
 
+    <Property Id="INSTALLFOLDER">
+      <RegistrySearch Id="InstallFolderRegSearch" Root="HKLM" Key="SOFTWARE\Grid Protection Alliance\[SERVICENAME]" Name="InstallPath" Type="raw" />
+    </Property>
+    
     <SetProperty Action="SetServiceAccountDefault" Id="SERVICEACCOUNT" After="LaunchConditions" Value="NT SERVICE\[SERVICENAME]" Sequence="first"><![CDATA[NOT REGSERVICEACCOUNT AND NOT SERVICEACCOUNT]]></SetProperty>
     <SetProperty Action="SetServiceAccountRegistry" Id="SERVICEACCOUNT" After="LaunchConditions" Value="[REGSERVICEACCOUNT]" Sequence="first"><![CDATA[REGSERVICEACCOUNT AND NOT SERVICEACCOUNT]]></SetProperty>
 
@@ -289,6 +293,16 @@
       <ComponentRef Id="System.Web.WebPages.Razor" />
 
       <ComponentRef Id="InstallFolderPermissions"/>
+
+      <Component Id="Registry" Guid="{F74C123C-C923-4B04-813B-05E81397C764}">
+        <RegistryKey Id="REG_GridProtectionAlliance" Root="HKLM" Key="SOFTWARE\Grid Protection Alliance" ForceCreateOnInstall="yes">
+          <RegistryKey Id="REG_GridProtectionAlliance.SystemCenter" Key="openXDA" ForceCreateOnInstall="yes">
+            <RegistryValue Id="REG_GridProtectionAlliance.SystemCenter.InstallPath" Name="InstallPath" Value="[INSTALLFOLDER]" Type="string" />
+            <RegistryValue Id="REG_GridProtectionAlliance.SystemCenter.Revision" Name="Revision" Value="[ProductVersion]" Type="string" />
+            <RegistryValue Id="REG_GridProtectionAlliance.SystemCenter.TargetBitSize" Name="TargetBitSize" Value="64bit" Type="string" />
+          </RegistryKey>
+        </RegistryKey>
+      </Component>
       
       <!-- Cleanup -->
       <Component Id="Cleanup" Guid="{C8EBB158-C708-4C94-87C1-F5DBC77D7BDE}">
