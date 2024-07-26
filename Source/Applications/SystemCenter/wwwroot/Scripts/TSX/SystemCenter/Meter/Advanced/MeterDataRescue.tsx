@@ -279,7 +279,7 @@ export default function DataRescueWindow(props: {
     }
 
     return <>
-        <div className="card" style={{ marginBottom: 10 }}>
+        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
@@ -287,8 +287,8 @@ export default function DataRescueWindow(props: {
                     </div>
                 </div>
             </div>
-            <div className="card-body">
-                <div style={{ width: '100%', maxHeight: window.innerHeight - 450, overflowY: 'auto' }}>
+            <div className="card-body" style={{ flex: 1, overflow: 'hidden' }} >
+                <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
                     <DataRescueBody
                         Operations={operations}
                         EditedOperation={editedOperation}
@@ -395,8 +395,9 @@ function DataRescueTable(props: {
             Ascending={false}
             OnSort={() => { /* Sorting not supported */ }}
             OnClick={(d) => props.RowClick(d.row)}
+            TableStyle={{ tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
             TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-            TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 500, width: '100%' }}
+            TbodyStyle={{ display: 'block', width: '100%', overflowY: 'auto', flex: 1 }}
             RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
             Selected={(item) => false}
             KeySelector={(item) => item.ID}
@@ -671,8 +672,9 @@ function ChannelAdjustmentTable(props: {
             SortKey={"None"}
             Ascending={false}
             OnSort={() => { /* Sorting not supported */ }}
+            TableStyle={{ tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
             TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-            TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 600, width: '100%' }}
+            TbodyStyle={{ display: 'block', width: '100%', overflowY: 'auto', flex: 1 }}
             RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
             Selected={(item) => false}
             KeySelector={(item) => item.ID}
