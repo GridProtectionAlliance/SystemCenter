@@ -790,6 +790,7 @@ namespace SystemCenter.Controllers.OpenXDA
                         HarmonicGroup = record.HarmonicGroup,
                         Description = record.Description,
                         Enabled = record.Enabled,
+                        Trend = record.Trend
                     };
 
                     int result = new TableOperations<ChannelBase>(connection).UpdateRecord(channel);
