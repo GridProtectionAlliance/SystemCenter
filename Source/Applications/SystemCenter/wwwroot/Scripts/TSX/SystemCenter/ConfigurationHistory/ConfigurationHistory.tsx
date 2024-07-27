@@ -139,7 +139,7 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
             </div>
 
             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                <div className="col-12" style={{ padding: 0 }}>
+                <div className="col-12" style={{ padding: 0, height: "100%" }}>
                     <div className="tab-content" style={{ height: "100%" }}>
                         {tab == "configuration" ?
                             <div className="tab-pane active">
@@ -166,7 +166,7 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
                             </div>
                         : null}
                         {tab == "filesProcessed" ?
-                            <div className="tab-pane active">
+                            <div className="tab-pane active" style={{ height: '100%',display: 'flex', flexDirection: 'column' }}>
                                 <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
                                     <div className='col-12' style={{ height: '100%', overflow: 'hidden' }}>
                                         <ReactTable.Table<OpenXDA.Types.DataFile>
@@ -176,11 +176,11 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
                                             Ascending={false}
                                             OnSort={(d) => { }}
                                             TableStyle={{
-                                                padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                                                padding: 0, width: '100%', height: '100%',
                                                 tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
                                             }}
                                             TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                            TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                                            TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
                                             RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
                                             Selected={(item) => false}
                                             KeySelector={(item) => item.ID}
