@@ -321,6 +321,8 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     return <AssetGroup AssetGroupID={parseInt(qs.AssetGroupID as string)} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "LineSegments")
                                     return <ByLineSegment Roles={roles} />
+                                else if (qs['?name'] == "PQViewCustomers")
+                                    return <ByCustomer Roles={roles} />
                                 else if (qs['?name'] == "Customer")
                                     return <Customer CustomerID={parseInt(qs.CustomerID as string)} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "DeviceHealthReport")

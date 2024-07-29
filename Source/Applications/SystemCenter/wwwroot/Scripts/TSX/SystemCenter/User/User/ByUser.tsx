@@ -141,7 +141,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
         </div>;
 
      return (
-        <div style={{ width: '100%', height: '100%' }}>
+         <div className="container-fluid d-flex h-100 flex-column">
             <LoadingScreen Show={pageStatus === 'loading'} />
             <SearchBar<IUserAccount> CollumnList={filterableList} SetFilter={(flds) => dispatch(UserAccountSlice.DBSearch({ sortField, ascending, filter: flds }))}
                 Direction={'left'} defaultCollumn={{ label: 'Last Name', key: 'LastName', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
@@ -172,7 +172,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
                 </li>
             </SearchBar>
 
-            <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
+             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
                  <ReactTable.Table<IUserAccount>
                      TableClass="table table-hover"
                      Data={data}
@@ -182,8 +182,12 @@ const ByUser: Application.Types.iByComponent = (props) => {
                          dispatch(UserAccountSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                      }}
                      OnClick={(d) => history.push({ pathname: homePath + 'index.cshtml', search: '?name=User&UserAccountID=' + d.row.ID })}
+                     TableStyle={{
+                         padding: 0, width: '100%', height: '100%',
+                         tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column', marginBottom: 0
+                     }}
                      TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                     TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                     TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
                      RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                      Selected={(item) => false}
                      KeySelector={(item) => item.ID}

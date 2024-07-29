@@ -174,7 +174,7 @@ function AdditionalField(props: IProps) {
 		</div>
 
 	return (
-		<div className="card" style={{ marginBottom: 10, maxHeight: window.innerHeight - 215 }}>
+		<div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
 			<div className="card-header">
 				<div className="row">
 					<div className="col">
@@ -191,7 +191,7 @@ function AdditionalField(props: IProps) {
 				</div>
 
 			</div>
-			<div className="card-body" style={{ maxHeight: window.innerHeight - 315 }}>
+			<div className="card-body" style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
 				<ReactTable.Table<Application.Types.iAdditionalUserField>
 					TableClass="table table-hover"
 					Data={fields}
@@ -203,8 +203,9 @@ function AdditionalField(props: IProps) {
 						else
 							dispatch(UserAdditionalFieldSlice.Sort({ SortField: d.colField, Ascending: true }))
 					}}
+					TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
 					TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-					TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 455, width: '100%' }}
+					TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1, width: '100%' }}
 					RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
 					Selected={(item) => false}
 					KeySelector={props.FieldKeySelector}
