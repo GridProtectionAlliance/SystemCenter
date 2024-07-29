@@ -25,7 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import * as $ from 'jquery';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
-import { LoadingScreen, Modal, Search, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { Modal, Search, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { ByMeterSlice, ByAssetSlice, ByLocationSlice, CustomerSlice } from '../../Store/Store';
 import TargetSelection, { RecordTypes } from './TargetSelection';
@@ -141,11 +141,6 @@ export default function QueryTestDialog(props: IProps) {
             });
         return handle.fail((d) => { if (d.statusText === 'abort') return; setStep(steps.Error); setErrorMsg(d.statusText); });
     }
-
-    React.useEffect(() => {
-        setStep(steps.PickType);
-        setRecordID(undefined);
-    }, [props.Show])
 
     return (
         <>
