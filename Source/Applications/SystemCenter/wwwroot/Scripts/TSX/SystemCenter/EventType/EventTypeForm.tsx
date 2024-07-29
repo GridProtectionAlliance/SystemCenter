@@ -82,44 +82,57 @@ export default function EventTypeForm(props: IProps) {
         return true;
     }
 
+    function getFormRightSide(name: string) {
+        let jsx =
+        <fieldset className="border" style={{ padding: '10px' }}>
+            <legend className="w-auto" style={{ fontSize: 'large' }}>
+                Event Type valid for:
+            </legend>
+            <form>
+                <ul style={{ listStyleType: 'none', padding: 0, position: 'relative', float: 'left' }}>
+                    {assetTypes.map((item) => (
+                        <li key={item.ID}>
+                            <label>
+                                <input type="checkbox"
+                                    onChange={(e) => {
+                                        if (e.target.checked)
+                                            setETAT((d) => [...d, { ID: 0, AssetTypeID: item.ID, EventTypeID: props.Record.ID }])
+                                        else
+                                            setETAT((d) => d.filter(t => t.AssetTypeID != item.ID))
+                                    }} checked={etAt.find(i => i.AssetTypeID == item.ID) != null} />
+                                {item.Description}
+                            </label>
+                        </li>
+                    ))}
+                </ul>
+            </form>
+        </fieldset>;
+
+        if (name === 'Test') {
+            jsx =
+            <div className="alert alert-primary block">
+                Any event recorded by a Meter in an active Maintenance Window will be classified as Test.
+            </div>
+        } 
+        if (name === 'Other') {
+            <div className="alert alert-primary block">
+                Any event that cannot be identified will be recorded as Other.
+            </div>
+        }
+        return jsx;
+    }
 
     return (
-        <>
-            <div className="row" style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
-                <div className="col">
-                    <Input<OpenXDA.Types.EventType> Record={props.Record} Field={'Name'} Label={'Name'} Disabled={true} Help={'Name cannot be changed. To change what is displayed in various visualization apps, use Label.'} Valid={() => true} Setter={() => { } } />
-                    <Input<OpenXDA.Types.EventType> Record={props.Record} Field={'Category'} Label={'Category'} Feedback={'Category must be less than 50 characters.'} Valid={Valid} Setter={props.Setter} />
-                    <Input<OpenXDA.Types.EventType> Label={'Label'} Record={props.Record} Field={'Description'} Valid={Valid} Setter={props.Setter} Feedback={'A Label of less than 50 characters is required.'} />
-                    <CheckBox<OpenXDA.Types.EventType> Label={'Show in User Interfaces'} Record={props.Record} Field={'ShowInFilter'} Setter={props.Setter} />
-                </div>
-                <div className="col">
-                    <fieldset className="border" style={{ padding: '10px' }}>
-                        <legend className="w-auto" style={{ fontSize: 'large' }}>
-                            Event Type valid for:
-                        </legend>
-                        <form>
-                            <ul style={{ listStyleType: 'none', padding: 0, position: 'relative', float: 'left' }}>
-                                {assetTypes.map((item) => (
-                                    <li key={item.ID}>
-                                        <label>
-                                            <input type="checkbox"
-                                                onChange={(e) => {
-                                                    if (e.target.checked)
-                                                        setETAT((d) => [...d, { ID: 0, AssetTypeID: item.ID, EventTypeID: props.Record.ID }])
-                                                    else
-                                                        setETAT((d) => d.filter(t => t.AssetTypeID != item.ID))
-                                                }} checked={etAt.find(i => i.AssetTypeID == item.ID) != null} />
-                                            {item.Description}
-                                        </label>
-                                    </li>
-                                ))}
-                            </ul>
-                        </form>
-                    </fieldset>
-                </div>
+        <div className="row" style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
+            <div className="col">
+                <Input<OpenXDA.Types.EventType> Record={props.Record} Field={'Name'} Label={'Name'} Disabled={true} Help={'Name cannot be changed. To change what is displayed in various visualization apps, use Label.'} Valid={() => true} Setter={() => { } } />
+                <Input<OpenXDA.Types.EventType> Record={props.Record} Field={'Category'} Label={'Category'} Feedback={'Category must be less than 50 characters.'} Valid={Valid} Setter={props.Setter} />
+                <Input<OpenXDA.Types.EventType> Label={'Label'} Record={props.Record} Field={'Description'} Valid={Valid} Setter={props.Setter} Feedback={'A Label of less than 50 characters is required.'} />
+                <CheckBox<OpenXDA.Types.EventType> Label={'Show in User Interfaces'} Record={props.Record} Field={'ShowInFilter'} Setter={props.Setter} />
             </div>
-        </>
-        
-
-        );
+            <div className="col">
+                {getFormRightSide(props.Record.Name)}
+            </div>
+        </div>
+    );
 }
