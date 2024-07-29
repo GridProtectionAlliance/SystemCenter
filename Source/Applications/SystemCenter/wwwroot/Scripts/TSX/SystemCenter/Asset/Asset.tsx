@@ -110,7 +110,7 @@ function Asset(props: IProps) {
         });
         handle.done((msg) => {
             sessionStorage.clear();
-            history.push({ pathname: homePath + 'index.cshtml', search: '?name=Assets' });
+            history.push({ pathname: homePath + 'index.cshtml', search: '?name=LineSegments' });
         });
         handle.then((d) => setLoadDelete(false))
         return handle;
