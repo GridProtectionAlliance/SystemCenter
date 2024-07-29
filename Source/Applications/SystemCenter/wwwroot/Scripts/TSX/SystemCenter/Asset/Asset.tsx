@@ -110,7 +110,10 @@ function Asset(props: IProps) {
         });
         handle.done((msg) => {
             sessionStorage.clear();
-            history.push({ pathname: homePath + 'index.cshtml', search: '?name=LineSegments' });
+            if (window.location.href.includes('LineSegment'))
+                history.push({ pathname: homePath + 'index.cshtml', search: '?name=LineSegments' });
+            else
+                history.push({ pathname: homePath + 'index.cshtml', search: '?name=Assets' });
         });
         handle.then((d) => setLoadDelete(false))
         return handle;
