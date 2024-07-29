@@ -111,12 +111,12 @@ export default function EventTypeForm(props: IProps) {
         if (name === 'Test') {
             jsx =
             <div className="alert alert-primary block">
-                Any event recorded by a Meter in Maintence mode will be classified as TEST.
+                Any event recorded by a Meter in an active Maintenance Window will be classified as Test.
             </div>
         } 
         if (name === 'Other') {
             <div className="alert alert-primary block">
-                Any event that cannot be identified will be recorded as OTHER.
+                Any event that cannot be identified will be recorded as Other.
             </div>
         }
         return jsx;
