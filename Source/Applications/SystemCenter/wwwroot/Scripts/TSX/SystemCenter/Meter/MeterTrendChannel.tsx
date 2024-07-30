@@ -39,7 +39,6 @@ import { SelectRoles } from '../Store/UserSettings';
 declare var homePath: string;
 
 interface IProps { Meter: GemstoneOpenXDA.Types.Meter, IsVisible: boolean }
-type RecordChange = Map<number, Map<keyof OpenXDA.TrendChannel, string | number>>;
 
 const MeterTrendChannelWindow = (props: IProps) => {
     const dispatch = useAppDispatch();
@@ -206,7 +205,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
             return false;
         return true;
     }
-    console.log(assetStatus);
+
     if (assetStatus == 'error' || phaseStatus == 'error' || mcStatus == 'error' || status == 'error')
         return <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
