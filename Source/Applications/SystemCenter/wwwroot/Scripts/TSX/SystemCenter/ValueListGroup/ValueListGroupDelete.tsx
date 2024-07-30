@@ -24,6 +24,7 @@
 import * as React from 'react';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { Warning } from '@gpa-gemstone/react-interactive';
+import { useHistory } from 'react-router-dom';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
 
 declare var homePath: string;
@@ -62,6 +63,7 @@ interface IPropsItem {
 
 export function ValueListItemDelete(props: IPropsItem) {
 
+    let history = useHistory();
     const [message, setMessage] = React.useState<string>('')
     const [prevent, setPrevent]  = React.useState<boolean>(false)
     const [removalCount, setRemovalCount] = React.useState<number>(0);
@@ -79,6 +81,9 @@ export function ValueListItemDelete(props: IPropsItem) {
             async: true
         });
         h.then((c: number) => {setRemovalCount(c);});
+        h.done((msg) => {
+            history.push({ pathname: homePath + 'index.cshtml', search: '?name=ValueList' });
+        });
         return () => { if (h != null && h.abort != null) h.abort();}
     }, [props.Group, props.Record])
     

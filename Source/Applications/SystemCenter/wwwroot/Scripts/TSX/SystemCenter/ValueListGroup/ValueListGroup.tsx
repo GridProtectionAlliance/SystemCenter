@@ -64,7 +64,7 @@ export default function ValueListGroup(props: IProps) {
     }, [dispatch, valueListGroupStatus]);
 
     function Delete() {
-        dispatch(ValueListGroupSlice.DBAction({ verb: 'DELETE', record }))
+        dispatch(ValueListGroupSlice.DBAction({ verb: 'DELETE', record: record }))
         window.location.href = homePath + 'index.cshtml?name=ValueLists';
     }
 

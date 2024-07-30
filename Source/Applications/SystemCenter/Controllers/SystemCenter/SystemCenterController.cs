@@ -271,7 +271,7 @@ namespace SystemCenter.Controllers
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
                     // Update Additional Fields
-                    connection.ExecuteScalar(@"UPDATE 
+                    connection.ExecuteScalar("", @"UPDATE 
                         AdditionalField AF
                         SET [Type] = {0} 
                         WHERE
@@ -291,12 +291,13 @@ namespace SystemCenter.Controllers
 
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
-                // Update Additional Fields
-                connection.ExecuteScalar(@"UPDATE 
+                String sql = @"UPDATE 
                     AdditionalField AF
                     SET [Type] = 'string' 
                     WHERE
-                    [Type] = {0}", record.Name);
+                    [Type] = {0}";
+                // Update Additional Fields
+                connection.ExecuteScalar("", sql, record.Name);
             }
             return base.Delete(record);
         }
