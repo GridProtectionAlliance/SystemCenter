@@ -132,7 +132,7 @@ const NoteWindow = (props: IProps) => {
         slice = UserNoteSlice;
 
     return (
-        <Note MaxHeight={window.innerHeight} ReferenceTableID={props.ID} NoteApplications={[noteApp]} NoteTags={[noteTag]} NoteTypes={[noteType]} NoteSlice={slice} AllowAdd={hasPermissions()}
+        <Note MaxHeight={window.innerHeight - 250} ReferenceTableID={props.ID} NoteApplications={[noteApp]} NoteTags={[noteTag]} NoteTypes={[noteType]} NoteSlice={slice} AllowAdd={hasPermissions()}
             AllowEdit={hasPermissions()} AllowRemove={hasPermissions()}
         />
     );
