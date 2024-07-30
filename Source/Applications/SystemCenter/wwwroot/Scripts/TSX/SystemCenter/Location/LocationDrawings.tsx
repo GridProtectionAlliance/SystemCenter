@@ -32,42 +32,56 @@ import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-ty
 import { SystemCenter as SCGlobal } from '../global';
 import { ReactTable, Paging } from '@gpa-gemstone/react-table';
 import { useAppSelector, useAppDispatch } from '../hooks';
-import { LocationDrawingSlice } from '../Store/Store';
 import { Input, Select } from '@gpa-gemstone/react-forms';
 import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { SelectRoles } from '../Store/UserSettings';
-import { ToolTip } from '@gpa-gemstone/react-interactive';
+import { ToolTip, GenericController, LoadingScreen, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { current } from '@reduxjs/toolkit';
 
 
 const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => {
-    const dispatch = useAppDispatch();
+    const LocationDrawingController = new GenericController<SystemCenter.Types.LocationDrawing>(`${homePath}api/LocationDrawing`, "Name", true);
+    const PagingID = 'LocationDrawingPage'
 
-    const links: SystemCenter.Types.LocationDrawing[] = useAppSelector(LocationDrawingSlice.PagedResults);
-    const status: Application.Types.Status = useAppSelector(LocationDrawingSlice.Status);
-    const sortKey = useAppSelector(LocationDrawingSlice.SortField);
-    const ascending: boolean = useAppSelector(LocationDrawingSlice.Ascending);
-    const parentID: number = useAppSelector(LocationDrawingSlice.ParentID) as number;
+    const [links, setLinks] = React.useState<SystemCenter.Types.LocationDrawing[]>([]);
+    const [sortKey, setSortKey] = React.useState<keyof SystemCenter.Types.LocationDrawing>('Name');
+    const [ascending, setAscending] = React.useState<boolean>(true);
     const emptyRecord: SystemCenter.Types.LocationDrawing = { ID: 0, LocationID: 0, Name: '', Link: '', Description: '', Number: '', Category: '' };
     const [record, setRecord] = React.useState<SystemCenter.Types.LocationDrawing>(emptyRecord);
     const [category, setCategory] = React.useState<Array<SystemCenter.Types.ValueListItem>>([]);
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
     const roles = useAppSelector(SelectRoles);
 
-    const allPagesSelector = useAppSelector(LocationDrawingSlice.TotalPages);
-    const allPages = allPagesSelector === 0 ? 1 : allPagesSelector;
-    const currentPage = useAppSelector(LocationDrawingSlice.CurrentPage);
-    const [page, setPage] = React.useState<number>(currentPage);
+    const [page, setPage] = React.useState<number>(0);
+    const [pageInfo, setPageInfo] = React.useState<{ RecordsPerPage: number, NumberOfPages: number, TotalRecords: number }>({ RecordsPerPage: 0, NumberOfPages: 0, TotalRecords: 0 });
+    const [pageState, setPageState] = React.useState<'error' | 'idle' | 'loading'>('idle');
 
     React.useEffect(() => {
-        if (status == 'unintiated' || status == 'changed' || parentID !== props.Location.ID) {
-            dispatch(LocationDrawingSlice.PagedSearch({ filter: [], sortField: sortKey, ascending, page, parentID: props.Location.ID }));
-        }
+        const storedInfo = JSON.parse(localStorage.getItem(PagingID) as string);
+        if (storedInfo != null) setPage(storedInfo);
+    }, []);
 
-        return function () {
-        }
-    }, [dispatch, status, sortKey, ascending, page, props.Location.ID]);
+    React.useEffect(() => {
+        localStorage.setItem(PagingID, JSON.stringify(page));
+    }, [page]);
 
+    React.useEffect(() => {
+        const handle = fetchDrawings(sortKey, ascending, page, props.Location.ID);
+        return () => { if (handle != null && handle?.abort != null) handle.abort(); }
+    }, [sortKey, ascending, page, props.Location.ID]);
+
+    const fetchDrawings = (sortKey: keyof SystemCenter.Types.LocationDrawing, ascending: boolean, page: number, locationID: number) => {
+        setPageState('loading');
+        const handle = LocationDrawingController.PagedSearch([], sortKey, ascending, page, locationID)
+            .done((result) => {
+                setLinks(JSON.parse(result.Data as unknown as string));
+                if (result.NumberOfPages === 0) result.NumberOfPages = 1;
+                setPageInfo(result);
+                setPageState('idle');
+            })
+            .fail(() => setPageState('error'));
+        return handle;
+    }
 
     React.useEffect(() => {
         let categoryHandle = getValueList("Category", setCategory);
@@ -109,6 +123,28 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
         return true;
     }
 
+    const handleSave = () => {
+        setPageState('loading');
+        LocationDrawingController.DBAction('PATCH', record)
+            .then(() => {
+                fetchDrawings(sortKey, ascending, page, props.Location.ID);
+            })
+            .catch(() => {
+                setPageState('error');
+            });
+    };
+
+    const handleDelete = (item: SystemCenter.Types.LocationDrawing) => {
+        setPageState('loading');
+        LocationDrawingController.DBAction('DELETE', item)
+            .then(() => {
+                fetchDrawings(sortKey, ascending, page, props.Location.ID);
+            })
+            .catch(() => {
+                setPageState('error');
+            });
+    };
+
     return (
         <div className="card" style={{ flex: 1, overflow: 'hidden' }}>
             <div className="card-header">
@@ -126,8 +162,14 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                         SortKey={sortKey}
                         Ascending={ascending}
                         OnSort={(d) => {
-                            if (d.colKey === "EditDelete") return;
-                            dispatch(LocationDrawingSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
+                            if (d.colKey === 'EditDelete')
+                                return;
+                            if (d.colKey == sortKey)
+                                setAscending(!ascending);
+                            else {
+                                setAscending(true);
+                                setSortKey(d.colKey as keyof SystemCenter.Types.LocationDrawing);
+                            }
                         }}
                         TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden', flex: 1 }}
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
@@ -185,15 +227,17 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                             Content={({ item }) =>
                                 <span>
                                     <button title='Edit Link' className={"btn" + (!hasPermissions() ? ' disabled' : '')} data-toggle={"modal" + (!hasPermissions() ? ' disabled' : '')} data-target="#exampleModal" onClick={(e) => {setRecord(item) }}>{Pencil}</button>
-                                    <button title='Delete Link' className={"btn" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => { if (hasPermissions()) dispatch(LocationDrawingSlice.DBAction({ verb: 'DELETE', record: item })); }}>{TrashCan}</button>
+                                    <button title='Delete Link' className={"btn" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => { if (hasPermissions()) handleDelete(item); }}>{TrashCan}</button>
                                 </span>
                             }
                         > <p></p>
                         </ReactTable.Column>
                     </ReactTable.Table>
+                    <LoadingScreen Show={pageState == 'loading'} />
+                    <ServerErrorIcon Show={pageState == 'error'} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
                     <div className="row">
                         <div className="col">
-                            <Paging Current={page + 1} Total={allPages} SetPage={(p) => setPage(p - 1)} />
+                            <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p - 1)} />
                         </div>
                     </div>
                 </div>
@@ -223,13 +267,12 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
 
                             </div>
                             <div className="modal-footer">
-                                <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={() => dispatch(LocationDrawingSlice.DBAction({ verb: 'PATCH', record }))}>Save changes</button>
+                            <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={() => handleSave()}>Save changes</button>
                                 <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
                             </div>
                         </div>
                     </div>
                 </div>
-
         </div>
 
     );
