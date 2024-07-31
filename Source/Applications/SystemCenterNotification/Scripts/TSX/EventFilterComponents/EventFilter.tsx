@@ -27,7 +27,7 @@ import { createPortal } from "react-dom";
 import {Modal } from '@gpa-gemstone/react-interactive'
 import {  IEventFilter } from '../global';
 import {  EventTypeSlice } from '../Store';
-import { DateRangePicker } from '@gpa-gemstone/react-forms';
+import { TimeFilter, EventTypeFilter } from '@gpa-gemstone/common-pages';
 import EventFilterButton from './EventFilterButton';
 import FilterSelect from './FilterSelect';
 
@@ -35,7 +35,8 @@ import FilterSelect from './FilterSelect';
 declare var homePath;
 declare var version;
 
-interface IProps { Show: boolean, Close: () => void, Filter: IEventFilter, SetFilter: (f: IEventFilter) => void, RenderPortalId?: string  }
+interface IProps { Show: boolean, Close: () => void, Filter: IEventFilter, SetFilter: (f: IEventFilter) => void, RenderPortalId?: string }
+type TimeUnit = 'y' | 'M' | 'w' | 'd' | 'h' | 'm' | 's' | 'ms'
 
 
 const EventFilter = (props: IProps) => {
@@ -61,11 +62,6 @@ const EventFilter = (props: IProps) => {
     }, [props.Show])
 
     React.useEffect(() => {
-        if (filter.EventTypes.length == 0 && eventTypes.length > 0)
-            setFilter((f) => ({ ...f, EventTypes: eventTypes.map(e => e.ID) }));
-    }, [eventTypes, filter.EventTypes]);
-
-    React.useEffect(() => {
         setDomReady(true);
     })
 
@@ -73,7 +69,7 @@ const EventFilter = (props: IProps) => {
         <div id='baseEventFilterPortal'>
             {domReady ? createPortal(<>
                 <Modal Title={'Event Filter'}
-                    Show={props.Show} ShowX={true} Size={'lg'} ShowCancel={false} ConfirmText={'Apply'} BodyStyle={{ overflowY: 'scroll' }}
+                    Show={props.Show} ShowX={true} Size={'lg'} ShowCancel={false} ConfirmText={'Apply'} BodyStyle={{ overflow: "hidden" }}
                     CallBack={(conf, isBtn) => {
                         if (conf)
                             props.SetFilter(filter);
@@ -84,79 +80,40 @@ const EventFilter = (props: IProps) => {
                 <div className="row">
                     <div className="col">
                         <div className="row">
-                            <fieldset className="border" style={{ padding: '10px', height: '100%', width: '100%' }}>
-                                <legend className="w-auto" style={{ fontSize: 'large', width: '50%' }}>Time Window:</legend>
-                                    <div className="">
-                                        <DateRangePicker<IEventFilter> Label='' Record={filter} Setter={setFilter} FromField={'Start'} ToField={'End'} Type={'datetime-local'} Valid={() => true} Format={'YYYY-MM-DDTHH:mm:ssZ'} />
+                            <TimeFilter filter={{ start: filter.Start, end: filter.End }} setFilter={(center: string, start: string, end: string, unit: TimeUnit, duration: number) => {
+                                    setFilter((f) => ({ ...f, Start: start, End: end }));
+                                }} showQuickSelect={true} timeZone={'UTC'} dateTimeSetting={'startEnd'} isHorizontal={false} />
+                            </div>
+                            <div className="row">
+                                <div className="col-8 p-1">
+                                    <EventTypeFilter SetSelectedTypeIDs={(types: number[]) => setFilter((f) => ({ ...f, EventTypes: types }))} EventTypes={eventTypes} SelectedTypeID={filter.EventTypes} />
                                 </div>
-                            </fieldset>
-                        </div>
-                        <div className="row">
-                            <fieldset className="border" style={{ padding: '10px', height: '100%', width: '100%' }}>
-                                <legend className="w-auto" style={{ fontSize: 'large', width: '50%' }}>Event Types:</legend>
-                                <form>
-                                        <ul style={{ listStyleType: 'none', padding: 0, width: '33%', position: 'relative', float: 'left' }}>
-                                            <li> <label><input type="checkbox" onChange={() => {
-                                                if (filter.EventTypes.length == eventTypes.length)
-                                                    setFilter((f) => ({ ...f, EventTypes: [eventTypes[0].ID] }));
-                                                else
-                                                    setFilter((f) => ({ ...f, EventTypes: eventTypes.map(e => e.ID) }));
-                                            }} checked={filter.EventTypes.length == eventTypes.length} /> All </label></li>
-
-                                            {eventTypes.map((et, i) => (i % 3 == 1 ? <li key={et.ID}> <label><input type="checkbox" onChange={() => {
-                                                if (filter.EventTypes.find((i) => i == et.ID) != null)
-                                                    setFilter((f) => ({ ...f, EventTypes: f.EventTypes.filter(i => i != et.ID) }));
-                                                else
-                                                    setFilter((f) => ({ ...f, EventTypes: [...f.EventTypes, et.ID] }));
-                                            }} checked={filter.EventTypes.find((i) => i == et.ID) != null} disabled={filter.EventTypes.length == 1 && filter.EventTypes.find((i) => i == et.ID) != null}
-                                            /> {et.Description} </label></li> : null))}
-                                    </ul>
-                                    <ul style={{ listStyleType: 'none', padding: 0, width: '34%', position: 'relative', float: 'left' }}>
-                                        {eventTypes.map((et, i) => (i % 3 == 2 ?<li key={et.ID}> <label><input type="checkbox" onChange={() => {
-                                            if (filter.EventTypes.find((i) => i == et.ID) != null)
-                                                setFilter((f) => ({ ...f, EventTypes: f.EventTypes.filter(i => i != et.ID) }));
-                                            else
-                                                setFilter((f) => ({ ...f, EventTypes: [...f.EventTypes, et.ID] }));
-                                        }} checked={filter.EventTypes.find((i) => i == et.ID) != null} disabled={filter.EventTypes.length == 1 && filter.EventTypes.find((i) => i == et.ID) != null}
-                                        /> {et.Description} </label></li> : null))}
-                                    </ul>
-                                    <ul style={{ listStyleType: 'none', padding: 0, width: '33%', position: 'relative', float: 'right' }}>
-                                        {eventTypes.map((et, i) => (i % 3 == 0 ?<li key={et.ID}> <label><input type="checkbox" onChange={() => {
-                                            if (filter.EventTypes.find((i) => i == et.ID) != null)
-                                                setFilter((f) => ({ ...f, EventTypes: f.EventTypes.filter(i => i != et.ID) }));
-                                            else
-                                                setFilter((f) => ({ ...f, EventTypes: [...f.EventTypes, et.ID] }));
-                                        }} checked={filter.EventTypes.find((i) => i == et.ID) != null} disabled={filter.EventTypes.length == 1 && filter.EventTypes.find((i) => i == et.ID) != null}
-                                        /> {et.Description} </label></li> : null))}
-                                    </ul>
-                                </form>
-                            </fieldset>                      
-                        </div>
-                        <div className="row">
-                            <fieldset className="border" style={{ padding: '10px', height: '100%', width: '100%' }}>
-                                <legend className="w-auto" style={{ fontSize: 'large', width: '50%' }}>Other Filters:</legend>
-                                <div className={"row"}>
-                                    <div className={'col'}>
-                                        <EventFilterButton Type={'Meter'} OnClick={() => setShowFilter('Meter')} IDs={filter.MeterIDs} />
-                                    </div>
+                                <div className="col-4 p-1">
+                                    <fieldset className="border" style={{ padding: '10px', height: '100%', width: '100%' }}>
+                                        <legend className="w-auto" style={{ fontSize: 'large', width: '50%' }}>Other Filters:</legend>
+                                        <div className={"row"}>
+                                            <div className={'col'}>
+                                                <EventFilterButton Type={'Meter'} OnClick={() => setShowFilter('Meter')} IDs={filter.MeterIDs} />
+                                            </div>
+                                        </div>
+                                        <div className={"row"}>
+                                            <div className={'col'}>
+                                                <EventFilterButton Type={'Asset'} OnClick={() => setShowFilter('Asset')} IDs={filter.AssetIDs} />
+                                            </div>
+                                        </div>
+                                        <div className={"row"}>
+                                            <div className={'col'}>
+                                                <EventFilterButton Type={'AssetGroup'} OnClick={() => setShowFilter('AssetGroup')} IDs={filter.GroupIDs} />
+                                            </div>
+                                        </div>
+                                        <div className={"row"}>
+                                            <div className={'col'}>
+                                                <EventFilterButton Type={'Location'} OnClick={() => setShowFilter('Location')} IDs={filter.SubstationIDs} />
+                                            </div>
+                                        </div>
+                                    </fieldset>
                                 </div>
-                                <div className={"row"}>
-                                    <div className={'col'}>
-                                        <EventFilterButton Type={'Asset'} OnClick={() => setShowFilter('Asset')} IDs={filter.AssetIDs} />
-                                    </div>
-                                </div>
-                                <div className={"row"}>
-                                    <div className={'col'}>
-                                        <EventFilterButton Type={'AssetGroup'} OnClick={() => setShowFilter('AssetGroup')} IDs={filter.GroupIDs} />
-                                    </div>
-                                </div>
-                                <div className={"row"}>
-                                    <div className={'col'}>
-                                            <EventFilterButton Type={'Location'} OnClick={() => setShowFilter('Location')} IDs={filter.SubstationIDs} />
-                                    </div>
-                                </div>
-                            </fieldset>
-                        </div>
+                            </div>
                     </div>
                 </div>
                 </Modal>

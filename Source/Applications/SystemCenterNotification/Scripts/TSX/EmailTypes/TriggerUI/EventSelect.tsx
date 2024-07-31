@@ -41,8 +41,8 @@ const EventSelect = (props: IProps) => {
     const [suceeded, setSucceeded] = React.useState<boolean>(true);
 
     const [filter, setFilter] = React.useState<IEventFilter>({
-        Start: moment.utc().subtract(7, 'd').toISOString(),
-        End: moment.utc().toISOString(),
+        Start: moment.utc().subtract(7, 'd').format('MM/DD/YYYY HH:mm:ss.SSS'),
+        End: moment.utc().format('MM/DD/YYYY HH:mm:ss.SSS'),
         EventTypes: [],
         MeterIDs: [],
         AssetIDs: [],
@@ -72,6 +72,8 @@ const EventSelect = (props: IProps) => {
             async: true,
             data: JSON.stringify({
                 ...filter,
+                Start: moment(filter.Start, 'MM/DD/YYYY HH:mm:ss.SSS').toISOString(),
+                End: moment(filter.End, 'MM/DD/YYYY HH:mm:ss.SSS').toISOString(),
                 TriggerSQL: props.TriggerSQL
             })
         }).then((d) => {
