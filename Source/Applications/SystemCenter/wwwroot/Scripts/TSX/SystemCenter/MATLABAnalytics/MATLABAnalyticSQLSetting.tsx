@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  MATLABAnalyticInfo.tsx - Gbtc
 //
-//  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright ï¿½ 2020, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -36,7 +36,7 @@ const MATLABAnalyticSQLSetting = (props: { Record: OpenXDA.Types.MATLABAnalytic 
 
     if (record == null) return;
     return (
-        <div className="card" style={{ marginBottom: 10 }}>
+        <div className="card" style={{flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden'}}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
@@ -44,7 +44,7 @@ const MATLABAnalyticSQLSetting = (props: { Record: OpenXDA.Types.MATLABAnalytic 
                     </div>
                 </div>
             </div>
-            <div className="card-body">
+            <div className="card-body" style={{ overflowY: 'auto', flex: 1 }}>
                 <TextArea<OpenXDA.Types.MATLABAnalytic> Rows={8} Record={record} Field={'SettingSQL'} Label={''} Valid={() => true}
                     Setter={(r) => {
                         if (r.SettingSQL === null) r.SettingSQL = '';
