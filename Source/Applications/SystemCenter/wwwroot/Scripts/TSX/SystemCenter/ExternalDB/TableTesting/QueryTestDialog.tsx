@@ -88,6 +88,11 @@ export default function QueryTestDialog(props: IProps) {
             dispatch(CustomerSlice.Fetch());
     }, [customerStatus]);
 
+    React.useEffect(() => {
+        setStep(steps.PickType);
+        setRecordID(undefined);
+    }, [props.Show])
+
     const requestCount = (filters) => {
         let handle;
         if (record === undefined) {
