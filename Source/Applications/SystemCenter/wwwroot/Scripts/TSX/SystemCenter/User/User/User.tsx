@@ -75,7 +75,7 @@ function User(props: IProps) {
 	];
 
 	return (
-		<div style={{ width: '100%', height: '100%', overflow: 'hidden', padding: 15, display: 'flex', flexDirection: 'column' }}>
+        <div style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
 			<div className="row">
 				<div className="col">
 					<h2>{user != null ? `${user.FirstName} ${user.LastName} (${user.DisplayName})` : ''}</h2>
@@ -88,7 +88,7 @@ function User(props: IProps) {
 			<hr />
 
 			<TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
-			<div className="tab-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <div className="tab-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', border: 'hidden' }}>
 				{tab === "userInfo" ? <UserInfo AccountId={props.UserID} /> : null}
 				{tab === "permissions" ? (user == null ? null : <UserPermissions UserID={user.ID} />) : null}
 				{tab === "additionalFields" ? (
