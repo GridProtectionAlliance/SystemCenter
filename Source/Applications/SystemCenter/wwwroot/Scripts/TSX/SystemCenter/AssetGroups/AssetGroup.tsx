@@ -99,7 +99,7 @@ function AssetGroup(props: IProps) {
         { Id: "assetgroup", Label: "Asset Subgroups" }];
 
     return (
-        <div style={{ width: '100%', height: '100%', overflow: 'hidden', padding: 15, display: 'flex', flexDirection: 'column' }}>
+        <div style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
             <div className="row">
                 <div className="col">
                     <h2>{group.Name}</h2>
@@ -111,8 +111,7 @@ function AssetGroup(props: IProps) {
             <hr />
 
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
-
-            <div className="tab-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <div className="tab-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', border: 'hidden' }}>
                 {tab === 'info' ? (
                     <AssetgroupInfoWindow AssetGroup={group} StateSetter={(data) => dispatch(AssetGroupSlice.DBAction({ verb: 'PATCH', record: data }))} AllAssetGroups={allAssetGroup} /> ) : null}
                 {tab === 'asset' ? <AssetAssetGroupWindow AssetGroupID={props.AssetGroupID} /> : null}
