@@ -91,8 +91,8 @@ function RemoteXDAInstance(props: IProps) {
     ];
 
     return (
-        <div style={{ width: '100%', height: '100%', overflow: 'hidden', padding: 15, display: 'flex', flexDirection: 'column' }}>
-            <div className="row">
+        <div style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+            <div className="row p-2">
                 <div className="col">
                     <h2>{connection.Name}</h2>
                 </div>
@@ -101,9 +101,8 @@ function RemoteXDAInstance(props: IProps) {
                 </div>
             </div>
             <hr style={{ width: '100%' }} />
-
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
-            <div className="tab-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <div className="tab-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', border: 'hidden' }}>
                 {tab === 'systemSettings' ? <SystemSettingsTab ID={props.ID} /> : null}
                 {tab === 'remoteMeter' ? <RemoteMeterTab ID={props.ID} /> : null}
                 {tab === 'remoteAsset' ? <RemoteAssetTab ID={props.ID} /> : null}
