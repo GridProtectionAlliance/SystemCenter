@@ -28,6 +28,8 @@ import { TriggeredEmailDataSourceSlice } from '../../Store';
 import DataSourceModal from './DataSourceModal';
 import { ReactTable } from '@gpa-gemstone/react-table';
 import DataSourceTesting from './DataSourceTesting';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { Warning } from '@gpa-gemstone/react-interactive';
 
 
 declare var homePath;
@@ -43,6 +45,12 @@ const DataSourceWindow = (props: IProps) => {
     const emailID = useAppSelector(TriggeredEmailDataSourceSlice.ParentID);
     const [dataSource, setDataSource] = React.useState<null | IDataSourceTriggeredEmailType>(null);
     const [showTest, setShowTest] = React.useState<boolean>(false);
+    const [showRemoveWarning, setShowRemoveWarning] = React.useState<boolean>(false);
+    const [showDataSourceModal, setShowDataSourceModal] = React.useState<boolean>(false);
+
+    const removeDataSource = () => {
+        dispatch(TriggeredEmailDataSourceSlice.DBAction({ verb: 'DELETE', record: dataSource }));
+    };
 
     React.useEffect(() => {
         if (status == 'unintiated' || status == 'changed' || emailID !== props.Record.ID)
@@ -73,7 +81,7 @@ const DataSourceWindow = (props: IProps) => {
                                         SortKey={''}
                                         Ascending={false}
                                         OnSort={() => { }}
-                                        OnClick={(item) => setDataSource(item.row)}
+                                        OnClick={(item) => {setDataSource(item.row); setShowDataSourceModal(true);} }
                                         TableStyle={{
                                             padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
                                             tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
@@ -92,6 +100,21 @@ const DataSourceWindow = (props: IProps) => {
                                             RowStyle={{ width: '100%' }}
                                         > Data Source
                                         </ReactTable.Column>
+                                        <ReactTable.Column<IDataSourceTriggeredEmailType>
+                                            Key={'Remove'}
+                                            AllowSort={true}
+                                            HeaderStyle={{ width: '10%' }}
+                                            RowStyle={{ width: '10%' }}
+                                            Content={({ item }) =>
+                                                <button className="btn btn-sm" onClick={(e) => {
+                                                    e.preventDefault();
+                                                    setDataSource(item);
+                                                    setShowRemoveWarning(true);
+                                                }}><span><ReactIcons.TrashCan /></span>
+                                                </button>
+                                            }
+                                        >
+                                        </ReactTable.Column>
                                     </ReactTable.Table>
                                 </div>
                             </div>
@@ -106,7 +129,9 @@ const DataSourceWindow = (props: IProps) => {
                     </div>
                 </div>
             </div>
-            <DataSourceModal Record={dataSource} OnClose={() => setDataSource(null)} />
+            <Warning Show={showRemoveWarning} Title={'Remove Source'} Message={`Are you sure you want to remove this data source?`}
+                CallBack={(c) => { setShowRemoveWarning(false); if (c) removeDataSource(); }} />
+            <DataSourceModal Show={showDataSourceModal} Record={dataSource} OnClose={() => setDataSource(null)} />
             <DataSourceTesting Record={props.Record} OnClose={() => setShowTest(false)} Show={showTest} />
         </div>)
 }
