@@ -100,7 +100,7 @@ function AssetGroup(props: IProps) {
 
     return (
         <div style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-            <div className="row">
+            <div className="row p-2">
                 <div className="col">
                     <h2>{group.Name}</h2>
                 </div>

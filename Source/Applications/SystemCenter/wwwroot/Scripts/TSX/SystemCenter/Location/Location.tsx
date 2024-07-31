@@ -116,7 +116,7 @@ function Location(props: IProps) {
 
     return (
         <div style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-            <div className="row">
+            <div className="row p-2">
                 <div className="col">
                     <h2>{location != null ? location.Name + ' (' + location.LocationKey + ')' : ''}</h2>
                 </div>
