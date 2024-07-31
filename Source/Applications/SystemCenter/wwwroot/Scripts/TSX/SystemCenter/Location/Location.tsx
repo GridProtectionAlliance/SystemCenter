@@ -115,7 +115,7 @@ function Location(props: IProps) {
     ];
 
     return (
-        <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: 15 }}>
+        <div style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
             <div className="row">
                 <div className="col">
                     <h2>{location != null ? location.Name + ' (' + location.LocationKey + ')' : ''}</h2>
@@ -127,7 +127,7 @@ function Location(props: IProps) {
             <hr />
 
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
-            <div className="tab-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <div className="tab-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', border: 'hidden' }}>
                 {tab === 'notes' ? <NoteWindow ID={props.LocationID} Type='Location' /> : null}
                 {tab === 'locationInfo' ? <LocationInfoWindow Location={location} stateSetter={(l) => setLocation(l)} /> : null}
                 {tab === 'additionalFields' ? <AdditionalFieldsWindow ID={props.LocationID} Type='Location' Tab={tab} /> : null}
