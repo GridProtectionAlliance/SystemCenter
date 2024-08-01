@@ -82,10 +82,8 @@ export default function ValueListGroup(props: IProps) {
             </div>
             <hr />
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={[{ Label: 'Value List Group Info', Id: 'info' }, { Label: 'List Items', Id: 'items' }]} />
-            <div className="tab-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', border: 'hidden' }}>
-                {tab === "info" ? <ValueListGroupInfo Record={record} /> : null}
-                {tab === "items" ? <ValueListGroupItems Record={record} /> : null}
-            </div>
+            {tab === "info" ? <ValueListGroupInfo Record={record} /> : null}
+            {tab === "items" ? <ValueListGroupItems Record={record} /> : null}
 
             <ValueListGroupDelete
                 Show={showRemove} 

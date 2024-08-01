@@ -82,10 +82,8 @@ function ApplicationCategory(props: IProps) {
             <hr />
 
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
-            <div className="tab-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', border: 'hidden' }}>
-                {tab === "appCatInfo" ? ( <ApplicationCategoryInfo ApplicationCat={applicationCategory} stateSetter={(record) => dispatch(ApplicationCategorySlice.DBAction({ verb: 'PATCH', record: record }))} /> ) : null}
-                {tab === "applications" ? ( <Applications ID={props.ID} Tab={tab} /> ) : null}
-            </div>
+            {tab === "appCatInfo" ? ( <ApplicationCategoryInfo ApplicationCat={applicationCategory} stateSetter={(record) => dispatch(ApplicationCategorySlice.DBAction({ verb: 'PATCH', record: record }))} /> ) : null}
+            {tab === "applications" ? ( <Applications ID={props.ID} Tab={tab} /> ) : null}
 
             <Warning Message={'This will permanently delete this Application Category and cannot be undone.'}
                 Show={showDelete} Title={'Delete ' + (applicationCategory?.Name ?? 'Application Category')}

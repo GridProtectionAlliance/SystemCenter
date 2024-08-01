@@ -94,10 +94,8 @@ export default function WidgetCategory(props: IProps) {
             <hr />
 
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
-            <div className="tab-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', border: 'hidden' }}>
-                {tab === "info" ? ( <CategoryInfo Tab={category} stateSetter={(record) => dispatch(WidgetCategorySlice.DBAction({ verb: 'PATCH', record: record }))} /> ) : null}
-                {tab === "widgets" ? ( <WidgetByCategory CategoryID={category.ID} /> ) : null}
-            </div>
+            {tab === "info" ? ( <CategoryInfo Tab={category} stateSetter={(record) => dispatch(WidgetCategorySlice.DBAction({ verb: 'PATCH', record: record }))} /> ) : null}
+            {tab === "widgets" ? ( <WidgetByCategory CategoryID={category.ID} /> ) : null}
 
             <Warning Title={'Delete ' + (category?.Name ?? 'SE Browser Tab')} Show={showWarning} Message={'This will permanently delete this SE Browser Tab.'} CallBack={(c) => { if (c) deleteTab(); setShowWarning(false) }} />
         </div>

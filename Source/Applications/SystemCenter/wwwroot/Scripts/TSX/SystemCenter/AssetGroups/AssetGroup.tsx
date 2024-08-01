@@ -111,13 +111,11 @@ function AssetGroup(props: IProps) {
             <hr />
 
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
-            <div className="tab-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', border: 'hidden' }}>
-                {tab === 'info' ? (
-                    <AssetgroupInfoWindow AssetGroup={group} StateSetter={(data) => dispatch(AssetGroupSlice.DBAction({ verb: 'PATCH', record: data }))} AllAssetGroups={allAssetGroup} /> ) : null}
-                {tab === 'asset' ? <AssetAssetGroupWindow AssetGroupID={props.AssetGroupID} /> : null}
-                {tab === 'meter' ? <MeterAssetGroupWindow AssetGroupID={props.AssetGroupID} /> : null}
-                {tab === 'assetgroup' ? <AssetGroupAssetGroupWindow AssetGroupID={props.AssetGroupID} /> : null}
-            </div>
+            {tab === 'info' ? (
+                <AssetgroupInfoWindow AssetGroup={group} StateSetter={(data) => dispatch(AssetGroupSlice.DBAction({ verb: 'PATCH', record: data }))} AllAssetGroups={allAssetGroup} /> ) : null}
+            {tab === 'asset' ? <AssetAssetGroupWindow AssetGroupID={props.AssetGroupID} /> : null}
+            {tab === 'meter' ? <MeterAssetGroupWindow AssetGroupID={props.AssetGroupID} /> : null}
+            {tab === 'assetgroup' ? <AssetGroupAssetGroupWindow AssetGroupID={props.AssetGroupID} /> : null}
 
             <Warning Message={'This will permanently delete this Asset Group and cannot be undone.'} Show={showDelete} Title={'Delete ' + (group?.Name ?? 'Asset Group')} CallBack={(conf) => { if (conf) deleteAssetGroup(); setShowDelete(false); }} />
             <LoadingScreen Show={gStatus == 'loading'} />

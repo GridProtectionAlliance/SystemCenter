@@ -101,10 +101,8 @@ export default function MATLABAnalytic(props: IProps) {
             </div>
             <hr />
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
-            <div className="tab-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', border: 'hidden' }}>
-                {tab === 'info' ? <MATLABAnalyticInfo Record={record} ETRecords={eventTypeRecords} ATRecords={assetTypeRecords} /> : null}
-                {tab === 'settings' ? <MATLABAnalyticSQLSettings Record={record} /> : null}
-            </div>
+            {tab === 'info' ? <MATLABAnalyticInfo Record={record} ETRecords={eventTypeRecords} ATRecords={assetTypeRecords} /> : null}
+            {tab === 'settings' ? <MATLABAnalyticSQLSettings Record={record} /> : null}
             <Warning
                 Message={'This will permanently delete this MATLAB Analytic and cannot be undone.'}
                 Show={showRemove} Title={'Delete ' + (record?.MethodName ?? 'Analytic')}

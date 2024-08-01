@@ -127,15 +127,13 @@ function Location(props: IProps) {
             <hr />
 
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
-            <div className="tab-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', border: 'hidden' }}>
-                {tab === 'notes' ? <NoteWindow ID={props.LocationID} Type='Location' /> : null}
-                {tab === 'locationInfo' ? <LocationInfoWindow Location={location} stateSetter={(l) => setLocation(l)} /> : null}
-                {tab === 'additionalFields' ? <AdditionalFieldsWindow ID={props.LocationID} Type='Location' Tab={tab} /> : null}
-                {tab === 'meters' ? <LocationMeterWindow Location={location} /> : null}
-                {tab === 'assets' ? <LocationAssetWindow Location={location} /> : null}
-                {tab === 'images' ? <LocationImagesWindow Location={location} /> : null}
-                {tab === 'drawings' ? <LocationDrawingsWindow Location={location} /> : null}
-            </div>
+            {tab === 'notes' ? <NoteWindow ID={props.LocationID} Type='Location' /> : null}
+            {tab === 'locationInfo' ? <LocationInfoWindow Location={location} stateSetter={(l) => setLocation(l)} /> : null}
+            {tab === 'additionalFields' ? <AdditionalFieldsWindow ID={props.LocationID} Type='Location' Tab={tab} /> : null}
+            {tab === 'meters' ? <LocationMeterWindow Location={location} /> : null}
+            {tab === 'assets' ? <LocationAssetWindow Location={location} /> : null}
+            {tab === 'images' ? <LocationImagesWindow Location={location} /> : null}
+            {tab === 'drawings' ? <LocationDrawingsWindow Location={location} /> : null}
 
 
             <Warning Message={'This will permanently delete this Substation and cannot be undone.'} Show={showDelete} Title={'Delete ' + (location?.Name ?? 'Substation')} CallBack={(conf) => { if (conf) deleteLocation(); setShowDelete(false); }} />

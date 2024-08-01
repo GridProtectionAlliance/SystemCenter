@@ -111,14 +111,12 @@ export default function Customer(props: IProps) {
             <hr />
 
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
-            <div className="tab-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', border: 'hidden' }}>
-                {tab === 'info' ? ( <CustomerInfo Customer={customer} stateSetter={(record) => dispatch(CustomerSlice.DBAction({ verb: 'PATCH', record: record }))} /> ) : null}
-                {tab === 'additionalFields' ? ( <AdditionalFieldsWindow ID={customer.ID} Type='Customer' Tab={tab} /> ) : null}
-                {tab === 'meters' ? <CustomerMeterWindow Customer={customer} /> : null}
-                {tab === 'assets' ? <CustomerAssetWindow Customer={customer} /> : null}
-                {tab === 'notes' ? <NoteWindow ID={props.CustomerID} Type='Customer' /> : null}
-                {tab === 'mdm' ? <MDMKeys CustomerID={customer.ID} /> : null}
-            </div>
+            {tab === 'info' ? ( <CustomerInfo Customer={customer} stateSetter={(record) => dispatch(CustomerSlice.DBAction({ verb: 'PATCH', record: record }))} /> ) : null}
+            {tab === 'additionalFields' ? ( <AdditionalFieldsWindow ID={customer.ID} Type='Customer' Tab={tab} /> ) : null}
+            {tab === 'meters' ? <CustomerMeterWindow Customer={customer} /> : null}
+            {tab === 'assets' ? <CustomerAssetWindow Customer={customer} /> : null}
+            {tab === 'notes' ? <NoteWindow ID={props.CustomerID} Type='Customer' /> : null}
+            {tab === 'mdm' ? <MDMKeys CustomerID={customer.ID} /> : null}
 
             <Warning Title={'Delete ' + (customer?.Name ?? 'Customer')} Show={showWarning} Message={'This will permanently delete this Customer.'} CallBack={(c) => { if (c) deleteCustomer(); setShowWarning(false)}} />
         </div>

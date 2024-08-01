@@ -88,10 +88,8 @@ export default function ChannelGroup(props: IProps) {
             <hr />
 
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
-            <div className="tab-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', border: 'hidden' }}>
-                {tab === "info" ? <ChannelGroupInfo Record={record} /> : null}
-                {tab === "items" ? <ChannelGroupItems Record={record} /> : null}
-            </div>
+            {tab === "info" ? <ChannelGroupInfo Record={record} /> : null}
+            {tab === "items" ? <ChannelGroupItems Record={record} /> : null}
 
             <Warning
                 Message={'This will permanently delete this Channel Group and cannot be undone.'}
