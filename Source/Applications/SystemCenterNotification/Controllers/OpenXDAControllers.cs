@@ -365,7 +365,7 @@ namespace SystemCenter.Notifications.Controllers
         public override IHttpActionResult Delete(TriggeredEmailDataSourceEmailTypeView record)
         {
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
-                // TODO: connection.ExecuteNonQuery("DELETE FROM ???? WHERE ID = {0}", record.TriggeredEmailDataSourceID);
+                connection.ExecuteNonQuery("DELETE FROM TriggeredEmailDataSourceEmailType WHERE ID = {0}", record.ID);
 
             return Ok(1);
         }
