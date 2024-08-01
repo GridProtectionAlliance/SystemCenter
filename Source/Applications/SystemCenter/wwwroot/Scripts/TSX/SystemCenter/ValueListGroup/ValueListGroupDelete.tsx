@@ -82,7 +82,7 @@ export function ValueListItemDelete(props: IPropsItem) {
         });
         h.then((c: number) => {setRemovalCount(c);});
         h.done((msg) => {
-            history.push({ pathname: homePath + 'index.cshtml', search: '?name=ValueList' });
+            history.push({ pathname: homePath + 'index.cshtml', search: '?name=ValueLists' });
         });
         return () => { if (h != null && h.abort != null) h.abort();}
     }, [props.Group, props.Record])
