@@ -153,28 +153,3 @@ export function getNewUserAccount(): JQuery.jqXHR<Application.Types.iUserAccount
         async: true
     });
 }
-
-
-export function GetAccessLogAggregates(database: Application.Types.AttachedDatabases, days: number) {
-    return $.ajax({
-        type: "GET",
-        url: `${homePath}api/${database}/AccessLog/Aggregates/${days}`,
-        contentType: "application/json; charset=utf-8",
-        dataType: 'json',
-        cache: false,
-        async: true
-    });
-
-}
-
-export function GetAccessLogTable(database: Application.Types.AttachedDatabases, days: number) {
-    return $.ajax({
-        type: "GET",
-        url: `${homePath}api/${database}/AccessLog/Table/${days}`,
-        contentType: "application/json; charset=utf-8",
-        dataType: 'json',
-        cache: false,
-        async: true
-    });
-
-}

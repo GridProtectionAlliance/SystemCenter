@@ -302,7 +302,6 @@
     <Compile Include="Controllers\OpenXDA\Assets\OpenXDALineController.cs" />
     <Compile Include="Controllers\OpenXDA\Assets\OpenXDABreakerController.cs" />
     <Compile Include="Controllers\OpenXDA\Meters\OpenXDAMeterConfigurationController.cs" />
-    <Compile Include="Controllers\OpenXDA\OpenXDAAccessLogController.cs" />
     <Compile Include="Controllers\OpenXDA\OpenXDALocationController.cs" />
     <Compile Include="Controllers\OpenXDA\Assets\OpenXDAAssetController.cs" />
     <Compile Include="Controllers\OpenXDA\OpenXDAControllers.cs" />

@@ -36,12 +36,12 @@ using SystemCenter.Controllers;
 
 namespace SystemCenter.Controllers
 {
-
-     [RoutePrefix("api/SystemCenter/AccessLog")]
+    
+    [RoutePrefix("api/SystemCenter/AccessLog")]
     public class SystemCenterAccessLogController : ModelController<AccessLog> {
 
-        [HttpGet, Route("Aggregates/{days:int}")]
-        public IHttpActionResult GetAggregates(int days)
+        [HttpGet, Route("Aggregates/{nodeID}/{days:int}")]
+        public IHttpActionResult GetAggregates(string nodeID, int days)
         {
             try
             {
@@ -51,7 +51,7 @@ namespace SystemCenter.Controllers
                     string sql = @"
                         DECLARE @startDate Date = CAST( GETDATE() as DATE)
                         DECLARE @endDate DATE = DATEADD(DAY, -" + days + @", @startDate)
-
+                        DECLARE @nodeID nvarchar(max) = '" + nodeID + @"'
                         DECLARE @columns nvarchar(max) = N''
 
                         WHILE @endDate <= @startDate
@@ -60,7 +60,7 @@ namespace SystemCenter.Controllers
 	                        SET @endDate = DATEADD(DAY,1,@endDate)
                         END
 
-                        SET @endDate = DATEADD(DAY, -30, @startDate)
+                        SET @endDate = DATEADD(DAY, -" + days + @", @startDate)
 
                         DECLARE @sql nvarchar(max) = N'
                         SELECT '+SUBSTRING(@columns,0, LEN(@columns))+' 
@@ -71,7 +71,7 @@ namespace SystemCenter.Controllers
                         FROM
 	                        AccessLog
                         WHERE
-	                        AccessGranted = 1 AND CAST(CreatedOn as Date) BETWEEN @endDate AND @startDate
+	                        AccessGranted = 1 AND CAST(CreatedOn as Date) BETWEEN @endDate AND @startDate and NodeID = @nodeID
                         ) as tbl
                         PIVOT(
 	                        COUNT(AccessGranted)
@@ -79,7 +79,7 @@ namespace SystemCenter.Controllers
                         ) as pvt'
 
 
-                        exec sp_executesql @sql, N'@startDate Date, @endDate Date', @startDate = @startDate, @endDate = @endDate
+                        exec sp_executesql @sql, N'@startDate Date, @endDate Date, @nodeID nvarchar(max)', @startDate = @startDate, @endDate = @endDate, @nodeID = @nodeID
                     ";
 
                     DataTable table = connection.RetrieveData(sql, "");
@@ -96,8 +96,8 @@ namespace SystemCenter.Controllers
             }
         }
 
-        [HttpGet, Route("Table/{days:int}")]
-        public IHttpActionResult GetTable(int days)
+        [HttpGet, Route("Table/{nodeID}/{days:int}")]
+        public IHttpActionResult GetTable(string nodeID, int days)
         {
             try
             {
@@ -114,7 +114,7 @@ namespace SystemCenter.Controllers
                         FROM
 	                        AccessLog
                         WHERE
-	                        AccessGranted = 1 AND CAST(CreatedOn as Date) BETWEEN @endDate AND @startDate          
+	                        AccessGranted = 1 AND CAST(CreatedOn as Date) BETWEEN @endDate AND @startDate AND NodeID = '" + nodeID + @"'        
                         GROUP BY
 	                        UserName
                     ", "");
