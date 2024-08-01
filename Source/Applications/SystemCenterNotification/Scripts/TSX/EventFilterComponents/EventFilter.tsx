@@ -63,8 +63,13 @@ const EventFilter = (props: IProps) => {
 
     React.useEffect(() => {
         if (props.Show)
-            setFilter(props.Filter);
+            setFilter((f) => ({...props.Filter, EventTypes: f.EventTypes}));
     }, [props.Show])
+
+    React.useEffect(() => {
+        if (filter.EventTypes.length == 0 && eventTypes.length > 0)
+            setFilter((f) => ({ ...f, EventTypes: eventTypes.map(e => e.ID) }));
+    }, [eventTypes]);
 
     React.useEffect(() => {
         setDomReady(true);
