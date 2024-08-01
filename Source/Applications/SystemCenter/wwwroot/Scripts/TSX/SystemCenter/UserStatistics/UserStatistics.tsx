@@ -25,13 +25,21 @@ import * as React from 'react';
 import { ReactTable } from '@gpa-gemstone/react-table';
 import { Application } from '@gpa-gemstone/application-typings';
 import { Plot, Line } from '@gpa-gemstone/react-graph';
-import { LoadingScreen } from '@gpa-gemstone/react-interactive';
+import { LoadingScreen, TabSelector } from '@gpa-gemstone/react-interactive';
 import * as _ from 'lodash';
-import { GetAccessLogAggregates, GetAccessLogTable, } from './../../../TS/Services/User';
+import moment from 'moment';
+import { useAppDispatch, useAppSelector } from '../hooks';
+import { ApplicationNodeSlice } from '../Store/Store';
 
 interface Aggregate {
     Date: string,
     Count: number
+}
+
+interface IAccessSummary {
+    Name: string,
+    Data: [number,number][],
+    Color: string
 }
 
 interface AccessLogTable {
@@ -41,69 +49,110 @@ interface AccessLogTable {
 }
 
 const UserStatistics: Application.Types.iByComponent = (props) => {
-    let svgWidth = window.innerWidth - 250 - 30;
-    let svgHeight = (window.innerHeight - 75) * .33;
-    
+    const colors = ["#A30000", "#0029A3", "#007A29", "#d3d3d3", "#edc240",
+        "#afd8f8", "#cb4b4b", "#4da74d", "#9440ed", "#BD9B33", "#EE2E2F",
+        "#008C48", "#185AA9", "#F47D23", "#662C91", "#A21D21", "#B43894",
+        "#737373", "#ff904f", "#ff9999"]
+
+    const dispatch = useAppDispatch();
+    const rowRef = React.useRef<HTMLDivElement>(null);
+
     const [days, setDays] = React.useState<number>(30);
-    const [tab, setTab] = React.useState<Application.Types.AttachedDatabases>('SystemCenter');
+    const [tab, setTab] = React.useState<string>('SystemCenter');
     const [tableData, setTableData] = React.useState<Array<AccessLogTable>>([]);
     const [sortField, setSortField] = React.useState<string>('Logins');
     const [ascending, setAscending] = React.useState<boolean>(false);
 
-    const [defaultTdomain, setDefaultTdomain] = React.useState<[number, number]>([0, 0]);
-    const [defaultYdomain, setDefaultYdomain] = React.useState<[number, number]>([0, 1]);
-    const [scData, setScData] = React.useState<[number, number][]>([]);
-    const [xdaData, setXdaData] = React.useState<[number, number][]>([]);
-    const [pageStatus, setPageStatus] = React.useState<Application.Types.Status>('unintiated');
+    const [plotData, setPlotData] = React.useState<IAccessSummary[]>([])
+
+    const [tableStatus, setTableStatus] = React.useState<Application.Types.Status>('unintiated');
+    const [plotStatus, setPlotStatus] = React.useState<Application.Types.Status>('unintiated');
+
+    const applicationNodeStatus = useAppSelector(ApplicationNodeSlice.Status);
+    const applicationNodes = useAppSelector(ApplicationNodeSlice.Data);
+
+    const tabs = React.useMemo(() => applicationNodes.map((a) => ({ Label: a.Name, Id: a.ID })), [applicationNodes])
+    const timeFrame = React.useMemo(() => { return [moment.utc().endOf('d').subtract(days, 'd').valueOf(), moment.utc().startOf('d').valueOf()] as [number, number] }, [days])
+
+    const [plotHeight, setPlotHeight] = React.useState<number>(100);
+    const [plotWidth, setPlotWidth] = React.useState<number>(100);
 
     React.useEffect(() => {
-        GetData(days, tab);
+        if (applicationNodeStatus === 'unintiated' || applicationNodeStatus === 'changed')
+            dispatch(ApplicationNodeSlice.Fetch())
+    }, [applicationNodeStatus])
+
+    React.useEffect(() => { if (tabs.length > 0) setTab(tabs[0].Id); }, [tabs]);
+
+    React.useEffect(() => {
+
+        setTableStatus('loading');
+        const handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/SystemCenter/AccessLog/Table/${tab}/${days}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true
+        });
+
+        handle.then((d: AccessLogTable[]) => {
+            let ordered = _.orderBy(d, [sortField], [(ascending ? "asc" : "desc")])
+            setTableData(ordered);
+            setTableStatus('idle');
+        }, () => { setTableStatus('error') })
+
+        return () => {
+            if (handle != null && handle.abort != null)
+                handle.abort();
+        }
+
     }, [days, tab]);
 
-    async function GetData(d: number, t: Application.Types.AttachedDatabases) {
-        setPageStatus('loading');
-        let sca = await GetAccessLogAggregates("SystemCenter", d);
-        let xdaa = await GetAccessLogAggregates("OpenXDA", d);
-        GetTableData(d, t)
+    React.useEffect(() => {
+        setPlotStatus('loading');
 
-        const hasData = sca.length > 0 && xdaa.length > 0;
+        const handles = applicationNodes.map(t => $.ajax({
+            type: "GET",
+            url: `${homePath}api/SystemCenter/AccessLog/Aggregates/${t.ID}/${days}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true
+        }));
 
-        const newDefaultTdomain: [number, number] = hasData ? [
-            new Date(sca[0]?.Date).getTime(),
-            new Date(sca[sca.length - 1]?.Date).getTime()
-        ] : [0, 0];
+        Promise.all(handles).then((h) => {
+            setPlotData(h.map((d: Aggregate[], i: number) => ({
+                Color: colors[i % colors.length],
+                Data: d.map(d => [new Date(d.Date).getTime(), d.Count] as [number, number]),
+                Name: applicationNodes[i].Name
+            })));
+            setPlotStatus('idle')
+        }, () => setPlotStatus('error'))
 
-        const newDefaultYdomain: [number, number] = hasData ? [
-            0,
-            Math.max(
-                ...sca.map(d => d.Count),
-                ...xdaa.map(d => d.Count)
-            )
-        ] : [0, 1];
+        return () => {
+            handles.forEach(h => {
+                if (h != null && h.abort != null)
+                    h.abort();
+            })
+        }
+    }, [applicationNodes]);
 
-        const transformData = (data: Array<Aggregate>): [number, number][] => {
-            return data.map(d => [new Date(d.Date).getTime(), d.Count] as [number, number])
-                .filter(d => !isNaN(d[0]) && !isNaN(d[1]));
-        };
-
-        setDefaultTdomain(newDefaultTdomain);
-        setDefaultYdomain(newDefaultYdomain);
-        setScData(transformData(sca));
-        setXdaData(transformData(xdaa));
-        setPageStatus('idle');
-    }
-
-    async function GetTableData(d: number, db: Application.Types.AttachedDatabases) {
-        let table = await GetAccessLogTable(db, d);
-        var ordered = _.orderBy(table, [sortField], [(ascending ? "asc" : "desc")])
+    React.useEffect(() => {
+        var ordered = _.orderBy(tableData, [sortField], [(ascending ? "asc" : "desc")]);
         setTableData(ordered);
-    }
+    }, [sortField, ascending])
+
+    React.useLayoutEffect(() => {
+        setPlotHeight(rowRef?.current?.offsetHeight ?? 100)
+        setPlotWidth(rowRef?.current?.offsetWidth ?? 100)
+    });
 
     if (props.Roles.indexOf('Administrator') < 0) return null
   
     return (
-        <div style={{ width: '100%', height: '100%', padding: '10px 10px 10px 20px' }}>
-            <LoadingScreen Show={pageStatus === 'loading'} />
+        <div className="container-fluid d-flex h-100 flex-column">
+            <LoadingScreen Show={tableStatus === 'loading' || plotStatus === 'loading' || applicationNodeStatus === 'loading'} />
             <div className="row">
                 <div className="col">
                     <h2>User Statistics</h2>
@@ -111,7 +160,6 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
                 <div className="col">
                     <select className="form-control" value={days} onChange={(e) => {
                         setDays(parseInt(e.target.value));
-                        GetData(parseInt(e.target.value), tab);
                     }}>
                         <option value='30'>Last 30 days</option>
                         <option value='60'>Last 60 days</option>
@@ -120,118 +168,88 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
                         <option value='365'>Last 365 days</option>
                     </select>
                 </div>
-
             </div>
-            <hr/>
-            <div style={{ width: '100%', height: 'calc(100%)' }}>
-                <Plot
-                    defaultTdomain={defaultTdomain}
-                    defaultYdomain={defaultYdomain}
-                    height={svgHeight}
-                    width={svgWidth}
-                    showGrid={true}
-                    XAxisType='time'
-                    legend='right'
-                    Ylabel='Count'
-                    Tlabel='Date'
-                    pan={false}
-                    zoom={false}
-                    holdMenuOpen={false}
-                >
-                    <Line
-                        data={scData}
-                        lineStyle='solid'
-                        color='steelblue'
-                        legend='System Center'
-                    />
-                    <Line
-                        data={xdaData}
-                        color='red'
-                        lineStyle='solid'
-                        legend='OpenXDA'
-                    />
-                </Plot>
-                <div style={{ width: '100%', height: `calc(100% - ${svgHeight}px)` }}>
-                    <ul className="nav nav-tabs">
-                        <li className="nav-item">                         
-                            <a className={"nav-link" + (tab == "SystemCenter" ? " active" : "")} onClick={() => {
-                                setTab('SystemCenter')
-                                GetTableData(days, 'SystemCenter');
-                            }}>
-                                <svg width="20" height="20">
-                                    <rect width="20" height="20" fill='steelblue' strokeWidth='3' stroke='rgb(0,0,0)' />
-                                </svg>
-                                <span style={{marginLeft: 10}}>System Center</span>
-                            </a>
-                        </li>
-                        <li className="nav-item">
-                            <a className={"nav-link" + (tab == "OpenXDA" ? " active" : "")} onClick={() => {
-                                setTab('OpenXDA')
-                                GetTableData(days, 'OpenXDA');
-                            }}>
-                                <svg width="20" height="20">
-                                    <rect width="20" height="20" fill='red' strokeWidth='3' stroke='rgb(0,0,0)' />
-                                </svg>
-                                <span style={{ marginLeft: 10 }}>openXDA</span>
-                            </a>
-                        </li>
-                    </ul>
-
-                    <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
-                        <div className="tab-pane  active">
-                            <ReactTable.Table<AccessLogTable>
-                                TableClass="table table-hover"
-                                Data={tableData}
-                                SortKey={sortField}
-                                Ascending={ascending}
-                                OnSort={(d) => {
-                                    if (d.colKey == sortField) {
-                                        var ordered = _.orderBy(tableData, [d.colKey], [(!ascending ? "asc" : "desc")]);
-                                        setTableData(ordered);
-                                    }
-                                    else {
-                                        var ordered = _.orderBy(tableData, [d.colKey], ["asc"]);
-                                        setTableData(ordered);
-                                        setSortField(d.colKey);
-                                    }
-                                    setAscending(!ascending);
-                                }}
-                                TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                                RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                Selected={(item) => false}
-                                KeySelector={(item) => item.UserName}
-                            >
-                                <ReactTable.Column<AccessLogTable>
-                                    Key={'UserName'}
-                                    AllowSort={true}
-                                    Field={'UserName'}
-                                    HeaderStyle={{ width: '10%' }}
-                                    RowStyle={{ width: '10%' }}
-                                > User
-                                </ReactTable.Column>
-                                <ReactTable.Column<AccessLogTable>
-                                    Key={'Logins'}
-                                    AllowSort={true}
-                                    Field={'Logins'}
-                                    HeaderStyle={{ width: '10%' }}
-                                    RowStyle={{ width: '10%' }}
-                                > Logins for Period
-                                </ReactTable.Column>
-                                <ReactTable.Column<AccessLogTable>
-                                    Key={'LastAccess'}
-                                    AllowSort={true}
-                                    Field={'LastAccess'}
-                                    HeaderStyle={{ width: 'auto' }}
-                                    RowStyle={{ width: 'auto' }}
-                                > Last Access Time
-                                </ReactTable.Column>
-                            </ReactTable.Table>
-                        </div>
-                    </div>                
-
+            <hr />
+            <div className="row h-50" ref={rowRef}>
+                <div className="col">
+                    <Plot
+                        defaultTdomain={timeFrame}
+                        height={plotHeight}
+                        width={plotWidth}
+                        showGrid={true}
+                        XAxisType='time'
+                        legend='bottom'
+                        Ylabel='Count'
+                        Tlabel='Date'
+                        pan={false}
+                        zoom={false}
+                        holdMenuOpen={false}
+                    >
+                        {plotData.map(d => <Line
+                            data={d.Data}
+                            lineStyle={'solid'}
+                            color={d.Color}
+                            legend={d.Name}
+                        />)}
+                    </Plot>
                 </div>
             </div>
+            <TabSelector CurrentTab={tab} SetTab={setTab} Tabs={tabs} />
+            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="col h-100" >
+                    <ReactTable.Table<AccessLogTable>
+                        TableClass="table table-hover"
+                        Data={tableData}
+                        SortKey={sortField}
+                        Ascending={ascending}
+                        OnSort={(d) => {
+                            if (d.colKey == sortField) {
+                                setAscending(!ascending);
+                            }
+                            else {
+                                setSortField(d.colKey);
+                                setAscending(true);
+                            }
+                        }}
+                        TableStyle={{
+                            padding: 0, width: '100%', height: '100%',
+                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column', marginBottom: 0
+                        }}
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        Selected={(item) => false}
+                        KeySelector={(item) => item.UserName}
+                    >
+                        <ReactTable.Column<AccessLogTable>
+                            Key={'UserName'}
+                            AllowSort={true}
+                            Field={'UserName'}
+                            HeaderStyle={{ width: '30%' }}
+                            RowStyle={{ width: '30%' }}
+                        > User
+                        </ReactTable.Column>
+                        <ReactTable.Column<AccessLogTable>
+                            Key={'Logins'}
+                            AllowSort={true}
+                            Field={'Logins'}
+                            HeaderStyle={{ width: '30%' }}
+                            RowStyle={{ width: '30%' }}
+                        > Logins for Period
+                        </ReactTable.Column>
+                        <ReactTable.Column<AccessLogTable>
+                            Key={'LastAccess'}
+                            AllowSort={true}
+                            Field={'LastAccess'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={({ item }) => moment(item.LastAccess).format('MM/DD/YYYY HH:mm:ss')}
+                        > Last Access Time
+                        </ReactTable.Column>
+                    </ReactTable.Table>
+                </div>
+                </div>
+            
         </div>
     )
    
