@@ -90,7 +90,7 @@ const EventDetails = (props: IProps) => {
                                             tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
                                         }}
                                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1, maxHeight: window.innerHeight / 4 }}
                                         RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
                                         Selected={(item) => false}
                                         KeySelector={(item, index) => index}
