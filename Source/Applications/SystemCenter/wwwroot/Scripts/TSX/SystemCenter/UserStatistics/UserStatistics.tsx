@@ -145,7 +145,7 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
 
     React.useLayoutEffect(() => {
         setPlotHeight(rowRef?.current?.offsetHeight ?? 100)
-        setPlotWidth(rowRef?.current?.offsetWidth ?? 100)
+        setPlotWidth((rowRef?.current?.offsetWidth ?? 130) - 30)
     });
 
     if (props.Roles.indexOf('Administrator') < 0) return null
