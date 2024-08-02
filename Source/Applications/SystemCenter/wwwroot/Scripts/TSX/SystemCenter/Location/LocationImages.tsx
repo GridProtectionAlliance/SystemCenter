@@ -52,6 +52,10 @@ const LocationImagesWindow = (props: { Location: OpenXDA.Types.Location }) => {
         })
     }
 
+    function displayImages() {
+
+    }
+
     return (
         <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
             <div className="card-header row">
@@ -63,16 +67,17 @@ const LocationImagesWindow = (props: { Location: OpenXDA.Types.Location }) => {
                 <div style={{ width: '100%', height: '100%', flex: 1, overflowY: 'auto' }}>
                     <LayoutGrid rowsPerPage={2} colMax={5}>
                         {images.length > 0
-                        ? images.map((img, i) => {
-                            <div className="col-xs-6 col-md-4 col-lg-2" key={i} onClick={() => setImage(img)}>
-                                <img src={`${homePath}api/OpenXDA/Location/${props.Location.ID}/Images/${img}`} 
-                                        alt={img} className={'img-thumbnail'} style={{ maxHeight: 150 }} />
-                                <div className="caption">
-                                    <h3>{img}</h3>
+                        ? (images.map((img, i) => (
+                                <div className="col-xs-6 col-md-4 col-lg-2" key={i} onClick={() => setImage(img)}>
+                                    <img src={`${homePath}api/OpenXDA/Location/${props.Location.ID}/Images/${img}`} alt={img}
+                                        className={'img-thumbnail'} style={{ maxHeight: 150 }} />
+                                    <div className="caption">
+                                        <h3>{img}</h3>
+                                    </div>
                                 </div>
-                            </div>
-                        })
-                        : <div className="alert alert-info block">No images to display.</div>}
+                            )))
+                        : <div className="alert alert-info block">No images to display.</div>
+                        }
                     </LayoutGrid>
                 </div>
             </div>
