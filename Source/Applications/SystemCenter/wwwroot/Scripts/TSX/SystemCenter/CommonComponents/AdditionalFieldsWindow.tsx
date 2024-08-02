@@ -317,7 +317,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
             </ReactTable.Column>
             <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
                 Key={'Value'}
-                AllowSort={true}
+                AllowSort={false}
                 HeaderStyle={{ width: 'auto' }}
                 RowStyle={{ width: 'auto' }}
                 Content={({ item }) => <>
