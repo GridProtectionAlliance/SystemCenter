@@ -120,7 +120,7 @@ const EventSelect = (props: IProps) => {
                                             tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
                                         }}
                                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1, maxHeight: window.innerHeight / 4 }}
+                                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
                                         RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
                                         Selected={(item) => item.EventID == props.SelectedEventID }
                                         KeySelector={(item, index) => index }
