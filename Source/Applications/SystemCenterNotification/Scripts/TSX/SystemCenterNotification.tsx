@@ -149,13 +149,13 @@ const MainPage = (props: {}) => {
                 </Page>
             </Section>
             <Section Label='System Settings'>
-                <Page Name='Categories' Label='Email Categories' Icon={SVGIcons.Folder} RequiredRoles={['Administrator', 'Engineer']}>
+                <Page Name='Categories' Label='Email Categories' Icon={SVGIcons.Folder} RequiredRoles={['Administrator', 'Engineer']} OtherActivePages={['Category']} >
                     <ByEmailCategory />
                 </Page>
                 <Page Name='Category/:id' RequiredRoles={['Administrator', 'Engineer']}>
                     <EmailCategoryPage useParams={{ id: '1' }} />
                 </Page>
-                <Page Name='EventEmails' Label='Event Notifications' Icon={SVGIcons.Alert} RequiredRoles={['Administrator', 'Engineer']}>
+                <Page Name='EventEmails' Label='Event Notifications' Icon={SVGIcons.Alert} RequiredRoles={['Administrator', 'Engineer']} OtherActivePages={['EventEmail']} >
                     <ByEmailType />
                 </Page>
                 <Page Name='EventEmail/:id' RequiredRoles={['Administrator', 'Engineer']}>
