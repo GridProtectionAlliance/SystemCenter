@@ -72,8 +72,8 @@ const EventSelect = (props: IProps) => {
             async: true,
             data: JSON.stringify({
                 ...filter,
-                Start: moment(filter.Start, 'MM/DD/YYYY HH:mm:ss.SSS').toISOString(),
-                End: moment(filter.End, 'MM/DD/YYYY HH:mm:ss.SSS').toISOString(),
+                Start: moment.utc(filter.Start, 'MM/DD/YYYY HH:mm:ss.SSS').toISOString(),
+                End: moment.utc(filter.End, 'MM/DD/YYYY HH:mm:ss.SSS').toISOString(),
                 TriggerSQL: props.TriggerSQL
             })
         }).then((d) => {
