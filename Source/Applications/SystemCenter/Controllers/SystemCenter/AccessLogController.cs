@@ -38,7 +38,10 @@ namespace SystemCenter.Controllers
 {
     
     [RoutePrefix("api/SystemCenter/AccessLog")]
-    public class SystemCenterAccessLogController : ModelController<AccessLog> {
+    public class SystemCenterAccessLogController : ApiController {
+
+        private string Connection { get; } = "systemSettings";
+
 
         [HttpGet, Route("Aggregates/{nodeID}/{days:int}")]
         public IHttpActionResult GetAggregates(string nodeID, int days)
@@ -63,14 +66,9 @@ namespace SystemCenter.Controllers
         [HttpGet, Route("Table/{nodeID}/{days:int}")]
         public IHttpActionResult GetTable(string nodeID, int days)
         {
-            try
-            {
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
                     DataTable table = connection.RetrieveData(@"
-                        DECLARE @startDate Date = CAST( GETDATE() as DATE)
-                        DECLARE @endDate DATE = DATEADD(DAY, -" + days + @", @startDate)
-
                         SELECT
 	                        COUNT(AccessGranted) as Logins,
 	                        Max(CreatedOn) as LastAccess,
@@ -78,18 +76,14 @@ namespace SystemCenter.Controllers
                         FROM
 	                        AccessLog
                         WHERE
-	                        AccessGranted = 1 AND CAST(CreatedOn as Date) BETWEEN @endDate AND @startDate AND NodeID = '" + nodeID + @"'        
+	                        AccessGranted = 1 AND 
+                            CreatedOn BETWEEN DATEADD(DAY, -{1}, GETUTCDATE()) AND GETUTCDATE() AND
+                            NodeID = {0}       
                         GROUP BY
 	                        UserName
-                    ", "");
+                    ", nodeID, days);
                     return Ok(table);
                 }
-
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
         }
 
     }
