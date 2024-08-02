@@ -147,8 +147,6 @@ function LocationMeterWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
                     </div>
                 </div>
             </div>
-            <div className="card-footer">
-            </div>
         </div>
                 
     );
