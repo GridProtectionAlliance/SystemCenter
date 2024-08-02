@@ -80,61 +80,53 @@ const ConfirmPhone = (props: IProps) => {
 
 
     return (
-        <div className="row">
-            <div className="col">
-                <div className="row">
-                    <div className="col">
-                        <div className="alert alert-info" style={{ margin: 'auto' }}>
+        <div className="col">
+            <div className="row">
+                <div className="col">
+                    <div className="alert alert-info" style={{ margin: 'auto' }}>
                         Please confirm your phone number by entering the 5 digit code received by Text message.
+                        <div>
+                            <button type="button" className="btn btn-secondary" onClick={() => { setForceResend(x => x + 1) }}>Resend Text Message</button>
                         </div>
                     </div>
                 </div>
-                <div className="row" style={{ marginTop: 15 }}>
-                    <div className="col">
-                        <button type="button" className="btn btn-secondary btn-block" onClick={() => { setForceResend(x => x + 1) }}>Resend Text Message</button>
-                    </div>
-                </div>
-                <div className="row" style={{ marginTop: 15 }}>
-                    <div className="col">
-                        <form>
-                            <div className="form-row">
-                                <div className="col-4">
-                                </div>
-                                <div className="col">
-                                    <input type="number" max={9} min={0} className="form-control" value={Math.floor(number / 10000)} onChange={(evt) => {
-                                        if (IsInteger(evt.target.value))
-                                            setNumber(x => x + 10000 * (-Math.floor(number / 10000) + parseInt(evt.target.value)))
-                                    }} width={100} />
-                                </div>
-                                <div className="col">
-                                    <input type="number" max={9} min={0} className="form-control" value={Math.floor(number / 1000) % 10} onChange={(evt) => {
-                                        if (IsInteger(evt.target.value))
-                                            setNumber(x => x + 1000 * (-Math.floor(number / 1000) % 10 + parseInt(evt.target.value)))
-                                    }} />
-                                </div>
-                                <div className="col">
-                                    <input type="number" max={9} min={0} className="form-control" value={Math.floor((number % 1000) / 100) % 10} onChange={(evt) => {
-                                        if (IsNumber(evt.target.value))
-                                            setNumber(x => x + 100 * (-Math.floor((number % 1000) / 100) % 10 +  parseInt(evt.target.value)))
-                                    }} />
-                                </div>
-                                <div className="col">
-                                    <input type="number" max={9} min={0} className="form-control" value={Math.floor((number % 100) / 10) % 10} onChange={(evt) => {
-                                        if (IsNumber(evt.target.value))
-                                            setNumber(x => x + 10 * (-Math.floor((number % 100) / 10) % 10 + parseInt(evt.target.value)))
-                                    }} />
-                                </div>
-                                <div className="col">
-                                    <input type="number" max={9} min={0} className="form-control" value={number % 10} onChange={(evt) => {
-                                        if (IsNumber(evt.target.value))
-                                            setNumber(x => x - (x % 10) + parseInt(evt.target.value))
-                                    }} width={100} />
-                                </div>
-                                <div className="col-3">
-                                </div>
+            </div>
+            <div className="row" style={{ marginTop: 15 }}>
+                <div className="col">
+                    <form>
+                        <div className="form-row justify-content-center">
+                            <div className="col-1">
+                                <input type="number" max={9} min={0} className="form-control" value={Math.floor(number / 10000)} onChange={(evt) => {
+                                    if (IsInteger(evt.target.value))
+                                        setNumber(x => x + 10000 * (-Math.floor(number / 10000) + parseInt(evt.target.value)))
+                                }} width={100} />
                             </div>
-                        </form>
-                    </div>
+                            <div className="col-1">
+                                <input type="number" max={9} min={0} className="form-control" value={Math.floor(number / 1000) % 10} onChange={(evt) => {
+                                    if (IsInteger(evt.target.value))
+                                        setNumber(x => x + 1000 * (-Math.floor(number / 1000) % 10 + parseInt(evt.target.value)))
+                                }} />
+                            </div>
+                            <div className="col-1">
+                                <input type="number" max={9} min={0} className="form-control" value={Math.floor((number % 1000) / 100) % 10} onChange={(evt) => {
+                                    if (IsNumber(evt.target.value))
+                                        setNumber(x => x + 100 * (-Math.floor((number % 1000) / 100) % 10 +  parseInt(evt.target.value)))
+                                }} />
+                            </div>
+                            <div className="col-1">
+                                <input type="number" max={9} min={0} className="form-control" value={Math.floor((number % 100) / 10) % 10} onChange={(evt) => {
+                                    if (IsNumber(evt.target.value))
+                                        setNumber(x => x + 10 * (-Math.floor((number % 100) / 10) % 10 + parseInt(evt.target.value)))
+                                }} />
+                            </div>
+                            <div className="col-1">
+                                <input type="number" max={9} min={0} className="form-control" value={number % 10} onChange={(evt) => {
+                                    if (IsNumber(evt.target.value))
+                                        setNumber(x => x - (x % 10) + parseInt(evt.target.value))
+                                }} width={100} />
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>);

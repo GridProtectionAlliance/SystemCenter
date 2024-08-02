@@ -365,7 +365,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     return <RemoteXDAInstanceMain Roles={roles} />
                                 }
                                 else if (qs['?name'] == "RemoteXDAInstance") {
-                                    if (roles.indexOf('Administrator') < 0 || roles.indexOf('Engineer') < 0) return null;
+                                    if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0) return null;
                                     return <RemoteXDAInstance ID={parseInt(qs.ID as string)} Roles={roles} Tab={qs.Tab as any} />
                                 }
                                 else if (qs['?name'] == "ByExternalDB") {

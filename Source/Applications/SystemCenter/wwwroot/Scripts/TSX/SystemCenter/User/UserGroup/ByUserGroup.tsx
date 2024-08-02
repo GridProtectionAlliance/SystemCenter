@@ -117,11 +117,11 @@ const ByUser: Application.Types.iByComponent = (props) => {
                         }}
                         OnClick={(d) => history.push({ pathname: homePath + 'index.cshtml', search: '?name=Group&GroupID=' + d.row.ID })}
                         TableStyle={{
-                            padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                            padding: 0, width: '100%', height: '100%',
                             tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
                         }}
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                        TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
                         RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}

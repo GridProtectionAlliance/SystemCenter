@@ -129,73 +129,75 @@ const AssetGroupSelection = (props: IProps) => {
 
     return (<>
             <LoadingIcon Show={parentGroupState == 'loading' || assetGrpStatus == 'loading'} />
-            <div className="row">
-                <div className="col">
-                    <div className="form-group">
-                        <Select<OpenXDA.Types.AssetGroup> Record={selectedParent} Field={'ID'} Label='Asset Category' Setter={setSelectedParent}
+            <div className="col">
+                <div className="row">
+                    <div className="col">
+                        <Select<OpenXDA.Types.AssetGroup> Record={selectedParent} Field={'ID'} Label='Asset Group' Setter={setSelectedParent}
                             Options={[{ Label: 'Other', Value: '-1' }].concat(parentGroups.map((p) => {
                                 return { Label: p.Name, Value: p.ID.toString() }
                             }))} />
                     </div>
                 </div>
-                <div className='col'>
-                    <ReactTable.Table<OpenXDA.Types.AssetGroup>
-                        TableClass="table table-hover"
-                        Data={assetGrps}
-                        SortKey={sort}
-                        Ascending={asc}
-                        OnSort={(d) => {
-                            if (d.colKey === sort)
-                                setAsc(x => !x);
-                            else {
-                                setAsc(false);
-                                setSort(d.colField);
-                            }
-                        }}
-                        OnClick={handleSelected}
-                        TableStyle={{
-                            padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
-                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
-                        }}
-                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
-                        RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        Selected={(item) => props.assetGroupID.includes(item.ID)}
-                        KeySelector={(item) => item.ID}
-                    >
-                        <ReactTable.Column<OpenXDA.Types.AssetGroup>
-                            Key={'Name'}
-                            AllowSort={true}
-                            Field={'Name'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Name
-                        </ReactTable.Column>
-                        <ReactTable.Column<OpenXDA.Types.AssetGroup>
-                            Key={'Meters'}
-                            AllowSort={true}
-                            Field={'Meters'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Num. Meters
-                        </ReactTable.Column>
-                        <ReactTable.Column<OpenXDA.Types.AssetGroup>
-                            Key={'Assets'}
-                            AllowSort={true}
-                            Field={'Assets'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Num. Assets
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                <div className='row'>
+                    <div className='col'>
+                        <ReactTable.Table<OpenXDA.Types.AssetGroup>
+                            TableClass="table table-hover"
+                            Data={assetGrps}
+                            SortKey={sort}
+                            Ascending={asc}
+                            OnSort={(d) => {
+                                if (d.colKey === sort)
+                                    setAsc(x => !x);
+                                else {
+                                    setAsc(false);
+                                    setSort(d.colField);
+                                }
+                            }}
+                            OnClick={handleSelected}
+                            TableStyle={{
+                                padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                                tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
+                            }}
+                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                            RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            Selected={(item) => props.assetGroupID.includes(item.ID)}
+                            KeySelector={(item) => item.ID}
+                        >
+                            <ReactTable.Column<OpenXDA.Types.AssetGroup>
+                                Key={'Name'}
+                                AllowSort={true}
+                                Field={'Name'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Name
+                            </ReactTable.Column>
+                            <ReactTable.Column<OpenXDA.Types.AssetGroup>
+                                Key={'Meters'}
+                                AllowSort={true}
+                                Field={'Meters'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Num. Meters
+                            </ReactTable.Column>
+                            <ReactTable.Column<OpenXDA.Types.AssetGroup>
+                                Key={'Assets'}
+                                AllowSort={true}
+                                Field={'Assets'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Num. Assets
+                            </ReactTable.Column>
+                        </ReactTable.Table>
+                    </div>
                 </div>
+                <Warning
+                    Message={`You are subscribing to ${props.assetGroupID.length} sets of notifications. For some events you may recieve one notification for each asset group selected.`}
+                    Title={`Subscribing to ${props.assetGroupID.length} Notifications`}
+                    Show={showWarning}
+                    CallBack={(c) => { setShowWarning(false); }}
+                />
             </div>
-            <Warning
-                Message={`You are subscribing to ${props.assetGroupID.length} sets of notifications. For some events you may recieve one notification for each asset group selected.`}
-                Title={`Subscribing to ${props.assetGroupID.length} Notifications`}
-                Show={showWarning}
-                CallBack={(c) => { setShowWarning(false); }}
-            />
         </>
     );
 }

@@ -128,16 +128,18 @@ const NewReportSubscription = (props: {}) => {
                         </div>
                     </div>
                     <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
-                        {currentStep == 'Selection' ?
-                            <>
-                                <AssetGroupSelection assetGroupID={assetGroupID} SetAssetGroupID={setAssetGroupID} /> 
-                                <ReportSelect scheduledEmailTypeID={emailTypeID} SetScheduledEmailTypeID={setEmailTypeID} />
-                            </>
-                            : null}
-                        {currentStep == 'Email' ? <ConfirmEmail SetConfirmed={() => setCurrentStep('Success')} /> : null}
-                        {currentStep == 'Carrier' ? <ConfirmPhoneCarrier /> : null}
-                        {currentStep == 'Phone' ? <ConfirmPhone SetConfirmed={() => setCurrentStep('Success')} /> : null}
-                        {currentStep == 'Success' ? <Success assetGroupID={assetGroupID} emailTypeID={emailTypeID} /> : null}
+                        <div className="row">
+                            {currentStep == 'Selection' ?
+                                <>
+                                    <AssetGroupSelection assetGroupID={assetGroupID} SetAssetGroupID={setAssetGroupID} /> 
+                                    <ReportSelect scheduledEmailTypeID={emailTypeID} SetScheduledEmailTypeID={setEmailTypeID} />
+                                </>
+                                : null}
+                            {currentStep == 'Email' ? <ConfirmEmail SetConfirmed={() => setCurrentStep('Success')} /> : null}
+                            {currentStep == 'Carrier' ? <ConfirmPhoneCarrier /> : null}
+                            {currentStep == 'Phone' ? <ConfirmPhone SetConfirmed={() => setCurrentStep('Success')} /> : null}
+                            {currentStep == 'Success' ? <Success assetGroupID={assetGroupID} emailTypeID={emailTypeID} /> : null}
+                        </div>
                     </div>
                     <div className="card-footer">
                         {currentStep != 'Selection' && currentStep != 'Success' ?
