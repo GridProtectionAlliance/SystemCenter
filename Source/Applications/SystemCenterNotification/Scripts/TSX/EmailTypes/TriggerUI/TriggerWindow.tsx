@@ -90,7 +90,7 @@ const TriggerWindow = (props: IProps) => {
                                 />
                             </div>
                             <div className="col h-100">
-                                <div className="row h-50">
+                                <div className="row h-50 pb-1">
                                     <div className="col h-100">
                                         <EventSelect TriggerSQL={triggerSQL} SetStatus={(v, l) => {
                                             if (l) setTriggerStatus('loading');
@@ -102,7 +102,7 @@ const TriggerWindow = (props: IProps) => {
                                         />
                                     </div>
                                 </div>
-                                <div className="row h-50">
+                                <div className="row h-50 pb-1">
                                     <div className="col h-100">
                                         <EventDetails CombineSQL={aggregateSQL} SetStatus={(v, l) => {
                                             if (l) setAggregateStatus('loading');
