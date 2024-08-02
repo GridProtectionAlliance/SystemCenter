@@ -58,7 +58,7 @@ const EmailForm = (props: IProps) => {
         if (field == 'MaxDelay')
             return props.record.MaxDelay != null && IsNumber(props.record.MaxDelay) && props.record.MaxDelay >= 0;
         if (field == 'FilePath')
-            return props.record.FilePath != null && props.record.FilePath.length <= 200;
+            return props.record.FilePath ? props.record.FilePath.length <= 200 : true;
         return true;
     }
 
