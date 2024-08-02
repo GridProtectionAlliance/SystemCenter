@@ -184,6 +184,7 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
                         pan={false}
                         zoom={false}
                         holdMenuOpen={false}
+                        yDomain={'HalfAutoValue'}
                     >
                         {plotData.map(d => <Line
                             data={d.Data}
