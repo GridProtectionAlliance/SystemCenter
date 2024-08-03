@@ -49,8 +49,8 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
     const sourceImpedances = useAppSelector(SourceImpedanceSlice.SearchResults);
     const sourceImpedanceStatus = useAppSelector(SourceImpedanceSlice.SearchStatus);
 
-    const [asc, setAsc] = React.useState<boolean>(false);
-    const [sortKey, setSorKey] = React.useState();
+    const [ascending, setAscending] = React.useState<boolean>(true);
+    const [sortKey, setSortKey] = React.useState<keyof OpenXDA.Types.SourceImpedance>('AssetLocationID');
     const [data, setData] = React.useState<OpenXDA.Types.SourceImpedance[]>([]);
 
 
@@ -72,8 +72,9 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
     }, [props.ID]);
 
     React.useEffect(() => {
-        setData(sortData(sortKey, asc, sourceImpedances));
-    }, [sourceImpedances, sortKey, asc])
+        const sortedData = sortData(sortKey, ascending, sourceImpedances);
+        setData(sortedData);
+    }, [sourceImpedances]);
 
     React.useEffect(() => {
         const h = getAssetLocations(props.ID);
@@ -112,9 +113,8 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
 
     function sortData(key: keyof OpenXDA.Types.SourceImpedance, ascending: boolean, dat: OpenXDA.Types.SourceImpedance[]) {
         if (key == 'AssetLocationID')
-            return _.orderBy(dat, getLocationName, [(!ascending ? "asc" : "desc")]);
-        return _.orderBy(dat, [key], [(!ascending ? "asc" : "desc")]);
-
+            return _.orderBy(dat, getLocationName, [(ascending ? "asc" : "desc")]);
+        return _.orderBy(dat, [key], [(ascending ? "asc" : "desc")]);
     }
 
     function getLocationName(si: OpenXDA.Types.SourceImpedance) {
@@ -177,9 +177,21 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
                 <ReactTable.Table<OpenXDA.Types.SourceImpedance>
                     TableClass="table table-hover"
                     Data={data}
-                    SortKey={'AssetLocationID'}
-                    Ascending={true}
-                        OnSort={(d) => { }}
+                    SortKey={sortKey}
+                    Ascending={ascending}
+                    OnSort={(d) => {
+                        if (d.colKey == sortKey) {
+                            setAscending(!ascending);
+                            const ordered = _.orderBy(data, [d.colKey], [(!ascending ? "asc" : "desc")]);
+                            setData(ordered);
+                        }
+                        else {
+                            setAscending(true);
+                            setSortKey(d.colKey as keyof OpenXDA.Types.SourceImpedance);
+                            const ordered = _.orderBy(data, [d.colKey], ["asc"]);
+                            setData(ordered);
+                        }
+                    }}
                     TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden', height: '100%'}}
                     TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
