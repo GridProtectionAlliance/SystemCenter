@@ -35,6 +35,8 @@ import { ToolTip } from '@gpa-gemstone/react-interactive';
 interface IProps { ID: number, InnerOnly?: boolean, OnChange?: () => void; LineKey: string; LineName: string; }
 function LineSegmentWindow(props: IProps): JSX.Element {
     const [segments, setSegments] = React.useState<Array<OpenXDA.Types.LineSegment>>([]);
+    const [sortKey, setSortKey] = React.useState<string>('AssetName');
+    const [ascending, setAscending] = React.useState<boolean>(true);
     const [showFawg, setShowFawg] = React.useState<boolean>(false);
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
     const roles = useAppSelector(SelectRoles);
@@ -70,9 +72,21 @@ function LineSegmentWindow(props: IProps): JSX.Element {
             <ReactTable.Table<OpenXDA.Types.LineSegment>
                 TableClass="table table-hover"
                 Data={segments}
-                SortKey={'AssetName'}
-                Ascending={true}
-                OnSort={(d) => { }}
+                SortKey={sortKey}
+                Ascending={ascending}
+                OnSort={(d) => {
+                    if (d.colKey == sortKey) {
+                        setAscending(!ascending);
+                        const ordered = _.orderBy(segments, [d.colKey], [(!ascending ? "asc" : "desc")]);
+                        setSegments(ordered);
+                    }
+                    else {
+                        setAscending(true);
+                        setSortKey(d.colField);
+                        const ordered = _.orderBy(segments, [d.colKey], ["asc"]);
+                        setSegments(ordered);
+                    }
+                }}
                 TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
                 TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                 TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
