@@ -178,15 +178,15 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
                         Ascending={ascending}
                         OnSort={(d) => {
                             if (d.colKey == sortField) {
-                                var ordered = _.orderBy(meters, [d.colKey], [(!ascending ? "asc" : "desc")]);
                                 setAscending(!ascending);
+                                const ordered = _.orderBy(meters, [d.colKey], [(!ascending ? "asc" : "desc")]);
                                 setMeters(ordered);
                             }
                             else {
-                                var ordered = _.orderBy(meters, [d.colKey], ["asc"]);
-                                setAscending(!ascending);
-                                setMeters(ordered);
+                                setAscending(true);
                                 setSortField(d.colField);
+                                const ordered = _.orderBy(meters, [d.colKey], ["asc"]);
+                                setMeters(ordered);
                             }
                         }}
                         TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
