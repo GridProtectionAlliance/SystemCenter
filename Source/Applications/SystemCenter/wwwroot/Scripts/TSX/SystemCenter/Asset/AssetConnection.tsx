@@ -232,8 +232,8 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                     </div>
                 </div>
             </div>
-            <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
-                <div style={{ width: '100%', padding: 30 }}>
+            <div className="card-body" style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ width: '100%', padding: 30, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
                     <ReactTable.Table<AssetConnection>
                         TableClass="table table-hover"
                         Data={assetConnections}
@@ -244,15 +244,15 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                                 return;
 
                             if (d.colKey === sortKey) {
-                                var ordered = _.orderBy(assetConnections, [d.colKey], [(!ascending ? "asc" : "desc")]);
                                 setAscending(!ascending);
+                                const ordered = _.orderBy(assetConnections, [d.colKey], [(!ascending ? "asc" : "desc")]);
                                 setAssetConnections(ordered);
                             }
                             else {
-                                var ordered = _.orderBy(assetConnections, [d.colKey], ["asc"]);
-                                setAscending(!ascending);
-                                setAssetConnections(ordered);
+                                setAscending(true);
                                 setSortKey(d.colKey);
+                                const ordered = _.orderBy(assetConnections, [d.colKey], ["asc"]);
+                                setAssetConnections(ordered);
                             }
                         }}
                         TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
@@ -261,7 +261,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                         RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         OnClick={handleSelect}
                         Selected={(item) => false}
-                        KeySelector={(item) => item.AssetKey}
+                        KeySelector={(item) => item.AssetID}
                     >
                         <ReactTable.Column<AssetConnection>
                             Key={'AssetKey'}
