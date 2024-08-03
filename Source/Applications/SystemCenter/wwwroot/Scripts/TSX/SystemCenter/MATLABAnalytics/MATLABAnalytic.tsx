@@ -89,8 +89,8 @@ export default function MATLABAnalytic(props: IProps) {
 
     if (record == null) return null;
     return (
-        <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
-            <div className="row">
+        <div style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+            <div className="row p-2">
                 <div className="col">
                     <h2>MATLAB Analytic</h2>
                 </div>
@@ -99,19 +99,10 @@ export default function MATLABAnalytic(props: IProps) {
                         onClick={() => setShowRemove(true)}>Delete Analytic</button>
                 </div>
             </div>
-
-
             <hr />
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
-
-            <div className="tab-content" style={{ maxHeight: window.innerHeight - 235 }}>
-                <div className={"tab-pane " + (tab == "info" ? " active" : "fade")} id="info">
-                    <MATLABAnalyticInfo Record={record} ETRecords={eventTypeRecords} ATRecords={assetTypeRecords} />
-                </div>
-                <div className={"tab-pane " + (tab == "settings" ? " active" : "fade")} id="settings">
-                    <MATLABAnalyticSQLSettings Record={record} />
-                </div>
-            </div>
+            {tab === 'info' ? <MATLABAnalyticInfo Record={record} ETRecords={eventTypeRecords} ATRecords={assetTypeRecords} /> : null}
+            {tab === 'settings' ? <MATLABAnalyticSQLSettings Record={record} /> : null}
             <Warning
                 Message={'This will permanently delete this MATLAB Analytic and cannot be undone.'}
                 Show={showRemove} Title={'Delete ' + (record?.MethodName ?? 'Analytic')}

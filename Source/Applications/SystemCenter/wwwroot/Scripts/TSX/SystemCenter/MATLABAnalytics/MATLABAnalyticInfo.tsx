@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  MATLABAnalyticInfo.tsx - Gbtc
 //
-//  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright ï¿½ 2020, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -56,7 +56,7 @@ const MATLABAnalyticInfo = (props: { Record: OpenXDA.Types.MATLABAnalytic, ETRec
 
     if (record == null) return;
     return (
-        <div className="card" style={{ marginBottom: 10 }}>
+        <div className="card" style={{flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden'}}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
@@ -64,7 +64,7 @@ const MATLABAnalyticInfo = (props: { Record: OpenXDA.Types.MATLABAnalytic, ETRec
                     </div>
                 </div>
             </div>
-            <div className="card-body" style={{ overflow: 'scroll' }}>
+            <div className="card-body" style={{ overflowY: 'hidden', flex: 1 }}>
                 <MATLABAnalyticForm Record={record} Setter={setRecord} ETSetter={setEventTypeRecord} ATSetter={setAssetTypeRecord} />
             </div>
             <div className="card-footer">

@@ -74,7 +74,7 @@ function UserGroup(props: IProps) {
 	];
 
 	return (
-		<div style={{ width: '100%', height: '100%', overflow: 'hidden', padding: 15, display: 'flex', flexDirection: 'column' }}>
+        <div style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
 			<div className="row">
 				<div className="col">
 					<h2>{group != null ? `${group.DisplayName} (${group.Type})` : 'Groups'}</h2>
@@ -87,11 +87,9 @@ function UserGroup(props: IProps) {
 			<hr />
 
 			<TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
-			<div className="tab-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-				{tab === "info" ? <GroupInfo Group={group} /> : null}
-				{tab === "users" ? (group == null ? null : <GroupUser Group={group} />) : null}
-				{tab === "roles" ? (group != null ? <GroupPermission GroupID={group.ID} /> : null) : null}
-			</div>
+			{tab === "info" ? <GroupInfo Group={group} /> : null}
+			{tab === "users" ? (group == null ? null : <GroupUser Group={group} />) : null}
+			{tab === "roles" ? (group != null ? <GroupPermission GroupID={group.ID} /> : null) : null}
 
 			<Warning Message={'This will permanently delete the User Group. Users in this Group will not be deleted, but may lose their roles. Are you sure you want to continue?'} Title={'Delete ' + (group?.DisplayName ?? 'User Group')} Show={showWarning} CallBack={(c) => {
 				setShowWarning(false);

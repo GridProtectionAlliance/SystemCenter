@@ -169,8 +169,8 @@ function Meter(props: IProps) {
         { Id: "maintenance", Label: "Maintenance" }];
 
     return (
-        <div style={{ width: '100%', height: '100%', overflow: 'hidden', padding: 15, display: 'flex', flexDirection: 'column' }}>
-            <div className="row">
+        <div style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+            <div className="row p-2">
                 <div className="col">
                     <h2>{meter.Name} ({meter.AssetKey})</h2>
                 </div>
@@ -181,21 +181,19 @@ function Meter(props: IProps) {
             </div>
             <hr />
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
-            <div className="tab-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                {tab === 'notes' ? <NoteWindow ID={props.MeterID} Type='Meter' /> : null}
-                {tab === 'meterInfo' ? <MeterInfoWindow Meter={meter} StateSetter={(meter: OpenXDA.Types.Meter) => setMeter(meter)} /> : null}
-                {tab === 'additionalFields' ? <AdditionalFieldsWindow ID={props.MeterID} Type='Meter' Tab={tab} /> : null}
-                {tab === 'substation' ? <MeterLocationWindow Meter={meter} StateSetter={(meter: OpenXDA.Types.Meter) => setMeter(meter)} /> : null}
-                {tab === 'eventChannels' ? <MeterEventChannelWindow Meter={meter} IsVisible={tab === "eventChannels"} /> : null}
-                {tab === 'trendChannels' ? <MeterTrendChannelWindow Meter={meter} IsVisible={tab === "trendChannels"} /> : null}
-                {tab === 'channelScaling' ? <ChannelScalingWindow Meter={meter} IsVisible={tab === "channelScaling"} /> : null}
-                {tab === 'assets' ? <MeterAssetWindow Meter={meter} /> : null}
-                {tab === 'configurationHistory' ? <MeterConfigurationHistoryWindow Meter={meter} /> : null}
-                {tab === 'dataRescue' ? dataRescueWindow : null}
-                {tab === 'dataMerge' ? dataMergeWindow : null}
-                {tab === 'dataDelete' ? dataDeleteWindow : null}
-                {tab === 'maintenance' ? <MeterMaintenanceWindow Meter={meter} /> : null}
-            </div>
+            {tab === 'notes' ? <NoteWindow ID={props.MeterID} Type='Meter' /> : null}
+            {tab === 'meterInfo' ? <MeterInfoWindow Meter={meter} StateSetter={(meter: OpenXDA.Types.Meter) => setMeter(meter)} /> : null}
+            {tab === 'additionalFields' ? <AdditionalFieldsWindow ID={props.MeterID} Type='Meter' Tab={tab} /> : null}
+            {tab === 'substation' ? <MeterLocationWindow Meter={meter} StateSetter={(meter: OpenXDA.Types.Meter) => setMeter(meter)} /> : null}
+            {tab === 'eventChannels' ? <MeterEventChannelWindow Meter={meter} IsVisible={tab === "eventChannels"} /> : null}
+            {tab === 'trendChannels' ? <MeterTrendChannelWindow Meter={meter} IsVisible={tab === "trendChannels"} /> : null}
+            {tab === 'channelScaling' ? <ChannelScalingWindow Meter={meter} IsVisible={tab === "channelScaling"} /> : null}
+            {tab === 'assets' ? <MeterAssetWindow Meter={meter} /> : null}
+            {tab === 'configurationHistory' ? <MeterConfigurationHistoryWindow Meter={meter} /> : null}
+            {tab === 'dataRescue' ? dataRescueWindow : null}
+            {tab === 'dataMerge' ? dataMergeWindow : null}
+            {tab === 'dataDelete' ? dataDeleteWindow : null}
+            {tab === 'maintenance' ? <MeterMaintenanceWindow Meter={meter} /> : null}
 
             <Modal Title={'Advanced Options'} Show={showAdvanced} CallBack={() => setShowAdvanced(false)} ShowCancel={false} ConfirmText={'Close'}>
                 <button className="btn btn-dark btn-block" onClick={showDataRescueWindow}>Data Rescue</button>

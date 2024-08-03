@@ -91,8 +91,8 @@ function RemoteXDAInstance(props: IProps) {
     ];
 
     return (
-        <div style={{ width: '100%', height: '100%', overflow: 'hidden', padding: 15, display: 'flex', flexDirection: 'column' }}>
-            <div className="row">
+        <div style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+            <div className="row p-2">
                 <div className="col">
                     <h2>{connection.Name}</h2>
                 </div>
@@ -100,14 +100,11 @@ function RemoteXDAInstance(props: IProps) {
                     <button className="btn btn-danger pull-right" disabled={!props.Roles.includes('Administrator')} onClick={() => setShowDelete(true)}>Delete Remote openXDA Instance Connection</button>
                 </div>
             </div>
-            <hr style={{ width: '100%' }} />
-
+            <hr />
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
-            <div className="tab-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                {tab === 'systemSettings' ? <SystemSettingsTab ID={props.ID} /> : null}
-                {tab === 'remoteMeter' ? <RemoteMeterTab ID={props.ID} /> : null}
-                {tab === 'remoteAsset' ? <RemoteAssetTab ID={props.ID} /> : null}
-            </div>
+            {tab === 'systemSettings' ? <SystemSettingsTab ID={props.ID} /> : null}
+            {tab === 'remoteMeter' ? <RemoteMeterTab ID={props.ID} /> : null}
+            {tab === 'remoteAsset' ? <RemoteAssetTab ID={props.ID} /> : null}
 
             <Warning Message={'This will permanently delete this Remote openXDA Instance Connection and cannot be undone.'} Show={showDelete} Title={'Delete ' + (connection?.Name ?? 'Remote Connection')} CallBack={(conf) => { if (conf) deleteConnection(); setShowDelete(false); }} />
             <LoadingScreen Show={loading} />
