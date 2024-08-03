@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  QueryTestDialog.tsx - Gbtc
 //
-//  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright ï¿½ 2020, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -39,10 +39,10 @@ interface IProps {
 }
 
 enum steps {
+    Error = -1,
     PickType = 1,
     PickRecord = 2,
     Results = 3,
-    Error = -1
 }
 
 
@@ -88,6 +88,11 @@ export default function QueryTestDialog(props: IProps) {
             dispatch(CustomerSlice.Fetch());
     }, [customerStatus]);
 
+    React.useEffect(() => {
+        setStep(steps.PickType);
+        setRecordID(undefined);
+    }, [props.Show])
+
     const requestCount = (filters) => {
         let handle;
         if (record === undefined) {
@@ -103,7 +108,7 @@ export default function QueryTestDialog(props: IProps) {
         else {
             handle = Promise.resolve(1);
         }
-        return handle
+        return handle;
     }
 
     const requestTable = (start: number, end: number, filters: Search.IFilter<any>[], orderBy: string, ascending: boolean) => {
@@ -135,15 +140,9 @@ export default function QueryTestDialog(props: IProps) {
                 async: true,
                 data: JSON.stringify({ xdaRecord: record, table: props.ExtTable })
             });
-        return handle.fail((d) => { if (d.statusText === 'abort') return; setStep(steps.Error); setErrorMsg(d.statusText); });;
-        //
+        return handle.fail((d) => { if (d.statusText === 'abort') return; setStep(steps.Error); setErrorMsg(d.statusText); });
     }
-   
-    React.useEffect(() => {
-        setStep(steps.PickType);
-        setRecordID(undefined);
-    }, [props.Show])
-   
+
     return (
         <>
             <Modal Title={"Test External Table Query"} Show={props.Show && step !== steps.PickRecord}
@@ -162,13 +161,12 @@ export default function QueryTestDialog(props: IProps) {
                         else
                             setStep(step => step + 1);
                     }
-
                 }}
                 BodyStyle={{ maxHeight: 'calc(100vh - 210px)', display: 'flex', flexDirection: 'column' }}
             >
                 {step == steps.PickType ? <TargetTypesSelection SetTable={setParentTable} /> : null}
                 {step == steps.Results ? <ResultDisplay GetCount={requestCount} GetTable={requestTable} ForceReload={step === steps.Results} /> : null}
-                {step == steps.Error ? <ServerErrorIcon Show={true} Size={40} Label={errorMsg} /> : null}
+                {(step == steps.Error) ? <ServerErrorIcon Show={true} Size={40} Label={errorMsg} /> : null}
             </Modal>
             <TargetSelection OnBack={() => setStep(steps.PickType)}
                 SetSelectedID={(id) => { setStep(steps.Results); setRecordID(id); }}
