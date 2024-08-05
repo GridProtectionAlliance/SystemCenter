@@ -448,6 +448,7 @@ export default function AssetPage(props: IProps) {
                     Size={'xlg'}
                     CallBack={(confirm) => {
                         setShowAssetModal(false);
+                        setSearchTerm({ primary: '', secondary: '', tertiary: '', channels: '', breaker: '', line: '' });
                         
                         if (!confirm) {
                             setNewEditAsset(AssetAttributes.getNewAsset('Line'));
@@ -507,7 +508,7 @@ export default function AssetPage(props: IProps) {
                             {showAttributes()}
                         </div>
                         <div className="col-4">
-                            <div className="row">
+                            <div className="row h-100">
                         {newEditAsset.AssetType != 'Transformer' && newEditAsset.AssetType != 'Breaker' ?
                             <div className="col-12">
                                 <label>Associated Channels</label>
@@ -518,7 +519,7 @@ export default function AssetPage(props: IProps) {
                                     onChange={(e) => setSearchTerm((prev) => ({ ...prev, channels: e.target.value }))}
                                     style={{ width: '100%', marginBottom: '10px' }}
                                 />
-                                <select multiple style={{ height: innerHeight - 330, width: '100%' }} onChange={(evt) => {
+                                <select multiple style={{ height: '80%', width: '100%' }} onChange={(evt) => {
                                     let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
                                     asset.Channels = ($(evt.target).val() as Array<string>).map(a => props.Channels.find(ch => ch.ID == parseInt(a)))
                                     setNewEditAsset(asset);
@@ -543,7 +544,7 @@ export default function AssetPage(props: IProps) {
                                     onChange={(e) => setSearchTerm((prev) => ({ ...prev, breaker: e.target.value }))}
                                     style={{ width: '100%', marginBottom: '10px' }}
                                 />
-                                <select multiple style={{ height: innerHeight - 430, width: '100%' }} onChange={(evt) => {
+                                <select multiple style={{ height: '80%', width: '100%' }} onChange={(evt) => {
                                     let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
                                     const selectedID = ($(evt.target).val() as Array<string>).map(a => parseInt(a));
                                     let channels = _.clone(props.Channels);
@@ -570,7 +571,7 @@ export default function AssetPage(props: IProps) {
                                     onChange={(e) => setSearchTerm((prev) => ({ ...prev, line: e.target.value }))}
                                     style={{ width: '100%', marginBottom: '10px' }}
                                 />
-                                <select multiple style={{ height: innerHeight - 430, width: '100%' }} onChange={(evt) => {
+                                <select multiple style={{ height: '80%', width: '100%' }} onChange={(evt) => {
                                     let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
                                     const selectedID = ($(evt.target).val() as Array<string>).map(a => parseInt(a));
                                     let channels = _.clone(props.Channels);
@@ -590,7 +591,7 @@ export default function AssetPage(props: IProps) {
                             </div> </> : null}
                                 {newEditAsset.AssetType === 'Transformer' ? (
                                     <div className="col-12">
-                                        <div className="row justify-content-center">
+                                        <div className="row justify-content-center h-100">
                                             <div className="col-4">
                                                 <label>Associated Channels Primary Side</label>
                                                 <input
@@ -600,7 +601,7 @@ export default function AssetPage(props: IProps) {
                                                     onChange={(e) => setSearchTerm((prev) => ({ ...prev, primary: e.target.value }))}
                                                     style={{ width: '100%', marginBottom: '10px' }}
                                                 />
-                                                <select multiple style={{ height: innerHeight - 430, width: '100%', overflowX: 'auto' }} onChange={(evt) => {
+                                                <select multiple style={{ height: '76%', width: '100%', overflowX: 'auto' }} onChange={(evt) => {
                                                     let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
                                                     const selectedID = ($(evt.target).val() as Array<string>).map(a => parseInt(a));
                                                     let channels = _.clone(props.Channels);
@@ -627,7 +628,7 @@ export default function AssetPage(props: IProps) {
                                                     onChange={(e) => setSearchTerm((prev) => ({ ...prev, secondary: e.target.value }))}
                                                     style={{ width: '100%', marginBottom: '10px' }}
                                                 />
-                                                <select multiple style={{ height: innerHeight - 430, width: '100%', overflowX: 'auto' }} onChange={(evt) => {
+                                                <select multiple style={{ height: '76%', width: '100%', overflowX: 'auto' }} onChange={(evt) => {
                                                     let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
                                                     const selectedID = ($(evt.target).val() as Array<string>).map(a => parseInt(a));
                                                     let channels = _.clone(props.Channels);
@@ -654,7 +655,7 @@ export default function AssetPage(props: IProps) {
                                                     onChange={(e) => setSearchTerm((prev) => ({ ...prev, tertiary: e.target.value }))}
                                                     style={{ width: '100%', marginBottom: '10px' }}
                                                 />
-                                                <select multiple style={{ height: innerHeight - 430, width: '100%', overflowX: 'auto' }} onChange={(evt) => {
+                                                <select multiple style={{ height: '76%', width: '100%', overflowX: 'auto' }} onChange={(evt) => {
                                                     let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
                                                     const selectedID = ($(evt.target).val() as Array<string>).map(a => parseInt(a));
                                                     let channels = _.clone(props.Channels);
