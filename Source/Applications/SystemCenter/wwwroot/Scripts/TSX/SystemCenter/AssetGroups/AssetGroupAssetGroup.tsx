@@ -77,12 +77,19 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
             async: true
         });
 
-        handle.done((data: Array<OpenXDA.Types.AssetGroup>) => setGroupList(data));
+        handle.done((data: Array<OpenXDA.Types.AssetGroup>) => {
+            const sortedData = sortData(sortField, ascending, data);
+            setGroupList(sortedData);
+        });
       
         return function cleanup() {
             if (handle.abort != null)
                 handle.abort();
         }
+    }
+
+    function sortData(key: string, ascending: boolean, data: OpenXDA.Types.AssetGroup[]) {
+        return _.orderBy(data, [key], [(ascending ? "asc" : "desc")]);
     }
 
     function getEnum(setOptions, field) {
