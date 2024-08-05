@@ -43,7 +43,7 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
     let history = useHistory();
     const dispatch = useAppDispatch();
     const [meterList, setMeterList] = React.useState<Array<SystemCenter.Types.DetailedMeter>>([]);
-    const [sortField, setSortField] = React.useState<string>('MeterName');
+    const [sortField, setSortField] = React.useState<string>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [showAdd, setShowAdd] = React.useState<boolean>(false);
     const [counter, setCounter] = React.useState<number>(0);
@@ -69,12 +69,19 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
             async: true
         });
 
-        handle.done((data: Array<SystemCenter.Types.DetailedMeter>) => setMeterList(data));
+        handle.done((data: Array<SystemCenter.Types.DetailedMeter>) => {
+            const sortedData = sortData(sortField, ascending, data);
+            setMeterList(sortedData);
+        });
       
         return function cleanup() {
             if (handle.abort != null)
                 handle.abort();
         }
+    }
+
+    function sortData(key: string, ascending: boolean, data: SystemCenter.Types.DetailedMeter[]) {
+        return _.orderBy(data, [key], [(ascending ? "asc" : "desc")]);
     }
 
     function getEnum(setOptions, field) {
@@ -180,15 +187,15 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
                         OnSort={(d) => {
                             if (d.colKey == 'Remove') return;
                             if (d.colKey == sortField) {
-                                let ordered = _.orderBy(meterList, [d.colKey], [(!ascending ? "asc" : "desc")]);
                                 setAscending(!ascending);
+                                const ordered = _.orderBy(meterList, [d.colKey], [(!ascending ? "asc" : "desc")]);
                                 setMeterList(ordered);
                             }
                             else {
-                                let ordered = _.orderBy(meterList, [d.colKey], ["asc"]);
-                                setAscending(!ascending);
+                                setAscending(true);
+                                setSortField(d.colField);
+                                const ordered = _.orderBy(meterList, [d.colKey], ["asc"]);
                                 setMeterList(ordered);
-                                setSortField(d.colKey);
                             }
                         }}
                         OnClick={(data) => { 
