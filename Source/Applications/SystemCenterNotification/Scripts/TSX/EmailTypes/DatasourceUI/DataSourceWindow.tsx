@@ -121,12 +121,14 @@ const DataSourceWindow = (props: IProps) => {
                     <div className="card-footer">
                         <div className="btn-group mr-2">
                             <button className={"btn btn-primary"} type="submit"
-                                onClick={() => 
+                                onClick={() => {
                                     setDataSource({ 
                                         EmailTypeID: props.Record.ID, 
                                         ID: -1, TriggeredEmailDataSourceID: -1, 
                                         TriggeredEmailDataSourceName: '' }
-                                    )
+                                    );
+                                    setShowDataSourceModal(true);
+                                }
                             }>Add Data Source
                             </button>
                         </div>
@@ -139,7 +141,8 @@ const DataSourceWindow = (props: IProps) => {
                         dispatch(TriggeredEmailDataSourceSlice.DBAction({ verb: 'DELETE', record: dataSource }));
                         setShowRemoveWarning(false);
                     }
-                }} />
+                }}
+            ></Warning>
             <DataSourceModal Show={showDataSourceModal} Record={dataSource} OnClose={() => {setShowDataSourceModal(false)}} /> {/* //!Shows when delete is pressed */}
             <DataSourceTesting Show={showTest} Record={props.Record} OnClose={() => setShowTest(false)} />
         </div>
