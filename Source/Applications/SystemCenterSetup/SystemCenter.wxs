@@ -296,7 +296,7 @@
 
       <Component Id="Registry" Guid="{F74C123C-C923-4B04-813B-05E81397C764}">
         <RegistryKey Id="REG_GridProtectionAlliance" Root="HKLM" Key="SOFTWARE\Grid Protection Alliance" ForceCreateOnInstall="yes">
-          <RegistryKey Id="REG_GridProtectionAlliance.SystemCenter" Key="openXDA" ForceCreateOnInstall="yes">
+          <RegistryKey Id="REG_GridProtectionAlliance.SystemCenter" Key="SystemCenter" ForceCreateOnInstall="yes">
             <RegistryValue Id="REG_GridProtectionAlliance.SystemCenter.InstallPath" Name="InstallPath" Value="[INSTALLFOLDER]" Type="string" />
             <RegistryValue Id="REG_GridProtectionAlliance.SystemCenter.Revision" Name="Revision" Value="[ProductVersion]" Type="string" />
             <RegistryValue Id="REG_GridProtectionAlliance.SystemCenter.TargetBitSize" Name="TargetBitSize" Value="64bit" Type="string" />
