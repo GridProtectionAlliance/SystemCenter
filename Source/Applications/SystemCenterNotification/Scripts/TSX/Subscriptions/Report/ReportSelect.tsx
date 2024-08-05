@@ -100,17 +100,17 @@ const ReportSelect = (props: IProps) => {
 
     return (<>
         <LoadingIcon Show={emailCategoryStatus == 'loading' || reportTypeStatus == 'loading'} />
-        <div className="row">
-            <div className="col">
-                <div className="form-group">
+        <div className="col">
+            <div className="row">
+                <div className="col">
                     <Select<EmailCategory> Record={selectedCategory} Field={'ID'} Label='Notification Category' Setter={setSelectedCategory}
                         Options={emailCategories.map((e) => {
                             if (e.SelfSubscribe) return { Label: e.Name, Value: e.ID.toString() }
                         })} />
                 </div>
             </div>
-            <div className="col">
-                <div className="form-group">
+            <div className="row">
+                <div className="col">
                     <Select<ScheduledEmailType> Record={selectedReport} Field={'ID'} Label='Notification Template' Setter={(record) => setSelectedReport({ ...record, ID: typeof record.ID == 'string' ? parseInt(record.ID) : record.ID })}
                         Options={reportTypes.map((e) => { return { Label: e.Name, Value: e.ID.toString() }})} />
                 </div>

@@ -102,7 +102,7 @@ const ByMeter: Application.Types.iByComponent = (props) => {
     }
 
     return (
-        <div style={{ width: '100%', height: '100%' }}>
+        <div className="container-fluid d-flex h-100 flex-column">
             <DefaultSearch.Meter Slice={ByMeterSlice} GetEnum={getEnum} GetAddlFields={getAdditionalFields} StorageID="MetersFilter">
                 <li className="nav-item" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Engineer') < 0} style={{ width: '15%', paddingRight: 10 }}>
                     <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
@@ -122,7 +122,7 @@ const ByMeter: Application.Types.iByComponent = (props) => {
                     </fieldset>
                 </li>
             </DefaultSearch.Meter>
-            <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
+            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
                 <ReactTable.Table<SystemCenter.Types.DetailedMeter>
                     TableClass="table table-hover"
                     Data={data}
@@ -136,8 +136,9 @@ const ByMeter: Application.Types.iByComponent = (props) => {
                         }
                     }}
                     OnClick={handleSelect}
+                    TableStyle={{ width: '100%', height: '100%', tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
                     TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                    TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
                     RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     Selected={(item) => false}
                     KeySelector={(item) => item.ID}

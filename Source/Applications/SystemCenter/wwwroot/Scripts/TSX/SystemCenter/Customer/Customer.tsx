@@ -99,8 +99,8 @@ export default function Customer(props: IProps) {
     }
 
     return (
-        <div style={{ width: '100%', height: '100%', overflow: 'hidden', padding: 15, display: 'flex', flexDirection: 'column' }}>
-            <div className="row">
+        <div style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+            <div className="row p-2">
                 <div className="col">
                     <h2>{customer != null ? customer.Name : ''}</h2>
                 </div>
@@ -111,14 +111,12 @@ export default function Customer(props: IProps) {
             <hr />
 
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
-            <div className="tab-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                {tab === 'info' ? ( <CustomerInfo Customer={customer} stateSetter={(record) => dispatch(CustomerSlice.DBAction({ verb: 'PATCH', record: record }))} /> ) : null}
-                {tab === 'additionalFields' ? ( <AdditionalFieldsWindow ID={customer.ID} Type='Customer' Tab={tab} /> ) : null}
-                {tab === 'meters' ? <CustomerMeterWindow Customer={customer} /> : null}
-                {tab === 'assets' ? <CustomerAssetWindow Customer={customer} /> : null}
-                {tab === 'notes' ? <NoteWindow ID={props.CustomerID} Type='Customer' /> : null}
-                {tab === 'mdm' ? <MDMKeys CustomerID={customer.ID} /> : null}
-            </div>
+            {tab === 'info' ? ( <CustomerInfo Customer={customer} stateSetter={(record) => dispatch(CustomerSlice.DBAction({ verb: 'PATCH', record: record }))} /> ) : null}
+            {tab === 'additionalFields' ? ( <AdditionalFieldsWindow ID={customer.ID} Type='Customer' Tab={tab} /> ) : null}
+            {tab === 'meters' ? <CustomerMeterWindow Customer={customer} /> : null}
+            {tab === 'assets' ? <CustomerAssetWindow Customer={customer} /> : null}
+            {tab === 'notes' ? <NoteWindow ID={props.CustomerID} Type='Customer' /> : null}
+            {tab === 'mdm' ? <MDMKeys CustomerID={customer.ID} /> : null}
 
             <Warning Title={'Delete ' + (customer?.Name ?? 'Customer')} Show={showWarning} Message={'This will permanently delete this Customer.'} CallBack={(c) => { if (c) deleteCustomer(); setShowWarning(false)}} />
         </div>

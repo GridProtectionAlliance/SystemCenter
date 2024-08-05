@@ -75,7 +75,7 @@ function User(props: IProps) {
 	];
 
 	return (
-		<div style={{ width: '100%', height: '100%', overflow: 'hidden', padding: 15, display: 'flex', flexDirection: 'column' }}>
+        <div style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
 			<div className="row">
 				<div className="col">
 					<h2>{user != null ? `${user.FirstName} ${user.LastName} (${user.DisplayName})` : ''}</h2>
@@ -88,22 +88,20 @@ function User(props: IProps) {
 			<hr />
 
 			<TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
-			<div className="tab-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-				{tab === "userInfo" ? <UserInfo AccountId={props.UserID} /> : null}
-				{tab === "permissions" ? (user == null ? null : <UserPermissions UserID={user.ID} />) : null}
-				{tab === "additionalFields" ? (
-					<AdditionalField
-						Id={props.UserID}
-						EmptyField={{ ID: -1, IsSecure: false, FieldName: '', Type: 'string' }}
-						GetFieldValueIndex={(field, values) => values.findIndex(v => v.AdditionalUserFieldID === field.ID)}
-						GetFieldIndex={(value, fields) => fields.findIndex(f => f.ID === value.AdditionalUserFieldID)}
-						FieldKeySelector={(field) => (field.ID === -1 ? 'new' : field.ID.toString())}
-						ValidateField={() => []}
-						FieldUI={(fld, setter) => <CheckBox<Application.Types.iAdditionalUserField> Record={fld} Field='IsSecure' Label="Secure Data" Setter={setter} />}
-						CreateValue={(fld) => ({ Value: '', ID: 0, UserAccountID: props.UserID, AdditionalUserFieldID: fld.ID })}
-					/>
-				) : null}
-			</div>
+			{tab === "userInfo" ? <UserInfo AccountId={props.UserID} /> : null}
+			{tab === "permissions" ? (user == null ? null : <UserPermissions UserID={user.ID} />) : null}
+			{tab === "additionalFields" ? (
+				<AdditionalField
+					Id={props.UserID}
+					EmptyField={{ ID: -1, IsSecure: false, FieldName: '', Type: 'string' }}
+					GetFieldValueIndex={(field, values) => values.findIndex(v => v.AdditionalUserFieldID === field.ID)}
+					GetFieldIndex={(value, fields) => fields.findIndex(f => f.ID === value.AdditionalUserFieldID)}
+					FieldKeySelector={(field) => (field.ID === -1 ? 'new' : field.ID.toString())}
+					ValidateField={() => []}
+					FieldUI={(fld, setter) => <CheckBox<Application.Types.iAdditionalUserField> Record={fld} Field='IsSecure' Label="Secure Data" Setter={setter} />}
+					CreateValue={(fld) => ({ Value: '', ID: 0, UserAccountID: props.UserID, AdditionalUserFieldID: fld.ID })}
+				/>
+			) : null}
 
 			<Warning Message={
 				(user == null || user.Type == 'Database' ? 'This will permanently remove the User. Are you sure you want to continue?' :

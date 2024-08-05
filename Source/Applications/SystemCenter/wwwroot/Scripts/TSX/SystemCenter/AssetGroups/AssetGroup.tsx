@@ -99,8 +99,8 @@ function AssetGroup(props: IProps) {
         { Id: "assetgroup", Label: "Asset Subgroups" }];
 
     return (
-        <div style={{ width: '100%', height: '100%', overflow: 'hidden', padding: 15, display: 'flex', flexDirection: 'column' }}>
-            <div className="row">
+        <div style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+            <div className="row p-2">
                 <div className="col">
                     <h2>{group.Name}</h2>
                 </div>
@@ -111,14 +111,11 @@ function AssetGroup(props: IProps) {
             <hr />
 
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
-
-            <div className="tab-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                {tab === 'info' ? (
-                    <AssetgroupInfoWindow AssetGroup={group} StateSetter={(data) => dispatch(AssetGroupSlice.DBAction({ verb: 'PATCH', record: data }))} AllAssetGroups={allAssetGroup} /> ) : null}
-                {tab === 'asset' ? <AssetAssetGroupWindow AssetGroupID={props.AssetGroupID} /> : null}
-                {tab === 'meter' ? <MeterAssetGroupWindow AssetGroupID={props.AssetGroupID} /> : null}
-                {tab === 'assetgroup' ? <AssetGroupAssetGroupWindow AssetGroupID={props.AssetGroupID} /> : null}
-            </div>
+            {tab === 'info' ? (
+                <AssetgroupInfoWindow AssetGroup={group} StateSetter={(data) => dispatch(AssetGroupSlice.DBAction({ verb: 'PATCH', record: data }))} AllAssetGroups={allAssetGroup} /> ) : null}
+            {tab === 'asset' ? <AssetAssetGroupWindow AssetGroupID={props.AssetGroupID} /> : null}
+            {tab === 'meter' ? <MeterAssetGroupWindow AssetGroupID={props.AssetGroupID} /> : null}
+            {tab === 'assetgroup' ? <AssetGroupAssetGroupWindow AssetGroupID={props.AssetGroupID} /> : null}
 
             <Warning Message={'This will permanently delete this Asset Group and cannot be undone.'} Show={showDelete} Title={'Delete ' + (group?.Name ?? 'Asset Group')} CallBack={(conf) => { if (conf) deleteAssetGroup(); setShowDelete(false); }} />
             <LoadingScreen Show={gStatus == 'loading'} />

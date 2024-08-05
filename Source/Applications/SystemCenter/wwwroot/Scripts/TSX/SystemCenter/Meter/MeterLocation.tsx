@@ -29,7 +29,7 @@ import { cloneDeep } from 'lodash';
 import { ToolTip } from '@gpa-gemstone/react-interactive';
 import MeterLocationProperties from './PropertyUI/MeterLocationProperties';
 import { LocationSlice, ByMeterSlice } from '../Store/Store';
-import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { SelectRoles } from '../Store/UserSettings';
 
 declare var homePath: string;
@@ -55,7 +55,7 @@ const LocationWindow = (props: IProps) => {
     }
     const [location, setLocation] = React.useState<OpenXDA.Types.Location>(newLocation);
     const [meter, setMeter] = React.useState<OpenXDA.Types.Meter>(props.Meter);
-   
+
     const [validKey, setValidKey] = React.useState<boolean>(true);
     const [hasChanged, setHasChanged] = React.useState<boolean>(false);
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
@@ -159,7 +159,7 @@ const LocationWindow = (props: IProps) => {
     }
 
     return (
-        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
@@ -184,12 +184,12 @@ const LocationWindow = (props: IProps) => {
                     <ToolTip Show={hover == 'Update' && (!hasChanged || !isValidLocation)} Position={'top'} Theme={'dark'} Target={"NewLocation"}>
                         {(!hasChanged || location.ID < 1) && hasPermissions() ? <p> No changes have been made. </p> : null}
                         {!hasPermissions() ? <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p> : null}
-                        {!validKey ? <p> {CrossMark} Key must be unique.  </p> : null}
-                        {!valid('LocationKey') && validKey ? <p> {CrossMark} A Key of less than 50 characters is required. </p> : null}
-                        {!valid('Name') ? <p> {CrossMark} A Name of less than 200 characters is required. </p> : null}
-                        {!valid('ShortName') ? <p> {CrossMark} Short Name must be less than 50 characters. </p> : null}
-                        {!valid('Latitude') ? <p> {CrossMark} Latitude is required. </p> : null}
-                        {!valid('Longitude') ? <p> {CrossMark} Longtitude is required. </p> : null}
+                        {!validKey ? <p> <ReactIcons.CrossMark /> Key must be unique.  </p> : null}
+                        {!valid('LocationKey') && validKey ? <p> <ReactIcons.CrossMark /> A Key of less than 50 characters is required. </p> : null}
+                        {!valid('Name') ? <p> <ReactIcons.CrossMark /> A Name of less than 200 characters is required. </p> : null}
+                        {!valid('ShortName') ? <p> <ReactIcons.CrossMark /> Short Name must be less than 50 characters. </p> : null}
+                        {!valid('Latitude')  ? <p> <ReactIcons.CrossMark /> Latitude is required. </p> : null}
+                        {!valid('Longitude') ? <p> <ReactIcons.CrossMark /> Longtitude is required. </p> : null}
                     </ToolTip>
                 </div>
                 <div className="btn-group mr-2">

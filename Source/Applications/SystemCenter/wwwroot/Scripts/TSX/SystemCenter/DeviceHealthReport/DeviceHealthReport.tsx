@@ -177,7 +177,7 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
             </SearchBar>
             </div>
             <div className={'row'} style={{ flex: 1, overflow: 'hidden' }}>
-                <div className={'col-12'} style={{ height: '100%', overflow: 'hidden' }}>
+                <div className={'col-12 p-0'} style={{ height: '100%', overflow: 'hidden' }}>
                     <ReactTable.Table<SCGlobal.DeviceHealthReport>
                         TableClass="table table-hover"
                         Data={data}
