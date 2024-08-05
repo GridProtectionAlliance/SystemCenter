@@ -99,10 +99,10 @@ const DataSourceWindow = (props: IProps) => {
                                         <ReactTable.Column<IDataSourceTriggeredEmailType>
                                             Key={'Remove'}
                                             AllowSort={true}
-                                            HeaderStyle={{ width: '10%' }}
-                                            RowStyle={{ width: '10%' }}
-                                            Content={({ item }) =>
-                                                <button className="btn btn-sm" 
+                                            HeaderStyle={{ width: '20%' }}
+                                            RowStyle={{ width: '20%' }}
+                                            Content={({ item }) => <>
+                                                <button className="btn btn-sm mr-1"
                                                     onClick={(e) => {
                                                         e.preventDefault();
                                                         setDataSource(item);
@@ -110,7 +110,15 @@ const DataSourceWindow = (props: IProps) => {
                                                     }
                                                 }><span><ReactIcons.TrashCan /></span>
                                                 </button>
-                                            }
+                                                <button className="btn btn-sm"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        setDataSource(item);
+                                                        setShowDataSourceModal(true);
+                                                    }
+                                                }><span><ReactIcons.Pencil /></span>
+                                                </button>
+                                            </>}
                                         >
                                         </ReactTable.Column>
                                     </ReactTable.Table>
