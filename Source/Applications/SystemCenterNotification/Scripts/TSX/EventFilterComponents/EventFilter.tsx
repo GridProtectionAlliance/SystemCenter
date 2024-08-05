@@ -41,11 +41,8 @@ type TimeUnit = 'y' | 'M' | 'w' | 'd' | 'h' | 'm' | 's' | 'ms'
 
 const EventFilter = (props: IProps) => {
     const dispatch = useAppDispatch();
-    const colRef = React.useRef(null);
-
     const [filter, setFilter] = React.useState<IEventFilter>(props.Filter);
     const [showFilter, setShowFilter] = React.useState<('Meter' | 'Asset' | 'AssetGroup' | 'Location' | 'None')>('None')
-    const [height, setHeight] = React.useState<number>(0);
 
     const eventTypes = useAppSelector(EventTypeSlice.Data);
     const eventTypeStatus = useAppSelector(EventTypeSlice.Status);
@@ -53,8 +50,6 @@ const EventFilter = (props: IProps) => {
     // Portal rendering const
     const [domReady, setDomReady] = React.useState(false);
     const portalContainer = (props.RenderPortalId === undefined || props.RenderPortalId === null) ? document.getElementById('baseEventFilterPortal') : document.getElementById(props.RenderPortalId);
-
-    React.useLayoutEffect(() => setHeight(colRef?.current?.offsetHeight ?? 0))
 
     React.useEffect(() => {
         if (eventTypeStatus == 'unintiated' || eventTypeStatus == 'changed')
@@ -95,8 +90,11 @@ const EventFilter = (props: IProps) => {
                                 }} showQuickSelect={true} timeZone={'UTC'} dateTimeSetting={'startEnd'} isHorizontal={false} />
                             </div>
                             <div className="row">
-                                <div className="col-8 p-1" ref={colRef}>
-                                    <EventTypeFilter SetSelectedTypeIDs={(types: number[]) => setFilter((f) => ({ ...f, EventTypes: types }))} EventTypes={eventTypes} SelectedTypeID={filter.EventTypes} Height={height} />
+                                <div className="col-8 p-1">
+                                    <nav className="navbar navbar-expand-xl navbar-light">
+                                        <EventTypeFilter SetSelectedTypeIDs={(types: number[]) => setFilter((f) => ({ ...f, EventTypes: types }))} EventTypes={eventTypes}
+                                            SelectedTypeID={filter.EventTypes} Height={window.innerHeight - 660} />
+                                    </nav>
                                 </div>
                                 <div className="col-4 p-1">
                                     <fieldset className="border" style={{ padding: '10px', height: '100%', width: '100%' }}>
