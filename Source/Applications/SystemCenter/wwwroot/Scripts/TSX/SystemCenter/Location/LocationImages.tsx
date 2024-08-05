@@ -34,7 +34,7 @@ const LocationImagesWindow = (props: { Location: OpenXDA.Types.Location }) => {
 
     React.useEffect(() => {
         let handle = getImages();
-        handle.done(i => setImages(i));
+        handle.done(i => {console.log(i); setImages(i)});
 
         return () => {
             if (handle.abort != undefined) handle.abort();
@@ -52,29 +52,23 @@ const LocationImagesWindow = (props: { Location: OpenXDA.Types.Location }) => {
         })
     }
 
-    function displayImages() {
-
-    }
-
     return (
-        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-            <div className="card-header row">
+        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <div className="card-header">
                 <div className="col">
                     <h4>Substation Images:</h4>
                 </div>
             </div>
-            <div className="card-body">
+            <div className="card-body" style={{ flex: 1, overflowY: 'auto' }}>
                 <div style={{ width: '100%', height: '100%', flex: 1, overflowY: 'auto' }}>
-                    <LayoutGrid rowsPerPage={2} colMax={5}>
+                    <LayoutGrid rowsPerPage={2} colMax={4}>
                         {images.length > 0
                         ? (images.map((img, i) => (
-                                <div className="col-xs-6 col-md-4 col-lg-2" key={i} onClick={() => setImage(img)}>
-                                    <img src={`${homePath}api/OpenXDA/Location/${props.Location.ID}/Images/${img}`} alt={img}
-                                        className={'img-thumbnail'} style={{ maxHeight: 150 }} />
-                                    <div className="caption">
-                                        <h3>{img}</h3>
-                                    </div>
-                                </div>
+                            <>
+                                <img src={`${homePath}api/OpenXDA/Location/${props.Location.ID}/Images/${img}`} alt={img}
+                                    className={'img-thumbnail'} onClick={() => setImage(img)} key={i} style={{cursor: 'pointer', height: '90%'}}/>
+                                <h6 className="caption" style={{maxHeight: '10%'}}>{img}</h6>
+                            </>
                             )))
                         : <div className="alert alert-info block">No images to display.</div>
                         }
