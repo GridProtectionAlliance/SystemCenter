@@ -67,7 +67,7 @@ const LocationImagesWindow = (props: { Location: OpenXDA.Types.Location }) => {
                             <>
                                 <img src={`${homePath}api/OpenXDA/Location/${props.Location.ID}/Images/${img}`} alt={img}
                                     className={'img-thumbnail'} onClick={() => setImage(img)} key={i} style={{cursor: 'pointer', height: '90%'}}/>
-                                <h6 className="caption" style={{maxHeight: '10%'}}>{img}</h6>
+                                <h6 className="caption text-truncate" style={{maxHeight: '10%'}}>{img}</h6>
                             </>
                             )))
                         : <div className="alert alert-info block">No images to display.</div>
