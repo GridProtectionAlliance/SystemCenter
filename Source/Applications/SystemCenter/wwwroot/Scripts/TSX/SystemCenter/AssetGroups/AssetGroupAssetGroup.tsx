@@ -160,15 +160,15 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
                         Ascending={ascending}
                         OnSort={(d) => {
                             if (d.colKey == sortField) {
-                                let ordered = _.orderBy(groupList, [d.colKey], [(!ascending ? "asc" : "desc")]);
                                 setAscending(!ascending);
+                                const ordered = _.orderBy(groupList, [d.colKey], [(!ascending ? "asc" : "desc")]);
                                 setGroupList(ordered);
                             }
                             else {
-                                let ordered = _.orderBy(groupList, [d.colKey], ["asc"]);
-                                setAscending(!ascending);
+                                setAscending(true);
+                                setSortField(d.colField);
+                                const ordered = _.orderBy(groupList, [d.colKey], ["asc"]);
                                 setGroupList(ordered);
-                                setSortField(d.colKey);
                             }
                         }}
                         OnClick={(data) => { history.push({ pathname: homePath + 'index.cshtml', search: '?name=AssetGroup&AssetGroupID=' + data.row.ID }) }}
