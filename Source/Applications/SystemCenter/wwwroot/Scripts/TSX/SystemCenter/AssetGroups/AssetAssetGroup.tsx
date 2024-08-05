@@ -73,14 +73,21 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
             dataType: 'json',
             cache: false,
             async: true
-        });
+        })
 
-        handle.done((data: Array<SystemCenter.Types.DetailedAsset>) => setAssetList(data));
+        handle.done((data: Array<SystemCenter.Types.DetailedAsset>) => {
+            const sortedData = sortData(sortKey, ascending, data);
+            setAssetList(sortedData);
+        });
       
         return function cleanup() {
             if (handle.abort != null)
                 handle.abort();
         }
+    }
+
+    function sortData(key: string, ascending: boolean, data: SystemCenter.Types.DetailedAsset[]) {
+        return _.orderBy(data, [key], [(ascending ? "asc" : "desc")]);
     }
 
     function saveItems(items: SystemCenter.Types.DetailedAsset[]) {
@@ -142,15 +149,15 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                                 return;
 
                             if (d.colKey === sortKey) {
-                                let ordered = _.orderBy(assetList, [d.colKey], [(!ascending ? "asc" : "desc")]);
                                 setAscending(!ascending);
+                                const ordered = _.orderBy(assetList, [d.colKey], [(!ascending ? "asc" : "desc")]);
                                 setAssetList(ordered);
                             }
                             else {
-                                let ordered = _.orderBy(assetList, [d.colKey], ["asc"]);
-                                setAscending(!ascending);
-                                setAssetList(ordered);
+                                setAscending(true);
                                 setSortKey(d.colKey);
+                                const ordered = _.orderBy(assetList, [d.colKey], ["asc"]);
+                                setAssetList(ordered);
                             }
                         }}
                         OnClick={(data) => {
