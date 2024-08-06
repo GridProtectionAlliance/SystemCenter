@@ -38,75 +38,38 @@ namespace SystemCenter.Controllers
 {
     
     [RoutePrefix("api/SystemCenter/AccessLog")]
-    public class SystemCenterAccessLogController : ModelController<AccessLog> {
+    public class SystemCenterAccessLogController : ApiController {
+
+        private string Connection { get; } = "systemSettings";
+
 
         [HttpGet, Route("Aggregates/{nodeID}/{days:int}")]
         public IHttpActionResult GetAggregates(string nodeID, int days)
         {
-            try
-            {
+           
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
-
                     string sql = @"
-                        DECLARE @startDate Date = CAST( GETDATE() as DATE)
-                        DECLARE @endDate DATE = DATEADD(DAY, -" + days + @", @startDate)
-                        DECLARE @nodeID nvarchar(max) = '" + nodeID + @"'
-                        DECLARE @columns nvarchar(max) = N''
+                        SELECT 
+                            Count(ID) AS Count,
+                            FORMAT(Max(CreatedOn),'MM/dd/yyyy') AS [Date]
+                        FROM AccessLog 
+                        WHERE NodeID = {0} AND
+                        AccessGranted = 1 AND
+                            CreatedOn BETWEEN DATEADD(DAY, -{1}, GETUTCDATE()) AND GETUTCDATE()
+                        GROUP BY dateadd(DAY, 0, datediff(day, 0, CreatedOn))";
 
-                        WHILE @endDate <= @startDate
-                        BEGIN
-	                        SET @columns = @columns +'[' + CAST(@endDate as varchar(max)) + '],'
-	                        SET @endDate = DATEADD(DAY,1,@endDate)
-                        END
-
-                        SET @endDate = DATEADD(DAY, -" + days + @", @startDate)
-
-                        DECLARE @sql nvarchar(max) = N'
-                        SELECT '+SUBSTRING(@columns,0, LEN(@columns))+' 
-                        FROM (
-                        SELECT
-	                        CAST(CreatedOn as Date) as CreatedOn,
-                            AccessGranted
-                        FROM
-	                        AccessLog
-                        WHERE
-	                        AccessGranted = 1 AND CAST(CreatedOn as Date) BETWEEN @endDate AND @startDate and NodeID = @nodeID
-                        ) as tbl
-                        PIVOT(
-	                        COUNT(AccessGranted)
-	                        FOR CreatedOn IN ('+SUBSTRING(@columns,0, LEN(@columns))+')
-                        ) as pvt'
-
-
-                        exec sp_executesql @sql, N'@startDate Date, @endDate Date, @nodeID nvarchar(max)', @startDate = @startDate, @endDate = @endDate, @nodeID = @nodeID
-                    ";
-
-                    DataTable table = connection.RetrieveData(sql, "");
-
-                    var firstRow = table.Select().FirstOrDefault();
-                    var dates = table.Columns.Cast<DataColumn>().Select(x => new { Date = x.ColumnName, Count = (firstRow == null ? 0 : firstRow[x.ColumnName]) });
-                    return Ok(dates);
+                    DataTable table = connection.RetrieveData(sql, nodeID,days);
+                    return Ok(table);
                 }
-
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
         }
 
         [HttpGet, Route("Table/{nodeID}/{days:int}")]
         public IHttpActionResult GetTable(string nodeID, int days)
         {
-            try
-            {
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
                     DataTable table = connection.RetrieveData(@"
-                        DECLARE @startDate Date = CAST( GETDATE() as DATE)
-                        DECLARE @endDate DATE = DATEADD(DAY, -" + days + @", @startDate)
-
                         SELECT
 	                        COUNT(AccessGranted) as Logins,
 	                        Max(CreatedOn) as LastAccess,
@@ -114,18 +77,14 @@ namespace SystemCenter.Controllers
                         FROM
 	                        AccessLog
                         WHERE
-	                        AccessGranted = 1 AND CAST(CreatedOn as Date) BETWEEN @endDate AND @startDate AND NodeID = '" + nodeID + @"'        
+	                        AccessGranted = 1 AND 
+                            CreatedOn BETWEEN DATEADD(DAY, -{1}, GETUTCDATE()) AND GETUTCDATE() AND
+                            NodeID = {0}       
                         GROUP BY
 	                        UserName
-                    ", "");
+                    ", nodeID, days);
                     return Ok(table);
                 }
-
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
         }
 
     }

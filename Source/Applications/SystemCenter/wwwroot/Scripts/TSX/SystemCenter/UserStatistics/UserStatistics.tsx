@@ -58,7 +58,7 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
     const rowRef = React.useRef<HTMLDivElement>(null);
 
     const [days, setDays] = React.useState<number>(30);
-    const [tab, setTab] = React.useState<string>('SystemCenter');
+    const [tab, setTab] = React.useState<string>('');
     const [tableData, setTableData] = React.useState<Array<AccessLogTable>>([]);
     const [sortField, setSortField] = React.useState<string>('Logins');
     const [ascending, setAscending] = React.useState<boolean>(false);
@@ -85,7 +85,8 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
     React.useEffect(() => { if (tabs.length > 0) setTab(tabs[0].Id); }, [tabs]);
 
     React.useEffect(() => {
-
+        if (tab == '')
+            return; 
         setTableStatus('loading');
         const handle = $.ajax({
             type: "GET",
@@ -121,10 +122,11 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
             async: true
         }));
 
+      
         Promise.all(handles).then((h) => {
             setPlotData(h.map((d: Aggregate[], i: number) => ({
                 Color: colors[i % colors.length],
-                Data: d.map(d => [new Date(d.Date).getTime(), d.Count] as [number, number]),
+                Data: backfillData(d, days),
                 Name: applicationNodes[i].Name
             })));
             setPlotStatus('idle')
@@ -136,7 +138,7 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
                     h.abort();
             })
         }
-    }, [applicationNodes]);
+    }, [applicationNodes, days]);
 
     React.useEffect(() => {
         var ordered = _.orderBy(tableData, [sortField], [(ascending ? "asc" : "desc")]);
@@ -149,7 +151,25 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
     });
 
     if (props.Roles.indexOf('Administrator') < 0) return null
-  
+
+    function backfillData(data: Aggregate[], days: number): [number, number][] {
+        const times: [number, number][] = [];
+        let i = 0;
+        let j = 0;
+
+        while (times.length < days) {
+            let v = 0;
+            const t = moment.utc().endOf('d').subtract(days - i, 'd').valueOf()
+            if (j < data.length && moment(data[j].Date).endOf('d').valueOf() <= t) {
+                v = data[j].Count;
+                j++;
+            }
+            times.push([t, v]);
+            i++;
+        }
+        return times;
+    }
+
     return (
         <div className="container-fluid d-flex h-100 flex-column">
             <LoadingScreen Show={tableStatus === 'loading' || plotStatus === 'loading' || applicationNodeStatus === 'loading'} />
@@ -184,6 +204,7 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
                         pan={false}
                         zoom={false}
                         holdMenuOpen={false}
+                        yDomain={'HalfAutoValue'}
                     >
                         {plotData.map(d => <Line
                             data={d.Data}
