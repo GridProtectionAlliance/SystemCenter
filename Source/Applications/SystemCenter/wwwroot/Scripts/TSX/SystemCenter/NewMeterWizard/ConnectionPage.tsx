@@ -292,7 +292,7 @@ export default function ConnectionPage(props: IProps) {
                                 OnClick={(e) => deleteAssetConnection(item.Connection)}
                             />
                         }
-                    >
+                    ><p></p>
                     </ReactTable.Column>
                 </ReactTable.Table>
             </div>
