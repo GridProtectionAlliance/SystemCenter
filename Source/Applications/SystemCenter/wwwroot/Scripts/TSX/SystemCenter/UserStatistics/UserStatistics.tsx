@@ -138,7 +138,7 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
                     h.abort();
             })
         }
-    }, [applicationNodes]);
+    }, [applicationNodes, days]);
 
     React.useEffect(() => {
         var ordered = _.orderBy(tableData, [sortField], [(ascending ? "asc" : "desc")]);
