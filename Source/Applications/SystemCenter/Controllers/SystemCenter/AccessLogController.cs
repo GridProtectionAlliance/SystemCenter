@@ -55,6 +55,7 @@ namespace SystemCenter.Controllers
                             FORMAT(Max(CreatedOn),'MM/dd/yyyy') AS [Date]
                         FROM AccessLog 
                         WHERE NodeID = {0} AND
+                        AccessGranted = 1 AND
                             CreatedOn BETWEEN DATEADD(DAY, -{1}, GETUTCDATE()) AND GETUTCDATE()
                         GROUP BY dateadd(DAY, 0, datediff(day, 0, CreatedOn))";
 
