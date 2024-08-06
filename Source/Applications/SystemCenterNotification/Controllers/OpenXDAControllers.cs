@@ -362,20 +362,6 @@ namespace SystemCenter.Notifications.Controllers
     [RoutePrefix("api/openXDA/TriggeredEmailDataSourceEmailType")]
     public class TriggeredEmailDataSourceEmaulTypeController : ModelController<TriggeredEmailDataSourceEmailTypeView>
     {
-        public override IHttpActionResult Delete(TriggeredEmailDataSourceEmailTypeView record)
-        {
-            try
-            {
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
-                    new TableOperations<TriggeredEmailDataSourceEmailType>(connection).DeleteRecordWhere("ID = {0}", record.ID);
-
-                return Ok(1);
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
-        }
         public override IHttpActionResult Post([FromBody] JObject record)
         {
             try
