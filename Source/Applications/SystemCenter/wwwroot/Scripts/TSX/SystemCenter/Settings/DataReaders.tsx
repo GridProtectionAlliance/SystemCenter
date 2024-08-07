@@ -65,9 +65,13 @@ const DataReaders: Application.Types.iByComponent = (props) => {
 
     React.useEffect(() => {
         const e: string[] = [];
-        if (editnewSetting.AssemblyName == null || editnewSetting.AssemblyName.length === 0)
+        if (editnewSetting.AssemblyName == null || (editnewSetting.AssemblyName != null && editnewSetting.AssemblyName.length === 0))
             e.push('An Assembly Name is required.')
-        if (editnewSetting.TypeName == null || editnewSetting.AssemblyName.length === 0)
+        if (editnewSetting.FilePattern != null && editnewSetting.FilePattern.length > 500)
+            e.push('File Pattern must be less than 500 characters.')
+        if (editnewSetting.LoadOrder == null)
+            e.push('Load Order must not be null.')
+        if (editnewSetting.TypeName == null || editnewSetting.TypeName.length === 0)
             e.push('An Type Name is required.')
         setErrors(e)
     }, [editnewSetting])
@@ -175,8 +179,8 @@ const DataReaders: Application.Types.iByComponent = (props) => {
             >
                 <div className="row">
                     <div className="col">
-                        <Input<OpenXDA.Types.DataReader> Record={editnewSetting} Field={'FilePattern'} Label='File Pattern' Feedback={'A File Pattern is required'}
-                            Valid={field => editnewSetting.AssemblyName != null && editnewSetting.AssemblyName.length > 0}
+                        <Input<OpenXDA.Types.DataReader> Record={editnewSetting} Field={'FilePattern'} Label='File Pattern' Feedback={'A File Pattern under 500 characters is required'}
+                            Valid={field => editnewSetting.FilePattern != null && editnewSetting.FilePattern.length > 0 && editnewSetting.FilePattern.length <= 500}
                             Setter={(record) => { setEditNewSetting(record); setHasChanged(true); }}
                         />
 
@@ -188,7 +192,7 @@ const DataReaders: Application.Types.iByComponent = (props) => {
                             Valid={field => editnewSetting.TypeName != null && editnewSetting.TypeName.length > 0}
                             Setter={(record) => { setEditNewSetting(record); setHasChanged(true); }}
                         />
-                        <Input<OpenXDA.Types.DataReader> Record={editnewSetting} Field={'LoadOrder'} Type='number' Label='Load Order' Valid={field => true}
+                        <Input<OpenXDA.Types.DataReader> Record={editnewSetting} Field={'LoadOrder'} Type='number' Label='Load Order' Valid={field => editnewSetting.LoadOrder != null}
                             Setter={(record) => { setEditNewSetting(record); setHasChanged(true); }}
                         />
                     </div>
