@@ -47,7 +47,14 @@ function LocationMeterWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
             dataType: 'json',
             cache: true,
             async: true
-        }).done(meters => setMeters(meters));
+        }).done(meters => {
+            const sortedMeters = sortData(sortField, ascending, meters);
+            setMeters(sortedMeters);
+        });
+    }
+
+    function sortData(key: keyof OpenXDA.Types.Meter, ascending: boolean, data: OpenXDA.Types.Meter[]) {
+        return _.orderBy(data, [key], [(ascending ? "asc" : "desc")]);
     }
 
     function handleSelect(item) {
