@@ -68,14 +68,14 @@ const LocationImagesWindow = (props: { Location: OpenXDA.Types.Location }) => {
                             <div className="col-12 h-100 w-100">
                                 <img src={`${homePath}api/OpenXDA/Location/${props.Location.ID}/Images/${img}`}
                                     alt={img}
-                                    className='img-thumbnail'
+                                    className='img-thumbnail h-100 w-100'
                                     onClick={() => setImage(img)}
                                     key={i}
-                                    style={{cursor: 'pointer', maxWidth: '100%', maxHeight: '100%', objectFit: 'contain'}} />
+                                    style={{cursor: 'pointer', objectFit: 'contain'}} />
                             </div>
                         </div>
                         <div className="row">
-                            <div className="col">
+                            <div className="col text-center">
                                 <h6 className="caption text-truncate">{img}</h6>
                             </div>
                         </div>
