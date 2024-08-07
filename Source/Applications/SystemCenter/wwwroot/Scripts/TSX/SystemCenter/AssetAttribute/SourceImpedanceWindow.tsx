@@ -111,10 +111,8 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
         });
     }
 
-    function sortData(key: keyof OpenXDA.Types.SourceImpedance, ascending: boolean, dat: OpenXDA.Types.SourceImpedance[]) {
-        if (key == 'AssetLocationID')
-            return _.orderBy(dat, getLocationName, [(ascending ? "asc" : "desc")]);
-        return _.orderBy(dat, [key], [(ascending ? "asc" : "desc")]);
+    function sortData(key: keyof OpenXDA.Types.SourceImpedance, ascending: boolean, data: OpenXDA.Types.SourceImpedance[]) {
+        return _.orderBy(data, [key], [(ascending ? "asc" : "desc")]);
     }
 
     function getLocationName(si: OpenXDA.Types.SourceImpedance) {

@@ -60,7 +60,14 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
             dataType: 'json',
             cache: true,
             async: true
-        }).done(data => setLocations(data));
+        }).done(data => {
+            const sortedLocations = sortData(sortField, ascending, data);
+            setLocations(sortedLocations);
+        });
+    }
+
+    function sortData(key: keyof OpenXDA.Types.Location, ascending: boolean, data: OpenXDA.Types.Location[]) {
+        return _.orderBy(data, [key], [(ascending ? "asc" : "desc")]);
     }
 
     function getAllOtherLocations(): void {

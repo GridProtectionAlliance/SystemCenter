@@ -117,8 +117,13 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
             async: true
         }).done((d) => {
             setStatus('idle')
-            setAssetConnections(d);
+            const sortedConnections = sortData(sortKey, ascending, d);
+            setAssetConnections(sortedConnections)
         }).fail(() => setStatus('error'));
+    }
+
+    function sortData(key: string, ascending: boolean, data: AssetConnection[]) {
+        return _.orderBy(data, [key], [(ascending ? "asc" : "desc")]);
     }
 
     function getAssets(): JQuery.jqXHR<string> {
