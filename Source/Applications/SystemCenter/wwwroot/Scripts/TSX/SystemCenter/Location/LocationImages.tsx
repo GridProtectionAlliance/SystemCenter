@@ -34,7 +34,7 @@ const LocationImagesWindow = (props: { Location: OpenXDA.Types.Location }) => {
 
     React.useEffect(() => {
         let handle = getImages();
-        handle.done(i => {console.log(i); setImages(i)});
+        handle.done(i => {setImages(i)});
 
         return () => {
             if (handle.abort != undefined) handle.abort();
@@ -60,20 +60,29 @@ const LocationImagesWindow = (props: { Location: OpenXDA.Types.Location }) => {
                 </div>
             </div>
             <div className="card-body" style={{ flex: 1, overflowY: 'auto' }}>
-                <div style={{ width: '100%', height: '100%', flex: 1, overflowY: 'auto' }}>
-                    <LayoutGrid rowsPerPage={2} colMax={4}>
-                        {images.length > 0
-                        ? (images.map((img, i) => (
-                            <>
-                                <img src={`${homePath}api/OpenXDA/Location/${props.Location.ID}/Images/${img}`} alt={img}
-                                    className={'img-thumbnail'} onClick={() => setImage(img)} key={i} style={{cursor: 'pointer', height: '90%'}}/>
-                                <h6 className="caption text-truncate" style={{maxHeight: '10%'}}>{img}</h6>
-                            </>
-                            )))
-                        : <div className="alert alert-info block">No images to display.</div>
-                        }
-                    </LayoutGrid>
-                </div>
+                <LayoutGrid RowsPerPage={2} ColMax={4}>
+                    {images.length > 0
+                    ? (images.map((img, i) => (
+                    <div className="d-flex w-100 h-100" style={{flexDirection: 'column'}}>
+                        <div className="row" style={{ flex: 1, overflow: 'hidden'}}>
+                            <div className="col-12 h-100 w-100">
+                                <img src={`${homePath}api/OpenXDA/Location/${props.Location.ID}/Images/${img}`}
+                                    alt={img}
+                                    className='img-thumbnail'
+                                    onClick={() => setImage(img)}
+                                    key={i}
+                                    style={{cursor: 'pointer', maxWidth: '100%', maxHeight: '100%', objectFit: 'contain'}} />
+                            </div>
+                        </div>
+                        <div className="row">
+                            <div className="col">
+                                <h6 className="caption text-truncate">{img}</h6>
+                            </div>
+                        </div>
+                        </div>)))
+                    : <div className="alert alert-info block">No images to display.</div>
+                    }
+                </LayoutGrid>
             </div>
             <Modal
                 ConfirmBtnClass={'btn-primary'}
