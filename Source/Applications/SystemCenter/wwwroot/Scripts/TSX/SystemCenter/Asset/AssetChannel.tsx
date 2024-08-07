@@ -97,10 +97,15 @@ const AssetChannelWindow = (props: IProps) => {
             }
         ).done(
             (d: Array<ChannelDetail>) => {
-                setAssetChannels(d);
+                const sortedChannels = sortData(sortField, ascending, d);
+                setAssetChannels(sortedChannels)
                 setStatus('idle');
             }
         ).fail(() => setStatus('error'));
+    }
+
+    function sortData(key: keyof ChannelDetail, ascending: boolean, data: ChannelDetail[]) {
+        return _.orderBy(data, [key], [(ascending ? "asc" : "desc")]);
     }
 
     if (status == 'error' || pStatus == 'error' || mtStatus == 'error')
@@ -230,4 +235,3 @@ const AssetChannelWindow = (props: IProps) => {
 
 export default AssetChannelWindow
 ;
-

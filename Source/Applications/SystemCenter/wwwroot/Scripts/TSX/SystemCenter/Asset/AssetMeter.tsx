@@ -65,10 +65,16 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
             dataType: 'json',
             cache: true,
             async: true
-        }).done(meters => setMeters(meters));
+        }).done(meters => {
+            const sortedMeters = sortData(sortField, ascending, meters);
+            setMeters(sortedMeters);
+        });
     }
 
-   
+    function sortData(key: keyof OpenXDA.Types.Meter, ascending: boolean, data: OpenXDA.Types.Meter[]) {
+        return _.orderBy(data, [key], [(ascending ? "asc" : "desc")]);
+    }
+
     function addMeter(meterID: number) {
         return $.ajax({
             type: "POST",

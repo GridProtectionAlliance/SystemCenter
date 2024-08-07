@@ -55,9 +55,14 @@ function LineSegmentWindow(props: IProps): JSX.Element {
             cache: false,
             async: true
        }).done((data: Array<OpenXDA.Types.LineSegment>) => {
-           setSegments(data);
+           const sortedSegments = sortData(sortKey, ascending, data);
+           setSegments(sortedSegments)
            props.OnChange();
        });
+    }
+
+    function sortData(key: string, ascending: boolean, data: OpenXDA.Types.LineSegment[]) {
+        return _.orderBy(data, [key], [(ascending ? "asc" : "desc")]);
     }
 
     function hasPermissions(): boolean {
