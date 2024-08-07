@@ -227,7 +227,6 @@ const AssetChannelWindow = (props: IProps) => {
             <div className="card-footer">
             </div>
         </div>
-
     );
 }
 

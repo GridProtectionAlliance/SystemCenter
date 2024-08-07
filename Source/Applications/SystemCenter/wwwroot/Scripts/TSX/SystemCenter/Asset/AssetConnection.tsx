@@ -268,7 +268,6 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                             AllowSort={true}
                             Field={'AssetKey'}
                             HeaderStyle={{ width: '47%' }}
-                            RowStyle={{ width: '47%' }}
                         > Asset
                         </ReactTable.Column>
                         <ReactTable.Column<AssetConnection>
@@ -276,7 +275,6 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                             AllowSort={true}
                             Field={'Name'}
                             HeaderStyle={{ width: '47%' }}
-                            RowStyle={{ width: '47%' }}
                         > Relationship
                         </ReactTable.Column>
                         <ReactTable.Column<AssetConnection>

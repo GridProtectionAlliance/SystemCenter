@@ -159,55 +159,55 @@ const MeterAssetWindow = (props: IProps) => {
                                         Key={'AssetKey'}
                                         AllowSort={true}
                                         Field={'AssetKey'}
-                                        HeaderStyle={{ width: 'calc(20%-16px)' }}
-                                        RowStyle={{ width: 'calc(20%-16px)' }}
+                                        HeaderStyle={{ width: '20%' }}
+                                        RowStyle={{ width: '20%' }}
                                     > Key
                                     </ReactTable.Column>
                                     <ReactTable.Column<OpenXDA.Types.MeterAsset>
                                         Key={'AssetName'}
                                         AllowSort={true}
                                         Field={'AssetName'}
-                                        HeaderStyle={{ width: 'calc(30%-16px)' }}
-                                        RowStyle={{ width: 'calc(30%-16px)' }}
+                                        HeaderStyle={{ width: 'auto' }}
+                                        RowStyle={{ width: 'auto' }}
                                     > Name
                                     </ReactTable.Column>
                                     <ReactTable.Column<OpenXDA.Types.MeterAsset>
                                         Key={'AssetType'}
                                         AllowSort={true}
                                         Field={'AssetType'}
-                                        HeaderStyle={{ width: 'calc(10%-16px)' }}
-                                        RowStyle={{ width: 'calc(10%-16px)' }}
+                                        HeaderStyle={{ width: '10%' }}
+                                        RowStyle={{ width: '10%' }}
                                     > Type
                                     </ReactTable.Column>
                                     <ReactTable.Column<OpenXDA.Types.MeterAsset>
                                         Key={'VoltageKV'}
                                         AllowSort={true}
                                         Field={'VoltageKV'}
-                                        HeaderStyle={{ width: 'calc(5%-16x)' }}
-                                        RowStyle={{ width: 'calc(5%-16x)' }}
+                                        HeaderStyle={{ width: '5%' }}
+                                        RowStyle={{ width: '5%' }}
                                     > Base kV
                                     </ReactTable.Column>
                                     <ReactTable.Column<OpenXDA.Types.MeterAsset>
                                         Key={'FaultDetectionLogic'}
                                         AllowSort={true}
                                         Field={'FaultDetectionLogic'}
-                                        HeaderStyle={{ width: 'calc(10%-16px)' }}
-                                        RowStyle={{ width: 'calc(10%-16px)' }}
+                                        HeaderStyle={{ width: '10%' }}
+                                        RowStyle={{ width: '10%' }}
                                     > Fault Detection Logic
                                     </ReactTable.Column>
                                     <ReactTable.Column<OpenXDA.Types.MeterAsset>
                                         Key={'Designation'}
                                         AllowSort={true}
                                         Field={'Designation'}
-                                        HeaderStyle={{ width: 'calc(10%-16px)' }}
-                                        RowStyle={{ width: 'calc(10%-16px)' }}
+                                        HeaderStyle={{ width: '10%' }}
+                                        RowStyle={{ width: '10%' }}
                                     > Designation
                                     </ReactTable.Column>
                                     <ReactTable.Column<OpenXDA.Types.MeterAsset>
                                         Key={'EditDelete'}
                                         AllowSort={false}
-                                        HeaderStyle={{ width: 80, paddingLeft: 0, paddingRight: 5 }}
-                                        RowStyle={{ width: 80, paddingLeft: 0, paddingRight: 5 }}
+                                        HeaderStyle={{ width: '100px' }}
+                                        RowStyle={{ width: '100px' }}
                                         Content={({ item }) => <>
                                             <button className={"btn btn-sm" + (hasPermissions() ? '' : ' disabled')}
                                                 onClick={(e) => {

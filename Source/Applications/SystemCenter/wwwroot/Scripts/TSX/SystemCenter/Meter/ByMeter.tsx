@@ -136,9 +136,8 @@ const ByMeter: Application.Types.iByComponent = (props) => {
                         }
                     }}
                     OnClick={handleSelect}
-                    TableStyle={{ width: '100%', height: '100%', tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
-                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
+                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: 'auto' }}
+                    TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: 'auto' }}
                     RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     Selected={(item) => false}
                     KeySelector={(item) => item.ID}
@@ -155,16 +154,16 @@ const ByMeter: Application.Types.iByComponent = (props) => {
                         Key={'AssetKey'}
                         AllowSort={true}
                         Field={'AssetKey'}
-                        HeaderStyle={{ width: '15%' }}
-                        RowStyle={{ width: '15%' }}
+                        HeaderStyle={{ width: '20%' }}
+                        RowStyle={{ width: '20%' }}
                     > Key
                     </ReactTable.Column>
                     <ReactTable.Column<SystemCenter.Types.DetailedMeter>
                         Key={'Location'}
                         AllowSort={true}
                         Field={'Location'}
-                        HeaderStyle={{ width: '10%' }}
-                        RowStyle={{ width: '10%' }}
+                        HeaderStyle={{ width: '20%' }}
+                        RowStyle={{ width: '20%' }}
                     > Substation
                     </ReactTable.Column>
                     <ReactTable.Column<SystemCenter.Types.DetailedMeter>
@@ -179,16 +178,16 @@ const ByMeter: Application.Types.iByComponent = (props) => {
                         Key={'Make'}
                         AllowSort={true}
                         Field={'Make'}
-                        HeaderStyle={{ width: '10%' }}
-                        RowStyle={{ width: '10%' }}
+                        HeaderStyle={{ width: '12.5%' }}
+                        RowStyle={{ width: '12.5%' }}
                     > Make
                     </ReactTable.Column>
                     <ReactTable.Column<SystemCenter.Types.DetailedMeter>
                         Key={'Model'}
-                        AllowSort={true}
+                        AllowSort={true} 
                         Field={'Model'}
-                        HeaderStyle={{ width: '10%' }}
-                        RowStyle={{ width: '10%' }}
+                        HeaderStyle={{ width: '12.5%' }}
+                        RowStyle={{ width: '12.5%' }}
                     > Model
                     </ReactTable.Column>
                 </ReactTable.Table>
