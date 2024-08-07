@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Transactions;
 using System.Web.Http;
@@ -593,7 +594,10 @@ namespace SystemCenter.Controllers.OpenXDA
                         if (connectedChannels.Count > 0)
                         {
                             TableOperations<ChannelDetail> tableOp = new TableOperations<ChannelDetail>(connection);
-                            return Ok(tableOp.QueryRecordsWhere($"ID in ({string.Join(", ", connectedChannels.Select((channels) => channels.ID))})"));
+                            var allChannels = tableOp.QueryRecordsWhere($"ID in ({string.Join(", ", connectedChannels.Select((channels) => channels.ID))})");
+                            var uniqueChannels = allChannels.GroupBy(cd => cd.ID).Select(g => g.First()).ToList();
+
+                            return Ok(uniqueChannels);
                         }
                         else
                         {
