@@ -75,6 +75,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ApplicationCategoryTest.cs" />
     <Compile Include="AssetGroupTests.cs" />
     <Compile Include="ByAssetTest.cs" />
     <Compile Include="ChannelGroupTest.cs" />
@@ -84,6 +85,7 @@
     <Compile Include="DataOperationsTest.cs" />
     <Compile Include="DataReadersTests.cs" />
     <Compile Include="DeviceHealthReportTest.cs" />
+    <Compile Include="EventTagsTest.cs" />
     <Compile Include="EventTypesTest.cs" />
     <Compile Include="ExternalDatabasesTest.cs" />
     <Compile Include="ExternalTablesTest.cs" />
