@@ -47,13 +47,11 @@ const CustomerAssetWindow = (props: IProps) => {
     const [removeRecord, setRemoveRecord] = React.useState<LocalXDA.CustomerAsset | null>(null);
 
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
-    const roles = useAppSelector(SelectRoles);
-
+    const roles = useAppSelector(SelectRoles)
 
     React.useEffect(() => {
-        if (status == 'unintiated' || status == 'changed')
-            dispatch(CustomerAssetSlice.Fetch());
-    }, [status]);
+        dispatch(CustomerAssetSlice.Fetch());
+    }, [sortField, ascending])
 
     function saveCustomerAssets(m: SystemCenter.Types.DetailedAsset[]) {
         m.forEach((asset) => {

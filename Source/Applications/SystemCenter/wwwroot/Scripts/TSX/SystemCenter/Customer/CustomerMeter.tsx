@@ -56,7 +56,7 @@ const CustomerMeterWindow = (props: IProps) => {
 
     React.useEffect(() => {
         getData();
-    }, [props.Customer.ID])
+    }, [props.Customer.ID, sortField, ascending])
 
     function getData() {
         dispatch(CustomerMeterSlice.DBSearch({
