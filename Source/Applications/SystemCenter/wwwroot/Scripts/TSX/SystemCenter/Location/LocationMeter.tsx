@@ -24,7 +24,8 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { ReactTable, Paging } from '@gpa-gemstone/react-table';
+import { ServerErrorIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
 import { useHistory } from "react-router-dom";
 
 declare var homePath: string;
@@ -35,19 +36,32 @@ function LocationMeterWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
     const [sortField, setSortField] = React.useState<keyof(OpenXDA.Types.Meter)>('AssetKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
 
+    const [page, setPage] = React.useState<number>(0);
+    const [pageInfo, setPageInfo] = React.useState<{ RecordsPerPage: number, NumberOfPages: number, TotalRecords: number }>({ RecordsPerPage: 0, NumberOfPages: 0, TotalRecords: 0 });
+    const [pageState, setPageState] = React.useState<'error' | 'idle' | 'loading'>('idle');
+
     React.useEffect(() => {
         getMeters();
-    }, [props.Location.ID]);
+    }, [props.Location.ID, page]);
 
     function getMeters(): void {
         $.ajax({
             type: "GET",
-            url: `${homePath}api/OpenXDA/Location/${props.Location.ID}/Meters`,
+            url: `${homePath}api/OpenXDA/Location/${props.Location.ID}/Meters/${page}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
             async: true
-        }).done(meters => setMeters(meters));
+        }).done((result) => {
+            const records = JSON.parse(result.Result);
+            setMeters(records);
+            setPageInfo({
+                RecordsPerPage: result.RecordsPerPage,
+                NumberOfPages: result.NumberOfPages,
+                TotalRecords: result.TotalRecords
+            });
+            setPageState('idle');
+        }).fail(() => setPageState('error'));
     }
 
     function handleSelect(item) {
@@ -63,7 +77,7 @@ function LocationMeterWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
                     </div>
                 </div>
             </div>
-            <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
+            <div className="card-body" style={{ paddingBottom: 0, flex: 1, overflow: 'hidden' }}>
                 <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
                     <ReactTable.Table<OpenXDA.Types.Meter>
                         TableClass="table table-hover"
@@ -84,7 +98,7 @@ function LocationMeterWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
                             }
                         }}
                         OnClick={handleSelect}
-                        TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+                        TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden', flex: 1 }}
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         TbodyStyle={{ display: 'block', width: '100%', overflowY: 'auto', flex: 1  }}
                         RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
@@ -95,38 +109,43 @@ function LocationMeterWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
                             Key={'AssetKey'}
                             AllowSort={true}
                             Field={'AssetKey'}
-                            HeaderStyle={{ width: '30%' }}
-                            RowStyle={{ width: '30%' }}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
                         > Key
                         </ReactTable.Column>
                         <ReactTable.Column<OpenXDA.Types.Meter>
                             Key={'Name'}
                             AllowSort={true}
                             Field={'Name'}
-                            HeaderStyle={{ width: '30%' }}
-                            RowStyle={{ width: '30%' }}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
                         > Name
                         </ReactTable.Column>
                         <ReactTable.Column<OpenXDA.Types.Meter>
                             Key={'Make'}
                             AllowSort={true}
                             Field={'Make'}
-                            HeaderStyle={{ width: '20%' }}
-                            RowStyle={{ width: '20%' }}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
                         > Make
                         </ReactTable.Column>
                         <ReactTable.Column<OpenXDA.Types.Meter>
                             Key={'Model'}
                             AllowSort={true}
                             Field={'Model'}
-                            HeaderStyle={{ width: '20%' }}
-                            RowStyle={{ width: '20%' }}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
                         > Model
                         </ReactTable.Column>
                     </ReactTable.Table>
+                    <LoadingScreen Show={pageState == 'loading'} />
+                    <ServerErrorIcon Show={pageState == 'error'} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
+                    <div className="row">
+                        <div className="col">
+                            <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p - 1)} />
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div className="card-footer">
             </div>
         </div>
                 
