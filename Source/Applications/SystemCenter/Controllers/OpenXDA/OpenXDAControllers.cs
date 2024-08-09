@@ -41,6 +41,7 @@ using GSF.Web.Model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using openXDA.APIAuthentication;
+using openXDA.APIMiddleware;
 using openXDA.Model;
 using PQView.Model;
 using SystemCenter.Model;
@@ -231,6 +232,45 @@ namespace SystemCenter.Controllers.OpenXDA
 
     [RoutePrefix("api/OpenXDA/NoteApp")]
     public class NoteAppController : ModelController<NoteApplication> { }
+
+    [AllowSearch]
+    [PostRoles("Administrator")]
+    [DeleteRoles("Administrator")]
+    [PatchRoles("Administrator")]
+    public class APIAccessKey: openXDA.APIMiddleware.APIAccessKey { }
+    [RoutePrefix("api/OpenXDA/APIAccessKey")]
+    public class APIAccessKeyController : ModelController<APIAccessKey>
+    {
+        //We will need to do Post, Patch and Delete Sepperately
+        public override IHttpActionResult Post([FromBody] JObject record)
+        {
+            if (!PostAuthCheck())
+                return Unauthorized();
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                string RegistrationKey = record["RegistrationKey"].ToObject<string>();
+                string APIToken = record["APIToken"].ToObject<string>();
+                bool AllowImpersonation = record["AllowImpersonation"].ToObject<bool>();
+                DateTime Expires = DateTime.Parse(record["Expires"].ToObject<string>());
+
+                connection.ExecuteNonQuery("INSERT APIAccessKey (RegistrationKey, APIToken, Expires, AllowImpersonation) VALUES ({0}, {1}, {2}, {3})", RegistrationKey, APIToken, Expires, AllowImpersonation);
+                return Ok(1);
+            }
+        }
+        /*        public override IHttpActionResult Delete(APIAccessKey record)
+                {
+                    if (!DeleteAuthCheck())
+                        return Unauthorized();
+
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        connection.ExecuteNonQuery("DELETE FROM APIAccessKey WHERE ID = {0}", record.ID);
+                        return Ok(1);
+                    }
+                }*/
+    }
+
 
     [RoutePrefix("api/OpenXDA/ApplicationRole")]
     public class OpenXDAApplicationRoleController : ModelController<ApplicationRole> {}

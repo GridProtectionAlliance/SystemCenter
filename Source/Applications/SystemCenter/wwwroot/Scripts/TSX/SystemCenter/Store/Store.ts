@@ -109,6 +109,7 @@ export const WidgetCategorySlice = new GenericSlice<LocalXDA.IWidgetCategory>("W
 export const SEBrowserWidgetSlice = new GenericSlice<LocalXDA.IWidget>("SEBrowserWidget", `${homePath}api/SEbrowser/Widget`, "Name", true);
 export const SEBrowserWidgetViewSlice = new GenericSlice<EventWidget.IWidgetView>("SEBrowserWidgetView", `${homePath}api/SEbrowser/WidgetView`, "Name", true)
 export const MagDurCurveSlice = new GenericSlice<OpenXDA.Types.MagDurCurve>('MagDurCurve', `${homePath}api/SystemCenter/StandardMagDurCurve`, 'Name');
+export const APIAccessKeySlice = new GenericSlice<OpenXDA.Types.APIAccessKey>('APIAccessKey', `${homePath}api/OpenXDA/APIAccessKey`, 'RegistrationKey');
 
 
 export const EventTagSlice = new GenericSlice<OpenXDA.Types.EventTag>("EventTag", `${homePath}api/OpenXDA/EventTag`, 'Name');
@@ -177,6 +178,7 @@ const store = configureStore({
         SEBrowserWidget: SEBrowserWidgetSlice.Reducer,
         SEBrowserWidgetView: SEBrowserWidgetViewSlice.Reducer,
         MagDurCurve: MagDurCurveSlice.Reducer,
+        APIAccessKey: APIAccessKeySlice.Reducer,
         ExternalDatabases: ExternalDatabasesSlice.Reducer,
         AdditionalFields: AdditionalFieldsSlice.Reducer,
         ExternalOpenXDAField: ExternalXDAFieldsSlice.Reducer,

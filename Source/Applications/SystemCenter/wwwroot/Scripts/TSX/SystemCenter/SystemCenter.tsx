@@ -88,6 +88,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const BySEBrowserCategory = React.lazy(() => import(/* webpackChunkName: "DataFile" */ './SEBrowser/ByWidgetCategory'));
     const BySEBrowserWidget = React.lazy(() => import(/* webpackChunkName: "DataFile" */ './SEBrowser/ByWidget'));
     const ByMagDurCurve = React.lazy(() => import(/* webpackChunkName: "DataFile" */ './MagDurCurves/ByMagDurCurve'));
+    const APIAccessKey = React.lazy(() => import(/* webpackChunkName: "APIAccessKey" */ './APIAccessKeys/APIAccessKeys'));
     const ByEventTag = React.lazy(() => import(/* webpackChunkName: "ByEventTag" */ './EventTag/ByEventTag'));
     const ByMATLABAnalytic = React.lazy(() => import(/* webpackChunkName: "ByMATLABAnalytic" */ './MATLABAnalytics/ByMATLABAnalytic'));
     const MATLABAnalytic = React.lazy(() => import(/* webpackChunkName: "MATLABAnalytic" */ './MATLABAnalytics/MATLABAnalytic'));
@@ -278,6 +279,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 <li className="nav-item">
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=UserStatistics"} to={controllerViewPath + "?name=UserStatistics"}>User Statistics</NavLink>
                                 </li>
+                                <li className="nav-item" hidden={roles.indexOf('Administrator') < 0}>
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=APIAccessKey")} to={controllerViewPath + "?name=APIAccessKey"}>API Keys</NavLink>
+                                </li>
                                 <li className="nav-item">
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=User")
                                         && !(location.pathname + location.search).includes(controllerViewPath + "?name=UserStatistics")} to={controllerViewPath + "?name=Users"}>Users</NavLink>
@@ -363,6 +367,10 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 else if (qs['?name'] == "RemoteXDAInstanceMain") {
                                     if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0) return null;
                                     return <RemoteXDAInstanceMain Roles={roles} />
+                                }
+                                else if (qs['?name'] == "APIAccessKey") {
+                                    if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0) return null;
+                                    return <APIAccessKey Roles={roles} />
                                 }
                                 else if (qs['?name'] == "RemoteXDAInstance") {
                                     if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0) return null;
