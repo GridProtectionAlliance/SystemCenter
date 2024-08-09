@@ -333,7 +333,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                             <select className="form-control" value={selectedAssetID} onChange={(evt) => {
                                 setSelectedAssetID(parseInt(evt.target.value));
                             }}>
-                                {localAssets.map(als => <option value={als.ID} key={als.ID}>{als.AssetKey}</option>)}
+                                {localAssets.map(als => <option value={als.ID} key={als.ID}>{als.AssetName} ({als.AssetKey})</option>)}
                             </select>
                         </div>
                     </> :
