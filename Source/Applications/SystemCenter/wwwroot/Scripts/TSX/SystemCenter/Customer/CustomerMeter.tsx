@@ -56,7 +56,7 @@ const CustomerMeterWindow = (props: IProps) => {
 
     React.useEffect(() => {
         getData();
-    }, [props.Customer.ID, sortField, ascending])
+    }, [props.Customer.ID])
 
     function getData() {
         dispatch(CustomerMeterSlice.DBSearch({
@@ -197,11 +197,7 @@ const CustomerMeterWindow = (props: IProps) => {
                     OnSort={(d) => {
                         if (d.colKey == 'Remove')
                             return;
-
-                        if (d.colKey === sortField)
-                            dispatch(CustomerMeterSlice.Sort({ SortField: d.colField, Ascending: !ascending }));
-                        else
-                            dispatch(CustomerMeterSlice.Sort({ SortField: d.colField, Ascending: true }));
+                        dispatch(CustomerMeterSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                         }}
                     TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
                     TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}

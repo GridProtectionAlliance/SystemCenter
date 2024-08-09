@@ -50,8 +50,9 @@ const CustomerAssetWindow = (props: IProps) => {
     const roles = useAppSelector(SelectRoles)
 
     React.useEffect(() => {
-        dispatch(CustomerAssetSlice.Fetch());
-    }, [sortField, ascending])
+        if (status == 'unintiated' || status == 'changed')
+            dispatch(CustomerAssetSlice.Fetch());
+    }, [status]);
 
     function saveCustomerAssets(m: SystemCenter.Types.DetailedAsset[]) {
         m.forEach((asset) => {
@@ -131,11 +132,7 @@ const CustomerAssetWindow = (props: IProps) => {
                     OnSort={(d) => {
                         if (d.colKey == 'Remove')
                             return;
-
-                        if (d.colKey === sortField)
-                            dispatch(CustomerAssetSlice.Sort({ SortField: d.colField, Ascending: !ascending }));
-                        else
-                            dispatch(CustomerAssetSlice.Sort({ SortField: d.colField, Ascending: true }));
+                        dispatch(CustomerAssetSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                     }}
                     TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
                     TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
