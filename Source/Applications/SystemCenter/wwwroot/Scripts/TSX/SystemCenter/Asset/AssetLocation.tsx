@@ -60,7 +60,14 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
             dataType: 'json',
             cache: true,
             async: true
-        }).done(data => setLocations(data));
+        }).done(data => {
+            const sortedLocations = sortData(sortField, ascending, data);
+            setLocations(sortedLocations);
+        });
+    }
+
+    function sortData(key: keyof OpenXDA.Types.Location, ascending: boolean, data: OpenXDA.Types.Location[]) {
+        return _.orderBy(data, [key], [(ascending ? "asc" : "desc")]);
     }
 
     function getAllOtherLocations(): void {
@@ -140,15 +147,15 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
                         Ascending={ascending}
                         OnSort={(d) => {
                             if (d.colKey == sortField) {
-                                var ordered = _.orderBy(locations, [d.colKey], [(!ascending ? "asc" : "desc")]);
                                 setAscending(!ascending);
+                                const ordered = _.orderBy(locations, [d.colKey], [(!ascending ? "asc" : "desc")]);
                                 setLocations(ordered);
                             }
                             else {
-                                var ordered = _.orderBy(locations, [d.colKey], ["asc"]);
-                                setAscending(!ascending);
-                                setLocations(ordered);
+                                setAscending(true);
                                 setSortField(d.colField);
+                                const ordered = _.orderBy(locations, [d.colKey], ["asc"]);
+                                setLocations(ordered);
                             }
                         }}
                         TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
