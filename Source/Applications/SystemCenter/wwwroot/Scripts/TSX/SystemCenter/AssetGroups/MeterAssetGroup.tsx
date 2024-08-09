@@ -239,7 +239,7 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                        <button className={"btn btn-primary" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='AddMeters'
+                        <button className={"btn btn-info pull-right" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='AddMeters'
                             onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (hasPermissions()) setShowAdd(true) }}>Add Meters</button>
                     </div>
                     <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"AddMeters"}>

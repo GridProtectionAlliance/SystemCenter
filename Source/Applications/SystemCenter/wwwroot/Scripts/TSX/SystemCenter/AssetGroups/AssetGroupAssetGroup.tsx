@@ -234,7 +234,7 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
                 
             </div>
             <div className="card-footer">
-                    <button className={"btn btn-primary" + (hasPermissions() ? ' disabled' : '')} data-tooltip='AddGroup'
+                    <button className={"btn btn-info pull-right" + (hasPermissions() ? ' disabled' : '')} data-tooltip='AddGroup'
                         onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (!hasPermissions()) setShowAdd(true); }}>Add Asset Groups</button>
                 </div>
                 <ToolTip Show={hover == 'Update' && hasPermissions()} Position={'top'} Theme={'dark'} Target={"AddGroup"}>
