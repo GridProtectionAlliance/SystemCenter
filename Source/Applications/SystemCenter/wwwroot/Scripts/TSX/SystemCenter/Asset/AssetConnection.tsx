@@ -31,6 +31,7 @@ import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { AssetConnectionTypeSlice } from '../Store/Store';
 import { SelectRoles } from '../Store/UserSettings';
+import LocationDrawings from '../Meter/PropertyUI/LocationDrawings'
 
 interface AssetConnection {
     AssetRelationShipTypeID: number,
@@ -233,8 +234,11 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
         <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="card-header">
                 <div className="row">
-                    <div className="col">
+                    <div className="col-lg-3 col">
                         <h4>Connections:</h4>
+                    </div>
+                    <div className="col-2">
+                            <LocationDrawings LocationID={props.ID} />
                     </div>
                 </div>
             </div>
