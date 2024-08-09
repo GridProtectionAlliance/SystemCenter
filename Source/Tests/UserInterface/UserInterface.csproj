@@ -96,6 +96,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RemoteOpenXDAInstancesTest.cs" />
     <Compile Include="SubstationSuiteTests.cs" />
+    <Compile Include="SystemCenterTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
