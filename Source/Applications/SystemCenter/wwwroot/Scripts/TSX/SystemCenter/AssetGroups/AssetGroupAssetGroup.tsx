@@ -77,12 +77,19 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
             async: true
         });
 
-        handle.done((data: Array<OpenXDA.Types.AssetGroup>) => setGroupList(data));
+        handle.done((data: Array<OpenXDA.Types.AssetGroup>) => {
+            const sortedData = sortData(sortField, ascending, data);
+            setGroupList(sortedData);
+        });
       
         return function cleanup() {
             if (handle.abort != null)
                 handle.abort();
         }
+    }
+
+    function sortData(key: string, ascending: boolean, data: OpenXDA.Types.AssetGroup[]) {
+        return _.orderBy(data, [key], [(ascending ? "asc" : "desc")]);
     }
 
     function getEnum(setOptions, field) {
@@ -160,15 +167,15 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
                         Ascending={ascending}
                         OnSort={(d) => {
                             if (d.colKey == sortField) {
-                                let ordered = _.orderBy(groupList, [d.colKey], [(!ascending ? "asc" : "desc")]);
                                 setAscending(!ascending);
+                                const ordered = _.orderBy(groupList, [d.colKey], [(!ascending ? "asc" : "desc")]);
                                 setGroupList(ordered);
                             }
                             else {
-                                let ordered = _.orderBy(groupList, [d.colKey], ["asc"]);
-                                setAscending(!ascending);
+                                setAscending(true);
+                                setSortField(d.colField);
+                                const ordered = _.orderBy(groupList, [d.colKey], ["asc"]);
                                 setGroupList(ordered);
-                                setSortField(d.colKey);
                             }
                         }}
                         OnClick={(data) => { history.push({ pathname: homePath + 'index.cshtml', search: '?name=AssetGroup&AssetGroupID=' + data.row.ID }) }}
