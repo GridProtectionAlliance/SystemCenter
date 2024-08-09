@@ -301,7 +301,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-primary pull-right" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='Connect'
+                    <button className={"btn btn-info pull-right" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='Connect'
                         onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={(evt) => { evt.preventDefault(); if (hasPermissions()) setShowModal(true); }}>Add Connection</button>
                 </div>
                 <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"Connect"}>

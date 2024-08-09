@@ -421,7 +421,7 @@ function AssetInfoWindow(props: IProps) {
                 </p>)}
             </ToolTip>
             <div className="btn-group mr-2">
-                <button className={"btn btn-default" + (hasChanged ? '' : ' disabled')} data-tooltip="clear" onClick={() => {
+                <button className={"btn btn-warning" + (hasChanged ? '' : ' disabled')} data-tooltip="clear" onClick={() => {
                     setEditAsset(asset);
                     if (resetAddlAsset.current !== undefined) resetAddlAsset.current();
                     if (resetAddlType.current !== undefined) resetAddlType.current();
