@@ -142,9 +142,9 @@ const ByApplicationNode: Application.Types.iByComponent = (props) => {
                 Show={showModal} ShowX={true} Size={'lg'} ShowCancel={editNew === 'Edit'} ConfirmText={'Save'} CancelText={'Delete'}
                 CallBack={(conf, isBtn) => {
                     if (conf && editNew === 'New')
-                        dispatch(ApplicationNodeSlice.DBAction({ verb: 'POST', record: editnewNode }))
+                        dispatch(ApplicationNodeSlice.DBAction({ verb: 'POST', record: editnewNode }));
                     if (conf && editNew === 'Edit')
-                        dispatch(ApplicationNodeSlice.DBAction({ verb: 'PATCH', record: editnewNode }))
+                        dispatch(ApplicationNodeSlice.DBAction({ verb: 'PATCH', record: editnewNode }));
                     if (!conf && isBtn)
                         setShowWarning(true);
                     setShowModal(false);
@@ -157,15 +157,16 @@ const ByApplicationNode: Application.Types.iByComponent = (props) => {
             >
                 <div className="row">
                     <div className="col">
-                        <Input<Application.Types.iApplicationNode> Record={editnewNode} Field={'Name'} Label='Application Name' Feedback={'A unique Name is required.'}
-                            Valid={field => editnewNode.Name != null && editnewNode.Name.length > 0 && allApplications.findIndex(s => s.Name === editnewNode.Name && s.ID !== editnewNode.ID) < 0}
+                        <Input<Application.Types.iApplicationNode> 
+                            Record={editnewNode} Field={'Name'} Label='Application Name' Feedback={'A unique Name is required.'}
+                            Valid={field => editnewNode.Name != null && editnewNode.Name.length > 0 && 
+                                allApplications.findIndex(s => s != null && s.Name != null && s.Name === editnewNode.Name && s.ID !== editnewNode.ID) < 0}
                             Setter={(record) => { setEditNewNode(record); setHasChanged(true); }}
                         />
                         <Input<Application.Types.iApplicationNode> Record={editnewNode} Field={'ID'} Label='Node ID' Feedback={''}
                             Valid={() => true} Disabled={true}
                             Setter={(record) => {}}
                         />
-                        
                     </div>
                 </div>
             </Modal>
