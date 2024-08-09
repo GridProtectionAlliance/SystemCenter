@@ -82,16 +82,16 @@ const TriggerWindow = (props: IProps) => {
                         </div>
                     </div>
                     <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
-                        <div className="row">
-                            <div className="col">
+                        <div className="row h-100">
+                            <div className="col h-100">
                                 <EditSection
                                     SetCombineSQL={setAggregaterSQL} SetTriggerSQL={setTriggerSQL} ValidCombine={aggregateStatus != 'invalid'}
                                     TriggerSQL={triggerSQL} CombineSQL={aggregateSQL} ValidTrigger={triggerStatus != 'invalid'}
                                 />
                             </div>
-                            <div className="col">
-                                <div className="row">
-                                    <div className="col">
+                            <div className="col h-100">
+                                <div className="row h-50 pb-1">
+                                    <div className="col h-100">
                                         <EventSelect TriggerSQL={triggerSQL} SetStatus={(v, l) => {
                                             if (l) setTriggerStatus('loading');
                                             else if (v) setTriggerStatus('valid');
@@ -102,8 +102,8 @@ const TriggerWindow = (props: IProps) => {
                                         />
                                     </div>
                                 </div>
-                                <div className="row">
-                                    <div className="col">
+                                <div className="row h-50 pb-1">
+                                    <div className="col h-100">
                                         <EventDetails CombineSQL={aggregateSQL} SetStatus={(v, l) => {
                                             if (l) setAggregateStatus('loading');
                                             else if (v) setAggregateStatus('valid');
