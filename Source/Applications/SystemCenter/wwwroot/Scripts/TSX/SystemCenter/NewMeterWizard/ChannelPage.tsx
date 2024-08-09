@@ -112,7 +112,7 @@ export default function ChannelPage(props: IProps) {
         return () => {
             $(".custom-file-input").off('change');
         }
-    }, [])
+    }, [props.TrendChannels])
 
     React.useEffect(() => {
         setSelectedFile('');
@@ -185,7 +185,7 @@ export default function ChannelPage(props: IProps) {
             setChannelStatus('idle');
             setSelectedFile('');
         }
-    }, [props.TrendChannels]);
+    }, [props.TrendChannels, props.MeterKey]);
 
     function getCurrentChannels(trendChannels: boolean): OpenXDA.Types.Channel[] {
         let newCurrent: OpenXDA.Types.Channel[] = _.cloneDeep(props.Channels);
