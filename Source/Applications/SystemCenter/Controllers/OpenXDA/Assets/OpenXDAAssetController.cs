@@ -596,7 +596,7 @@ namespace SystemCenter.Controllers.OpenXDA
                         {
                             TableOperations<ChannelDetail> tableOp = new TableOperations<ChannelDetail>(connection);
                             // Channels get triplicated from Series Type ID in ChannelDetail View
-                            var uniqueChannels = new TableOperations<ChannelDetail>(connection)
+                            IEnumerable<ChannelDetail> uniqueChannels = new TableOperations<ChannelDetail>(connection)
                             .QueryRecordsWhere($"ID in ({string.Join(", ", connectedChannels.Select(channels => channels.ID))})")
                             .DistinctBy(c => c.ID);
 
