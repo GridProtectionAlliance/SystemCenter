@@ -32,6 +32,7 @@ using System.Net.Http.Headers;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Results;
 using GSF.Configuration;
 using GSF.Data;
 using GSF.Data.Model;
@@ -233,42 +234,100 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA/NoteApp")]
     public class NoteAppController : ModelController<NoteApplication> { }
 
+
     [AllowSearch]
     [PostRoles("Administrator")]
     [DeleteRoles("Administrator")]
     [PatchRoles("Administrator")]
-    public class APIAccessKey: openXDA.APIMiddleware.APIAccessKey { }
     [RoutePrefix("api/OpenXDA/APIAccessKey")]
+    public class APIAccessKey {
+        [PrimaryKey(true)]
+        public int ID { get; set; }
+        public string RegistrationKey { get; set; }
+        public string APIToken { get; set; }
+        public DateTime? Expires { get; set; }
+        public bool AllowImpersonation { get; set; }
+    }
     public class APIAccessKeyController : ModelController<APIAccessKey>
     {
-        //We will need to do Post, Patch and Delete Sepperately
+        //Mask API Tokens before returning data
         public override IHttpActionResult Post([FromBody] JObject record)
         {
-            if (!PostAuthCheck())
-                return Unauthorized();
-
-            using (AdoDataConnection connection = new AdoDataConnection(Connection))
-            {
-                string RegistrationKey = record["RegistrationKey"].ToObject<string>();
-                string APIToken = record["APIToken"].ToObject<string>();
-                bool AllowImpersonation = record["AllowImpersonation"].ToObject<bool>();
-                DateTime Expires = DateTime.Parse(record["Expires"].ToObject<string>());
-
-                connection.ExecuteNonQuery("INSERT APIAccessKey (RegistrationKey, APIToken, Expires, AllowImpersonation) VALUES ({0}, {1}, {2}, {3})", RegistrationKey, APIToken, Expires, AllowImpersonation);
-                return Ok(1);
-            }
+            var result = base.Post(record);
+            return MaskAPIToken(result);
         }
-        /*        public override IHttpActionResult Delete(APIAccessKey record)
-                {
-                    if (!DeleteAuthCheck())
-                        return Unauthorized();
+        public override IHttpActionResult Patch([FromBody] APIAccessKey record)
+        {
+            var result = base.Patch(record);
+            return MaskAPIToken(result);
+        }
+        public override IHttpActionResult Get(string parentID = null)
+        {
+            var result = base.Get(parentID);
+            return MaskAPIToken(result);
+        }
+        public override IHttpActionResult GetOne(string id)
+        {
+            var result = base.GetOne(id);
+            return MaskAPIToken(result);
+        }
+        public override IHttpActionResult Get(string sort, int ascending)
+        {
+            var result = base.Get(sort, ascending);
+            return MaskAPIToken(result);
+        }
+        public override IHttpActionResult Get(string parentID, string sort, int ascending)
+        {
+            var result = base.Get(parentID, sort, ascending);
+            return MaskAPIToken(result);
+        }
+        public override IHttpActionResult GetSearchableList([FromBody] PostData postData)
+        {
+            var result = base.GetSearchableList(postData);
+            return MaskAPIToken(result);
+        }
+        public override IHttpActionResult GetSearchableList([FromBody] PostData postData, string parentID = null)
+        {
+            var result = base.GetSearchableList(postData, parentID);
+            return MaskAPIToken(result);
+        }
+        public override IHttpActionResult GetPagedList([FromBody] PostData postData, int page)
+        {
+            var result = base.GetPagedList(postData, page);
+            return MaskAPIToken(result);
+        }
+        public override IHttpActionResult GetPagedList([FromBody] PostData postData, int page, string parentID = null)
+        {
+            var result = base.GetPagedList(postData, page, parentID);
+            return MaskAPIToken(result);
+        }
 
-                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+
+        // Helper method to mask APIToken
+        private IHttpActionResult MaskAPIToken(IHttpActionResult result)
+        {
+            if (result is OkNegotiatedContentResult<string> okResult)
+            {
+                var data = JsonConvert.DeserializeObject<IEnumerable<APIAccessKey>>(okResult.Content);
+                if (data != null)
+                {
+                    foreach (var item in data)
                     {
-                        connection.ExecuteNonQuery("DELETE FROM APIAccessKey WHERE ID = {0}", record.ID);
-                        return Ok(1);
+                        var k = item.APIToken;
+                        item.APIToken = k.Length > 14 ? $"{k.Substring(0, 2)}-********************-{k.Substring(k.Length - 4)}" : "**************************";
                     }
-                }*/
+                    return Ok(JsonConvert.SerializeObject(data));
+                }
+            }
+            else if (result is OkNegotiatedContentResult<APIAccessKey> singleOkResult)
+            {
+                var item = singleOkResult.Content;
+                var k = item.APIToken;
+                item.APIToken = k.Length > 14 ? $"{k.Substring(0, 2)}-********************-{k.Substring(k.Length - 4)}" : "**************************";
+                return Ok(item);
+            }
+            return result;
+        }
     }
 
 

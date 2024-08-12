@@ -25,61 +25,45 @@ import * as _ from 'lodash';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { Input, CheckBox, DatePicker } from '@gpa-gemstone/react-forms';
 import { APIAccessKeySlice } from '../Store/Store';
-import { OpenXDA } from '@gpa-gemstone/application-typings'
 import { SelectRoles } from '../Store/UserSettings';
-import { CreateGuid } from '@gpa-gemstone/helper-functions'
+import { IAPIAccessKey } from './APIAccessKeys'
 
-
-interface IProps { Key: OpenXDA.Types.APIAccessKey, disableEdit: boolean, stateSetter: (APIKey: OpenXDA.Types.APIAccessKey) => void, setErrors?: (e: string[]) => void }
+interface IProps { Key: IAPIAccessKey, formDisabled: boolean, stateSetter: (APIKey: IAPIAccessKey) => void, setErrors?: (e: string[]) => void }
 
 export default function APIKeyForm(props: IProps) {
     const dispatch = useAppDispatch();
 
-    const [errors, setErrors] = React.useState<string[]>([]);
-    const allKeys = useAppSelector(APIAccessKeySlice.Data);
-    const akStatus = useAppSelector(APIAccessKeySlice.Status);
-
-    const [APIKey, setAPIKey] = React.useState<OpenXDA.Types.APIAccessKey>(props.Key);
     const roles = useAppSelector(SelectRoles);
+    const allKeys = useAppSelector(APIAccessKeySlice.Data);
+    const status = useAppSelector(APIAccessKeySlice.Status);
+
+    const [disableDate, setDisableDate] = React.useState(props.Key.Expires.length == 0);
+    const [errors, setErrors] = React.useState<string[]>([]);
 
     React.useEffect(() => {
-        if (akStatus == 'changed' || akStatus == 'unintiated')
+        if (status == 'changed' || status == 'unintiated')
             dispatch(APIAccessKeySlice.Fetch());
-    }, [akStatus])
-
-    React.useEffect(() => {
-        if (!_.isEqual(props.Key, APIKey))
-            setAPIKey(props.Key);
-    }, [props.Key]);
+    }, [status])
 
     React.useEffect(() => {
         let e = [];
-        if (APIKey.RegistrationKey == null || APIKey.RegistrationKey.length == 0)
+        if (props.Key.RegistrationKey == null || props.Key.RegistrationKey.length == 0)
             e.push('A Registration Key is required.')
-        if (APIKey.APIToken == null || APIKey.APIToken.length == 0)
-            e.push('An API Token is required.')
-
-        if (allKeys.findIndex(c => c.RegistrationKey == APIKey.RegistrationKey && c.ID != APIKey.ID) > -1)
+        if (allKeys.findIndex(c => c.RegistrationKey.toLowerCase() == props.Key.RegistrationKey.toLowerCase() && c.ID != props.Key.ID) > -1)
             e.push('Registration Key must be unique.')
-
-        if (APIKey.RegistrationKey != null && APIKey.RegistrationKey.length > 50)
+        if (props.Key.RegistrationKey != null && props.Key.RegistrationKey.length > 50)
             e.push('Registration Key must be less than 50 characters.')
-
-        setErrors(e);
-    }, [APIKey, allKeys])
+        setErrors(props.formDisabled ? [] : e);
+    }, [props.Key, allKeys])
 
     React.useEffect(() => {
         if (props.setErrors != undefined)
             props.setErrors(errors);
     }, [props.setErrors, errors])
 
-
-
-    function valid(field: keyof (OpenXDA.Types.APIAccessKey)): boolean {
+    function valid(field: keyof (IAPIAccessKey)): boolean {
         if (field == 'RegistrationKey')
-            return APIKey.RegistrationKey != null && APIKey.RegistrationKey.length > 0 && APIKey.RegistrationKey.length <= 50;
-        else if (field == 'APIToken')
-            return APIKey.APIToken != null && APIKey.APIToken.length > 0 && APIKey.APIToken.length <= 50;
+            return props.formDisabled || (props.Key.RegistrationKey != null && props.Key.RegistrationKey.length > 0 && props.Key.RegistrationKey.length <= 50);
         return true;
     }
 
@@ -91,21 +75,32 @@ export default function APIKeyForm(props: IProps) {
 
     return (
         <div className="col">
-            <Input<OpenXDA.Types.APIAccessKey> Record={APIKey} Field={'RegistrationKey'} Label='Registration Key' Valid={valid} Feedback={''} Setter={(record) => props.stateSetter(record)} Disabled={!hasPermissions() && props.disableEdit} />
-            <Input<OpenXDA.Types.APIAccessKey> Record={APIKey} Field={'APIToken'} Label='API Token' Valid={valid} Feedback={''} Setter={(record) => props.stateSetter(record)} Disabled={true} />
-            <button className="btn btn-primary" onClick={() => setAPIKey((key) => ({ ...key, APIToken: CreateGuid() }))}>Generate New Key</button>
-            <br></br>
-            <DatePicker<OpenXDA.Types.APIAccessKey>
-                Record={APIKey}
+            <Input<IAPIAccessKey> Record={props.Key} Field={'RegistrationKey'} Label='Registration Key' Valid={valid} Feedback={''} Setter={(record) => props.stateSetter(record)} Disabled={!hasPermissions() || props.formDisabled} />
+            <Input<IAPIAccessKey> Record={props.Key} Field={'APIToken'} Label='API Token' Valid={valid} Feedback={''} Setter={(record) => props.stateSetter(record)} Disabled={true} />
+            
+            <DatePicker<IAPIAccessKey>
+                Record={props.Key}
                 Field="Expires"
-                Format="MM/DD/YYYY HH:mm:ss.SSS"
-                Setter={setAPIKey}
-                Valid={() => true} ///change to validate dates that aren't in past
-                Label="Expiration Date"
-                Type="datetime-local"
+                Setter={props.stateSetter}
+                Valid={() => true}     // change to only validate dates in the future
+                Label="Expires:"
+                Type="date"
                 AllowEmpty={true}
+                Disabled={props.formDisabled || disableDate}
             />
-            <CheckBox Record={APIKey} Field={'AllowImpersonation'} Setter={(record) => props.stateSetter(record)} Label={'Allow Impersonation'} Disabled={!hasPermissions() && props.disableEdit} />
+
+            <div className="form-check">
+                <input className="form-check-input" type="checkbox" id={"defaultCheck1"} onChange={(evt) => {
+                    if (evt.target.checked) props.stateSetter({...props.Key, Expires: ''});
+                    setDisableDate(evt.target.checked)
+                }}
+                        checked={disableDate} disabled={props.formDisabled} />
+                    <label className="form-check-label" htmlFor={"defaultCheck1"}>No Expiration</label>
+            </div>
+            
+
+            <br></br>
+            <CheckBox Record={props.Key} Field={'AllowImpersonation'} Setter={(record) => props.stateSetter(record)} Label={'Allow Impersonation'} Disabled={!hasPermissions() || props.formDisabled} />
         </div>
     )
 

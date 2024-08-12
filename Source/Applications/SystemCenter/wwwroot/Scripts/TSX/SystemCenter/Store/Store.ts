@@ -37,6 +37,7 @@ import PQISlice from './PQISlice';
 import { IApplicationRole, ISecurityGroup, IUserAccount } from '../User/Types';
 import UserSettingsReducer from './UserSettings';
 import { EventWidget } from '../../../../../EventWidgets/TSX/global';
+import { IAPIAccessKey } from '../APIAccessKeys/APIAccessKeys'
 
 declare var homePath: string;
 
@@ -109,7 +110,7 @@ export const WidgetCategorySlice = new GenericSlice<LocalXDA.IWidgetCategory>("W
 export const SEBrowserWidgetSlice = new GenericSlice<LocalXDA.IWidget>("SEBrowserWidget", `${homePath}api/SEbrowser/Widget`, "Name", true);
 export const SEBrowserWidgetViewSlice = new GenericSlice<EventWidget.IWidgetView>("SEBrowserWidgetView", `${homePath}api/SEbrowser/WidgetView`, "Name", true)
 export const MagDurCurveSlice = new GenericSlice<OpenXDA.Types.MagDurCurve>('MagDurCurve', `${homePath}api/SystemCenter/StandardMagDurCurve`, 'Name');
-export const APIAccessKeySlice = new GenericSlice<OpenXDA.Types.APIAccessKey>('APIAccessKey', `${homePath}api/OpenXDA/APIAccessKey`, 'RegistrationKey');
+export const APIAccessKeySlice = new GenericSlice<IAPIAccessKey>('APIAccessKey', `${homePath}api/OpenXDA/APIAccessKey`, 'RegistrationKey');
 
 
 export const EventTagSlice = new GenericSlice<OpenXDA.Types.EventTag>("EventTag", `${homePath}api/OpenXDA/EventTag`, 'Name');
