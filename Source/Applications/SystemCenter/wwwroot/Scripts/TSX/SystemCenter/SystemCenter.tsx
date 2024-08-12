@@ -369,7 +369,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     return <RemoteXDAInstanceMain Roles={roles} />
                                 }
                                 else if (qs['?name'] == "APIAccessKey") {
-                                    if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0) return null;
+                                    if (roles.indexOf('Administrator') < 0) return null;
                                     return <APIAccessKey Roles={roles} />
                                 }
                                 else if (qs['?name'] == "RemoteXDAInstance") {
