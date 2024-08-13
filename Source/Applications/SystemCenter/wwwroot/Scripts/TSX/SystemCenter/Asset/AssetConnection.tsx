@@ -233,12 +233,12 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
     return (
         <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="card-header">
-                <div className="row">
-                    <div className="col-lg-3 col">
+                <div className="row justify-content-between">
+                    <div className="col-6">
                         <h4>Connections:</h4>
                     </div>
                     <div className="col-2">
-                            <LocationDrawings LocationID={props.ID} />
+                        <LocationDrawings LocationID={props.ID} />
                     </div>
                 </div>
             </div>
