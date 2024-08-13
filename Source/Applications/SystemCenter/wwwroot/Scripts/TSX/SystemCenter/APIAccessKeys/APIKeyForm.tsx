@@ -25,7 +25,6 @@ import * as _ from 'lodash';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { Input, CheckBox, DatePicker } from '@gpa-gemstone/react-forms';
 import { APIAccessKeySlice } from '../Store/Store';
-import { SelectRoles } from '../Store/UserSettings';
 import { IAPIAccessKey } from './APIAccessKeys'
 
 interface IProps { Key: IAPIAccessKey, formDisabled: boolean, stateSetter: (APIKey: IAPIAccessKey) => void, setErrors?: (e: string[]) => void }
@@ -33,7 +32,6 @@ interface IProps { Key: IAPIAccessKey, formDisabled: boolean, stateSetter: (APIK
 export default function APIKeyForm(props: IProps) {
     const dispatch = useAppDispatch();
 
-    const roles = useAppSelector(SelectRoles);
     const allKeys = useAppSelector(APIAccessKeySlice.Data);
     const status = useAppSelector(APIAccessKeySlice.Status);
 
@@ -46,14 +44,15 @@ export default function APIKeyForm(props: IProps) {
     }, [status])
 
     React.useEffect(() => {
+        if (props.formDisabled) return
         let e = [];
         if (props.Key.RegistrationKey == null || props.Key.RegistrationKey.length == 0)
             e.push('A Registration Key is required.')
-        if (allKeys.findIndex(c => c.RegistrationKey.toLowerCase() == props.Key.RegistrationKey.toLowerCase() && c.ID != props.Key.ID) > -1)
+        if (allKeys.findIndex(k => k.RegistrationKey?.toLowerCase() == props.Key.RegistrationKey?.toLowerCase() && k.ID != props.Key.ID) > -1)
             e.push('Registration Key must be unique.')
         if (props.Key.RegistrationKey != null && props.Key.RegistrationKey.length > 50)
             e.push('Registration Key must be less than 50 characters.')
-        setErrors(props.formDisabled ? [] : e);
+        setErrors(e);
     }, [props.Key, allKeys])
 
     React.useEffect(() => {
@@ -62,20 +61,15 @@ export default function APIKeyForm(props: IProps) {
     }, [props.setErrors, errors])
 
     function valid(field: keyof (IAPIAccessKey)): boolean {
+        if (props.formDisabled) return true
         if (field == 'RegistrationKey')
-            return props.formDisabled || (props.Key.RegistrationKey != null && props.Key.RegistrationKey.length > 0 && props.Key.RegistrationKey.length <= 50);
-        return true;
-    }
-
-    function hasPermissions(): boolean {
-        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0)
-            return false;
+            return props.Key.RegistrationKey != null && props.Key.RegistrationKey.length > 0 && props.Key.RegistrationKey.length <= 50;
         return true;
     }
 
     return (
         <div className="col">
-            <Input<IAPIAccessKey> Record={props.Key} Field={'RegistrationKey'} Label='Registration Key' Valid={valid} Feedback={''} Setter={(record) => props.stateSetter(record)} Disabled={!hasPermissions() || props.formDisabled} />
+            <Input<IAPIAccessKey> Record={props.Key} Field={'RegistrationKey'} Label='Registration Key' Valid={valid} Feedback={''} Setter={(record) => props.stateSetter(record)} Disabled={props.formDisabled} />
             <Input<IAPIAccessKey> Record={props.Key} Field={'APIToken'} Label='API Token' Valid={valid} Feedback={''} Setter={(record) => props.stateSetter(record)} Disabled={true} />
             
             <DatePicker<IAPIAccessKey>
@@ -94,13 +88,13 @@ export default function APIKeyForm(props: IProps) {
                     if (evt.target.checked) props.stateSetter({...props.Key, Expires: ''});
                     setDisableDate(evt.target.checked)
                 }}
-                        checked={disableDate} disabled={props.formDisabled} />
+                    checked={disableDate} disabled={props.formDisabled} />
                     <label className="form-check-label" htmlFor={"defaultCheck1"}>No Expiration</label>
             </div>
             
 
             <br></br>
-            <CheckBox Record={props.Key} Field={'AllowImpersonation'} Setter={(record) => props.stateSetter(record)} Label={'Allow Impersonation'} Disabled={!hasPermissions() || props.formDisabled} />
+            <CheckBox Record={props.Key} Field={'AllowImpersonation'} Setter={(record) => props.stateSetter(record)} Label={'Allow Impersonation'} Disabled={props.formDisabled} />
         </div>
     )
 

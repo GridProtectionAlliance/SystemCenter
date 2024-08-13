@@ -167,10 +167,11 @@ const ByAPIAccessKeys: Application.Types.iByComponent = (props) => {
                     setShowDelete(true)
                 if (c && newEdit == 'New') {        // Generate key button is clicked
                     const newToken = CreateGuid();
-                    setAPIKey((key) => ({ ...key, APIToken: newToken })); setFormDisabled(true); setShowKeyWarning(true); dispatch(APIAccessKeySlice.DBAction({ verb: 'POST', record: {...APIKey, APIToken: newToken} }));
+                    setAPIKey((key) => ({ ...key, APIToken: newToken })); setFormDisabled(true); setShowKeyWarning(true);
+                    APIKey.ID == 0 && dispatch(APIAccessKeySlice.DBAction({ verb: 'POST', record: { ...APIKey, APIToken: newToken } }));
                 }
                 if (c && newEdit == 'Edit')           // save button is clicked on edit form
-                    dispatch(APIAccessKeySlice.DBAction({ verb: 'PATCH', record: APIKey }));
+                    APIKey.ID != 0 && dispatch(APIAccessKeySlice.DBAction({ verb: 'PATCH', record: APIKey }));
             }}
                 ShowCancel={newEdit == 'Edit'}
                 ShowX={true}
@@ -188,7 +189,7 @@ const ByAPIAccessKeys: Application.Types.iByComponent = (props) => {
                 CallBack={(c) => { if (c) { dispatch(APIAccessKeySlice.DBAction({ record: APIKey, verb: 'DELETE' })); setShowDelete(false); setAPIKey(emptyKey); } else setShowDelete(false)}}
             />
 
-            <Warning Message={'You will only be able to view this API key once. If it is lost, you will need to generate a new one.'} Show={showKeyWarning} Title={'Attention: Save Your Key'}
+            <Warning Message={'You will only be able to view this API key once. If it is lost, you will need to generate a new one.'} Show={showKeyWarning} Title={'Save Your Key'}
                 ShowCancel={false} CallBack={(c) => { if (c) setShowKeyWarning(false) }}
             />
 

@@ -42,7 +42,6 @@ using GSF.Web.Model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using openXDA.APIAuthentication;
-using openXDA.APIMiddleware;
 using openXDA.Model;
 using PQView.Model;
 using SystemCenter.Model;
@@ -234,13 +233,12 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA/NoteApp")]
     public class NoteAppController : ModelController<NoteApplication> { }
 
-
     [AllowSearch]
     [PostRoles("Administrator")]
     [DeleteRoles("Administrator")]
     [PatchRoles("Administrator")]
-    [RoutePrefix("api/OpenXDA/APIAccessKey")]
-    public class APIAccessKey {
+    public class APIAccessKey
+    {
         [PrimaryKey(true)]
         public int ID { get; set; }
         public string RegistrationKey { get; set; }
@@ -248,6 +246,7 @@ namespace SystemCenter.Controllers.OpenXDA
         public DateTime? Expires { get; set; }
         public bool AllowImpersonation { get; set; }
     }
+    [RoutePrefix("api/OpenXDA/APIAccessKey")]
     public class APIAccessKeyController : ModelController<APIAccessKey>
     {
         //Mask API Tokens before returning data
