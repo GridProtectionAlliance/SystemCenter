@@ -38,8 +38,14 @@
     <Compile Include="SystemCenter.wxs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="DOCKERFILE">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="INSTALL_LICENSE.rtf" />
     <Content Include="LICENSE.txt" />
+    <Content Include="startDocker.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="SystemCenterSetupBanner.bmp" />
     <Content Include="SystemCenterSetupDialog.bmp" />
     <Content Include="packages.config" />
