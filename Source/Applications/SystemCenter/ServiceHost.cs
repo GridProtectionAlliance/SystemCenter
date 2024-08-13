@@ -259,20 +259,6 @@ namespace SystemCenter
             m_serviceHelper.AddScheduledProcess(ServiceHeartbeatHandler, "ServiceHeartbeat", "* * * * *");
             m_serviceHelper.AddScheduledProcess(ReloadConfigurationHandler, "ReloadConfiguration", "0 0 * * *");
 
-            List<ExternalDatabases> externalDbs;
-            using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
-            {
-                try
-                {
-                    externalDbs = (new TableOperations<ExternalDatabases>(connection)).QueryRecords().ToList();
-                }
-                catch (Exception ex)
-                {
-                    externalDbs = new List<ExternalDatabases>();
-                }
-            }
-            externalDbs.ForEach(ExtDBAddDB);
-
             if (systemSettings["UserAccountMetaDataUpdater"].Value != "never")
                 m_serviceHelper.AddScheduledProcess(UserAccountMetaDataUpdaterHandler, "UserAccountMetaDataUpdater", systemSettings["UserAccountMetaDataUpdater"].Value);
             if (systemSettings["OpenMICStatisticOperation"].Value != "never")
@@ -285,6 +271,23 @@ namespace SystemCenter
             m_serviceHelper.SendingClientResponse += SendingClientResponseHandler;
             m_serviceHelper.LoggedException += LoggedExceptionHandler;
 
+            //Set up ExternalDB Pulls
+            try
+            {
+                List<ExternalDatabases> externalDbs;
+                using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+                {
+
+                    externalDbs = (new TableOperations<ExternalDatabases>(connection)).QueryRecords().ToList();
+                }
+                externalDbs.ForEach(ExtDBAddDB);
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+                
+            
             // Set up adapter loader to load service monitors
             m_serviceMonitors = new ServiceMonitors();
             m_serviceMonitors.AdapterCreated += ServiceMonitors_AdapterCreated;
@@ -329,6 +332,11 @@ namespace SystemCenter
             m_startEngineThread.Start();
         }
 
+        //Validate NodeID exists and Roles are Added
+        private void ValidateRoles()
+        {
+
+        }
         private void ServiceHelper_ServiceStopping(object sender, EventArgs e)
         {
             if (!m_disposed)
