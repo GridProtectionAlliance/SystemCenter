@@ -221,11 +221,11 @@ const ByAllSubscription = (props: IProps) => {
                             Field={'Approved'}
                             HeaderStyle={{ width: '10%' }}
                             RowStyle={{ width: '10%' }}
-                            Content={({ item }) => item.Approved ? HeavyCheckMark :
+                            Content={({ item }) => item.RequireApproval ? (item.Approved ? HeavyCheckMark :
                                 <button className="btn btn-sm" onClick={(e) => {
                                     e.preventDefault();
                                     approve(item.UserAccountEmailID);
-                                }}><span>{CrossMark}</span></button>
+                                }}><span>{CrossMark}</span></button>) : 'N/A'
                             }
                         > Approved
                         </ReactTable.Column>

@@ -110,7 +110,7 @@ const BySubscription = (props: IProps) => {
                             Field={'Approved'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                            Content={({ item }) => item.Approved ? HeavyCheckMark : CrossMark}
+                            Content={({ item }) => item.RequireApproval ? (item.Approved ? HeavyCheckMark : CrossMark) : 'N/A'}
                         > Approved
                         </ReactTable.Column>
                         <ReactTable.Column<ActiveSubscription>
