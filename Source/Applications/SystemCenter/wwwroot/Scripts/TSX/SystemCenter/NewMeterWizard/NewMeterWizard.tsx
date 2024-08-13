@@ -403,7 +403,9 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
             return <p className="pull-right">
                 Number of Trend Channels: {channels.reduce((p, c) => c.Trend ? (p + 1) : p, 0)}
             </p>;
-        else if (currentStep === assetStep)
+        else if (currentStep === assetStep
+              || currentStep === connectionStep
+            )
             return <LocationDrawings LocationID={locationInfo.ID} />
         else if (currentStep >= additionalFieldMeterStep) {
             return (
@@ -507,11 +509,11 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
                 <div className="card" style={{width: '100%', height: '100%'}}>
                     <LoadingScreen Show={status === 'loading'} />
                     <div className="card-header">
-                        <div className="row">
+                        <div className="row justify-content-between">
                             <div className="col-6">
                                 <h4>{header}</h4>
                             </div>
-                            <div className="col-6">
+                            <div className="pr-4">
                                 {secondaryHeader}
                             </div>
                         </div>
