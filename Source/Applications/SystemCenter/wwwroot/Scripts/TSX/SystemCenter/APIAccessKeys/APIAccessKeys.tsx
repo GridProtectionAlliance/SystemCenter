@@ -87,7 +87,8 @@ const ByAPIAccessKeys: Application.Types.iByComponent = (props) => {
 
     const searchFields: Search.IField<IAPIAccessKey>[] = [
         { key: 'RegistrationKey', isPivotField: false, label: 'Registration Key', type: 'string' },
-        { key: 'Expires', isPivotField: false, label: 'Key Expiration', type: 'datetime' }
+        { key: 'Expires', isPivotField: false, label: 'Key Expiration', type: 'datetime' },
+        { key: 'AllowImpersonation', isPivotField: false, label: 'Allow Impersonation', type: 'boolean' }
     ]
     return (
         <div style={{ width: '100%', height: '100%' }}>
@@ -145,12 +146,12 @@ const ByAPIAccessKeys: Application.Types.iByComponent = (props) => {
                         Field={'Expires'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
-                        Content={({ item }) => item.Expires == null ? 'N/A' : moment(item.Expires).format("YYYY-MM-DD HH:mm:ss")}
+                        Content={({ item }) => item.Expires == null ? 'N/A' : moment(item.Expires).format("MM/DD/YYYY HH:mm")}
                     > Expires
                     </ReactTable.Column>
                     <ReactTable.Column<IAPIAccessKey>
                         Key={'AllowImpersonation'}
-                        AllowSort={false}
+                        AllowSort={true}
                         Field={'AllowImpersonation'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}

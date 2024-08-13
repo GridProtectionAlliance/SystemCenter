@@ -52,6 +52,8 @@ export default function APIKeyForm(props: IProps) {
             e.push('Registration Key must be unique.')
         if (props.Key.RegistrationKey != null && props.Key.RegistrationKey.length > 50)
             e.push('Registration Key must be less than 50 characters.')
+        if (props.Key.RegistrationKey != null && props.Key.RegistrationKey.trim().includes(' '))
+            e.push('No spaces allowed in Registration Key')
         setErrors(e);
     }, [props.Key, allKeys])
 

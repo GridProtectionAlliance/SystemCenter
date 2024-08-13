@@ -312,8 +312,7 @@ namespace SystemCenter.Controllers.OpenXDA
                 {
                     foreach (var item in data)
                     {
-                        var k = item.APIToken;
-                        item.APIToken = k.Length > 14 ? $"{k.Substring(0, 2)}-********************-{k.Substring(k.Length - 4)}" : "**************************";
+                        item.APIToken = "**************************";
                     }
                     return Ok(JsonConvert.SerializeObject(data));
                 }
@@ -321,8 +320,7 @@ namespace SystemCenter.Controllers.OpenXDA
             else if (result is OkNegotiatedContentResult<APIAccessKey> singleOkResult)
             {
                 var item = singleOkResult.Content;
-                var k = item.APIToken;
-                item.APIToken = k.Length > 14 ? $"{k.Substring(0, 2)}-********************-{k.Substring(k.Length - 4)}" : "**************************";
+                item.APIToken = "**************************";
                 return Ok(item);
             }
             return result;
