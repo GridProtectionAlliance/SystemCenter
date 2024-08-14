@@ -123,7 +123,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
     */
 
     const sortData = React.useCallback((sortData: SystemCenter.Types.AdditionalFieldView[]) => {
-        setFieldsInTable(_.orderBy(sortData, [sortKey], [(!asc ? "asc" : "desc")]));
+        setFieldsInTable(_.orderBy(sortData, [sortKey], [(asc ? "asc" : "desc")]));
     }, [setFieldsInTable, sortKey, asc]);
 
     function Delete() {
