@@ -261,25 +261,25 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Settings&System=OpenXDA"} to={controllerViewPath + "?name=Settings&System=OpenXDA"}>openXDA</NavLink>
                                 </li>
                                 <li className={"nav-item"}>
-                                    <NavLink activeClassName='nav-link active' hidden={roles.indexOf('Administrator') < 0} className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=ByAdditionalField")} to={controllerViewPath + "?name=ByAdditionalField"}>Additional Fields</NavLink>
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=ByAdditionalField")} to={controllerViewPath + "?name=ByAdditionalField"}>Additional Fields</NavLink>
                                 </li>
                                 <li className={"nav-item"}>
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Settings&System=MiMD"} to={controllerViewPath + "?name=Settings&System=MiMD"}>miMD</NavLink>
-                                </li>
-                                <li className={"nav-item"}>
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=ApplicationNodes"} to={controllerViewPath + "?name=ApplicationNodes"}>SSO Applications</NavLink>
                                 </li>
                             </ul>
 
                             <div hidden={roles.indexOf('Administrator') < 0}>
                                 <hr />
                             </div>
-                            <h6 style={{ fontWeight: 'bold', marginLeft: 10 }} className="sidebar-heading" hidden={roles.indexOf('Administrator') < 0}>User Settings</h6>
+                            <h6 style={{ fontWeight: 'bold', marginLeft: 10 }} className="sidebar-heading" hidden={roles.indexOf('Administrator') < 0}>Access</h6>
                             <ul style={{ marginLeft: 10 }} className="nav flex-column" hidden={roles.indexOf('Administrator') < 0}>
                                 <li className="nav-item">
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=UserStatistics"} to={controllerViewPath + "?name=UserStatistics"}>User Statistics</NavLink>
                                 </li>
-                                <li className="nav-item" hidden={roles.indexOf('Administrator') < 0}>
+                                <li className={"nav-item"}>
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=ApplicationNodes"} to={controllerViewPath + "?name=ApplicationNodes"}>SSO Applications</NavLink>
+                                </li>
+                                <li className="nav-item">
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=APIAccessKey")} to={controllerViewPath + "?name=APIAccessKey"}>API Keys</NavLink>
                                 </li>
                                 <li className="nav-item">
@@ -368,10 +368,6 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0) return null;
                                     return <RemoteXDAInstanceMain Roles={roles} />
                                 }
-                                else if (qs['?name'] == "APIAccessKey") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
-                                    return <APIAccessKey Roles={roles} />
-                                }
                                 else if (qs['?name'] == "RemoteXDAInstance") {
                                     if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0) return null;
                                     return <RemoteXDAInstance ID={parseInt(qs.ID as string)} Roles={roles} Tab={qs.Tab as any} />
@@ -454,14 +450,18 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     if (roles.indexOf('Administrator') < 0) return null;
                                     return <ByAdditionalField Roles={roles} />
                                 }
-                                else if (qs['?name'] == "ApplicationNodes") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
-                                    return <ByApplicationNode Roles={roles} />
-                                }
 
                                 else if (qs['?name'] == "UserStatistics") {
                                     if (roles.indexOf('Administrator') < 0) return null;
                                     return <UserStatistics Roles={roles} />
+                                }
+                                else if (qs['?name'] == "ApplicationNodes") {
+                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    return <ByApplicationNode Roles={roles} />
+                                }
+                                else if (qs['?name'] == "APIAccessKey") {
+                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    return <APIAccessKey Roles={roles} />
                                 }
                                 else if (qs['?name'] == "Users") {
                                     if (roles.indexOf('Administrator') < 0) return null;
