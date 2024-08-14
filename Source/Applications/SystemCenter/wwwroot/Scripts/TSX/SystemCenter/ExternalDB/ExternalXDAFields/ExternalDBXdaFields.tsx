@@ -129,7 +129,7 @@ export default function ExternalDBXdaFields(props: { ID: number }) {
                     </div>
                     <div className="card-footer">
                         <div className="btn-group mr-2">
-                            <button className="btn btn-primary"
+                            <button className="btn btn-info"
                                 onClick={() => { setRecord({ ...emptyRecord, ExternalDBTableID: props.ID }); setShowEdit(true); }}
                             >Link New Field</button>
                         </div>

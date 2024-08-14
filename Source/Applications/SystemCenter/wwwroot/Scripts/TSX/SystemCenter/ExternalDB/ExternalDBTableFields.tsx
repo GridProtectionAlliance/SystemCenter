@@ -261,12 +261,12 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                     </div>
                     <div className="card-footer">
                         <div className="btn-group mr-2">
-                            <button className="btn btn-primary"
+                            <button className="btn btn-info"
                                 onClick={() => { setShowExisting(true); }}
                             >Add Existing Field</button>
                         </div>
                         <div className="btn-group mr-2">
-                            <button className="btn btn-primary"
+                            <button className="btn btn-info"
                                 onClick={() => { setRecord({ ...emptyRecord, ExternalDBTableID: props.ID }); setShowNew(true); }}
                             >Add New Field</button>
                         </div>
