@@ -129,7 +129,7 @@ function MDMKeys(props: IProps) {
                     </div>
                 </div>
                 <div className="card-footer">
-                    <button className={"btn btn-primary" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='AddID'
+                    <button className={"btn btn-info" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='AddID'
                         onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (hasPermissions()) setShowAdd(true) }}>Add Account ID</button>
                 </div>
                 <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"AddID"}>
