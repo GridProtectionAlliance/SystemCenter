@@ -282,7 +282,7 @@ const ChannelScalingForm = (props: IProps) => {
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-info pull-right" + ((multiplier.Voltage == 1 && multiplier.Current == 1) ? ' disabled' : '')} onClick={() => { if (multiplier.Voltage != 1 || multiplier.Current != 1) useReplacedMultiplier(); }}
+                    <button className={"btn btn-primary pull-right" + ((multiplier.Voltage == 1 && multiplier.Current == 1) ? ' disabled' : '')} onClick={() => { if (multiplier.Voltage != 1 || multiplier.Current != 1) useReplacedMultiplier(); }}
                         onMouseEnter={() => setHover('Replace')} onMouseLeave={() => setHover('None')} data-tooltip={"rep"}
                     >Replace Multipliers</button>
                     <ToolTip Show={hover == 'Replace' && (multiplier.Voltage == 1 && multiplier.Current == 1)} Position={'top'} Theme={'dark'} Target={"rep"}>
