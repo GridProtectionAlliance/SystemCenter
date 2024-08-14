@@ -250,7 +250,7 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
             </div>
             <div className="card-footer">
                     <div className="btn-group mr-2">
-                        <button className={"btn btn-primary" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='Source'
+                        <button className={"btn btn-info" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='Source'
                             onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (hasPermissions()) setShowAdd(true); setNewEditImpedance(newImpedance); }}>Add Source Impedance</button>
                     </div>
                     <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"Source"}>

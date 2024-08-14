@@ -183,7 +183,7 @@ function LineSegmentWindow(props: IProps): JSX.Element {
             </ReactTable.Table>
             {showFawg ? <LineSegmentWizard LineID={props.ID} LineKey={props.LineKey} LineName={props.LineName} closeWizard={() => { setShowFawg(false); getSegments(); }} /> : null}
         </>);
-    const wizardButton = (<button className={"btn btn-primary" + ((props.InnerOnly ?? false) ? " pull-right" : "") + (!hasPermissions() ? ' disabled' : '')} data-tooltip='LineSegWiz'
+    const wizardButton = (<button className={"btn btn-info" + ((props.InnerOnly ?? false) ? " pull-right" : "") + (!hasPermissions() ? ' disabled' : '')} data-tooltip='LineSegWiz'
         onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={(evt) => { if (hasPermissions()) setShowFawg(true)}}>Line Segment Wizard</button>);
 
     if (props.InnerOnly ?? false) return (
