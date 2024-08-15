@@ -101,6 +101,9 @@
     <SetProperty Action="SetConnectionStringDefaultSSPI" Id="DEFAULTCONNECTIONSTRING" Value="Data Source=[SERVERNAME];;Initial Catalog=[DATABASENAME];;Integrated Security=[INTEGRATEDSECURITY]" After="LaunchConditions" Sequence="first"><![CDATA[NOT DEFAULTCONNECTIONSTRING AND (INTEGRATEDSECURITY = "SSPI")]]></SetProperty>
     <SetProperty Action="SetXDAConnectionString" Id="XDACONNECTIONSTRING" Value="[DEFAULTCONNECTIONSTRING]" After="LaunchConditions" Sequence="first"><![CDATA[NOT XDACONNECTIONSTRING]]></SetProperty>
 
+    <SetProperty Action="SetCompanyName" Id="COMPANYNAME" Value="[DEFAULTCOMPANYNAME]" After="LaunchConditions" Sequence="first"><![CDATA[NOT COMPANYNAME]]></SetProperty>
+    <SetProperty Action="SetCompanyAcronym" Id="COMPANYACRONYM" Value="[DEFAULTCOMPANYACRONYM]" After="LaunchConditions" Sequence="first"><![CDATA[NOT COMPANYACRONYM]]></SetProperty>
+
 
     <SetProperty Id="UPDATECONFIGFILEMAPPINGS" Value="[CONNECTIONSTRINGMAPPING];;[COMPANYNAMEMAPPING];;[COMPANYACRONYMMAPPING]" Before="UpdateConfigFileAction.SetProperty" Sequence="execute" />
 
