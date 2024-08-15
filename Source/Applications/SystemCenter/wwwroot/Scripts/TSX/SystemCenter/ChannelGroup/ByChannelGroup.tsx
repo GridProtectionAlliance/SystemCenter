@@ -155,7 +155,6 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
                         Field={'Items'}
                         HeaderStyle={{ width: '10%' }}
                         RowStyle={{ width: '10%' }}
-                        Content={({ item }) => items.filter(i => i.ChannelGroupID == item.ID).length }
                     > Items
                     </ReactTable.Column>
                 </ReactTable.Table>
