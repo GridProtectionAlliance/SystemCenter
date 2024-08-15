@@ -30,7 +30,7 @@ import { ReactTable } from '@gpa-gemstone/react-table';
 import moment from 'moment';
 import { GenericController } from '@gpa-gemstone/react-interactive';
 
-const DataFileController = new GenericController<OpenXDA.Types.DataFile>(`${homePath}api/OpenXDA/DataFile`, "ProcessingEndTime", true);
+const DataFileController = new GenericController<OpenXDA.Types.DataFile>(`${homePath}api/OpenXDA/DataFile`, "ProcessingEndTime", false);
 
 function DownloadedFilesPage(props: { Meter: OpenXDA.Types.Meter }) {
     const [data, setData] = React.useState<OpenXDA.Types.DataFile[]>([]);

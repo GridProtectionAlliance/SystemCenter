@@ -32,7 +32,7 @@ import { ReactTable } from '@gpa-gemstone/react-table'
 import Reason from './Reason';
 import moment from 'moment';
 
-const OpenXDADailyStatisticController = new GenericController<SC.OpenXDADailyStatistic>(`${homePath}api/SystemCenter/Statistics/OpenXDA`, "LastSuccessfulFileProcessed", true);
+const OpenXDADailyStatisticController = new GenericController<SC.OpenXDADailyStatistic>(`${homePath}api/SystemCenter/Statistics/OpenXDA`, "LastSuccessfulFileProcessed", false);
 
 function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
     const [data, setData] = React.useState<SC.OpenXDADailyStatistic[]>([]);

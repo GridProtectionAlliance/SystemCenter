@@ -33,7 +33,7 @@ import * as _ from 'lodash';
 import moment from 'moment';
 import { GenericController } from '@gpa-gemstone/react-interactive';
 
-const MeterDataQualitySummaryController = new GenericController<SC.MeterDataQualitySummary>(`${homePath}api/OpenXDA/MeterDataQualitySummary`, "Date", true);
+const MeterDataQualitySummaryController = new GenericController<SC.MeterDataQualitySummary>(`${homePath}api/OpenXDA/MeterDataQualitySummary`, "Date", false);
 
 function DataQualityIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
     const [data, setData] = React.useState<SC.MeterDataQualitySummary[]>([]);
