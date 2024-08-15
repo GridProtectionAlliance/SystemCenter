@@ -102,10 +102,7 @@ export default function ChannelGroupDetails(props: IProps) {
                             OnSort={(d) => {
                                 if (d.colKey == 'btns')
                                     return;
-                                if (d.colKey === sortKey)
-                                    dispatch(ChannelGroupDetailsSlice.Sort({ SortField: d.colField, Ascending: !asc }));
-                                else
-                                    dispatch(ChannelGroupDetailsSlice.Sort({ SortField: d.colField, Ascending: true }));
+                                dispatch(ChannelGroupDetailsSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                             }}
                             TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
                             TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
