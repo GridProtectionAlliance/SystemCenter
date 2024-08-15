@@ -52,6 +52,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
     const [selectedAssetID, setSelectedAssetID] = React.useState<number>(0);
     const [selectedTypeID, setSelectedtypeID] = React.useState<number>(0);
     const [localAssets, setLocalAssets] = React.useState<Array<OpenXDA.Types.Asset>>([]);
+    const [locations, setLocations] = React.useState<number[]>([]);
 
     const [sortKey, setSortKey] = React.useState<string>('AssetKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
@@ -63,11 +64,6 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
 
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
     const roles = useAppSelector(SelectRoles);
-
-    React.useEffect(() => {
-        let handle = getAssetConnections();
-        return () => { if (handle != null || handle.abort != null) handle.abort();}
-    }, [props.ID, trigger])
 
     React.useEffect(() => {
         if (props.ID > 0) {
@@ -107,7 +103,27 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
         if (index == -1 && localAssets.length > 0)
             setSelectedAssetID(localAssets[0].ID)
     }, [localAssets])
-   
+
+    React.useEffect(() => {
+        let handle = getAssetConnections();
+        return () => { if (handle != null || handle.abort != null) handle.abort();}
+    }, [props.ID, trigger])
+
+    React.useEffect(() => {
+        getLocations();
+    }, [assetConnections])
+
+    function getLocations(): void {
+        $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/Asset/${props.ID}/Locations`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        }).done(data => setLocations(data));
+    }
+
     function getAssetConnections(): JQuery.jqXHR<OpenXDA.Types.AssetConnection> {
         setStatus('loading');
         return $.ajax({
@@ -182,7 +198,6 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
         });
     }
 
-
     function handleSelect(item) {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + item.row.AssetID})
     }
@@ -238,7 +253,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                         <h4>Connections:</h4>
                     </div>
                     <div className="col-2">
-                        <LocationDrawings LocationID={props.ID} />
+                        <LocationDrawings LocationID={locations} LocationLabels={} />
                     </div>
                 </div>
             </div>
@@ -360,7 +375,6 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                     </div>}
             </Modal>
         </div>
-                
     );
 
 }
