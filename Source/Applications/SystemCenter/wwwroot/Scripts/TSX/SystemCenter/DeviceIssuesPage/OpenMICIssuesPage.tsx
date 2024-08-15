@@ -35,7 +35,7 @@ import moment from 'moment';
 import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
 
-const OpenMICDailyStatisticController = new GenericController<SC.OpenMICDailyStatistic>(`${homePath}api/SystemCenter/Statistics/OpenMIC`, "LastSuccessfulConnection", true);
+const OpenMICDailyStatisticController = new GenericController<SC.OpenMICDailyStatistic>(`${homePath}api/SystemCenter/Statistics/OpenMIC`, "LastSuccessfulConnection", false);
 
 function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: string }) {
     const [data, setData] = React.useState<SC.OpenMICDailyStatistic[]>([]);
