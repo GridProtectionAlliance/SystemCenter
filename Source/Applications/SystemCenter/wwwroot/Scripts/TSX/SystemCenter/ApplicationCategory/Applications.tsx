@@ -167,7 +167,7 @@ function Applications(props: IProps) {
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-primary"} onClick={() => {
+                    <button className={"btn btn-info"} onClick={() => {
                         { setShowModal(true); setHasChanged(false); setEditApplication({ ...EmptyApplication, Image: (Options.length > 0 ? Options[0] : EmptyApplication.Image), CategoryID: props.ID }) }
                     }} data-tooltip={'New'} >Add Application</button>
                 </div>
