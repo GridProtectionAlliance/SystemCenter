@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  LocationDrawings.tsx - Gbtc
 //
-//  Copyright © 2023, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright ï¿½ 2023, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -25,13 +25,14 @@
 import * as React from 'react';
 import { SystemCenter } from '@gpa-gemstone/application-typings'
 import { LocationDrawingSlice } from '../../Store/Store';
-import { Modal, ToolTip } from '@gpa-gemstone/react-interactive';
+import { BtnDropdown, Modal, ToolTip } from '@gpa-gemstone/react-interactive';
 import { ReactTable } from '@gpa-gemstone/react-table';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { CreateGuid } from '@gpa-gemstone/helper-functions';
 
 interface IProps {
-    LocationID: number | null
+    LocationID: number[];
+    LocationLabels?: string[];
 }
 
 const LocationDrawings = (props: IProps) => {
@@ -44,24 +45,75 @@ const LocationDrawings = (props: IProps) => {
     const drawingSortKey = useAppSelector(LocationDrawingSlice.SortField);
     const drawingAscending = useAppSelector(LocationDrawingSlice.Ascending);
 
+    const [selectedLocation, setSelectedLocation] = React.useState<number>();
     const [showDrawings, setShowDrawings] = React.useState<boolean>(false);
     const [hover, setHover] = React.useState<'none' | 'drawings'>('none');
 
     React.useEffect(() => {
-        if (drawingStatus == 'unintiated' || drawingStatus == 'changed' || drawingParentID != props.LocationID)
-            dispatch(LocationDrawingSlice.Fetch(props.LocationID));
+        if (props.LocationID != null)
+            setSelectedLocation(null);
+        if (props.LocationID.length == 1)
+            setSelectedLocation(props.LocationID[0]);
+    }, [props.LocationID])
+
+    React.useEffect(() => {
+        if (drawingStatus == 'unintiated' || drawingStatus == 'changed' || drawingParentID != selectedLocation )
+            dispatch(LocationDrawingSlice.Fetch(selectedLocation));
     }, [drawingStatus, drawingParentID, props.LocationID]);
+
+    function disableDropdownOption() {
+        return false;
+    }
+
+    function dropdownOptions(): {Label: string; Callback: () => void; Disabled: boolean;}[] {
+        if (props.LocationLabels != null) {
+            const options: {
+                Label: string;
+                Callback: () => void;
+                Disabled: boolean; }[] = [];
+            for (const label of props.LocationLabels) {
+                options.push({
+                    Label: label,
+                    Disabled: disableDropdownOption(),
+                    Callback: () => {
+                        if (selectedLocation != 0 && drawingData.length != 0) setShowDrawings(true)
+                    }
+                });
+            }
+            return options;
+        }
+        return [{Label: 'No labels given for options', Callback: () => {}, Disabled: false}];
+    }
 
     return (
         <div>
-            <button
-                type="button"
-                className={"btn btn-primary" + ((props.LocationID == null || props.LocationID == 0 || drawingData.length == 0) ? ' disabled' : '')}
-                data-tooltip={guid.current} onMouseEnter={() => setHover('drawings')} onMouseLeave={() => setHover('none')}
-                onClick={() => {
-                    if (props.LocationID != null && props.LocationID != 0 && drawingData.length != 0)
+            {props.LocationID != null && props.LocationID.length <= 1 ?
+            <>
+                <button
+                    type="button"
+                    className={"btn btn-primary" + ((selectedLocation != null || drawingData.length == 0) ? ' disabled' : '')}
+                    data-tooltip={guid.current} onMouseEnter={() => setHover('drawings')} onMouseLeave={() => setHover('none')}
+                    onClick={() => {
+                        if (selectedLocation != 0 && drawingData.length != 0)
+                            setShowDrawings(true);
+                        }
+                    }>Open Drawing(s)
+                </button>
+                <ToolTip Show={hover === 'drawings' && (props.LocationID == null || props.LocationID[0] == 0 || drawingData.length == 0)}
+                    Theme={'dark'} Position={'top'} Target={guid.current} Zindex={9999}>
+                    <p>No drawings associated with this substation.</p>
+                </ToolTip>
+            </>
+            : <BtnDropdown 
+                Label="Open Drawings"
+                Callback={() => {
+                    if (selectedLocation != 0 && drawingData.length != 0)
                         setShowDrawings(true);
-                }}>Open Drawing(s)</button>
+                    }
+                }
+                Options={dropdownOptions()}
+                />
+            }
 
             <Modal Show={showDrawings} Title={'Drawings'} ShowX={true} Size={'lg'} CallBack={() => setShowDrawings(false)} ShowCancel={false} ConfirmText={'Done'}>
                 <div className="row">
@@ -117,11 +169,6 @@ const LocationDrawings = (props: IProps) => {
                     </div>
                 </div>
             </Modal>
-
-            <ToolTip Show={hover === 'drawings' && (props.LocationID == null || props.LocationID == 0 || drawingData.length == 0)}
-                Theme={'dark'} Position={'top'} Target={guid.current} Zindex={9999}>
-                <p>No drawings associated with this substation.</p>
-            </ToolTip>
         </div>
     )
 }
