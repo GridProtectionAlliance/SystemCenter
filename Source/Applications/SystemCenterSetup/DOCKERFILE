@@ -3,11 +3,12 @@ FROM mcr.microsoft.com/windows/servercore:ltsc2022
 
 ENV CompanyName="Grid Protection Alliance" \
     CompanyAcronym="GPA" \
-    ConnectionString="Data Source=localhost; Initial Catalog=openXDA;" 
+    ConnectionString="Data Source=localhost;; Initial Catalog=openXDA" \
+    NodeID="00000000-0000-0000-0000-000000000000"
 
 
 ADD ./SystemCenterSetup.msi c:/setup/
-RUN C:/setup/SystemCenterSetup.msi INTEGRATEDSECURITY=NO COMPANYNAME=env(USER:CompanyName) COMPANYACRONYM=env(USER:CompanyAcronym) DEFAULTCONNECTIONSTRING=env(USER:ConnectionString)  /q /l*v log.log
+RUN C:/setup/SystemCenterSetup.msi INTEGRATEDSECURITY=NO COMPANYNAME=env(CompanyName) COMPANYACRONYM=env(CompanyAcronym) DEFAULTCONNECTIONSTRING=env(ConnectionString) NODEID=env(NodeID) /q /l*v log.log
 
 
 COPY ./startDocker.ps1 c:/scripts/
