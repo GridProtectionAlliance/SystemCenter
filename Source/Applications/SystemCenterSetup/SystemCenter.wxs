@@ -97,8 +97,8 @@
     <SetProperty Action="SetServiceAccountRegistry" Id="SERVICEACCOUNT" After="LaunchConditions" Value="[REGSERVICEACCOUNT]" Sequence="first"><![CDATA[REGSERVICEACCOUNT AND NOT SERVICEACCOUNT]]></SetProperty>
 
     <SetProperty Action="SetDataBase" Id="DATABASENAME" Value="[SERVICENAME]" After="LaunchConditions" Sequence="first"><![CDATA[NOT DATABASENAME]]></SetProperty>
-    <SetProperty Action="SetConnectionStringDefault" Id="DEFAULTCONNECTIONSTRING" Value="Data Source=[SERVERNAME];Initial Catalog=[DATABASENAME];User Id=[DBUSERNAME];Password=[DBPASSWORD]" After="LaunchConditions" Sequence="first"><![CDATA[NOT DEFAULTCONNECTIONSTRING AND NOT(INTEGRATEDSECURITY = "SSPI")]]></SetProperty>
-    <SetProperty Action="SetConnectionStringDefaultSSPI" Id="DEFAULTCONNECTIONSTRING" Value="Data Source=[SERVERNAME];Initial Catalog=[DATABASENAME];Integrated Security=[INTEGRATEDSECURITY]" After="LaunchConditions" Sequence="first"><![CDATA[NOT DEFAULTCONNECTIONSTRING AND (INTEGRATEDSECURITY = "SSPI")]]></SetProperty>
+    <SetProperty Action="SetConnectionStringDefault" Id="DEFAULTCONNECTIONSTRING" Value="Data Source=[SERVERNAME];;Initial Catalog=[DATABASENAME];;User Id=[DBUSERNAME];;Password=[DBPASSWORD]" After="LaunchConditions" Sequence="first"><![CDATA[NOT DEFAULTCONNECTIONSTRING AND NOT(INTEGRATEDSECURITY = "SSPI")]]></SetProperty>
+    <SetProperty Action="SetConnectionStringDefaultSSPI" Id="DEFAULTCONNECTIONSTRING" Value="Data Source=[SERVERNAME];;Initial Catalog=[DATABASENAME];;Integrated Security=[INTEGRATEDSECURITY]" After="LaunchConditions" Sequence="first"><![CDATA[NOT DEFAULTCONNECTIONSTRING AND (INTEGRATEDSECURITY = "SSPI")]]></SetProperty>
     <SetProperty Action="SetXDAConnectionString" Id="XDACONNECTIONSTRING" Value="[DEFAULTCONNECTIONSTRING]" After="LaunchConditions" Sequence="first"><![CDATA[NOT XDACONNECTIONSTRING]]></SetProperty>
 
 
