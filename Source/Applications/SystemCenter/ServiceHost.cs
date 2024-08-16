@@ -288,7 +288,7 @@ namespace SystemCenter
             }
             catch (Exception ex)
             {
-                HandleException(ex);
+                m_serviceHelper.ErrorLogger.Log(ex);
             }
                 
             
@@ -388,7 +388,7 @@ namespace SystemCenter
             }
             catch (Exception ex)
             {
-                HandleException(ex);
+                m_serviceHelper.ErrorLogger.Log(ex);
             }
         }
 
