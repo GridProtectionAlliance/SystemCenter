@@ -25,7 +25,7 @@ import * as React from 'react';
 import { ReactTable, Paging } from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
-import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import { CrossMark, ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
@@ -34,6 +34,7 @@ import { Input, TextArea } from '@gpa-gemstone/react-forms';
 import { DefaultSearch } from '@gpa-gemstone/common-pages';
 import { ByLocationSlice } from '../Store/Store';
 import { useAppDispatch, useAppSelector } from '../hooks';
+import NewTabEdit from '../CommonComponents/NewTabEdit';
 
 declare var homePath: string;
 
@@ -222,7 +223,6 @@ const ByLocation: Application.Types.iByComponent = (props) => {
                             dispatch(ByLocationSlice.Sort({ SortField: d.colField as keyof SystemCenter.Types.DetailedLocation, Ascending: true }));
                         }
                     }}
-                    OnClick={handleSelect}
                     TableStyle={{
                         padding: 0, width: '100%', height: '100%',
                         tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
@@ -264,6 +264,15 @@ const ByLocation: Application.Types.iByComponent = (props) => {
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                     > Assets
+                    </ReactTable.Column>
+                    <ReactTable.Column<SystemCenter.Types.DetailedLocation>
+                        Key={'Config'}
+                        AllowSort={false}
+                        HeaderStyle={{ width: '8%' }}
+                        RowStyle={{ width: '8%' }}
+                        Content={({ item }) => {
+                            return <NewTabEdit ItemID={item.ID} PageLinkName='Location' IDLinkName='LocationID' />}}
+                    >
                     </ReactTable.Column>
                 </ReactTable.Table>
             </div>
