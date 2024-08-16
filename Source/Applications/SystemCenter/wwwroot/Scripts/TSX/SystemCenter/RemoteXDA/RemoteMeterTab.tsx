@@ -282,7 +282,7 @@ const RemoteMeterTab = (props: IProps) => {
             <div className="card-footer">
                 <div className="add-new-meter">
                     <button
-                        className={"btn btn-primary" + (hasPermissions() ? '' : ' disabled')}
+                        className={"btn btn-info" + (hasPermissions() ? '' : ' disabled')}
                         type="submit" data-tooltip='AddMeters' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}
                         onClick={(e) => {
                             if (hasPermissions()) {
