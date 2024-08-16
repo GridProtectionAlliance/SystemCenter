@@ -6,6 +6,10 @@ ENV CompanyName="Grid Protection Alliance" \
     ConnectionString="Data Source=localhost;; Initial Catalog=openXDA" \
     NodeID="00000000-0000-0000-0000-000000000000"
 
+RUN ["powershell","[Environment]::SetEnvironmentVariable('CompanyName', 'Grid Protection Alliance', 'Machine')"]
+RUN ["powershell","[Environment]::SetEnvironmentVariable('NodeID', '00000000-0000-0000-0000-000000000000', 'Machine')"]
+RUN ["powershell","[Environment]::SetEnvironmentVariable('CompanyAcronym', 'GPA', 'Machine')"]
+RUN ["powershell","[Environment]::SetEnvironmentVariable('ConnectionString', 'Data Source=localhost; Initial Catalog=openXDA', 'Machine')"]
 
 ADD ./SystemCenterSetup.msi c:/setup/
 RUN C:/setup/SystemCenterSetup.msi INTEGRATEDSECURITY=NO COMPANYNAME=env(CompanyName) COMPANYACRONYM=env(CompanyAcronym) DEFAULTCONNECTIONSTRING=env(ConnectionString) NODEID=env(NodeID) /q /l*v log.log
