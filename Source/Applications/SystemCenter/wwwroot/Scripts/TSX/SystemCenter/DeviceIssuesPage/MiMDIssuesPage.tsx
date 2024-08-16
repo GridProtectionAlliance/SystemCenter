@@ -70,7 +70,7 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
             dispatch(SystemCenterSettingSlice.Fetch());
     }, [settingStatus]);
 
-    return <div className="card" style={{ marginBottom: 10 }}>
+    return <div className="card" style={{ width: '100%', height: '100%' }}>
         <div className="card-header">
             <div className="row">
                 <div className="col">
@@ -78,16 +78,17 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                 </div>
             </div>
         </div>
-        <div className="card-body">
+        <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
             <ConfigTable.Table<SC.MiMDDailyStatistic>
                 LocalStorageKey="MiMDIssuesConfigTable"
                 TableClass="table table-hover"
                 Data={data}
                 SortKey={sortField}
                 Ascending={ascending}
+                TableStyle={{ width: '100%', height: '100%', tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
                 TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                TbodyStyle={{ display: 'block', overflowY: 'scroll' }}
-                RowStyle={{ display: 'table', tableLayout: 'fixed', width: 'calc(100%)' }}
+                TbodyStyle={{ display: 'block', width: '100%', overflowY: 'auto', flex: 1 }}
+                RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
                 Selected={() => false}
                 KeySelector={(item) => item.ID}
                 OnSort={(d) => {
@@ -105,8 +106,8 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                     AllowSort={true}
                     Content={({ item, field }) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : ''}
                     Field={'Date'}
-                    HeaderStyle={{ width: 'auto', textAlign: 'center' }}
-                    RowStyle={{ width: 'auto', textAlign: 'center' }}
+                    HeaderStyle={{ width: 'auto' }}
+                    RowStyle={{ width: 'auto' }}
                 >
                     Date
                 </ReactTable.Column>
@@ -116,8 +117,8 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         AllowSort={true}
                         Field={'LastSuccessfulFileProcessed'}
                         Content={({ item, field }) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : ''}
-                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
-                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
                     >
                         Last Succ
                     </ReactTable.Column>
@@ -128,8 +129,8 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         AllowSort={true}
                         Field={'LastUnsuccessfulFileProcessed'}
                         Content={({ item, field }) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : 'N/A'}
-                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
-                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
                     >
                         Last Unsucc
                     </ReactTable.Column>
@@ -138,8 +139,8 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         AllowSort={true}
                         Field={'LastUnsuccessfulFileProcessedExplanation'}
                         Content={({ item, field }) => <Reason ID={item.ID} Text={item[field]?.toString() ?? ''} />}
-                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
-                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
                     >
                         Reason
                     </ReactTable.Column>
@@ -149,8 +150,8 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         Key={'TotalFilesProcessed'}
                         AllowSort={true}
                         Field={'TotalFilesProcessed'}
-                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
-                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
                     >
                         Total
                     </ReactTable.Column>
@@ -160,8 +161,8 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         Key={'TotalSuccessfulFilesProcessed'}
                         AllowSort={true}
                         Field={'TotalSuccessfulFilesProcessed'}
-                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
-                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
                     >
                         Total Succ
                     </ReactTable.Column>
@@ -171,8 +172,8 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         Key={'TotalUnsuccessfulFilesProcessed'}
                         AllowSort={true}
                         Field={'TotalUnsuccessfulFilesProcessed'}
-                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
-                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
                     >
                         Total Unsucc
                     </ReactTable.Column>
@@ -182,8 +183,8 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         Key={'ConfigChanges'}
                         AllowSort={true}
                         Field={'ConfigChanges'}
-                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
-                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
                     >
                         Config Changes
                     </ReactTable.Column>
@@ -192,8 +193,8 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         AllowSort={true}
                         Field={'LastConfigFileChange'}
                         Content={({ item }) => <a target='_blank' href={settings.find(s => s.Name == 'MiMD.Url')?.Value + `/Configuration/Meter/${props.Meter.ID}`}>{item.ConfigChanges}</a>}
-                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
-                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
                     >
                         Last Change
                     </ReactTable.Column>
@@ -202,8 +203,8 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         AllowSort={true}
                         Field={'DiagnosticAlarms'}
                         Content={({ item }) => <a target='_blank' href={settings.find(s => s.Name == 'MiMD.Url')?.Value + `/Diagnostic/Meter/${props.Meter.ID}`}>{item.DiagnosticAlarms}</a>}
-                                    HeaderStyle={{ width: 'auto', textAlign: 'center' }}
-                                    RowStyle={{ width: 'auto', textAlign: 'center' }}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
                                 >
                         Diagnostic Alarms
                     </ReactTable.Column>     
@@ -212,15 +213,14 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         AllowSort={true}
                         Field={'ComplianceIssues'}
                         Content={({ item }) => <a target='_blank' href={settings.find(s => s.Name == 'MiMD.Url')?.Value + `/PRC002Overview/Meter/${props.Meter.ID}`}>{item.ComplianceIssues}</a>}
-                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
-                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
                     >
                         Compliance Issues
                     </ReactTable.Column>
                 </ConfigTable.Configurable>
             </ConfigTable.Table>
         </div>
-        <div className="card-footer"/>
     </div>
 }
 

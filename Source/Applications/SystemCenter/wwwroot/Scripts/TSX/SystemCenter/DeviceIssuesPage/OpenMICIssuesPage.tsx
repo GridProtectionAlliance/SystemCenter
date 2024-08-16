@@ -87,7 +87,7 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
                     tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
                 }}
                 TheadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
-                TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
                 RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
                 OnSort={(d) => {
                     if (d.colField == sortField) {
@@ -103,9 +103,9 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
                     Key={'Date'}
                     AllowSort={true}
                     Field={'Date'}
-                    HeaderStyle={{ width: 'auto', textAlign: 'center' }}
+                    HeaderStyle={{ width: 'auto' }}
                     Content={({ item, field }) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : ''}
-                    RowStyle={{ width: 'auto', textAlign: 'center' }}
+                    RowStyle={{ width: 'auto' }}
                 >
                     Date
                 </ReactTable.Column>
@@ -115,8 +115,8 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
                         AllowSort={true}
                         Field={'LastSuccessfulConnection'}
                         Content={({ item, field }) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : ''}
-                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
-                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
                     >
                         Last Succ Conn
                     </ReactTable.Column>
@@ -127,8 +127,8 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
                         AllowSort={true}
                         Field={'LastUnsuccessfulConnection'}
                         Content={({ item, field }) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : 'N/A'}
-                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
-                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
                     >
                         Last Unsucc Conn
                     </ReactTable.Column>
@@ -137,8 +137,8 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
                         AllowSort={true}
                         Field={'LastUnsuccessfulConnectionExplanation'}
                         Content={({ item, field }) => <Reason ID={item.ID} Text={item[field]?.toString() ?? ''} /> }
-                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
-                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
                     >
                         Reason
                     </ReactTable.Column>
@@ -148,8 +148,8 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
                         Key={'TotalConnections'}
                         AllowSort={true}
                         Field={'TotalConnections'}
-                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
-                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
                     >
                         Total Conn
                     </ReactTable.Column>
@@ -159,8 +159,8 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
                         Key={'TotalSuccessfulConnections'}
                         AllowSort={true}
                         Field={'TotalSuccessfulConnections'}
-                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
-                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
                     >
                         Total Succ Conn
                     </ReactTable.Column>
@@ -170,15 +170,14 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
                         Key={'TotalUnsuccessfulConnections'}
                         AllowSort={true}
                         Field={'TotalUnsuccessfulConnections'}
-                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
-                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
                     >
                         Total Unsucc Conn
                     </ReactTable.Column>
                 </ConfigTable.Configurable>
             </ConfigTable.Table>
         </div>
-        <div className="card-footer"/>
     </div>
 }
 
@@ -229,8 +228,8 @@ const Test = (props: { Meter: OpenXDA.Types.Meter }) => {
     }
         
     return (
-        <div style={{width: 100, position: 'absolute', right: 0}}>
-            <button className={"btn btn-primary" + (hasPermissions() ? '' : 'disabled')} data-tooltip='PingDevice' onMouseEnter={() => setHover('ping')} onMouseLeave={() => setHover('none')}
+        <div className="col">
+            <button className={"btn btn-info pull-right" + (hasPermissions() ? '' : 'disabled')} data-tooltip='PingDevice' onMouseEnter={() => setHover('ping')} onMouseLeave={() => setHover('none')}
                 onClick={RunTest}>Ping Device</button>
             <ToolTip Show={hover == 'ping' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"PingDevice"}>
                 <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>

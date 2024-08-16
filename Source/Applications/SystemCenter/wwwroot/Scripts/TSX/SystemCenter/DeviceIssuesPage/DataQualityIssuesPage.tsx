@@ -84,11 +84,11 @@ function DataQualityIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                     }
                 }}
                 TableStyle={{
-                    padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                    padding: 0, width: '100%', height: '100%',
                     tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
                 }}
                 TheadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
-                TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
                 RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
                 Selected={(item) => false}
                 KeySelector={(item) => item.ID}
@@ -106,53 +106,52 @@ function DataQualityIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                     Key={'ExpectedPoints'}
                     AllowSort={true}
                     Field={'ExpectedPoints'}
-                    HeaderStyle={{ width: '15%', textAlign: 'center' }}
-                    RowStyle={{ width: '15%', textAlign: 'center' }}
-                > Expected Points Succ
+                    HeaderStyle={{ width: '15%' }}
+                    RowStyle={{ width: '15%' }}
+                > Expected Points
                 </ReactTable.Column>
                 <ReactTable.Column<SC.MeterDataQualitySummary>
                     Key={'GoodPoints'}
                     AllowSort={true}
                     Field={'GoodPoints'}
-                    HeaderStyle={{ width: '15%', textAlign: 'center' }}
-                    RowStyle={{ width: '15%', textAlign: 'center' }}
+                    HeaderStyle={{ width: '15%' }}
+                    RowStyle={{ width: '15%' }}
                 > Good Points
                 </ReactTable.Column>
                 <ReactTable.Column<SC.MeterDataQualitySummary>
                     Key={'LatchedPoints'}
                     AllowSort={true}
                     Field={'LatchedPoints'}
-                    HeaderStyle={{ width: '15%', textAlign: 'center' }}
-                    RowStyle={{ width: '15%', textAlign: 'center' }}
+                    HeaderStyle={{ width: '15%' }}
+                    RowStyle={{ width: '15%' }}
                 > Latched Points
                 </ReactTable.Column>
                 <ReactTable.Column<SC.MeterDataQualitySummary>
                     Key={'UnreasonablePoints'}
                     AllowSort={true}
                     Field={'UnreasonablePoints'}
-                    HeaderStyle={{ width: '15%', textAlign: 'center' }}
-                    RowStyle={{ width: '15%', textAlign: 'center' }}
+                    HeaderStyle={{ width: '15%' }}
+                    RowStyle={{ width: '15%' }}
                 > Unreasonable Points
                 </ReactTable.Column>
                 <ReactTable.Column<SC.MeterDataQualitySummary>
                     Key={'NoncongruentPoints'}
                     AllowSort={true}
                     Field={'NoncongruentPoints'}
-                    HeaderStyle={{ width: '15%', textAlign: 'center' }}
-                    RowStyle={{ width: '15%', textAlign: 'center' }}
+                    HeaderStyle={{ width: '15%' }}
+                    RowStyle={{ width: '15%' }}
                 > Noncongruent Points
                 </ReactTable.Column>
                 <ReactTable.Column<SC.MeterDataQualitySummary>
                     Key={'DuplicatePoints'}
                     AllowSort={true}
                     Field={'DuplicatePoints'}
-                    HeaderStyle={{ width: '15%', textAlign: 'center' }}
-                    RowStyle={{ width: '15%', textAlign: 'center' }}
+                    HeaderStyle={{ width: '15%' }}
+                    RowStyle={{ width: '15%' }}
                 > Duplicate Points
                 </ReactTable.Column>
             </ReactTable.Table>
         </div>
-        <div className="card-footer"/>
     </div>
 }
 
