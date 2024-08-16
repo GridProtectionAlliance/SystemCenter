@@ -63,7 +63,7 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
         <div className="card-header">
             <div className="row">
                 <div className="col">
-                    <h4>openXDA Issues for { props.Meter?.Name} :</h4>
+                    <h4>openXDA Daily Statistics:</h4>
                 </div>
             </div>
         </div>

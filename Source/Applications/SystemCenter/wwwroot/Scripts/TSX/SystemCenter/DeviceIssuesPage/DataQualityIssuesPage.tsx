@@ -64,7 +64,7 @@ function DataQualityIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
         <div className="card-header">
             <div className="row">
                 <div className="col">
-                    <h4>Data Quality Issues for { props.Meter?.Name} :</h4>
+                    <h4>Data Quality Daily Statistics:</h4>
                 </div>
             </div>
         </div>

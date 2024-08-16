@@ -64,7 +64,7 @@ function DownloadedFilesPage(props: { Meter: OpenXDA.Types.Meter }) {
             <div className="card-header">
                 <div className="row">
                     <div className="col">
-                        <h4>Last 50 Downloaded Files for {props.Meter?.Name} :</h4>
+                        <h4>Last 50 Downloaded Files:</h4>
                     </div>
                 </div>
             </div>
