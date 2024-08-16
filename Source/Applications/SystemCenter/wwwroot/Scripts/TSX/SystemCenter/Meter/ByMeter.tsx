@@ -31,6 +31,8 @@ import { DefaultSearch } from '@gpa-gemstone/common-pages';
 import { ByMeterSlice } from '../Store/Store';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { useHistory } from "react-router-dom";
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import NewTabEdit from '../CommonComponents/NewTabEdit';
 import { Paging } from '@gpa-gemstone/react-table';
 
 declare var homePath: string;
@@ -213,6 +215,16 @@ const ByMeter: Application.Types.iByComponent = (props) => {
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Model
+                        </ReactTable.Column>
+                        <ReactTable.Column<SystemCenter.Types.DetailedMeter>
+                            Key={'Config'}
+                            AllowSort={false}
+                            HeaderStyle={{ width: '8%' }}
+                            RowStyle={{ width: '8%' }}
+                            Content={({ item }) => {
+                                return <NewTabEdit ItemID={item.ID} PageLinkName='Meter' IDLinkName='MeterID' />
+                            }}
+                        >
                         </ReactTable.Column>
                     </ReactTable.Table>
                 </div>
