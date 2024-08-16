@@ -209,7 +209,7 @@ const RemoteMeterTab = (props: IProps) => {
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
                     Content={({ item }) => item.Obsfucate ? HeavyCheckMark : null }
-                > Obsfucated
+                > Obfuscated
                 </ReactTable.Column>
                 <ReactTable.Column<OpenXDA.Types.RemoteXDAMeter>
                     Key={'Synced'}
