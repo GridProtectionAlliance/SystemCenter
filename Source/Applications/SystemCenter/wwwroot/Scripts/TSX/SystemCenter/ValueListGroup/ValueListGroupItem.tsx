@@ -136,7 +136,7 @@ export default function ValueListGroupItems(props: IProps) {
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className="btn btn-primary pull-right"
+                    <button className="btn btn-info pull-right"
                         onClick={() => { setRecord({ ...emptyRecord, GroupID: props.Record.ID }); setShowModal(true); }}
                     >Add Item</button>
                 </div>
