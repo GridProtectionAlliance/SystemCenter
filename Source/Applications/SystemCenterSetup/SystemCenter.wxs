@@ -128,7 +128,7 @@
     <CustomAction Id="PasswordGenerationAction" BinaryKey="InstallerActions" DllEntry="PasswordGenerationAction" Execute="immediate" />
     <CustomAction Id="TestDatabaseConnectionAction" BinaryKey="InstallerActions" DllEntry="TestDatabaseConnectionAction" Execute="immediate" />
 
-    <CustomAction Id="UpdateConfigFileAction.SetProperty" Property="UpdateConfigFileAction" Value="FilePath=[#SystemCenter.exe.config];Mode=WRITE;PropertyMappings=[UPDATECONFIGFILEMAPPINGS];XDACONNECTIONSTRING=[XDACONNECTIONSTRING];COMPANYNAME=[COMPANYNAME];COMPANYACRONYM=[COMPANYACRONYM];SERVICENAME=[SERVICENAME]" />
+    <CustomAction Id="UpdateConfigFileAction.SetProperty" Property="UpdateConfigFileAction" Value="FilePath=[#SystemCenter.exe.config];Mode=WRITE;PropertyMappings=[UPDATECONFIGFILEMAPPINGS];XDACONNECTIONSTRING=[XDACONNECTIONSTRING];COMPANYNAME=[COMPANYNAME];COMPANYACRONYM=[COMPANYACRONYM];SERVICENAME=[SERVICENAME];NODEID=[NODEID]" />
     <CustomAction Id="UpdateConfigFileAction" BinaryKey="InstallerActions" DllEntry="XmlFileAction" Execute="deferred" Impersonate="no" />
 
     <CustomAction Id="ConfigureServiceAction.SetProperty" Property="ConfigureServiceAction" Value="SERVICENAME=[SERVICENAME]" />
