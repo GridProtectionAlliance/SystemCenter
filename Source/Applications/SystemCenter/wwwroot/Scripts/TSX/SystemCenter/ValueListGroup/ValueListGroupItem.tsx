@@ -29,8 +29,8 @@ import { useAppSelector, useAppDispatch } from '../hooks';
 import { ValueListSlice } from '../Store/Store';
 import ValueListForm from './ValueListForm';
 import { ReactTable } from '@gpa-gemstone/react-table';
-import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
-import { Modal, Warning } from '@gpa-gemstone/react-interactive';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { Modal } from '@gpa-gemstone/react-interactive';
 import { ValueListItemDelete } from './ValueListGroupDelete';
 
 interface IProps { Record: SystemCenter.Types.ValueListGroup }
@@ -125,12 +125,12 @@ export default function ValueListGroupItems(props: IProps) {
                                     e.preventDefault();
                                     setRecord(item);
                                     setShowModal(true);
-                                }}>{Pencil}</button>
+                                }}><ReactIcons.Pencil /></button>
                                 <button className="btn btn-sm" onClick={(e) => {
                                     e.preventDefault();
                                     setRecord(item);
                                     setShowWarning(true)
-                                }}>{TrashCan}</button>
+                                }}><ReactIcons.TrashCan /></button>
                             </> }
                         > <p></p>
                         </ReactTable.Column>
@@ -153,9 +153,9 @@ export default function ValueListGroupItems(props: IProps) {
                 />
             <Modal Title={record.ID == 0 ? 'Add New Value List Item' : 'Edit ' + (record.AltValue ?? record.Value)} Show={showModal} ShowCancel={false} ConfirmText={record.ID == 0 ? 'Add' : 'Save'}
                 ConfirmShowToolTip={errors.length > 0}
-                CancelToolTipContent={<> {errors.map(e => <p>{CrossMark} {e}</p>)}</>}
-                DisableConfirm={errors.length > 0}
-                ShowX={true} CallBack={(conf) => {
+                CancelToolTipContent={errors.map((e, i) => <p key={i}><ReactIcons.CrossMark /> {e}</p>)}
+                ShowX={true}
+                CallBack={(conf) => {
                     setShowModal(false);
                     if (conf && record.ID > 0)
                         dispatch(ValueListSlice.DBAction({ verb: 'PATCH', record }));
@@ -165,10 +165,7 @@ export default function ValueListGroupItems(props: IProps) {
             >
                 <ValueListForm Record={record} Setter={setRecord} SetErrors={setErrors} />
             </Modal>
-            </div>
-        
-
+        </div>
     );
-
 }
 
