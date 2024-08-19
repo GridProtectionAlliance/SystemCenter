@@ -4,10 +4,10 @@
 [Environment]::SetEnvironmentVariable("ConnectionString", "$env:ConnectionString", "Machine")
 [Environment]::SetEnvironmentVariable("NodeID", "$env:NodeID", "Machine")
 
+$ServiceName = 'SystemCenter';
+$ConfigFile = 'C:/Program Files/SystemCenter/SystemCenter.StatusLog.txt'
+Write-Host "Starting $ServiceName" 
+net start $ServiceName
+Write-Host "Started $ServiceName"
 
-Write-Host "Starting SystemCenter"
-$ServiceName = 'SystemCenter'; 
-Restart-Service $ServiceName
-Write-Host "Started SystemCenter"
-
-get-content 'C:/Program Files/SystemCenter/SystemCenter.StatusLog.txt' -tail 1 -wait
+get-content "$ConfigFile" -tail 1 -wait

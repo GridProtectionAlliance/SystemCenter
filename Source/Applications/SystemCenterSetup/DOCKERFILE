@@ -13,7 +13,7 @@ RUN ["powershell","[Environment]::SetEnvironmentVariable('ConnectionString', 'Da
 
 ADD ./SystemCenterSetup.msi c:/setup/
 RUN C:/setup/SystemCenterSetup.msi INTEGRATEDSECURITY=NO COMPANYNAME=env(CompanyName) COMPANYACRONYM=env(CompanyAcronym) DEFAULTCONNECTIONSTRING=env(ConnectionString) NODEID=env(NodeID) /q /l*v log.log
-
+RUN sc \\SERVERNAME config "SystemCenter" start= demand
 
 COPY ./startDocker.ps1 c:/scripts/
 
