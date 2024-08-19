@@ -97,6 +97,7 @@
     <Compile Include="RemoteOpenXDAInstancesTest.cs" />
     <Compile Include="SubstationSuiteTests.cs" />
     <Compile Include="SystemCenterTest.cs" />
+    <Compile Include="UserGroupsTest.cs" />
     <Compile Include="UserStatisticsTest.cs" />
     <Compile Include="UsersTest.cs" />
   </ItemGroup>

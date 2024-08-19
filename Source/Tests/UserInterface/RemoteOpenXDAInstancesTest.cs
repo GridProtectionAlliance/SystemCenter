@@ -51,7 +51,7 @@ public class RemoteopenXDAInstancesTest
         driver.FindElement(By.Id("login")).Click();
 
         // Optional: Verify login success
-        var correctPage = driver.FindElements(By.LinkText("Device Health Report"));
+        var correctPage = driver.FindElements(By.LinkText("Remote openXDA Instances"));
         var foundPElement = driver.FindElements(By.XPath("//p"));
     }
 
