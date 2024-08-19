@@ -48,7 +48,7 @@ public class UsersTest {
         driver.FindElement(By.Id("login")).Click();
 
         // Optional: Verify login success
-        var metersPageLoad = driver.FindElements(By.LinkText("Data Files"));
+        var metersPageLoad = driver.FindElements(By.LinkText("Users"));
         var foundMeters = driver.FindElements(By.XPath("//p"));
     }
 

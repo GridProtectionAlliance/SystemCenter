@@ -51,7 +51,7 @@ public class ExternalTablesTest
         driver.FindElement(By.Id("login")).Click();
 
         // Optional: Verify login success
-        var correctPage = driver.FindElements(By.LinkText("External Databases"));
+        var correctPage = driver.FindElements(By.LinkText("External Tables"));
         var foundPElement = driver.FindElements(By.XPath("//p"));
     }
 

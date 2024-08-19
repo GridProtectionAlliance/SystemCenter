@@ -48,7 +48,7 @@ public class UserStatisticsTest {
         driver.FindElement(By.Id("login")).Click();
 
         // Optional: Verify login success
-        var correctPage = driver.FindElements(By.LinkText("System Center"));
+        var correctPage = driver.FindElements(By.LinkText("User Statistics"));
         var foundPElement = driver.FindElements(By.XPath("//p"));
     }
 
