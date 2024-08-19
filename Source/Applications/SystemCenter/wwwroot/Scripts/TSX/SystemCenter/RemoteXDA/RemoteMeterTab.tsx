@@ -55,10 +55,10 @@ const RemoteMeterTab = (props: IProps) => {
         }]
 
     const noSameFilter: Search.IFilter<OpenXDA.Types.RemoteXDAMeter> = {
-        FieldName: 'AssetKey',
-        SearchText: '',
-        Operator: 'NOT LIKE',
-        Type: 'string',
+        FieldName: 'ID',
+        SearchText: searchResults.map((r) => r.LocalXDAMeterID).join(','),
+        Operator: 'NOT IN',
+        Type: 'number',
         IsPivotColumn: false
     };
     // Shared Consts
