@@ -360,7 +360,8 @@ const RemoteMeterTab = (props: IProps) => {
                             Synced: false,
                             LocalAlias: "",
                             LocalMeterName: "",
-                            LocalAssetKey: ""
+                            LocalAssetKey: "",
+                            RemoteAlias: ''
                         }
                         dispatch(RemoteXDAMeterSlice.DBAction({ verb: "POST", record: newRemote }));
                         setSelectedMeter(newRemote); // Technically, this is a race condition with setAssetCount
