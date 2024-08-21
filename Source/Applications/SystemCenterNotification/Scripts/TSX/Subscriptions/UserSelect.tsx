@@ -27,6 +27,7 @@ import { UserAccountSlice } from '../Store';
 import { ReactTable } from '@gpa-gemstone/react-table';
 import { DefaultSearch } from '@gpa-gemstone/common-pages';
 import { Application } from '@gpa-gemstone/application-typings'
+import { GenericSlice } from '@gpa-gemstone/react-interactive';
 
 declare var homePath;
 declare var version;
@@ -46,7 +47,7 @@ const UserSelect = (props: IProps) => {
         <>
             <div className="row">
                 <div className="col">
-                    <DefaultSearch.User Slice={UserAccountSlice} GetAddlFields={() => () => { }} GetEnum={() => () => { }}>
+                    <DefaultSearch.User Slice={UserAccountSlice as any} GetAddlFields={() => () => { }} GetEnum={() => () => { }}>
                     </DefaultSearch.User>
                 </div>
             </div>
