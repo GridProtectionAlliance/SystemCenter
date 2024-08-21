@@ -292,7 +292,9 @@ const RemoteAssetTab = (props: IProps) => {
                             Synced: false,
                             RemoteAssetCreatedByDataPusher: false,
                             LocalAssetName: "",
-                            LocalAssetKey: ""
+                            LocalAssetKey: "",
+                            RemoteAssetName: '',
+                            RemoteAssetKey: ''
                         }
                         dispatch(RemoteXDAAssetSlice.DBAction({ verb: "POST", record: newRemote }));
                     });

@@ -37,7 +37,8 @@ const BlankRemoteXDAMeter: OpenXDA.Types.RemoteXDAMeter = {
     RemoteXDAInstanceID: -1,
     LocalAlias: null,
     LocalMeterName: null,
-    LocalAssetKey: null
+    LocalAssetKey: null,
+    RemoteAlias: ''
 }
 
 function RemoteMeterComparator(remoteMeter_1: OpenXDA.Types.RemoteXDAMeter, remoteMeter_2: OpenXDA.Types.RemoteXDAMeter): boolean {
