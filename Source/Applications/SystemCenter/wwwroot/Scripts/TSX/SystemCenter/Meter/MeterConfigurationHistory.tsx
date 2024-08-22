@@ -72,9 +72,7 @@ function MeterConfigurationHistoryWindow(props: { Meter: OpenXDA.Types.Meter }) 
     }
 
     return (
-        <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
-            <div className="row" style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
-                <div className="card" style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
+            <div className="card d-flex h-100 flex-column" style={{ overflow: 'hidden' }}>
                     <div className="card-header">
                         <div className="row">
                             <div className="col">
@@ -131,8 +129,6 @@ function MeterConfigurationHistoryWindow(props: { Meter: OpenXDA.Types.Meter }) 
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
     );
 }
 
