@@ -12,16 +12,13 @@
     </Condition>
 
     <Feature Id="AllProducts" Title="All Products" Level="1" Display="expand" ConfigurableDirectory="INSTALLFOLDER" AllowAdvertise="no" Description="All components of the SystemCenter installation.">
-      <Feature Id="SystemCenter" Title="SystemCenter" AllowAdvertise="no" Description="Includes the SystemCenter database and service.">
+      <Feature Id="SystemCenter" Title="SystemCenter" AllowAdvertise="no" Description="Includes the SystemCenter Service.">
 
         <!-- SystemCenter Service -->
-        <Feature Id="ServiceFeature" Title="SystemCenter Service" AllowAdvertise="no" Description="Installs the SystemCenter Windows service to perform data analytics.">
+        <Feature Id="ServiceFeature" Title="SystemCenter Service" AllowAdvertise="no" Description="Installs the SystemCenter Windows service to support configuration of openXDA .">
           <ComponentGroupRef Id="ServiceComponents" />
           <ComponentGroupRef Id="AzureADDependencyComponents" />
-
-          <Feature Id="WebFiles" Level="1" Title="Web Files">
-            <ComponentGroupRef Id="SystemCenterWebFiles"/>
-          </Feature>
+          <ComponentGroupRef Id="SystemCenterWebFiles"/>
         </Feature>
       </Feature>
     </Feature>
