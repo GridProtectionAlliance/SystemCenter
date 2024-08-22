@@ -381,7 +381,7 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-primary pull-right" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='AddAsset' onMouseEnter={() => setHover('Update')}
+                    <button className={"btn btn-info pull-right" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='AddAsset' onMouseEnter={() => setHover('Update')}
                     onMouseLeave={() => setHover('None')} onClick={() => { if (hasPermissions()) addNewButton() }}>Add Asset</button>
                 </div>
                 <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"AddAsset"}>

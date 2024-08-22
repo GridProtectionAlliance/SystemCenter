@@ -243,7 +243,7 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                 </div>
             </div>
             <div className="card-footer">
-                <button className={"btn btn-primary pull-left" + (!hasPermissions() ? ' disabled' : '')} data-toggle={"modal" + (!hasPermissions() ? ' disabled' : '')} data-target="#exampleModal" data-tooltip='AddDrawing' onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')}
+                <button className={"btn btn-info pull-left" + (!hasPermissions() ? ' disabled' : '')} data-toggle={"modal" + (!hasPermissions() ? ' disabled' : '')} data-target="#exampleModal" data-tooltip='AddDrawing' onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')}
                     onClick={() => { setRecord({ ...emptyRecord, LocationID: props.Location.ID }) }}>Add Drawing</button>
             </div>
             <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"AddDrawing"}>

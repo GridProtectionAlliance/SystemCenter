@@ -255,7 +255,7 @@ const LocationInfo = (props: IProps) => {
                     </p>)}
                 </ToolTip>
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-default" + (hasChanged ? '' : ' disabled')} data-tooltip="clear" onClick={() => {
+                    <button className={"btn btn-warning" + (hasChanged ? '' : ' disabled')} data-tooltip="clear" onClick={() => {
                         setLocation(props.Location);
                         if (resetAddl.current !== undefined) resetAddl.current();
                     }} onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')} >Clear Changes</button>
