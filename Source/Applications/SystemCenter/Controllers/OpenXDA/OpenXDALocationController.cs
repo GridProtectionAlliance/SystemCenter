@@ -205,17 +205,39 @@ namespace SystemCenter.Controllers.OpenXDA
 
         }
 
-        [HttpGet, Route("{locationID:int}/Meters")]
-        public IHttpActionResult GetMetersForLocation(int locationID)
+        [HttpGet, Route("{locationID:int}/Meters/{page:int}")]
+        public IHttpActionResult GetMetersForLocation(int locationID, int page)
         {
+            int recordsPerPage = 50;
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
+                    int totalRecords = connection.ExecuteScalar<int>($@"
+                    SELECT COUNT(*)
+                    FROM Meter
+                    WHERE LocationID = {locationID}
+                    ");
+                    int numberOfPages = (totalRecords + recordsPerPage - 1) / recordsPerPage;
+                    if (numberOfPages == 0) numberOfPages = 1;
                     try
                     {
-                        IEnumerable<Meter> result = new TableOperations<Meter>(connection).QueryRecordsWhere("LocationID = {0}", locationID);
-                        return Ok(result);
+                        int offset = page * recordsPerPage;
+                        string orderByExpression = "ID";
+
+                        RecordRestriction restriction = new RecordRestriction("LocationID = {0}", locationID);
+                        IEnumerable<Meter> result = new TableOperations<Meter>(connection)
+                            .QueryRecords(orderByExpression, restriction)
+                            .Skip(offset)
+                            .Take(recordsPerPage);
+
+                        return Ok(new
+                        {
+                            Result = JsonConvert.SerializeObject(result),
+                            RecordsPerPage = recordsPerPage,
+                            NumberOfPages = numberOfPages,
+                            TotalRecords = totalRecords
+                        });
                     }
                     catch (Exception ex)
                     {
@@ -228,9 +250,10 @@ namespace SystemCenter.Controllers.OpenXDA
 
         }
 
-        [HttpGet, Route("{locationID:int}/Assets")]
-        public IHttpActionResult GetAssetsForLocation(int locationID)
+        [HttpGet, Route("{locationID:int}/Assets/{page:int}")]
+        public IHttpActionResult GetAssetsForLocation(int locationID, int page)
         {
+            int recordsPerPage = 50;
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
@@ -238,20 +261,36 @@ namespace SystemCenter.Controllers.OpenXDA
                     string assetTableName = TableOperations<Asset>.GetTableName();
                     string assetTypeTableName = TableOperations<AssetTypes>.GetTableName();
                     string assetLocationTableName = TableOperations<AssetLocation>.GetTableName();
-
+                    int totalRecords = connection.ExecuteScalar<int>($@"
+                    SELECT COUNT(*)
+                    FROM {assetLocationTableName}
+                    WHERE LocationID = {locationID}
+                    ");
+                    int numberOfPages = (totalRecords + recordsPerPage - 1) / recordsPerPage;
+                    if (numberOfPages == 0) numberOfPages = 1;
                     try
                     {
                         DataTable result = connection.RetrieveData($@"
                         SELECT DISTINCT
-	                        a.*,
-	                        at.Name as AssetType
+                            a.*,
+                            at.Name as AssetType
                         FROM
-	                        {assetTableName} as a JOIN 
-	                        {assetTypeTableName} as at ON a.AssetTypeID = at.ID JOIN
-	                        {assetLocationTableName} as al ON a.ID = al.AssetID
+                            {assetTableName} as a JOIN 
+                            {assetTypeTableName} as at ON a.AssetTypeID = at.ID JOIN
+                            {assetLocationTableName} as al ON a.ID = al.AssetID
                         WHERE
-                            al.LocationID = {{0}}", locationID);
-                        return Ok(result);
+                            al.LocationID = {{0}}
+                        ORDER BY a.ID
+                        OFFSET {page * recordsPerPage} ROWS FETCH NEXT {recordsPerPage} ROWS ONLY
+                        ", locationID);
+
+                        return Ok(new
+                        {
+                            Result = JsonConvert.SerializeObject(result),
+                            RecordsPerPage = recordsPerPage,
+                            NumberOfPages = numberOfPages,
+                            TotalRecords = totalRecords
+                        });
                     }
                     catch (Exception ex)
                     {

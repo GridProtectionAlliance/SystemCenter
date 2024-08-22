@@ -381,7 +381,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
             <div className="card-footer">
                 <div className="btn-group mr-2">
                     <button className={"btn btn-primary" + (!HasValueChanged() || HasInvalidChanges() ? ' disabled' : '')} onClick={() => { if (HasValueChanged() && !HasInvalidChanges()) addOrUpdateValues(); }}
-                        onMouseEnter={() => setHover('Save')} onMouseLeave={() => setHover('None')} data-tooltip={'SaveValues'}>Update</button>
+                        onMouseEnter={() => setHover('Save')} onMouseLeave={() => setHover('None')} data-tooltip={'SaveValues'}>Save Changes</button>
                     <ToolTip Show={hover == 'Save' && (HasValueChanged() || !hasPermissions())} Position={'top'} Theme={'dark'} Target={"SaveValues"}>
                         {HasValueChanged() && !HasInvalidChanges() ? ChangedValues(false) : null}
                         {HasValueChanged() && HasInvalidChanges() ? InvalidChanges() : null}
@@ -389,8 +389,8 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                     </ToolTip>
                 </div>
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-default" + (!(HasValueChanged()) ? ' disabled' : '')} onClick={() => { if (HasValueChanged()) getFieldValues(); }} onMouseEnter={() => setHover('Clear')}
-                        onMouseLeave={() => setHover('None')} data-tooltip={'Clear'}>Reset</button>
+                    <button className={"btn btn-warning" + (!(HasValueChanged()) ? ' disabled' : '')} onClick={() => { if (HasValueChanged()) getFieldValues(); }} onMouseEnter={() => setHover('Clear')}
+                        onMouseLeave={() => setHover('None')} data-tooltip={'Clear'}>Clear Changes</button>
                     <ToolTip Show={hover == 'Clear' && (HasValueChanged())} Position={'top'} Theme={'dark'} Target={"Clear"}>
                         {HasValueChanged() ? ChangedValues(true) : null}
                     </ToolTip>

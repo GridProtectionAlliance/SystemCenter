@@ -198,7 +198,7 @@ const MeterInforWindow = (props: IProps) => {
                     {addlFieldError.map((message,i) => <p key={i}> {CrossMark} {message}</p>)}
                 </ToolTip>
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-default" + (hasChanged() ? '' : ' disabled')} data-tooltip="clear" onClick={() => {
+                    <button className={"btn btn-warning" + (hasChanged() ? '' : ' disabled')} data-tooltip="clear" onClick={() => {
                         setMeter(props.Meter);
                         if (resetAddl.current !== undefined) resetAddl.current();
                     }} onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')} >Clear Changes</button>
