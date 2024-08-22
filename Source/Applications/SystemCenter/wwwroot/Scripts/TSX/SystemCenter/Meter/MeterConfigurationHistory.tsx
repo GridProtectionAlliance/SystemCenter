@@ -27,7 +27,7 @@ import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { ReactTable, Paging } from '@gpa-gemstone/react-table';
 import { ServerErrorIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
 import { useHistory } from "react-router-dom";
-
+import moment from 'moment';
 declare var homePath: string;
 declare interface MeterConfiguration {
     ID: number,
@@ -112,11 +112,12 @@ function MeterConfigurationHistoryWindow(props: { Meter: OpenXDA.Types.Meter }) 
                             > Files Processed
                             </ReactTable.Column>
                             <ReactTable.Column<MeterConfiguration>
-                                Key={'LastProcessedTime'}
-                                AllowSort={true}
-                                Field={'LastProcessedTime'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
+                        Key={'LastProcessedTime'}
+                        AllowSort={true}
+                        Field={'LastProcessedTime'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                        Content={({ item }) => moment(item.LastProcessedTime).isValid() ? moment(item.LastProcessedTime).format('MM/DD/YYYY HH:mm:ss') : 'N/A'}
                             > Last Processed Time
                             </ReactTable.Column>
                         </ReactTable.Table>
