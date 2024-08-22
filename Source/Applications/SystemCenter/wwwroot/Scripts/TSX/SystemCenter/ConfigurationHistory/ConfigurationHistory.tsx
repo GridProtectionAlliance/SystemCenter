@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  Meter.tsx - Gbtc
+//  ConfigurationHistory.tsx - Gbtc
 //
 //  Copyright © 2019, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -36,6 +36,7 @@ declare var ace: any;
 
 function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: string }) {
     const history = useHistory();
+    const aceRef = React.useRef<HTMLDivElement>(null)
     const [meterConfiguration, setMeterConfiguration] = React.useState<OpenXDA.Types.MeterConfiguration>(null);
     const [tab, setTab] = React.useState<string>('configuration');
     const [filesProcessed, setFilesProcessed] = React.useState<Array<OpenXDA.Types.DataFile>>([]);
@@ -46,6 +47,14 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
     const [page, setPage] = React.useState<number>(0);
     const [pageInfo, setPageInfo] = React.useState<{ RecordsPerPage: number, NumberOfPages: number, TotalRecords: number }>({ RecordsPerPage: 0, NumberOfPages: 0, TotalRecords: 0 });
     const [pageState, setPageState] = React.useState<'error' | 'idle' | 'loading'>('idle');
+
+    const [height, setHeight] = React.useState<number>(0);
+
+    React.useLayoutEffect(() => {
+        if (aceRef.current == null)
+            return;
+        setHeight(aceRef.current.offsetHeight)
+    })
 
     React.useEffect(() => {
         getData();
@@ -148,17 +157,16 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
             </div>
 
             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                <div className="col-12" style={{ padding: 0, height: "100%" }}>
-                    <div className="tab-content" style={{ height: "100%" }}>
-                        {tab == "configuration" ?
-                            <div className="tab-pane active">
-                                <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                                    <div className="col-12">
+                <div className="col-12  d-flex flex-column" style={{height: "100%" }}>
+                {tab == "configuration" ?
+                        <>
+                            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                                <div className="col-12" ref={aceRef} style={{ height: '100%' }}>
                                         {/*Have to keep window.innerHeight here because ace won't auto-adjust the height of the div when generated */}
-                                        <div id="template" style={{ height: window.innerHeight - 225 }}></div>
+                                        <div id="template" style={{ height: height}}></div>
                                     </div>
                                 </div>
-                                <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                            <div className="row" style={{marginBottom: 5}}>
                                     <div className="col-12" style={{ paddingTop: 10 }}>
                                         <div className="btn-group mr-2">
                                             <button className={"btn btn-primary pull-right" + (!hasPermissions() ? ' disabled' : '')} onClick={saveEdit} disabled={!changed} data-tooltip='SaveEdits'
@@ -172,7 +180,7 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </>
                         : null}
                         {tab == "filesProcessed" ?
                             <div className="tab-pane active" style={{ height: '100%',display: 'flex', flexDirection: 'column' }}>
@@ -219,7 +227,6 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
                                 </div>
                             </div>
                         : null}
-                    </div>
                 </div>
             </div>
         </div>
