@@ -126,7 +126,7 @@ const ByMeter: Application.Types.iByComponent = (props) => {
                         <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
                             <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                                 <legend className="w-auto" style={{ fontSize: 'large' }}>Wizards:</legend>
-                                <button className="btn btn-primary" data-tooltip onClick={goNewMeterWizard} hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0}>New Meter</button>
+                                <button className="btn btn-info btn-block" data-tooltip onClick={goNewMeterWizard} hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0}>New Meter</button>
                             </fieldset>
                         </li>
                         <li className="nav-item" style={{ width: '20%', paddingRight: 10 }}>
@@ -134,7 +134,7 @@ const ByMeter: Application.Types.iByComponent = (props) => {
                                 <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                                 <form>
                                     <div className="form-group">
-                                        <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0}
+                                        <button className="btn btn-info btn-block" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0}
                                             onClick={(event) => { event.preventDefault(); setShowExtModal(true); }}>External Database</button>
                                     </div>
                                 </form>
