@@ -148,7 +148,7 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
                     <h2>{props.MeterKey} - Configuration Revision: {meterConfiguration.RevisionMajor + '.' + meterConfiguration.RevisionMinor}</h2>
                 </div>
                 <div className="col-4 align-self-center">
-                    <button className="btn btn-primary pull-right" onClick={() => history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + meterConfiguration.MeterID, state: {} })}>Meter Details</button>
+                    <button className="btn btn-secondary pull-right" onClick={() => history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + meterConfiguration.MeterID, state: {} })}>Meter Details</button>
                 </div>
             </div>
 
@@ -170,13 +170,13 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
                                     <div className="col-12" style={{ paddingTop: 10 }}>
                                         <div className="btn-group mr-2">
                                             <button className={"btn btn-primary pull-right" + (!hasPermissions() ? ' disabled' : '')} onClick={saveEdit} disabled={!changed} data-tooltip='SaveEdits'
-                                                onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')}>Save Edit</button>
+                                                onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')}>Save Changes</button>
                                         </div>
                                         <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"SaveEdits"}>
                                             <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                                         </ToolTip>
                                         <div className="btn-group mr-2">
-                                            <button className="btn btn-danger pull-right" onClick={getData} disabled={!changed}>Reset</button>
+                                            <button className="btn btn-warning pull-right" onClick={getData} disabled={!changed}>Clear Changes</button>
                                         </div>
                                     </div>
                                 </div>
