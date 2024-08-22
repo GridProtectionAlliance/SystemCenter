@@ -12,7 +12,7 @@ RUN ["powershell","[Environment]::SetEnvironmentVariable('CompanyAcronym', 'GPA'
 RUN ["powershell","[Environment]::SetEnvironmentVariable('ConnectionString', 'Data Source=localhost; Initial Catalog=openXDA', 'Machine')"]
 
 ADD ./SystemCenterSetup.msi c:/setup/
-RUN C:/setup/SystemCenterSetup.msi INTEGRATEDSECURITY=NO COMPANYNAME=env(CompanyName) COMPANYACRONYM=env(CompanyAcronym) DEFAULTCONNECTIONSTRING=env(ConnectionString) NODEID=env(NodeID) /q /l*v log.log
+RUN C:/setup/SystemCenterSetup.msi  ADDLOCAL="ServiceFeature" INTEGRATEDSECURITY=NO COMPANYNAME=env(CompanyName) COMPANYACRONYM=env(CompanyAcronym) DEFAULTCONNECTIONSTRING=env(ConnectionString) NODEID=env(NodeID) /q /l*v log.log
 RUN sc config "SystemCenter" start= demand
 
 COPY ./startDocker.ps1 c:/scripts/
