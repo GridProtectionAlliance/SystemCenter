@@ -22,8 +22,8 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { ToolTip } from '@gpa-gemstone/react-interactive'
-import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import { ProgressBar, ToolTip } from '@gpa-gemstone/react-interactive'
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import EmailSelect from './EmailSelect';
 import AssetGroupSelection from '../AssetGroupSelection';
 import ConfirmEmail from '../ConfirmEmail';
@@ -49,6 +49,20 @@ const NewEventSubscription = (props: {}) => {
     const isText = useAppSelector((state) => (EmailTypeSlice.Datum(state, emailTypeID) == null ? false : EmailTypeSlice.Datum(state, emailTypeID).SMS));
 
     const carrierID = useAppSelector(UserInfoSlice.CellCarrierID);
+
+    const PhoneSteps = [
+        { short: 'Notification', long: 'Select Notification', id: 'Selection' },
+        { short: 'Phone Provider', long: 'Confirm Phone Provider', id: 'Carrier' },
+        { short: 'Phone Number', long: 'Confirm Phone Number', id:'Phone' },
+        { short: 'Success', long: 'Success', id: 'Success' }
+    ];
+
+    const EmailSteps = [
+        { short: 'Notification', long: 'Select Notification', id: 'Selection' },
+        { short: 'Email', long: 'Confirm Emailadress', id: 'Email' },
+        { short: 'Success', long: 'Success', id: 'Success' }
+    ];
+
 
     React.useEffect(() => {
         const e = [];
@@ -112,12 +126,18 @@ const NewEventSubscription = (props: {}) => {
 
 
     return (
-        <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
+        <div className="container-fluid d-flex h-100 flex-column">
             <div className="row">
                 <div className="col">
                     <h2>Subscribe to an openXDA Event Notification</h2>
                 </div>
             </div>
+            <div className="row">
+                <div className="col-12">
+                    <ProgressBar steps={isText ? PhoneSteps : EmailSteps} activeStep={currentStep} />
+                </div>
+            </div>
+            
             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
                 <div className="card" style={{ width: '100%', height: '100%' }}>
                     <div className="card-header">
@@ -143,20 +163,19 @@ const NewEventSubscription = (props: {}) => {
                     </div>
                     <div className="card-footer">
                         {currentStep != 'Selection' && currentStep != 'Success' ?
-                            <div className="btn-group mr-2">
-                                <button className="btn btn-danger pull-left" onClick={prev}>Previous</button>
+                            <div className="btn-group mr-2 float-left">
+                                <button className="btn btn-danger" onClick={prev}>Previous</button>
                             </div> : null}
-                        {currentStep == 'Selection' || currentStep == 'Carrier' ?
-                            <div className="btn-group mr-2">
-                                <button className={"btn btn-success pull-right" + (disableNext() ? ' disabled' : '')} onClick={next}
+                            <div className="btn-group mr-2 float-right">
+                                <button className={"btn btn-success" + ((disableNext() || (currentStep != 'Selection' && currentStep != 'Carrier')) ? ' disabled' : '')} onClick={next}
                                     data-tooltip='Next' onMouseEnter={() => setHoverNext(true)} onMouseLeave={() => setHoverNext(false)}
-                                >Continue</button>
-                            </div> : null}
+                                >{currentStep !== 'Success' ? 'Next' : 'Subscribe'}</button>
+                            </div>
                     </div>
                 </div>
             </div>
             <ToolTip Show={hoverNext && error.length > 0} Position={'top'} Theme={'dark'} Target={"Next"}>
-                {error.map((item, index) => <p key={index}> {CrossMark} {item} </p>)}
+                {error.map((item, index) => <p key={index}> <ReactIcons.CircledX Color={'red'} Size={'1rem'} /> {item} </p>)}
             </ToolTip>
         </div>
     );
