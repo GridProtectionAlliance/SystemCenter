@@ -164,12 +164,11 @@ const NewReportSubscription = (props: {}) => {
                             <div className="btn-group mr-2 float-left">
                                 <button className="btn btn-danger" onClick={prev}>Previous</button> 
                             </div> : null}
-                        {currentStep == 'Selection' || currentStep == 'Carrier' ?
-                            <div className="btn-group mr-2 float-right">
+                                                    <div className="btn-group mr-2 float-right">
                                 <button className={"btn btn-success" + ((disableNext() || (currentStep != 'Selection' && currentStep != 'Carrier') )? ' disabled' : '')} onClick={next}
                                     data-tooltip='Next' onMouseEnter={() => setHoverNext(true)} onMouseLeave={() => setHoverNext(false)}
-                                >{currentStep !== 'Success' ? 'Next' : 'Subscribe'}</button>
-                            </div> : null}
+                                >{(currentStep !== 'Success') ? 'Next' : 'Subscribe'}</button>
+                            </div>
                     </div>
                 </div>
             </div>
