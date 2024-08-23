@@ -193,7 +193,7 @@ const LocationWindow = (props: IProps) => {
                     </ToolTip>
                 </div>
                 <div className="btn-group mr-2">
-                <button className={"btn btn-default" + (hasChanged? '' : ' disabled')}
+                <button className={"btn btn-warning" + (hasChanged? '' : ' disabled')}
                     data-tooltip='ResetLocation' onMouseEnter={() => setHover('Reset')} onMouseLeave={() => setHover('None')}
                     onClick={() => { if (hasChanged) { setMeter(props.Meter); setHasChanged(false); } } }>Reset</button>
                 <ToolTip Show={hover == 'Reset' && !hasChanged} Position={'top'} Theme={'dark'} Target={"ResetLocation"}>

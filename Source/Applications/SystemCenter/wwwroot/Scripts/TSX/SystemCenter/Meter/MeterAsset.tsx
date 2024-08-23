@@ -275,13 +275,13 @@ const MeterAssetWindow = (props: IProps) => {
                 </div>
                 <div className="card-footer">
                     <div className="btn-group mr-2">
-                        <button className={"btn btn-primary pull-left" + (hasPermissions() ? '' : ' disabled')} style={{ marginRight: 5 }} data-tooltip='ExistingAsset' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}
+                        <button className={"btn btn-info pull-right" + (hasPermissions() ? '' : ' disabled')} style={{ marginRight: 5 }} data-tooltip='ExistingAsset' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}
                             onClick={() => { if (hasPermissions()) setShowSelect(true) }}>Add Existing Asset</button>
                         <ToolTip Show={hover == 'submit' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"ExistingAsset"}>
                             <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                         </ToolTip>
 
-                        <button className={"btn btn-primary pull-right" + (hasPermissions() ? '' : ' disabled')} data-tooltip='NewAsset' onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')}
+                        <button className={"btn btn-info pull-right" + (hasPermissions() ? '' : ' disabled')} data-tooltip='NewAsset' onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')}
                             onClick={() => { setActiveAsset(0, 'Line'); if (hasPermissions()) setShoweditNew(true); }}>Add New Asset</button>
                         <ToolTip Show={hover == 'clear' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"NewAsset"}>
                             <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>

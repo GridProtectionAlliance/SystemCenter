@@ -39,7 +39,6 @@ import { SelectRoles } from '../Store/UserSettings';
 declare var homePath: string;
 
 interface IProps { Meter: GemstoneOpenXDA.Types.Meter, IsVisible: boolean }
-type RecordChange = Map<number, Map<keyof OpenXDA.TrendChannel, string | number>>;
 
 const MeterTrendChannelWindow = (props: IProps) => {
     const dispatch = useAppDispatch();
@@ -50,7 +49,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
     const status = useAppSelector(TrendChannelSlice.Status);
     const meterID = useAppSelector(TrendChannelSlice.ParentID);
 
-    const [recordChanges, setRecordChanges] = React.useState<RecordChange>(new Map<number, Map<keyof OpenXDA.TrendChannel, number | string>>());
+    const [recordChanges, setRecordChanges] = React.useState<Map<number, Partial<OpenXDA.TrendChannel>>>(new Map());
 
     const phases = useAppSelector(PhaseSlice.Data) as GemstoneOpenXDA.Types.Phase[];
     const measurementTypes = useAppSelector(MeasurmentTypeSlice.Data) as GemstoneOpenXDA.Types.MeasurementType[];
@@ -104,39 +103,41 @@ const MeterTrendChannelWindow = (props: IProps) => {
         let e = [];
 
         for (let id of recordChanges.keys()) {
-            for (let k of recordChanges.get(id).keys()) {
-                const val = recordChanges.get(id).get(k);
+            const changes = recordChanges.get(id);
+            if (changes) {
+                for (let k in changes) {
+                    const val = changes[k];
 
-                if (k == 'HarmonicGroup' && val != null && !AssetAttributes.isRealNumber(val))
-                    e.push('All Harmonics must be numeric values.');
-                if (k == 'Adder' && val != null && !AssetAttributes.isRealNumber(val))
-                    e.push('All Adders must be numeric values.');
-                if (k == 'Multiplier' && val != null && !AssetAttributes.isRealNumber(val))
-                    e.push('All Multipliers must be numeric values.');
-                if (k == 'SamplesPerHour' && val != null && !AssetAttributes.isRealNumber(val))
-                    e.push('All Samples must be numeric values.');
-                if (k == 'ConnectionPriority' && val != null && !AssetAttributes.isRealNumber(val))
-                    e.push('All Connection Priorities must be numeric values.');
+                    if (k == 'HarmonicGroup' && val != null && !AssetAttributes.isRealNumber(val))
+                        e.push('All Harmonics must be numeric values.');
+                    if (k == 'Adder' && val != null && !AssetAttributes.isRealNumber(val))
+                        e.push('All Adders must be numeric values.');
+                    if (k == 'Multiplier' && val != null && !AssetAttributes.isRealNumber(val))
+                        e.push('All Multipliers must be numeric values.');
+                    if (k == 'SamplesPerHour' && val != null && !AssetAttributes.isRealNumber(val))
+                        e.push('All Samples must be numeric values.');
+                    if (k == 'ConnectionPriority' && val != null && !AssetAttributes.isRealNumber(val))
+                        e.push('All Connection Priorities must be numeric values.');
 
-                if (k == 'HarmonicGroup' && val == null)
-                    e.push('All Channels must have a Harmonic.');
-                if (k == 'Adder' && val == null)
-                    e.push('All Channels must have an Adder.');
-                if (k == 'Multiplier' && val == null)
-                    e.push('All Channels must have a Multiplier.');
-                if (k == 'SamplesPerHour' && val == null)
-                    e.push('All Channels must have a Sample.');
-                if (k == 'ConnectionPriority' && val == null)
-                    e.push('All Channels must have a Connection Priority.');
+                    if (k == 'HarmonicGroup' && val == null)
+                        e.push('All Channels must have a Harmonic.');
+                    if (k == 'Adder' && val == null)
+                        e.push('All Channels must have an Adder.');
+                    if (k == 'Multiplier' && val == null)
+                        e.push('All Channels must have a Multiplier.');
+                    if (k == 'SamplesPerHour' && val == null)
+                        e.push('All Channels must have a Sample.');
+                    if (k == 'ConnectionPriority' && val == null)
+                        e.push('All Channels must have a Connection Priority.');
 
-                if (k == 'Name' && (val == null || val.toString().length == 0))
-                    e.push('All Channels must have a Name.');
+                    if (k == 'Name' && (val == null || val.toString().length == 0))
+                        e.push('All Channels must have a Name.');
 
-                if (k == 'Name' && val != null && val.toString().length > 0 && data.findIndex(c => c.Name.toLowerCase() == val.toString().toLowerCase() && id != c.ID) > -1)
-                    e.push('All Channel Names must be unique.');
+                    if (k == 'Name' && val != null && val.toString().length > 0 && data.findIndex(c => c.Name.toLowerCase() == val.toString().toLowerCase() && id != c.ID) > -1)
+                        e.push('All Channel Names must be unique.');
+                }
             }
         }
-
         setErrors(_.uniq(e));
     }, [recordChanges]);
 
@@ -153,38 +154,34 @@ const MeterTrendChannelWindow = (props: IProps) => {
         });
     }
 
-
     function applyUpdates(): void {
-        for (let id of recordChanges.keys()) {
-            const original = _.cloneDeep(data.find(r => r.ID == id)) as any;
-            for (let k of recordChanges.get(id).keys()) {
-                original[k] = (recordChanges.get(id).get(k as keyof OpenXDA.TrendChannel)) as any
+        recordChanges.forEach((changes, id) => {
+            const original = data.find(r => r.ID === id);
+            if (original) {
+                const updatedRecord = { ...original, ...changes };
+                dispatch(TrendChannelSlice.DBAction({ record: updatedRecord, verb: 'PATCH' }));
             }
-            dispatch(TrendChannelSlice.DBAction({ record: original, verb: 'PATCH' }));
-        }
+        });
 
-        setRecordChanges(new Map<number, Map<keyof OpenXDA.TrendChannel, number | string>>());
+        setRecordChanges(new Map<number, Partial<OpenXDA.TrendChannel>>());
     }
 
     function replicateChanges(record: OpenXDA.TrendChannel) {
-        const result = { ...record } as any;
-        if (recordChanges.has(result.ID)) {
-            for (let k of recordChanges.get(result.ID).keys()) {
-                result[k] = (recordChanges.get(result.ID).get(k as keyof OpenXDA.TrendChannel)) as any
-            }
+        const changes = recordChanges.get(record.ID);
+        if (changes) {
+            return { ...record, ...changes };
         }
-        return result as OpenXDA.TrendChannel;
+        return record;
     }
 
-    function createChange(record: OpenXDA.TrendChannel, field: keyof OpenXDA.TrendChannel) {
+    function createChange(id: number, field: keyof OpenXDA.TrendChannel, value: string | number): void {
         setRecordChanges((original) => {
-            let update = _.cloneDeep(original);
-            if (!update.has(record.ID))
-                update.set(record.ID, new Map<keyof OpenXDA.TrendChannel, string | number>());
-            update.get(record.ID).set(field, record[field] as string | number);
-            return update;
-        })
-
+            const updated = new Map<number, Partial<OpenXDA.TrendChannel>>(original);
+            const changes = updated.get(id) || {} as Partial<OpenXDA.TrendChannel>;
+            (changes as any)[field] = value;
+            updated.set(id, changes);
+            return updated;
+        });
     }
 
     function isValid(fld: keyof OpenXDA.TrendChannel, record: OpenXDA.TrendChannel) {
@@ -208,7 +205,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
             return false;
         return true;
     }
-    console.log(assetStatus);
+
     if (assetStatus == 'error' || phaseStatus == 'error' || mcStatus == 'error' || status == 'error')
         return <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
@@ -271,31 +268,43 @@ const MeterTrendChannelWindow = (props: IProps) => {
                         OnSort={(d) => {
 
                             if (d.colKey === sortKey)
-                                dispatch(TrendChannelSlice.Sort({ SortField: d.colField, Ascending: !ascending }));
+                                dispatch(TrendChannelSlice.Sort({ SortField: sortKey, Ascending: ascending }));
                             else
-                                dispatch(TrendChannelSlice.Sort({ SortField: d.colField, Ascending: true }));
+                                dispatch(TrendChannelSlice.Sort({ SortField: d.colField as keyof OpenXDA.TrendChannel, Ascending: true }));
                         }}
                     >
-
                         <ReactTable.Column<OpenXDA.TrendChannel>
                             Key={'Name'} Field={'Name'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                            Content={({ item }) => <Input<OpenXDA.TrendChannel> Record={item} Field={'Name'}
-                                Label={''} Setter={(r) => createChange(r, 'Name')}
-                                Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()} />}
+                            Content={({ item }) => (
+                                <Input<OpenXDA.TrendChannel>
+                                    Record={item}
+                                    Field={'Name'}
+                                    Label={''}
+                                    Setter={(r) => createChange(item.ID, 'Name', r.Name)}
+                                    Valid={(f) => isValid(f, item)}
+                                    Disabled={!hasPermissions()}
+                                />
+                            )}
                         >
-                            Name </ReactTable.Column>
-
+                            Name
+                        </ReactTable.Column>
                         <ConfigTable.Configurable Key='Description' Label='Description' Default={true}>
                             <ReactTable.Column<OpenXDA.TrendChannel>
                                 Key={'Description'} Field={'Description'} HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
-                                Content={({ item }) => <Input<OpenXDA.TrendChannel> Record={item}
-                                    Field={'Description'} Label={''}
-                                    Setter={(r) => createChange(r, 'Description')}
-                                    Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()} />}>
-                            </ReactTable.Column>
+                                Content={({ item }) => (
+                                    <Input<OpenXDA.TrendChannel>
+                                        Record={item}
+                                        Field={'Description'}
+                                        Label={''}
+                                        Setter={(r) => createChange(item.ID, 'Description', r.Description)}
+                                        Valid={(f) => isValid(f, item)}
+                                        Disabled={!hasPermissions()}
+                                    />
+                                )}
+                            />
                         </ConfigTable.Configurable>
                         <ConfigTable.Configurable Key='MeasurementType' Label='Type' Default={true}>
                             <ReactTable.Column<OpenXDA.TrendChannel>
@@ -303,70 +312,133 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                 Field={'MeasurementType'}
                                 HeaderStyle={{ width: '10%' }}
                                 RowStyle={{ width: '10%' }}
-                                Content={({ item }) => <Select Record={item} Field={'MeasurementTypeID'}
-                                    Label={''}
-                                    Options={measurementTypes.map(d => ({ Label: d.Name, Value: d.ID.toString() }))}
-                                    Setter={(r) => createChange(r, 'MeasurementTypeID')} Disabled={!hasPermissions()} />}>
+                                Content={({ item }) => (
+                                    <Select
+                                        Record={item}
+                                        Field={'MeasurementTypeID'}
+                                        Label={''}
+                                        Options={measurementTypes.map(d => ({ Label: d.Name, Value: d.ID.toString() }))}
+                                        Setter={(r) => createChange(item.ID, 'MeasurementTypeID', r.MeasurementTypeID)}
+                                        Disabled={!hasPermissions()}
+                                    />
+                                )}
+                            >
                                 Type
                             </ReactTable.Column>
-                        </ConfigTable.Configurable >
+                        </ConfigTable.Configurable>
+                        <ConfigTable.Configurable Key='MeasurementCharacteristic' Label='Characteristic' Default={true}>
+                            <ReactTable.Column<OpenXDA.TrendChannel>
+                                Key={'MeasurementCharacteristic'}
+                                Field={'MeasurementCharacteristic'}
+                                HeaderStyle={{ width: '10%' }}
+                                RowStyle={{ width: '10%' }}
+                                Content={({ item }) => (
+                                    <Select
+                                        Record={item}
+                                        Field={'MeasurementCharacteristicID'}
+                                        Label={''}
+                                        Options={measurementCharacteristics.map(d => ({ Label: d.Name, Value: d.ID.toString() }))}
+                                        Setter={(r) => createChange(item.ID, 'MeasurementCharacteristicID', r.MeasurementCharacteristicID)}
+                                        Disabled={!hasPermissions()}
+                                    />
+                                )}
+                            >
+                                Characteristic
+                            </ReactTable.Column>
+                        </ConfigTable.Configurable>
                         <ConfigTable.Configurable Key='Phase' Label='Phase' Default={true}>
                             <ReactTable.Column<OpenXDA.TrendChannel>
                                 Key={'Phase'}
                                 Field={'Phase'}
                                 HeaderStyle={{ width: '10%' }}
                                 RowStyle={{ width: '10%' }}
-                                Content={({ item }) => <Select Record={item} Field={'PhaseID'}
-                                    Label={''} Options={phases.map(d => ({ Label: d.Name, Value: d.ID.toString() }))}
-                                    Setter={(r) => createChange(r, 'PhaseID')} Disabled={!hasPermissions()} />}>
-                            </ReactTable.Column>
-                        </ConfigTable.Configurable >
+                                Content={({ item }) => (
+                                    <Select
+                                        Record={item}
+                                        Field={'PhaseID'}
+                                        Label={''}
+                                        Options={phases.map(d => ({ Label: d.Name, Value: d.ID.toString() }))}
+                                        Setter={(r) => createChange(item.ID, 'PhaseID', r.PhaseID)}
+                                        Disabled={!hasPermissions()}
+                                    />
+                                )}
+                            />
+                        </ConfigTable.Configurable>
                         <ConfigTable.Configurable Key='HarmonicGroup' Label='Harmonic' Default={false}>
                             <ReactTable.Column<OpenXDA.TrendChannel>
                                 Key={'HarmonicGroup'}
                                 HeaderStyle={{ width: '7%' }}
                                 RowStyle={{ width: '7%' }}
-                                Content={({ item }) => <Input<OpenXDA.TrendChannel>
-                                    Record={item} Field={'HarmonicGroup'} Type={'number'}
-                                    Label={''}
-                                    Setter={(r) => createChange(r, 'HarmonicGroup')}
-                                    Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()} />}>
+                                Content={({ item }) => (
+                                    <Input<OpenXDA.TrendChannel>
+                                        Record={item}
+                                        Field={'HarmonicGroup'}
+                                        Type={'number'}
+                                        Label={''}
+                                        Setter={(r) => createChange(item.ID, 'HarmonicGroup', r.HarmonicGroup)}
+                                        Valid={(f) => isValid(f, item)}
+                                        Disabled={!hasPermissions()}
+                                    />
+                                )}
+                            >
                                 Harmonic
                             </ReactTable.Column>
-                        </ConfigTable.Configurable >
+                        </ConfigTable.Configurable>
                         <ConfigTable.Configurable Key='Adder' Label='Adder' Default={true}>
                             <ReactTable.Column<OpenXDA.TrendChannel>
                                 Key={'Adder'}
                                 Field={'Adder'}
                                 HeaderStyle={{ width: '7%' }}
                                 RowStyle={{ width: '7%' }}
-                                Content={({ item }) => <Input<OpenXDA.TrendChannel>
-                                    Record={item} Field={'Adder'} Type={'number'}
-                                    Label={''} Setter={(r) => createChange(r, 'Adder')}
-                                    Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()} />}>
-                            </ReactTable.Column>
-                        </ConfigTable.Configurable >
+                                Content={({ item }) => (
+                                    <Input<OpenXDA.TrendChannel>
+                                        Record={item}
+                                        Field={'Adder'}
+                                        Type={'number'}
+                                        Label={''}
+                                        Setter={(r) => createChange(item.ID, 'Adder', r.Adder)}
+                                        Valid={(f) => isValid(f, item)}
+                                        Disabled={!hasPermissions()}
+                                    />
+                                )}
+                            />
+                        </ConfigTable.Configurable>
                         <ConfigTable.Configurable Key='Multiplier' Label='Multiplier' Default={true}>
                             <ReactTable.Column<OpenXDA.TrendChannel>
                                 Key={'Multiplier'}
                                 Field={'Multiplier'}
                                 HeaderStyle={{ width: '7%' }}
                                 RowStyle={{ width: '7%' }}
-                                Content={({ item }) => <Input<OpenXDA.TrendChannel>
-                                    Record={item} Field={'Multiplier'} Type={'number'}
-                                    Label={''} Setter={(r) => createChange(r, 'Multiplier')}
-                                    Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()} />}>
-                            </ReactTable.Column>
-                        </ConfigTable.Configurable >
+                                Content={({ item }) => (
+                                    <Input<OpenXDA.TrendChannel>
+                                        Record={item}
+                                        Field={'Multiplier'}
+                                        Type={'number'}
+                                        Label={''}
+                                        Setter={(r) => createChange(item.ID, 'Multiplier', r.Multiplier)}
+                                        Valid={(f) => isValid(f, item)}
+                                        Disabled={!hasPermissions()}
+                                    />
+                                )}
+                            />
+                        </ConfigTable.Configurable>
                         <ConfigTable.Configurable Key='SamplesPerHour' Label='Sampling Rate' Default={false}>
                             <ReactTable.Column<OpenXDA.TrendChannel>
                                 Key={'SamplesPerHour'}
                                 HeaderStyle={{ width: '7%' }}
                                 RowStyle={{ width: '7%' }}
-                                Content={({ item }) => <Input<OpenXDA.TrendChannel>
-                                    Record={item} Field={'SamplesPerHour'} Type={'number'}
-                                    Label={''} Setter={(r) => createChange(r, 'SamplesPerHour')}
-                                    Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()} />}>
+                                Content={({ item }) => (
+                                    <Input<OpenXDA.TrendChannel>
+                                        Record={item}
+                                        Field={'SamplesPerHour'}
+                                        Type={'number'}
+                                        Label={''}
+                                        Setter={(r) => createChange(item.ID, 'SamplesPerHour', r.SamplesPerHour)}
+                                        Valid={(f) => isValid(f, item)}
+                                        Disabled={!hasPermissions()}
+                                    />
+                                )}
+                            >
                                 Sampling Rate (sph)
                             </ReactTable.Column>
                         </ConfigTable.Configurable>
@@ -375,54 +447,80 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                 Key={'PerUnitValue'}
                                 HeaderStyle={{ width: '7%' }}
                                 RowStyle={{ width: '7%' }}
-                                Content={({ item }) => <Input<OpenXDA.TrendChannel> Record={item}
-                                    Field={'PerUnitValue'} Type={'number'} Label={''}
-                                    Setter={(r) => createChange(r, 'PerUnitValue')}
-                                    Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()} />}>
+                                Content={({ item }) => (
+                                    <Input<OpenXDA.TrendChannel>
+                                        Record={item}
+                                        Field={'PerUnitValue'}
+                                        Type={'number'}
+                                        Label={''}
+                                        Setter={(r) => createChange(item.ID, 'PerUnitValue', r.PerUnitValue)}
+                                        Valid={(f) => isValid(f, item)}
+                                        Disabled={!hasPermissions()}
+                                    />
+                                )}
+                            >
                                 Per Unit
                             </ReactTable.Column>
-                        </ConfigTable.Configurable >
+                        </ConfigTable.Configurable>
                         <ConfigTable.Configurable Key='Asset' Label='Asset' Default={true}>
                             <ReactTable.Column<OpenXDA.TrendChannel>
-                                Key={'Asset'} Field={'Asset'}
+                                Key={'Asset'}
+                                Field={'Asset'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
-                                Content={({ item }) => <Select Record={item}
-                                    Field={'AssetID'} Label={''}
-                                    Options={assets.map(d => ({ Label: d.AssetKey, Value: d.ID.toString() }))}
-                                    Setter={(r) => createChange(r, 'AssetID')} Disabled={!hasPermissions()} />}>
-
-                            </ReactTable.Column>
-                        </ConfigTable.Configurable >
+                                Content={({ item }) => (
+                                    <Select
+                                        Record={item}
+                                        Field={'AssetID'}
+                                        Label={''}
+                                        Options={assets.map(d => ({ Label: d.AssetKey, Value: d.ID.toString() }))}
+                                        Setter={(r) => createChange(item.ID, 'AssetID', r.AssetID)}
+                                        Disabled={!hasPermissions()}
+                                    />
+                                )}
+                            />
+                        </ConfigTable.Configurable>
                         <ConfigTable.Configurable Key='ConnectionPriority' Label='Connection Type' Default={true}>
                             <ReactTable.Column<OpenXDA.TrendChannel>
                                 Key={'ConnectionPriority'}
                                 Field={'ConnectionPriority'}
                                 HeaderStyle={{ width: '7%' }}
                                 RowStyle={{ width: '8%' }}
-                                Content={({ item }) => <Select EmptyOption={true} Record={item}
-                                    Field={'ConnectionPriority'} Label={''}
-                                    Options={[{ Value: '0', Label: 'Primary' }, { Value: '1', Label: 'Secondary' }, { Value: '2', Label: 'Tertiary' }]}
-                                    Setter={(r) => createChange(r, 'ConnectionPriority')}
-                                    Disabled={(assets.find(d => d.ID == item.AssetID)?.AssetType != 'Transformer') || !hasPermissions()} />}>
+                                Content={({ item }) => (
+                                    <Select
+                                        EmptyOption={true}
+                                        Record={item}
+                                        Field={'ConnectionPriority'}
+                                        Label={''}
+                                        Options={[{ Value: '0', Label: 'Primary' }, { Value: '1', Label: 'Secondary' }, { Value: '2', Label: 'Tertiary' }]}
+                                        Setter={(r) => createChange(item.ID, 'ConnectionPriority', r.ConnectionPriority)}
+                                        Disabled={(assets.find(d => d.ID === item.AssetID)?.AssetType !== 'Transformer') || !hasPermissions()}
+                                    />
+                                )}
+                            >
                                 Conn Type
                             </ReactTable.Column>
-                        </ConfigTable.Configurable >
+                        </ConfigTable.Configurable>
                         <ReactTable.Column<OpenXDA.TrendChannel>
                             Key={'Remove'}
                             AllowSort={false}
-                            HeaderStyle={{ width: '62px' }}
+                            HeaderStyle={{ width: '70px' }}
                             RowStyle={{ width: '62px' }}
-                            Content={({ item }) => <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
-                                onClick={(e) => { if (hasPermissions()) setRemoveRecord(item) }}><span>{TrashCan}</span></button>}>
-
-                        </ReactTable.Column>
+                            Content={({ item }) => (
+                                <button
+                                    className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
+                                    onClick={() => { if (hasPermissions()) setRemoveRecord(item); }}
+                                >
+                                    <span>{TrashCan}</span>
+                                </button>
+                            )}
+                        />
                     </ConfigTable.Table>
                 </div>
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-primary pull-right" + (!hasPermissions() || assets.length == 0 ? ' disabled' : '')} data-tooltip='AddChannel' onMouseEnter={() => setHover('Add')} onMouseLeave={() => setHover('None')} onClick={() => {
+                    <button className={"btn btn-info pull-right" + (!hasPermissions() || assets.length == 0 ? ' disabled' : '')} data-tooltip='AddChannel' onMouseEnter={() => setHover('Add')} onMouseLeave={() => setHover('None')} onClick={() => {
                         if (hasPermissions() && assets.length > 0) {
                             let i = 1;
                             while (data.findIndex(item => item.Name.toLowerCase() == `channel ${i}`) > -1)
@@ -472,8 +570,8 @@ const MeterTrendChannelWindow = (props: IProps) => {
                     </ToolTip>
                 </div>
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-primary" + (recordChanges.size == 0 ? ' disabled' : '')} onClick={() => { if (recordChanges.size > 0 && hasPermissions()) setRecordChanges(new Map<number, Map<keyof OpenXDA.TrendChannel, number | string>>()); }}
-                        onMouseEnter={() => setHover('Reset')} onMouseLeave={() => setHover('None')} data-tooltip={"Clear"}>Clear Changes</button>
+                    <button className={"btn btn-warning" + (recordChanges.size == 0 ? ' disabled' : '')} onClick={() => { if (recordChanges.size > 0 && hasPermissions()) setRecordChanges(new Map<number, Partial<OpenXDA.TrendChannel>>()); }}
+                        onMouseEnter={() => setHover('Reset')} onMouseLeave={() => setHover('None')} data-tooltip={"Clea    "}>Clear Changes</button>
                     <ToolTip Show={hover == 'Reset' && (recordChanges.size > 0)} Position={'top'} Theme={'dark'} Target={"Clear"}>
                         <p> There are {recordChanges.size} channels with changes that will be lost. </p>
                     </ToolTip>

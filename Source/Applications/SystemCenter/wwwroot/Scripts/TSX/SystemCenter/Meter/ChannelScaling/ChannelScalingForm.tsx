@@ -291,7 +291,7 @@ const ChannelScalingForm = (props: IProps) => {
                     </ToolTip>
                 </div>
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-primary pull-right" + ((multiplier.Voltage == 1 && multiplier.Current == 1) ? ' disabled' : '')} onClick={() => { if (multiplier.Voltage != 1 || multiplier.Current != 1) useAdjustedMultiplier(); }}
+                    <button className={"btn btn-info pull-right" + ((multiplier.Voltage == 1 && multiplier.Current == 1) ? ' disabled' : '')} onClick={() => { if (multiplier.Voltage != 1 || multiplier.Current != 1) useAdjustedMultiplier(); }}
                         onMouseEnter={() => setHover('Adjust')} onMouseLeave={() => setHover('None')} data-tooltip={"adj"}
                     >Adjust Multipliers</button>
                     <ToolTip Show={hover == 'Adjust' && (multiplier.Voltage == 1 && multiplier.Current == 1)} Position={'top'} Theme={'dark'} Target={"adj"}>
@@ -300,7 +300,7 @@ const ChannelScalingForm = (props: IProps) => {
                     </ToolTip>
                 </div>
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-default" + ((multiplier.Voltage == 1 && multiplier.Current == 1) ? ' disabled' : '')} onClick={() => { if (multiplier.Voltage != 1 || multiplier.Current != 1) initializeWrappers(); }}
+                    <button className={"btn btn-warning" + ((multiplier.Voltage == 1 && multiplier.Current == 1) ? ' disabled' : '')} onClick={() => { if (multiplier.Voltage != 1 || multiplier.Current != 1) initializeWrappers(); }}
                         onMouseEnter={() => setHover('Reset')} onMouseLeave={() => setHover('None')} data-tooltip={"res"}
                     >Clear Changes</button>
                     <ToolTip Show={hover == 'Reset' && (multiplier.Voltage == 1 || multiplier.Current == 1)} Position={'top'} Theme={'dark'} Target={"res"}>

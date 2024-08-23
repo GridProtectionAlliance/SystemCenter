@@ -219,7 +219,7 @@ const MeterMaintenanceWindow = (props: IProps) => {
                     </div>
                     <div className="card-footer">
                         <div className="btn-group mr-2">
-                            <button className={"btn btn-primary pull-left" + (!hasPermissions() ? ' disabled' : '')} style={{ marginRight: 5 }} data-tooltip='NewWindow' onMouseEnter={() => setHover('Add')} onMouseLeave={() => setHover('None')} onClick={(e) => {
+                            <button className={"btn btn-info pull-right" + (!hasPermissions() ? ' disabled' : '')} style={{ marginRight: 5 }} data-tooltip='NewWindow' onMouseEnter={() => setHover('Add')} onMouseLeave={() => setHover('None')} onClick={(e) => {
                                 e.preventDefault();
                                 setActiveWindow({
                                     ID: -1,
