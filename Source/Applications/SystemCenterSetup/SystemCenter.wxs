@@ -12,16 +12,13 @@
     </Condition>
 
     <Feature Id="AllProducts" Title="All Products" Level="1" Display="expand" ConfigurableDirectory="INSTALLFOLDER" AllowAdvertise="no" Description="All components of the SystemCenter installation.">
-      <Feature Id="SystemCenter" Title="SystemCenter" AllowAdvertise="no" Description="Includes the SystemCenter database and service.">
+      <Feature Id="SystemCenter" Title="SystemCenter" AllowAdvertise="no" Description="Includes the SystemCenter Service.">
 
         <!-- SystemCenter Service -->
-        <Feature Id="ServiceFeature" Title="SystemCenter Service" AllowAdvertise="no" Description="Installs the SystemCenter Windows service to perform data analytics.">
+        <Feature Id="ServiceFeature" Title="SystemCenter Service" AllowAdvertise="no" Description="Installs the SystemCenter Windows service to support configuration of openXDA .">
           <ComponentGroupRef Id="ServiceComponents" />
           <ComponentGroupRef Id="AzureADDependencyComponents" />
-
-          <Feature Id="WebFiles" Level="1" Title="Web Files">
-            <ComponentGroupRef Id="SystemCenterWebFiles"/>
-          </Feature>
+          <ComponentGroupRef Id="SystemCenterWebFiles"/>
         </Feature>
       </Feature>
     </Feature>
@@ -34,7 +31,7 @@
       
       <Publish Dialog="CustomizeDlg" Control="Next" Property="FILEPATH" Value="[#SystemCenter.exe.config]" Order="1">1</Publish>
       <Publish Dialog="CustomizeDlg" Control="Next" Property="MODE" Value="READ" Order="1">1</Publish>
-      <Publish Dialog="CustomizeDlg" Control="Next" Property="PROPERTYMAPPINGS" Value="[CONNECTIONSTRINGMAPPING];;[COMPANYNAMEMAPPING];;[COMPANYACRONYMMAPPING]" Order="1">1</Publish>
+      <Publish Dialog="CustomizeDlg" Control="Next" Property="PROPERTYMAPPINGS" Value="[CONNECTIONSTRINGMAPPING];;[COMPANYNAMEMAPPING];;[COMPANYACRONYMMAPPING];;[NODEIDMAPPING]" Order="1">1</Publish>
       <Publish Dialog="CustomizeDlg" Control="Next" Event="DoAction" Value="ReadConfigFileAction" Order="2">1</Publish>
       <Publish Dialog="CustomizeDlg" Control="Next" Property="XDACONNECTIONSTRING" Value="[DEFAULTCONNECTIONSTRING]" Order="3">NOT XDACONNECTIONSTRING</Publish>
       <Publish Dialog="CustomizeDlg" Control="Next" Property="COMPANYNAME" Value="[DEFAULTCOMPANYNAME]" Order="3">NOT COMPANYNAME</Publish>
@@ -70,7 +67,7 @@
     <Property Id="DEFAULTCOMPANYACRONYM" Value="GPA" />
     <Property Id="COMPANYNAME" Secure="yes" />
     <Property Id="COMPANYACRONYM" Secure="yes" />
-  
+    <Property Id="NODEID" Secure="yes" />
     <Property Id="INTEGRATEDSECURITY" Value="SSPI" Secure="yes" />
     <Property Id="DATABASENAME" Value="openXDA" Secure="yes" />
     
@@ -84,6 +81,7 @@
     <Property Id="CONNECTIONSTRINGMAPPING" Value="XDACONNECTIONSTRING={//systemSettings/add[@name='ConnectionString']/@value}" />
     <Property Id="COMPANYNAMEMAPPING" Value="COMPANYNAME={//add[@name='CompanyName']/@value}" />
     <Property Id="COMPANYACRONYMMAPPING" Value="COMPANYACRONYM={//add[@name='CompanyAcronym']/@value}" />
+    <Property Id="NODEIDMAPPING" Value="NODEID={//systemSettings/add[@name='NodeID']/@value}" />
 
     <Property Id="REGSERVICEACCOUNT">
       <RegistrySearch Id="ServiceAccountRegSearch" Root="HKLM" Key="SYSTEM\CurrentControlSet\Services\[SERVICENAME]" Name="ObjectName" Type="raw" />
@@ -97,12 +95,16 @@
     <SetProperty Action="SetServiceAccountRegistry" Id="SERVICEACCOUNT" After="LaunchConditions" Value="[REGSERVICEACCOUNT]" Sequence="first"><![CDATA[REGSERVICEACCOUNT AND NOT SERVICEACCOUNT]]></SetProperty>
 
     <SetProperty Action="SetDataBase" Id="DATABASENAME" Value="[SERVICENAME]" After="LaunchConditions" Sequence="first"><![CDATA[NOT DATABASENAME]]></SetProperty>
-    <SetProperty Action="SetConnectionStringDefault" Id="DEFAULTCONNECTIONSTRING" Value="Data Source=[SERVERNAME];Initial Catalog=[DATABASENAME];User Id=[DBUSERNAME];Password=[DBPASSWORD]" After="LaunchConditions" Sequence="first"><![CDATA[NOT DEFAULTCONNECTIONSTRING AND NOT(INTEGRATEDSECURITY = "SSPI")]]></SetProperty>
-    <SetProperty Action="SetConnectionStringDefaultSSPI" Id="DEFAULTCONNECTIONSTRING" Value="Data Source=[SERVERNAME];Initial Catalog=[DATABASENAME];Integrated Security=[INTEGRATEDSECURITY]" After="LaunchConditions" Sequence="first"><![CDATA[NOT DEFAULTCONNECTIONSTRING AND (INTEGRATEDSECURITY = "SSPI")]]></SetProperty>
+    <SetProperty Action="SetConnectionStringDefault" Id="DEFAULTCONNECTIONSTRING" Value="Data Source=[SERVERNAME];;Initial Catalog=[DATABASENAME];;User Id=[DBUSERNAME];;Password=[DBPASSWORD]" After="LaunchConditions" Sequence="first"><![CDATA[NOT DEFAULTCONNECTIONSTRING AND NOT(INTEGRATEDSECURITY = "SSPI")]]></SetProperty>
+    <SetProperty Action="SetConnectionStringDefaultSSPI" Id="DEFAULTCONNECTIONSTRING" Value="Data Source=[SERVERNAME];;Initial Catalog=[DATABASENAME];;Integrated Security=[INTEGRATEDSECURITY]" After="LaunchConditions" Sequence="first"><![CDATA[NOT DEFAULTCONNECTIONSTRING AND (INTEGRATEDSECURITY = "SSPI")]]></SetProperty>
     <SetProperty Action="SetXDAConnectionString" Id="XDACONNECTIONSTRING" Value="[DEFAULTCONNECTIONSTRING]" After="LaunchConditions" Sequence="first"><![CDATA[NOT XDACONNECTIONSTRING]]></SetProperty>
 
+    <SetProperty Action="SetNodeID" Id="NODEID" Value="00000000-0000-0000-0000-000000000000" After="LaunchConditions" Sequence="first"><![CDATA[NOT NODEID]]></SetProperty>
+    <SetProperty Action="SetCompanyName" Id="COMPANYNAME" Value="[DEFAULTCOMPANYNAME]" After="LaunchConditions" Sequence="first"><![CDATA[NOT COMPANYNAME]]></SetProperty>
+    <SetProperty Action="SetCompanyAcronym" Id="COMPANYACRONYM" Value="[DEFAULTCOMPANYACRONYM]" After="LaunchConditions" Sequence="first"><![CDATA[NOT COMPANYACRONYM]]></SetProperty>
 
-    <SetProperty Id="UPDATECONFIGFILEMAPPINGS" Value="[CONNECTIONSTRINGMAPPING];;[COMPANYNAMEMAPPING];;[COMPANYACRONYMMAPPING]" Before="UpdateConfigFileAction.SetProperty" Sequence="execute" />
+
+    <SetProperty Id="UPDATECONFIGFILEMAPPINGS" Value="[CONNECTIONSTRINGMAPPING];;[COMPANYNAMEMAPPING];;[COMPANYACRONYMMAPPING];;[NODEIDMAPPING]" Before="UpdateConfigFileAction.SetProperty" Sequence="execute" />
 
     <SetProperty Action="INSTALLSERVICEFEATURE0" Id="INSTALLSERVICEFEATURE" Value="1" After="CostFinalize" Sequence="both"><![CDATA[&ServiceFeature=3 OR (!ServiceFeature=3 AND &ServiceFeature=-1)]]></SetProperty>
     <SetProperty Action="INSTALLSERVICEFEATURE1" Id="INSTALLSERVICEFEATURE" Value="" After="CostFinalize" Sequence="both"><![CDATA[NOT(&ServiceFeature=3 OR (!ServiceFeature=3 AND &ServiceFeature=-1))]]></SetProperty>
@@ -123,7 +125,7 @@
     <CustomAction Id="PasswordGenerationAction" BinaryKey="InstallerActions" DllEntry="PasswordGenerationAction" Execute="immediate" />
     <CustomAction Id="TestDatabaseConnectionAction" BinaryKey="InstallerActions" DllEntry="TestDatabaseConnectionAction" Execute="immediate" />
 
-    <CustomAction Id="UpdateConfigFileAction.SetProperty" Property="UpdateConfigFileAction" Value="FilePath=[#SystemCenter.exe.config];Mode=WRITE;PropertyMappings=[UPDATECONFIGFILEMAPPINGS];XDACONNECTIONSTRING=[XDACONNECTIONSTRING];COMPANYNAME=[COMPANYNAME];COMPANYACRONYM=[COMPANYACRONYM];SERVICENAME=[SERVICENAME]" />
+    <CustomAction Id="UpdateConfigFileAction.SetProperty" Property="UpdateConfigFileAction" Value="FilePath=[#SystemCenter.exe.config];Mode=WRITE;PropertyMappings=[UPDATECONFIGFILEMAPPINGS];XDACONNECTIONSTRING=[XDACONNECTIONSTRING];COMPANYNAME=[COMPANYNAME];COMPANYACRONYM=[COMPANYACRONYM];SERVICENAME=[SERVICENAME];NODEID=[NODEID]" />
     <CustomAction Id="UpdateConfigFileAction" BinaryKey="InstallerActions" DllEntry="XmlFileAction" Execute="deferred" Impersonate="no" />
 
     <CustomAction Id="ConfigureServiceAction.SetProperty" Property="ConfigureServiceAction" Value="SERVICENAME=[SERVICENAME]" />

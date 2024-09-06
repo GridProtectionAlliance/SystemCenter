@@ -103,12 +103,14 @@ using log4net.Core;
 using log4net.Layout;
 using Microsoft.Owin.Hosting;
 using openXDA.APIMiddleware;
+using openXDA.Model;
 using SystemCenter.Configuration;
 using SystemCenter.Logging;
 using SystemCenter.Model;
 using SystemCenter.ScheduledProcesses;
 using AssemblyInfo = GSF.Reflection.AssemblyInfo;
 using PQViewSite = openXDA.Model.PQViewSite;
+using Setting = openXDA.Model.Setting;
 
 namespace SystemCenter
 {
@@ -259,20 +261,6 @@ namespace SystemCenter
             m_serviceHelper.AddScheduledProcess(ServiceHeartbeatHandler, "ServiceHeartbeat", "* * * * *");
             m_serviceHelper.AddScheduledProcess(ReloadConfigurationHandler, "ReloadConfiguration", "0 0 * * *");
 
-            List<ExternalDatabases> externalDbs;
-            using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
-            {
-                try
-                {
-                    externalDbs = (new TableOperations<ExternalDatabases>(connection)).QueryRecords().ToList();
-                }
-                catch (Exception ex)
-                {
-                    externalDbs = new List<ExternalDatabases>();
-                }
-            }
-            externalDbs.ForEach(ExtDBAddDB);
-
             if (systemSettings["UserAccountMetaDataUpdater"].Value != "never")
                 m_serviceHelper.AddScheduledProcess(UserAccountMetaDataUpdaterHandler, "UserAccountMetaDataUpdater", systemSettings["UserAccountMetaDataUpdater"].Value);
             if (systemSettings["OpenMICStatisticOperation"].Value != "never")
@@ -285,6 +273,25 @@ namespace SystemCenter
             m_serviceHelper.SendingClientResponse += SendingClientResponseHandler;
             m_serviceHelper.LoggedException += LoggedExceptionHandler;
 
+            //Validate NodeID and Roles
+            ValidateRoles(systemSettings["NodeID"].Value);
+            //Set up ExternalDB Pulls
+            try
+            {
+                List<ExternalDatabases> externalDbs;
+                using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+                {
+
+                    externalDbs = (new TableOperations<ExternalDatabases>(connection)).QueryRecords().ToList();
+                }
+                externalDbs.ForEach(ExtDBAddDB);
+            }
+            catch (Exception ex)
+            {
+                m_serviceHelper.ErrorLogger.Log(ex);
+            }
+                
+            
             // Set up adapter loader to load service monitors
             m_serviceMonitors = new ServiceMonitors();
             m_serviceMonitors.AdapterCreated += ServiceMonitors_AdapterCreated;
@@ -327,6 +334,62 @@ namespace SystemCenter
             });
 
             m_startEngineThread.Start();
+        }
+
+        //Validate NodeID exists and Roles are Added
+        private void ValidateRoles(string nodeID)
+        {
+            try
+            {
+                using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+                {
+                    Guid nodeIDGuid;
+                    if (!Guid.TryParse(nodeID, out nodeIDGuid)) nodeIDGuid = Guid.Empty;
+
+                    int count = connection.ExecuteScalar<int>("SELECT COUNT(*) FROM ApplicationNode WHERE ID = {0}", nodeIDGuid);
+                    if (count > 1)
+                        throw new Exception("Multiple nodes with the same NodeID found in the database.");
+                    if (count == 0)
+                    {
+                        
+
+                        new TableOperations<ApplicationNode>(connection).AddNewRecord(new ApplicationNode()
+                        {
+                            Name = "SystemCenter",
+                            ID = nodeIDGuid
+                        });
+                    }
+
+                    IEnumerable<ApplicationRole> roles = new TableOperations<ApplicationRole>(connection)
+                        .QueryRecordsWhere("NodeID = {0}", nodeIDGuid);
+
+                    if (!roles.Any(role => role.Name == "Administrator"))
+                        new TableOperations<ApplicationRole>(connection).AddNewRecord(new ApplicationRole()
+                        {
+                            Name = "Administrator",
+                            Description = "Admin Role",
+                            NodeID = nodeIDGuid
+                        });
+                    if (!roles.Any(role => role.Name == "Engineer"))
+                        new TableOperations<ApplicationRole>(connection).AddNewRecord(new ApplicationRole()
+                        {
+                            Name = "Engineer",
+                            Description = "Engineer Role",
+                            NodeID = nodeIDGuid
+                        });
+                    if (!roles.Any(role => role.Name == "Viewer"))
+                        new TableOperations<ApplicationRole>(connection).AddNewRecord(new ApplicationRole()
+                        {
+                            Name = "Viewer",
+                            Description = "Viewer Role",
+                            NodeID = nodeIDGuid
+                        });
+                }
+            }
+            catch (Exception ex)
+            {
+                m_serviceHelper.ErrorLogger.Log(ex);
+            }
         }
 
         private void ServiceHelper_ServiceStopping(object sender, EventArgs e)
