@@ -37,7 +37,7 @@ import { FetchAsset, SelectAssets, SelectAssetStatus } from '../Store/AssetSlice
 import { AssetTypeSlice } from '../Store/Store';
 import { getAssetWithAdditionalFields, editExistingAsset } from '../../../TS/Services/Asset';
 import { LoadingIcon, Modal, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
-import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import GenerationAttributes from '../AssetAttribute/Generation';
 import StationAuxAttributes from '../AssetAttribute/StationAux';
 import StationBatteryAttributes from '../AssetAttribute/StationBattery';
@@ -354,14 +354,14 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
                                             getAssetWithAdditionalFields(item.ID, assetType.Name).then(asset => { setEditasset(asset); setLStatus('idle'); }, () => setLStatus('error'));
                                             setNewEdit('Edit');
                                             setShowModal(true)
-                                        }
-                                }}><span>{Pencil}</span></button>
+                                    }
+                                }}><ReactIcons.Pencil/></button>
                                     <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => {
                                         if (hasPermissions()) {
                                             e.preventDefault();
                                             deleteAsset(item);
-                                         }
-                                }}><span>{TrashCan}</span></button></>
+                                    }
+                                }}><ReactIcons.TrashCan/></button></>
                             }
                         > <p></p>
                         </ReactTable.Column>
@@ -410,7 +410,7 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
                 DisableConfirm={(assetErrors.length > 0) || (newEdit == 'Edit' && !assetChanged)}
                 ConfirmShowToolTip={(assetErrors.length > 0)}
                 ConfirmToolTipContent={
-                    assetErrors.map((e, i) => <p key={i}>{ErrorSymbol()} {e}</p>)
+                    assetErrors.map((e, i) => <p key={i}><ReactIcons.CrossMark/> {e}</p>)
                 }
             >
                 <div className="row" style={{ maxHeight: innerHeight - 300, overflow: 'auto' }}>
@@ -428,7 +428,6 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
                 
     );
 }
-const ErrorSymbol = () => CrossMark
 
 
 
