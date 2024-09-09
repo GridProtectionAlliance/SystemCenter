@@ -41,20 +41,20 @@ function LocationMeterWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
     const [pageState, setPageState] = React.useState<'error' | 'idle' | 'loading'>('idle');
 
     React.useEffect(() => {
+        setPageState('loading');
         getMeters();
-    }, [props.Location.ID, page]);
+    }, [props.Location.ID, page, sortField, ascending]);
 
     function getMeters(): void {
         $.ajax({
             type: "GET",
-            url: `${homePath}api/OpenXDA/Location/${props.Location.ID}/Meters/${page}`,
+            url: `${homePath}api/OpenXDA/Location/${props.Location.ID}/Meters/${page}/${ascending ? 1 : 0}/${sortField}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
             async: true
         }).done((result) => {
-            const records = JSON.parse(result.Result);
-            setMeters(records);
+            setMeters(result.Result);
             setPageInfo({
                 RecordsPerPage: result.RecordsPerPage,
                 NumberOfPages: result.NumberOfPages,
@@ -85,16 +85,11 @@ function LocationMeterWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
                         SortKey={sortField}
                         Ascending={ascending}
                         OnSort={(d) => {
-                            if (d.colKey === sortField) {
-                                setAscending(!ascending);
-                                const ordered = _.orderBy(meters, [d.colKey], [(!ascending ? "asc" : "desc")]);
-                                setMeters(ordered);
-                            }
+                            if (d.colKey === sortField) 
+                                setAscending(a => !a);  
                             else {
                                 setSortField(d.colField);
                                 setAscending(true);
-                                const ordered = _.orderBy(meters, [d.colKey], ["asc"]);
-                                setMeters(ordered);
                             }
                         }}
                         OnClick={handleSelect}
