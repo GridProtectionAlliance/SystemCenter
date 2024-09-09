@@ -25,7 +25,7 @@
     "@gpa-gemstone/helper-functions": "0.0.32",
     "@gpa-gemstone/react-forms": "1.1.67",
     "@gpa-gemstone/react-graph": "1.0.56",
-    "@gpa-gemstone/react-interactive": "1.0.121",
+    "@gpa-gemstone/react-interactive": "1.0.126",
     "@gpa-gemstone/react-table": "1.2.49",
     "@reduxjs/toolkit": "1.8.3",
     "bootstrap": "4.6.0",
