@@ -88,15 +88,10 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
     }, []);
 
     React.useEffect(() => {
-        if (data.length === 0) return;
-        setData(_.orderBy(data, [sortKey], [ascending ? 'asc' : 'desc']));
-    }, [ascending, sortKey]);
-
-    React.useEffect(() => {
         let assetsHandle = getAssets();
         return () => { if (assetsHandle != null && assetsHandle.abort != null) assetsHandle.abort(); }
 
-    }, [props.Location.ID, page, trigger]);
+    }, [props.Location.ID, page, trigger, ascending, sortKey]);
 
     React.useEffect(() => {
         const errors = AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType);
@@ -115,14 +110,13 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
 
         return $.ajax({
             type: "GET",
-            url: `${homePath}api/OpenXDA/Location/${props.Location.ID}/Assets/${page}`,
+            url: `${homePath}api/OpenXDA/Location/${props.Location.ID}/Assets/${page}/${ascending ? 1 : 0}/${sortKey}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
             async: true
         }).done((result) => {
-            const records = JSON.parse(result.Result);
-            setData(_.orderBy(records, [sortKey], [ascending ? 'asc' : 'desc']));
+            setData(result.Result);
             setPageInfo({
                 RecordsPerPage: result.RecordsPerPage,
                 NumberOfPages: result.NumberOfPages,
