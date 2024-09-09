@@ -205,100 +205,100 @@ namespace SystemCenter.Controllers.OpenXDA
 
         }
 
-        [HttpGet, Route("{locationID:int}/Meters/{page:int}")]
-        public IHttpActionResult GetMetersForLocation(int locationID, int page)
+        [HttpGet, Route("{locationID:int}/Meters/{page:int}/{asc:int}/{orderBy}")]
+        public IHttpActionResult GetMetersForLocation(int locationID, int page, int asc, string orderBy)
         {
-            int recordsPerPage = 50;
-            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
-            {
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
-                {
-                    int totalRecords = connection.ExecuteScalar<int>($@"
-                    SELECT COUNT(*)
-                    FROM Meter
-                    WHERE LocationID = {locationID}
-                    ");
-                    int numberOfPages = (totalRecords + recordsPerPage - 1) / recordsPerPage;
-                    if (numberOfPages == 0) numberOfPages = 1;
-                    try
-                    {
-                        int offset = page * recordsPerPage;
-                        string orderByExpression = "ID";
-
-                        RecordRestriction restriction = new RecordRestriction("LocationID = {0}", locationID);
-                        IEnumerable<Meter> result = new TableOperations<Meter>(connection)
-                            .QueryRecords(orderByExpression, restriction)
-                            .Skip(offset)
-                            .Take(recordsPerPage);
-
-                        return Ok(new
-                        {
-                            Result = JsonConvert.SerializeObject(result),
-                            RecordsPerPage = recordsPerPage,
-                            NumberOfPages = numberOfPages,
-                            TotalRecords = totalRecords
-                        });
-                    }
-                    catch (Exception ex)
-                    {
-                        return InternalServerError(ex);
-                    }
-                }
-            }
-            else
+            if (!string.IsNullOrEmpty(GetRoles) && User.IsInRole(GetRoles))
                 return Unauthorized();
+
+            int recordsPerPage = 50;
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                int totalRecords = connection.ExecuteScalar<int>($@"
+                SELECT COUNT(*)
+                FROM Meter
+                WHERE LocationID = {locationID}
+                ");
+                int numberOfPages = (totalRecords + recordsPerPage - 1) / recordsPerPage;
+                if (numberOfPages == 0) numberOfPages = 1;
+                   
+                int offset = page * recordsPerPage;
+                string orderByExpression = orderBy;
+
+                if (asc > 0)
+                    orderByExpression += " ASC";
+                else
+                    orderByExpression += " DESC";
+                RecordRestriction restriction = new RecordRestriction("LocationID = {0}", locationID);
+                IEnumerable<Meter> result = new TableOperations<Meter>(connection)
+                    .QueryRecords(orderByExpression, restriction)
+                    .Skip(offset)
+                    .Take(recordsPerPage);
+
+                return Ok(new
+                {
+                    Result = result,
+                    RecordsPerPage = recordsPerPage,
+                    NumberOfPages = numberOfPages,
+                    TotalRecords = totalRecords
+                });
+            }
+          
 
         }
 
-        [HttpGet, Route("{locationID:int}/Assets/{page:int}")]
-        public IHttpActionResult GetAssetsForLocation(int locationID, int page)
+        [HttpGet, Route("{locationID:int}/Assets/{page:int}/{asc:int}/{orderBy}")]
+        public IHttpActionResult GetAssetsForLocation(int locationID, int page, int asc, string orderBy)
         {
             int recordsPerPage = 50;
-            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
-                {
 
-                    string assetTableName = TableOperations<Asset>.GetTableName();
-                    string assetTypeTableName = TableOperations<AssetTypes>.GetTableName();
-                    string assetLocationTableName = TableOperations<AssetLocation>.GetTableName();
-                    int totalRecords = connection.ExecuteScalar<int>($@"
+            if (!string.IsNullOrEmpty(GetRoles) && User.IsInRole(GetRoles))
+                return Unauthorized();
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+
+                string assetTableName = TableOperations<Asset>.GetTableName();
+                string assetTypeTableName = TableOperations<AssetTypes>.GetTableName();
+                string assetLocationTableName = TableOperations<AssetLocation>.GetTableName();
+                int totalRecords = connection.ExecuteScalar<int>($@"
                     SELECT COUNT(*)
                     FROM {assetLocationTableName}
                     WHERE LocationID = {locationID}
                     ");
-                    int numberOfPages = (totalRecords + recordsPerPage - 1) / recordsPerPage;
-                    if (numberOfPages == 0) numberOfPages = 1;
-                    try
-                    {
-                        DataTable result = connection.RetrieveData($@"
-                        SELECT DISTINCT
-                            a.*,
-                            at.Name as AssetType
-                        FROM
-                            {assetTableName} as a JOIN 
-                            {assetTypeTableName} as at ON a.AssetTypeID = at.ID JOIN
-                            {assetLocationTableName} as al ON a.ID = al.AssetID
-                        WHERE
-                            al.LocationID = {{0}}
-                        ORDER BY a.ID
-                        OFFSET {page * recordsPerPage} ROWS FETCH NEXT {recordsPerPage} ROWS ONLY
-                        ", locationID);
 
-                        return Ok(new
-                        {
-                            Result = JsonConvert.SerializeObject(result),
-                            RecordsPerPage = recordsPerPage,
-                            NumberOfPages = numberOfPages,
-                            TotalRecords = totalRecords
-                        });
-                    }
-                    catch (Exception ex)
-                    {
-                        return InternalServerError(ex);
-                    }
-                }
-            else
-                return Unauthorized();
+                int numberOfPages = (totalRecords + recordsPerPage - 1) / recordsPerPage;
+                if (numberOfPages == 0) numberOfPages = 1;
+
+                string orderByExpression = orderBy;
+
+                if (asc > 0)
+                    orderByExpression += " ASC";
+                else
+                    orderByExpression += " DESC";
+
+                DataTable result = connection.RetrieveData($@"
+                    SELECT DISTINCT
+                        a.*,
+                        at.Name as AssetType
+                    FROM
+                        {assetTableName} as a JOIN 
+                        {assetTypeTableName} as at ON a.AssetTypeID = at.ID JOIN
+                        {assetLocationTableName} as al ON a.ID = al.AssetID
+                    WHERE
+                        al.LocationID = {{0}}
+                    ORDER BY {orderByExpression}
+                    OFFSET {page * recordsPerPage} ROWS FETCH NEXT {recordsPerPage} ROWS ONLY
+                    ", locationID);
+
+                return Ok(new
+                {
+                    Result = result,
+                    RecordsPerPage = recordsPerPage,
+                    NumberOfPages = numberOfPages,
+                    TotalRecords = totalRecords
+                });
+            }
         }
 
         [HttpGet, Route("{locationID:int}/Images")]
