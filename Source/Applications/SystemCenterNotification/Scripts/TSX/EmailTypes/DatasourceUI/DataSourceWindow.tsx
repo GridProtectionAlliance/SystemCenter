@@ -77,7 +77,7 @@ const DataSourceWindow = (props: IProps) => {
                                         SortKey={''}
                                         Ascending={false}
                                         OnSort={() => { }}
-                                        OnClick={(item) => {setDataSource(item.row); /*setShowDataSourceModal(true)*/}}
+                                        OnClick={(item) => setDataSource(item.row)}
                                         TableStyle={{
                                             padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
                                             tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
