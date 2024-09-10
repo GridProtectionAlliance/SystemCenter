@@ -63,7 +63,7 @@ const DataSourceWindow = (props: IProps) => {
                                 <h4>Data Sources:</h4>
                             </div>
                             <div className="col-6">
-                                <button className="btn btn-primary float-right" style={{ marginRight: 10 }} onClick={() => setShowTest(true)}>Test Data Sources</button>
+                                <button className="btn btn-info float-right" style={{ marginRight: 10 }} onClick={() => setShowTest(true)}>Test Data Sources</button>
                             </div>
                         </div>
                     </div>
