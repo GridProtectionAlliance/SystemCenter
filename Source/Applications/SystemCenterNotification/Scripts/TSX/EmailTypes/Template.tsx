@@ -24,7 +24,7 @@
 import { useAppDispatch } from '../hooks';
 import * as React from 'react';
 import { ToolTip } from '@gpa-gemstone/react-interactive'
-import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { EmailType } from '../global';
 import { EmailTypeSlice } from '../Store';
 import { TextArea } from '@gpa-gemstone/react-forms';
@@ -81,16 +81,16 @@ const Template = (props: IProps) => {
                                 data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
                         </div>
                         <div className="btn-group mr-2">
-                            <button className={"btn btn-default" + (hasChanged ? '' : ' disabled')} data-tooltip="clear"
+                            <button className={"btn btn-danger" + (hasChanged ? '' : ' disabled')} data-tooltip="clear"
                                 onClick={() => { setEmail(props.Record); setHasChanged(false); }}
                                 onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')} >Clear Changes</button>
                         </div>
                         <ToolTip Show={(email.Template == null || email.Template.length == 0 || !hasChanged) && hover == 'submit'} Position={'top'} Theme={'dark'} Target={"submit"}>
                             {!hasChanged ? <p> No changes made.</p> : null}
-                            {email.Template == null || email.Template.length == 0 ? <p> {CrossMark} A valid Template is required.</p> : null}
+                            {email.Template == null || email.Template.length == 0 ? <p> <ReactIcons.CrossMark /> A valid Template is required.</p> : null}
                         </ToolTip>
                         <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Theme={'dark'} Target={"clear"}>
-                            <p>{Warning} Changes to Template will be discarded.</p>
+                            <p><ReactIcons.Warning/> Changes to Template will be discarded.</p>
                         </ToolTip>
                     </div>
                 </div>

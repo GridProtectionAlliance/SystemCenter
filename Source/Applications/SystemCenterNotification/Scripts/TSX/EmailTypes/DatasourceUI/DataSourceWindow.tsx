@@ -128,7 +128,7 @@ const DataSourceWindow = (props: IProps) => {
                     </div>
                     <div className="card-footer">
                         <div className="btn-group mr-2">
-                            <button className={"btn btn-primary"} type="submit"
+                            <button className={"btn btn-info"} type="submit"
                                 onClick={() => {
                                     setDataSource({ 
                                         EmailTypeID: props.Record.ID, 
