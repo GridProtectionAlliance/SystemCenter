@@ -145,10 +145,12 @@ const DataSourceWindow = (props: IProps) => {
             </div>
             <Warning Show={showRemoveWarning} Title={'Remove Source'} Message={`Are you sure you want to remove this data source?`}
                 CallBack={(c) => {
-                    if (c) {
-                        dispatch(TriggeredEmailDataSourceSlice.DBAction({ verb: 'DELETE', record: dataSource }));
-                        setShowRemoveWarning(false);
-                    }
+                    if (c) 
+                        dispatch(TriggeredEmailDataSourceSlice.DBAction({
+                            verb: 'DELETE', record: dataSource
+                        }));
+                   setShowRemoveWarning(false);
+                    
                 }}
             ></Warning>
             <DataSourceModal Show={showDataSourceModal} Record={dataSource} OnClose={() => {setShowDataSourceModal(false)}} /> {/* //!Shows when delete is pressed */}
