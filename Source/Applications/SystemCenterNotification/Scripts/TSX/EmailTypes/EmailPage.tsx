@@ -68,7 +68,7 @@ const EmailPage = (props: IProps) => {
                     </div>
                     <div className="col-6 align-self-center">
                         <button className="btn btn-danger float-right" onClick={() => setShowDelete(true)}>Delete Email</button>
-                        <button className="btn btn-primary float-right" style={{ marginRight: 10 }} onClick={() => setShowTest(true)}>Test Email</button>
+                        <button className="btn btn-info float-right" style={{ marginRight: 10 }} onClick={() => setShowTest(true)}>Test Email</button>
                     </div>
                 </div>
 

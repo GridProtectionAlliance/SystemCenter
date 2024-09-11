@@ -24,7 +24,7 @@
 import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
 import {ToolTip } from '@gpa-gemstone/react-interactive'
-import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import {  EmailType } from '../global';
 import {  EmailTypeSlice } from '../Store';
 import { IsNumber } from '@gpa-gemstone/helper-functions';
@@ -113,7 +113,7 @@ const GeneralInfo = (props: IProps) => {
                                 data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
                         </div>
                         <div className="btn-group mr-2">
-                            <button className={"btn btn-default" + (hasChanged ? '' : ' disabled')} data-tooltip="clear"
+                            <button className={"btn btn-warning" + (hasChanged ? '' : ' disabled')} data-tooltip="clear"
                                 onClick={() => { setEmail(props.Record); setHasChanged(false); }}
                                 onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')} >Clear Changes</button>
                         </div>
@@ -123,18 +123,18 @@ const GeneralInfo = (props: IProps) => {
             <ToolTip Show={(errors.length > 0 || !hasChanged) && hover == 'submit'} Position={'top'} Theme={'dark'} Target={"submit"}>
                 {!hasChanged ? <p> No changes made.</p> : null}
                 {errors.map((t, i) => <p key={i}>
-                    {CrossMark} {t}
+                    <ReactIcons.CrossMark/> {t}
                 </p>)}
             </ToolTip>
             <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Theme={'dark'} Target={"clear"}>
-                {props.Record.Name != email.Name ? <p> {Warning} Changes to Name will be discarded.</p> : null}
-                {props.Record.EmailCategoryID != email.EmailCategoryID ? <p> {Warning} Changes to Category will be discarded.</p> : null}
-                {props.Record.MaxDelay != email.MaxDelay ? <p> {Warning} Changes to maximum delay will be discarded.</p> : null}
-                {props.Record.MinDelay != email.MinDelay ? <p> {Warning} Changes to minimum delay will be discarded.</p> : null}
-                {props.Record.SMS != email.SMS ? <p> {Warning} Changes to notification type will be discarded.</p> : null}
-                {props.Record.ShowSubscription != email.ShowSubscription ? <p> {Warning} Changes to self subscription will be discarded.</p> : null}
-                {props.Record.RequireApproval != email.RequireApproval ? <p> {Warning} Changes to approval requirement will be discarded.</p> : null}
-                {props.Record.FilePath != email.FilePath ? <p> {Warning} Changes to the file path will be discarded.</p> : null}
+                {props.Record.Name != email.Name ? <p> <ReactIcons.Warning/> Changes to Name will be discarded.</p> : null}
+                {props.Record.EmailCategoryID != email.EmailCategoryID ? <p> <ReactIcons.Warning /> Changes to Category will be discarded.</p> : null}
+                {props.Record.MaxDelay != email.MaxDelay ? <p> <ReactIcons.Warning /> Changes to maximum delay will be discarded.</p> : null}
+                {props.Record.MinDelay != email.MinDelay ? <p> <ReactIcons.Warning /> Changes to minimum delay will be discarded.</p> : null}
+                {props.Record.SMS != email.SMS ? <p> <ReactIcons.Warning /> Changes to notification type will be discarded.</p> : null}
+                {props.Record.ShowSubscription != email.ShowSubscription ? <p> <ReactIcons.Warning /> Changes to self subscription will be discarded.</p> : null}
+                {props.Record.RequireApproval != email.RequireApproval ? <p> <ReactIcons.Warning /> Changes to approval requirement will be discarded.</p> : null}
+                {props.Record.FilePath != email.FilePath ? <p> <ReactIcons.Warning /> Changes to the file path will be discarded.</p> : null}
             </ToolTip>
         </div>
         )

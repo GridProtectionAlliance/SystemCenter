@@ -28,6 +28,8 @@ import { TriggeredEmailDataSourceSlice } from '../../Store';
 import DataSourceModal from './DataSourceModal';
 import { ReactTable } from '@gpa-gemstone/react-table';
 import DataSourceTesting from './DataSourceTesting';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { Warning } from '@gpa-gemstone/react-interactive';
 
 
 declare var homePath;
@@ -43,11 +45,13 @@ const DataSourceWindow = (props: IProps) => {
     const emailID = useAppSelector(TriggeredEmailDataSourceSlice.ParentID);
     const [dataSource, setDataSource] = React.useState<null | IDataSourceTriggeredEmailType>(null);
     const [showTest, setShowTest] = React.useState<boolean>(false);
+    const [showRemoveWarning, setShowRemoveWarning] = React.useState<boolean>(false);
+    const [showDataSourceModal, setShowDataSourceModal] = React.useState<boolean>(false);
 
     React.useEffect(() => {
         if (status == 'unintiated' || status == 'changed' || emailID !== props.Record.ID)
             dispatch(TriggeredEmailDataSourceSlice.Fetch(props.Record.ID));
-    }, [status, props.Record.ID, emailID]);
+    }, [status, props.Record.ID, emailID, dataSource]);
 
     return (
         <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
@@ -59,7 +63,7 @@ const DataSourceWindow = (props: IProps) => {
                                 <h4>Data Sources:</h4>
                             </div>
                             <div className="col-6">
-                                <button className="btn btn-primary float-right" style={{ marginRight: 10 }} onClick={() => setShowTest(true)}>Test Data Sources</button>
+                                <button className="btn btn-info float-right" style={{ marginRight: 10 }} onClick={() => setShowTest(true)}>Test Data Sources</button>
                             </div>
                         </div>
                     </div>
@@ -92,6 +96,31 @@ const DataSourceWindow = (props: IProps) => {
                                             RowStyle={{ width: '100%' }}
                                         > Data Source
                                         </ReactTable.Column>
+                                        <ReactTable.Column<IDataSourceTriggeredEmailType>
+                                            Key={'Remove'}
+                                            AllowSort={true}
+                                            HeaderStyle={{ width: '20%' }}
+                                            RowStyle={{ width: '20%' }}
+                                            Content={({ item }) => <>
+                                                <button className="btn btn-sm mr-1"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        setDataSource(item);
+                                                        setShowRemoveWarning(true);
+                                                    }
+                                                }><span><ReactIcons.TrashCan /></span>
+                                                </button>
+                                                <button className="btn btn-sm"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        setDataSource(item);
+                                                        setShowDataSourceModal(true);
+                                                    }
+                                                }><span><ReactIcons.Pencil /></span>
+                                                </button>
+                                            </>}
+                                        >
+                                        </ReactTable.Column>
                                     </ReactTable.Table>
                                 </div>
                             </div>
@@ -99,16 +128,35 @@ const DataSourceWindow = (props: IProps) => {
                     </div>
                     <div className="card-footer">
                         <div className="btn-group mr-2">
-                            <button className={"btn btn-primary"}
-                                type="submit"
-                                onClick={() => setDataSource({ EmailTypeID: props.Record.ID, ID: -1, TriggeredEmailDataSourceID: -1, TriggeredEmailDataSourceName: '' })} >Add DataSource</button>
+                            <button className={"btn btn-info"} type="submit"
+                                onClick={() => {
+                                    setDataSource({ 
+                                        EmailTypeID: props.Record.ID, 
+                                        ID: -1, TriggeredEmailDataSourceID: -1, 
+                                        TriggeredEmailDataSourceName: '' }
+                                    );
+                                    setShowDataSourceModal(true);
+                                }
+                            }>Add Data Source
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
-            <DataSourceModal Record={dataSource} OnClose={() => setDataSource(null)} />
-            <DataSourceTesting Record={props.Record} OnClose={() => setShowTest(false)} Show={showTest} />
-        </div>)
+            <Warning Show={showRemoveWarning} Title={'Remove Source'} Message={`Are you sure you want to remove this data source?`}
+                CallBack={(c) => {
+                    if (c) 
+                        dispatch(TriggeredEmailDataSourceSlice.DBAction({
+                            verb: 'DELETE', record: dataSource
+                        }));
+                   setShowRemoveWarning(false);
+                    
+                }}
+            ></Warning>
+            <DataSourceModal Show={showDataSourceModal} Record={dataSource} OnClose={() => {setShowDataSourceModal(false)}} /> {/* //!Shows when delete is pressed */}
+            <DataSourceTesting Show={showTest} Record={props.Record} OnClose={() => setShowTest(false)} />
+        </div>
+    )
 }
 
 export default DataSourceWindow;

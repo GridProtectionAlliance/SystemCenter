@@ -99,7 +99,7 @@ const EventSelect = (props: IProps) => {
                                 <h5>Notification Events:</h5>
                             </div>
                             <div className="col-6 align-self-center">
-                                <button className="btn btn-primary float-right" style={{ marginLeft: 5 }} onClick={() => setShowModal(true)}>Filter</button>
+                                <button className="btn btn-info float-right" style={{ marginLeft: 5 }} onClick={() => setShowModal(true)}>Filter</button>
                             </div>
                         </div>
                     </div>
