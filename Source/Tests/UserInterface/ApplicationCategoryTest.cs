@@ -12,6 +12,7 @@ using OpenQA.Selenium.Support.UI;
 using OpenQA.Selenium.Interactions;
 using SeleniumExtras.WaitHelpers;
 using NUnit.Framework;
+using UserInterface;
 [TestFixture]
 public class ApplicationCategoryTest {
   private IWebDriver driver;
@@ -36,13 +37,13 @@ public class ApplicationCategoryTest {
     private void PerformLogin()
     {
         // Navigate to the login page
-        driver.Navigate().GoToUrl("https://systemcenter.demo.gridprotectionalliance.org/index.cshtml?name=ByApplicationCategory");
+        driver.Navigate().GoToUrl(Settings.BaseURL + "/index.cshtml?name=ByApplicationCategory");
 
         // Input username
-        driver.FindElement(By.Id("username")).SendKeys("Admin");
+        driver.FindElement(By.Id("username")).SendKeys(Settings.adminUsername);
 
         // Input password
-        driver.FindElement(By.Id("password")).SendKeys("7h1515457r0ngP455w0rd");
+        driver.FindElement(By.Id("password")).SendKeys(Settings.adminPassword);
 
         // Click login button
         driver.FindElement(By.Id("login")).Click();
