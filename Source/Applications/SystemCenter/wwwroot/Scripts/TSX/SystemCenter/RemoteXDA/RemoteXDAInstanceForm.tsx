@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { Input } from '@gpa-gemstone/react-forms';
+import { CheckBox, Input } from '@gpa-gemstone/react-forms';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
 import { useAppDispatch, useAppSelector } from '../hooks';
@@ -39,8 +39,7 @@ const BlankRemoteXDAInstance: OpenXDA.Types.RemoteXDAInstance = {
     Name: null,
     Address: null,
     Frequency: '*',
-    UserAccountID: null,
-    UseApiAuth: false
+    UseApiAuth: true
 }
 
 const BlankUser: Application.Types.iUserAccount = {
@@ -138,8 +137,13 @@ export default function RemoteXDAInstanceForm(props: IProps) {
             e.push('An Address of less than 200 characters is required.');
         if (!valid('Frequency'))
             e.push('A Frequency in a valid cron format is required.');
-        if (!valid('UserAccountID'))
-            e.push('A User is required.');
+        if (formInstance.UseApiAuth) {
+            if (!valid('APIToken'))
+                e.push('An API Token for the remote XDA instance is required. This token must be less than 50 characters.');
+            if (!valid('RegistrationKey'))
+                e.push('A Registration Key for the remote XDA instance is required. This key must be less than 50 characters.');
+        }
+        else if (!valid('UserAccountID')) e.push('A User is required.');
         if (props.SetErrors != undefined)
             props.SetErrors(e);
         props.SetInstance(formInstance);
@@ -155,6 +159,10 @@ export default function RemoteXDAInstanceForm(props: IProps) {
             return formInstance.Frequency != null && formInstance.Frequency.length <= 20 && IsCron(formInstance.Frequency);
         else if (field == 'UserAccountID')
             return formInstance.UserAccountID != null; // Should be the only requirement, since it should be picked from non-typed in input
+        else if (field == 'APIToken')
+            return formInstance.APIToken != null && formInstance.APIToken.length > 0 && formInstance.APIToken.length <= 50;
+        else if (field == 'RegistrationKey')
+            return formInstance.RegistrationKey != null && formInstance.RegistrationKey.length > 0 && formInstance.RegistrationKey.length <= 50;
         else
             return false;
     }
@@ -229,10 +237,27 @@ export default function RemoteXDAInstanceForm(props: IProps) {
                                 Disabled={!hasPermissions()} />
                         </div>
                         <div className="col-6">
-                            <Input<Application.Types.iUserAccount> Record={instanceUser} Field={'Name'} Label={'User'} Valid={() => instanceUser.Name !== null} Setter={() => { }} Disabled={true} />
-                            <button type="button" className={"btn btn-primary btn-block" + (hasPermissions() ? '' : ' disabled')} data-tooltip='EditUser' onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')}
-                                onClick={() => { if (hasPermissions()) setShowUserSearch(true); }}> Add or Change User </button>
-                            {formInstance.ID > 0 ? <>
+                            <br />
+                            <CheckBox<OpenXDA.Types.RemoteXDAInstance> Record={formInstance} Field={'UseApiAuth'} Label={'Use Api Authentication'} Setter={setFormInstance} Help="If unchecked, a user account must be supplied with datapusher roles." />
+                            <br />
+                            {
+                                formInstance.UseApiAuth ? 
+                                    <>
+                                        <Input<OpenXDA.Types.RemoteXDAInstance> Record={formInstance} Field='RegistrationKey' Label='Registration Key'
+                                            Feedback="A Registration Key for the remote XDA instance is required. This key must be less than 50 characters."
+                                            Valid={valid} Setter={setFormInstance} Disabled={!hasPermissions()} />
+                                        <Input<OpenXDA.Types.RemoteXDAInstance> Record={formInstance} Field='APIToken' Label='API Token'
+                                            Feedback="An API Token for the remote XDA instance is required. This token must be less than 50 characters."
+                                            Valid={valid} Setter={setFormInstance} Disabled={!hasPermissions()} />
+                                    </> :
+                                    <>
+                                        <Input<Application.Types.iUserAccount> Record={instanceUser} Field={'Name'} Label={'User'} Valid={() => instanceUser.Name !== null} Setter={() => { }} Disabled={true} />
+                                        <button type="button" className={"btn btn-primary btn-block" + (hasPermissions() ? '' : ' disabled')} data-tooltip='EditUser' onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')}
+                                            onClick={() => { if (hasPermissions()) setShowUserSearch(true); }}> Add or Change User </button>
+                                    </>
+                            }
+                            {
+                                formInstance.ID > 0 ? <>
 
                                 <button type="button" className={"btn btn-primary btn-block" + (hasPermissions() ? '' : ' disabled')} data-tooltip='TestConnection' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}
                                     onClick={() => { if (hasPermissions()) testConnection() }}> Test Remote Connection </button>
