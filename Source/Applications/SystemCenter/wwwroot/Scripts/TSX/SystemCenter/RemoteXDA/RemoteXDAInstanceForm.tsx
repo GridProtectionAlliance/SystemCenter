@@ -58,16 +58,6 @@ const BlankUser: Application.Types.iUserAccount = {
     ChangePasswordOn: null
 }
 
-function RemoteXDAInstanceComparator(connection: OpenXDA.Types.RemoteXDAInstance, tempConnection: OpenXDA.Types.RemoteXDAInstance): boolean {
-    if (connection == null)
-        return false;
-    return (
-        connection.Name != tempConnection.Name ||
-        connection.Address != tempConnection.Address ||
-        connection.Frequency != tempConnection.Frequency ||
-        connection.UserAccountID != tempConnection.UserAccountID)
-}
-
 interface IProps { BaseInstance: OpenXDA.Types.RemoteXDAInstance, SetInstance: (instance: OpenXDA.Types.RemoteXDAInstance) => void, SetErrors?: (e: string[]) => void, RenderPortalId?: string }
 
 export default function RemoteXDAInstanceForm(props: IProps) {
@@ -125,7 +115,7 @@ export default function RemoteXDAInstanceForm(props: IProps) {
 
     React.useEffect(() => {
         let e = [];
-        const formModified = RemoteXDAInstanceComparator(props.BaseInstance, formInstance);
+        const formModified = !_.isEqual(props.BaseInstance, formInstance);
 
         if (formModified && !hasPermissions())
             e.push("Your role does not have permission. Please contact your Administrator if you believe this to be in error.");
@@ -335,4 +325,4 @@ export default function RemoteXDAInstanceForm(props: IProps) {
     );
 }
 
-export { BlankRemoteXDAInstance, RemoteXDAInstanceForm, RemoteXDAInstanceComparator, BlankUser };
+export { BlankRemoteXDAInstance, RemoteXDAInstanceForm, BlankUser };
