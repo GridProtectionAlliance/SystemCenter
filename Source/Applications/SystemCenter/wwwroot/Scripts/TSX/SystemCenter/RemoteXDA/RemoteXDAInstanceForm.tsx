@@ -119,8 +119,6 @@ export default function RemoteXDAInstanceForm(props: IProps) {
 
         if (formModified && !hasPermissions())
             e.push("Your role does not have permission. Please contact your Administrator if you believe this to be in error.");
-        if (!formModified)
-            e.push("No changes made.");
         if (!valid('Name'))
             e.push('A Name of less than 200 characters is required.');
         if (!valid('Address'))
@@ -134,8 +132,13 @@ export default function RemoteXDAInstanceForm(props: IProps) {
                 e.push('A Registration Key for the remote XDA instance is required. This key must be less than 50 characters.');
         }
         else if (!valid('UserAccountID')) e.push('A User is required.');
+
+        if (!formModified && e.length === 0)
+            e.push("No changes made.");
+
         if (props.SetErrors != undefined)
             props.SetErrors(e);
+
         props.SetInstance(formInstance);
     }, [formInstance]);
 
