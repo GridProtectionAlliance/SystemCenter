@@ -116,39 +116,7 @@ public class ByAssetTest
         // Asset Color (not active)
         vars["Color"] = js.ExecuteScript("return getComputedStyle(document.querySelector(\".nav-link\")).Color");
     }
-    //[Test]
-    //public void assetsbButtons()
-    //{
 
-    //    // Add filter
-    //    IWebElement addFilter = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[1]/nav/div/ul/li[1]/fieldset/form/div/div[2]/button")));
-    //    addFilter.Click();
-
-    //    // Close
-    //    IWebElement closeFilter = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[2]/div[1]/div/div/div[3]/button[2]")));
-    //    closeFilter.Click();
-
-    //    // Add asset
-    //    IWebElement addAsset = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[1]/nav/div/ul/li[2]/fieldset/form/div[1]/button")));
-    //    addAsset.Click();
-
-    //    // Cancel
-    //    IWebElement cancelBtn = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[6]/div[1]/div/div/div[3]/button[2]")));
-    //    cancelBtn.Click();
-
-    //    // External database
-    //    IWebElement externalDb = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[1]/nav/div/ul/li[2]/fieldset/form/div[2]/button")));
-    //    externalDb.Click();
-
-    //    // Close
-    //    IWebElement closeDb = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[10]/div[1]/div/div/div[3]/button[2]")));
-    //    closeDb.Click();
-
-    //    // Next page (via number)
-    //    driver.FindElement(By.XPath("//a[contains(.,\'2\')]")).Click();
-    //    // Prev page (via number)
-    //    driver.FindElement(By.XPath("//a[contains(.,\'1\')]")).Click();
-    //}
     [Test]
     public void assetscSorting()
     {
