@@ -55,7 +55,6 @@ public class MetersTest {
 
     [Test]
   public void metersInfoPresent() {
-    driver.Navigate().GoToUrl("https://systemcenter.demo.gridprotectionalliance.org/index.cshtml?name=Meters");
     // Search Username
     // Wait for and assert that the search input is displayed
     IWebElement searchInput = wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("//input[@type='search']")));

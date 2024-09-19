@@ -40,7 +40,7 @@ public class DatabaseCleanupTest
     private void PerformLogin()
     {
         // Navigate to the login page
-        driver.Navigate().GoToUrl(Settings.BaseURL + "https://systemcenter.demo.gridprotectionalliance.org/index.cshtml?name=DBCleanup");
+        driver.Navigate().GoToUrl(Settings.BaseURL + "/index.cshtml?name=DBCleanup");
 
         // Input username
         driver.FindElement(By.Id("username")).SendKeys(Settings.adminUsername);
