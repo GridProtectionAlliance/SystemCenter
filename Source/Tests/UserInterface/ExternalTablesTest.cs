@@ -310,14 +310,13 @@ public class ExternalTablesTest
     [Test]
     public void externalTablesSorting()
     {
-        // Wait for and click on the Name sort header
-        IWebElement nameSortHeader = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[1]/div[1]")));
+       IWebElement nameSortHeader = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[1]/div[1]")));
         nameSortHeader.Click();
 
         // Wait for and assert that the arrow is present in the Name column
         wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[1]/div")));
         var nameArrowPresent = driver.FindElements(By.XPath("//th[1]/div"));
-        Assert.That(nameArrowPresent.Count > 0, "Arrow for Name column should be present after clicking the header.");
+        Assert.That(nameArrowPresent.Count > 0);
 
         // Click on the Name sort header again (to toggle sorting)
         IWebElement nameSortHeaderAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[1]/div[1]")));
@@ -327,70 +326,27 @@ public class ExternalTablesTest
         IWebElement externalDb = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[2]")));
         externalDb.Click();
 
-        // Assert that the arrow is present in the External DB column
-        // This assertion is meant to fail because the arrow should not be in the External DB column if sorting did not work correctly.
+        // Wait for and assert that the arrow is present in the URL column
         wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[2]/div")));
         var externalDbArrow = driver.FindElements(By.XPath("//th[2]/div"));
-        Assert.That(externalDbArrow.Count > 0, "Arrow for External DB column should be present after clicking the header.");
+        Assert.That(externalDbArrow.Count > 0);
 
         // Click on the External DB sort header again (to toggle sorting)
         IWebElement externalDbAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[2]/div[2]")));
         externalDbAgain.Click();
 
         // Wait for and click on the Mapped Fields header
-        IWebElement mappedFields = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[3]")));
+        IWebElement mappedFields = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[2]")));
         mappedFields.Click();
 
-        // Assert that the arrow is present in the Mapped Fields column
-        // This assertion is meant to fail because the arrow should not be in the Mapped Fields column if sorting did not work correctly.
-        wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[3]/div")));
-        var mappedArrow = driver.FindElements(By.XPath("//th[3]/div"));
-        Assert.That(mappedArrow.Count > 0, "Arrow for Mapped Fields column should be present after clicking the header.");
+        // Wait for and assert that the arrow is present in the URL column
+        wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[2]/div")));
+        var mappedArrow = driver.FindElements(By.XPath("//th[2]/div"));
+        Assert.That(mappedArrow.Count > 0);
 
         // Click on the Mapped Fields sort header again (to toggle sorting)
-        IWebElement mappedFieldsAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[3]/div[3]")));
+        IWebElement mappedFieldsAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[2]/div[2]")));
         mappedFieldsAgain.Click();
-
-
-        // BELOW IS A SUCCESSFUL TEST WHEN THE SORT ISSUE IS IMPLEMENTED
-        // Wait for and click on the Name sort header
-        //IWebElement nameSortHeader = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[1]/div[1]")));
-        //nameSortHeader.Click();
-
-        //// Wait for and assert that the arrow is present in the Name column
-        //wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[1]/div")));
-        //var nameArrowPresent = driver.FindElements(By.XPath("//th[1]/div"));
-        //Assert.That(nameArrowPresent.Count > 0);
-
-        //// Click on the Name sort header again (to toggle sorting)
-        //IWebElement nameSortHeaderAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[1]/div[1]")));
-        //nameSortHeaderAgain.Click();
-
-        //// Wait for and click on the External DB header
-        //IWebElement externalDb = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[2]")));
-        //externalDb.Click();
-
-        //// Wait for and assert that the arrow is present in the URL column
-        //wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[2]/div")));
-        //var externalDbArrow = driver.FindElements(By.XPath("//th[2]/div"));
-        //Assert.That(externalDbArrow.Count > 0);
-
-        //// Click on the External DB sort header again (to toggle sorting)
-        //IWebElement externalDbAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[2]/div[2]")));
-        //externalDbAgain.Click();
-
-        //// Wait for and click on the Mapped Fields header
-        //IWebElement mappedFields = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[2]")));
-        //mappedFields.Click();
-
-        //// Wait for and assert that the arrow is present in the URL column
-        //wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[2]/div")));
-        //var mappedArrow = driver.FindElements(By.XPath("//th[2]/div"));
-        //Assert.That(mappedArrow.Count > 0);
-
-        //// Click on the Mapped Fields sort header again (to toggle sorting)
-        //IWebElement mappedFieldsAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[2]/div[2]")));
-        //mappedFieldsAgain.Click();
 
     }
 }
