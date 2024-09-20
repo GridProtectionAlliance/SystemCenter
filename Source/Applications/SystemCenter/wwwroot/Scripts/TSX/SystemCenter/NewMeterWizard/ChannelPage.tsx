@@ -491,7 +491,7 @@ export default function ChannelPage(props: IProps) {
                             RowStyle={{width: 'auto'}}
                             Content={({ item }) => <Input<OpenXDA.Types.Channel> Field={'Name'}
                                 Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />}
-                        > Name
+                        > Label
                         </ReactTable.AdjustableColumn>
                         <ConfigTable.Configurable Key='Series' Label='Channel' Default={true}>
                             <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
@@ -504,7 +504,7 @@ export default function ChannelPage(props: IProps) {
                                         item.Series[0].SourceIndexes = series.SourceIndexes;
                                         editChannel(item)
                                     }} Label={''} Valid={() => true} />}
-                            > Channel
+                            > Identifier
                             </ReactTable.AdjustableColumn>
                         </ConfigTable.Configurable>
                         <ConfigTable.Configurable Key='MeasurementType' Label='Type' Default={false}>

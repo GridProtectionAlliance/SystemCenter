@@ -180,7 +180,7 @@ const AssetChannelWindow = (props: IProps) => {
                         Field={'Name'}
                         HeaderStyle={{ width: '15%' }}
                         RowStyle={{ width: '15%' }}
-                    > Channel Name
+                    > Label
                     </ReactTable.Column>
                     <ReactTable.Column<ChannelDetail>
                         Key={'MeterName'}

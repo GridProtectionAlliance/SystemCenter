@@ -192,15 +192,16 @@ export default function VirtualChannelModal(props: IProps) {
                                 AllowSort={true}
                                 Field={'Name'}
                                 HeaderStyle={{ maxWidth: 'auto' }}
-                                >Name
+                                >Label
                             </ReactTable.AdjustableColumn>
-                            <ConfigTable.Configurable Key='Series' Label='Channel' Default={true}>
+                            <ConfigTable.Configurable Key='Series' Label='Identifier' Default={true}>
                                 <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
                                     Key={'Series'}
+                                    Field='Series' 
                                     AllowSort={true}
                                     HeaderStyle={{ maxWidth: 'auto' }}
                                     Content={({ item }) => item.Series[0].SourceIndexes}
-                                    >Channel
+                                    >Identifier
                                 </ReactTable.AdjustableColumn>
                             </ConfigTable.Configurable>
                             <ConfigTable.Configurable Key='MeasurementType' Label='Type' Default={true}>
