@@ -500,7 +500,7 @@ export default function ChannelPage(props: IProps) {
                         SortKey={sortKey}
                         Ascending={asc}
                         TheadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
-                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                        TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
                         RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
                         Selected={() => false}
                         KeySelector={(item) => item.ID}
