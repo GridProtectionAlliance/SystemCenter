@@ -145,19 +145,17 @@ const RemoteAssetTab = (props: IProps) => {
                 <ReactTable.Column<OpenXDA.Types.RemoteXDAAsset>
                     Key={'RemoteAssetName'}
                     AllowSort={true}
-                    Field={'RemoteXDAAssetKey'}
+                    Field={'RemoteAssetName'}
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
-                    Content={({ item }) => item.Obsfucate ? item.RemoteXDAAssetKey : item.LocalAssetName }
                 > Remote Asset Name
                 </ReactTable.Column>
                 <ReactTable.Column<OpenXDA.Types.RemoteXDAAsset>
                     Key={'RemoteAssetKey'}
                     AllowSort={true}
-                    Field={'RemoteXDAAssetKey'}
+                    Field={'RemoteAssetKey'}
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
-                    Content={({ item }) => item.Obsfucate ? item.RemoteXDAAssetKey : item.LocalAssetKey }
                 > Remote Asset Key
                 </ReactTable.Column>
                 <ReactTable.Column<OpenXDA.Types.RemoteXDAAsset>
@@ -167,7 +165,7 @@ const RemoteAssetTab = (props: IProps) => {
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
                     Content={({ item }) => item.Obsfucate ? HeavyCheckMark : null }
-                > Obsfucated
+                > Obfuscated
                 </ReactTable.Column>
                 <ReactTable.Column<OpenXDA.Types.RemoteXDAAsset>
                     Key={'Synced'}
@@ -240,7 +238,7 @@ const RemoteAssetTab = (props: IProps) => {
             <div className="card-footer">
                 <div className="add-new-asset">
                     <button
-                        className={"btn btn-primary" + (hasPermissions() ? '' : ' disabled')}
+                        className={"btn btn-info" + (hasPermissions() ? '' : ' disabled')}
                         type="submit" data-tooltip='AddAssets' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}
                         onClick={(e) => {
                             if (hasPermissions()) {
@@ -293,8 +291,8 @@ const RemoteAssetTab = (props: IProps) => {
                             RemoteAssetCreatedByDataPusher: false,
                             LocalAssetName: "",
                             LocalAssetKey: "",
-                            RemoteAssetName: '',
-                            RemoteAssetKey: ''
+                            RemoteAssetName: "",
+                            RemoteAssetKey: ""
                         }
                         dispatch(RemoteXDAAssetSlice.DBAction({ verb: "POST", record: newRemote }));
                     });
