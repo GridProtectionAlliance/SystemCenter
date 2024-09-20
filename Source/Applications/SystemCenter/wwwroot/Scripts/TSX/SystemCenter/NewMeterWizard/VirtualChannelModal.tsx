@@ -36,6 +36,7 @@ interface IProps {
     UpdateChannels: React.Dispatch<React.SetStateAction<OpenXDA.Types.Channel[]>>,
     CurrentChannels: OpenXDA.Types.Channel[],
     SortKey: string,
+    SetSortKey: (key: string) => void,
     Ascending: boolean,
     Shown: boolean,
     Close: (c: OpenXDA.Types.Channel | undefined) => void
@@ -54,6 +55,15 @@ export default function VirtualChannelModal(props: IProps) {
 
     const [warnings, setWarnings] = React.useState<string[]>(undefined);
     const [errors, setErrors] = React.useState<string[]>(undefined);
+
+    const oldSorting = React.useRef<{SortKey: string, Ascending: boolean}>(undefined);
+
+    React.useEffect(() => {
+        // We save and load this so we don't have to copy all of the channels, page already has performance issues in some scenarios
+        if (props.Shown) {
+            oldSorting.current = { SortKey: props.SortKey, Ascending: props.Ascending };
+        }
+    }, [props.Shown])
 
     React.useEffect(() => {
         const e = []
@@ -127,11 +137,12 @@ export default function VirtualChannelModal(props: IProps) {
             props.UpdateChannels(channels);
 
             props.Close(channel)
-            setVirtualChannels([]);
-        } else if (isButton) {
+        } else {
             props.Close(undefined);
-            setVirtualChannels([]);
         }
+            setVirtualChannels([]);
+        if (oldSorting.current?.Ascending != null && props.Ascending !== oldSorting.current.Ascending) props.SetAscending(oldSorting.current.Ascending);
+        if (oldSorting.current?.SortKey != null && props.SortKey !== oldSorting.current.SortKey) props.SetSortKey(oldSorting.current.SortKey);
     }
 
     function updateChannelScale(vChannel: IVirtualChannel, index: number) {
@@ -185,7 +196,14 @@ export default function VirtualChannelModal(props: IProps) {
                             Selected={() => false}
                             KeySelector={(item) => item.ID}
                             OnClick={(data, event) => handleChannelClick(data, event)}
-                            OnSort={() => {}}
+                            OnSort={(d) => {
+                                if (d.colKey === props.SortKey)
+                                    props.SetAscending(!props.Ascending);
+                                else {
+                                    props.SetAscending(false);
+                                    props.SetSortKey(d.colKey);
+                                }
+                            }}
                         >
                             <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
                                 Key={'Name'}

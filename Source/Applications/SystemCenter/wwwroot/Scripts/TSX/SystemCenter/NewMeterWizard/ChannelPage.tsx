@@ -640,7 +640,9 @@ export default function ChannelPage(props: IProps) {
                 UpdateChannels={props.UpdateChannels}
                 Shown={showVirtualChannelModal}
                 SortKey={sortKey}
+                SetSortKey={setSortKey}
                 Ascending={asc}
+                SetAscending={setAsc}
                 Close={(channel) => {
                     setShowVirtualChannelModal(false);
                     if (channel !== undefined) {
