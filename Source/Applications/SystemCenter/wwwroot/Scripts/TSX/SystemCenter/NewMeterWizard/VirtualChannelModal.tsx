@@ -128,9 +128,9 @@ export default function VirtualChannelModal(props: IProps) {
                     if (phaseKeys.length > 1 && phaseKeys.length < 4 && count.Type[typeKeys[0]] === phaseKeys.length) {
                         return { MeasurementType: typeKeys[0], Phase: 'TOTAL', Description: `Summation of ${typeKeys[0]}s` };
                     } else return undefined;
-        }
+                }
                 else return undefined;
-    }
+        }
     }
 
     function handleVCModalConfirmCallback(conf, isButton) {
@@ -162,7 +162,7 @@ export default function VirtualChannelModal(props: IProps) {
         } else {
             props.Close(undefined);
         }
-            setVirtualChannels([]);
+        setVirtualChannels([]);
         if (oldSorting.current?.Ascending != null && props.Ascending !== oldSorting.current.Ascending) props.SetAscending(oldSorting.current.Ascending);
         if (oldSorting.current?.SortKey != null && props.SortKey !== oldSorting.current.SortKey) props.SetSortKey(oldSorting.current.SortKey);
     }
@@ -330,27 +330,39 @@ export default function VirtualChannelModal(props: IProps) {
                     {(virtualChannels.length > 0) ?
                     virtualChannels.map((channel: IVirtualChannel, index: number) => (
                         <>
-                            {index === 0
-                            ? <div className='col-1'></div>
-                            : <div style={{ cursor: 'pointer' }} className={'col-1 mt-2 text-center'} onClick={() => {signedScale(index)}}><ReactIcons.Plus /></div>}
-                            <div className='col-1 px-0 mt-2'>
-                                <Input<IVirtualChannel>
-                                    Field={'Scale'}
-                                    Label={''}
-                                    Type={'number'}
-                                    Record={channel}
-                                    Valid={() => true}
-                                    Setter={(ch) => updateChannelScale(ch, index)}
-                                    Style={{marginBottom: 0}} />
-                            </div>
-                            <div className="col-1">
-                                <div className='row px-1 mt-2'> {/* For even spacing of text */}
-                                    <div className='col-1'>&times;</div> <div className='col'>{channel.Name}</div>
+                            {index === 0 ?
+                                <div className='col-1'></div>
+                                : <div style={{ cursor: 'pointer' }} className={'col-1 mt-2 text-center'} onClick={() => { signedScale(index) }}><ReactIcons.Plus /></div>
+                            }
+                            <div className="col-2">
+                                <div className="row">
+                                    <div className='col-4 px-0 mt-2'>
+                                        <Input<IVirtualChannel>
+                                            Field={'Scale'}
+                                            Label={''}
+                                            Type={'number'}
+                                            Record={channel}
+                                            Valid={() => true}
+                                            Setter={(ch) => updateChannelScale(ch, index)}
+                                            Style={{ marginBottom: 0 }} />
+                                    </div>
+                                    <div className="col-4">
+                                        <div className='row px-1 mt-2'> {/* For even spacing of text */}
+                                            <div className='col-6'><ReactIcons.CrossMark /></div>
+                                            <div className='col-6'>{channel.Name}</div>
+                                        </div>
+                                    </div>
+                                    <button className='col-4 mt-2 btn btn-sm' onClick={() => removeVC(channel)}>
+                                        <ReactIcons.TrashCan />
+                                    </button>
                                 </div>
+                                {(channel.Series === null || channel.Series == '') ?
+                                    <div className="row">
+                                        <div className=" alert alert-danger">Channel requires an identifier to be used in virtual computation.</div>
+                                    </div>
+                                    : <></>
+                                }
                             </div>
-                            <button className='col-1 mt-2 btn btn-sm' onClick={() => removeVC(channel)}>
-                                <ReactIcons.TrashCan />
-                            </button>
                         </>
                     ))
                     : <div className='alert alert-primary'>
