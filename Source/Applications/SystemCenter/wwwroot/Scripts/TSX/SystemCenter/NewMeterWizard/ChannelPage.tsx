@@ -55,6 +55,7 @@ export default function ChannelPage(props: IProps) {
 
     const [showCFGError, setShowCFGError] = React.useState<boolean>(false);
     const [showSpareWarning, setShowSpareWarning] = React.useState<boolean>(false);
+    const [showRemoveWarning, setShowRemoveWarning] = React.useState<boolean>(false);
     const [showScaling, setShowScaling] = React.useState<boolean>(false);
     const [showDialog, setShowDialog] = React.useState<boolean>(false);
     const [selectedFile, setSelectedFile] = React.useState('');
@@ -364,10 +365,10 @@ export default function ChannelPage(props: IProps) {
                     </div>
                 </div>
                 <div className="col col-lg-3 col-xl-2 text-center">
-                    {selectedFile === '' ? <><BtnDropdown Label='Remove All' Callback={() => {
-                            props.UpdateChannels(getCurrentChannels(!props.TrendChannels));
-                            setSelectedFile('');
-                        }}
+                    {selectedFile === '' ?
+                        <>
+                            <BtnDropdown Label='Remove All'
+                                Callback={() => setShowRemoveWarning(true)}
                         Size={'sm'}
                         Disabled={currentChannels.length === 0}
                         Options={[{
@@ -375,14 +376,16 @@ export default function ChannelPage(props: IProps) {
                             ToolTipContent: <p>No spare channels were identified.</p>, ShowToolTip: true, ToolTipLocation: 'left'
                         }]}
                         ShowToolTip={currentChannels.length === 0}
-                        BtnClass={'btn-primary'}
+                                BtnClass={'btn-info'}
                         TooltipContent={
                             <>
                             {currentChannels.length === 0 ? <p>No channels to remove.</p> : null}
                             </>
                         }
-                        /></>
-                    :<><BtnDropdown Label='Remove Spare' Callback={() => setShowSpareWarning(true)}
+                            />
+                        </> :
+                        <>
+                            <BtnDropdown Label='Remove Spare' Callback={() => setShowSpareWarning(true)}
                         Size={'sm'}
                         Disabled={NSpare == 0}
                         Options={[{
@@ -392,14 +395,16 @@ export default function ChannelPage(props: IProps) {
                             }
                         }]}
                         ShowToolTip={true}
-                        BtnClass={'btn-primary' }
+                                BtnClass={'btn-info' }
                         TooltipContent={<>
                             {NSpare == 0 ? <p>No spare channels were identified.</p> : null}
                             {NSpare > 0 ? <p>Channels are considered Spare if the Description is
                                 "spare", "virtual spare", "voltage spare", "current spare", "spare virtual",
                                 "spare channel", "spare voltage", "spare current", "spare trigger" or they are digital with description "A00 analog channel 00". </p> : null}
                         </>}
-                    /></>}
+                            />
+                        </>
+                    }
                 </div>
                 <div className="d-none col col-lg-2 d-xl-block text-center">
                     <button className="btn btn-primary btn-sm" disabled={currentChannels.length == 0} onClick={() => {
@@ -643,7 +648,16 @@ export default function ChannelPage(props: IProps) {
             </div>
         </div>
                 <Warning Show={showCFGError} Title={'Error Parsing File'} Message={`File type not supported. Please select a file of the following types: ${allTypes}. Note COMTRADE files for trending data are automatically ingested using the event channels and can not be uploaded in the wizard.`} CallBack={() => setShowCFGError(false)} />
-                <Warning Show={showSpareWarning} Title={'Remove Spare Channels'} Message={`This will remove all Spare Channels. This will remove ${NSpare} Channels from the configuration.`} CallBack={(conf) => { if (conf) clearSpareChannels(); setShowSpareWarning(false); }} />
+            <Warning Show={showSpareWarning} Title={'Remove Spare Channels'} Message={`This will remove all Spare Channel(s). This will remove ${NSpare} Channel(s) from the configuration.`} CallBack={(conf) => { if (conf) clearSpareChannels(); setShowSpareWarning(false); }} />
+            <Warning Show={showRemoveWarning} Title={'Remove All Channels'}
+                Message={`This will remove all Channel(s). This will remove ${getCurrentChannels(props.TrendChannels).length} Channel(s) from the configuration.`}
+                CallBack={(conf) => {
+                    if (conf) {
+                        props.UpdateChannels(getCurrentChannels(!props.TrendChannels));
+                        setSelectedFile('');
+                    }
+                    setShowRemoveWarning(false);
+                }} />
                 <Modal Title="Scale Channels" ShowX={true} ShowCancel={false} Show={showScaling} ConfirmText="Close Scaling Window" CallBack={() => setShowScaling(false)} Size='xlg'>
                     <ChannelScalingForm Channels={currentChannels} UpdateChannels={editChannels} ChannelStatus={channelStatus} Key={props.MeterKey} />
                 </Modal>
