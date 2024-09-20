@@ -407,7 +407,7 @@ export default function ChannelPage(props: IProps) {
                     }
                 </div>
                 <div className="d-none col col-lg-2 d-xl-block text-center">
-                    <button className="btn btn-primary btn-sm" disabled={currentChannels.length == 0} onClick={() => {
+                    <button className="btn btn-info btn-sm" disabled={currentChannels.length == 0} onClick={() => {
                         setShowScaling(true);
                     }
                     }>Scale</button>
