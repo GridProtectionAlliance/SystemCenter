@@ -38,6 +38,7 @@ interface IProps {
     SortKey: string,
     SetSortKey: (key: string) => void,
     Ascending: boolean,
+    SetAscending: (asc: boolean) => void,
     Shown: boolean,
     Close: (c: OpenXDA.Types.Channel | undefined) => void
 }
@@ -68,11 +69,11 @@ export default function VirtualChannelModal(props: IProps) {
     React.useEffect(() => {
         const e = []
         const w = []
-        for (const vChannel of virtualChannels) {
+        virtualChannels.forEach((vChannel) => {
             if (vChannel.Series === null || vChannel.Series == '') {
-                e.push(`Channel ${vChannel.Name} does not have a sourceIndex and cannot be used in a calculation.`)
+                e.push(`Channel ${vChannel.Name} requires an identifier to be used in virtual computation.`);
             }
-        }
+        });
         setErrors(e);
 
         if (virtualChannels.length > 0) {
@@ -91,24 +92,45 @@ export default function VirtualChannelModal(props: IProps) {
     }, event: React.MouseEvent<HTMLElement, MouseEvent>) => {
         event.preventDefault();
         event.stopPropagation();
-        addVirtualChannel(data.row, 1); // scale default is 1
+        const vChannel: IVirtualChannel = {
+            Series: data.row.Series[0].SourceIndexes,
+            Phase: data.row.Phase,
+            MeasurementType: data.row.MeasurementType,
+            Scale: 1, // scale default is 1
+            Name: data.row.Name
+        }
+        setVirtualChannels(prevChannels => [...prevChannels, vChannel]);
     }, []);
 
-    function addVirtualChannel(channel: OpenXDA.Types.Channel, scale: number) {
-        const vChannel: IVirtualChannel = {
-            Series: channel.Series[0].SourceIndexes,
-            Phase: channel.Phase,
-            MeasurementType: channel.MeasurementType,
-            Scale: scale,
-            Name: channel.Name
-        }
-        setVirtualChannels(prevChannels => [...prevChannels, vChannel])
-    }
-
     function getChannelInfo(channels: IVirtualChannel[]) {
-        if (channels.filter(c => c.Phase == 'A' && c.MeasurementType == 'Voltage').length > 0)
-            return { MeasurementType: 'Voltage', Phase: 'A', Description: '' };
-        return undefined;
+        const count: {
+            Phase: { [key: string]: number }
+            Type: { [key: string]: number }
+        } = {
+            Phase: {},
+            Type: {}
+        };
+        channels.forEach(channel => {
+            if (count.Phase[channel.Phase] == null) count.Phase[channel.Phase] = 1;
+            else count.Phase[channel.Phase] += 1;
+            if (count.Type[channel.MeasurementType] == null) count.Type[channel.MeasurementType] = 1;
+            else count.Type[channel.MeasurementType] += 1;
+        });
+
+        // ToDo: This logic is incomplete, add more common use cases
+        const typeKeys = Object.keys(count.Type);
+        const phaseKeys = Object.keys(count.Phase);
+        switch (typeKeys.length) {
+            default: return undefined;
+            case 1:
+                if (typeKeys[0] === 'Current' || typeKeys[0] === 'Voltage') {
+                    // Match AN BN CN
+                    if (phaseKeys.length > 1 && phaseKeys.length < 4 && count.Type[typeKeys[0]] === phaseKeys.length) {
+                        return { MeasurementType: typeKeys[0], Phase: 'TOTAL', Description: `Summation of ${typeKeys[0]}s` };
+                    } else return undefined;
+        }
+                else return undefined;
+    }
     }
 
     function handleVCModalConfirmCallback(conf, isButton) {
@@ -175,7 +197,8 @@ export default function VirtualChannelModal(props: IProps) {
             ConfirmText={'Add'}
             ConfirmBtnClass={'btn-primary'}
             DisableConfirm={errors?.length > 0 || virtualChannels.length == 0}
-            ShowCancel={true}
+            ShowCancel={false}
+            ShowX={true}
             Size={'xlg'}
             ConfirmShowToolTip={warnings?.length > 0 || errors?.length > 0}
             ConfirmToolTipContent={<>
