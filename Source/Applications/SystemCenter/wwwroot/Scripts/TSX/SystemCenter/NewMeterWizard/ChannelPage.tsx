@@ -231,10 +231,31 @@ export default function ChannelPage(props: IProps) {
         clearAssetsChannels();
     }, [props.TrendChannels]);
 
-    function addChannel(channel) {
+    function addChannel(channel: OpenXDA.Types.Channel) {
+        channel.ID = props.Channels.length == 0 ? 1 : Math.max(...props.Channels.map(ch => ch.ID)) + 1;
         let channels: Array<OpenXDA.Types.Channel> = [channel].concat(_.cloneDeep(props.Channels));
-        channel.ID = props.Channels.length == 0 ? 1 : Math.max(...props.Channels.map(ch => ch.ID)) + 1,
         props.UpdateChannels(channels);
+    }
+
+    function addManualChannel() {
+        const channel: OpenXDA.Types.Channel = {
+            ID: props.Channels.length == 0 ? 1 : Math.max(...props.Channels.map(ch => ch.ID)) + 1,
+            Meter: props.MeterKey, Asset: '',
+            MeasurementType: 'Voltage',
+            MeasurementCharacteristic: 'Instantaneous',
+            Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1,
+            SamplesPerHour: 0, PerUnitValue: null,
+            HarmonicGroup: 0, Description: 'Voltage AN',
+            Enabled: true, Series: [{
+                ID: 0,
+                ChannelID: 0,
+                SeriesType: 'Values',
+                SourceIndexes: ''
+            } as OpenXDA.Types.Series],
+            ConnectionPriority: 0, Trend: false
+        } as OpenXDA.Types.Channel
+        console.log("ye")
+        addChannel(channel);
     }
 
     function deleteChannel(index:number): void {
@@ -369,39 +390,39 @@ export default function ChannelPage(props: IProps) {
                         <>
                             <BtnDropdown Label='Remove All'
                                 Callback={() => setShowRemoveWarning(true)}
-                        Size={'sm'}
-                        Disabled={currentChannels.length === 0}
-                        Options={[{
-                            Label: 'Remove Spare', Disabled: NSpare == 0, Callback: () => setShowSpareWarning(true), 
-                            ToolTipContent: <p>No spare channels were identified.</p>, ShowToolTip: true, ToolTipLocation: 'left'
-                        }]}
-                        ShowToolTip={currentChannels.length === 0}
+                                Size={'sm'}
+                                Disabled={currentChannels.length === 0}
+                                Options={[{
+                                    Label: 'Remove Spare', Disabled: NSpare == 0, Callback: () => setShowSpareWarning(true), 
+                                    ToolTipContent: <p>No spare channels were identified.</p>, ShowToolTip: true, ToolTipLocation: 'left'
+                                }]}
+                                ShowToolTip={currentChannels.length === 0}
                                 BtnClass={'btn-info'}
-                        TooltipContent={
-                            <>
-                            {currentChannels.length === 0 ? <p>No channels to remove.</p> : null}
-                            </>
-                        }
+                                TooltipContent={
+                                    <>
+                                        {currentChannels.length === 0 ? <p>No channels to remove.</p> : null}
+                                    </>
+                                }
                             />
                         </> :
                         <>
                             <BtnDropdown Label='Remove Spare' Callback={() => setShowSpareWarning(true)}
-                        Size={'sm'}
-                        Disabled={NSpare == 0}
-                        Options={[{
-                            Label: 'Remove All', Disabled: currentChannels.length === 0, Callback: () => {
-                                props.UpdateChannels(getCurrentChannels(!props.TrendChannels));
-                                setSelectedFile('');
-                            }
-                        }]}
-                        ShowToolTip={true}
+                                Size={'sm'}
+                                Disabled={NSpare == 0}
+                                Options={[{
+                                    Label: 'Remove All', Disabled: currentChannels.length === 0, Callback: () => {
+                                        props.UpdateChannels(getCurrentChannels(!props.TrendChannels));
+                                        setSelectedFile('');
+                                    }
+                                }]}
+                                ShowToolTip={true}
                                 BtnClass={'btn-info' }
-                        TooltipContent={<>
-                            {NSpare == 0 ? <p>No spare channels were identified.</p> : null}
-                            {NSpare > 0 ? <p>Channels are considered Spare if the Description is
-                                "spare", "virtual spare", "voltage spare", "current spare", "spare virtual",
-                                "spare channel", "spare voltage", "spare current", "spare trigger" or they are digital with description "A00 analog channel 00". </p> : null}
-                        </>}
+                                TooltipContent={<>
+                                    {NSpare == 0 ? <p>No spare channels were identified.</p> : null}
+                                    {NSpare > 0 ? <p>Channels are considered Spare if the Description is
+                                        "spare", "virtual spare", "voltage spare", "current spare", "spare virtual",
+                                        "spare channel", "spare voltage", "spare current", "spare trigger" or they are digital with description "A00 analog channel 00". </p> : null}
+                                </>}
                             />
                         </>
                     }
@@ -412,83 +433,28 @@ export default function ChannelPage(props: IProps) {
                     }
                     }>Scale</button>
                 </div>
-
-                {props.TrendChannels ? null :
-                    <>
-                    <div className="col col-lg-2">
-                        {selectedFile === '' ? <BtnDropdown Label='Add Manual Channel'
-                            Callback={() => {
-                                let channel: OpenXDA.Types.Channel = {
-                                    ID: props.Channels.length == 0 ? 1 : Math.max(...props.Channels.map(ch => ch.ID)) + 1,
-                                    Meter: props.MeterKey, Asset: '',
-                                    MeasurementType: 'Voltage',
-                                    MeasurementCharacteristic: 'Instantaneous',
-                                    Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1,
-                                    SamplesPerHour: 0, PerUnitValue: null,
-                                    HarmonicGroup: 0, Description: 'Voltage AN',
-                                    Enabled: true, Series: [{
-                                        ID: 0,
-                                        ChannelID: 0,
-                                        SeriesType: 'Values',
-                                        SourceIndexes: ''
-                                    } as OpenXDA.Types.Series],
-                                    ConnectionPriority: 0, Trend: false
-                                } as OpenXDA.Types.Channel
-                                addChannel(channel);
-                            }}
-                            BtnClass={'btn-primary'}
-                            Size={'sm'}
-                            Options={[
-                                {
-                                    Label: 'Add Virtual Channel', Callback: () => {setShowVirtualChannelModal(true)}
-                                }
-                            ]}
-                        />
-                        : <BtnDropdown Label='Add Virtual Channel'
-                            Callback={() => {setShowVirtualChannelModal(true)}}
-                            BtnClass={'btn-primary'}
-                            Size={'sm'}
-                            Options={[{
-                                Label: 'Add Manual Channel', Callback: () => {
-                                let channel: OpenXDA.Types.Channel = {
-                                    ID: props.Channels.length == 0 ? 1 : Math.max(...props.Channels.map(ch => ch.ID)) + 1,
-                                    Meter: props.MeterKey, Asset: '',
-                                    MeasurementType: 'Voltage',
-                                    MeasurementCharacteristic: 'Instantaneous',
-                                    Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1,
-                                    SamplesPerHour: 0, PerUnitValue: null,
-                                    HarmonicGroup: 0, Description: 'Voltage AN',
-                                    Enabled: true, Series: [{
-                                        ID: 0,
-                                        ChannelID: 0,
-                                        SeriesType: 'Values',
-                                        SourceIndexes: ''
-                                    } as OpenXDA.Types.Series],
-                                    ConnectionPriority: 0, Trend: false
-                                } as OpenXDA.Types.Channel
-                                addChannel(channel);
-                                }
-                            }]}
-                        />}
-                    </div>
-                    <VirtualChannelModal
-                        Channels={props.Channels}
-                        CurrentChannels={currentChannels}
-                        MeterKey={props.MeterKey}
-                        UpdateChannels={props.UpdateChannels}
-                        Shown={showVirtualChannelModal}
-                        SortKey={sortKey}
-                        Ascending={asc}
-                        Close={(channel) => {
-                            setShowVirtualChannelModal(false);
-                            if (channel !== undefined) {
-                                addChannel(channel);
+                <div className="col col-lg-2">
+                    {!props.TrendChannels ?
+                        <>
+                            {selectedFile === '' ?
+                                <BtnDropdown Label="Add Manual Channel"
+                                    Callback={addManualChannel}
+                                    BtnClass={'btn btn-info'}
+                                    Options={[
+                                        { Label: 'Add Virtual Channel', Callback: () => { setShowVirtualChannelModal(true) } }
+                                    ]}
+                                /> :
+                                <BtnDropdown Label = "Add Virtual Channel"
+                                    Callback={() => { setShowVirtualChannelModal(true) }}
+                                    BtnClass={'btn btn-info'}
+                                    Options={[
+                                        { Label: 'Add Manual Channel', Callback: addManualChannel }
+                                    ]}
+                                />
                             }
-                        }}
-                        
-                    />
-                    </>
-                }
+                        </> : <></>
+                    }
+                </div>
             </div>
             {props.TrendChannels && currentChannels.length == 0 ? <div className="row"> <div className="col-12">
                 <div className="alert alert-info">
@@ -647,7 +613,7 @@ export default function ChannelPage(props: IProps) {
                     </ConfigTable.Table>
             </div>
         </div>
-                <Warning Show={showCFGError} Title={'Error Parsing File'} Message={`File type not supported. Please select a file of the following types: ${allTypes}. Note COMTRADE files for trending data are automatically ingested using the event channels and can not be uploaded in the wizard.`} CallBack={() => setShowCFGError(false)} />
+            <Warning Show={showCFGError} Title={'Error Parsing File'} Message={`File type not supported. Please select a file of the following types: ${allTypes}. Note COMTRADE files for trending data are automatically ingested using the event channels and can not be uploaded in the wizard.`} CallBack={() => setShowCFGError(false)} />
             <Warning Show={showSpareWarning} Title={'Remove Spare Channels'} Message={`This will remove all Spare Channel(s). This will remove ${NSpare} Channel(s) from the configuration.`} CallBack={(conf) => { if (conf) clearSpareChannels(); setShowSpareWarning(false); }} />
             <Warning Show={showRemoveWarning} Title={'Remove All Channels'}
                 Message={`This will remove all Channel(s). This will remove ${getCurrentChannels(props.TrendChannels).length} Channel(s) from the configuration.`}
@@ -658,15 +624,31 @@ export default function ChannelPage(props: IProps) {
                     }
                     setShowRemoveWarning(false);
                 }} />
-                <Modal Title="Scale Channels" ShowX={true} ShowCancel={false} Show={showScaling} ConfirmText="Close Scaling Window" CallBack={() => setShowScaling(false)} Size='xlg'>
-                    <ChannelScalingForm Channels={currentChannels} UpdateChannels={editChannels} ChannelStatus={channelStatus} Key={props.MeterKey} />
-                </Modal>
-                <Modal Title={"Add All Channels"} ShowX={true} ShowCancel={true} Show={showDialog} CancelText={"Only " + (props.TrendChannels ? "Trend" : "Event")} ConfirmText="Add All" Size='sm' CallBack={(all) => {
-                    addChannels(parsedChannels, all);
-                    setShowDialog(false);
-                }}>
-                    {"Add all Channels or only " + (props.TrendChannels ? "trend" : "event") + " Channels?"}
-                </Modal>
+            <Modal Title="Scale Channels" ShowX={true} ShowCancel={false} Show={showScaling} ConfirmText="Close Scaling Window" CallBack={() => setShowScaling(false)} Size='xlg'>
+                <ChannelScalingForm Channels={currentChannels} UpdateChannels={editChannels} ChannelStatus={channelStatus} Key={props.MeterKey} />
+            </Modal>
+            <Modal Title={"Add All Channels"} ShowX={true} ShowCancel={true} Show={showDialog} CancelText={"Only " + (props.TrendChannels ? "Trend" : "Event")} ConfirmText="Add All" Size='sm' CallBack={(all) => {
+                addChannels(parsedChannels, all);
+                setShowDialog(false);
+            }}>
+                {"Add all Channels or only " + (props.TrendChannels ? "trend" : "event") + " Channels?"}
+            </Modal>
+            <VirtualChannelModal
+                Channels={props.Channels}
+                CurrentChannels={currentChannels}
+                MeterKey={props.MeterKey}
+                UpdateChannels={props.UpdateChannels}
+                Shown={showVirtualChannelModal}
+                SortKey={sortKey}
+                Ascending={asc}
+                Close={(channel) => {
+                    setShowVirtualChannelModal(false);
+                    if (channel !== undefined) {
+                        addChannel(channel);
+                    }
+                }}
+
+            />
         </div>
     </>
 }
