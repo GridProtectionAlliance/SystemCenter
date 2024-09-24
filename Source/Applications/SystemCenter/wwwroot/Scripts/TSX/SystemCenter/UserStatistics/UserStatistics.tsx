@@ -38,7 +38,7 @@ interface Aggregate {
 
 interface IAccessSummary {
     Name: string,
-    Data: [number,number][],
+    Data: [number, number][],
     Color: string
 }
 
@@ -71,7 +71,13 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
     const applicationNodeStatus = useAppSelector(ApplicationNodeSlice.Status);
     const applicationNodes = useAppSelector(ApplicationNodeSlice.Data);
 
-    const tabs = React.useMemo(() => applicationNodes.map((a) => ({ Label: a.Name, Id: a.ID })), [applicationNodes])
+    const tabs = React.useMemo(() => applicationNodes.filter(a => a != null).map(a => (
+        {
+            Label: a.Name != null ? a.Name : '',
+            Id: a.ID != null ? a.ID : ''
+        }
+    )), [applicationNodes]);
+
     const timeFrame = React.useMemo(() => { return [moment.utc().endOf('d').subtract(days, 'd').valueOf(), moment.utc().startOf('d').valueOf()] as [number, number] }, [days])
 
     const [plotHeight, setPlotHeight] = React.useState<number>(100);
@@ -86,7 +92,7 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
 
     React.useEffect(() => {
         if (tab == '')
-            return; 
+            return;
         setTableStatus('loading');
         const handle = $.ajax({
             type: "GET",
@@ -122,12 +128,11 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
             async: true
         }));
 
-      
         Promise.all(handles).then((h) => {
             setPlotData(h.map((d: Aggregate[], i: number) => ({
                 Color: colors[i % colors.length],
                 Data: backfillData(d, days),
-                Name: applicationNodes[i].Name
+                Name: (applicationNodes[i] == null ? 'null' : applicationNodes[i].Name)
             })));
             setPlotStatus('idle')
         }, () => setPlotStatus('error'))
@@ -159,7 +164,8 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
 
         while (times.length < days) {
             let v = 0;
-            const t = moment.utc().endOf('d').subtract(days - i, 'd').valueOf()
+            const t = moment.utc().endOf('d').subtract(days - i, 'd').valueOf();
+            if (data == null) { return; }
             if (j < data.length && moment(data[j].Date).endOf('d').valueOf() <= t) {
                 v = data[j].Count;
                 j++;
@@ -269,11 +275,10 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
                         </ReactTable.Column>
                     </ReactTable.Table>
                 </div>
-                </div>
-            
+            </div>
         </div>
     )
-   
+
 }
 
 export default UserStatistics;
