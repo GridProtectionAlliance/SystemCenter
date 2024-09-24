@@ -35,6 +35,7 @@ import ChannelScalingForm from '../Meter/ChannelScaling/ChannelScalingForm';
 import { MeasurementCharacteristicSlice, MeasurmentTypeSlice, PhaseSlice } from '../Store/Store';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import TemplateWindow from './TemplateWindow';
+import VirtualChannelModal from './VirtualChannelModal';
 declare var homePath: string;
 
 interface IProps {
@@ -54,12 +55,14 @@ export default function ChannelPage(props: IProps) {
 
     const [showCFGError, setShowCFGError] = React.useState<boolean>(false);
     const [showSpareWarning, setShowSpareWarning] = React.useState<boolean>(false);
+    const [showRemoveWarning, setShowRemoveWarning] = React.useState<boolean>(false);
     const [showScaling, setShowScaling] = React.useState<boolean>(false);
     const [showDialog, setShowDialog] = React.useState<boolean>(false);
     const [selectedFile, setSelectedFile] = React.useState('');
     const [currentChannels, setCurrentChannels] = React.useState<OpenXDA.Types.Channel[]>([]);
     const [parsedChannels, setParsedChannels] = React.useState<OpenXDA.Types.Channel[]>([]);
     const [channelStatus, setChannelStatus] = React.useState<Application.Types.Status>('idle');
+    const [showVirtualChannelModal, setShowVirtualChannelModal] = React.useState<boolean>(false);
 
     const [sortKey, setSortKey] = React.useState<string>('Series');
     const [asc, setAsc] = React.useState<boolean>(false);
@@ -228,6 +231,32 @@ export default function ChannelPage(props: IProps) {
         clearAssetsChannels();
     }, [props.TrendChannels]);
 
+    function addChannel(channel: OpenXDA.Types.Channel) {
+        channel.ID = props.Channels.length == 0 ? 1 : Math.max(...props.Channels.map(ch => ch.ID)) + 1;
+        let channels: Array<OpenXDA.Types.Channel> = [channel].concat(_.cloneDeep(props.Channels));
+        props.UpdateChannels(channels);
+    }
+
+    function addManualChannel() {
+        const channel: OpenXDA.Types.Channel = {
+            ID: props.Channels.length == 0 ? 1 : Math.max(...props.Channels.map(ch => ch.ID)) + 1,
+            Meter: props.MeterKey, Asset: '',
+            MeasurementType: 'Voltage',
+            MeasurementCharacteristic: 'Instantaneous',
+            Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1,
+            SamplesPerHour: 0, PerUnitValue: null,
+            HarmonicGroup: 0, Description: 'Voltage AN',
+            Enabled: true, Series: [{
+                ID: 0,
+                ChannelID: 0,
+                SeriesType: 'Values',
+                SourceIndexes: ''
+            } as OpenXDA.Types.Series],
+            ConnectionPriority: 0, Trend: false
+        } as OpenXDA.Types.Channel
+        addChannel(channel);
+    }
+
     function deleteChannel(index:number): void {
         let channels: Array<OpenXDA.Types.Channel> = _.cloneDeep(props.Channels);
         let record: OpenXDA.Types.Channel = channels.splice(index, 1)[0];
@@ -339,8 +368,8 @@ export default function ChannelPage(props: IProps) {
 
     return <>
         <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
-            <div className="row">
-                <div className="col-lg-2 col-4">
+            <div className="row justify-content-between">
+                <div className="col-lg-2 col text-center">
                     <TemplateWindow IsEngineer={props.IsEngineer} TrendChannels={props.TrendChannels}
                         Upload={(d, f) => {
                             setChannelStatus('loading');
@@ -355,40 +384,76 @@ export default function ChannelPage(props: IProps) {
                         </div>
                     </div>
                 </div>
-            <div className="col-4 col-lg-3 col-xl-2">
-                    <BtnDropdown Label='Remove Spare' Callback={() => setShowSpareWarning(true)}
-                        Size={'sm'} Disabled={NSpare == 0}
-                    Options={[{
-                        Label: 'Remove All', Disabled: currentChannels.length === 0, Callback: () => {
-                            props.UpdateChannels(getCurrentChannels(!props.TrendChannels));
-                            setSelectedFile('');
-                        }
-                    }]}
-                    ShowToolTip={true}
-                    BtnClass={'btn-primary' }
-                    TooltipContent={<>
-                        {NSpare == 0 ? <p>No spare channels were identified.</p> : null}
-                        {NSpare > 0 ? <p>Channels are considered Spare if the Description is
-                            "spare", "virtual spare", "voltage spare", "current spare", "spare virtual",
-                            "spare channel", "spare voltage", "spare current", "spare trigger" or they are digital with description "A00 analog channel 00". </p> : null}
-                    </>}
-                />
+                <div className="col col-lg-3 col-xl-2 text-center">
+                    {selectedFile === '' ?
+                        <>
+                            <BtnDropdown Label='Remove All'
+                                Callback={() => setShowRemoveWarning(true)}
+                                Size={'sm'}
+                                Disabled={currentChannels.length === 0}
+                                Options={[{
+                                    Label: 'Remove Spare', Disabled: NSpare == 0, Callback: () => setShowSpareWarning(true), 
+                                    ToolTipContent: <p>No spare channels were identified.</p>, ShowToolTip: true, ToolTipLocation: 'left'
+                                }]}
+                                ShowToolTip={currentChannels.length === 0}
+                                BtnClass={'btn-info'}
+                                TooltipContent={
+                                    <>
+                                        {currentChannels.length === 0 ? <p>No channels to remove.</p> : null}
+                                    </>
+                                }
+                            />
+                        </> :
+                        <>
+                            <BtnDropdown Label='Remove Spare' Callback={() => setShowSpareWarning(true)}
+                                Size={'sm'}
+                                Disabled={NSpare == 0}
+                                Options={[{
+                                    Label: 'Remove All', Disabled: currentChannels.length === 0, Callback: () => {
+                                        props.UpdateChannels(getCurrentChannels(!props.TrendChannels));
+                                        setSelectedFile('');
+                                    }
+                                }]}
+                                ShowToolTip={true}
+                                BtnClass={'btn-info' }
+                                TooltipContent={<>
+                                    {NSpare == 0 ? <p>No spare channels were identified.</p> : null}
+                                    {NSpare > 0 ? <p>Channels are considered Spare if the Description is
+                                        "spare", "virtual spare", "voltage spare", "current spare", "spare virtual",
+                                        "spare channel", "spare voltage", "spare current", "spare trigger" or they are digital with description "A00 analog channel 00". </p> : null}
+                                </>}
+                            />
+                        </>
+                    }
                 </div>
-            <div className="d-none col-2 d-xl-block">
-                    <button className="btn btn-primary btn-block" disabled={currentChannels.length == 0} onClick={() => {
+                <div className="d-none col col-lg-2 d-xl-block text-center">
+                    <button className="btn btn-info btn-sm" disabled={currentChannels.length == 0} onClick={() => {
                         setShowScaling(true);
                     }
                     }>Scale</button>
                 </div>
-
-                {props.TrendChannels ? null :
-                    <div className="col-4 col-lg-2">
-                        <button className="btn btn-primary btn-block" onClick={() => {
-                            let channel: OpenXDA.Types.Channel = { ID: props.Channels.length == 0 ? 1 : Math.max(...props.Channels.map(ch => ch.ID)) + 1, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0, Trend: false } as OpenXDA.Types.Channel
-                            let channels: Array<OpenXDA.Types.Channel> = [channel].concat(_.cloneDeep(props.Channels));
-                            props.UpdateChannels(channels);
-                        }}>Add</button>
-                    </div>}
+                <div className="col col-lg-2">
+                    {!props.TrendChannels ?
+                        <>
+                            {selectedFile === '' ?
+                                <BtnDropdown Label="Add Manual Channel"
+                                    Callback={addManualChannel}
+                                    BtnClass={'btn btn-info'}
+                                    Options={[
+                                        { Label: 'Add Virtual Channel', Callback: () => { setShowVirtualChannelModal(true) } }
+                                    ]}
+                                /> :
+                                <BtnDropdown Label = "Add Virtual Channel"
+                                    Callback={() => { setShowVirtualChannelModal(true) }}
+                                    BtnClass={'btn btn-info'}
+                                    Options={[
+                                        { Label: 'Add Manual Channel', Callback: addManualChannel }
+                                    ]}
+                                />
+                            }
+                        </> : <></>
+                    }
+                </div>
             </div>
             {props.TrendChannels && currentChannels.length == 0 ? <div className="row"> <div className="col-12">
                 <div className="alert alert-info">
@@ -404,12 +469,8 @@ export default function ChannelPage(props: IProps) {
                         Data={currentChannels}
                         SortKey={sortKey}
                         Ascending={asc}
-                        TableStyle={{
-                            padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
-                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
-                        }}
                         TheadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
-                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                        TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
                         RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
                         Selected={() => false}
                         KeySelector={(item) => item.ID}
@@ -421,130 +482,129 @@ export default function ChannelPage(props: IProps) {
                             setSortKey(d.colKey);
                         }}
                     >
-                        <ReactTable.AdjustableCol<OpenXDA.Types.Channel>
+                        <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
                             Key={'Name'}
                             AllowSort={true}
                             Field={'Name'}
+                            HeaderStyle={{width: 'auto'}}
+                            RowStyle={{width: 'auto'}}
                             Content={({ item }) => <Input<OpenXDA.Types.Channel> Field={'Name'}
                                 Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />}
-                            HeaderStyle={{ width: '10%' }}
-                            RowStyle={{ width: '10%' }}
-                        > Name
-                        </ReactTable.AdjustableCol>
+                        > Label
+                        </ReactTable.AdjustableColumn>
                         <ConfigTable.Configurable Key='Series' Label='Channel' Default={true}>
-                            <ReactTable.AdjustableCol<OpenXDA.Types.Channel>
+                            <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
                                 Key={'Series'}
                                 AllowSort={true}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
+                                HeaderStyle={{width: 'auto'}}
+                                RowStyle={{width: 'auto'}}
                                 Content={({ item }) => <Input<OpenXDA.Types.Series> Field={'SourceIndexes'}
                                     Record={item.Series[0]} Setter={(series) => {
                                         item.Series[0].SourceIndexes = series.SourceIndexes;
                                         editChannel(item)
                                     }} Label={''} Valid={() => true} />}
-                            >
-                                Channel
-                            </ReactTable.AdjustableCol>
+                            > Identifier
+                            </ReactTable.AdjustableColumn>
                         </ConfigTable.Configurable>
                         <ConfigTable.Configurable Key='MeasurementType' Label='Type' Default={false}>
-                            <ReactTable.AdjustableCol<OpenXDA.Types.Channel>
+                            <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
                                 Key={'MeasurementType'}
-                                HeaderStyle={{ width: '10%' }}
-                                RowStyle={{ width: '10%' }}
+                                HeaderStyle={{width: 'auto'}}
+                                RowStyle={{width: 'auto'}}
                                 Content={({ item }) => <Select<OpenXDA.Types.Channel> Field={'MeasurementType'}
                                 Record={item} Setter={(ch) => editChannel(ch)} Label={''}
                                     Options={measurementTypes.map((t) => ({ Value: t.Name, Label: t.Name }))} />}>
                             Type
-                            </ReactTable.AdjustableCol>
+                            </ReactTable.AdjustableColumn>
                         </ConfigTable.Configurable>
                         <ConfigTable.Configurable Key='MeasurementCharacteristic' Label='Characteristic' Default={false}>
-                            <ReactTable.AdjustableCol<OpenXDA.Types.Channel> Key={'MeasurementCharacteristic'}
-                                HeaderStyle={{ width: '10%' }}
-                                RowStyle={{ width: '10%' }}
+                            <ReactTable.AdjustableColumn<OpenXDA.Types.Channel> Key={'MeasurementCharacteristic'}
+                                HeaderStyle={{width: 'auto'}}
+                                RowStyle={{width: 'auto'}}
                                 Content={({ item }) => <Select<OpenXDA.Types.Channel>
                                     Field={'MeasurementCharacteristic'} Record={item}
                                     Setter={(ch) => editChannel(ch)} Label={''}
                                     Options={measurementCharateristics.map((t) => ({ Value: t.Name, Label: t.Name }))}/>}>
                                 Characteristic
-                            </ReactTable.AdjustableCol>
+                            </ReactTable.AdjustableColumn>
                         </ConfigTable.Configurable>
                         <ConfigTable.Configurable Key='Phase' Label='Phase' Default={true}>
-                            <ReactTable.AdjustableCol<OpenXDA.Types.Channel>
+                            <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
                                 Key={'Phase'}
-                                HeaderStyle={{ width: '10%' }}
-                                RowStyle={{ width: '10%' }}
+                                HeaderStyle={{width: 'auto'}}
+                                RowStyle={{width: 'auto'}}
                                 Content={({ item }) => <Select<OpenXDA.Types.Channel> Field={'Phase'}
                                     Record={item} Setter={(ch) => editChannel(ch)} Label={''}
                                     Options={phases.map((t) => ({ Value: t.Name, Label: t.Name }))} />}>
                                     Phase
-                            </ReactTable.AdjustableCol>
+                            </ReactTable.AdjustableColumn>
                         </ConfigTable.Configurable>
                         <ConfigTable.Configurable Key='SamplesPerHour' Label='Sampling Rate' Default={false}>
-                            <ReactTable.AdjustableCol<OpenXDA.Types.Channel>
+                            <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
                                 Key={'SamplesPerHour'}
-                                HeaderStyle={{ width: '7%' }}
-                                RowStyle={{ width: '7%' }} Content={({ item }) => <Input<OpenXDA.Types.Channel>
+                                HeaderStyle={{width: 'auto'}}
+                                RowStyle={{width: 'auto'}}
+                                Content={({ item }) => <Input<OpenXDA.Types.Channel>
                                     Field={'SamplesPerHour'} Type={'number'} Record={item} Valid={() => true}
                                     Setter={(ch) => editChannel(ch)} Label={''} />}>
                                 Sampling Rate (sph)
-                            </ReactTable.AdjustableCol>
+                            </ReactTable.AdjustableColumn>
                         </ConfigTable.Configurable>
                         <ConfigTable.Configurable Key='PerUnitValue' Label='Per Unit' Default={false}>
-                            <ReactTable.AdjustableCol<OpenXDA.Types.Channel>
+                            <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
                                 Key={'PerUnitValue'}
-                                HeaderStyle={{ width: '7%' }}
-                                RowStyle={{ width: '7%' }}
+                                HeaderStyle={{width: 'auto'}}
+                                RowStyle={{width: 'auto'}}
                                 Content={({ item }) => <Input<OpenXDA.Types.Channel> Field={'PerUnitValue'} Type={'number'} Record={item}
                                     Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />}>
                                 Per Unit
-                            </ReactTable.AdjustableCol>
+                            </ReactTable.AdjustableColumn>
                         </ConfigTable.Configurable >
                         <ConfigTable.Configurable Key='HarmonicGroup' Label='Harmonic' Default={false}>
-                            <ReactTable.AdjustableCol<OpenXDA.Types.Channel>
+                            <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
                                 Key={'HarmonicGroup'}
-                                HeaderStyle={{ width: '7%' }}
-                                RowStyle={{ width: '7%' }}
+                                HeaderStyle={{width: 'auto'}}
+                                RowStyle={{width: 'auto'}}
                                 Content={({ item }) => <Input<OpenXDA.Types.Channel> Field={'HarmonicGroup'}
                                     Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />}>
                                 Harmonic
-                            </ReactTable.AdjustableCol>
+                            </ReactTable.AdjustableColumn>
                         </ConfigTable.Configurable >
                         <ConfigTable.Configurable Key='Adder' Label='Adder' Default={true}>
-                            <ReactTable.AdjustableCol<OpenXDA.Types.Channel>
+                            <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
                                 Key={'Adder'}
-                                HeaderStyle={{ width: '7%' }}
-                                RowStyle={{ width: '7%' }}
+                                HeaderStyle={{width: 'auto'}}
+                                RowStyle={{width: 'auto'}}
                                 Content={({ item }) => <Input<OpenXDA.Types.Channel> Field={'Adder'} Type={'number'}
                                     Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />}>
                                 Adder
-                            </ReactTable.AdjustableCol>
+                            </ReactTable.AdjustableColumn>
                         </ConfigTable.Configurable >
                         <ConfigTable.Configurable Key='Multiplier' Label='Multiplier' Default={true}>
-                            <ReactTable.AdjustableCol<OpenXDA.Types.Channel>
+                            <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
                                 Key={'Multiplier'}
-                                HeaderStyle={{ width: '7%' }}
-                                RowStyle={{ width: '7%' }}
+                                HeaderStyle={{width: 'auto'}}
+                                RowStyle={{width: 'auto'}}
                                 Content={({ item }) => <Input<OpenXDA.Types.Channel> Field={'Multiplier'}
                                     Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />}>
                                 Multiplier
-                            </ReactTable.AdjustableCol>
+                            </ReactTable.AdjustableColumn>
                         </ConfigTable.Configurable >
                         <ConfigTable.Configurable Key='Description' Label='Description' Default={true}>
-                            <ReactTable.AdjustableCol<OpenXDA.Types.Channel>
+                            <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
                                 Key={'Description'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
+                                HeaderStyle={{width: 'auto'}}
+                                RowStyle={{width: 'auto'}}
                                 Content={({ item }) => <TextArea<OpenXDA.Types.Channel> Field={'Description'}
                                     Rows={2} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />}>
                                 Description
-                            </ReactTable.AdjustableCol>
+                            </ReactTable.AdjustableColumn>
                         </ConfigTable.Configurable >
                         <ReactTable.Column<OpenXDA.Types.Channel>
                             Key={'DeleteButton'}
                             AllowSort={false}
                             Content={({ index }) => <button className="btn btn-sm"
                                 onClick={(e) => deleteChannel(index)}><span>{TrashCan}</span></button>}
-                            HeaderStyle={{ width: '62px' }}
                             RowStyle={{ width: '62px', paddingTop: 36, paddingBottom: 36 }}
                         >
                             <p></p>
@@ -552,17 +612,44 @@ export default function ChannelPage(props: IProps) {
                     </ConfigTable.Table>
             </div>
         </div>
-                <Warning Show={showCFGError} Title={'Error Parsing File'} Message={`File type not supported. Please select a file of the following types: ${allTypes}. Note COMTRADE files for trending data are automatically ingested using the event channels and can not be uploaded in the wizard.`} CallBack={() => setShowCFGError(false)} />
-                <Warning Show={showSpareWarning} Title={'Remove Spare Channels'} Message={`This will remove all Spare Channels. This will remove ${NSpare} Channels from the configuration.`} CallBack={(conf) => { if (conf) clearSpareChannels(); setShowSpareWarning(false); }} />
-                <Modal Title="Scale Channels" ShowX={true} ShowCancel={false} Show={showScaling} ConfirmText="Close Scaling Window" CallBack={() => setShowScaling(false)} Size='xlg'>
-                    <ChannelScalingForm Channels={currentChannels} UpdateChannels={editChannels} ChannelStatus={channelStatus} Key={props.MeterKey} />
-                </Modal>
-                <Modal Title={"Add All Channels"} ShowX={true} ShowCancel={true} Show={showDialog} CancelText={"Only " + (props.TrendChannels ? "Trend" : "Event")} ConfirmText="Add All" Size='sm' CallBack={(all) => {
-                    addChannels(parsedChannels, all);
-                    setShowDialog(false);
-                }}>
-                    {"Add all Channels or only " + (props.TrendChannels ? "trend" : "event") + " Channels?"}
-                </Modal>
+            <Warning Show={showCFGError} Title={'Error Parsing File'} Message={`File type not supported. Please select a file of the following types: ${allTypes}. Note COMTRADE files for trending data are automatically ingested using the event channels and can not be uploaded in the wizard.`} CallBack={() => setShowCFGError(false)} />
+            <Warning Show={showSpareWarning} Title={'Remove Spare Channels'} Message={`This will remove all Spare Channel(s). This will remove ${NSpare} Channel(s) from the configuration.`} CallBack={(conf) => { if (conf) clearSpareChannels(); setShowSpareWarning(false); }} />
+            <Warning Show={showRemoveWarning} Title={'Remove All Channels'}
+                Message={`This will remove all Channel(s). This will remove ${getCurrentChannels(props.TrendChannels).length} Channel(s) from the configuration.`}
+                CallBack={(conf) => {
+                    if (conf) {
+                        props.UpdateChannels(getCurrentChannels(!props.TrendChannels));
+                        setSelectedFile('');
+                    }
+                    setShowRemoveWarning(false);
+                }} />
+            <Modal Title="Scale Channels" ShowX={true} ShowCancel={false} Show={showScaling} ConfirmText="Close Scaling Window" CallBack={() => setShowScaling(false)} Size='xlg'>
+                <ChannelScalingForm Channels={currentChannels} UpdateChannels={editChannels} ChannelStatus={channelStatus} Key={props.MeterKey} />
+            </Modal>
+            <Modal Title={"Add All Channels"} ShowX={true} ShowCancel={true} Show={showDialog} CancelText={"Only " + (props.TrendChannels ? "Trend" : "Event")} ConfirmText="Add All" Size='sm' CallBack={(all) => {
+                addChannels(parsedChannels, all);
+                setShowDialog(false);
+            }}>
+                {"Add all Channels or only " + (props.TrendChannels ? "trend" : "event") + " Channels?"}
+            </Modal>
+            <VirtualChannelModal
+                Channels={props.Channels}
+                CurrentChannels={currentChannels}
+                MeterKey={props.MeterKey}
+                UpdateChannels={props.UpdateChannels}
+                Shown={showVirtualChannelModal}
+                SortKey={sortKey}
+                SetSortKey={setSortKey}
+                Ascending={asc}
+                SetAscending={setAsc}
+                Close={(channel) => {
+                    setShowVirtualChannelModal(false);
+                    if (channel !== undefined) {
+                        addChannel(channel);
+                    }
+                }}
+
+            />
         </div>
-            </>
+    </>
 }

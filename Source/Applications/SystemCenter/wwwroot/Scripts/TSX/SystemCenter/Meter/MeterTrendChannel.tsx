@@ -131,10 +131,10 @@ const MeterTrendChannelWindow = (props: IProps) => {
                         e.push('All Channels must have a Connection Priority.');
 
                     if (k == 'Name' && (val == null || val.toString().length == 0))
-                        e.push('All Channels must have a Name.');
+                        e.push('All Channels must have a Label.');
 
                     if (k == 'Name' && val != null && val.toString().length > 0 && data.findIndex(c => c.Name.toLowerCase() == val.toString().toLowerCase() && id != c.ID) > -1)
-                        e.push('All Channel Names must be unique.');
+                        e.push('All Channel Labels must be unique.');
                 }
             }
         }
@@ -288,7 +288,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                 />
                             )}
                         >
-                            Name
+                            Label
                         </ReactTable.Column>
                         <ConfigTable.Configurable Key='Description' Label='Description' Default={true}>
                             <ReactTable.Column<OpenXDA.TrendChannel>

@@ -84,7 +84,7 @@ export default function TemplateWindow(props: IProps) {
 
     return <>
         <div className="btn-group btn-group-sm">
-            <button className={"btn btn-primary" + ((!loading && (hasDefault || showEdit))? "" : " disabled")}
+            <button className={"btn btn-info" + ((!loading && (hasDefault || showEdit))? "" : " disabled")}
                 data-tooltip='DefaultChannel'
                 onMouseEnter={() => setHover(true)}
                 onMouseLeave={() => setHover(false)}
@@ -103,7 +103,7 @@ export default function TemplateWindow(props: IProps) {
             </button>
             {showDropdown ? <>
                 <button type="button"
-                    className={"btn btn-primary dropdown-toggle dropdown-toggle-split"}
+                    className={"btn btn-info dropdown-toggle dropdown-toggle-split"}
                     onClick={() => { setExpand((x) => !x) } }>
                 <span className="sr-only">Toggle Dropdown</span>
                 </button>

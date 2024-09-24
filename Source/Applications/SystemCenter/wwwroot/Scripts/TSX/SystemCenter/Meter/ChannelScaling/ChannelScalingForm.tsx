@@ -219,8 +219,8 @@ const ChannelScalingForm = (props: IProps) => {
                             Key={'Descriptor'}
                             AllowSort={false}
                             Field={'Descriptor'}
-                            HeaderStyle={{ width: '30%' }}
-                            RowStyle={{ width: '30%' }}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
                         > Description
                         </ReactTable.Column>
                         <ReactTable.Column<ChannelScalingWrapper>

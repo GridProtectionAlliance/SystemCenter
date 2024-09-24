@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  ByApplicationCategory.tsx - Gbtc
 //
-//  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright (c) 2020, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -151,7 +151,6 @@ const ByApplicationCategory: Application.Types.iByComponent = (props) => {
                         AllowSort={true}
                         Field={'Name'}
                         HeaderStyle={{ width: '50%' }}
-                        RowStyle={{ width: '15%' }}
                     > Name
                     </ReactTable.Column>
                     <ReactTable.Column<ApplicationCategory>
@@ -159,7 +158,6 @@ const ByApplicationCategory: Application.Types.iByComponent = (props) => {
                         AllowSort={true}
                         Field={'SortOrder'}
                         HeaderStyle={{ width: '50%' }}
-                        RowStyle={{ width: '15%' }}
                     > Sort Order
                     </ReactTable.Column>
                 </ReactTable.Table>

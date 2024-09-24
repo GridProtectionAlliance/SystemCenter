@@ -146,7 +146,6 @@ const DBCleanup: Application.Types.iByComponent = (props) => {
                             AllowSort={true}
                             Field={'Name'}
                             HeaderStyle={{ width: '50%' }}
-                            RowStyle={{ width: '10%' }}
                         > Name
                         </ReactTable.Column>
                         <ReactTable.Column<DBCleanup>
@@ -154,7 +153,6 @@ const DBCleanup: Application.Types.iByComponent = (props) => {
                             AllowSort={true}
                             Field={'Schedule'}
                             HeaderStyle={{ width: '50%' }}
-                            RowStyle={{ width: '10%' }}
                         > Schedule
                         </ReactTable.Column>
                     </ReactTable.Table>

@@ -120,9 +120,9 @@ const MeterEventChannelWindow = (props: IProps) => {
                     e.push('All Channels must have a Connection Priority.')
 
                 if (k == 'Name' && (val == null || val.toString().length == 0))
-                    e.push('All Channels must have a Name.')
+                    e.push('All Channels must have a Label.')
                 if (k == 'SourceIndices' && (val == null || val.toString().length == 0))
-                    e.push('All Channels must have a valid Source Index.')
+                    e.push('All Channels must have a valid identifier.')
 
                 if (k == 'Name' && val != null && val.toString().length > 0 && data.findIndex(c => c.Name.toLowerCase() == val.toString().toLowerCase() && id != c.ID) > -1)
                     e.push('All Channel Names must be unique.')
@@ -274,7 +274,7 @@ const MeterEventChannelWindow = (props: IProps) => {
                                     Label={''}
                                     Setter={(r) => createChange(r, 'SourceIndices')}
                                     Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()}/>}>
-                                Channel</ReactTable.Column>
+                                Identifier</ReactTable.Column>
                         </ConfigTable.Configurable >
                         <ReactTable.Column<OpenXDA.EventChannel>
                             Key={'Name'} Field={'Name'}
@@ -284,11 +284,12 @@ const MeterEventChannelWindow = (props: IProps) => {
                                 Label={''} Setter={(r) => createChange(r, 'Name')}
                                 Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()}/>}
                         >
-                            Name </ReactTable.Column>
+                            Label </ReactTable.Column>
 
                         <ConfigTable.Configurable Key='Description' Label='Description' Default={true}>
                             <ReactTable.Column<OpenXDA.EventChannel>
-                                Key={'Description'} Field={'Description'} HeaderStyle={{ width: 'auto' }}
+                                Key={'Description'} Field={'Description'} 
+                                HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                                 Content={({ item }) => <Input<OpenXDA.EventChannel> Record={item}
                                     Field={'Description'} Label={''}
@@ -373,8 +374,8 @@ const MeterEventChannelWindow = (props: IProps) => {
                         <ReactTable.Column<OpenXDA.EventChannel>
                             Key={'Remove'}
                             AllowSort={false}
-                            HeaderStyle={{ width: '62px' }}
-                            RowStyle={{ width: '62px' }}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
                             Content={({ item }) => <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
                                 onClick={(e) => { if (hasPermissions()) setRemoveRecord(item) }}><span>{TrashCan}</span></button>}>
                             <p></p>
