@@ -254,7 +254,6 @@ export default function ChannelPage(props: IProps) {
             } as OpenXDA.Types.Series],
             ConnectionPriority: 0, Trend: false
         } as OpenXDA.Types.Channel
-        console.log("ye")
         addChannel(channel);
     }
 
