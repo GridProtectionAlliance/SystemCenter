@@ -157,19 +157,30 @@ const ByApplicationNode: Application.Types.iByComponent = (props) => {
             >
                 <div className="row">
                     <div className="col">
-                        <Input<Application.Types.iApplicationNode> Record={editnewNode} Field={'Name'} Label='Application Name' Feedback={'A unique Name is required.'}
-                            Valid={field => editnewNode.Name != null && editnewNode.Name.length > 0 && allApplications.findIndex(s => s.Name === editnewNode.Name && s.ID !== editnewNode.ID) < 0}
+                        <Input<Application.Types.iApplicationNode>
+                            Record={editnewNode} Field={'Name'}
+                            Label='Application Name' Feedback={'A unique Name is required.'}
+                            Valid={field =>
+                                editnewNode.Name != null
+                                && editnewNode.Name.length > 0
+                                && allApplications.findIndex(s =>
+                                    s != null
+                                    && s.Name != null
+                                    && s.Name === editnewNode.Name
+                                    && s.ID !== editnewNode.ID) < 0
+                            }
                             Setter={(record) => { setEditNewNode(record); setHasChanged(true); }}
                         />
-                        <Input<Application.Types.iApplicationNode> Record={editnewNode} Field={'ID'} Label='Node ID' Feedback={''}
-                            Valid={() => true} Disabled={true}
-                            Setter={(record) => {}}
+                        <Input<Application.Types.iApplicationNode>
+                            Record={editnewNode} Field={'ID'}
+                            Label='Node ID' Feedback={''}
+                            Valid={() => true} Disabled={true} Setter={(record) => { }}
                         />
-                        
                     </div>
                 </div>
             </Modal>
-            <Warning Title={'Delete ' + (editnewNode?.Name ?? 'SSO Application')} Message={'This will delete this Application from the SSO system. This can have unintended consequences and cause the system to crash. Are you sure you want to continue?'}
+            <Warning Title={'Delete ' + (editnewNode?.Name ?? 'SSO Application')}
+                Message={'This will delete this Application from the SSO system. This can have unintended consequences and cause the system to crash. Are you sure you want to continue?'}
                 Show={showWarning} CallBack={(conf) => { if (conf) dispatch(ApplicationNodeSlice.DBAction({ verb: 'DELETE', record: editnewNode })); setShowWarning(false); }} />
         </>)
 }
