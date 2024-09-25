@@ -98,11 +98,12 @@ function Permission(props: IProps) {
             </div>
             <div className="card-body" style={{ flex: 1, overflowY: 'auto' }}>
                 <div className="row">
-                    {applicationNodes.map(node => <AppPermission App={node}
+                    {applicationNodes.filter(node => node != null).map((node, i) => <AppPermission App={node}
                         Roles={applicationRoles.filter((r) => r.NodeID == node.ID)}
                         CurrentRoles={roles.filter(r => r.NodeID == node.ID)}
                         AddRole={(r) => setRoles((s) => [...s.filter(sr => sr.ID != r.ID), r])}
                         RemoveRole={(r) => setRoles((s) => [...s.filter(sr => sr.ID != r.ID)])}
+                        key={i}
                     />)}
                 </div>
             </div>
@@ -129,7 +130,6 @@ const AppPermission = (props: {
     AddRole: (role: IApplicationRole) => void;
     RemoveRole: (role: IApplicationRole) => void
 }) => {
-
     return <div className="col">
         <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
             <legend className="w-auto" style={{ fontSize: 'large' }}>{props.App.Name}:</legend>
