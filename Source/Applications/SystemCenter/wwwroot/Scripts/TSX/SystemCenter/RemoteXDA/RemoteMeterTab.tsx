@@ -54,6 +54,13 @@ const RemoteMeterTab = (props: IProps) => {
             IsPivotColumn: false
         }]
 
+    const noSameFilter: Search.IFilter<OpenXDA.Types.RemoteXDAMeter> = {
+        FieldName: 'ID',
+        SearchText: searchResults.map((r) => r.LocalXDAMeterID).join(','),
+        Operator: 'NOT IN',
+        Type: 'number',
+        IsPivotColumn: false
+    };
     // Shared Consts
     const [selectedMeter, setSelectedMeter] = React.useState<OpenXDA.Types.RemoteXDAMeter>(BlankRemoteXDAMeter);
 
@@ -389,6 +396,7 @@ const RemoteMeterTab = (props: IProps) => {
                 Title={"Add Meter to Remote openXDA Instance:"}
                 GetEnum={() => () => { }}
                 GetAddlFields={() => () => { }}
+                AddlFilters={[noSameFilter]}
             />
         </div>
     );
