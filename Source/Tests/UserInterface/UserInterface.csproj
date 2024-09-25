@@ -102,6 +102,7 @@
     <Compile Include="UserGroupsTest.cs" />
     <Compile Include="UserStatisticsTest.cs" />
     <Compile Include="UsersTest.cs" />
+    <Compile Include="ValueListsFunctionalityTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
