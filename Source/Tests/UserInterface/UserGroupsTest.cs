@@ -104,10 +104,6 @@ public class UserGroupsTest {
         IWebElement testGroupRow = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("//div[@id='window']/div/div/div/div/div[2]/div/table/tbody/tr[3]/td")));
         testGroupRow.Click();
 
-        // Wait for the correct group name to load and confirm
-        //IWebElement groupNameHeader = wait.Until(ExpectedConditions.ElementExists(By.XPath("/html/body/div[1]/div/div/div/div/div[1]/div[1]/h2")));
-        //Assert.That(groupNameHeader.Text, Is.EqualTo("A Test Group (Database)"));
-
         // Wait for the name input field to be visible and edit the name
         IWebElement nameInput = wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("//div[@id='window']/div/div/div/div/div[3]/div[2]/form/div/div/div/input")));
         nameInput.SendKeys("1");
@@ -164,23 +160,69 @@ public class UserGroupsTest {
     }
   [Test]
   public void userGroupsSorting() {
-        // Click the Username sort header
-        IWebElement usernameSortHeader = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("//div[@id='window']/div/div/div/div/div[2]/table/thead/tr/th")));
-        usernameSortHeader.Click();
+        // Name sort
+        IWebElement nameSort = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/div/table/thead/tr/th[1]")));
+        nameSort.Click();
 
-        // Define a condition to check (e.g., visibility of sorted table)
-        try
-        {
-            // Wait for the table to be sorted and loaded properly
-            wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("//div[@id='window']/div/div/div/div/div[2]/table/tbody/tr[1]")));
+        // Arrow present
+        wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[1]/div")));
+        var nameArrow = driver.FindElements(By.XPath("//th[1]/div"));
+        Assert.That(nameArrow.Count > 0);
 
-            // If the expected condition is met, you can include a message or further actions here
-            Console.WriteLine("Table sorted and loaded successfully.");
-        }
-        catch (WebDriverTimeoutException)
-        {
-            // If the condition is not met, force the test to fail
-            Assert.Fail("Test failed: Page did not load correctly after clicking the sort header.");
-        }
+        // Name sort again
+        IWebElement nameSortAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/div/table/thead/tr/th[1]")));
+        nameSortAgain.Click();
+
+        // Description
+        IWebElement desc = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/div/table/thead/tr/th[2]")));
+        desc.Click();
+
+        // Arrow present
+        wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[2]/div")));
+        var keyArrow = driver.FindElements(By.XPath("//th[2]/div"));
+        Assert.That(keyArrow.Count > 0);
+
+        // Desc again
+        IWebElement descAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/div/table/thead/tr/th[2]")));
+        descAgain.Click();
+
+        // Added On
+        IWebElement addedOn = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/div/table/thead/tr/th[3]")));
+        addedOn.Click();
+
+        // Arrow present
+        wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[3]/div")));
+        var typeArrow = driver.FindElements(By.XPath("//th[3]/div"));
+        Assert.That(typeArrow.Count > 0);
+
+        // Added On again
+        IWebElement addedOnAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/div/table/thead/tr/th[3]")));
+        addedOnAgain.Click();
+
+        // Created By
+        IWebElement created = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/div/table/thead/tr/th[3]")));
+        created.Click();
+
+        // Arrow present
+        wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[3]/div")));
+        var createdArrow = driver.FindElements(By.XPath("//th[3]/div"));
+        Assert.That(typeArrow.Count > 0);
+
+        // Created By again
+        IWebElement createdBy = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/div/table/thead/tr/th[3]")));
+        createdBy.Click();
+
+        // Type
+        IWebElement type = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/div/table/thead/tr/th[3]")));
+        type.Click();
+
+        // Arrow present
+        wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[3]/div")));
+        var typeArror = driver.FindElements(By.XPath("//th[3]/div"));
+        Assert.That(typeArrow.Count > 0);
+
+        // Created By again
+        IWebElement typeAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/div/table/thead/tr/th[3]")));
+        typeAgain.Click();
     }
 }

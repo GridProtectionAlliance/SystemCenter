@@ -191,23 +191,69 @@ public class UsersTest {
     }
   [Test]
   public void usersSorting() {
-        // Click the Username sort header
-        IWebElement usernameSortHeader = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("//div[@id='window']/div/div/div/div/div[2]/table/thead/tr/th")));
-        usernameSortHeader.Click();
+        // userName sort
+        IWebElement userName = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/div/table/thead/tr/th[1]")));
+        userName.Click();
 
-        // Define a condition to check (e.g., visibility of sorted table)
-        try
-        {
-            // Wait for the table to be sorted and loaded properly
-            wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("//div[@id='window']/div/div/div/div/div[2]/table/tbody")));
+        // Arrow present
+        wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[1]/div")));
+        var nameArrow = driver.FindElements(By.XPath("//th[1]/div"));
+        Assert.That(nameArrow.Count > 0);
 
-            // If the expected condition is met, you can include a message or further actions here
-            Console.WriteLine("Table sorted and loaded successfully.");
-        }
-        catch (WebDriverTimeoutException)
-        {
-            // If the condition is not met, force the test to fail
-            Assert.Fail("Test failed: Page did not load correctly after clicking the sort header.");
-        }
+        // userName sort again
+        IWebElement userNameAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/div/table/thead/tr/th[1]")));
+        userNameAgain.Click();
+
+        // First Name
+        IWebElement firstName = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/div/table/thead/tr/th[2]")));
+        firstName.Click();
+
+        // Arrow present
+        wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[2]/div")));
+        var keyArrow = driver.FindElements(By.XPath("//th[2]/div"));
+        Assert.That(keyArrow.Count > 0);
+
+        // First Name again
+        IWebElement firstNameAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/div/table/thead/tr/th[2]")));
+        firstNameAgain.Click();
+
+        // Phone
+        IWebElement phone = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/div/table/thead/tr/th[3]")));
+        phone.Click();
+
+        // Arrow present
+        wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[3]/div")));
+        var typeArrow = driver.FindElements(By.XPath("//th[3]/div"));
+        Assert.That(typeArrow.Count > 0);
+
+        // phone again
+        IWebElement phoneAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/div/table/thead/tr/th[3]")));
+        phoneAgain.Click();
+
+        // Email
+        IWebElement email = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/div/table/thead/tr/th[3]")));
+        email.Click();
+
+        // Arrow present
+        wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[3]/div")));
+        var createdArrow = driver.FindElements(By.XPath("//th[3]/div"));
+        Assert.That(typeArrow.Count > 0);
+
+        // email again
+        IWebElement emailAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/div/table/thead/tr/th[3]")));
+        emailAgain.Click();
+
+        // Type
+        IWebElement type = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/div/table/thead/tr/th[3]")));
+        type.Click();
+
+        // Arrow present
+        wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[3]/div")));
+        var typeArror = driver.FindElements(By.XPath("//th[3]/div"));
+        Assert.That(typeArrow.Count > 0);
+
+        // Created By again
+        IWebElement typeAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/div/table/thead/tr/th[3]")));
+        typeAgain.Click();
     }
 }

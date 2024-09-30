@@ -89,17 +89,16 @@ public class EventTypesTest
     }
 
     [Test]
-    public void eventTypesFailedSort()
+    public void eventTypesSorting()
     {
         // Wait for and click on the name sort header
         IWebElement nameSortHeader = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[1]")));
         nameSortHeader.Click();
 
-        // Wait for and assert that the arrow is NOT present in the Name column
-        // This assertion is meant to fail because the arrow should be present
+        // Wait for and assert that the arrow is present in the Name column
         wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[1]/div")));
-        var nameArrowAbsent = driver.FindElements(By.XPath("//th[1]/div"));
-        Assert.That(nameArrowAbsent.Count == 0, "Arrow for Name column should not be present after clicking the header.");
+        var nameArrowPresent = driver.FindElements(By.XPath("//th[1]/div"));
+        Assert.That(nameArrowPresent.Count > 0);
 
         // Click on the Name sort header again (to toggle sorting)
         IWebElement nameSortHeaderAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[1]")));
@@ -109,13 +108,12 @@ public class EventTypesTest
         IWebElement categorySortHeader = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[2]")));
         categorySortHeader.Click();
 
-        // Wait for and assert that the arrow is NOT present in the Category column
-        // This assertion is meant to fail because the arrow should move to the Category column
+        // Wait for and assert that the arrow is present in the Name column
         wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[2]/div")));
-        var categoryArrowAbsent = driver.FindElements(By.XPath("//th[2]/div"));
-        Assert.That(categoryArrowAbsent.Count == 0, "Arrow for Category column should not be present after clicking the header.");
+        var categoryArrow = driver.FindElements(By.XPath("//th[2]/div"));
+        Assert.That(categoryArrow.Count > 0);
 
-        // Click on the Category sort header again (to toggle sorting)
+        // Click on the Name sort header again (to toggle sorting)
         IWebElement categorySortHeaderAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[2]")));
         categorySortHeaderAgain.Click();
 
@@ -123,13 +121,12 @@ public class EventTypesTest
         IWebElement descSortHeader = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[3]")));
         descSortHeader.Click();
 
-        // Wait for and assert that the arrow is NOT present in the Desc column
-        // This assertion is meant to fail because the arrow should move to the Desc column
+        // Wait for and assert that the arrow is present in the Name column
         wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[3]/div")));
-        var descArrowAbsent = driver.FindElements(By.XPath("//th[3]/div"));
-        Assert.That(descArrowAbsent.Count == 0, "Arrow for Desc column should not be present after clicking the header.");
+        var descArrow = driver.FindElements(By.XPath("//th[3]/div"));
+        Assert.That(descArrow.Count > 0);
 
-        // Click on the Desc sort header again (to toggle sorting)
+        // Click on the Name sort header again (to toggle sorting)
         IWebElement descSortHeaderAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[3]")));
         descSortHeaderAgain.Click();
 
@@ -137,75 +134,15 @@ public class EventTypesTest
         IWebElement showSortHeader = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[4]")));
         showSortHeader.Click();
 
-        // Wait for and assert that the arrow is NOT present in the Show column
-        // This assertion is meant to fail because the arrow should move to the Show column
+        // Wait for and assert that the arrow is present in the Name column
         wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[4]/div")));
-        var showArrowAbsent = driver.FindElements(By.XPath("//th[4]/div"));
-        Assert.That(showArrowAbsent.Count == 0, "Arrow for Show column should not be present after clicking the header.");
+        var showArrow = driver.FindElements(By.XPath("//th[4]/div"));
+        Assert.That(showArrow.Count > 0);
 
-        // Click on the Show sort header again (to toggle sorting)
+        // Click on the Name sort header again (to toggle sorting)
         IWebElement showSortHeaderAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[4]")));
         showSortHeaderAgain.Click();
 
+
     }
-
-
-    // The below test is a passing version of table sorting
-    //[Test]
-    //public void eventTypesSorting()
-    //{
-    //    // Wait for and click on the name sort header
-    //    IWebElement nameSortHeader = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[1]")));
-    //    nameSortHeader.Click();
-
-    //    // Wait for and assert that the arrow is present in the Name column
-    //    wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[1]/div")));
-    //    var nameArrowPresent = driver.FindElements(By.XPath("//th[1]/div"));
-    //    Assert.That(nameArrowPresent.Count > 0);
-
-    //    // Click on the Name sort header again (to toggle sorting)
-    //    IWebElement nameSortHeaderAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[1]")));
-    //    nameSortHeaderAgain.Click();
-
-    //    // Wait for and click on the category sort header
-    //    IWebElement categorySortHeader = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[2]")));
-    //    categorySortHeader.Click();
-
-    //    // Wait for and assert that the arrow is present in the Name column
-    //    wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[2]/div")));
-    //    var categoryArrow = driver.FindElements(By.XPath("//th[2]/div"));
-    //    Assert.That(categoryArrow.Count > 0);
-
-    //    // Click on the Name sort header again (to toggle sorting)
-    //    IWebElement categorySortHeaderAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[2]")));
-    //    categorySortHeaderAgain.Click();
-
-    //    // Wait for and click on the desc sort header
-    //    IWebElement descSortHeader = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[3]")));
-    //    descSortHeader.Click();
-
-    //    // Wait for and assert that the arrow is present in the Name column
-    //    wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[3]/div")));
-    //    var descArrow = driver.FindElements(By.XPath("//th[3]/div"));
-    //    Assert.That(descArrow.Count > 0);
-
-    //    // Click on the Name sort header again (to toggle sorting)
-    //    IWebElement descSortHeaderAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[3]")));
-    //    descSortHeaderAgain.Click();
-
-    //    // Wait for and click on the show sort header
-    //    IWebElement showSortHeader = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[4]")));
-    //    showSortHeader.Click();
-
-    //    // Wait for and assert that the arrow is present in the Name column
-    //    wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[4]/div")));
-    //    var showArrow = driver.FindElements(By.XPath("//th[4]/div"));
-    //    Assert.That(showArrow.Count > 0);
-
-    //    // Click on the Name sort header again (to toggle sorting)
-    //    IWebElement showSortHeaderAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[4]")));
-    //    showSortHeaderAgain.Click();
-
-
-    //}
 }
