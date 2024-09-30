@@ -483,28 +483,32 @@ export default function AssetPage(props: IProps) {
                         AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType, allAssetKeys).map((e, i) => <p key={i}>{CrossMark} {e}</p>)
                     }
                 >
-                    <div className="row" style={{ maxHeight: innerHeight - 300, overflow:'auto' }}>
-                        <div className="col-4">
-                            <AssetAttributes.AssetAttributeFields Asset={newEditAsset} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={assets}
-                                AllowEdit={newEditAsset.ID === 0}
-                                UpdateState={(record) => {
-                                    if (record.AssetType == newEditAsset.AssetType)
-                                        setNewEditAsset(record);
-                                    else {
-                                        let newRecord = AssetAttributes.getNewAsset(record.AssetType);
-                                        newRecord.AssetKey = record.AssetKey;
-                                        newRecord.AssetName = record.AssetName;
-                                        newRecord.VoltageKV = record.VoltageKV;
-                                        newRecord.Description = record.Description;
-                                        newRecord.Channels = record.Channels;
-                                        setNewEditAsset(newRecord);
-                                    }
+                    <div className="row">
+                        <div className="col-8">
+                        <div className="row" style={{ maxHeight: innerHeight - 300, overflow:'auto' }}>
+                            <div className="col-6">
+                                <AssetAttributes.AssetAttributeFields Asset={newEditAsset} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={assets}
+                                    AllowEdit={newEditAsset.ID === 0}
+                                    UpdateState={(record) => {
+                                        if (record.AssetType == newEditAsset.AssetType)
+                                            setNewEditAsset(record);
+                                        else {
+                                            let newRecord = AssetAttributes.getNewAsset(record.AssetType);
+                                            newRecord.AssetKey = record.AssetKey;
+                                            newRecord.AssetName = record.AssetName;
+                                            newRecord.VoltageKV = record.VoltageKV;
+                                            newRecord.Description = record.Description;
+                                            newRecord.Channels = record.Channels;
+                                            setNewEditAsset(newRecord);
+                                        }
                                     
-                                }}
-                                GetDifferentAsset={getDifferentAsset} HideAssetType={newEdit == 'Edit'} HideSelectAsset={true} />
-                        </div>
-                        <div className="col-4">
-                            {showAttributes()}
+                                    }}
+                                    GetDifferentAsset={getDifferentAsset} HideAssetType={newEdit == 'Edit'} HideSelectAsset={true} />
+                            </div>
+                            <div className="col-6">
+                                {showAttributes()}
+                            </div>
+                            </div>
                         </div>
                         <div className="col-4">
                             <div className="row h-100">
