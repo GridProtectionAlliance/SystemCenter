@@ -575,6 +575,7 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\MATLABAnalytics\MATLABAnalyticSQLSetting.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\PropertyUI\LocationDrawings.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\TemplateWindow.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\ChannelSelector.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\CustomerAssetGroupPage.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterMaintenance.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\RemoteXDA\RemoteAssetForm.tsx" />
