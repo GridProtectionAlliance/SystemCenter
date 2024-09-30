@@ -328,65 +328,7 @@ public class ByAssetTest
         IWebElement confirmDelete = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[2]/div[1]/div/div/div[3]/button[1]")));
         confirmDelete.Click();
     }
-    //[Test]
-    //public void assetskTransmissionLineWarnings()
-    //{
-    //    //add asset btn
-    //    IWebElement assetBtn = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[1]/nav/div/ul/li[2]/fieldset/form/div[1]/button")));
-    //    assetBtn.Click();
-
-    //    // Save hover warning
-    //    {
-    //        var element = driver.FindElement(By.XPath("/html/body/div[6]/div[1]/div/div/div[3]/button[1]"));
-    //        Actions builder = new Actions(driver);
-    //        builder.MoveToElement(element).Perform();
-    //    }
-    //    // Max Fault Distance info
-    //    {
-    //        var element = driver.FindElement(By.XPath("/html/body/div[6]/div[1]/div/div/div[2]/div/div/div[2]/div/div[1]/div/label/div"));
-    //        Actions builder = new Actions(driver);
-    //        builder.MoveToElement(element).Perform();
-    //    }
-    //    // Min Fault Distance info
-    //    {
-    //        var element = driver.FindElement(By.XPath("/html/body/div[6]/div[1]/div/div/div[2]/div/div/div[2]/div/div[2]/div/label/div"));
-    //        Actions builder = new Actions(driver);
-    //        builder.MoveToElement(element).Perform();
-    //    }
-
-    //    // Key warning
-    //    IWebElement keyWarning = wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("/html/body/div[6]/div[1]/div/div/div[2]/div/div/div[1]/div[2]/div")));
-    //    Assert.That(keyWarning.Text, Is.EqualTo("A unique Key of less than 50 characters is required."));
-
-    //    // Invalid key count (50+ characters)
-    //    driver.FindElement(By.XPath("//div[2]/input")).SendKeys("Lorem ipsum dolor sit amet, consectetuer adipiscing");
-
-    //    // Key warning
-    //    keyWarning = wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("/html/body/div[6]/div[1]/div/div/div[2]/div/div/div[1]/div[2]/div")));
-    //    Assert.That(keyWarning.Text, Is.EqualTo("A unique Key of less than 50 characters is required."));
-
-    //    // Name warning
-    //    IWebElement nameWarning = wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("/html/body/div[6]/div[1]/div/div/div[2]/div/div/div[1]/div[3]/div")));
-    //    Assert.That(nameWarning.Text, Is.EqualTo("A Name of less than 200 characters is required."));
-
-    //    // Invalid Name (200+ characters)
-    //    driver.FindElement(By.XPath("//div[3]/input")).SendKeys("Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec qua");
-
-    //    // Name warning
-    //    nameWarning = wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("/html/body/div[6]/div[1]/div/div/div[2]/div/div/div[1]/div[3]/div")));
-    //    Assert.That(nameWarning.Text, Is.EqualTo("A Name of less than 200 characters is required."));
-
-    //    // Voltage warning
-    //    IWebElement voltageWarning = wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("/html/body/div[6]/div[1]/div/div/div[2]/div/div/div[1]/div[4]/div")));
-    //    Assert.That(voltageWarning.Text, Is.EqualTo("A numeric Nominal Voltage value is required."));
-
-    //    // Non numerical value
-    //    driver.FindElement(By.XPath("/html/body/div[6]/div[1]/div/div/div[2]/div/div/div[1]/div[4]/input")).SendKeys("a");
-
-    //    // Voltage warning
-    //    IWebElement voltageWarningInvalid = wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("/html/body/div[6]/div[1]/div/div/div[2]/div/div/div[1]/div[4]/div")));
-    //    Assert.That(voltageWarningInvalid.Text, Is.EqualTo("A numeric Nominal Voltage value is required."));
-    //}
+   
     [Test]
     public void assetslBankofCapacitors()
     {

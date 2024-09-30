@@ -260,52 +260,5 @@ public class ChannelGroupsTest
         // Assert that the text of the first cell has changed, indicating that the sort was performed correctly
         // This assertion will fail if the sort is not working correctly
         Assert.That(firstCellBeforeSort, Is.Not.EqualTo(firstCellAfterSort));
-
-        // Explanation: This test is designed to fail because it simulates a scenario where the sorting functionality 
-        // does not work correctly on the second click of the "Name" header. The assertion will fail if the text of the 
-        // first cell remains the same after the second sort, indicating that the sorting did not happen as expected.
-
-
-
-
-
-        // Wait for and click on the Name sort header
-        //IWebElement nameSortHeader = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[1]/div[1]")));
-        //nameSortHeader.Click();
-
-        //// Wait for and assert that the arrow is present in the Name column
-        //wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[1]/div")));
-        //var nameArrowPresent = driver.FindElements(By.XPath("//th[1]/div"));
-        //Assert.That(nameArrowPresent.Count > 0);
-
-        //// Click on the Name sort header again (to toggle sorting)
-        //IWebElement nameSortHeaderAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[1]/div[1]")));
-        //nameSortHeaderAgain.Click();
-
-        //// Wait for and click on the desc header
-        //IWebElement desc = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[2]")));
-        //desc.Click();
-
-        //// Wait for and assert that the arrow is present in the URL column
-        //wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[2]/div")));
-        //var descArrow = driver.FindElements(By.XPath("//th[2]/div"));
-        //Assert.That(descArrow.Count > 0);
-
-        //// Click on the desc sort header again (to toggle sorting)
-        //IWebElement descAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[2]")));
-        //descAgain.Click();
-
-        //// Wait for and click on the items header
-        //IWebElement items = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[3]")));
-        //items.Click();
-
-        //// Wait for and assert that the arrow is present in the items column
-        //wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[3]/div")));
-        //var mappedArrow = driver.FindElements(By.XPath("//th[3]/div"));
-        //Assert.That(mappedArrow.Count > 0);
-
-        //// Click on the items sort header again (to toggle sorting)
-        //IWebElement itemsAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[3]")));
-        //itemsAgain.Click();
     }
 }

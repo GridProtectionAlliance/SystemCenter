@@ -177,26 +177,6 @@ public class PQBrowserTabsTest
         // Introduce a delay or change the condition to simulate a load issue
         System.Threading.Thread.Sleep(5000);  // This will cause a delay that might lead to a timeout or stale element reference
         widgetNameSortHeader.Click();
-
-        //// Wait for and click into the first item
-        //IWebElement firstItem = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("//div[@id='window']/div/div/div/div/div[2]/table/tbody/tr/td")));
-        //firstItem.Click();
-
-        //// Wait for and confirm the correct test loaded
-        //IWebElement testLoaded = wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("//div[@id='window']/div/div/div/div/div/div/h2")));
-        //Assert.That(testLoaded.Text, Is.EqualTo("A new tab1"));
-
-        //// Wait for and navigate to the widgets tab
-        //IWebElement widgetsTab = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("//div[@id='window']/div/div/div/div/div[2]/ul/li[2]/a")));
-        //widgetsTab.Click();
-
-        //// Wait for and assert that the arrow is present with widget name
-        //IList<IWebElement> elements = wait.Until(ExpectedConditions.PresenceOfAllElementsLocatedBy(By.CssSelector(".feather")));
-        //Assert.That(elements.Count > 0);
-
-        //// Wait for and click the widget name sort header
-        //IWebElement widgetNameSortHeader = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("//div[@id='window']/div/div/div/div/div[3]/div/div[2]/div/table/thead/tr/th")));
-        //widgetNameSortHeader.Click();
     }
     [Test]
     public void pQBrowserTabseDeleteTab()
@@ -248,32 +228,6 @@ public class PQBrowserTabsTest
         IWebElement orderAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[2]")));
         orderAgain.Click();
 
-
-        // Wait for and click on the Name sort header
-        //IWebElement nameSortHeader = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[1]/div[1]")));
-        //nameSortHeader.Click();
-
-        //// Wait for and assert that the arrow is present in the Name column
-        //wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[1]/div")));
-        //var nameArrowPresent = driver.FindElements(By.XPath("//th[1]/div"));
-        //Assert.That(nameArrowPresent.Count > 0);
-
-        //// Click on the Name sort header again (to toggle sorting)
-        //IWebElement nameSortHeaderAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[1]/div[1]")));
-        //nameSortHeaderAgain.Click();
-
-        //// Wait for and click on the order by header
-        //IWebElement order = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[2]")));
-        //order.Click();
-
-        //// Wait for and assert that the arrow is present in the order column
-        //wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[2]/div")));
-        //var orderArrow = driver.FindElements(By.XPath("//th[2]/div"));
-        //Assert.That(orderArrow.Count > 0);
-
-        //// Click on the desc sort header again (to toggle sorting)
-        //IWebElement arrowAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[2]")));
-        //arrowAgain.Click();
 
 
     }
