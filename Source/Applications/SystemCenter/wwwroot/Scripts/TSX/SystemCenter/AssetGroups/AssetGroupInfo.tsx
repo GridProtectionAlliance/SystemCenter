@@ -70,11 +70,10 @@ function AssetgroupInfoWindow(props: { AssetGroup: OpenXDA.Types.AssetGroup, Sta
 
     }
 
-    function hasPermissions(): boolean {
-        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0)
-            return true;
-        return false;
-    }
+    const hasPermissions = () => roles.indexOf('Administrator') > 0 || roles.indexOf('Engineer') > 0
+    const hasChanged = () => !isEqual(assetGroup, props.AssetGroup)
+
+    
 
     if (assetGroup == null) return null;
     return (
@@ -89,9 +88,9 @@ function AssetgroupInfoWindow(props: { AssetGroup: OpenXDA.Types.AssetGroup, Sta
             <div className="card-body" style={{ flex: 1, overflowY: 'auto' }}>
                 <div className="row">
                     <div className="col">
-                        <Input<OpenXDA.Types.AssetGroup> Record={assetGroup} Field={'Name'} Label={'Name'} Feedback={'A unique Name of less than 50 characters is required.'} Valid={valid} Setter={setAssetGroup} Disabled={hasPermissions()} />
-                        <CheckBox<OpenXDA.Types.AssetGroup> Record={assetGroup} Field={'DisplayDashboard'} Label={'Show Asset Group in PQ Dashboard'} Setter={setAssetGroup} Disabled={hasPermissions()} />
-                        <CheckBox<OpenXDA.Types.AssetGroup> Record={assetGroup} Field={'DisplayEmail'} Label={'Show Asset Group in Email Subscription'} Setter={setAssetGroup} Disabled={hasPermissions()} />
+                        <Input<OpenXDA.Types.AssetGroup> Record={assetGroup} Field={'Name'} Label={'Name'} Feedback={'A unique Name of less than 50 characters is required.'} Valid={valid} Setter={setAssetGroup} Disabled={!hasPermissions()} />
+                        <CheckBox<OpenXDA.Types.AssetGroup> Record={assetGroup} Field={'DisplayDashboard'} Label={'Show Asset Group in PQ Dashboard'} Setter={setAssetGroup} Disabled={!hasPermissions()} />
+                        <CheckBox<OpenXDA.Types.AssetGroup> Record={assetGroup} Field={'DisplayEmail'} Label={'Show Asset Group in Email Subscription'} Setter={setAssetGroup} Disabled={!hasPermissions()} />
                     </div>
                     <div className="col">
                         <Input<OpenXDA.Types.AssetGroup> Record={assetGroup} Field={'Assets'} Label={'Num. of Transmission Assets'}  Valid={() => true} Setter={setAssetGroup} Disabled={true} />
@@ -102,20 +101,27 @@ function AssetgroupInfoWindow(props: { AssetGroup: OpenXDA.Types.AssetGroup, Sta
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-primary" + (isEqual(assetGroup, props.AssetGroup) ? ' disabled' : '')} type="submit" data-tooltip='SaveInfo'
+                    <button className={"btn btn-primary" + (!hasChanged() || !hasPermissions() ? ' disabled' : '')} type="submit" data-tooltip='SaveInfo'
                         onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => {
-                            if (!hasPermissions()) {
-                                editExistingAssetGroup();
-                                props.StateSetter(assetGroup);
-                            }
+                            if (!hasPermissions() || !hasChanged()) return;
+                            editExistingAssetGroup();
+                            props.StateSetter(assetGroup);
                         }}>Save Changes</button>
                 </div>
-                <ToolTip Show={hover == 'Update' && hasPermissions()} Position={'top'} Theme={'dark'} Target={"SaveInfo"}>
-                    <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p> 
+                <ToolTip Show={hover == 'Update' && (!hasPermissions() || !hasChanged())} Position={'top'} Theme={'dark'} Target={"SaveInfo"}>
+                    {!hasChanged() ? <p> No changes made.</p> : null}
+                    {!hasPermissions() ? <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p> : null}
                 </ToolTip>
                 <div className="btn-group mr-2">
-                    <button className="btn btn-warning" onClick={() => setAssetGroup(props.AssetGroup)} disabled={isEqual(assetGroup, props.AssetGroup)}>Clear Changes</button>
+                    <button
+                        onMouseEnter={() => setHover('Reset')} onMouseLeave={() => setHover('None')}
+                        className={"btn btn-warning" + (!hasChanged() ? ' disabled' : '')}
+                        data-tooltip='ClearInfo'
+                        onClick={() => setAssetGroup(props.AssetGroup)} >Clear Changes</button>
                 </div>
+                <ToolTip Show={hover == 'Reset' && !hasChanged()} Position={'top'} Theme={'dark'} Target={"ClearInfo"}>
+                    {!hasChanged() ? <p> No changes made.</p> : null}
+                </ToolTip>
             </div>
 
         </div>
