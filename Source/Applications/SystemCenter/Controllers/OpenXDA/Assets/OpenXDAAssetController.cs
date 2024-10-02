@@ -24,9 +24,11 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Transactions;
 using System.Web.Http;
+using GSF.Collections;
 using GSF.Data;
 using GSF.Data.Model;
 using GSF.Reflection;
@@ -593,7 +595,12 @@ namespace SystemCenter.Controllers.OpenXDA
                         if (connectedChannels.Count > 0)
                         {
                             TableOperations<ChannelDetail> tableOp = new TableOperations<ChannelDetail>(connection);
-                            return Ok(tableOp.QueryRecordsWhere($"ID in ({string.Join(", ", connectedChannels.Select((channels) => channels.ID))})"));
+                            // Channels get triplicated from Series Type ID in ChannelDetail View
+                            IEnumerable<ChannelDetail> uniqueChannels = new TableOperations<ChannelDetail>(connection)
+                            .QueryRecordsWhere($"ID in ({string.Join(", ", connectedChannels.Select(channels => channels.ID))})")
+                            .DistinctBy(c => c.ID);
+
+                            return Ok(uniqueChannels);
                         }
                         else
                         {

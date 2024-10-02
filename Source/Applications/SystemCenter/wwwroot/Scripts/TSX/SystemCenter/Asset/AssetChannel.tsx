@@ -97,10 +97,15 @@ const AssetChannelWindow = (props: IProps) => {
             }
         ).done(
             (d: Array<ChannelDetail>) => {
-                setAssetChannels(d);
+                const sortedChannels = sortData(sortField, ascending, d);
+                setAssetChannels(sortedChannels)
                 setStatus('idle');
             }
         ).fail(() => setStatus('error'));
+    }
+
+    function sortData(key: keyof ChannelDetail, ascending: boolean, data: ChannelDetail[]) {
+        return _.orderBy(data, [key], [(ascending ? "asc" : "desc")]);
     }
 
     if (status == 'error' || pStatus == 'error' || mtStatus == 'error')
@@ -148,7 +153,7 @@ const AssetChannelWindow = (props: IProps) => {
                     </div>
                 </div>
             </div>
-            <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
+            <div className="card-body" style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
                 <ReactTable.Table<ChannelDetail>
                     TableClass="table table-hover"
                     Data={assetChannels}
@@ -156,15 +161,15 @@ const AssetChannelWindow = (props: IProps) => {
                     Ascending={ascending}
                     OnSort={(d) => {
                         if (d.colKey == sortField) {
-                            var ordered = _.orderBy(assetChannels, [d.colKey], [(!ascending ? "asc" : "desc")]);
                             setAscending(!ascending);
+                            const ordered = _.orderBy(assetChannels, [d.colKey], [(!ascending ? "asc" : "desc")]);
                             setAssetChannels(ordered);
                         }
                         else {
-                            var ordered = _.orderBy(assetChannels, [d.colKey], ["asc"]);
-                            setAscending(!ascending);
-                            setAssetChannels(ordered);
+                            setAscending(true);
                             setSortField(d.colField);
+                            const ordered = _.orderBy(assetChannels, [d.colKey], ["asc"]);
+                            setAssetChannels(ordered);
                         }
                     }}
                     TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
@@ -224,12 +229,9 @@ const AssetChannelWindow = (props: IProps) => {
                     </ReactTable.Column>
                 </ReactTable.Table>
             </div>
-            <div className="card-footer">
-            </div>
         </div>
     );
 }
 
 export default AssetChannelWindow
 ;
-

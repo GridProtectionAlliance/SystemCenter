@@ -35,6 +35,8 @@ import { ToolTip } from '@gpa-gemstone/react-interactive';
 interface IProps { ID: number, InnerOnly?: boolean, OnChange?: () => void; LineKey: string; LineName: string; }
 function LineSegmentWindow(props: IProps): JSX.Element {
     const [segments, setSegments] = React.useState<Array<OpenXDA.Types.LineSegment>>([]);
+    const [sortKey, setSortKey] = React.useState<string>('AssetName');
+    const [ascending, setAscending] = React.useState<boolean>(true);
     const [showFawg, setShowFawg] = React.useState<boolean>(false);
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
     const roles = useAppSelector(SelectRoles);
@@ -53,9 +55,14 @@ function LineSegmentWindow(props: IProps): JSX.Element {
             cache: false,
             async: true
        }).done((data: Array<OpenXDA.Types.LineSegment>) => {
-           setSegments(data);
+           const sortedSegments = sortData(sortKey, ascending, data);
+           setSegments(sortedSegments)
            props.OnChange();
        });
+    }
+
+    function sortData(key: string, ascending: boolean, data: OpenXDA.Types.LineSegment[]) {
+        return _.orderBy(data, [key], [(ascending ? "asc" : "desc")]);
     }
 
     function hasPermissions(): boolean {
@@ -70,9 +77,21 @@ function LineSegmentWindow(props: IProps): JSX.Element {
             <ReactTable.Table<OpenXDA.Types.LineSegment>
                 TableClass="table table-hover"
                 Data={segments}
-                SortKey={'AssetName'}
-                Ascending={true}
-                OnSort={(d) => { }}
+                SortKey={sortKey}
+                Ascending={ascending}
+                OnSort={(d) => {
+                    if (d.colKey == sortKey) {
+                        setAscending(!ascending);
+                        const ordered = _.orderBy(segments, [d.colKey], [(!ascending ? "asc" : "desc")]);
+                        setSegments(ordered);
+                    }
+                    else {
+                        setAscending(true);
+                        setSortKey(d.colField);
+                        const ordered = _.orderBy(segments, [d.colKey], ["asc"]);
+                        setSegments(ordered);
+                    }
+                }}
                 TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
                 TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                 TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
@@ -164,7 +183,7 @@ function LineSegmentWindow(props: IProps): JSX.Element {
             </ReactTable.Table>
             {showFawg ? <LineSegmentWizard LineID={props.ID} LineKey={props.LineKey} LineName={props.LineName} closeWizard={() => { setShowFawg(false); getSegments(); }} /> : null}
         </>);
-    const wizardButton = (<button className={"btn btn-primary" + ((props.InnerOnly ?? false) ? " pull-right" : "") + (!hasPermissions() ? ' disabled' : '')} data-tooltip='LineSegWiz'
+    const wizardButton = (<button className={"btn btn-info" + ((props.InnerOnly ?? false) ? " pull-right" : "") + (!hasPermissions() ? ' disabled' : '')} data-tooltip='LineSegWiz'
         onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={(evt) => { if (hasPermissions()) setShowFawg(true)}}>Line Segment Wizard</button>);
 
     if (props.InnerOnly ?? false) return (

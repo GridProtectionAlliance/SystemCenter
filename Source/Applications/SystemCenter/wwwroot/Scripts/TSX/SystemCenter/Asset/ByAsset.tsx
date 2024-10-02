@@ -380,7 +380,7 @@ const ByAsset: Application.Types.iByComponent = (props) => {
                 DisableConfirm={assetErrors.length > 0}
                 ConfirmShowToolTip={assetErrors.length > 0}
                 ConfirmToolTipContent={
-                    assetErrors.map((t, i) => <p key={i}> {ReactIcons.CrossMark} {t} </p>)
+                    assetErrors.map((t, i) => <p key={i}> <ReactIcons.CrossMark/> {t} </p>)
                 }
                 CallBack={(conf) => {
                     if (conf) {
