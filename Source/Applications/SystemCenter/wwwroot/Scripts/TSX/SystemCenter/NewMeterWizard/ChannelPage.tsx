@@ -63,7 +63,7 @@ export default function ChannelPage(props: IProps) {
     const [parsedChannels, setParsedChannels] = React.useState<OpenXDA.Types.Channel[]>([]);
     const [channelStatus, setChannelStatus] = React.useState<Application.Types.Status>('idle');
     const [showVirtualChannelModal, setShowVirtualChannelModal] = React.useState<boolean>(false);
-    const [spareDescriptionList, setSpareDescriptionList] = React.useState<string[]>([]);
+    const [spareList, setSpareList] = React.useState<string[]>([]);
 
     const [sortKey, setSortKey] = React.useState<string>('Series');
     const [asc, setAsc] = React.useState<boolean>(false);
@@ -90,7 +90,7 @@ export default function ChannelPage(props: IProps) {
             cache: false,
             async: true
         }).done((tzs: Array<SystemCenter.Types.ValueListItem>) => {
-            setSpareDescriptionList(tzs.map(item => item.Value.toLowerCase()));
+            setSpareList(tzs.map(item => item.Value.toLowerCase()));
         });
 
         return () => {
@@ -360,7 +360,8 @@ export default function ChannelPage(props: IProps) {
         const regex = new RegExp('\(A[0-9]+\)Analog Channel [0-9]+');
 
         const digital = regex.test(ch.Description) && ch.MeasurementType == 'Digital';
-        const sparePhrase = ch.Description != null && spareDescriptionList.includes(ch.Description.toLowerCase().trim());
+        const sparePhrase = (ch.Description != null && spareList.includes(ch.Description.toLowerCase().trim())) ||
+            (ch.Name != null && spareList.includes(ch.Name.toLowerCase().trim()));
         
         return sparePhrase || digital;
 
@@ -427,8 +428,8 @@ export default function ChannelPage(props: IProps) {
                                 BtnClass={'btn-info' }
                                 TooltipContent={<>
                                     {NSpare == 0 ? <p>No spare channels were identified.</p> : null}
-                                    {NSpare > 0 ? <p>{`Channels are considered Spare if ${spareDescriptionList.length > 0 ? `the Description is
-                                        \"${spareDescriptionList.join("\", \"")}\" or ` : ""}they are digital with description "A00 analog channel 00"`}. </p> : null}
+                                    {NSpare > 0 ? <p>{`Channels are considered Spare if ${spareList.length > 0 ? `the Description or Name is
+                                        \"${spareList.join("\", \"")}\" or ` : ""}they are digital with description "A00 analog channel 00"`}. </p> : null}
                                 </>}
                             />
                         </>
