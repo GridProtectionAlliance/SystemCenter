@@ -124,7 +124,7 @@ namespace SystemCenter.Controllers
                         (SELECT TOP 1 Type FROM AdditionalField AF WHERE AF.ID = AFV.AdditionalFieldID ) = {2}", newRecord.Value, oldRecord.Value, group.Name);
 
                     RestrictedValueList restriction = RestrictedValueList.List.Find((g) => g.Name == group.Name);
-                    if (!(restriction is null))
+                    if (!(restriction?.UpdateSQL is null))
                     {
                         connection.ExecuteScalar(restriction.UpdateSQL, newRecord.Value, oldRecord.Value);
                     }
@@ -146,7 +146,7 @@ namespace SystemCenter.Controllers
             {
                 group = new TableOperations<ValueListGroup>(connection).QueryRecordWhere("ID = {0}", record.GroupID);
                 RestrictedValueList restriction = RestrictedValueList.List.Find((g) => g.Name == group.Name);
-                if (!(restriction is null))
+                if (!(restriction?.CountSQL is null))
                 {
                     int count = connection.ExecuteScalar<int>(restriction.CountSQL, record.Value);
                     if (count > 0)
@@ -175,7 +175,7 @@ namespace SystemCenter.Controllers
                         ", value, groupName);
                 RestrictedValueList restriction = RestrictedValueList.List.Find((g) => g.Name == groupName);
                 int count = 0;
-                if (!(restriction is null))
+                if (!(restriction?.CountSQL is null))
                 {
                     count = connection.ExecuteScalar<int>(restriction.CountSQL, value); 
                 }
