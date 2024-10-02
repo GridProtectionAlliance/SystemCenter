@@ -23,7 +23,7 @@
 
 
 import { OpenXDA } from '@gpa-gemstone/application-typings';
-import { Warning } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { LoadingIcon, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
 import _ from 'lodash';
 import * as React from 'react';
@@ -36,7 +36,6 @@ import CapBankRelayAttributes from '../AssetAttribute/CapBankRelay';
 import LineAttributes from '../AssetAttribute/Line';
 import LineSegmentAttributes from '../AssetAttribute/LineSegment';
 import TransformerAttributes from '../AssetAttribute/Transformer';
-import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import DERAttributes from '../AssetAttribute/DER';
 import { SelectRoles } from '../Store/UserSettings';
 import { useAppSelector } from '../hooks';
@@ -411,13 +410,13 @@ function AssetInfoWindow(props: IProps) {
                 {!hasChanged && hasPermissions()? <p> No changes made.</p> : null}
                 {!hasPermissions() ? <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p> : null}
                 {errors.map((t, i) => <p key={i}>
-                    {CrossMark} {t}
+                    <ReactIcons.CrossMark/> {t}
                 </p>)}
                 {addlFieldErrorAsset.map((t, i) => <p key={`a_${i}`}>
-                    {CrossMark} {t}
+                    <ReactIcons.CrossMark /> {t}
                 </p>)}
                 {addlFieldErrorType.map((t, i) => <p key={`t_${i}`}>
-                    {CrossMark} {t}
+                    <ReactIcons.CrossMark /> {t}
                 </p>)}
             </ToolTip>
             <div className="btn-group mr-2">
@@ -428,12 +427,12 @@ function AssetInfoWindow(props: IProps) {
                 }} onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')} >Clear Changes</button>
             </div>
             <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Theme={'dark'} Target={"clear"}>
-                {changedFields().map((t, i) => <p key={i}> {Warning} Changes to {t} will be discarded.</p>)}
+                {changedFields().map((t, i) => <p key={i}> <ReactIcons.Warning /> Changes to {t} will be discarded.</p>)}
                 {addlFieldErrorAsset.map((t, i) => <p key={`a_${i}`}>
-                    {Warning} {t}
+                    <ReactIcons.Warning /> {t}
                 </p>)}
                 {addlFieldErrorType.map((t, i) => <p key={`t_${i}`}>
-                    {Warning} {t}
+                    <ReactIcons.Warning /> {t}
                 </p>)}
             </ToolTip>
         </div>
