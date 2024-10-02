@@ -30,24 +30,18 @@ using GSF.EMAX;
 using GSF.PQDIF.Logical;
 using GSF.SELEventParser;
 using GSF.Web.Model;
-using Microsoft.AspNet.SignalR.Infrastructure;
-using Microsoft.Graph;
 using Newtonsoft.Json.Linq;
 using openXDA.Configuration;
 using SEBrowser.Model;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Linq;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Web.Http;
-using System.Web.UI.WebControls;
 using SystemCenter.Model;
 using SystemCenter.ScheduledProcesses;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace SystemCenter.Controllers
 {
@@ -130,7 +124,7 @@ namespace SystemCenter.Controllers
                         (SELECT TOP 1 Type FROM AdditionalField AF WHERE AF.ID = AFV.AdditionalFieldID ) = {2}", newRecord.Value, oldRecord.Value, group.Name);
 
                     RestrictedValueList restriction = RestrictedValueList.List.Find((g) => g.Name == group.Name);
-                    if (!(restriction is null))
+                    if (!(restriction?.UpdateSQL is null))
                     {
                         connection.ExecuteScalar(restriction.UpdateSQL, newRecord.Value, oldRecord.Value);
                     }
@@ -152,7 +146,7 @@ namespace SystemCenter.Controllers
             {
                 group = new TableOperations<ValueListGroup>(connection).QueryRecordWhere("ID = {0}", record.GroupID);
                 RestrictedValueList restriction = RestrictedValueList.List.Find((g) => g.Name == group.Name);
-                if (!(restriction is null))
+                if (!(restriction?.CountSQL is null))
                 {
                     int count = connection.ExecuteScalar<int>(restriction.CountSQL, record.Value);
                     if (count > 0)
@@ -181,7 +175,7 @@ namespace SystemCenter.Controllers
                         ", value, groupName);
                 RestrictedValueList restriction = RestrictedValueList.List.Find((g) => g.Name == groupName);
                 int count = 0;
-                if (!(restriction is null))
+                if (!(restriction?.CountSQL is null))
                 {
                     count = connection.ExecuteScalar<int>(restriction.CountSQL, value); 
                 }
@@ -1385,7 +1379,7 @@ namespace SystemCenter.Controllers
             if (!analogChannels.Any() && !digitalChannels.Any())
                 throw new InvalidDataException("No channels specified in file.");
 
-            Func<string, string, int, ParsedChannel> ParseChannel = (string channelName, string measurementType, int index) =>
+            Func<string, string, string, int, ParsedChannel> ParseChannel = (string channelName, string measurementTypeString, string multiplierString, int index) =>
             {
                 List<ParsedSeries> series = new List<ParsedSeries>();
                 series.Add(new ParsedSeries()
@@ -1396,14 +1390,57 @@ namespace SystemCenter.Controllers
                     SourceIndexes = index.ToString()
                 });
 
+                string phase = "None";
+                GroupCollection phaseMatchGroup = Regex.Match(channelName, @"(?<=[V|I])(\S*)$", RegexOptions.IgnoreCase).Groups;
+                if(phaseMatchGroup.Count > 0)
+                {
+                    string phaseMatch = phaseMatchGroup[0].Value.ToUpper();
+                    switch (phaseMatch)
+                    {
+                        case "A":
+                            phase = "AN";
+                            break;
+                        case "B":
+                            phase = "BN";
+                            break;
+                        case "C":
+                            phase = "CN";
+                            break;
+                        case "AB": case "BC": case "CA":
+                        case "AN": case "BN": case "CN":
+                            phase = phaseMatch;
+                            break;
+                    }
+                }
+
+                string measurementType = "None";
+                string measurementCharacteristic = "Instantaneous";
+                switch (measurementTypeString)
+                {
+                    case "Digital":
+                        measurementType = "Digital";
+                        measurementCharacteristic = "None";
+                        break;
+                    case "A": case "I":
+                        measurementType = "Current";
+                        break;
+                    case "V":
+                        measurementType = "Voltage";
+                        break;
+                }
+
+                int multiplier;
+                if (!int.TryParse(multiplierString, out multiplier)) multiplier = 1;
+
+
                 return new ParsedChannel()
                 {
                     ID = index + 1,
                     Meter = meterKey,
                     Asset = "",
                     MeasurementType = measurementType,
-                    MeasurementCharacteristic = "None",
-                    Phase = "None",
+                    MeasurementCharacteristic = measurementCharacteristic,
+                    Phase = phase,
                     Name = channelName,
                     SamplesPerHour = 0,
                     PerUnitValue = 1,
@@ -1411,15 +1448,15 @@ namespace SystemCenter.Controllers
                     Description = channelName,
                     Enabled = true,
                     Adder = 0,
-                    Multiplier = 1,
+                    Multiplier = multiplier,
                     Series = series,
                     ConnectionPriority = 0,
                     Trend = false
                 };
             };
 
-            IEnumerable<ParsedChannel> parsedAnalog = analogChannels.Select((chan, index) => ParseChannel(chan.title, "None",  index));
-            IEnumerable<ParsedChannel> parsedDigital = digitalChannels.Select((chan, index) => ParseChannel(chan.e_title, "Digital", index));
+            IEnumerable<ParsedChannel> parsedAnalog = analogChannels.Select((chan, index) => ParseChannel(chan.title.Trim(), chan.type.ToUpper(), chan.primary, index));
+            IEnumerable<ParsedChannel> parsedDigital = digitalChannels.Select((chan, index) => ParseChannel(chan.e_title.Trim(), "Digital", "1", index));
 
             return parsedAnalog.Concat(parsedDigital);
         }

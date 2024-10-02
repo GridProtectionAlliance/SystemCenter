@@ -105,6 +105,10 @@ namespace SystemCenter.Model
                         WHERE
                         [Category] = {1}",
                 DefaultItems = new string[] {"Oneline"}
+            },
+             new RestrictedValueList() {
+                Name = "SpareChannel",
+                DefaultItems = new string[] {"Spare Channel"}
             }
         };       
    }

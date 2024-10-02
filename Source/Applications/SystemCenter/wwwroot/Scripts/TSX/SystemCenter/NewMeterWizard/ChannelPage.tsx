@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA, Application } from '@gpa-gemstone/application-typings';
+import { OpenXDA, Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import CFGParser from '../../../TS/CFGParser';
 import { Input, Select, TextArea } from '@gpa-gemstone/react-forms';
 import { Modal, ToolTip, Warning, ServerErrorIcon, BtnDropdown } from '@gpa-gemstone/react-interactive';
@@ -63,6 +63,8 @@ export default function ChannelPage(props: IProps) {
     const [parsedChannels, setParsedChannels] = React.useState<OpenXDA.Types.Channel[]>([]);
     const [channelStatus, setChannelStatus] = React.useState<Application.Types.Status>('idle');
     const [showVirtualChannelModal, setShowVirtualChannelModal] = React.useState<boolean>(false);
+    const [spareList, setSpareList] = React.useState<string[]>([]);
+    const [listStatus, setListStatus] = React.useState<Application.Types.Status>('idle');
 
     const [sortKey, setSortKey] = React.useState<string>('Series');
     const [asc, setAsc] = React.useState<boolean>(false);
@@ -79,6 +81,27 @@ export default function ChannelPage(props: IProps) {
     const serverParsedExtensions: string[] = ['pqd', 'sel', 'cev', 'eve', 'ctl', 'txt'];
     const webParsedExtensions: string[] = ['cfg', 'par'];
     const allTypes: string = webParsedExtensions.join(", ") + ", " + serverParsedExtensions.join(", ");
+
+    React.useEffect(() => {
+        setListStatus("loading");
+        let handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/ValueList/Group/SpareChannel`,
+            contentType: "application/json; charset=utf-8",
+            dataType: `json`,
+            cache: false,
+            async: true
+        }).done((tzs: Array<SystemCenter.Types.ValueListItem>) => {
+            setListStatus("idle");
+            setSpareList(tzs.map(item => item.Value.toLowerCase()));
+        }).fail(() => {
+            setListStatus("error");
+        });
+
+        return () => {
+            if (handle != null && handle.abort != null) handle.abort();
+        }
+    }, []);
 
     React.useEffect(() => {
         if (mTStatus == 'unintiated' || mTStatus == 'changed')
@@ -342,16 +365,8 @@ export default function ChannelPage(props: IProps) {
         const regex = new RegExp('\(A[0-9]+\)Analog Channel [0-9]+');
 
         const digital = regex.test(ch.Description) && ch.MeasurementType == 'Digital';
-        const sparePhrase = ch.Description != null && [
-            'spare',
-            'virtual spare',
-            'spare virtual',
-            'current spare',
-            'spare current',
-            'voltage spare',
-            'spare voltage',
-            'spare trigger',
-            'spare channel'].includes(ch.Description.toLowerCase());
+        const sparePhrase = (ch.Description != null && spareList.includes(ch.Description.toLowerCase().trim())) ||
+            (ch.Name != null && spareList.includes(ch.Name.toLowerCase().trim()));
         
         return sparePhrase || digital;
 
@@ -359,7 +374,7 @@ export default function ChannelPage(props: IProps) {
 
     const NSpare = props.Channels.filter(c => IsSpare(c)).length;
 
-    if (channelStatus === 'error') 
+    if (channelStatus === 'error' || listStatus === 'error') 
         return <div style={{ width: '100%', height: '200px' }}>
                 <div style={{ height: '40px', marginLeft: 'auto', marginRight: 'auto', marginTop: 'calc(50% - 20 px)' }}>
                     <ServerErrorIcon Show={true} Size={40} Label={'A server error has occurred. Please contact your administrator.'} />
@@ -392,7 +407,7 @@ export default function ChannelPage(props: IProps) {
                                 Size={'sm'}
                                 Disabled={currentChannels.length === 0}
                                 Options={[{
-                                    Label: 'Remove Spare', Disabled: NSpare == 0, Callback: () => setShowSpareWarning(true), 
+                                    Label: 'Remove Spare', Disabled: (NSpare === 0 || listStatus === 'loading'), Callback: () => setShowSpareWarning(true), 
                                     ToolTipContent: <p>No spare channels were identified.</p>, ShowToolTip: true, ToolTipLocation: 'left'
                                 }]}
                                 ShowToolTip={currentChannels.length === 0}
@@ -407,7 +422,7 @@ export default function ChannelPage(props: IProps) {
                         <>
                             <BtnDropdown Label='Remove Spare' Callback={() => setShowSpareWarning(true)}
                                 Size={'sm'}
-                                Disabled={NSpare == 0}
+                                Disabled={(NSpare === 0 || listStatus === 'loading')}
                                 Options={[{
                                     Label: 'Remove All', Disabled: currentChannels.length === 0, Callback: () => {
                                         props.UpdateChannels(getCurrentChannels(!props.TrendChannels));
@@ -415,12 +430,11 @@ export default function ChannelPage(props: IProps) {
                                     }
                                 }]}
                                 ShowToolTip={true}
-                                BtnClass={'btn-info' }
+                                BtnClass={'btn-info'}
                                 TooltipContent={<>
                                     {NSpare == 0 ? <p>No spare channels were identified.</p> : null}
-                                    {NSpare > 0 ? <p>Channels are considered Spare if the Description is
-                                        "spare", "virtual spare", "voltage spare", "current spare", "spare virtual",
-                                        "spare channel", "spare voltage", "spare current", "spare trigger" or they are digital with description "A00 analog channel 00". </p> : null}
+                                    {NSpare > 0 ? <p>{`Channels are considered Spare if ${spareList.length > 0 ? `the Description or Name is
+                                        \"${spareList.join("\", \"")}\" or ` : ""}they are digital with description "A00 analog channel 00"`}. </p> : null}
                                 </>}
                             />
                         </>
