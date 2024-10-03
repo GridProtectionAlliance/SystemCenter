@@ -124,7 +124,6 @@ const SystemSettingsTab = (props: IProps) => {
                     {baseInstance.Name != formInstance.Name ? <p> {Warning} Changes to Name will be discarded.</p> : null}
                     {baseInstance.Address != formInstance.Address ? <p> {Warning} Changes to Address will be discarded.</p> : null}
                     {baseInstance.Frequency != formInstance.Frequency ? <p> {Warning} Changes to Frequency will be discarded.</p> : null}
-                    {baseInstance.UserAccountID != formInstance.UserAccountID ? <p> {Warning} Changes to User will be discarded.</p> : null}
                 </ToolTip>
             </div>
 
