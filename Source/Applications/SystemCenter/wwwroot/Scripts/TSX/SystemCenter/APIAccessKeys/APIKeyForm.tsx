@@ -37,7 +37,7 @@ export default function APIKeyForm(props: IProps) {
     const allKeys = useAppSelector(APIAccessKeySlice.Data);
     const status = useAppSelector(APIAccessKeySlice.Status);
 
-    const [disableDate, setDisableDate] = React.useState(props.Key.Expires.length == 0);
+    const [disableDate, setDisableDate] = React.useState(props.Key.Expires == null);
     const [errors, setErrors] = React.useState<string[]>([]);
 
     React.useEffect(() => {
@@ -91,7 +91,7 @@ export default function APIKeyForm(props: IProps) {
 
             <div className="form-check">
                 <input className="form-check-input" type="checkbox" id={"defaultCheck1"} onChange={(evt) => {
-                    if (evt.target.checked) props.stateSetter({...props.Key, Expires: ''});
+                    if (evt.target.checked) props.stateSetter({...props.Key, Expires: null});
                     setDisableDate(evt.target.checked)
                 }}
                     checked={disableDate} disabled={props.formDisabled} />
