@@ -250,81 +250,37 @@ namespace SystemCenter.Controllers.OpenXDA
     public class APIAccessKeyController : ModelController<APIAccessKey>
     {
         //Mask API Tokens before returning data
-        public override IHttpActionResult Post([FromBody] JObject record)
+        protected override IEnumerable<APIAccessKey> QueryRecords(string sortBy, bool ascending)
         {
-            var result = base.Post(record);
-            return MaskAPIToken(result);
+            return base.QueryRecords(sortBy, ascending).Select(MaskAPIToken);
         }
-        public override IHttpActionResult Patch([FromBody] APIAccessKey record)
+        protected override DataTable GetSearchResults(PostData postData, int? page = null)
         {
-            var result = base.Patch(record);
-            return MaskAPIToken(result);
+            DataTable table = base.GetSearchResults(postData, page);
+            foreach (DataRow row in table.Rows)
+                MaskAPIToken(row);
+            return table;
         }
-        public override IHttpActionResult Get(string parentID = null)
+        protected override APIAccessKey QueryRecordWhere(string filterExpression, params object[] parameters) 
+        { 
+            return MaskAPIToken(base.QueryRecordWhere(filterExpression, parameters));
+        }
+        protected override IEnumerable<APIAccessKey> QueryRecordsWhere(string orderBy, bool ascending, string filterExpression, params object[] parameters) 
         {
-            var result = base.Get(parentID);
-            return MaskAPIToken(result);
+            return base.QueryRecordsWhere(orderBy, ascending, filterExpression, parameters).Select(MaskAPIToken);
         }
-        public override IHttpActionResult GetOne(string id)
-        {
-            var result = base.GetOne(id);
-            return MaskAPIToken(result);
-        }
-        public override IHttpActionResult Get(string sort, int ascending)
-        {
-            var result = base.Get(sort, ascending);
-            return MaskAPIToken(result);
-        }
-        public override IHttpActionResult Get(string parentID, string sort, int ascending)
-        {
-            var result = base.Get(parentID, sort, ascending);
-            return MaskAPIToken(result);
-        }
-        public override IHttpActionResult GetSearchableList([FromBody] PostData postData)
-        {
-            var result = base.GetSearchableList(postData);
-            return MaskAPIToken(result);
-        }
-        public override IHttpActionResult GetSearchableList([FromBody] PostData postData, string parentID = null)
-        {
-            var result = base.GetSearchableList(postData, parentID);
-            return MaskAPIToken(result);
-        }
-        public override IHttpActionResult GetPagedList([FromBody] PostData postData, int page)
-        {
-            var result = base.GetPagedList(postData, page);
-            return MaskAPIToken(result);
-        }
-        public override IHttpActionResult GetPagedList([FromBody] PostData postData, int page, string parentID = null)
-        {
-            var result = base.GetPagedList(postData, page, parentID);
-            return MaskAPIToken(result);
-        }
-
-
         // Helper method to mask APIToken
-        private IHttpActionResult MaskAPIToken(IHttpActionResult result)
+        private APIAccessKey MaskAPIToken(APIAccessKey record)
         {
-            if (result is OkNegotiatedContentResult<string> okResult)
-            {
-                var data = JsonConvert.DeserializeObject<IEnumerable<APIAccessKey>>(okResult.Content);
-                if (data != null)
-                {
-                    foreach (var item in data)
-                    {
-                        item.APIToken = "**************************";
-                    }
-                    return Ok(JsonConvert.SerializeObject(data));
-                }
-            }
-            else if (result is OkNegotiatedContentResult<APIAccessKey> singleOkResult)
-            {
-                var item = singleOkResult.Content;
-                item.APIToken = "**************************";
-                return Ok(item);
-            }
-            return result;
+            record.APIToken = "**************************";
+            return record;
         }
+        private DataRow MaskAPIToken(DataRow record)
+        {
+            record["APIToken"] = "**************************";
+            return record;
+        }
+
     }
 
 
