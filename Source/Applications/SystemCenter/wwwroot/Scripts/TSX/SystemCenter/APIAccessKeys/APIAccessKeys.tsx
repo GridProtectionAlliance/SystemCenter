@@ -48,7 +48,7 @@ const emptyKey: IAPIAccessKey = {
     ID: 0,
     RegistrationKey: '',
     APIToken: '',
-    Expires: '',
+    Expires: null,
     AllowImpersonation: false
 };
 

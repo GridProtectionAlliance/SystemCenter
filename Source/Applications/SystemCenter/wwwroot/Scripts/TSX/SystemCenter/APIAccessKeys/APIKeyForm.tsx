@@ -26,6 +26,7 @@ import { useAppSelector, useAppDispatch } from '../hooks';
 import { Input, CheckBox, DatePicker } from '@gpa-gemstone/react-forms';
 import { APIAccessKeySlice } from '../Store/Store';
 import { IAPIAccessKey } from './APIAccessKeys'
+import * as moment from 'moment';
 
 interface IProps { Key: IAPIAccessKey, formDisabled: boolean, stateSetter: (APIKey: IAPIAccessKey) => void, setErrors?: (e: string[]) => void }
 
@@ -54,6 +55,8 @@ export default function APIKeyForm(props: IProps) {
             e.push('Registration Key must be less than 50 characters.')
         if (props.Key.RegistrationKey != null && props.Key.RegistrationKey.trim().includes(' '))
             e.push('No spaces allowed in Registration Key')
+        if (props.Key.Expires != null && !moment(props.Key.Expires).isValid())
+            e.push('Expiration must be a valid date or No Expiration must be checked ')
         setErrors(e);
     }, [props.Key, allKeys])
 
