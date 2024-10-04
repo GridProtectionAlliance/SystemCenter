@@ -44,7 +44,7 @@ const NewTabEdit: React.FC<IProps> = (props) => {
             </button>
             <button type="button" className={"btn dropdown-toggle-split"} onClick={() => setNewTabLinkColor('#007bff')}>
                 <a href={link} target='_blank'>
-                    <ReactIcons.LinkNewTab  Color={newTabLinkColor} />
+                    <ReactIcons.ShareArrowDiagonal  Color={newTabLinkColor} />
                 </a>
             </button>
         </div>
