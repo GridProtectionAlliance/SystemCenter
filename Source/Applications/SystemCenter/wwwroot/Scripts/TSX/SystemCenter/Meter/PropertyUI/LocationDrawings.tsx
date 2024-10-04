@@ -49,34 +49,26 @@ const LocationDrawings = (props: IProps) => {
     const [showDrawings, setShowDrawings] = React.useState<boolean>(false);
     const [hover, setHover] = React.useState<'none' | 'drawings'>('none');
 
-    React.useEffect(() => {
-        if (props.Locations != null)
-            setSelectedLocation(null);
-        if (props.Locations.length == 1)
-            setSelectedLocation(props.Locations[0].ID);
-        else {
-            setSelectedLocation();
-        }
-    }, [props.Locations])
-
     React.useEffect(() => { // Does this properly grab the drawingData to show?
         if (drawingStatus == 'unintiated' || drawingStatus == 'changed' || drawingParentID != selectedLocation)
             dispatch(LocationDrawingSlice.Fetch(selectedLocation));
-    }, [drawingStatus, drawingParentID, props.Locations]);
+    }, [drawingStatus, drawingParentID, selectedLocation]);
 
     function dropdownOptions(): dropdownOption[] {
         const options: dropdownOption[] = [];
         const labels: string[] = props.Locations.map(loc => loc.Name);
-        for (const label of labels) {
+        labels.forEach((label, index) => {
             options.push({
                 Label: label,
                 Disabled: false,
                 Callback: () => {
-                    if (selectedLocation != 0 && drawingData.length != 0)
-                        setShowDrawings(true)
+                    setSelectedLocation(props.Locations[index].ID);
+                    if (selectedLocation != 0 && drawingData.length != 0) {
+                        setShowDrawings(true);
+                    }
                 }
             });
-        }
+        });
         return options;
     }
 
@@ -145,6 +137,15 @@ const LocationDrawings = (props: IProps) => {
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                             > Description
+                            </ReactTable.Column>
+                            <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                                Key={'Link'}
+                                AllowSort={true}
+                                Field={'Link'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                                Content={({ item, key }) => <a href={item[key] as string} target='_blank'>{item[key]}</a>}
+                            > Link
                             </ReactTable.Column>
                             <ReactTable.Column<SystemCenter.Types.LocationDrawing>
                                 Key={'Number'}
