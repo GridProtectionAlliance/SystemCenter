@@ -31,7 +31,6 @@ import { DefaultSearch } from '@gpa-gemstone/common-pages';
 import { ByMeterSlice } from '../Store/Store';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { useHistory } from "react-router-dom";
-import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import NewTabEdit from '../CommonComponents/NewTabEdit';
 import { Paging } from '@gpa-gemstone/react-table';
 
