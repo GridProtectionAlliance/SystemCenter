@@ -23,7 +23,7 @@
 
 
 import * as React from 'react';
-import { SystemCenter } from '@gpa-gemstone/application-typings'
+import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
 import { LocationDrawingSlice } from '../../Store/Store';
 import { BtnDropdown, Modal, ToolTip } from '@gpa-gemstone/react-interactive';
 import { ReactTable } from '@gpa-gemstone/react-table';
@@ -31,9 +31,9 @@ import { useAppDispatch, useAppSelector } from '../../hooks';
 import { CreateGuid } from '@gpa-gemstone/helper-functions';
 
 interface IProps {
-    LocationID: number[];
-    LocationLabels?: string[];
+    Locations: OpenXDA.Types.Location[];
 }
+type dropdownOption = { Label: string; Callback: () => void; Disabled: boolean; }
 
 const LocationDrawings = (props: IProps) => {
     const dispatch = useAppDispatch();
@@ -50,68 +50,65 @@ const LocationDrawings = (props: IProps) => {
     const [hover, setHover] = React.useState<'none' | 'drawings'>('none');
 
     React.useEffect(() => {
-        if (props.LocationID != null)
+        if (props.Locations != null)
             setSelectedLocation(null);
-        if (props.LocationID.length == 1)
-            setSelectedLocation(props.LocationID[0]);
-    }, [props.LocationID])
-
-    React.useEffect(() => {
-        if (drawingStatus == 'unintiated' || drawingStatus == 'changed' || drawingParentID != selectedLocation )
-            dispatch(LocationDrawingSlice.Fetch(selectedLocation));
-    }, [drawingStatus, drawingParentID, props.LocationID]);
-
-    function disableDropdownOption() {
-        return false;
-    }
-
-    function dropdownOptions(): {Label: string; Callback: () => void; Disabled: boolean;}[] {
-        if (props.LocationLabels != null) {
-            const options: {
-                Label: string;
-                Callback: () => void;
-                Disabled: boolean; }[] = [];
-            for (const label of props.LocationLabels) {
-                options.push({
-                    Label: label,
-                    Disabled: disableDropdownOption(),
-                    Callback: () => {
-                        if (selectedLocation != 0 && drawingData.length != 0) setShowDrawings(true)
-                    }
-                });
-            }
-            return options;
+        if (props.Locations.length == 1)
+            setSelectedLocation(props.Locations[0].ID);
+        else {
+            setSelectedLocation();
         }
-        return [{Label: 'No labels given for options', Callback: () => {}, Disabled: false}];
+    }, [props.Locations])
+
+    React.useEffect(() => { // Does this properly grab the drawingData to show?
+        if (drawingStatus == 'unintiated' || drawingStatus == 'changed' || drawingParentID != selectedLocation)
+            dispatch(LocationDrawingSlice.Fetch(selectedLocation));
+    }, [drawingStatus, drawingParentID, props.Locations]);
+
+    function dropdownOptions(): dropdownOption[] {
+        const options: dropdownOption[] = [];
+        const labels: string[] = props.Locations.map(loc => loc.Name);
+        for (const label of labels) {
+            options.push({
+                Label: label,
+                Disabled: false,
+                Callback: () => {
+                    if (selectedLocation != 0 && drawingData.length != 0)
+                        setShowDrawings(true)
+                }
+            });
+        }
+        return options;
     }
 
     return (
         <div>
-            {props.LocationID != null && props.LocationID.length <= 1 ?
-            <>
-                <button
-                    type="button"
-                    className={"btn btn-primary" + ((selectedLocation != null || drawingData.length == 0) ? ' disabled' : '')}
-                    data-tooltip={guid.current} onMouseEnter={() => setHover('drawings')} onMouseLeave={() => setHover('none')}
-                    onClick={() => {
-                        if (selectedLocation != 0 && drawingData.length != 0)
-                            setShowDrawings(true);
-                        }
-                    }>Open Drawing(s)
-                </button>
-                <ToolTip Show={hover === 'drawings' && (props.LocationID == null || props.LocationID[0] == 0 || drawingData.length == 0)}
-                    Theme={'dark'} Position={'top'} Target={guid.current} Zindex={9999}>
-                    <p>No drawings associated with this substation.</p>
-                </ToolTip>
-            </>
-            : <BtnDropdown 
-                Label="Open Drawings"
-                Callback={() => {
-                    if (selectedLocation != 0 && drawingData.length != 0)
-                        setShowDrawings(true);
-                    }
-                }
-                Options={dropdownOptions()}
+            {props.Locations.length <= 1 ? // There is one Location or zero, show button to drawing or disabled
+                <>
+                    <button
+                        type="button"
+                        className={"btn btn-primary"}
+                        disabled={props.Locations.length == 0
+                            || drawingData.length == 0}
+                        data-tooltip={guid.current}
+                        onMouseEnter={() => setHover('drawings')} onMouseLeave={() => setHover('none')}
+                        onClick={() => {
+                            if (drawingData.length != 0)
+                                setShowDrawings(true);
+                        }}
+                    >Open Drawing
+                    </button>
+                    <ToolTip
+                        Show={hover === 'drawings'
+                            && props.Locations.length == 0
+                            || drawingData.length == 0}
+                        Theme={'dark'} Position={'top'} Target={guid.current} Zindex={9999}>
+                        <p>No drawings associated with this substation.</p>
+                    </ToolTip>
+                </>
+                : <BtnDropdown
+                    Label="Open Drawings"
+                    Callback={() => { }}
+                    Options={dropdownOptions()}
                 />
             }
 
