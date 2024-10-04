@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { ReactTable, Paging } from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { Application } from '@gpa-gemstone/application-typings';
 import { SearchBar, Search, Modal, Warning } from '@gpa-gemstone/react-interactive';
@@ -55,14 +55,19 @@ const emptyKey: IAPIAccessKey = {
 const ByAPIAccessKeys: Application.Types.iByComponent = (props) => {
     let dispatch = useAppDispatch();
 
-    const state = useAppSelector(APIAccessKeySlice.SearchStatus);
+    const state = useAppSelector(APIAccessKeySlice.PagedStatus);
     const data = useAppSelector(APIAccessKeySlice.SearchResults);
 
-    const sortKey = useAppSelector(APIAccessKeySlice.SortField);
-    const filters = useAppSelector(APIAccessKeySlice.SearchFilters);
-    const ascending = useAppSelector(APIAccessKeySlice.Ascending);
-
     const [APIKey, setAPIKey] = React.useState<IAPIAccessKey>(emptyKey);
+
+    const allPages = useAppSelector(APIAccessKeySlice.TotalPages);
+    const currentPage = useAppSelector(APIAccessKeySlice.CurrentPage);
+
+    const [sortKey, setSortKey] = React.useState<keyof IAPIAccessKey>('RegistrationKey');
+    const [ascending, setAscending] = React.useState<boolean>(true);
+    const [search, setSearch] = React.useState<Array<Search.IFilter<IAPIAccessKey>>>([]);
+    const [page, setPage] = React.useState<number>(currentPage);
+    const totalRecords = useAppSelector(APIAccessKeySlice.TotalRecords);
 
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [formDisabled, setFormDisabled] = React.useState<boolean>(false);
@@ -74,16 +79,20 @@ const ByAPIAccessKeys: Application.Types.iByComponent = (props) => {
     const [newEdit, setNewEdit] = React.useState<Application.Types.NewEdit>('Edit');
 
 
-    React.useEffect(() => {
-        if (state == 'unintiated' || state == 'changed')
-            dispatch(APIAccessKeySlice.DBSearch({ filter: filters }));
-    }, [state]);
-
     function handleSelect(item) {
         setAPIKey({...item.row, Expires: item.row.Expires ?? ''});
         setShowModal(true);
         setNewEdit('Edit');
     }
+
+    React.useEffect(() => {
+        dispatch(APIAccessKeySlice.PagedSearch({ sortField: sortKey, ascending, filter: search, page }))
+    }, [search, ascending, sortKey, page]);
+
+    React.useEffect(() => {
+        if (state == 'unintiated' || state == 'changed')
+            dispatch(APIAccessKeySlice.PagedSearch({ sortField: sortKey, ascending, filter: search }))
+    }, [state]);
 
     const searchFields: Search.IField<IAPIAccessKey>[] = [
         { key: 'RegistrationKey', isPivotField: false, label: 'Registration Key', type: 'string' },
@@ -92,75 +101,95 @@ const ByAPIAccessKeys: Application.Types.iByComponent = (props) => {
     ]
     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <SearchBar<IAPIAccessKey> CollumnList={searchFields}
-                SetFilter={(flds) => dispatch(APIAccessKeySlice.DBSearch({ ascending, filter: flds }))}
-                Direction={'left'}
-                defaultCollumn={{ key: 'RegistrationKey', isPivotField: false, label: 'RegistrationKey', type: 'string' }}
-                Width={'50%'} Label={'Search'}
-                StorageID="APIAccessKeysFilter"
-                ShowLoading={state == 'loading'}
-                ResultNote={state == 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Key(s)'}
-            >
-                <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
-                    <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                        <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
-                        <form>
-                            <button className="btn btn-primary" onClick={(event) => { setAPIKey(emptyKey); setNewEdit('New'); setShowModal(true); event.preventDefault() }}>Add API Key</button>
-                        </form>
-                    </fieldset>
-                </li>
-            </SearchBar>
-            <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <ReactTable.Table<IAPIAccessKey>
-                    TableClass="table table-hover"
-                    Data={data}
-                    SortKey={sortKey}
-                    Ascending={ascending}
-                    OnSort={(d) => dispatch(APIAccessKeySlice.Sort({ SortField: d.colField, Ascending: d.ascending }))}
-                    OnClick={handleSelect}
-                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                    RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    Selected={(item) => false}
-                    KeySelector={(item) => item.ID}
-                >
-                    <ReactTable.Column<IAPIAccessKey>
-                        Key={'RegistrationKey'}
-                        AllowSort={true}
-                        Field={'RegistrationKey'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                    > Registration Key
-                    </ReactTable.Column>
-                    <ReactTable.Column<IAPIAccessKey>
-                        Key={'APIToken'}
-                        AllowSort={false}
-                        Field={'APIToken'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                    > API Token
-                    </ReactTable.Column>
-                    <ReactTable.Column<IAPIAccessKey>
-                        Key={'Expires'}
-                        AllowSort={true}
-                        Field={'Expires'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                        Content={({ item }) => item.Expires == null ? 'N/A' : moment(item.Expires).format("MM/DD/YYYY HH:mm")}
-                    > Expires
-                    </ReactTable.Column>
-                    <ReactTable.Column<IAPIAccessKey>
-                        Key={'AllowImpersonation'}
-                        AllowSort={true}
-                        Field={'AllowImpersonation'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                        Content={({ item }) => item.AllowImpersonation ? HeavyCheckMark : CrossMark}
-                    > Allow Impersonation
-                    </ReactTable.Column>
-                </ReactTable.Table>
-            </div>
+            <div className="container-fluid d-flex h-100 flex-column">
+                <div className="row">
+                    <SearchBar<IAPIAccessKey> CollumnList={searchFields}
+                        SetFilter={(flds) => setSearch(flds)}
+                        Direction={'left'}
+                        defaultCollumn={{ key: 'RegistrationKey', isPivotField: false, label: 'RegistrationKey', type: 'string' }}
+                        Width={'50%'} Label={'Search'}
+                        StorageID="APIAccessKeysFilter"
+                        ShowLoading={state == 'loading'}
+                        ResultNote={state == 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Key(s)'}
+                    >
+                        <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
+                            <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                                <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
+                                <form>
+                                    <button className="btn btn-primary" onClick={(event) => { setAPIKey(emptyKey); setNewEdit('New'); setShowModal(true); event.preventDefault() }}>Add API Key</button>
+                                </form>
+                            </fieldset>
+                        </li>
+                        </SearchBar>
+                </div>
+                <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                    <ReactTable.Table<IAPIAccessKey>
+                        TableClass="table table-hover"
+                        Data={data}
+                        SortKey={sortKey}
+                        OnSort={(d) => {
+                            if (d.colKey === sortKey)
+                                setAscending(!ascending);
+                            else {
+                                setAscending(true);
+                                setSortKey(d.colField);
+                            }
+                        }}
 
+                        Ascending={ascending}
+                        OnClick={handleSelect}
+                        TableStyle={{
+                            padding: 0, width: 'calc(100%)', height: '100%',
+                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column', marginBottom: 0
+                        }}
+                        TheadStyle={{ fontSize: 'auto', tableLayout: 'fixed', display: 'table', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                        RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        Selected={(item) => false}
+                        KeySelector={(item) => item.ID}
+                    >
+                        <ReactTable.Column<IAPIAccessKey>
+                            Key={'RegistrationKey'}
+                            AllowSort={true}
+                            Field={'RegistrationKey'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Registration Key
+                        </ReactTable.Column>
+                        <ReactTable.Column<IAPIAccessKey>
+                            Key={'APIToken'}
+                            AllowSort={false}
+                            Field={'APIToken'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > API Token
+                        </ReactTable.Column>
+                        <ReactTable.Column<IAPIAccessKey>
+                            Key={'Expires'}
+                            AllowSort={true}
+                            Field={'Expires'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={({ item }) => item.Expires == null ? 'N/A' : moment(item.Expires).format("MM/DD/YYYY HH:mm")}
+                        > Expires
+                        </ReactTable.Column>
+                        <ReactTable.Column<IAPIAccessKey>
+                            Key={'AllowImpersonation'}
+                            AllowSort={true}
+                            Field={'AllowImpersonation'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={({ item }) => item.AllowImpersonation ? HeavyCheckMark : CrossMark}
+                        > Allow Impersonation
+                        </ReactTable.Column>
+                    </ReactTable.Table>
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <Paging Current={page + 1} Total={allPages} SetPage={(p) => setPage(p - 1)} />
+                    </div>
+                </div>
+            </div>
             <Modal Show={showModal} Title={newEdit == 'Edit' ? 'Edit ' + APIKey.RegistrationKey : 'Add New API Key'} CallBack={(c, b) => {
                 if (newEdit == 'Edit' || !b) { setShowModal(false); setFormDisabled(false); setAPIKey(emptyKey); }          // X button is clicked
 
