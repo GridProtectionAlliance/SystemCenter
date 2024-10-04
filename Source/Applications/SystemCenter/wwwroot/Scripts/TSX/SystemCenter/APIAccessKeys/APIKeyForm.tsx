@@ -26,7 +26,8 @@ import { useAppSelector, useAppDispatch } from '../hooks';
 import { Input, CheckBox, DatePicker } from '@gpa-gemstone/react-forms';
 import { APIAccessKeySlice } from '../Store/Store';
 import { IAPIAccessKey } from './APIAccessKeys'
-import * as moment from 'moment';
+import moment from 'moment';
+
 
 interface IProps { Key: IAPIAccessKey, formDisabled: boolean, stateSetter: (APIKey: IAPIAccessKey) => void, setErrors?: (e: string[]) => void }
 
