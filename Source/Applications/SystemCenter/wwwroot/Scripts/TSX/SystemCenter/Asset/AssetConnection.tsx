@@ -41,8 +41,7 @@ interface AssetConnection {
     AssetName: string
 }
 
-function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number}): JSX.Element{
-
+function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number }): JSX.Element {
     let history = useHistory();
     let dispatch = useAppDispatch();
 
@@ -52,7 +51,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
     const [selectedAssetID, setSelectedAssetID] = React.useState<number>(0);
     const [selectedTypeID, setSelectedtypeID] = React.useState<number>(0);
     const [localAssets, setLocalAssets] = React.useState<Array<OpenXDA.Types.Asset>>([]);
-    const [locations, setLocations] = React.useState<number[]>([]);
+    const [locations, setLocations] = React.useState<OpenXDA.Types.Location[]>([]);
 
     const [sortKey, setSortKey] = React.useState<string>('AssetKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
@@ -68,19 +67,19 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
     React.useEffect(() => {
         if (props.ID > 0) {
             let sqlString = `(SELECT AssetRelationshipTypeID FROM AssetRelationshipTypeAssetType LEFT JOIN Asset ON `
-            sqlString = sqlString +  `Asset.AssetTypeID <> ${props.TypeID} AND Asset.AssetTypeID = AssetRelationshipTypeAssetType.assetTypeID AND `
-            sqlString = sqlString +  `Asset.ID IN (SELECT AssetID FROM AssetLocation WHERE LocationID IN (Select LocationID FROM AssetLocation WHERE AssetID = ${props.ID})) `
-            sqlString = sqlString +  `GROUP BY AssetRelationshipTypeAssetType.AssetTypeID, AssetRelationshipTypeAssetType.AssetRelationshipTypeID `
-            sqlString = sqlString +  `HAVING COUNT(Asset.ID) > 0)`
+            sqlString = sqlString + `Asset.AssetTypeID <> ${props.TypeID} AND Asset.AssetTypeID = AssetRelationshipTypeAssetType.assetTypeID AND `
+            sqlString = sqlString + `Asset.ID IN (SELECT AssetID FROM AssetLocation WHERE LocationID IN (Select LocationID FROM AssetLocation WHERE AssetID = ${props.ID})) `
+            sqlString = sqlString + `GROUP BY AssetRelationshipTypeAssetType.AssetTypeID, AssetRelationshipTypeAssetType.AssetRelationshipTypeID `
+            sqlString = sqlString + `HAVING COUNT(Asset.ID) > 0)`
             const filter: Search.IFilter<OpenXDA.Types.AssetConnectionType>[] = [
                 { FieldName: 'ID', SearchText: `(SELECT AssetRelationshipTypeID FROM AssetRelationshipTypeAssetType WHERE AssetTypeID = ${props.TypeID})`, Operator: 'IN', Type: 'query', IsPivotColumn: false },
                 {
                     FieldName: 'ID', SearchText: sqlString, Operator: 'IN', Type: 'query', IsPivotColumn: false
                 }
-                ]
+            ]
             dispatch(AssetConnectionTypeSlice.DBSearch({ filter: filter }))
         }
-        }, [props.TypeID])
+    }, [props.TypeID])
 
     React.useEffect(() => {
         if (selectedTypeID == 0) {
@@ -94,7 +93,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
 
     React.useEffect(() => {
         let index = assetConnectionTypes.findIndex(t => t.ID == selectedTypeID);
-        if (index == -1 && assetConnectionTypes.length> 0)
+        if (index == -1 && assetConnectionTypes.length > 0)
             setSelectedtypeID(assetConnectionTypes[0].ID)
     }, [assetConnectionTypes])
 
@@ -106,7 +105,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
 
     React.useEffect(() => {
         let handle = getAssetConnections();
-        return () => { if (handle != null || handle.abort != null) handle.abort();}
+        return () => { if (handle != null || handle.abort != null) handle.abort(); }
     }, [props.ID, trigger])
 
     React.useEffect(() => {
@@ -188,7 +187,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
             url: `${homePath}api/OpenXDA/AssetConnection/Add`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify({ ID: 0, AssetRelationshipTypeID: selectedTypeID, ParentID: props.ID, ChildID: selectedAssetID}),
+            data: JSON.stringify({ ID: 0, AssetRelationshipTypeID: selectedTypeID, ParentID: props.ID, ChildID: selectedAssetID }),
             cache: false,
             async: true
         }).done(() => {
@@ -199,7 +198,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
     }
 
     function handleSelect(item) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + item.row.AssetID})
+        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + item.row.AssetID })
     }
 
     function hasPermissions(): boolean {
@@ -226,7 +225,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
             </div>
         </div>
 
-    if (status == 'loading' || actStatus == 'loading' )
+    if (status == 'loading' || actStatus == 'loading')
         return <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
                 <div className="row">
@@ -253,7 +252,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                         <h4>Connections:</h4>
                     </div>
                     <div className="col-2">
-                        <LocationDrawings LocationID={locations} LocationLabels={} />
+                        <LocationDrawings Locations={locations} />
                     </div>
                 </div>
             </div>
@@ -323,7 +322,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                                     e.stopPropagation();
                                     if (hasPermissions()) deleteAssetConnection(item);
                                 }}><span>{TrashCan}</span></button>
-                            </> }
+                            </>}
                         > <p></p>
                         </Column>
                     </Table>
