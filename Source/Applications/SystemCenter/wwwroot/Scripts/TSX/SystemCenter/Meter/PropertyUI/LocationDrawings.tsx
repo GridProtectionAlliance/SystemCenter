@@ -25,7 +25,7 @@
 import * as React from 'react';
 import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
 import { LocationDrawingSlice } from '../../Store/Store';
-import { BtnDropdown, Modal, ToolTip } from '@gpa-gemstone/react-interactive';
+import { Alert, BtnDropdown, LoadingIcon, Modal, ToolTip } from '@gpa-gemstone/react-interactive';
 import { ReactTable } from '@gpa-gemstone/react-table';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { CreateGuid } from '@gpa-gemstone/helper-functions';
@@ -49,9 +49,10 @@ const LocationDrawings = (props: IProps) => {
     const [showDrawings, setShowDrawings] = React.useState<boolean>(false);
     const [hover, setHover] = React.useState<'none' | 'drawings'>('none');
 
-    React.useEffect(() => { // Does this properly grab the drawingData to show?
-        if (drawingStatus == 'unintiated' || drawingStatus == 'changed' || drawingParentID != selectedLocation)
+    React.useEffect(() => {
+        if (drawingStatus == 'unintiated' || drawingStatus == 'changed' || drawingParentID != selectedLocation) {
             dispatch(LocationDrawingSlice.Fetch(selectedLocation));
+        }
     }, [drawingStatus, drawingParentID, selectedLocation]);
 
     function dropdownOptions(): dropdownOption[] {
@@ -62,10 +63,8 @@ const LocationDrawings = (props: IProps) => {
                 Label: label,
                 Disabled: false,
                 Callback: () => {
-                    setSelectedLocation(props.Locations[index].ID);
-                    if (selectedLocation != 0 && drawingData.length != 0) {
-                        setShowDrawings(true);
-                    }
+                    setSelectedLocation(props.Locations[index].ID); // then set loading til drawings is set
+                    setShowDrawings(true);
                 }
             });
         });
@@ -98,8 +97,11 @@ const LocationDrawings = (props: IProps) => {
                     </ToolTip>
                 </>
                 : <BtnDropdown
-                    Label="Open Drawings"
-                    Callback={() => { }}
+                    Label={"Open Drawings " + props.Locations[0].Name}
+                    Callback={() => {
+                        setSelectedLocation(props.Locations[0].ID);
+                        setShowDrawings(true); // does this run after the selected location
+                    }}
                     Options={dropdownOptions()}
                 />
             }
@@ -107,63 +109,69 @@ const LocationDrawings = (props: IProps) => {
             <Modal Show={showDrawings} Title={'Drawings'} ShowX={true} Size={'lg'} CallBack={() => setShowDrawings(false)} ShowCancel={false} ConfirmText={'Done'}>
                 <div className="row">
                     <div className="col" style={{ width: '100%' }}>
-                        <ReactTable.Table<SystemCenter.Types.LocationDrawing>
-                            TableClass="table table-hover"
-                            Data={drawingData}
-                            SortKey={drawingSortKey}
-                            Ascending={drawingAscending}
-                            OnSort={(d) => {
-                                dispatch(LocationDrawingSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
-                            }}
-                            OnClick={(d) => window.open(d.row.Link, '_blank')}
-                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: '400px', width: '100%' }}
-                            RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            Selected={(item) => false}
-                            KeySelector={(item) => item.ID}
-                        >
-                            <ReactTable.Column<SystemCenter.Types.LocationDrawing>
-                                Key={'Name'}
-                                AllowSort={true}
-                                Field={'Name'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                            > Name
-                            </ReactTable.Column>
-                            <ReactTable.Column<SystemCenter.Types.LocationDrawing>
-                                Key={'Description'}
-                                AllowSort={true}
-                                Field={'Description'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                            > Description
-                            </ReactTable.Column>
-                            <ReactTable.Column<SystemCenter.Types.LocationDrawing>
-                                Key={'Link'}
-                                AllowSort={true}
-                                Field={'Link'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                                Content={({ item, key }) => <a href={item[key] as string} target='_blank'>{item[key]}</a>}
-                            > Link
-                            </ReactTable.Column>
-                            <ReactTable.Column<SystemCenter.Types.LocationDrawing>
-                                Key={'Number'}
-                                AllowSort={true}
-                                Field={'Number'}
-                                HeaderStyle={{ width: '15%' }}
-                                RowStyle={{ width: '15%' }}
-                            > Number
-                            </ReactTable.Column>
-                            <ReactTable.Column<SystemCenter.Types.LocationDrawing>
-                                Key={'Category'}
-                                AllowSort={true}
-                                Field={'Category'}
-                                HeaderStyle={{ width: '15%' }}
-                                RowStyle={{ width: '15%' }}
-                            > Category
-                            </ReactTable.Column>
-                        </ReactTable.Table>
+                        <LoadingIcon Show={drawingStatus == 'loading'} />
+                        {drawingData.length == 0 ?
+                            <div className={`alert alert-primary fade`}>
+                                No Drawings associated with this location.
+                            </div>
+                            : <ReactTable.Table<SystemCenter.Types.LocationDrawing>
+                                TableClass="table table-hover"
+                                Data={drawingData}
+                                SortKey={drawingSortKey}
+                                Ascending={drawingAscending}
+                                OnSort={(d) => {
+                                    dispatch(LocationDrawingSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
+                                }}
+                                OnClick={(d) => window.open(d.row.Link, '_blank')}
+                                TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: '400px', width: '100%' }}
+                                RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                Selected={(item) => false}
+                                KeySelector={(item) => item.ID}
+                            >
+                                <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                                    Key={'Name'}
+                                    AllowSort={true}
+                                    Field={'Name'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                > Name
+                                </ReactTable.Column>
+                                <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                                    Key={'Description'}
+                                    AllowSort={true}
+                                    Field={'Description'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                > Description
+                                </ReactTable.Column>
+                                <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                                    Key={'Link'}
+                                    AllowSort={true}
+                                    Field={'Link'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                    Content={({ item, key }) => <a href={item[key] as string} target='_blank'>{item[key]}</a>}
+                                > Link
+                                </ReactTable.Column>
+                                <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                                    Key={'Number'}
+                                    AllowSort={true}
+                                    Field={'Number'}
+                                    HeaderStyle={{ width: '15%' }}
+                                    RowStyle={{ width: '15%' }}
+                                > Number
+                                </ReactTable.Column>
+                                <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                                    Key={'Category'}
+                                    AllowSort={true}
+                                    Field={'Category'}
+                                    HeaderStyle={{ width: '15%' }}
+                                    RowStyle={{ width: '15%' }}
+                                > Category
+                                </ReactTable.Column>
+                            </ReactTable.Table>
+                        }
                     </div>
                 </div>
             </Modal>
