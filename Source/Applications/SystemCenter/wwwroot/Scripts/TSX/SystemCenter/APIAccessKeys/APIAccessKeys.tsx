@@ -25,7 +25,7 @@ import * as React from 'react';
 import { ReactTable, Paging } from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { Application } from '@gpa-gemstone/application-typings';
-import { SearchBar, Search, Modal, Warning } from '@gpa-gemstone/react-interactive';
+import { SearchBar, Search, Modal, Warning, Alert } from '@gpa-gemstone/react-interactive';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { APIAccessKeySlice } from '../Store/Store';
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
@@ -217,6 +217,9 @@ const ByAPIAccessKeys: Application.Types.iByComponent = (props) => {
                 ConfirmText={newEdit == 'Edit' ? 'Save' : 'Generate New Key'}
                 ConfirmShowToolTip={errors.length > 0}
                 ConfirmToolTipContent={errors.map((t, i) => <p key={i}> {CrossMark} {t}</p>)} >
+                {showKeyWarning ? <Alert AlertColor={'alert-info'}>
+                    <p>You will only be able to view this API key once. If it is lost, you will need to generate a new one.</p>
+                </Alert> : null}
                 <div className="row">
                     <APIKeyForm Key={APIKey} formDisabled={formDisabled} stateSetter={setAPIKey} setErrors={setErrors} />
                 </div>
@@ -226,9 +229,7 @@ const ByAPIAccessKeys: Application.Types.iByComponent = (props) => {
                 CallBack={(c) => { if (c) { dispatch(APIAccessKeySlice.DBAction({ record: APIKey, verb: 'DELETE' })); setShowDelete(false); setAPIKey(emptyKey); } else setShowDelete(false)}}
             />
 
-            <Warning Message={'You will only be able to view this API key once. If it is lost, you will need to generate a new one.'} Show={showKeyWarning} Title={'Save Your Key'}
-                ShowCancel={false} CallBack={(c) => { if (c) setShowKeyWarning(false) }}
-            />
+           
 
 
         </div>
