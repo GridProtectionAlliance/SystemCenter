@@ -56,6 +56,8 @@ const ByAPIAccessKeys: Application.Types.iByComponent = (props) => {
     let dispatch = useAppDispatch();
 
     const state = useAppSelector(APIAccessKeySlice.PagedStatus);
+    const tstate = useAppSelector(APIAccessKeySlice.SearchStatus);
+
     const data = useAppSelector(APIAccessKeySlice.SearchResults);
 
     const [APIKey, setAPIKey] = React.useState<IAPIAccessKey>(emptyKey);
@@ -92,7 +94,12 @@ const ByAPIAccessKeys: Application.Types.iByComponent = (props) => {
     React.useEffect(() => {
         if (state == 'unintiated' || state == 'changed')
             dispatch(APIAccessKeySlice.PagedSearch({ sortField: sortKey, ascending, filter: search }))
-    }, [state]);
+    }, [state, tstate]);
+
+    React.useEffect(() => {
+        if (tstate == 'changed')
+            dispatch(APIAccessKeySlice.PagedSearch({ sortField: sortKey, ascending, filter: search }))
+    }, [tstate]);
 
     const searchFields: Search.IField<IAPIAccessKey>[] = [
         { key: 'RegistrationKey', isPivotField: false, label: 'Registration Key', type: 'string' },
