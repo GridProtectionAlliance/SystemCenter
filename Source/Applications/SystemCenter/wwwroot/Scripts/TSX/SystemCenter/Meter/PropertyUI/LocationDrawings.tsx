@@ -25,7 +25,7 @@
 import * as React from 'react';
 import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
 import { LocationDrawingSlice } from '../../Store/Store';
-import { Alert, BtnDropdown, LoadingIcon, Modal, ToolTip } from '@gpa-gemstone/react-interactive';
+import { BtnDropdown, LoadingIcon, Modal, ToolTip } from '@gpa-gemstone/react-interactive';
 import { ReactTable } from '@gpa-gemstone/react-table';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { CreateGuid } from '@gpa-gemstone/helper-functions';
@@ -39,7 +39,7 @@ const LocationDrawings = (props: IProps) => {
     const dispatch = useAppDispatch();
     const guid = React.useRef(CreateGuid());
 
-    const drawingData = useAppSelector(LocationDrawingSlice.Data); // For some reason this is full of locations on NMW and MeterLocationProperties
+    const drawingData = useAppSelector(LocationDrawingSlice.Data);
     const drawingStatus = useAppSelector(LocationDrawingSlice.Status);
     const drawingParentID = useAppSelector(LocationDrawingSlice.ParentID);
     const drawingSortKey = useAppSelector(LocationDrawingSlice.SortField);
@@ -47,13 +47,17 @@ const LocationDrawings = (props: IProps) => {
 
     const [selectedLocation, setSelectedLocation] = React.useState<number>();
     const [showDrawings, setShowDrawings] = React.useState<boolean>(false);
-    const [hover, setHover] = React.useState<'none' | 'drawings'>('none');
+    const [showDropdown, setShowDropdown] = React.useState<boolean>();
 
     React.useEffect(() => {
         if (drawingStatus == 'unintiated' || drawingStatus == 'changed' || drawingParentID != selectedLocation) {
             dispatch(LocationDrawingSlice.Fetch(selectedLocation));
         }
     }, [drawingStatus, drawingParentID, selectedLocation]);
+
+    React.useEffect(() => {
+        setShowDropdown(props.Locations.length > 1);
+    }, [props.Locations])
 
     function dropdownOptions(): dropdownOption[] {
         const options: dropdownOption[] = [];
@@ -63,7 +67,7 @@ const LocationDrawings = (props: IProps) => {
                 Label: label,
                 Disabled: false,
                 Callback: () => {
-                    setSelectedLocation(props.Locations[index].ID); // then set loading til drawings is set
+                    setSelectedLocation(props.Locations[index].ID);
                     setShowDrawings(true);
                 }
             });
@@ -73,31 +77,8 @@ const LocationDrawings = (props: IProps) => {
 
     return (
         <div>
-            {props.Locations.length <= 1 ? // There is one Location or zero, show button to drawing or disabled
-                <>
-                    <button
-                        type="button"
-                        className={"btn btn-primary"}
-                        disabled={props.Locations.length == 0
-                            || drawingData.length == 0
-                            || (props.Locations[0].Name == "" && props.Locations[0].ID == 0)}
-                        data-tooltip={guid.current}
-                        onMouseEnter={() => setHover('drawings')} onMouseLeave={() => setHover('none')}
-                        onClick={() => {
-                            setSelectedLocation(props.Locations[0].ID);
-                            setShowDrawings(true);
-                        }}
-                    >Open Drawing
-                    </button>
-                    <ToolTip
-                        Show={hover === 'drawings'
-                            && props.Locations.length == 0
-                            || drawingData.length == 0}
-                        Theme={'dark'} Position={'top'} Target={guid.current} Zindex={9999}>
-                        <p>No drawings associated with this substation.</p>
-                    </ToolTip>
-                </>
-                : <BtnDropdown
+            {showDropdown ?
+                <BtnDropdown
                     Label={"Open Drawings " + props.Locations[0].Name}
                     Callback={() => {
                         setSelectedLocation(props.Locations[0].ID);
@@ -105,6 +86,16 @@ const LocationDrawings = (props: IProps) => {
                     }}
                     Options={dropdownOptions()}
                 />
+                : <button
+                    type="button"
+                    className={"btn btn-primary"}
+                    data-tooltip={guid.current}
+                    onClick={() => {
+                        setSelectedLocation(props.Locations[0].ID);
+                        setShowDrawings(true);
+                    }}
+                >Open Drawing
+                </button>
             }
 
             <Modal Show={showDrawings} Title={'Drawings'} ShowX={true} Size={'lg'} CallBack={() => setShowDrawings(false)} ShowCancel={false} ConfirmText={'Done'}>
