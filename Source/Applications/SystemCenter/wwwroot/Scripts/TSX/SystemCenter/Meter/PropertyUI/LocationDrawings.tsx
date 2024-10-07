@@ -39,7 +39,7 @@ const LocationDrawings = (props: IProps) => {
     const dispatch = useAppDispatch();
     const guid = React.useRef(CreateGuid());
 
-    const drawingData = useAppSelector(LocationDrawingSlice.Data);
+    const drawingData = useAppSelector(LocationDrawingSlice.Data); // For some reason this is full of locations on NMW and MeterLocationProperties
     const drawingStatus = useAppSelector(LocationDrawingSlice.Status);
     const drawingParentID = useAppSelector(LocationDrawingSlice.ParentID);
     const drawingSortKey = useAppSelector(LocationDrawingSlice.SortField);
@@ -79,12 +79,13 @@ const LocationDrawings = (props: IProps) => {
                         type="button"
                         className={"btn btn-primary"}
                         disabled={props.Locations.length == 0
-                            || drawingData.length == 0}
+                            || drawingData.length == 0
+                            || (props.Locations[0].Name == "" && props.Locations[0].ID == 0)}
                         data-tooltip={guid.current}
                         onMouseEnter={() => setHover('drawings')} onMouseLeave={() => setHover('none')}
                         onClick={() => {
-                            if (drawingData.length != 0)
-                                setShowDrawings(true);
+                            setSelectedLocation(props.Locations[0].ID);
+                            setShowDrawings(true);
                         }}
                     >Open Drawing
                     </button>
@@ -111,7 +112,7 @@ const LocationDrawings = (props: IProps) => {
                     <div className="col" style={{ width: '100%' }}>
                         <LoadingIcon Show={drawingStatus == 'loading'} />
                         {drawingData.length == 0 ?
-                            <div className={`alert alert-primary fade`}>
+                            <div className={`alert alert-primary`}>
                                 No Drawings associated with this location.
                             </div>
                             : <ReactTable.Table<SystemCenter.Types.LocationDrawing>
