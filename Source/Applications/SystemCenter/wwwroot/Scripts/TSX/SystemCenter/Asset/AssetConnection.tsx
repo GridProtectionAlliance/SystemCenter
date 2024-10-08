@@ -105,22 +105,25 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
 
     React.useEffect(() => {
         let handle = getAssetConnections();
-        return () => { if (handle != null || handle.abort != null) handle.abort(); }
+        return () => { if (handle != null && handle.abort != null) handle.abort(); }
     }, [props.ID, trigger])
 
     React.useEffect(() => {
-        getLocations();
+        const h = getLocations();
+        return () => { if (h!= null && h.abort != null) h.abort(); }
     }, [assetConnections])
 
-    function getLocations(): void {
-        $.ajax({
+    function getLocations() {
+        const h = $.ajax({
             type: "GET",
             url: `${homePath}api/OpenXDA/Asset/${props.ID}/Locations`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
             async: true
-        }).done(data => setLocations(data));
+        });
+        h.done(data => setLocations(data));
+        return h;
     }
 
     function getAssetConnections(): JQuery.jqXHR<OpenXDA.Types.AssetConnection> {
