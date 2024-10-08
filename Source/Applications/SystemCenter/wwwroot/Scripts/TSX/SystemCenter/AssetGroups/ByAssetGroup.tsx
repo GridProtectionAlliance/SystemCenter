@@ -28,11 +28,12 @@ import { useHistory } from "react-router-dom";
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
 import { Search, Modal } from '@gpa-gemstone/react-interactive';
 import { CheckBox, Input } from '@gpa-gemstone/react-forms';
-import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
+import { CrossMark, HeavyCheckMark, ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { AssetGroupSlice, ByAssetSlice, ByMeterSlice, AssetTypeSlice } from '../Store/Store';
 import { DefaultSearch, DefaultSelects } from '@gpa-gemstone/common-pages';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import AssetSelect from '../Asset/AssetSelect';
+import NewTabEdit from '../CommonComponents/NewTabEdit';
 
 declare var homePath: string;
 
@@ -266,7 +267,6 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
                                 dispatch(AssetGroupSlice.Sort({ SortField: d.colField as keyof OpenXDA.Types.AssetGroup, Ascending: true }));
                             }
                         }}
-                        OnClick={handleSelect}
                         TableStyle={{
                             padding: 0, width: '100%', height: '100%',
                             tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column', marginBottom: 0
@@ -317,6 +317,16 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
                             RowStyle={{ width: 'auto' }}
                             Content={({ item }) => item.DisplayDashboard ? HeavyCheckMark : null }
                         > Show in PQ Dashboard
+                        </ReactTable.Column>
+                        <ReactTable.Column<OpenXDA.Types.AssetGroup>
+                            Key={'Config'}
+                            AllowSort={false}
+                            HeaderStyle={{ width: '8%' }}
+                            RowStyle={{ width: '8%' }}
+                            Content={({ item }) => {
+                                return <NewTabEdit ItemID={item.ID} PageLinkName='AssetGroup' IDLinkName='AssetGroupID' />}
+                            }
+                        >
                         </ReactTable.Column>
                     </ReactTable.Table>
                 </div>

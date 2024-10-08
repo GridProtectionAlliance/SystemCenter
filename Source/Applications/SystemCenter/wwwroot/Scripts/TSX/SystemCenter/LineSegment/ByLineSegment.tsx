@@ -28,6 +28,8 @@ import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-ty
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 import { Search, Modal, LoadingIcon, ServerErrorIcon, GenericController, SearchBar } from '@gpa-gemstone/react-interactive';
 import { ReactTable, Paging } from '@gpa-gemstone/react-table';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import NewTabEdit from '../CommonComponents/NewTabEdit';
 
 declare var homePath: string;
 
@@ -170,7 +172,6 @@ const ByLineSegment: Application.Types.iByComponent = (props) => {
                             TheadStyle={{ fontSize: 'auto', tableLayout: 'fixed', display: 'table', width: '100%' }}
                             TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
                             RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            OnClick={(item) => handleSelect(item.row.ID)}
                             Selected={(item) => false}
                             KeySelector={(item) => item.ID}
                         >
@@ -222,6 +223,16 @@ const ByLineSegment: Application.Types.iByComponent = (props) => {
                                 RowStyle={{ width: '30%' }}
                             > Description
                             </ReactTable.Column>
+                        <ReactTable.Column<OpenXDA.Types.LineSegment>
+                            Key={'Config'}
+                            AllowSort={false}
+                            HeaderStyle={{ width: '8%' }}
+                            RowStyle={{ width: '8%' }}
+                            Content={({ item }) => {
+                                return <NewTabEdit ItemID={item.ID} PageLinkName='LineSegment' IDLinkName='AssetID' />}
+                            }
+                        >
+                        </ReactTable.Column>
                         </ReactTable.Table> : 
                         <>
                             <LoadingIcon Show={pageStatus === 'loading'} Size={40} />

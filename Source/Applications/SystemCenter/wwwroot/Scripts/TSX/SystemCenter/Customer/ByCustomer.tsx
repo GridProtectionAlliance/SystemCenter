@@ -31,8 +31,9 @@ import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { CustomerSlice } from '../Store/Store';
 import CustomerForm from './CustomerForm';
-import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
+import { CrossMark, HeavyCheckMark, ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
+import NewTabEdit from '../CommonComponents/NewTabEdit';
 
 
 declare var homePath: string;
@@ -169,7 +170,6 @@ const ByCustomer: Application.Types.iByComponent = (props) => {
                             setSortKey(d.colField);
                         }
                     }}
-                    OnClick={handleSelect}
                     TableStyle={{
                         padding: 0, width: '100%', height: '100%',
                         tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column', marginBottom: 0
@@ -225,6 +225,15 @@ const ByCustomer: Application.Types.iByComponent = (props) => {
                                 return null;
                         }}
                     > LSCVS
+                    </ReactTable.Column>
+                    <ReactTable.Column<OpenXDA.Types.Customer>
+                        Key={'Config'}
+                        AllowSort={false}
+                        HeaderStyle={{ width: '8%' }}
+                        RowStyle={{ width: '8%' }}
+                        Content={({ item }) => {
+                            return <NewTabEdit ItemID={item.ID} PageLinkName='Customer' IDLinkName='CustomerID' />}}
+                    >
                     </ReactTable.Column>
                 </ReactTable.Table>
             </div>
