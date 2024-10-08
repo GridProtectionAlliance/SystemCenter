@@ -32,6 +32,7 @@ using System.Net.Http.Headers;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Results;
 using GSF.Configuration;
 using GSF.Data;
 using GSF.Data.Model;
@@ -231,6 +232,57 @@ namespace SystemCenter.Controllers.OpenXDA
 
     [RoutePrefix("api/OpenXDA/NoteApp")]
     public class NoteAppController : ModelController<NoteApplication> { }
+
+    [AllowSearch]
+    [PostRoles("Administrator")]
+    [DeleteRoles("Administrator")]
+    [PatchRoles("Administrator")]
+    public class APIAccessKey
+    {
+        [PrimaryKey(true)]
+        public int ID { get; set; }
+        public string RegistrationKey { get; set; }
+        public string APIToken { get; set; }
+        public DateTime? Expires { get; set; }
+        public bool AllowImpersonation { get; set; }
+    }
+    [RoutePrefix("api/OpenXDA/APIAccessKey")]
+    public class APIAccessKeyController : ModelController<APIAccessKey>
+    {
+        //Mask API Tokens before returning data
+        protected override IEnumerable<APIAccessKey> QueryRecords(string sortBy, bool ascending)
+        {
+            return base.QueryRecords(sortBy, ascending).Select(MaskAPIToken);
+        }
+        protected override DataTable GetSearchResults(PostData postData, int? page = null)
+        {
+            DataTable table = base.GetSearchResults(postData, page);
+            foreach (DataRow row in table.Rows)
+                MaskAPIToken(row);
+            return table;
+        }
+        protected override APIAccessKey QueryRecordWhere(string filterExpression, params object[] parameters) 
+        { 
+            return MaskAPIToken(base.QueryRecordWhere(filterExpression, parameters));
+        }
+        protected override IEnumerable<APIAccessKey> QueryRecordsWhere(string orderBy, bool ascending, string filterExpression, params object[] parameters) 
+        {
+            return base.QueryRecordsWhere(orderBy, ascending, filterExpression, parameters).Select(MaskAPIToken);
+        }
+        // Helper method to mask APIToken
+        private APIAccessKey MaskAPIToken(APIAccessKey record)
+        {
+            record.APIToken = "**************************";
+            return record;
+        }
+        private DataRow MaskAPIToken(DataRow record)
+        {
+            record["APIToken"] = "**************************";
+            return record;
+        }
+
+    }
+
 
     [RoutePrefix("api/OpenXDA/ApplicationRole")]
     public class OpenXDAApplicationRoleController : ModelController<ApplicationRole> {}
