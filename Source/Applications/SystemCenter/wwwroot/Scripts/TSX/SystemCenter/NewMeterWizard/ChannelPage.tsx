@@ -408,7 +408,11 @@ export default function ChannelPage(props: IProps) {
                                 Disabled={currentChannels.length === 0}
                                 Options={[{
                                     Label: 'Remove Spare', Disabled: (NSpare === 0 || listStatus === 'loading'), Callback: () => setShowSpareWarning(true), 
-                                    ToolTipContent: <p>No spare channels were identified.</p>, ShowToolTip: true, ToolTipLocation: 'left'
+                                    ToolTipContent: <>
+                                        {NSpare == 0 ? <p>No spare channels were identified.</p> : null}
+                                        {NSpare > 0 ? <p>{`Channels are considered Spare if ${spareList.length > 0 ? `the Description or Name is
+                                        \"${spareList.join("\", \"")}\" or ` : ""}they are digital with description "A00 analog channel 00"`}. </p> : null}
+                                    </>, ShowToolTip: true, ToolTipLocation: 'left'
                                 }]}
                                 ShowToolTip={currentChannels.length === 0}
                                 BtnClass={'btn-info'}
