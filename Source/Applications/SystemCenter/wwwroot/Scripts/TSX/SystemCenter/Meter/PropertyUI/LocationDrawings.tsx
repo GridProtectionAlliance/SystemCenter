@@ -47,6 +47,22 @@ const LocationDrawings = (props: IProps) => {
     const [selectedLocation, setSelectedLocation] = React.useState<number>();
     const [showDrawings, setShowDrawings] = React.useState<boolean>(false);
     const [showDropdown, setShowDropdown] = React.useState<boolean>();
+    const [disableButton, setDisableButton] = React.useState<boolean>(false);
+    const [hover, setHover] = React.useState<'none' | 'drawings'>('none');
+
+    React.useEffect(() => {
+        if (props.Locations.length == 0
+            || (props.Locations[0].Alias == ""          // Empty Location is default in NMW
+                && props.Locations[0].Description == ""
+                && props.Locations[0].ID == 0
+                && props.Locations[0].Latitude == null
+                && props.Locations[0].LocationKey == ""
+                && props.Locations[0].Longitude == null
+                && props.Locations[0].Name == ""
+            ))
+        setDisableButton(true);
+        else setDisableButton(false);
+    }, [props.Locations])
 
     React.useEffect(() => {
         if (drawingStatus == 'unintiated' || drawingStatus == 'changed' || drawingParentID != selectedLocation)
@@ -80,27 +96,34 @@ const LocationDrawings = (props: IProps) => {
                     Label={"Open Drawings " + props.Locations[0].Name}
                     Callback={() => {
                         setSelectedLocation(props.Locations[0].ID);
-                        setShowDrawings(true); // does this run after the selected location
+                        setShowDrawings(true);
                     }}
                     Options={dropdownOptions()}
                 />
                 : <button
                     type="button"
-                    className={"btn btn-primary"}
+                    className={disableButton ? "btn btn-primary disabled" : "btn btn-primary"}
                     data-tooltip={guid.current}
+                    onMouseEnter={() => setHover('drawings')}
+                    onMouseLeave={() => setHover('none')}
                     onClick={() => {
-                        setSelectedLocation(props.Locations[0].ID);
-                        setShowDrawings(true);
+                        if (!disableButton) {
+                            setSelectedLocation(props.Locations[0].ID);
+                            setShowDrawings(true);
+                        }
                     }}
                 >Open Drawing(s)
                 </button>
             }
-
+            <ToolTip Show={hover === 'drawings' && (disableButton)}
+                Theme={'dark'} Position={'top'} Target={guid.current} Zindex={9999}>
+                <p>No substation.</p>
+            </ToolTip>
             <Modal Show={showDrawings} Title={'Drawings'} ShowX={true} Size={'lg'} CallBack={() => setShowDrawings(false)} ShowCancel={false} ConfirmText={'Done'}>
                 <div className="row">
                     <div className="col" style={{ width: '100%' }}>
                         <LoadingIcon Show={drawingStatus == 'loading'} />
-                        {drawingData.length == 0 ?
+                        {drawingData.length == 0 ?                        // TODO: Replace with a search of all drawings and just disable button
                             <div className={`alert alert-primary`}>
                                 No Drawings associated with this location.
                             </div>
