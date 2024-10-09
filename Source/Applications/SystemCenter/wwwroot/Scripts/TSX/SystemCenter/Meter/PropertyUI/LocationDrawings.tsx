@@ -92,7 +92,7 @@ const LocationDrawings = (props: IProps) => {
                         setSelectedLocation(props.Locations[0].ID);
                         setShowDrawings(true);
                     }}
-                >Open Drawing
+                >Open Drawing(s)
                 </button>
             }
 
