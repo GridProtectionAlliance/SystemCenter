@@ -25,6 +25,7 @@ import type {
     Application, OpenXDA as GemstoneXDA,
     SystemCenter as GemstoneSC
 } from '@gpa-gemstone/application-typings';
+import { Search } from '@gpa-gemstone/react-interactive';
 
 // System Center Models
 declare global {
@@ -53,6 +54,14 @@ export namespace SystemCenter {
     interface ChannelTemplateFile { ID: number, Name: string, FileBlob: string, FileName: string, ShowTrend: boolean, ShowEvents: boolean, SortOrder: number }
     interface ChannelGroupView extends GemstoneSC.Types.ChannelGroup { ItemCount: number }
     interface ValueListGroupView extends GemstoneSC.Types.ValueListGroup { ItemCount: number }
+    interface IColDatum<T extends { ID: number }> { item: T, key: string, field: keyof T | undefined, index: number, style ?: React.CSSProperties }
+    interface IByCol<T extends {ID: number}> {
+        Label: string,
+        Field: keyof T,
+        Type: Search.FieldType,
+        Width?: string,
+        Content?: (item: IColDatum<T>) => React.ReactNode;
+    }
 }
 
 // OpenXDA Models
