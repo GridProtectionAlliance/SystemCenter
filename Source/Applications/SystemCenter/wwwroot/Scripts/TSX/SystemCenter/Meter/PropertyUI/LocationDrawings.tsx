@@ -33,7 +33,6 @@ import { CreateGuid } from '@gpa-gemstone/helper-functions';
 interface IProps {
     Locations: OpenXDA.Types.Location[];
 }
-type dropdownOption = { Label: string; Callback: () => void; Disabled: boolean; }
 
 const LocationDrawings = (props: IProps) => {
     const dispatch = useAppDispatch();
@@ -50,17 +49,16 @@ const LocationDrawings = (props: IProps) => {
     const [showDropdown, setShowDropdown] = React.useState<boolean>();
 
     React.useEffect(() => {
-        if (drawingStatus == 'unintiated' || drawingStatus == 'changed' || drawingParentID != selectedLocation) {
+        if (drawingStatus == 'unintiated' || drawingStatus == 'changed' || drawingParentID != selectedLocation)
             dispatch(LocationDrawingSlice.Fetch(selectedLocation));
-        }
     }, [drawingStatus, drawingParentID, selectedLocation]);
 
     React.useEffect(() => {
         setShowDropdown(props.Locations.length > 1);
     }, [props.Locations])
 
-    function dropdownOptions(): dropdownOption[] {
-        const options: dropdownOption[] = [];
+    function dropdownOptions(): { Label: string; Callback: () => void; Disabled: boolean; }[] {
+        const options: { Label: string; Callback: () => void; Disabled: boolean; }[] = [];
         const labels: string[] = props.Locations.map(loc => loc.Name);
         labels.forEach((label, index) => {
             options.push({
