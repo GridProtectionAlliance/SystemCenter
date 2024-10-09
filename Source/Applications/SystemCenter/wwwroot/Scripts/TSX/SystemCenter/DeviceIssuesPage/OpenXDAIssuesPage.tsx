@@ -63,7 +63,7 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
         <div className="card-header">
             <div className="row">
                 <div className="col">
-                    <h4>openXDA Issues for { props.Meter?.Name} :</h4>
+                    <h4>openXDA Daily Statistics:</h4>
                 </div>
             </div>
         </div>
@@ -75,11 +75,11 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                 SortKey={sortField}
                 Ascending={ascending}
                 TableStyle={{
-                    padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                    padding: 0, width: '100%', height: '100%',
                     tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
                 }}
                 TheadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
-                TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
                 RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
                 Selected={() => false}
                 KeySelector={(item) => item.ID}
@@ -97,9 +97,9 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                     Key={'Date'}
                     AllowSort={true}
                     Field={'Date'}
-                    HeaderStyle={{ width: 'auto', textAlign: 'center' }}
+                    HeaderStyle={{ width: 'auto' }}
                     Content={({ item, field }) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : ''}
-                    RowStyle={{ width: 'auto', textAlign: 'center' }}
+                    RowStyle={{ width: 'auto' }}
                 >
                     Date
                 </ReactTable.Column>
@@ -109,8 +109,8 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         AllowSort={true}
                         Field={'LastSuccessfulFileProcessed'}
                         Content={({ item, field }) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : ''}
-                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
-                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
                     >
                         Last Succ
                     </ReactTable.Column>
@@ -121,8 +121,8 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         AllowSort={true}
                         Field={'LastUnsuccessfulFileProcessed'}
                         Content={({ item, field }) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : 'N/A'}
-                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
-                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
                     >
                         Last Unsucc
                     </ReactTable.Column>
@@ -131,8 +131,8 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         AllowSort={true}
                         Field={'LastUnsuccessfulFileProcessedExplanation'}
                         Content={({ item, field }) => <Reason ID={item.ID} Text={item[field]?.toString() ?? ''} />}
-                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
-                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
                     >
                         Reason
                     </ReactTable.Column>
@@ -142,8 +142,8 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         Key={'TotalFilesProcessed'}
                         AllowSort={true}
                         Field={'TotalFilesProcessed'}
-                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
-                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
                     >
                         Total
                     </ReactTable.Column>
@@ -153,8 +153,8 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         Key={'TotalSuccessfulFilesProcessed'}
                         AllowSort={true}
                         Field={'TotalSuccessfulFilesProcessed'}
-                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
-                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
                     >
                         Total Succ
                     </ReactTable.Column>
@@ -164,8 +164,8 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         Key={'TotalUnsuccessfulFilesProcessed'}
                         AllowSort={true}
                         Field={'TotalUnsuccessfulFilesProcessed'}
-                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
-                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
                     >
                         Total Unsucc
                     </ReactTable.Column>
@@ -175,8 +175,8 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         Key={'TotalEmailsSent'}
                         AllowSort={true}
                         Field={'TotalEmailsSent'}
-                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
-                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
                     >
                         Tot Emails Sent
                     </ReactTable.Column>
@@ -187,8 +187,8 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         Key={'AverageDownloadLatency'}
                         AllowSort={true}
                         Field={'AverageDownloadLatency'}
-                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
-                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
                         Content={({ item, field }) => item[field] != undefined ? (item[field] as number).toFixed(2) : ''}
                     >
                         Avg Dnld Lat
@@ -199,8 +199,8 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         Key={'AverageProcessingStartLatency'}
                         AllowSort={true}
                         Field={'AverageProcessingStartLatency'}
-                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
-                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
                         Content={({ item, field }) => item[field] != undefined ? (item[field] as number).toFixed(2) : ''}
                     >
                         Avg Proc Start Lat
@@ -210,8 +210,8 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                             Key={'AverageProcessingEndLatency'}
                             AllowSort={true}
                             Field={'AverageProcessingEndLatency'}
-                            HeaderStyle={{ width: 'auto', textAlign: 'center' }}
-                            RowStyle={{ width: 'auto', textAlign: 'center' }}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
                             Content={({ item, field }) => item[field] != undefined ? (item[field] as number).toFixed(2) : ''}
                         >
                             Avg Proc End Lat
@@ -222,8 +222,8 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                             Key={'AverageEmailLatency'}
                             AllowSort={true}
                             Field={'AverageEmailLatency'}
-                            HeaderStyle={{ width: 'auto', textAlign: 'center' }}
-                            RowStyle={{ width: 'auto', textAlign: 'center' }}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
                             Content={({ item, field }) => item[field] != undefined ? (item[field] as number).toFixed(2) : ''}
                         >
                             Avg Email Lat
@@ -234,8 +234,8 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                             Key={'AverageTotalProcessingLatency'}
                             AllowSort={true}
                             Field={'AverageTotalProcessingLatency'}
-                            HeaderStyle={{ width: 'auto', textAlign: 'center' }}
-                            RowStyle={{ width: 'auto', textAlign: 'center' }}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
                             Content={({ item, field }) => item[field] != undefined ? (item[field] as number).toFixed(2) : ''}
                         >
                             Avg Tot Proc Lat
@@ -245,8 +245,8 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                                 Key={'AverageTotalEmailLatency'}
                                 AllowSort={true}
                                 Field={'AverageTotalEmailLatency'}
-                                HeaderStyle={{ width: 'auto', textAlign: 'center' }}
-                                RowStyle={{ width: 'auto', textAlign: 'center' }}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
                                 Content={({ item, field }) => item[field] != undefined ? (item[field] as number).toFixed(2) : ''}
                             >
                                 Avg Tot Email Lat
@@ -257,7 +257,6 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                 </ConfigTable.Configurable>
             </ConfigTable.Table>
         </div>
-        <div className="card-footer"/>
     </div>
 }
 

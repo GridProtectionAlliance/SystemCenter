@@ -64,7 +64,7 @@ function DownloadedFilesPage(props: { Meter: OpenXDA.Types.Meter }) {
             <div className="card-header">
                 <div className="row">
                     <div className="col">
-                        <h4>Last 50 Downloaded Files for {props.Meter?.Name} :</h4>
+                        <h4>Last 50 Downloaded Files:</h4>
                     </div>
                 </div>
             </div>
@@ -84,11 +84,11 @@ function DownloadedFilesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         }
                     }}
                     TableStyle={{
-                        padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                        padding: 0, width: '100%', height: '100%',
                         tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
                     }}
                     TheadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
-                    TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                    TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
                     RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
                     Selected={(item) => false}
                     KeySelector={(item) => item.ID}
@@ -129,7 +129,6 @@ function DownloadedFilesPage(props: { Meter: OpenXDA.Types.Meter }) {
                     </ReactTable.Column>
                 </ReactTable.Table>
             </div>
-            <div className="card-footer"/>
         </div>
     )
 }

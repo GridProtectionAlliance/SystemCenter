@@ -86,7 +86,7 @@ function DeviceIssuesPage(props: IProps) {
     ];
 
     return (
-        <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
+        <div style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
             <div className="row">
                 <div className="col">
                     <h2>{meter.Name}</h2>
@@ -101,7 +101,7 @@ function DeviceIssuesPage(props: IProps) {
                 {tab === 'openmic' ? <div className={"tab-pane active"} style={{ height: '100%' }}>
                     <OpenMICIssuesPage Meter={meter} OpenMICAcronym={props.OpenMICAcronym}/>
                 </div> : null}
-                {tab === 'mimd' ? <div className={"tab-pane  active"} style={{ height: '100%' }}>
+                {tab === 'mimd' ? <div className={"tab-pane active"} style={{ height: '100%' }}>
                     <MiMDIssuesPage Meter={meter} />
                 </div> : null}
                 {tab === 'xda' ? <div className={"tab-pane active"} style={{ height: '100%' }}>
