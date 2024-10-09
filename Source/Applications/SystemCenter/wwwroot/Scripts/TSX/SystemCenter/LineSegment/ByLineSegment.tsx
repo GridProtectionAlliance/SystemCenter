@@ -215,9 +215,9 @@ const ByLineSegment: Application.Types.iByComponent = (props) => {
                             > Length (miles)
                             </ReactTable.Column>
                             <ReactTable.Column<OpenXDA.Types.LineSegment>
-                                Key={'VoltageKV'}
+                                Key={'Description'}
                                 AllowSort={true}
-                                Field={'VoltageKV'}
+                                Field={'Description'}
                                 HeaderStyle={{ width: '30%' }}
                                 RowStyle={{ width: '30%' }}
                             > Description
