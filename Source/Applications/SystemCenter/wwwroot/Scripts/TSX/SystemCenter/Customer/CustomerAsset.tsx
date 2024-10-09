@@ -47,8 +47,7 @@ const CustomerAssetWindow = (props: IProps) => {
     const [removeRecord, setRemoveRecord] = React.useState<LocalXDA.CustomerAsset | null>(null);
 
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
-    const roles = useAppSelector(SelectRoles);
-
+    const roles = useAppSelector(SelectRoles)
 
     React.useEffect(() => {
         if (status == 'unintiated' || status == 'changed')
@@ -133,11 +132,7 @@ const CustomerAssetWindow = (props: IProps) => {
                     OnSort={(d) => {
                         if (d.colKey == 'Remove')
                             return;
-
-                        if (d.colKey === sortField)
-                            dispatch(CustomerAssetSlice.Sort({ SortField: d.colField, Ascending: !ascending }));
-                        else
-                            dispatch(CustomerAssetSlice.Sort({ SortField: d.colField, Ascending: true }));
+                        dispatch(CustomerAssetSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                     }}
                     TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
                     TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
@@ -183,7 +178,7 @@ const CustomerAssetWindow = (props: IProps) => {
         </div>
         <div className="card-footer">
             <div className="btn-group mr-2">
-                    <button className={"btn btn-primary pull-right" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='AssignedAssets'
+                    <button className={"btn btn-info pull-right" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='AssignedAssets'
                         onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (hasPermissions())
                         setShowAdd(true);
                 }}>Add Asset</button>

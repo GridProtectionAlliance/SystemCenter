@@ -22,34 +22,40 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Paging, ReactTable } from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import { DefaultSearchField, SearchFields } from '../CommonComponents/SearchFields';
-import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
+import { SearchBar, Search, Modal, GenericController } from '@gpa-gemstone/react-interactive';
 import { useAppSelector, useAppDispatch } from '../hooks';
-import { CustomerSlice } from '../Store/Store';
 import CustomerForm from './CustomerForm';
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
+import { CustomerSlice } from '../Store/Store';
 
 
 declare var homePath: string;
+const CustomerController = new GenericController<OpenXDA.Types.Customer>(`${homePath}api/SystemCenter/Customer`, "CustomerKey", false);
+const emptyCustomer: OpenXDA.Types.Customer = { ID: 0, CustomerKey: '', Name: '', Phone: '', Description: '', LSCVS: false, PQIFacilityID: -1 };
 
 const ByCustomer: Application.Types.iByComponent = (props) => {
     let dispatch = useAppDispatch();
     let history = useHistory();
 
-    const cState = useAppSelector(CustomerSlice.SearchStatus);
-    const data = useAppSelector(CustomerSlice.SearchResults);
-
-    const [search, setSearch] = React.useState<Array<Search.IFilter<OpenXDA.Types.Customer>>>([]);
+    
+    const [allPages, setAllPages] = React.useState<number>(1);
+    const [page, setPage] = React.useState<number>(1);
+    const [data, setData] = React.useState<OpenXDA.Types.Customer[]>([]);
+    const [state, setState] = React.useState<Application.Types.Status>('idle');
+    const [update, forceUpdate] = React.useState<boolean>(false);
+    
     const [filterableList, setFilterableList] = React.useState<Array<Search.IField<OpenXDA.Types.Customer>>>(SearchFields.Customer as Search.IField<OpenXDA.Types.Customer>[]);
-
+    
     const [sortKey, setSortKey] = React.useState<keyof OpenXDA.Types.Customer>('Name');
+    const [search, setSearch] = React.useState<Search.IFilter<OpenXDA.Types.Customer>[]>([]);
     const [ascending, setAscending] = React.useState<boolean>(true);
-    const [newCustomer, setNewCustomer] = React.useState<OpenXDA.Types.Customer>(getNewCustomer());
+    const [newCustomer, setNewCustomer] = React.useState<OpenXDA.Types.Customer>(emptyCustomer);
 
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [errors, setErrors] = React.useState<string[]>([]);
@@ -58,8 +64,17 @@ const ByCustomer: Application.Types.iByComponent = (props) => {
     const extDbUpdateAll = React.useRef<() => (() => void)>(undefined);
 
     React.useEffect(() => {
-        dispatch(CustomerSlice.DBSearch({ sortField: sortKey, ascending, filter: search }))
-    }, [search, ascending, sortKey]);
+        setState('loading')
+        const h = CustomerController.PagedSearch(search, sortKey, ascending, page);
+        h.then((d) => {
+            setData(d.Data);
+            setAllPages(d.TotalRecords);
+            setState('idle');
+        }, () => setState('error'));
+        return function () {
+            if (h != null && h.abort != null) h.abort();
+        }
+    }, [search, ascending, sortKey, page, update]);
 
     React.useEffect(() => {
         let handle = getAdditionalFields();
@@ -68,24 +83,6 @@ const ByCustomer: Application.Types.iByComponent = (props) => {
             if (handle.abort != null) handle.abort();
         }
     }, []);
-
-    React.useEffect(() => {
-        if (cState == 'unintiated' || cState == 'changed')
-            dispatch(CustomerSlice.DBSearch({ sortField: sortKey, ascending, filter: search }))
-    }, [cState, dispatch]);
-
-    function getNewCustomer(): OpenXDA.Types.Customer {
-        return {
-            ID: 0,
-            CustomerKey: null,
-            Name: null,
-            Phone: null,
-            Description: null,
-            LSCVS: false,
-            PQIFacilityID: -1,
-        }
-    }
-
 
     function getAdditionalFields(): JQuery.jqXHR<Array<SystemCenter.Types.AdditionalField>> {
         let handle = $.ajax({
@@ -121,7 +118,7 @@ const ByCustomer: Application.Types.iByComponent = (props) => {
     return (
         <div className="container-fluid d-flex h-100 flex-column">
             <SearchBar<OpenXDA.Types.Customer> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={DefaultSearchField.Customer as Search.IField<OpenXDA.Types.Customer>} Width={'50%'} Label={'Search'} StorageID="CustomersFilter"
-                ShowLoading={cState == 'loading'} ResultNote={cState == 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Customer(s)'}
+                ShowLoading={state == 'loading'} ResultNote={state == 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Customer(s)'}
                 GetEnum={(setOptions, field) => {
                     let handle = null;
                    
@@ -146,7 +143,11 @@ const ByCustomer: Application.Types.iByComponent = (props) => {
                     <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                         <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                         <div className="form-group">
-                            <button className="btn btn-primary" onClick={(event) => { event.preventDefault(); setNewCustomer(getNewCustomer()); setShowModal(true); }}>Add Customer</button>
+                            <button className="btn btn-primary" onClick={(event) => {
+                                event.preventDefault();
+                                setNewCustomer(emptyCustomer);
+                                setShowModal(true);
+                            }}>Add Customer</button>
                         </div>
                         <div className="form-group">
                             <button className="btn btn-primary" 
@@ -228,11 +229,18 @@ const ByCustomer: Application.Types.iByComponent = (props) => {
                     </ReactTable.Column>
                 </ReactTable.Table>
             </div>
-
+            <div className="row">
+                <div className="col">
+                    <Paging Current={page + 1} Total={allPages} SetPage={(p) => setPage(p - 1)} />
+                </div>
+            </div>
             <Modal Show={showModal} Title={'Add New Customer'} CallBack={(c) => {
                 setShowModal(false);
-                if (c)
-                    dispatch(CustomerSlice.DBAction({ verb: 'POST', record: newCustomer }));
+                if (!c) 
+                    return;
+                forceUpdate(x => !x);
+                CustomerController.DBAction( 'POST', newCustomer );
+                
             }} ShowCancel={false} ShowX={true} DisableConfirm={errors.length > 0} ConfirmShowToolTip={errors.length > 0} ConfirmToolTipContent={errors.map((t, i) => <p key={i}> {CrossMark} {t}</p>)} >
                 <div className="row">
                     <CustomerForm Customer={newCustomer} stateSetter={setNewCustomer} setErrors={setErrors} />

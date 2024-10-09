@@ -197,11 +197,7 @@ const CustomerMeterWindow = (props: IProps) => {
                     OnSort={(d) => {
                         if (d.colKey == 'Remove')
                             return;
-
-                        if (d.colKey === sortField)
-                            dispatch(CustomerMeterSlice.Sort({ SortField: d.colField, Ascending: !ascending }));
-                        else
-                            dispatch(CustomerMeterSlice.Sort({ SortField: d.colField, Ascending: true }));
+                        dispatch(CustomerMeterSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                         }}
                     TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
                     TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
@@ -247,7 +243,7 @@ const CustomerMeterWindow = (props: IProps) => {
         </div>
         <div className="card-footer">
             <div className="btn-group mr-2">
-                    <button className={"btn btn-primary pull-right" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='Meters'
+                    <button className={"btn btn-info pull-right" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='Meters'
                         onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (hasPermissions())
                         setShowAdd(true);
                 }}>Add Meters</button>
