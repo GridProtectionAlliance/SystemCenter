@@ -128,7 +128,7 @@ const ByApplicationNode: Application.Types.iByComponent = (props) => {
                         > Name
                         </ReactTable.Column>
                         <ReactTable.Column<Application.Types.iApplicationNode>
-                            Key={'NodeID'}
+                            Key={'ID'}
                             AllowSort={true}
                             Field={'ID'}
                             HeaderStyle={{ width: '50%' }}
