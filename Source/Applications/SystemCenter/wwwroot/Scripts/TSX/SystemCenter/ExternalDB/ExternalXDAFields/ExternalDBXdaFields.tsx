@@ -78,10 +78,7 @@ export default function ExternalDBXdaFields(props: { ID: number }) {
                                         Ascending={asc}
                                         OnSort={(d) => {
                                             if (d.colKey == 'btns') return;
-                                            if (d.colField != sortKey)
-                                                dispatch(ExternalXDAFieldsSlice.Sort({ SortField: d.colField, Ascending: asc }));
-                                            else
-                                                dispatch(ExternalXDAFieldsSlice.Sort({ SortField: sortKey, Ascending: !asc }));
+                                            dispatch(ExternalXDAFieldsSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                                         }}
                                         TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
                                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
@@ -132,7 +129,7 @@ export default function ExternalDBXdaFields(props: { ID: number }) {
                     </div>
                     <div className="card-footer">
                         <div className="btn-group mr-2">
-                            <button className="btn btn-primary"
+                            <button className="btn btn-info"
                                 onClick={() => { setRecord({ ...emptyRecord, ExternalDBTableID: props.ID }); setShowEdit(true); }}
                             >Link New Field</button>
                         </div>
