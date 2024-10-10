@@ -22,6 +22,7 @@
 //******************************************************************************************************
 
 import type { Application, OpenXDA as GemstoneXDA } from '@gpa-gemstone/application-typings';
+import { Search } from '@gpa-gemstone/react-interactive';
 
 // System Center Models
 declare global {
@@ -48,6 +49,14 @@ export namespace SystemCenter {
     interface OpenXDADailyStatistic { ID: number, Date: string, Meter: string, LastSuccessfulFileProcessed: string, LastUnsuccessfulFileProcessed: string, LastUnsuccessfulFileProcessedExplanation: string, TotalFilesProcessed: number, TotalUnsuccessfulFilesProcessed: number, TotalSuccessfulFilesProcessed: number, TotalEmailsSent: number, AverageDownloadLatency: number, AverageProcessingStartLatency: number, AverageProcessingEndLatency: number, AverageEmailLatency: number, AverageTotalProcessingLatency: number, AverageTotalEmailLatency: number }
     interface MeterDataQualitySummary { ID: number, Date: string, MeterID: number, ExpectedPoints: number, GoodPoints: number, LatchedPoints: number, UnreasonablePoints: number, NoncongruentPoints: number, DuplicatePoints: number }
     interface ChannelTemplateFile { ID: number, Name: string, FileBlob: string, FileName: string, ShowTrend: boolean, ShowEvents: boolean, SortOrder: number }
+    interface IColDatum<T extends { ID: number }> { item: T, key: string, field: keyof T | undefined, index: number, style ?: React.CSSProperties }
+    interface IByCol<T extends {ID: number}> {
+        Label: string,
+        Field: keyof T,
+        Type: Search.FieldType,
+        Width?: string,
+        Content?: (item: IColDatum<T>) => React.ReactNode;
+    }
 }
 
 // OpenXDA Models
