@@ -64,8 +64,8 @@ function Applications(props: IProps) {
     const [EditApplication, setEditApplication] = React.useState<PQApplications>(EmptyApplication);
 
     //Table consts
-    const [sortField, setSortField] = React.useState<keyof PQApplications>('Name');
-    const [ascending, setAscending] = React.useState<boolean>(false);
+    const sortField = useAppSelector(PQApplicationsSlice.SortField);
+    const ascending = useAppSelector(PQApplicationsSlice.Ascending);
     const data: PQApplications[] = useAppSelector(PQApplicationsSlice.Data);
     const parentID = useAppSelector(PQApplicationsSlice.ParentID);
     const status: Application.Types.Status = useAppSelector(PQApplicationsSlice.Status);
@@ -74,10 +74,6 @@ function Applications(props: IProps) {
         if (status === 'unintiated' || status === 'changed' || parentID !== props.ID)
             dispatch(PQApplicationsSlice.Fetch(props.ID));
     }, [dispatch, status, parentID]);
-
-    React.useEffect(() => {
-        dispatch(PQApplicationsSlice.Sort({ SortField: sortField, Ascending: ascending }));
-    }, [ascending, sortField]);
 
     React.useEffect(() => {
         let handle = getTileImages();
@@ -124,15 +120,8 @@ function Applications(props: IProps) {
                     SortKey={sortField}
                     Ascending={ascending}
                     OnSort={(d) => {
-                        if (d.colField === undefined)
-                            return;
-
-                        if (d.colField === sortField)
-                            setAscending(!ascending);
-                        else {
-                            setAscending(true);
-                            setSortField(d.colField);
-                        }
+                        if (d.colField == undefined) return;
+                        dispatch(PQApplicationsSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                     }}
                     TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
                     OnClick={(item) => { setEditApplication(item.row); setShowModal(true); setHasChanged(false); }}
@@ -178,7 +167,7 @@ function Applications(props: IProps) {
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-primary"} onClick={() => {
+                    <button className={"btn btn-info"} onClick={() => {
                         { setShowModal(true); setHasChanged(false); setEditApplication({ ...EmptyApplication, Image: (Options.length > 0 ? Options[0] : EmptyApplication.Image), CategoryID: props.ID }) }
                     }} data-tooltip={'New'} >Add Application</button>
                 </div>

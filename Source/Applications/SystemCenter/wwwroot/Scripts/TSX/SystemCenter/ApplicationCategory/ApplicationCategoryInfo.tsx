@@ -69,7 +69,7 @@ export default function ApplicationCategoryInfo(props: IProps) {
                     {errors.map((t, i) => <p key={i}>{CrossMark} {t}</p>)}
                 </ToolTip>
                 <div className="btn-group mr-2">
-                    <button className="btn btn-default" onClick={() => {
+                    <button className="btn btn-warning" onClick={() => {
                         if (warnings.length > 0)
                             setApplicationCategory(props.ApplicationCat)
                     }
