@@ -168,7 +168,7 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
                     <ReactTable.Column<SystemCenter.Types.ValueListGroup>
                         Key={'Items'}
                         AllowSort={true}
-                        Field={'Items'}
+                        Field={'ItemCount'}
                         HeaderStyle={{ width: '10%' }}
                         RowStyle={{ width: '10%' }}
                     > Items
