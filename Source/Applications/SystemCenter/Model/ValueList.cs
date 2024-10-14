@@ -112,4 +112,14 @@ namespace SystemCenter.Model
             }
         };       
    }
+
+    [AllowSearch, CustomView("" +
+        "SELECT " +
+        "ValueListGroup.*," +
+        "(SELECT COUNT(*) FROM ValueList WHERE ValueList.GroupID = ValueListGroup.ID) AS ItemCount" +
+        " FROM ValueListGroup")]
+    public class ValueListGroupView : ValueListGroup
+    {
+        public int ItemCount { get; set; }
+    }
 }
