@@ -185,9 +185,6 @@ namespace SystemCenter.Controllers
         }
     }
 
-    [RoutePrefix("api/ChannelGroup")]
-    public class ChannelGroupController : ModelController<openXDA.Model.ChannelGroup> { }
-
     [RoutePrefix("api/ChannelGroupDetails")]
     public class ChannelGroupDetailsController : ModelController<openXDA.Model.ChannelGroupDetails> 
     {
