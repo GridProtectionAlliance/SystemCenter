@@ -150,7 +150,7 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
                     > Description
                     </ReactTable.Column>
                     <ReactTable.Column<LocalSC.ChannelGroupView>
-                        Key={'Items'}
+                        Key={'ItemCount'}
                         AllowSort={true}
                         Field={'ItemCount'}
                         HeaderStyle={{ width: '10%' }}
