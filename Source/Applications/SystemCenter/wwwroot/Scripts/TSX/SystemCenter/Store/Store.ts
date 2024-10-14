@@ -45,7 +45,10 @@ declare var homePath: string;
 export type AppDispatch = typeof store.dispatch;
 export type RootState = ReturnType<typeof store.getState>
 
+/* Will combine those once we move to the generic ByPage */
 export const ValueListGroupSlice = new GenericSlice<SystemCenter.Types.ValueListGroup>('ValueListGroup', `${homePath}api/ValueListGroup`, 'Name');
+export const ValueListGroupViewSlice = new GenericSlice<LocalSystemCenter.ValueListGroupView>('ValueListGroupView', `${homePath}api/ValueListGroup`, 'Name');
+
 export const ValueListSlice = new GenericSlice<SystemCenter.Types.ValueListItem>('ValueList', `${homePath}api/ValueList`, 'SortOrder');
 export const LocationDrawingSlice = new GenericSlice<SystemCenter.Types.LocationDrawing>('LocationDrawing', `${homePath}api/LocationDrawing`, 'Name');
 
@@ -188,7 +191,8 @@ const store = configureStore({
         MATLABAnalyticEventType: MATLABAnalyticEventTypeSlice.Reducer,
         MATLABAnalyticAssetType: MATLABAnalyticAssetTypeSlice.Reducer,
         TrendChannels: TrendChannelSlice.Reducer,
-        ChannelTemplate: ChannelTemplateSlice.Reducer
+        ChannelTemplate: ChannelTemplateSlice.Reducer,
+        ValueListGroupView: ValueListGroupViewSlice.Reducer
     }
 });
 export default store;

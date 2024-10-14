@@ -112,4 +112,70 @@ namespace SystemCenter.Model
             }
         };       
    }
+
+    [AllowSearch, CustomView("" +
+        "SELECT " +
+        "ValueListGroup.*," +
+        "(SELECT COUNT(*) FROM ValueList WHERE ValueList.GroupID = ValueListGroup.ID) AS ItemCount" +
+        " FROM ValueListGroup")]
+    public class ValueListGroupView : ValueListGroup
+    {
+        public int ItemCount { get; set; }
+    }
+
+    [RoutePrefix("api/ValueListGroup")]
+    public class ValueListGroupController : ModelController<ValueListGroupView, ValueListGroup> 
+    {
+        public override IHttpActionResult Patch([FromBody] ValueListGroup newRecord)
+        {
+            if (!PatchAuthCheck())
+            {
+                return Unauthorized();
+            }
+
+            // Check if Value changed
+            bool changeVal = false;
+            ValueListGroup oldRecord;
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                oldRecord = new TableOperations<ValueListGroup>(connection).QueryRecordWhere("ID = {0}", newRecord.ID);
+                changeVal = !(newRecord.Name == oldRecord.Name);
+            }
+
+            if (changeVal)
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    // Update Additional Fields
+                    connection.ExecuteScalar(@"UPDATE 
+                        AdditionalField AF
+                        SET [Type] = {0} 
+                        WHERE
+                        [Type] = {1}", newRecord.Name, oldRecord.Name);
+                }
+            }
+            return base.Patch(newRecord);
+
+        }
+
+        public override IHttpActionResult Delete(ValueListGroup record)
+        {
+            if (!DeleteAuthCheck())
+            {
+                return Unauthorized();
+            }
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                // Update Additional Fields
+                connection.ExecuteScalar(@"UPDATE 
+                    AdditionalField AF
+                    SET [Type] = 'string' 
+                    WHERE
+                    [Type] = {0}", record.Name);
+            }
+            return base.Delete(record);
+        }
+    }
 }

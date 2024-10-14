@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import { useAppSelector, useAppDispatch } from '../hooks';
-import { ValueListGroupSlice } from '../Store/Store';
+import { ValueListGroupSlice, ValueListGroupViewSlice } from '../Store/Store';
 import { ValueListSlice } from '../Store/Store';
 
 import { ReactTable } from '@gpa-gemstone/react-table'
@@ -31,7 +31,7 @@ import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
 import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
-
+import {SystemCenter as localSC } from '../global'
 import { DefaultSearchField, SearchFields, TransformSearchFields } from '../CommonComponents/SearchFields';
 import ValueListGroupForm from './ValueListGroupForm';
 
@@ -39,33 +39,33 @@ import ValueListGroupForm from './ValueListGroupForm';
 const ValueListGroups: Application.Types.iByComponent = (props) => {
     const dispatch = useAppDispatch();
 
-    const data = useAppSelector(ValueListGroupSlice.SearchResults);
-    const status = useAppSelector(ValueListGroupSlice.SearchStatus);
+    const data = useAppSelector(ValueListGroupViewSlice.SearchResults);
+    const status = useAppSelector(ValueListGroupViewSlice.SearchStatus);
     const items = useAppSelector(ValueListSlice.Data);
     const itemStatus = useAppSelector(ValueListSlice.Status);
     const parentID = useAppSelector(ValueListSlice.ParentID);
 
     const [showNew, setShowNew] = React.useState<boolean>(false);
-    const [sortField, setSortField] = React.useState<keyof SystemCenter.Types.ValueListGroup>('Name');
+    const [sortField, setSortField] = React.useState<keyof localSC.ValueListGroupView>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
 
-    const emptyRecord = { ID: 0, Name: '', Description: '' };
+    const emptyRecord = { ID: 0, Name: '', Description: '', ItemCount: 0 };
     let history = useHistory();
 
-    const [search, setSearch] = React.useState<Array<Search.IFilter<SystemCenter.Types.ValueListGroup>>>([]);
+    const [search, setSearch] = React.useState<Array<Search.IFilter<localSC.ValueListGroupView>>>([]);
 
-    const [record, setRecord] = React.useState<SystemCenter.Types.ValueListGroup>(emptyRecord);
+    const [record, setRecord] = React.useState<localSC.ValueListGroupView>(emptyRecord);
 
     React.useEffect(() => {
         if (status == 'unintiated' || status == 'changed')
-            dispatch(ValueListGroupSlice.DBSearch({ filter: search, sortField: sortField, ascending: ascending }));
+            dispatch(ValueListGroupViewSlice.DBSearch({ filter: search, sortField: sortField, ascending: ascending }));
 
         return function () {
         }
     }, [dispatch, status]);
 
     React.useEffect(() => {
-        dispatch(ValueListGroupSlice.DBSearch({ filter: search, sortField: sortField, ascending: ascending }));
+        dispatch(ValueListGroupViewSlice.DBSearch({ filter: search, sortField: sortField, ascending: ascending }));
 
         return function () {
         }
@@ -85,11 +85,11 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
 
     return (
         <div className="container-fluid d-flex h-100 flex-column">
-            <SearchBar< SystemCenter.Types.ValueListGroup>
-                CollumnList={SearchFields.ValueListGroup as Search.IField<SystemCenter.Types.ValueListGroup>[]}
+            <SearchBar<localSC.ValueListGroupView>
+                CollumnList={SearchFields.ValueListGroup as Search.IField<localSC.ValueListGroupView>[]}
                 SetFilter={(flds) => setSearch(flds)}
                 Direction={'left'}
-                defaultCollumn={DefaultSearchField.ValueListGroup as Search.IField<SystemCenter.Types.ValueListGroup>}
+                defaultCollumn={DefaultSearchField.ValueListGroup as Search.IField<localSC.ValueListGroupView>}
                 Width={'50%'}
                 Label={'Search'}
                 StorageID="ValueListsFilter"
@@ -127,7 +127,7 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
             </SearchBar>
 
             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                <ReactTable.Table<SystemCenter.Types.ValueListGroup>
+                <ReactTable.Table<localSC.ValueListGroupView>
                     TableClass="table table-hover"
                     Data={data}
                     SortKey={sortField}
@@ -149,7 +149,7 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
                     Selected={(item) => false}
                     KeySelector={(item) => item.ID}
                 >
-                    <ReactTable.Column<SystemCenter.Types.ValueListGroup>
+                    <ReactTable.Column<localSC.ValueListGroupView>
                         Key={'Name'}
                         AllowSort={true}
                         Field={'Name'}
@@ -157,7 +157,7 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
                         RowStyle={{ width: '15%' }}
                     > Name
                     </ReactTable.Column>
-                    <ReactTable.Column<SystemCenter.Types.ValueListGroup>
+                    <ReactTable.Column<localSC.ValueListGroupView>
                         Key={'Description'}
                         AllowSort={true}
                         Field={'Description'}
@@ -165,13 +165,12 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
                         RowStyle={{ width: 'auto' }}
                     > Description
                     </ReactTable.Column>
-                    <ReactTable.Column<SystemCenter.Types.ValueListGroup>
-                        Key={'Items'}
+                    <ReactTable.Column<localSC.ValueListGroupView>
+                        Key={'ItemCount'}
                         AllowSort={true}
-                        Field={'Items'}
+                        Field={'ItemCount'}
                         HeaderStyle={{ width: '10%' }}
                         RowStyle={{ width: '10%' }}
-                        Content={({ item }) => items.filter(i => i.GroupID == item.ID).length}
                     > Items
                     </ReactTable.Column>
                 </ReactTable.Table>
@@ -188,7 +187,7 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
                 ConfirmBtnClass={'btn-primary'}
                 ConfirmText={'Save'}
                 Show={showNew} >
-                <ValueListGroupForm Record={record} Setter={setRecord} />
+                <ValueListGroupForm Record={record} Setter={(r) => setRecord({ ...r, ItemCount: 0 })} />
             </Modal>
         </div>
     )

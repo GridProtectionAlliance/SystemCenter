@@ -240,61 +240,7 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/LSCVSAccount")]
     public class LSCVSAccountController : ModelController<LSCVSAccount> { }
 
-    [RoutePrefix("api/ValueListGroup")]
-    public class ValueListGroupController : ModelController<ValueListGroup>
-    {
-        public override IHttpActionResult Patch([FromBody] SystemCenter.Model.ValueListGroup newRecord)
-         {
-             if (!PatchAuthCheck())
-            {
-                return Unauthorized();
-            }
-
-            // Check if Value changed
-            bool changeVal = false;
-            SystemCenter.Model.ValueListGroup oldRecord;
-
-             using (AdoDataConnection connection = new AdoDataConnection(Connection))
-            {
-                oldRecord = new TableOperations<SystemCenter.Model.ValueListGroup>(connection).QueryRecordWhere("ID = {0}", newRecord.ID);
-                changeVal = !(newRecord.Name == oldRecord.Name);
-            }
-
-            if (changeVal)
-            {
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
-                {
-                    // Update Additional Fields
-                    connection.ExecuteScalar(@"UPDATE 
-                        AdditionalField AF
-                        SET [Type] = {0} 
-                        WHERE
-                        [Type] = {1}", newRecord.Name, oldRecord.Name);
-                }
-            }
-            return base.Patch(newRecord);
-
-         }
-
-        public override IHttpActionResult Delete(SystemCenter.Model.ValueListGroup record)
-        {
-            if (!DeleteAuthCheck())
-            {
-                return Unauthorized();
-            }
-
-            using (AdoDataConnection connection = new AdoDataConnection(Connection))
-            {
-                // Update Additional Fields
-                connection.ExecuteScalar(@"UPDATE 
-                    AdditionalField AF
-                    SET [Type] = 'string' 
-                    WHERE
-                    [Type] = {0}", record.Name);
-            }
-            return base.Delete(record);
-        }
-    }    
+    
     [RoutePrefix("api/OpenXDA/DBCleanup")]
     public class DBCleanupController : ModelController<openXDA.Model.DBCleanup> { }
 

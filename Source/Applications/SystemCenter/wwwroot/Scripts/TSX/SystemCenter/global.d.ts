@@ -21,7 +21,10 @@
 //
 //******************************************************************************************************
 
-import type { Application, OpenXDA as GemstoneXDA } from '@gpa-gemstone/application-typings';
+import type {
+    Application, OpenXDA as GemstoneXDA,
+    SystemCenter as GemstoneSC
+} from '@gpa-gemstone/application-typings';
 
 // System Center Models
 declare global {
@@ -48,6 +51,7 @@ export namespace SystemCenter {
     interface OpenXDADailyStatistic { ID: number, Date: string, Meter: string, LastSuccessfulFileProcessed: string, LastUnsuccessfulFileProcessed: string, LastUnsuccessfulFileProcessedExplanation: string, TotalFilesProcessed: number, TotalUnsuccessfulFilesProcessed: number, TotalSuccessfulFilesProcessed: number, TotalEmailsSent: number, AverageDownloadLatency: number, AverageProcessingStartLatency: number, AverageProcessingEndLatency: number, AverageEmailLatency: number, AverageTotalProcessingLatency: number, AverageTotalEmailLatency: number }
     interface MeterDataQualitySummary { ID: number, Date: string, MeterID: number, ExpectedPoints: number, GoodPoints: number, LatchedPoints: number, UnreasonablePoints: number, NoncongruentPoints: number, DuplicatePoints: number }
     interface ChannelTemplateFile { ID: number, Name: string, FileBlob: string, FileName: string, ShowTrend: boolean, ShowEvents: boolean, SortOrder: number }
+    interface ValueListGroupView extends GemstoneSC.Types.ValueListGroup { ItemCount: number }
 }
 
 // OpenXDA Models
