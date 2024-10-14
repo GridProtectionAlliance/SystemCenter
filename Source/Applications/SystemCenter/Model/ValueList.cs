@@ -122,4 +122,7 @@ namespace SystemCenter.Model
     {
         public int ItemCount { get; set; }
     }
+
+    [RoutePrefix("api/ValueListGroupView")]
+    public class ValueListGroupController : ModelController<ValueListGroupView> { }
 }
