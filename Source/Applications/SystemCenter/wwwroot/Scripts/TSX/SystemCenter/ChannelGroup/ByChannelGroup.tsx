@@ -92,7 +92,7 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
         <div className="container-fluid d-flex h-100 flex-column">
             <SearchBar< SystemCenter.Types.ChannelGroup>
                 CollumnList={ChannelGroupSearchFields as Search.IField<SystemCenter.Types.ChannelGroup>[]}
-                SetFilter={(flds) => dispatch(ChannelGroupSlice.DBSearch({ filter: flds }))}
+                SetFilter={(flds) => dispatch(ChannelGroupViewSlice.DBSearch({ filter: flds }))}
                 Direction={'left'}
                 defaultCollumn={ChannelGroupDefaultSearchField as Search.IField<SystemCenter.Types.ChannelGroup>}
                 Width={'50%'}
