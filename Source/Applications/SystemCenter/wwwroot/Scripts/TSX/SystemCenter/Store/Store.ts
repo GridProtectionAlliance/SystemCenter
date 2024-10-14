@@ -194,7 +194,7 @@ const store = configureStore({
         MATLABAnalyticAssetType: MATLABAnalyticAssetTypeSlice.Reducer,
         TrendChannels: TrendChannelSlice.Reducer,
         ChannelTemplate: ChannelTemplateSlice.Reducer,
-        ChannelGroupView: ChannelGroupViewSlice.Reducer
+        ChannelGroupView: ChannelGroupViewSlice.Reducer,
         ValueListGroupView: ValueListGroupViewSlice.Reducer
     }
 });
