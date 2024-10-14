@@ -85,11 +85,11 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
 
     return (
         <div className="container-fluid d-flex h-100 flex-column">
-            <SearchBar< SystemCenter.Types.ValueListGroup>
-                CollumnList={SearchFields.ValueListGroup as Search.IField<SystemCenter.Types.ValueListGroup>[]}
+            <SearchBar<localSC.ValueListGroupView>
+                CollumnList={SearchFields.ValueListGroup as Search.IField<localSC.ValueListGroupView>[]}
                 SetFilter={(flds) => setSearch(flds)}
                 Direction={'left'}
-                defaultCollumn={DefaultSearchField.ValueListGroup as Search.IField<SystemCenter.Types.ValueListGroup>}
+                defaultCollumn={DefaultSearchField.ValueListGroup as Search.IField<localSC.ValueListGroupView>}
                 Width={'50%'}
                 Label={'Search'}
                 StorageID="ValueListsFilter"
@@ -127,7 +127,7 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
             </SearchBar>
 
             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                <ReactTable.Table<SystemCenter.Types.ValueListGroup>
+                <ReactTable.Table<localSC.ValueListGroupView>
                     TableClass="table table-hover"
                     Data={data}
                     SortKey={sortField}
@@ -149,7 +149,7 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
                     Selected={(item) => false}
                     KeySelector={(item) => item.ID}
                 >
-                    <ReactTable.Column<SystemCenter.Types.ValueListGroup>
+                    <ReactTable.Column<localSC.ValueListGroupView>
                         Key={'Name'}
                         AllowSort={true}
                         Field={'Name'}
@@ -157,7 +157,7 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
                         RowStyle={{ width: '15%' }}
                     > Name
                     </ReactTable.Column>
-                    <ReactTable.Column<SystemCenter.Types.ValueListGroup>
+                    <ReactTable.Column<localSC.ValueListGroupView>
                         Key={'Description'}
                         AllowSort={true}
                         Field={'Description'}
@@ -165,8 +165,8 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
                         RowStyle={{ width: 'auto' }}
                     > Description
                     </ReactTable.Column>
-                    <ReactTable.Column<SystemCenter.Types.ValueListGroup>
-                        Key={'Items'}
+                    <ReactTable.Column<localSC.ValueListGroupView>
+                        Key={'ItemCount'}
                         AllowSort={true}
                         Field={'ItemCount'}
                         HeaderStyle={{ width: '10%' }}
