@@ -23,8 +23,8 @@
 
 import * as React from 'react';
 import { useAppSelector, useAppDispatch } from '../hooks';
-import { ChannelGroupSlice, ChannelGroupDetailsSlice } from '../Store/Store';
-
+import { ChannelGroupSlice, ChannelGroupDetailsSlice, ChannelGroupViewSlice } from '../Store/Store';
+import { SystemCenter as LocalSC } from '../global';
 import { ReactTable } from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
@@ -39,13 +39,13 @@ import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 const ChannelGroups: Application.Types.iByComponent = (props) => {
     const dispatch = useAppDispatch();
 
-    const data = useAppSelector(ChannelGroupSlice.SearchResults);
-    const status = useAppSelector(ChannelGroupSlice.SearchStatus);
+    const data = useAppSelector(ChannelGroupViewSlice.SearchResults);
+    const status = useAppSelector(ChannelGroupViewSlice.SearchStatus);
     const items = useAppSelector(ChannelGroupDetailsSlice.Data);
     const itemStatus = useAppSelector(ChannelGroupDetailsSlice.Status);
     const parentID = useAppSelector(ChannelGroupDetailsSlice.ParentID);
-    const sortField = useAppSelector(ChannelGroupSlice.SortField);
-    const ascending = useAppSelector(ChannelGroupSlice.Ascending);
+    const sortField = useAppSelector(ChannelGroupViewSlice.SortField);
+    const ascending = useAppSelector(ChannelGroupViewSlice.Ascending);
 
     const [showNew, setShowNew] = React.useState<boolean>(false);
     const [errors, setErrors] = React.useState<string[]>([]);
@@ -58,13 +58,13 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
         { label: 'Description', key: 'Description', type: 'string', isPivotField: false },
     ];
     const ChannelGroupDefaultSearchField = { label: 'Name', key: 'Name', type: 'string', isPivotField: false };
-    const [search, setSearch] = React.useState<Array<Search.IFilter<SystemCenter.Types.ChannelGroup>>>([]);
+    const [search, setSearch] = React.useState<Array<Search.IFilter<LocalSC.ChannelGroupView>>>([]);
 
     const [record, setRecord] = React.useState<SystemCenter.Types.ChannelGroup>(emptyRecord);
 
     React.useEffect(() => {
         if (status == 'unintiated' || status == 'changed')
-            dispatch(ChannelGroupSlice.DBSearch({ filter: search, sortField, ascending }));
+            dispatch(ChannelGroupViewSlice.DBSearch({ filter: search, sortField, ascending }));
     }, [dispatch, status]);
 
     React.useEffect(() => {
@@ -114,13 +114,13 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
             </SearchBar>
 
             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                <ReactTable.Table<SystemCenter.Types.ChannelGroup>
+                <ReactTable.Table<LocalSC.ChannelGroupView>
                     TableClass="table table-hover"
                     Data={data}
                     SortKey={sortField}
                     Ascending={ascending}
                     OnSort={(d) => {
-                        dispatch(ChannelGroupSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
+                        dispatch(ChannelGroupViewSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                     }}
                     OnClick={handleSelect}
                     TableStyle={{
@@ -133,7 +133,7 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
                     Selected={(item) => false}
                     KeySelector={(item) => item.ID}
                 >
-                    <ReactTable.Column<SystemCenter.Types.ChannelGroup>
+                    <ReactTable.Column<LocalSC.ChannelGroupView>
                         Key={'Name'}
                         AllowSort={true}
                         Field={'Name'}
@@ -141,7 +141,7 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
                         RowStyle={{ width: '15%' }}
                     > Name
                     </ReactTable.Column>
-                    <ReactTable.Column<SystemCenter.Types.ChannelGroup>
+                    <ReactTable.Column<LocalSC.ChannelGroupView>
                         Key={'Description'}
                         AllowSort={true}
                         Field={'Description'}
@@ -149,10 +149,10 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
                         RowStyle={{ width: 'auto' }}
                     > Description
                     </ReactTable.Column>
-                    <ReactTable.Column<SystemCenter.Types.ChannelGroup>
+                    <ReactTable.Column<LocalSC.ChannelGroupView>
                         Key={'Items'}
                         AllowSort={true}
-                        Field={'Items'}
+                        Field={'ItemCount'}
                         HeaderStyle={{ width: '10%' }}
                         RowStyle={{ width: '10%' }}
                     > Items
