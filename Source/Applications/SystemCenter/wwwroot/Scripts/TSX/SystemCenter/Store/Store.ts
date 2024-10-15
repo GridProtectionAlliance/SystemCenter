@@ -53,6 +53,8 @@ export const ValueListSlice = new GenericSlice<SystemCenter.Types.ValueListItem>
 export const LocationDrawingSlice = new GenericSlice<SystemCenter.Types.LocationDrawing>('LocationDrawing', `${homePath}api/LocationDrawing`, 'Name');
 
 export const ChannelGroupSlice = new GenericSlice<SystemCenter.Types.ChannelGroup>('ChannelGroup', `${homePath}api/ChannelGroup`, 'Name');
+export const ChannelGroupViewSlice = new GenericSlice<LocalSystemCenter.ChannelGroupView>('ChannelGroupView', `${homePath}api/ChannelGroup`, 'Name');
+
 export const ChannelGroupDetailsSlice = new GenericSlice<SystemCenter.Types.ChannelGroupDetails>('ChannelGroupDetails', `${homePath}api/ChannelGroupDetails`, 'DisplayName');
 
 export const SystemCenterSettingSlice = new GenericSlice<SystemCenter.Types.Setting>('SystemCenterSetting', `${homePath}api/Setting`, 'Name');
@@ -192,6 +194,7 @@ const store = configureStore({
         MATLABAnalyticAssetType: MATLABAnalyticAssetTypeSlice.Reducer,
         TrendChannels: TrendChannelSlice.Reducer,
         ChannelTemplate: ChannelTemplateSlice.Reducer,
+        ChannelGroupView: ChannelGroupViewSlice.Reducer,
         ValueListGroupView: ValueListGroupViewSlice.Reducer
     }
 });

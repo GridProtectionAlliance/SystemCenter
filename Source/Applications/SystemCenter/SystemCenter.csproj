@@ -294,6 +294,7 @@
     <Compile Include="Model\Security\RemoteUserAccount.cs" />
     <Compile Include="Model\Security\ApplicationRole.cs" />
     <Compile Include="Model\Security\SecurityGroup.cs" />
+    <Compile Include="Model\ChannelGroup.cs" />
     <Compile Include="Model\ValueList.cs" />
     <Compile Include="ScheduledProcesses\ScheduledExtDBTask.cs" />
     <Compile Include="ScheduledProcesses\OpenMICMeterStatisticOperation.cs" />
