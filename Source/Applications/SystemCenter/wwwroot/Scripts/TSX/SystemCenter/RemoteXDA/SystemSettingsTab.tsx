@@ -106,7 +106,7 @@ const SystemSettingsTab = (props: IProps) => {
                 </ToolTip>
                 <div className="btn-group mr-2">
                     <button
-                        className={"btn btn-default" + (RemoteXDAInstanceComparator(baseInstance, formInstance) ? '' : ' disabled')}
+                        className={"btn btn-warning" + (RemoteXDAInstanceComparator(baseInstance, formInstance) ? '' : ' disabled')}
                         data-tooltip="clear" onClick={() => {
                             setBaseInstance(_.cloneDeep(connection));
                         }}

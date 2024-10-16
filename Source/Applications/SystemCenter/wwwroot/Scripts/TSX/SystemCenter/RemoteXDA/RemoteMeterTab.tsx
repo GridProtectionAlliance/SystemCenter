@@ -187,7 +187,7 @@ const RemoteMeterTab = (props: IProps) => {
                 > Remote Meter Name
                 </ReactTable.Column>
                 <ReactTable.Column<OpenXDA.Types.RemoteXDAMeter>
-                    Key={'RemoteAssetKey'}
+                    Key={'RemoteXDAAssetKey'}
                     AllowSort={true}
                     Field={'RemoteXDAAssetKey'}
                     HeaderStyle={{ width: 'auto' }}
@@ -197,10 +197,9 @@ const RemoteMeterTab = (props: IProps) => {
                 <ReactTable.Column<OpenXDA.Types.RemoteXDAMeter>
                     Key={'RemoteAlias'}
                     AllowSort={true}
-                    Field={'RemoteXDAName'}
+                    Field={'RemoteAlias'}
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
-                    Content={({ item }) => item.Obsfucate ? item.RemoteXDAName : item.LocalAlias }
                 > Remote Meter Alias
                 </ReactTable.Column>
                 <ReactTable.Column<OpenXDA.Types.RemoteXDAMeter>
@@ -210,7 +209,7 @@ const RemoteMeterTab = (props: IProps) => {
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
                     Content={({ item }) => item.Obsfucate ? HeavyCheckMark : null }
-                > Obsfucated
+                > Obfuscated
                 </ReactTable.Column>
                 <ReactTable.Column<OpenXDA.Types.RemoteXDAMeter>
                     Key={'Synced'}
@@ -283,7 +282,7 @@ const RemoteMeterTab = (props: IProps) => {
             <div className="card-footer">
                 <div className="add-new-meter">
                     <button
-                        className={"btn btn-primary" + (hasPermissions() ? '' : ' disabled')}
+                        className={"btn btn-info" + (hasPermissions() ? '' : ' disabled')}
                         type="submit" data-tooltip='AddMeters' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}
                         onClick={(e) => {
                             if (hasPermissions()) {
@@ -361,7 +360,7 @@ const RemoteMeterTab = (props: IProps) => {
                             LocalAlias: "",
                             LocalMeterName: "",
                             LocalAssetKey: "",
-                            RemoteAlias: ''
+                            RemoteAlias: ""
                         }
                         dispatch(RemoteXDAMeterSlice.DBAction({ verb: "POST", record: newRemote }));
                         setSelectedMeter(newRemote); // Technically, this is a race condition with setAssetCount

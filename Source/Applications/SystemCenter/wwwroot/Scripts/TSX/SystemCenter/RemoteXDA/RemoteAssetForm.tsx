@@ -37,8 +37,8 @@ const BlankRemoteXDAAsset: OpenXDA.Types.RemoteXDAAsset = {
     RemoteAssetCreatedByDataPusher: false,
     LocalAssetName: null,
     LocalAssetKey: null,
-    RemoteAssetName: '',
-    RemoteAssetKey: ''
+    RemoteAssetName: null,
+    RemoteAssetKey: null
 }
 
 
