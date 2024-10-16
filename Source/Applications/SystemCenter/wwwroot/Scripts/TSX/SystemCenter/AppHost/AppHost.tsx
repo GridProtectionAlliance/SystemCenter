@@ -27,12 +27,14 @@ import { useAppDispatch } from '../hooks';
 import { LoadingScreen, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import ApplicationCard, { IHost } from './ApplicationCard';
 import ConsoleWindow from './ConsoleWindow';
+import NodeStats from './NodeStats';
 
 
 const AppHost: Application.Types.iByComponent = (props) => {
     const [hosts, setHosts] = React.useState<IHost[]>([]);
     const [status, setStatus] = React.useState<Application.Types.Status>('unintiated');
-    const [currentHost, setCurrentHost] = React.useState<IHost|null>(null);
+    const [console, setConsole] = React.useState<IHost | null>(null);
+    const [stats, setStats] = React.useState<IHost | null>(null);
 
     React.useEffect(() => {
         if (status == 'changed' || status == 'unintiated') {
@@ -60,13 +62,21 @@ const AppHost: Application.Types.iByComponent = (props) => {
                 <LoadingScreen Show={status == 'loading'} />
                 <ServerErrorIcon Show={status == 'error'} />
                 <div className="card-deck">
-                    {hosts.map((h) => <ApplicationCard {...h} OpenConsole={() => { setCurrentHost(h) }} />)}
+                    {hosts.map((h) => <ApplicationCard {...h}
+                        OpenConsole={() => setConsole(h)}
+                        OpenStats={() => setStats(h)}
+                    />)}
                 </div>               
             </div>
             <ConsoleWindow
-                ApplicationName={currentHost?.Name ?? ''}
-                Close={() => setCurrentHost(null)}
-                ConsoleURL={currentHost?.ConsoleURL}
+                ApplicationName={console?.Name ?? ''}
+                Close={() => setConsole(null)}
+                ConsoleURL={console?.ConsoleURL}
+            />
+            <NodeStats
+                ApplicationName={stats?.Name ?? ''}
+                Close={() => setStats(null)}
+                StatsURL={stats?.StatsURL}
             />
          </>)
 }
