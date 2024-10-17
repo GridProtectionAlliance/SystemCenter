@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  LocationDrawings.tsx - Gbtc
 //
-//  Copyright © 2023, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright ï¿½ 2023, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -23,15 +23,15 @@
 
 
 import * as React from 'react';
-import { SystemCenter } from '@gpa-gemstone/application-typings'
+import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
 import { LocationDrawingSlice } from '../../Store/Store';
-import { Modal, ToolTip } from '@gpa-gemstone/react-interactive';
+import { BtnDropdown, LoadingIcon, Modal, ToolTip } from '@gpa-gemstone/react-interactive';
 import { ReactTable } from '@gpa-gemstone/react-table';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { CreateGuid } from '@gpa-gemstone/helper-functions';
 
 interface IProps {
-    LocationID: number | null
+    Locations: OpenXDA.Types.Location[];
 }
 
 const LocationDrawings = (props: IProps) => {
@@ -44,84 +44,150 @@ const LocationDrawings = (props: IProps) => {
     const drawingSortKey = useAppSelector(LocationDrawingSlice.SortField);
     const drawingAscending = useAppSelector(LocationDrawingSlice.Ascending);
 
+    const [selectedLocation, setSelectedLocation] = React.useState<number>();
     const [showDrawings, setShowDrawings] = React.useState<boolean>(false);
+    const [showDropdown, setShowDropdown] = React.useState<boolean>();
+    const [disableButton, setDisableButton] = React.useState<boolean>(false);
     const [hover, setHover] = React.useState<'none' | 'drawings'>('none');
 
     React.useEffect(() => {
-        if (drawingStatus == 'unintiated' || drawingStatus == 'changed' || drawingParentID != props.LocationID)
-            dispatch(LocationDrawingSlice.Fetch(props.LocationID));
-    }, [drawingStatus, drawingParentID, props.LocationID]);
+        if (props.Locations.length == 0
+            || (props.Locations[0].Alias == ""          // Empty Location is default in NMW
+                && props.Locations[0].Description == ""
+                && props.Locations[0].ID == 0
+                && props.Locations[0].Latitude == null
+                && props.Locations[0].LocationKey == ""
+                && props.Locations[0].Longitude == null
+                && props.Locations[0].Name == ""
+            ))
+        setDisableButton(true);
+        else setDisableButton(false);
+    }, [props.Locations])
+
+    React.useEffect(() => {
+        if (drawingStatus == 'unintiated' || drawingStatus == 'changed' || drawingParentID != selectedLocation)
+            dispatch(LocationDrawingSlice.Fetch(selectedLocation));
+    }, [drawingStatus, drawingParentID, selectedLocation]);
+
+    React.useEffect(() => {
+        setShowDropdown(props.Locations.length > 1);
+    }, [props.Locations])
+
+    function dropdownOptions(): { Label: string; Callback: () => void; Disabled: boolean; }[] {
+        const options: { Label: string; Callback: () => void; Disabled: boolean; }[] = [];
+        const labels: string[] = props.Locations.map(loc => loc.Name);
+        labels.forEach((label, index) => {
+            options.push({
+                Label: label,
+                Disabled: false,
+                Callback: () => {
+                    setSelectedLocation(props.Locations[index].ID);
+                    setShowDrawings(true);
+                }
+            });
+        });
+        return options;
+    }
 
     return (
         <div>
-            <button
-                type="button"
-                className={"btn btn-primary" + ((props.LocationID == null || props.LocationID == 0 || drawingData.length == 0) ? ' disabled' : '')}
-                data-tooltip={guid.current} onMouseEnter={() => setHover('drawings')} onMouseLeave={() => setHover('none')}
-                onClick={() => {
-                    if (props.LocationID != null && props.LocationID != 0 && drawingData.length != 0)
+            {showDropdown ?
+                <BtnDropdown
+                    Label={"Open Drawings " + props.Locations[0].Name}
+                    Callback={() => {
+                        setSelectedLocation(props.Locations[0].ID);
                         setShowDrawings(true);
-                }}>Open Drawing(s)</button>
-
+                    }}
+                    Options={dropdownOptions()}
+                />
+                : <button
+                    type="button"
+                    className={disableButton ? "btn btn-primary disabled" : "btn btn-primary"}
+                    data-tooltip={guid.current}
+                    onMouseEnter={() => setHover('drawings')}
+                    onMouseLeave={() => setHover('none')}
+                    onClick={() => {
+                        if (!disableButton) {
+                            setSelectedLocation(props.Locations[0].ID);
+                            setShowDrawings(true);
+                        }
+                    }}
+                >Open Drawing(s)
+                </button>
+            }
+            <ToolTip Show={hover === 'drawings' && (disableButton)}
+                Theme={'dark'} Position={'top'} Target={guid.current} Zindex={9999}>
+                <p>No substation.</p>
+            </ToolTip>
             <Modal Show={showDrawings} Title={'Drawings'} ShowX={true} Size={'lg'} CallBack={() => setShowDrawings(false)} ShowCancel={false} ConfirmText={'Done'}>
                 <div className="row">
                     <div className="col" style={{ width: '100%' }}>
-                        <ReactTable.Table<SystemCenter.Types.LocationDrawing>
-                            TableClass="table table-hover"
-                            Data={drawingData}
-                            SortKey={drawingSortKey}
-                            Ascending={drawingAscending}
-                            OnSort={(d) => {
-                                dispatch(LocationDrawingSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
-                            }}
-                            OnClick={(d) => window.open(d.row.Link, '_blank')}
-                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: '400px', width: '100%' }}
-                            RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            Selected={(item) => false}
-                            KeySelector={(item) => item.ID}
-                        >
-                            <ReactTable.Column<SystemCenter.Types.LocationDrawing>
-                                Key={'Name'}
-                                AllowSort={true}
-                                Field={'Name'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                            > Name
-                            </ReactTable.Column>
-                            <ReactTable.Column<SystemCenter.Types.LocationDrawing>
-                                Key={'Description'}
-                                AllowSort={true}
-                                Field={'Description'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                            > Description
-                            </ReactTable.Column>
-                            <ReactTable.Column<SystemCenter.Types.LocationDrawing>
-                                Key={'Number'}
-                                AllowSort={true}
-                                Field={'Number'}
-                                HeaderStyle={{ width: '15%' }}
-                                RowStyle={{ width: '15%' }}
-                            > Number
-                            </ReactTable.Column>
-                            <ReactTable.Column<SystemCenter.Types.LocationDrawing>
-                                Key={'Category'}
-                                AllowSort={true}
-                                Field={'Category'}
-                                HeaderStyle={{ width: '15%' }}
-                                RowStyle={{ width: '15%' }}
-                            > Category
-                            </ReactTable.Column>
-                        </ReactTable.Table>
+                        <LoadingIcon Show={drawingStatus == 'loading'} />
+                        {drawingData.length == 0 ?                        // TODO: Replace with a search of all drawings and just disable button
+                            <div className={`alert alert-primary`}>
+                                No Drawings associated with this location.
+                            </div>
+                            : <ReactTable.Table<SystemCenter.Types.LocationDrawing>
+                                TableClass="table table-hover"
+                                Data={drawingData}
+                                SortKey={drawingSortKey}
+                                Ascending={drawingAscending}
+                                OnSort={(d) => {
+                                    dispatch(LocationDrawingSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
+                                }}
+                                OnClick={(d) => window.open(d.row.Link, '_blank')}
+                                TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: '400px', width: '100%' }}
+                                RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                Selected={(item) => false}
+                                KeySelector={(item) => item.ID}
+                            >
+                                <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                                    Key={'Name'}
+                                    AllowSort={true}
+                                    Field={'Name'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                > Name
+                                </ReactTable.Column>
+                                <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                                    Key={'Description'}
+                                    AllowSort={true}
+                                    Field={'Description'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                > Description
+                                </ReactTable.Column>
+                                <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                                    Key={'Link'}
+                                    AllowSort={true}
+                                    Field={'Link'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                    Content={({ item, key }) => <a href={item[key] as string} target='_blank'>{item[key]}</a>}
+                                > Link
+                                </ReactTable.Column>
+                                <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                                    Key={'Number'}
+                                    AllowSort={true}
+                                    Field={'Number'}
+                                    HeaderStyle={{ width: '15%' }}
+                                    RowStyle={{ width: '15%' }}
+                                > Number
+                                </ReactTable.Column>
+                                <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                                    Key={'Category'}
+                                    AllowSort={true}
+                                    Field={'Category'}
+                                    HeaderStyle={{ width: '15%' }}
+                                    RowStyle={{ width: '15%' }}
+                                > Category
+                                </ReactTable.Column>
+                            </ReactTable.Table>
+                        }
                     </div>
                 </div>
             </Modal>
-
-            <ToolTip Show={hover === 'drawings' && (props.LocationID == null || props.LocationID == 0 || drawingData.length == 0)}
-                Theme={'dark'} Position={'top'} Target={guid.current} Zindex={9999}>
-                <p>No drawings associated with this substation.</p>
-            </ToolTip>
         </div>
     )
 }

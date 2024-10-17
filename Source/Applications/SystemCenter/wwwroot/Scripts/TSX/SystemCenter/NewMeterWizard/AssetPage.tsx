@@ -71,7 +71,7 @@ export default function AssetPage(props: IProps) {
     const aStatus = useAppSelector(SelectAssetStatus);
     const byAssetStatus = useAppSelector(ByAssetSlice.Status);
     const detailedAssets = useAppSelector(ByAssetSlice.Data);
-    
+
     const [newEditAsset, setNewEditAsset] = React.useState<AssetType>(AssetAttributes.getNewAsset('Line'));
     const [editAssetKey, setEditAssetKey] = React.useState<string>('');
     const allAssetKeys = React.useMemo(() => detailedAssets.filter(a => a.ID !== newEditAsset.ID).map(a => a.AssetKey).concat(props.Assets.filter((a) => a.AssetKey !== editAssetKey).map(a => a.AssetKey)), [detailedAssets, props.Assets, newEditAsset.ID, editAssetKey])
@@ -87,7 +87,7 @@ export default function AssetPage(props: IProps) {
     const assetData = React.useMemo(() => {
         const u = _.cloneDeep(props.Assets);
         if (sortKey === 'Channels')
-            u.sort((a, b) => (asc? 1 : -1)* (a.Channels.length > b.Channels.length ? 1 : -1));
+            u.sort((a, b) => (asc ? 1 : -1) * (a.Channels.length > b.Channels.length ? 1 : -1));
         else
             return _.orderBy(u, [sortKey], [asc ? 'asc' : 'desc']);
         return u;
@@ -158,7 +158,7 @@ export default function AssetPage(props: IProps) {
             }
 
         }
-        else if (newEditAsset.AssetType == 'Line'){
+        else if (newEditAsset.AssetType == 'Line') {
             let handle = getLineSegment(newEditAsset.ID);
             handle.done((lineSegment: OpenXDA.Types.LineDetail) => {
                 let record = _.clone(newEditAsset as OpenXDA.Types.Line);
@@ -172,15 +172,15 @@ export default function AssetPage(props: IProps) {
                 setNewEditAsset(record);
 
             });
-                return () => {
-                    if (handle.abort !== undefined) handle.abort();
-                }
-
+            return () => {
+                if (handle.abort !== undefined) handle.abort();
             }
+
+        }
 
 
     }, [newEditAsset.AssetType]);
-    
+
     function editAsset(index: number) {
         const asset = props.Assets.find(a => a.AssetKey === assetData[index].AssetKey);
         setNewEdit('Edit');
@@ -206,7 +206,7 @@ export default function AssetPage(props: IProps) {
             assetConnections.splice(index, 1);
             index = assetConnections.findIndex(assetConnection => assetConnection.Parent == record[0].AssetKey || assetConnection.Child == record[0].AssetKey);
         }
-        
+
         props.UpdateAssets(list);
         props.UpdateChannels(channels);
         props.UpdateAssetConnections(assetConnections);
@@ -214,7 +214,7 @@ export default function AssetPage(props: IProps) {
     }
 
     function getDifferentAsset(assetID: number): void {
-        let assetTypeID = assets.find(a => a.ID == assetID)['AssetTypeID']; 
+        let assetTypeID = assets.find(a => a.ID == assetID)['AssetTypeID'];
         let assetType = assetTypes.find(at => at.ID == assetTypeID)
         $.ajax({
             type: "GET",
@@ -254,19 +254,19 @@ export default function AssetPage(props: IProps) {
 
     function showAttributes(): JSX.Element {
         if (newEditAsset.AssetType == 'Breaker')
-            return <BreakerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Breaker} UpdateState={setNewEditAsset} Disabled={newEditAsset?.ID > 0}/>;
+            return <BreakerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Breaker} UpdateState={setNewEditAsset} Disabled={newEditAsset?.ID > 0} />;
         else if (newEditAsset.AssetType == 'Bus')
-            return <BusAttributes NewEdit={newEdit} Asset={newEditAsset} UpdateState={setNewEditAsset}/>;
+            return <BusAttributes NewEdit={newEdit} Asset={newEditAsset} UpdateState={setNewEditAsset} />;
         else if (newEditAsset.AssetType == 'CapacitorBank')
-            return <CapBankAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.CapBank} UpdateState={setNewEditAsset}  Disabled={newEditAsset?.ID > 0}/>;
+            return <CapBankAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.CapBank} UpdateState={setNewEditAsset} Disabled={newEditAsset?.ID > 0} />;
         else if (newEditAsset.AssetType == 'CapacitorBankRelay')
-            return <CapBankRelayAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.CapBankRelay} UpdateState={setNewEditAsset}  Disabled={newEditAsset?.ID > 0}/>;
+            return <CapBankRelayAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.CapBankRelay} UpdateState={setNewEditAsset} Disabled={newEditAsset?.ID > 0} />;
         else if (newEditAsset.AssetType == 'Line')
-            return <LineAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Line} UpdateState={setNewEditAsset}  Disabled={newEditAsset?.ID > 0}/>;
+            return <LineAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Line} UpdateState={setNewEditAsset} Disabled={newEditAsset?.ID > 0} />;
         else if (newEditAsset.AssetType == 'Transformer')
-            return <TransformerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Transformer} UpdateState={setNewEditAsset}  Disabled={newEditAsset?.ID > 0}/>;
+            return <TransformerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Transformer} UpdateState={setNewEditAsset} Disabled={newEditAsset?.ID > 0} />;
         else if (newEditAsset.AssetType == 'DER')
-            return <DERAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.DER} UpdateState={setNewEditAsset} Disabled={newEditAsset?.ID > 0}/>;
+            return <DERAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.DER} UpdateState={setNewEditAsset} Disabled={newEditAsset?.ID > 0} />;
         else if (newEditAsset.AssetType == 'Generation')
             return <GenerationAttributes NewEdit={newEdit} Asset={newEditAsset} UpdateState={setNewEditAsset} />;
         else if (newEditAsset.AssetType == 'StationAux')
@@ -275,217 +275,217 @@ export default function AssetPage(props: IProps) {
             return <StationBatteryAttributes NewEdit={newEdit} Asset={newEditAsset} UpdateState={setNewEditAsset} />;
     }
 
-        return (
-            <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
-                <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                    <div className="d-none d-sm-block col-6 col-lg-4" style={{ overflow: 'hidden',height: '100%' }}>
-                        <ul style={{ width: '100%', height: '100%', overflowY: 'auto'}}>
-                            {
-                                props.Channels.map((channel) => <li style={{textDecoration: (channel.Asset.length > 0 ? 'line-through' : null)}} key={channel.ID}>{channel.Name + ' - ' + channel.Description}</li>)
-                            }
-                        </ul>
-                    </div>
-                    <div className="col-12 col-sm-6 col-lg-8" style={{ overflow: 'hidden', height: '100%' }}>
-                        <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
-                            <div className="row">
-                                <div className="col">
-                                    <div className="col pull-right btn-toolbar justify-content-end">
-                                        <button className="btn btn-primary mr-4" onClick={() => { setNewEdit('New'); setShowAssetModal(true); }}>Add New</button>
-                                        <button className="btn btn-primary mr-4" onClick={() => { setShowAssetSelect(true); }}>Add Existing</button>
-                                    </div>
+    return (
+        <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
+            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="d-none d-sm-block col-6 col-lg-4" style={{ overflow: 'hidden', height: '100%' }}>
+                    <ul style={{ width: '100%', height: '100%', overflowY: 'auto' }}>
+                        {
+                            props.Channels.map((channel) => <li style={{ textDecoration: (channel.Asset.length > 0 ? 'line-through' : null) }} key={channel.ID}>{channel.Name + ' - ' + channel.Description}</li>)
+                        }
+                    </ul>
+                </div>
+                <div className="col-12 col-sm-6 col-lg-8" style={{ overflow: 'hidden', height: '100%' }}>
+                    <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
+                        <div className="row">
+                            <div className="col">
+                                <div className="col pull-right btn-toolbar justify-content-end">
+                                    <button className="btn btn-primary mr-4" onClick={() => { setNewEdit('New'); setShowAssetModal(true); }}>Add New</button>
+                                    <button className="btn btn-primary mr-4" onClick={() => { setShowAssetSelect(true); }}>Add Existing</button>
                                 </div>
                             </div>
-                            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                                <div className="col" style={{height: '100%'}}>
-                                    <ReactTable.Table<AssetType>
-                                        TableClass="table table-hover"
-                                        Data={assetData}
-                                        SortKey={sortKey}
-                                        Ascending={asc}
-                                        OnSort={(d) => {
-                                            if (d.colKey == 'Buttons')
-                                                return;
-                                            if (d.colKey === sortKey)
-                                                setAsc((x) => !x);
-                                            else
-                                                setAsc(false);
-                                            setSortKey(d.colKey);
-                                        }}
-                                        TableStyle={{ padding: 0, width: 'calc(100%)', tableLayout: 'fixed', height: 'calc(100% - 16px)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
-                                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
-                                        RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                        Selected={(item) => false}
-                                        KeySelector={(item) => item.ID}
-                                    >
-                                        <ReactTable.Column<AssetType>
-                                            Key={'Status'}
-                                            AllowSort={true}
-                                            HeaderStyle={{ width: '10%' }}
-                                            RowStyle={{ width: '10%' }}
-                                            Content={({ item }) => item.ID == 0 ? 'New' : 'Existing' }
-                                        > Status
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<AssetType>
-                                            Key={'AssetKey'}
-                                            AllowSort={true}
-                                            Field={'AssetKey'}
-                                            HeaderStyle={{ width: '20%' }}
-                                            RowStyle={{ width: '20%' }}
-                                        > Key
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<AssetType>
-                                            Key={'AssetName'}
-                                            AllowSort={true}
-                                            Field={'AssetName'}
-                                            HeaderStyle={{ width: '30%' }}
-                                            RowStyle={{ width: '30%' }}
-                                        > Name
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<AssetType>
-                                            Key={'AssetType'}
-                                            AllowSort={true}
-                                            Field={'AssetType'}
-                                            HeaderStyle={{ width: '10%' }}
-                                            RowStyle={{ width: '10%' }}
-                                        > Type
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<AssetType>
-                                            Key={'VoltageKV'}
-                                            AllowSort={true}
-                                            Field={'VoltageKV'}
-                                            HeaderStyle={{ width: '10%' }}
-                                            RowStyle={{ width: '10%' }}
-                                        > kV
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<AssetType>
-                                            Key={'Channels'}
-                                            AllowSort={true}
-                                            Field={'Channels'}
-                                            HeaderStyle={{ width: '10%' }}
-                                            RowStyle={{ width: '10%' }}
-                                            Content={({ item }) => item.Channels.length }
-                                        > Channels
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<AssetType>
-                                            Key={'Buttons'}
-                                            AllowSort={false}
-                                            HeaderStyle={{ width: '10%' }}
-                                            RowStyle={{ width: '10%' }}
-                                            Content={({ index }) => <>
-                                                <button className="btn btn-sm" onClick={(e) => editAsset(index)}><span>{Pencil}</span></button>
-                                                <button className="btn btn-sm" onClick={(e) => { e.stopPropagation(); deleteAsset(index); }}><span>{TrashCan}</span></button>
-                                            </> }
-                                        > <p></p>
-                                        </ReactTable.Column>
-                                    </ReactTable.Table>
-                                </div>
+                        </div>
+                        <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                            <div className="col" style={{ height: '100%' }}>
+                                <ReactTable.Table<AssetType>
+                                    TableClass="table table-hover"
+                                    Data={assetData}
+                                    SortKey={sortKey}
+                                    Ascending={asc}
+                                    OnSort={(d) => {
+                                        if (d.colKey == 'Buttons')
+                                            return;
+                                        if (d.colKey === sortKey)
+                                            setAsc((x) => !x);
+                                        else
+                                            setAsc(false);
+                                        setSortKey(d.colKey);
+                                    }}
+                                    TableStyle={{ padding: 0, width: 'calc(100%)', tableLayout: 'fixed', height: 'calc(100% - 16px)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
+                                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                    TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                                    RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                    Selected={(item) => false}
+                                    KeySelector={(item) => item.ID}
+                                >
+                                    <ReactTable.Column<AssetType>
+                                        Key={'Status'}
+                                        AllowSort={true}
+                                        HeaderStyle={{ width: '10%' }}
+                                        RowStyle={{ width: '10%' }}
+                                        Content={({ item }) => item.ID == 0 ? 'New' : 'Existing'}
+                                    > Status
+                                    </ReactTable.Column>
+                                    <ReactTable.Column<AssetType>
+                                        Key={'AssetKey'}
+                                        AllowSort={true}
+                                        Field={'AssetKey'}
+                                        HeaderStyle={{ width: '20%' }}
+                                        RowStyle={{ width: '20%' }}
+                                    > Key
+                                    </ReactTable.Column>
+                                    <ReactTable.Column<AssetType>
+                                        Key={'AssetName'}
+                                        AllowSort={true}
+                                        Field={'AssetName'}
+                                        HeaderStyle={{ width: '30%' }}
+                                        RowStyle={{ width: '30%' }}
+                                    > Name
+                                    </ReactTable.Column>
+                                    <ReactTable.Column<AssetType>
+                                        Key={'AssetType'}
+                                        AllowSort={true}
+                                        Field={'AssetType'}
+                                        HeaderStyle={{ width: '10%' }}
+                                        RowStyle={{ width: '10%' }}
+                                    > Type
+                                    </ReactTable.Column>
+                                    <ReactTable.Column<AssetType>
+                                        Key={'VoltageKV'}
+                                        AllowSort={true}
+                                        Field={'VoltageKV'}
+                                        HeaderStyle={{ width: '10%' }}
+                                        RowStyle={{ width: '10%' }}
+                                    > kV
+                                    </ReactTable.Column>
+                                    <ReactTable.Column<AssetType>
+                                        Key={'Channels'}
+                                        AllowSort={true}
+                                        Field={'Channels'}
+                                        HeaderStyle={{ width: '10%' }}
+                                        RowStyle={{ width: '10%' }}
+                                        Content={({ item }) => item.Channels.length}
+                                    > Channels
+                                    </ReactTable.Column>
+                                    <ReactTable.Column<AssetType>
+                                        Key={'Buttons'}
+                                        AllowSort={false}
+                                        HeaderStyle={{ width: '10%' }}
+                                        RowStyle={{ width: '10%' }}
+                                        Content={({ index }) => <>
+                                            <button className="btn btn-sm" onClick={(e) => editAsset(index)}><span>{Pencil}</span></button>
+                                            <button className="btn btn-sm" onClick={(e) => { e.stopPropagation(); deleteAsset(index); }}><span>{TrashCan}</span></button>
+                                        </>}
+                                    > <p></p>
+                                    </ReactTable.Column>
+                                </ReactTable.Table>
                             </div>
-                        </div>                        
+                        </div>
                     </div>
                 </div>
-                <AssetSelect Type='multiple' StorageID={props.PageID} Title="Add Transmission Assets to Meter" ShowModal={showAssetSelect} SelectedAssets={selectedAssets}
-                    OnCloseFunction={(selected, confirm) => {
-                        setShowAssetSelect(false);
-                        if (!confirm) return;
+            </div>
+            <AssetSelect Type='multiple' StorageID={props.PageID} Title="Add Transmission Assets to Meter" ShowModal={showAssetSelect} SelectedAssets={selectedAssets}
+                OnCloseFunction={(selected, confirm) => {
+                    setShowAssetSelect(false);
+                    if (!confirm) return;
 
-                        let list: Array<OpenXDA.Types.Asset> = [];
-                        let channels: Array<OpenXDA.Types.Channel> = _.clone(props.Channels);
-                        let assetConnections: Array<OpenXDA.Types.AssetConnection> = _.clone(props.AssetConnections);
+                    let list: Array<OpenXDA.Types.Asset> = [];
+                    let channels: Array<OpenXDA.Types.Channel> = _.clone(props.Channels);
+                    let assetConnections: Array<OpenXDA.Types.AssetConnection> = _.clone(props.AssetConnections);
 
-                        let removedAssets: Array<OpenXDA.Types.Asset> = props.Assets.filter((asset) =>  asset.ID > 0 && selected.findIndex((selectedAsset) => (asset.ID === selectedAsset.ID)) < 0);
+                    let removedAssets: Array<OpenXDA.Types.Asset> = props.Assets.filter((asset) => asset.ID > 0 && selected.findIndex((selectedAsset) => (asset.ID === selectedAsset.ID)) < 0);
 
-                        //Deal with removed assets
-                        $.each(removedAssets, (index, asset) => {
-                            $.each(channels, (index, channel) => {
-                                if (channel.Asset == asset.AssetKey)
-                                    channel.Asset = '';
-                            });
-
-                            var index = assetConnections.findIndex(assetConnection => assetConnection.Parent == asset.AssetKey || assetConnection.Child == asset.AssetKey);
-                            while (index >= 0) {
-                                assetConnections.splice(index, 1);
-                                index = assetConnections.findIndex(assetConnection => assetConnection.Parent == asset.AssetKey || assetConnection.Child == asset.AssetKey);
-                            }
-                        });
-                        let promises = [];
-                        $.each(selected, async (index, record) => {
-                            let assetRecord = getAssetWithAdditionalFields(record.ID, record.AssetType as OpenXDA.Types.AssetTypeName);
-                            // Push promises into promises
-                            promises.push(assetRecord);
-                        });
-
-                        //Add the new assets that have been created by the user
-                        $.each(props.Assets.filter((asset) => asset.ID <= 0), (index, asset) => {
-                            list.push(asset);
-                        });
-
-                        //Update selected
-                        setSelectedAssets(selected);
-                        Promise.all(promises).then(d => { props.UpdateAssets(list.concat(d)) })
-
-                        //Update props
-                        props.UpdateChannels(channels);
-                        props.UpdateAssetConnections(assetConnections);
-                    }}>
-                    <li className="nav-item" style={{ width: '20%', paddingRight: 10 }}>
-                        <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                            <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
-                            <form>
-                                <div className="form-group">
-                                    <LocationDrawings LocationID={props.Location.ID} />
-                                </div>
-                            </form>
-                        </fieldset>
-                    </li>
-                </AssetSelect>
-                <Modal Show={showAssetModal}
-                    Title={newEdit == 'New' ? 'Add New Asset to Meter' : 'Edit ' + (newEditAsset?.AssetName ?? 'Asset')}
-                    ConfirmBtnClass={'btn-success'}
-                    ConfirmText={newEdit == 'Edit' ? 'Save' : 'Add'}
-                    CancelBtnClass={'btn-danger'}
-                    CancelText={'Close'}
-                    Size={'xlg'}
-                    CallBack={(confirm) => {
-                        setShowAssetModal(false);
-                        
-                        if (!confirm) {
-                            setNewEditAsset(AssetAttributes.getNewAsset('Line'));
-                            return;
-                        }
-                        
-                        let record: OpenXDA.Types.Asset = _.clone(newEditAsset);
-                        let list = _.clone(props.Assets);
-                        let channels: Array<OpenXDA.Types.Channel> = _.clone(props.Channels);
-
+                    //Deal with removed assets
+                    $.each(removedAssets, (index, asset) => {
                         $.each(channels, (index, channel) => {
-                            if (channel.Asset == record.AssetKey)
-                                channel.Asset = ''
-
-                            if (record.Channels.findIndex(c => c.ID == channel.ID) >= 0)
-                                channel.Asset = record.AssetKey
+                            if (channel.Asset == asset.AssetKey)
+                                channel.Asset = '';
                         });
 
-                        if (newEdit == 'New')
-                            list.push(record);
-                        if (newEdit == 'Edit') {
-                            const index = list.findIndex(a => a.AssetKey == editAssetKey);
-                            list[index] = record;
+                        var index = assetConnections.findIndex(assetConnection => assetConnection.Parent == asset.AssetKey || assetConnection.Child == asset.AssetKey);
+                        while (index >= 0) {
+                            assetConnections.splice(index, 1);
+                            index = assetConnections.findIndex(assetConnection => assetConnection.Parent == asset.AssetKey || assetConnection.Child == asset.AssetKey);
                         }
+                    });
+                    let promises = [];
+                    $.each(selected, async (index, record) => {
+                        let assetRecord = getAssetWithAdditionalFields(record.ID, record.AssetType as OpenXDA.Types.AssetTypeName);
+                        // Push promises into promises
+                        promises.push(assetRecord);
+                    });
 
-                        props.UpdateChannels(channels);
-                        props.UpdateAssets(list);
-                        setNewEditAsset(AssetAttributes.getNewAsset('Line'));                        
-                    }}
-                    DisableConfirm={(AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType, allAssetKeys).length > 0) }
-                    ConfirmShowToolTip={AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType, allAssetKeys).length > 0}
-                    ConfirmToolTipContent={
-                        AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType, allAssetKeys).map((e, i) => <p key={i}>{CrossMark} {e}</p>)
+                    //Add the new assets that have been created by the user
+                    $.each(props.Assets.filter((asset) => asset.ID <= 0), (index, asset) => {
+                        list.push(asset);
+                    });
+
+                    //Update selected
+                    setSelectedAssets(selected);
+                    Promise.all(promises).then(d => { props.UpdateAssets(list.concat(d)) })
+
+                    //Update props
+                    props.UpdateChannels(channels);
+                    props.UpdateAssetConnections(assetConnections);
+                }}>
+                <li className="nav-item" style={{ width: '20%', paddingRight: 10 }}>
+                    <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                        <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
+                        <form>
+                            <div className="form-group">
+                                <LocationDrawings Locations={[props.Location]} />
+                            </div>
+                        </form>
+                    </fieldset>
+                </li>
+            </AssetSelect>
+            <Modal Show={showAssetModal}
+                Title={newEdit == 'New' ? 'Add New Asset to Meter' : 'Edit ' + (newEditAsset?.AssetName ?? 'Asset')}
+                ConfirmBtnClass={'btn-success'}
+                ConfirmText={newEdit == 'Edit' ? 'Save' : 'Add'}
+                CancelBtnClass={'btn-danger'}
+                CancelText={'Close'}
+                Size={'xlg'}
+                CallBack={(confirm) => {
+                    setShowAssetModal(false);
+
+                    if (!confirm) {
+                        setNewEditAsset(AssetAttributes.getNewAsset('Line'));
+                        return;
                     }
-                >
-                    <div className="row">
-                        <div className="col-8">
-                        <div className="row" style={{ maxHeight: innerHeight - 300, overflow:'auto' }}>
+
+                    let record: OpenXDA.Types.Asset = _.clone(newEditAsset);
+                    let list = _.clone(props.Assets);
+                    let channels: Array<OpenXDA.Types.Channel> = _.clone(props.Channels);
+
+                    $.each(channels, (index, channel) => {
+                        if (channel.Asset == record.AssetKey)
+                            channel.Asset = ''
+
+                        if (record.Channels.findIndex(c => c.ID == channel.ID) >= 0)
+                            channel.Asset = record.AssetKey
+                    });
+
+                    if (newEdit == 'New')
+                        list.push(record);
+                    if (newEdit == 'Edit') {
+                        const index = list.findIndex(a => a.AssetKey == editAssetKey);
+                        list[index] = record;
+                    }
+
+                    props.UpdateChannels(channels);
+                    props.UpdateAssets(list);
+                    setNewEditAsset(AssetAttributes.getNewAsset('Line'));
+                }}
+                DisableConfirm={(AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType, allAssetKeys).length > 0)}
+                ConfirmShowToolTip={AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType, allAssetKeys).length > 0}
+                ConfirmToolTipContent={
+                    AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType, allAssetKeys).map((e, i) => <p key={i}>{CrossMark} {e}</p>)
+                }
+            >
+                <div className="row">
+                    <div className="col-8">
+                        <div className="row" style={{ maxHeight: innerHeight - 300, overflow: 'auto' }}>
                             <div className="col-6">
                                 <AssetAttributes.AssetAttributeFields Asset={newEditAsset} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={assets}
                                     AllowEdit={newEditAsset.ID === 0}
@@ -501,136 +501,136 @@ export default function AssetPage(props: IProps) {
                                             newRecord.Channels = record.Channels;
                                             setNewEditAsset(newRecord);
                                         }
-                                    
+
                                     }}
                                     GetDifferentAsset={getDifferentAsset} HideAssetType={newEdit == 'Edit'} HideSelectAsset={true} />
                             </div>
                             <div className="col-6">
                                 {showAttributes()}
                             </div>
-                            </div>
                         </div>
-                        <div className="col-4">
-                            <div className="row h-100">
-                        {newEditAsset.AssetType != 'Transformer' && newEditAsset.AssetType != 'Breaker' ?
-                                    <div className="col-12 d-flex flex-column">
-                                        <ChannelSelector
-                                            Label="Associated Channels"
-                                            Channels={props.Channels}
-                                            SelectedChannels={newEditAsset.Channels}
-                                            UpdateChannels={(c) => {
-                                                setNewEditAsset((prev) => ({ ...prev, Channels: c }));
+                    </div>
+                    <div className="col-4">
+                        <div className="row h-100">
+                            {newEditAsset.AssetType != 'Transformer' && newEditAsset.AssetType != 'Breaker' ?
+                                <div className="col-12 d-flex flex-column">
+                                    <ChannelSelector
+                                        Label="Associated Channels"
+                                        Channels={props.Channels}
+                                        SelectedChannels={newEditAsset.Channels}
+                                        UpdateChannels={(c) => {
+                                            setNewEditAsset((prev) => ({ ...prev, Channels: c }));
 
-                                                //Update Channels with new ConnectionPriority
-                                                let channels = _.clone(props.Channels);
-                                                channels = channels.map(ch => ({ ...ch, ConnectionPriority: c.find(d => d.ID == ch.ID) == null ? ch.ConnectionPriority : 0 }));
-                                                props.UpdateChannels(channels);
-                                            }
+                                            //Update Channels with new ConnectionPriority
+                                            let channels = _.clone(props.Channels);
+                                            channels = channels.map(ch => ({ ...ch, ConnectionPriority: c.find(d => d.ID == ch.ID) == null ? ch.ConnectionPriority : 0 }));
+                                            props.UpdateChannels(channels);
                                         }
-                                        />
-                                    </div> : null}
-                        {newEditAsset.AssetType == 'Breaker'? <>
-                                    <div className="col-6 d-flex flex-column">
-                                        <ChannelSelector
-                                            Label="Associated Channels Bus Side"
-                                            Channels={props.Channels}
-                                            SelectedChannels={newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 0)}
-                                            UpdateChannels={(c) => {
-                                                let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
-                                                asset.Channels = _.uniqBy(c.map(ch => ({ ...ch, ConnectionPriority: 0 }))
-                                                    .concat(newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 1)), (ch) => ch.ID);
-                                                setNewEditAsset(asset);
+                                        }
+                                    />
+                                </div> : null}
+                            {newEditAsset.AssetType == 'Breaker' ? <>
+                                <div className="col-6 d-flex flex-column">
+                                    <ChannelSelector
+                                        Label="Associated Channels Bus Side"
+                                        Channels={props.Channels}
+                                        SelectedChannels={newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 0)}
+                                        UpdateChannels={(c) => {
+                                            let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
+                                            asset.Channels = _.uniqBy(c.map(ch => ({ ...ch, ConnectionPriority: 0 }))
+                                                .concat(newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 1)), (ch) => ch.ID);
+                                            setNewEditAsset(asset);
 
-                                                //Update Channels with new ConnectionPriority
-                                                let channels = _.clone(props.Channels);
-                                                channels = channels.map(ch => ({ ...ch, ConnectionPriority: c.find(d => d.ID == ch.ID) == null ? ch.ConnectionPriority : 0 }));
-                                                props.UpdateChannels(channels);
-                                            }}
-                                        />
-                                    </div>
-                                    <div className="col-6 d-flex flex-column">
-                                        <ChannelSelector
-                                            Label="Associated Channels Line/XFR Side"
-                                            Channels={props.Channels}
-                                            SelectedChannels={newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 1)}
-                                            UpdateChannels={(c) => {
-                                                let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
-                                                asset.Channels = _.uniqBy(c.map(ch => ({ ...ch, ConnectionPriority: 1 }))
-                                                    .concat(newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 0)), (ch) => ch.ID);
-                                                setNewEditAsset(asset);
+                                            //Update Channels with new ConnectionPriority
+                                            let channels = _.clone(props.Channels);
+                                            channels = channels.map(ch => ({ ...ch, ConnectionPriority: c.find(d => d.ID == ch.ID) == null ? ch.ConnectionPriority : 0 }));
+                                            props.UpdateChannels(channels);
+                                        }}
+                                    />
+                                </div>
+                                <div className="col-6 d-flex flex-column">
+                                    <ChannelSelector
+                                        Label="Associated Channels Line/XFR Side"
+                                        Channels={props.Channels}
+                                        SelectedChannels={newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 1)}
+                                        UpdateChannels={(c) => {
+                                            let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
+                                            asset.Channels = _.uniqBy(c.map(ch => ({ ...ch, ConnectionPriority: 1 }))
+                                                .concat(newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 0)), (ch) => ch.ID);
+                                            setNewEditAsset(asset);
 
-                                                //Update Channels with new ConnectionPriority
-                                                let channels = _.clone(props.Channels);
-                                                channels = channels.map(ch => ({ ...ch, ConnectionPriority: c.find(d => d.ID == ch.ID) == null ? ch.ConnectionPriority : 1 }));
-                                                props.UpdateChannels(channels);
-                                            }}
-                                        />                               
-                                    </div> </> : null}
-                                {newEditAsset.AssetType === 'Transformer' ? (
-                                    <div className="col-12">
-                                        <div className="row justify-content-center h-100">
-                                            <div className="col-4 d-flex flex-column">
-                                                <ChannelSelector
-                                                    Label="Associated Channels Primary Side"
-                                                    Channels={props.Channels}
-                                                    SelectedChannels={newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 0)}
-                                                    UpdateChannels={(c) => {
-                                                        let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
-                                                        asset.Channels = _.uniqBy(c.map(ch => ({ ...ch, ConnectionPriority: 0 }))
-                                                            .concat(newEditAsset.Channels.filter(ch => ch.ConnectionPriority != 0)), (ch) => ch.ID);
-                                                        setNewEditAsset(asset);
+                                            //Update Channels with new ConnectionPriority
+                                            let channels = _.clone(props.Channels);
+                                            channels = channels.map(ch => ({ ...ch, ConnectionPriority: c.find(d => d.ID == ch.ID) == null ? ch.ConnectionPriority : 1 }));
+                                            props.UpdateChannels(channels);
+                                        }}
+                                    />
+                                </div> </> : null}
+                            {newEditAsset.AssetType === 'Transformer' ? (
+                                <div className="col-12">
+                                    <div className="row justify-content-center h-100">
+                                        <div className="col-4 d-flex flex-column">
+                                            <ChannelSelector
+                                                Label="Associated Channels Primary Side"
+                                                Channels={props.Channels}
+                                                SelectedChannels={newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 0)}
+                                                UpdateChannels={(c) => {
+                                                    let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
+                                                    asset.Channels = _.uniqBy(c.map(ch => ({ ...ch, ConnectionPriority: 0 }))
+                                                        .concat(newEditAsset.Channels.filter(ch => ch.ConnectionPriority != 0)), (ch) => ch.ID);
+                                                    setNewEditAsset(asset);
 
-                                                        //Update Channels with new ConnectionPriority
-                                                        let channels = _.clone(props.Channels);
-                                                        channels = channels.map(ch => ({ ...ch, ConnectionPriority: c.find(d => d.ID == ch.ID) == null ? ch.ConnectionPriority : 0 }));
-                                                        props.UpdateChannels(channels);
-                                                    }}
-                                                />
-                                            </div>
-                                            <div className="col-4 d-flex flex-column">
-                                                <ChannelSelector
-                                                    Label="Associated Channels Secondary Side"
-                                                    Channels={props.Channels}
-                                                    SelectedChannels={newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 1)}
-                                                    UpdateChannels={(c) => {
-                                                        let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
-                                                        asset.Channels = _.uniqBy(c.map(ch => ({ ...ch, ConnectionPriority: 1 }))
-                                                            .concat(newEditAsset.Channels.filter(ch => ch.ConnectionPriority != 1)), (ch) => ch.ID);
-                                                        setNewEditAsset(asset);
+                                                    //Update Channels with new ConnectionPriority
+                                                    let channels = _.clone(props.Channels);
+                                                    channels = channels.map(ch => ({ ...ch, ConnectionPriority: c.find(d => d.ID == ch.ID) == null ? ch.ConnectionPriority : 0 }));
+                                                    props.UpdateChannels(channels);
+                                                }}
+                                            />
+                                        </div>
+                                        <div className="col-4 d-flex flex-column">
+                                            <ChannelSelector
+                                                Label="Associated Channels Secondary Side"
+                                                Channels={props.Channels}
+                                                SelectedChannels={newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 1)}
+                                                UpdateChannels={(c) => {
+                                                    let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
+                                                    asset.Channels = _.uniqBy(c.map(ch => ({ ...ch, ConnectionPriority: 1 }))
+                                                        .concat(newEditAsset.Channels.filter(ch => ch.ConnectionPriority != 1)), (ch) => ch.ID);
+                                                    setNewEditAsset(asset);
 
-                                                        //Update Channels with new ConnectionPriority
-                                                        let channels = _.clone(props.Channels);
-                                                        channels = channels.map(ch => ({ ...ch, ConnectionPriority: c.find(d => d.ID == ch.ID) == null ? ch.ConnectionPriority : 1 }));
-                                                        props.UpdateChannels(channels);
-                                                    }}
-                                                />
-                                            </div>
-                                            <div className="col-4 d-flex flex-column">
-                                                <ChannelSelector
-                                                    Label="Associated Channels Tertiary Side"
-                                                    Channels={props.Channels}
-                                                    SelectedChannels={newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 2)}
-                                                    UpdateChannels={(c) => {
-                                                        let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
-                                                        asset.Channels = _.uniqBy(c.map(ch => ({ ...ch, ConnectionPriority: 2 }))
-                                                            .concat(newEditAsset.Channels.filter(ch => ch.ConnectionPriority != 2)), (ch) => ch.ID);
-                                                        setNewEditAsset(asset);
+                                                    //Update Channels with new ConnectionPriority
+                                                    let channels = _.clone(props.Channels);
+                                                    channels = channels.map(ch => ({ ...ch, ConnectionPriority: c.find(d => d.ID == ch.ID) == null ? ch.ConnectionPriority : 1 }));
+                                                    props.UpdateChannels(channels);
+                                                }}
+                                            />
+                                        </div>
+                                        <div className="col-4 d-flex flex-column">
+                                            <ChannelSelector
+                                                Label="Associated Channels Tertiary Side"
+                                                Channels={props.Channels}
+                                                SelectedChannels={newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 2)}
+                                                UpdateChannels={(c) => {
+                                                    let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
+                                                    asset.Channels = _.uniqBy(c.map(ch => ({ ...ch, ConnectionPriority: 2 }))
+                                                        .concat(newEditAsset.Channels.filter(ch => ch.ConnectionPriority != 2)), (ch) => ch.ID);
+                                                    setNewEditAsset(asset);
 
-                                                        //Update Channels with new ConnectionPriority
-                                                        let channels = _.clone(props.Channels);
-                                                        channels = channels.map(ch => ({ ...ch, ConnectionPriority: c.find(d => d.ID == ch.ID) == null ? ch.ConnectionPriority : 2}));
-                                                        props.UpdateChannels(channels);
-                                                    }}
-                                                />                                                
-                                            </div>
+                                                    //Update Channels with new ConnectionPriority
+                                                    let channels = _.clone(props.Channels);
+                                                    channels = channels.map(ch => ({ ...ch, ConnectionPriority: c.find(d => d.ID == ch.ID) == null ? ch.ConnectionPriority : 2 }));
+                                                    props.UpdateChannels(channels);
+                                                }}
+                                            />
                                         </div>
                                     </div>
-                                ) : null}
-                            </div>
-                            </div> 
+                                </div>
+                            ) : null}
                         </div>
-                </Modal>
-            </div>
-        );
+                    </div>
+                </div>
+            </Modal>
+        </div>
+    );
 
 }
