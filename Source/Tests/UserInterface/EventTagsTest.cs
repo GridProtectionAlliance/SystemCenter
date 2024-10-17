@@ -12,6 +12,7 @@ using OpenQA.Selenium.Support.UI;
 using OpenQA.Selenium.Interactions;
 using SeleniumExtras.WaitHelpers;
 using NUnit.Framework;
+using UserInterface;
 [TestFixture]
 public class EventTagsTest
 {
@@ -39,13 +40,14 @@ public class EventTagsTest
     private void PerformLogin()
     {
         // Navigate to the login page
-        driver.Navigate().GoToUrl("https://systemcenter.demo.gridprotectionalliance.org/index.cshtml?name=EventTags");
+        driver.Navigate().GoToUrl(Settings.BaseURL + "/index.cshtml?name=EventTags");
 
         // Input username
-        driver.FindElement(By.Id("username")).SendKeys("Admin");
+        // Input username
+        driver.FindElement(By.Id("username")).SendKeys(Settings.adminUsername);
 
         // Input password
-        driver.FindElement(By.Id("password")).SendKeys("7h1515457r0ngP455w0rd");
+        driver.FindElement(By.Id("password")).SendKeys(Settings.adminPassword);
 
         // Click login button
         driver.FindElement(By.Id("login")).Click();
@@ -210,38 +212,43 @@ public class EventTagsTest
     [Test]
     public void eventTagsSorting()
     {
-        //Uncomment once sorting change is impelemnted
-        // Wait for and click on the Name sort header
-        //IWebElement nameSortHeader = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[1]/div[1]")));
-        //nameSortHeader.Click();
+        // Name sort
+        IWebElement nameSort = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/div/table/thead/tr/th[1]")));
+        nameSort.Click();
 
-        //wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[1]/div")));
-        //var nameArrowPresent = driver.FindElements(By.XPath("//th[1]/div"));
-        //Assert.That(nameArrowPresent.Count > 0);
+        // Arrow present
+        wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[1]/div")));
+        var nameArrow = driver.FindElements(By.XPath("//th[1]/div"));
+        Assert.That(nameArrow.Count > 0);
 
-        //IWebElement nameSortHeaderAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[1]/div[1]")));
-        //nameSortHeaderAgain.Click();
+        // Name sort again
+        IWebElement nameSortAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/div/table/thead/tr/th[1]")));
+        nameSortAgain.Click();
 
-        //// Wait for and click on the desc header
-        //IWebElement desc = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[2]")));
-        //desc.Click();
+        // Description
+        IWebElement desc = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/div/table/thead/tr/th[2]")));
+        desc.Click();
 
-        //wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[2]/div")));
-        //var descArrow = driver.FindElements(By.XPath("//th[2]/div"));
-        //Assert.That(descArrow.Count > 0);
+        // Arrow present
+        wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[2]/div")));
+        var keyArrow = driver.FindElements(By.XPath("//th[2]/div"));
+        Assert.That(keyArrow.Count > 0);
 
-        //IWebElement descAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[2]")));
-        //descAgain.Click();
+        // Desc again
+        IWebElement descAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/div/table/thead/tr/th[2]")));
+        descAgain.Click();
 
-        //// Wait for and click on the finder header
-        //IWebElement finder = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[3]")));
-        //finder.Click();
+        // Show in Finder
+        IWebElement showFinder = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/div/table/thead/tr/th[3]")));
+        showFinder.Click();
 
-        //wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[3]/div")));
-        //var finderArrow = driver.FindElements(By.XPath("//th[3]/div"));
-        //Assert.That(finderArrow.Count > 0);
+        // Arrow present
+        wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[3]/div")));
+        var typeArrow = driver.FindElements(By.XPath("//th[3]/div"));
+        Assert.That(typeArrow.Count > 0);
 
-        //IWebElement finderAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[3]")));
-        //finderAgain.Click();
+        // Show in Finder again
+        IWebElement showFinderAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/div/table/thead/tr/th[3]")));
+        showFinderAgain.Click();
     }
 }

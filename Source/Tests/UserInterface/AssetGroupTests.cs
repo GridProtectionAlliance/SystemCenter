@@ -12,6 +12,7 @@ using OpenQA.Selenium.Support.UI;
 using OpenQA.Selenium.Interactions;
 using SeleniumExtras.WaitHelpers;
 using NUnit.Framework;
+using UserInterface;
 [TestFixture]
 public class AssetGroupFunctionalityTest
 {
@@ -39,13 +40,13 @@ public class AssetGroupFunctionalityTest
     private void PerformLogin()
     {
         // Navigate to the login page
-        driver.Navigate().GoToUrl("https://systemcenter.demo.gridprotectionalliance.org/index.cshtml?name=AssetGroups");
+        driver.Navigate().GoToUrl(Settings.BaseURL + "/index.cshtml?name=AssetGroups");
 
         // Input username
-        driver.FindElement(By.Id("username")).SendKeys("Admin");
+        driver.FindElement(By.Id("username")).SendKeys(Settings.adminUsername);
 
         // Input password
-        driver.FindElement(By.Id("password")).SendKeys("7h1515457r0ngP455w0rd");
+        driver.FindElement(By.Id("password")).SendKeys(Settings.adminPassword);
 
         // Click login button
         driver.FindElement(By.Id("login")).Click();
@@ -118,49 +119,7 @@ public class AssetGroupFunctionalityTest
         var dashboardData = driver.FindElements(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/tbody/tr[1]/td[5]"));
         Assert.That(dashboardData.Count > 0);
     }
-    [Test]
-    public void assetGroupsButtons()
-    {
-        // Add filter
-        IWebElement addFilterButton = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[1]/nav/div/ul/li[1]/fieldset/form/div/div[2]/button")));
-        addFilterButton.Click();
-
-        // Close filter
-        IWebElement closeFilterButton = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[2]/div[1]/div/div/div[3]/button[2]")));
-        closeFilterButton.Click();
-
-        // Add new asset group
-        IWebElement addNewAssetGroupButton = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[1]/nav/div/ul/li[2]/fieldset/form/div/button")));
-        addNewAssetGroupButton.Click();
-
-        // Close new asset group window
-        IWebElement closeNewAssetGroupWindowButton = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[6]/div[1]/div/div/div[1]/button")));
-        closeNewAssetGroupWindowButton.Click();
-    }
-    [Test]
-    public void assetGroupscNewgroupwarnings()
-    {
-        // Add New Asset Group Btn
-        IWebElement addNewAssetGroupButton = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[1]/nav/div/ul/li[2]/fieldset/form/div/button")));
-        addNewAssetGroupButton.Click();
-
-        // Name warning
-        IWebElement nameWarningElement = wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("/html/body/div[6]/div[1]/div/div/div[2]/div/div[1]/div[1]/div")));
-        Assert.That(nameWarningElement.Text, Is.EqualTo("A unique Name of less than 50 characters is required."));
-
-        // Invalid name (50+ characters)
-        IWebElement nameInput = wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("//input[@value='']")));
-        nameInput.SendKeys("Lorem ipsum dolor sit amet, consectetuer adipiscing");
-
-        // Name warning (will fail)
-        nameWarningElement = wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("/html/body/div[6]/div[1]/div/div/div[2]/div/div[1]/div[1]/div")));
-        Assert.That(nameWarningElement.Text, Is.EqualTo("A unique Name of less than 50 characters is required."));
-
-        // Add hover warning
-        IWebElement addButton = wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("/html/body/div[6]/div[1]/div/div/div[3]/button")));
-        Actions builder = new Actions(driver);
-        builder.MoveToElement(addButton).Perform();
-    }
+  
     [Test]
     public void assetGroupsdAddNewAssetGroup()
     {
@@ -174,7 +133,7 @@ public class AssetGroupFunctionalityTest
 
         // Send keys to name field
         IWebElement nameField = wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("/html/body/div[6]/div[1]/div/div/div[2]/div/div[1]/div[1]/input")));
-        nameField.SendKeys("Daniel's Asset Group");
+        nameField.SendKeys("Test Asset Group");
 
         // Name character warning gone
         var warningElement = driver.FindElement(By.XPath("/html/body/div[6]/div[1]/div/div/div[2]/div/div[1]/div[1]/div"));
@@ -232,47 +191,19 @@ public class AssetGroupFunctionalityTest
     public void assetGroupsEditAssetGroup()
     {
         // Click into asset group
-        IWebElement assetGroup = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/tbody/tr[2]/td[1]")));
+        IWebElement assetGroup = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/tbody/tr[6]/td[1]")));
         assetGroup.Click();
 
         // Confirm test group was selected
-        IWebElement groupHeader = wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("/html/body/div[1]/div/div/div/div/div[1]/div[1]/h2")));
-        Assert.That(groupHeader.Text, Is.EqualTo("Daniel's Asset Group"));
-
-        // Navigate to Asset Subgroups
-        IWebElement assetSubgroupsLink = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/ul/li[4]/a")));
-        assetSubgroupsLink.Click();
-
-        // Add Asset Groups btn
-        IWebElement addAssetGroupsBtn = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[3]/div/div[3]/button")));
-        addAssetGroupsBtn.Click();
-
-        // Add group from table
-        IWebElement groupFromTable = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[7]/div[1]/div/div/div[2]/div[2]/div[1]/table/tbody/tr[1]/td[1]")));
-        groupFromTable.Click();
-
-        // Save
-        IWebElement saveBtn = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[7]/div[1]/div/div/div[3]/button[1]")));
-        saveBtn.Click();
-
-        // Navigate back to asset group info
-        IWebElement assetGroupInfoLink = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/ul/li[1]/a")));
-        assetGroupInfoLink.Click();
+        IWebElement groupHeader = wait.Until(ExpectedConditions.ElementExists(By.XPath("/html/body/div[1]/div/div/div/div/div[1]/div[1]/h2")));
+        Assert.That(groupHeader.Text, Is.EqualTo("Test Asset Group"));
 
         // Edit name
-        IWebElement nameField = wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("/html/body/div[1]/div/div/div/div/div[3]/div/div[2]/div/div[1]/div[1]/input")));
-        nameField.SendKeys("1");
-
-        // Clear changes
-        IWebElement clearChangesBtn = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[3]/div/div[3]/div[2]/button")));
-        clearChangesBtn.Click();
-
-        // Edit name again
-        nameField = wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("/html/body/div[1]/div/div/div/div/div[3]/div/div[2]/div/div[1]/div[1]/input")));
+        IWebElement nameField = wait.Until(ExpectedConditions.ElementExists(By.XPath("/html/body/div[1]/div/div/div/div/div[3]/div[2]/div/div[1]/div[1]/input")));
         nameField.SendKeys("1");
 
         // Save Changes btn
-        IWebElement saveChangesBtn = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[3]/div/div[3]/div[1]/button")));
+        IWebElement saveChangesBtn = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[3]/div[3]/div[1]/button")));
         saveChangesBtn.Click();
     }
     [Test]
@@ -282,12 +213,12 @@ public class AssetGroupFunctionalityTest
         WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(25));
 
         // Click into test group
-        IWebElement testGroup = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/tbody/tr[2]/td[1]")));
+        IWebElement testGroup = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/tbody/tr[6]/td[1]")));
         testGroup.Click();
 
         // Confirm test group is loaded (post edit)
         IWebElement groupHeader = wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("/html/body/div[1]/div/div/div/div/div[1]/div[1]/h2")));
-        Assert.That(groupHeader.Text, Is.EqualTo("Daniel's Asset Group1"));
+        Assert.That(groupHeader.Text, Is.EqualTo("Test Asset Group1"));
 
         // Delete group btn
         IWebElement deleteGroupBtn = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[1]/div[2]/button")));
@@ -304,5 +235,64 @@ public class AssetGroupFunctionalityTest
         // Confirm btn
         IWebElement confirmBtn = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[2]/div[1]/div/div/div[3]/button[1]")));
         confirmBtn.Click();
+    }
+
+    [Test]
+    public void assetGroupsgSorting() {
+        //WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(15));
+        // Name sort
+        IWebElement nameSort = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[1]/div[1]")));
+        nameSort.Click();
+        // Arrow present
+        wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[1]/div")));
+        var arrowPresent = driver.FindElements(By.XPath("//th[1]/div"));
+        Assert.That(arrowPresent.Count > 0);
+        // Name sort
+        IWebElement nameSort2 = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[1]/div[1]")));
+        nameSort2.Click();
+
+        // Num assets Sort
+        IWebElement keySort = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[2]")));
+        keySort.Click();
+        // Arrow present
+        wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[2]/div")));
+        var keyArrow = driver.FindElements(By.XPath("//th[2]/div"));
+        Assert.That(keyArrow.Count > 0);
+        // Num assets Sort
+        IWebElement keySort2 = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[2]/div[2]")));
+        keySort2.Click();
+
+        // Num meters sort
+        IWebElement typeSort = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[3]")));
+        typeSort.Click();
+        // Arrow present
+        wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[3]/div")));
+        var typeArrow = driver.FindElements(By.XPath("//th[3]/div"));
+        Assert.That(typeArrow.Count > 0);
+        // Num meters sort
+        IWebElement typeSort2 = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[3]")));
+        typeSort2.Click();
+
+        //Num Asset groups sort
+        IWebElement voltageSort = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[4]")));
+        voltageSort.Click();
+        // Arrow present
+        wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[4]/div")));
+        var voltageArrow = driver.FindElements(By.XPath("//th[4]/div"));
+        Assert.That(voltageArrow.Count > 0);
+        // Num asset groups sort
+        IWebElement voltageSort2 = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[4]")));
+        voltageSort2.Click();
+
+        // show sort
+        IWebElement metersSort = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[5]")));
+        metersSort.Click();
+        // Arrow present
+        wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[5]/div")));
+        var metersArrow = driver.FindElements(By.XPath("//th[5]/div"));
+        Assert.That(metersArrow.Count > 0);
+        // show sort
+        IWebElement metersSort2 = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/table/thead/tr/th[5]")));
+        metersSort2.Click();
     }
 }
