@@ -48,33 +48,38 @@ const ConsoleWindow = (props: IProps) => {
     React.useEffect(() => {
         if (props.StatsURL == null || props.StatsURL.length == 0) return;
 
-        setStatus('loading')
-        const handle = $.ajax({
-            type: "GET",
-            url: props.StatsURL,
-            dataType: 'text',
-            cache: false,
-            async: true
-        }).done((stat: string) => {
-            setStatus('idle')
-            // Regex remove wrapping quotes, carriage return, and format \\ to \
-            setStatInfo(stat.replace(/^\"+|\"+$/g, '').replace(/\\r\\n/g, '\n').replace(/\\\\/g, '\\'));
-        }).fail((_a, _b, e) => {
-            console.error(e);
-            setStatus('error');
-        });
+        setStatus('loading');
+        let statHandle: JQuery.jqXHR<string>;
+        const intervalHandle = setInterval(() => {
+            if (statHandle != null && statHandle?.abort != null) statHandle.abort();
+
+            statHandle = $.ajax({
+                type: "GET",
+                url: props.StatsURL,
+                dataType: 'text',
+                cache: false,
+                async: true
+            }).done((stat: string) => {
+                setStatus('idle');
+                // Regex remove wrapping quotes, carriage return, and format \\ to \
+                setStatInfo(stat.replace(/^\"+|\"+$/g, '').replace(/\\r\\n/g, '\n').replace(/\\\\/g, '\\'));
+            }).fail((_a, _b, e) => {
+                console.error(e);
+                setStatus('error');
+            });
+        }, 5000);
 
         return () => {
-            if (handle !== null && handle.abort != null) handle.abort();
+            clearInterval(intervalHandle);
+            if (statHandle != null && statHandle.abort != null) statHandle.abort();
         };
     }, [props.StatsURL]);
 
-    console.log("yeet")
     return (
         <Modal
             Show={props.StatsURL != undefined && props.StatsURL.length > 0}
-            ShowCancel={false} ShowConfirm={false} ShowX={true} Size={'lg'}
-            CallBack={() => { props.Close(); setStatus('unintiated'); }}
+            ShowCancel={false} ShowConfirm={false} ShowX={true} Size={'xlg'}
+            CallBack={() => { props.Close(); setStatus('unintiated'); setStatInfo('') }}
             Title={'Statistics - ' + props.ApplicationName}
         >
             <LoadingScreen Show={status === "loading"} />
