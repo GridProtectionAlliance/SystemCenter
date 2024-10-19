@@ -13,6 +13,7 @@ using OpenQA.Selenium.Interactions;
 using NUnit.Framework;
 using System.IO;
 using SeleniumExtras.WaitHelpers;
+using UserInterface;
 [TestFixture]
 
 public class SubstationFunctionalityTest
@@ -41,13 +42,13 @@ public class SubstationFunctionalityTest
     private void PerformLogin()
     {
         // Navigate to the login page
-        driver.Navigate().GoToUrl("https://systemcenter.demo.gridprotectionalliance.org/index.cshtml?name=Locations");
+        driver.Navigate().GoToUrl(Settings.BaseURL + "/index.cshtml?name=Locations");
 
         // Input username
-        driver.FindElement(By.Id("username")).SendKeys("Admin");
+        driver.FindElement(By.Id("username")).SendKeys(Settings.adminUsername);
 
         // Input password
-        driver.FindElement(By.Id("password")).SendKeys("7h1515457r0ngP455w0rd");
+        driver.FindElement(By.Id("password")).SendKeys(Settings.adminPassword);
 
         // Click login button
         driver.FindElement(By.Id("login")).Click();
@@ -164,7 +165,6 @@ public class SubstationFunctionalityTest
     {
         // Create a WebDriverWait instance with a timeout of 45 seconds
         WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(45));
-        //driver.Navigate().GoToUrl("https://systemcenter.demo.gridprotectionalliance.org/index.cshtml?name=Locations");
 
         //Add Substation
         IWebElement addSubstation = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[1]/nav/div/ul/li[2]/fieldset/form/div[1]/button")));
@@ -220,11 +220,7 @@ public class SubstationFunctionalityTest
 
         // Save
         IWebElement save = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[6]/div[1]/div/div/div[3]/button[1]")));
-        //save.Click(); // Comment out the click action
 
-        // Hover over the save button
-        // Create an instance of the Actions class, passing the driver as an argument.
-        // This allows the Actions class to interact with the browser.
         Actions builder = new Actions(driver);
 
         // Move the mouse pointer to the save button and perform the hover action.
