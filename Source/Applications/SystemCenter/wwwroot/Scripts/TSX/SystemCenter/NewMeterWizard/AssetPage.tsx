@@ -535,7 +535,7 @@ export default function AssetPage(props: IProps) {
                                         />
                                     </div> : null}
                         {newEditAsset.AssetType == 'Breaker'? <>
-                                    <div className="d-flex flex-column">
+                                    <div className="d-flex flex-column w-100">
                                         <ChannelSelector
                                             Label="Associated Channels Bus Side"
                                             Channels={filterChannels}
@@ -553,7 +553,7 @@ export default function AssetPage(props: IProps) {
                                             }}
                                         />
                                     </div>
-                                    <div className=" d-flex flex-column">
+                                    <div className=" d-flex flex-column w-100">
                                         <ChannelSelector
                                             Label="Associated Channels Line/XFR Side"
                                             Channels={filterChannels}
@@ -573,8 +573,8 @@ export default function AssetPage(props: IProps) {
                                     </div> </> : null}
                                 {newEditAsset.AssetType === 'Transformer' ? (
                                     <div className="col-12">
-                                        <div className="row justify-content-center h-100">
-                                            <div className="d-flex flex-column">
+                                        <div className="row justify-content-center h-100 px-3">
+                                            <div className="d-flex flex-column w-100">
                                                 <ChannelSelector
                                                     Label="Associated Channels Primary Side"
                                                     Channels={filterChannels}
@@ -592,7 +592,7 @@ export default function AssetPage(props: IProps) {
                                                     }}
                                                 />
                                             </div>
-                                            <div className=" d-flex flex-column">
+                                            <div className=" d-flex flex-column w-100">
                                                 <ChannelSelector
                                                     Label="Associated Channels Secondary Side"
                                                     Channels={filterChannels}
@@ -610,7 +610,7 @@ export default function AssetPage(props: IProps) {
                                                     }}
                                                 />
                                             </div>
-                                            <div className="d-flex flex-column">
+                                            <div className="d-flex flex-column w-100">
                                                 <ChannelSelector
                                                     Label="Associated Channels Tertiary Side"
                                                     Channels={filterChannels}

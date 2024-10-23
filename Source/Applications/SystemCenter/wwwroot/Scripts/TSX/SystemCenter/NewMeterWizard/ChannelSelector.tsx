@@ -52,7 +52,7 @@ export default function ChannelSelector(props: IProps) {
                     onChange={(e) => setSearchTerm(e.target.value)}
                     style={{ width: '100%', marginBottom: '10px' }}
                 />
-            <select multiple style={{ height: '100%', width: '100%' }} onChange={(evt) => {
+            <select multiple style={{ height: '100%', width: '100%', overflowX: 'auto' }} onChange={(evt) => {
                 props.UpdateChannels(($(evt.target).val() as Array<string>).map(a => props.Channels.find(ch => ch.ID == parseInt(a))))
             }}
                 value={props.SelectedChannels.map(a => a.ID.toString())}>
