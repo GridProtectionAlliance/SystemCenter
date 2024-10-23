@@ -731,6 +731,7 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\ValueListGroup\ByValueListGroup.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Store\AdditionalUserFieldSlice.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Matcher.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\Store\ConfigurationSlice.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\User\AdditionalUserFieldsWindow.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\User\UserGroup\ByUserGroup.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\User\User\Permissions.tsx" />
