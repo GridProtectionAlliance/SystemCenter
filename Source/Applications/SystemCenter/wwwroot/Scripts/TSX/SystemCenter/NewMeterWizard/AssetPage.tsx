@@ -507,7 +507,6 @@ export default function AssetPage(props: IProps) {
                                             newRecord.Channels = record.Channels;
                                             setNewEditAsset(newRecord);
                                         }
-                                    
                                     }}
                                     GetDifferentAsset={getDifferentAsset} HideAssetType={newEdit == 'Edit'} HideSelectAsset={true} />
                             </div>
@@ -536,7 +535,7 @@ export default function AssetPage(props: IProps) {
                                         />
                                     </div> : null}
                         {newEditAsset.AssetType == 'Breaker'? <>
-                                    <div className="col-6 d-flex flex-column">
+                                    <div className="d-flex flex-column">
                                         <ChannelSelector
                                             Label="Associated Channels Bus Side"
                                             Channels={filterChannels}
@@ -554,7 +553,7 @@ export default function AssetPage(props: IProps) {
                                             }}
                                         />
                                     </div>
-                                    <div className="col-6 d-flex flex-column">
+                                    <div className=" d-flex flex-column">
                                         <ChannelSelector
                                             Label="Associated Channels Line/XFR Side"
                                             Channels={filterChannels}
@@ -575,7 +574,7 @@ export default function AssetPage(props: IProps) {
                                 {newEditAsset.AssetType === 'Transformer' ? (
                                     <div className="col-12">
                                         <div className="row justify-content-center h-100">
-                                            <div className="col-4 d-flex flex-column">
+                                            <div className="d-flex flex-column">
                                                 <ChannelSelector
                                                     Label="Associated Channels Primary Side"
                                                     Channels={filterChannels}
@@ -593,7 +592,7 @@ export default function AssetPage(props: IProps) {
                                                     }}
                                                 />
                                             </div>
-                                            <div className="col-4 d-flex flex-column">
+                                            <div className=" d-flex flex-column">
                                                 <ChannelSelector
                                                     Label="Associated Channels Secondary Side"
                                                     Channels={filterChannels}
@@ -611,7 +610,7 @@ export default function AssetPage(props: IProps) {
                                                     }}
                                                 />
                                             </div>
-                                            <div className="col-4 d-flex flex-column">
+                                            <div className="d-flex flex-column">
                                                 <ChannelSelector
                                                     Label="Associated Channels Tertiary Side"
                                                     Channels={filterChannels}
