@@ -501,7 +501,6 @@ export default function AssetPage(props: IProps) {
                                             newRecord.Channels = record.Channels;
                                             setNewEditAsset(newRecord);
                                         }
-                                    
                                     }}
                                     GetDifferentAsset={getDifferentAsset} HideAssetType={newEdit == 'Edit'} HideSelectAsset={true} />
                             </div>
@@ -530,7 +529,7 @@ export default function AssetPage(props: IProps) {
                                         />
                                     </div> : null}
                         {newEditAsset.AssetType == 'Breaker'? <>
-                                    <div className="col-6 d-flex flex-column">
+                                    <div className="d-flex flex-column w-100">
                                         <ChannelSelector
                                             Label="Associated Channels Bus Side"
                                             Channels={props.Channels}
@@ -548,7 +547,7 @@ export default function AssetPage(props: IProps) {
                                             }}
                                         />
                                     </div>
-                                    <div className="col-6 d-flex flex-column">
+                                    <div className=" d-flex flex-column w-100">
                                         <ChannelSelector
                                             Label="Associated Channels Line/XFR Side"
                                             Channels={props.Channels}
@@ -564,12 +563,12 @@ export default function AssetPage(props: IProps) {
                                                 channels = channels.map(ch => ({ ...ch, ConnectionPriority: c.find(d => d.ID == ch.ID) == null ? ch.ConnectionPriority : 1 }));
                                                 props.UpdateChannels(channels);
                                             }}
-                                        />                               
+                                        />
                                     </div> </> : null}
                                 {newEditAsset.AssetType === 'Transformer' ? (
                                     <div className="col-12">
-                                        <div className="row justify-content-center h-100">
-                                            <div className="col-4 d-flex flex-column">
+                                        <div className="row justify-content-center h-100 px-3">
+                                            <div className="d-flex flex-column w-100">
                                                 <ChannelSelector
                                                     Label="Associated Channels Primary Side"
                                                     Channels={props.Channels}
@@ -587,7 +586,7 @@ export default function AssetPage(props: IProps) {
                                                     }}
                                                 />
                                             </div>
-                                            <div className="col-4 d-flex flex-column">
+                                            <div className=" d-flex flex-column w-100">
                                                 <ChannelSelector
                                                     Label="Associated Channels Secondary Side"
                                                     Channels={props.Channels}
@@ -605,7 +604,7 @@ export default function AssetPage(props: IProps) {
                                                     }}
                                                 />
                                             </div>
-                                            <div className="col-4 d-flex flex-column">
+                                            <div className="d-flex flex-column w-100">
                                                 <ChannelSelector
                                                     Label="Associated Channels Tertiary Side"
                                                     Channels={props.Channels}
@@ -621,7 +620,7 @@ export default function AssetPage(props: IProps) {
                                                         channels = channels.map(ch => ({ ...ch, ConnectionPriority: c.find(d => d.ID == ch.ID) == null ? ch.ConnectionPriority : 2}));
                                                         props.UpdateChannels(channels);
                                                     }}
-                                                />                                                
+                                                />
                                             </div>
                                         </div>
                                     </div>
