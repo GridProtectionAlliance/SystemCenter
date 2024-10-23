@@ -35,6 +35,21 @@ import moment from 'moment';
 import { Paging } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 
+const filterableList: Search.IField<OpenXDA.Types.DataFile>[] = [
+    { isPivotField: false, key: 'FilePath', label: 'File Path', type: 'string' },
+    { isPivotField: false, key: 'CreationTime', label: 'File Processed', type: 'datetime' },
+    { isPivotField: false, key: 'DataStartTime', label: 'Data Start', type: 'datetime' },
+    {
+        isPivotField: false, key: 'ProcessingState', label: 'Status', type: 'enum', enum: [
+            { Value: "0", Label: "Unknown" },
+            { Value: "1", Label: "Queued" },
+            { Value: "2", Label: "Processing" },
+            { Value: "3", Label: "Processed" },
+            { Value: "4", Label: "Failure" },
+            { Value: "5", Label: "Partial Failure" }
+        ]
+    }
+];
 
 declare var homePath: string;
 
@@ -54,21 +69,6 @@ const ByFile: Application.Types.iByComponent = (props) => {
     const [showWarning, setShowWarning] = React.useState<'hide' | 'complete' | 'error' | 'loading'>('hide');
 
     const [search, setSearch] = React.useState<Array<Search.IFilter<OpenXDA.Types.DataFile>>>([]);
-    const filterableList: Search.IField<OpenXDA.Types.DataFile>[] = [
-        { isPivotField: false, key: 'FilePath', label: 'File Path', type: 'string' },
-        { isPivotField: false, key: 'CreationTime', label: 'File Processed', type: 'datetime' },
-        { isPivotField: false, key: 'DataStartTime', label: 'Data Start', type: 'datetime' },
-        {
-            isPivotField: false, key: 'ProcessingState', label: 'Status', type: 'enum', enum: [
-                { Value: "0", Label: "Unknown" },
-                { Value: "1", Label: "Queued" },
-                { Value: "2", Label: "Processing" },
-                { Value: "3", Label: "Processed" },
-                { Value: "4", Label: "Failure" },
-                { Value: "5", Label: "Partial Failure" }
-            ]
-        }     
-    ]
 
     const [sortKey, setSortKey] = React.useState<keyof OpenXDA.Types.DataFile>('DataStartTime');
     const [ascending, setAscending] = React.useState<boolean>(true);
