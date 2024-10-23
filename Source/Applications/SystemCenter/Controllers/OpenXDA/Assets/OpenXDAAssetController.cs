@@ -137,7 +137,8 @@ namespace SystemCenter.Controllers.OpenXDA
 	                        AssetRelationship.AssetRelationshipTypeID,
 	                        AssetRelationshipType.Name,
 	                        Asset.ID as AssetID,
-	                        Asset.AssetKey
+	                        Asset.AssetKey,
+                            Asset.AssetName
                         FROM
 	                        AssetRelationship JOIN
 	                        AssetRelationshipType ON AssetRelationship.AssetRelationshipTypeID = AssetRelationshipType.ID JOIN
