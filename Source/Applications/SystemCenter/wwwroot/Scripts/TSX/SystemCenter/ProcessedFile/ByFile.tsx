@@ -25,15 +25,14 @@ import * as React from 'react';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-
 import { DefaultSearchField } from '../CommonComponents/SearchFields';
-import { SearchBar, Search, Modal, LoadingIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
+import { SearchBar, Search, Modal, LoadingIcon, LoadingScreen, ToolTip } from '@gpa-gemstone/react-interactive';
 import { useAppSelector, useAppDispatch } from '../hooks';
-import { DataFileSlice } from '../Store/Store';
+import { DataFileSlice, ConfigSlice } from '../Store/Store';
 import { OpenXDA as GlobalXDA } from '../global';
 import moment from 'moment';
 import { Paging } from '@gpa-gemstone/react-table';
-import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { CrossMark, ReactIcons } from '@gpa-gemstone/gpa-symbols';
 
 const filterableList: Search.IField<OpenXDA.Types.DataFile>[] = [
     { isPivotField: false, key: 'FilePath', label: 'File Path', type: 'string' },
@@ -56,6 +55,10 @@ declare var homePath: string;
 const ByFile: Application.Types.iByComponent = (props) => {
     let dispatch = useAppDispatch();
 
+    const configStatus = useAppSelector(ConfigSlice.XDAConfigStatus);
+    const config = useAppSelector(ConfigSlice.XDAConfig);
+    const inEnterprise = React.useMemo(() => (config.EditionStatus['Enterprise'] ?? false), [config.EditionStatus]);
+
     const cState = useAppSelector(DataFileSlice.PagedStatus);
     const data = useAppSelector(DataFileSlice.SearchResults);
 
@@ -70,6 +73,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
 
     const [search, setSearch] = React.useState<Array<Search.IFilter<OpenXDA.Types.DataFile>>>([]);
 
+    const [hover, setHover] = React.useState<'None' | 'Bulk'>('None');
     const [sortKey, setSortKey] = React.useState<keyof OpenXDA.Types.DataFile>('DataStartTime');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [page, setPage] = React.useState<number>(currentPage);
@@ -89,6 +93,11 @@ const ByFile: Application.Types.iByComponent = (props) => {
     React.useEffect(() => {
         dispatch(DataFileSlice.PagedSearch({ sortField: sortKey, ascending, filter: search, page }))
     }, [search, ascending, sortKey, page, update]);
+
+    React.useEffect(() => {
+        if (configStatus == 'unintiated' || configStatus == 'changed')
+            dispatch(ConfigSlice.FetchXDAConfig());
+    }, [configStatus]);
 
     React.useEffect(() => {
         if (cState == 'unintiated' || cState == 'changed')
@@ -158,12 +167,12 @@ const ByFile: Application.Types.iByComponent = (props) => {
 
     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <LoadingScreen Show={showWarning == 'loading'} />
+            <LoadingScreen Show={showWarning == 'loading' || configStatus === 'loading'} />
             <div className="container-fluid d-flex h-100 flex-column">
                 <div className="row">
                     <SearchBar<OpenXDA.Types.DataFile> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={DefaultSearchField.DataFile as Search.IField<OpenXDA.Types.DataFile>} Width={'100%'} Label={'Search'} StorageID="DataFilesFilter"
-                        ShowLoading={cState == 'loading'}
-                        ResultNote={cState == 'error' ? 'Could not complete Search' : ('Displaying  Data File(s) ' + (totalRecords > 0? (50 * page + 1): 0 ) + ' - ' + (50 * page + data.length)) + ' out of ' + totalRecords}
+                        ShowLoading={cState === 'loading' || configStatus === 'loading'}
+                        ResultNote={(cState === 'error' || configStatus === 'error') ? 'Could not complete Search' : ('Displaying  Data File(s) ' + (totalRecords > 0? (50 * page + 1): 0 ) + ' - ' + (50 * page + data.length)) + ' out of ' + totalRecords}
                         GetEnum={(setOptions, field) => {
                             if (field.enum != null)
                             setOptions(field.enum);
@@ -176,10 +185,16 @@ const ByFile: Application.Types.iByComponent = (props) => {
                                 <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                                 <form>
                                     <div className="form-group">
-                                        <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0}
-                                            onClick={(event) => { event.preventDefault(); reprocessAll(); }}>Reprocess All {data.length}</button>
+                                        <button className={`btn btn-primary${inEnterprise ? '' : ' disabled'}`} hidden={props.Roles.indexOf('Administrator') < 0}
+                                            onMouseEnter={() => setHover('Bulk')} onMouseLeave={() => setHover('None')} data-tooltip={"BulkReload"}
+                                            onClick={(event) => {
+                                                event.preventDefault();
+                                                if (inEnterprise) reprocessAll();
+                                            }}>Reprocess All {data.length}</button>
                                     </div>
-                                   
+                                    <ToolTip Show={hover === 'Bulk' && !inEnterprise} Position={'bottom'} Theme={'dark'} Target={"BulkReload"}>
+                                        Bulk reprocessing only available in Enterprise Edition.
+                                    </ToolTip>
                                 </form>
                             </fieldset>
                         </li>
