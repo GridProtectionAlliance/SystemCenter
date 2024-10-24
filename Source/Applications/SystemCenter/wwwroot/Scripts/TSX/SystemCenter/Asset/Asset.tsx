@@ -49,24 +49,16 @@ interface IProps { AssetID: number, Tab: Tab }
 function Asset(props: IProps) {
     let history = useHistory();
     const [asset, setAsset] = React.useState<OpenXDA.Types.Asset>(null);
-    const [tab, setTab] = React.useState(getTab());
+    const [tab, setTab] = React.useState("assetInfo");
     const [assetType, setAssetType] = React.useState<OpenXDA.Types.AssetTypeName>(null);
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
     const [loadDelete, setLoadDelete] = React.useState<boolean>(false);
     const [forceReload, setForceReload] = React.useState<boolean>(false);
     const roles = useAppSelector(SelectRoles);
 
-    function getTab(): Tab {
-        if (props.Tab != undefined) return props.Tab;
-
-        let key = 'Asset.Tab';
-        if (assetType == 'Line')
-            key = 'Line.Tab';
-
-        if (sessionStorage.hasOwnProperty(key))
-                return JSON.parse(sessionStorage.getItem(key));
-        return 'assetInfo';
-    }
+    React.useEffect(() => {
+        setTab(getTab());
+    }, [assetType]);
 
     React.useEffect(() => {
         const saved = getTab();
@@ -76,8 +68,19 @@ function Asset(props: IProps) {
                 key = 'Line.Tab';
             sessionStorage.setItem(key, JSON.stringify(tab)); 
         }
-            
     }, [tab]);
+
+    const getTab = React.useCallback(() => {
+        if (props.Tab != undefined) return props.Tab;
+
+        let key = 'Asset.Tab';
+        if (assetType == 'Line')
+            key = 'Line.Tab';
+
+        if (sessionStorage.hasOwnProperty(key))
+            return JSON.parse(sessionStorage.getItem(key));
+        return 'assetInfo';
+    }, [assetType]);
 
     function getAsset() {
         return    $.ajax({
