@@ -34,7 +34,7 @@ import { IUserAccount } from '../Types';
 import moment from 'moment';
 
 const defaultSearchcols: Search.IField<Application.Types.iUserAccount>[] = [
-    { label: 'Username', key: 'Name', type: 'string', isPivotField: false },
+    { label: 'Username', key: 'DisplayName', type: 'string', isPivotField: false },
     { label: 'First Name', key: 'FirstName', type: 'string', isPivotField: false },
     { label: 'Last Name', key: 'LastName', type: 'string', isPivotField: false },
     { label: 'Phone', key: 'Phone', type: 'string', isPivotField: false },
