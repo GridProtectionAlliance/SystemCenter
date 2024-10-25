@@ -275,6 +275,12 @@ export default function AssetPage(props: IProps) {
             return <StationBatteryAttributes NewEdit={newEdit} Asset={newEditAsset} UpdateState={setNewEditAsset} />;
     }
 
+    function filterChannels(chs: OpenXDA.Types.Channel[]) {
+        return chs.filter(ch =>
+            !(ch.Asset.length > 0)
+        );
+    }
+
         return (
             <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
                 <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
@@ -516,7 +522,7 @@ export default function AssetPage(props: IProps) {
                                     <div className="col-12 d-flex flex-column">
                                         <ChannelSelector
                                             Label="Associated Channels"
-                                            Channels={props.Channels}
+                                        Channels={filterChannels(props.Channels)}
                                             SelectedChannels={newEditAsset.Channels}
                                             UpdateChannels={(c) => {
                                                 setNewEditAsset((prev) => ({ ...prev, Channels: c }));
@@ -533,7 +539,7 @@ export default function AssetPage(props: IProps) {
                                     <div className="col-6 d-flex flex-column">
                                         <ChannelSelector
                                             Label="Associated Channels Bus Side"
-                                            Channels={props.Channels}
+                                        Channels={filterChannels(props.Channels)}
                                             SelectedChannels={newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 0)}
                                             UpdateChannels={(c) => {
                                                 let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
@@ -551,7 +557,7 @@ export default function AssetPage(props: IProps) {
                                     <div className="col-6 d-flex flex-column">
                                         <ChannelSelector
                                             Label="Associated Channels Line/XFR Side"
-                                            Channels={props.Channels}
+                                        Channels={filterChannels(props.Channels)}
                                             SelectedChannels={newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 1)}
                                             UpdateChannels={(c) => {
                                                 let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
@@ -572,7 +578,7 @@ export default function AssetPage(props: IProps) {
                                             <div className="col-4 d-flex flex-column">
                                                 <ChannelSelector
                                                     Label="Associated Channels Primary Side"
-                                                    Channels={props.Channels}
+                                                Channels={filterChannels(props.Channels)}
                                                     SelectedChannels={newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 0)}
                                                     UpdateChannels={(c) => {
                                                         let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
@@ -590,7 +596,7 @@ export default function AssetPage(props: IProps) {
                                             <div className="col-4 d-flex flex-column">
                                                 <ChannelSelector
                                                     Label="Associated Channels Secondary Side"
-                                                    Channels={props.Channels}
+                                                Channels={filterChannels(props.Channels)}
                                                     SelectedChannels={newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 1)}
                                                     UpdateChannels={(c) => {
                                                         let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
@@ -608,7 +614,7 @@ export default function AssetPage(props: IProps) {
                                             <div className="col-4 d-flex flex-column">
                                                 <ChannelSelector
                                                     Label="Associated Channels Tertiary Side"
-                                                    Channels={props.Channels}
+                                                Channels={filterChannels(props.Channels)}
                                                     SelectedChannels={newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 2)}
                                                     UpdateChannels={(c) => {
                                                         let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
@@ -632,5 +638,4 @@ export default function AssetPage(props: IProps) {
                 </Modal>
             </div>
         );
-
 }
