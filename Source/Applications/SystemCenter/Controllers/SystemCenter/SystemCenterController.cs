@@ -1334,12 +1334,15 @@ namespace SystemCenter.Controllers
                 });
 
                 string phase = "None";
-                GroupCollection phaseMatchGroup = Regex.Match(channelName, @"(?<=[V|I])(\S*)$", RegexOptions.IgnoreCase).Groups;
+                GroupCollection phaseMatchGroup = Regex.Match(channelName, @"(?<=[VI])(\S*)$", RegexOptions.IgnoreCase).Groups;
                 if(phaseMatchGroup.Count > 0)
                 {
                     string phaseMatch = phaseMatchGroup[0].Value.ToUpper();
                     switch (phaseMatch)
                     {
+                        case "R":
+                            phase = "Residual";
+                            break;
                         case "A":
                             phase = "AN";
                             break;
