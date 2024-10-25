@@ -1365,7 +1365,6 @@ namespace SystemCenter.Controllers
                 {
                     case "Digital":
                         measurementType = "Digital";
-                        measurementCharacteristic = "None";
                         break;
                     case "A": case "I":
                         measurementType = "Current";
