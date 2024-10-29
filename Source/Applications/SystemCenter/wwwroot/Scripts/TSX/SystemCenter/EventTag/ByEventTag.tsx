@@ -65,9 +65,6 @@ const EventTags: Application.Types.iByComponent = (props) => {
         setErrors(e);
     }, [record]);
 
-    React.useEffect(() => {
-        console.log(refreshCount)
-    }, [refreshCount]);
 
     return (
         <GenericByPage<OpenXDA.Types.EventTag>
