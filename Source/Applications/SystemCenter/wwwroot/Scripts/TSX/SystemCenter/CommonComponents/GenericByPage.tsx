@@ -134,7 +134,7 @@ function GenericByPage<T extends U>(props: React.PropsWithChildren<IProps<T>>) {
 
     const getContent = React.useCallback((datum: SC.IColDatum<T>, col: SC.IByCol<T>) => {
         if (col?.Content != null) return col.Content(datum);
-        else if (col.Type === 'boolean') return datum.item[datum.field] ? <ReactIcons.CheckMark Color="green" /> : <></>
+        else if (col.Type === 'boolean') return datum.item[datum.field] ? <ReactIcons.CheckMark Color="var(--green)" /> : <></>
         else return datum.item[datum.field] ?? <></>
     }, []);
 
@@ -189,7 +189,7 @@ function GenericByPage<T extends U>(props: React.PropsWithChildren<IProps<T>>) {
                     }
                 </ReactTable.Table>
             </div>
-            <div style={{ width: '100%' }}>
+            <div className="row justify-content-center">
                 <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p - 1)} />
             </div>
         </div>
