@@ -39,7 +39,8 @@ const BlankRemoteXDAInstance: OpenXDA.Types.RemoteXDAInstance = {
     Name: null,
     Address: null,
     Frequency: '*',
-    UserAccountID: null
+    UserAccountID: null,
+    UseApiAuth: false
 }
 
 const BlankUser: Application.Types.iUserAccount = {
