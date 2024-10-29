@@ -54,8 +54,8 @@ export namespace SystemCenter {
     interface ChannelTemplateFile { ID: number, Name: string, FileBlob: string, FileName: string, ShowTrend: boolean, ShowEvents: boolean, SortOrder: number }
     interface ChannelGroupView extends GemstoneSC.Types.ChannelGroup { ItemCount: number }
     interface ValueListGroupView extends GemstoneSC.Types.ValueListGroup { ItemCount: number }
-    interface IColDatum<T extends { ID: number }> { item: T, key: string, field: keyof T | undefined, index: number, style ?: React.CSSProperties }
-    interface IByCol<T extends {ID: number}> {
+    interface IColDatum<T>{ item: T, key: string, field: keyof T | undefined, index: number, style ?: React.CSSProperties }
+    interface IByCol<T> {
         Label: string,
         Field: keyof T,
         Type: Search.FieldType,

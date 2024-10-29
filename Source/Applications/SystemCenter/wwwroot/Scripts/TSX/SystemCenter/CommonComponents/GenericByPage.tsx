@@ -30,7 +30,7 @@ import { ReactTable, Paging } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 
 interface U {
-    ID: number
+    ID: number|string
 }
 
 interface IProps<T extends U> {
