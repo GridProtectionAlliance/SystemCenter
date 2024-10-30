@@ -58,6 +58,8 @@ function GenericByPage<T extends U>(props: React.PropsWithChildren<IProps<T>>) {
     const [pageStatus, setPageStatus] = React.useState<Application.Types.Status>('idle');
     const [addlFieldCols, setAddlFieldCols] = React.useState<Search.IField<T>[]>([]);
 
+    const [enumMap, setEnumMap] = React.useState<{ [key: string]: string }>({});
+
     const controller = React.useMemo(() =>
         new GenericController<T>(props.ControllerPath, props.DefaultSortKey, props.DefaultSearchAscending ?? false)
     , [props.ControllerPath, props.DefaultSortKey, props.DefaultSearchAscending]);
@@ -99,15 +101,22 @@ function GenericByPage<T extends U>(props: React.PropsWithChildren<IProps<T>>) {
         function ConvertType(type: string) {
             if (type == 'string' || type == 'integer' || type == 'number' || type == 'datetime' || type == 'boolean')
                 return { type: type }
-            return {
-                type: 'enum', enum: [{ Label: type, Value: type }]
-            }
+            return { type: 'enum' }
         }
         const handle = props.QueryAdditionalFields().done((d: Array<SystemCenter.Types.AdditionalFieldView>) => {
             const ordered = _.orderBy(d.filter(item => item.Searchable).map(item => (
                 { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type), isPivotField: true } as Search.IField<T>
             )), ['label'], ["asc"]);
             setAddlFieldCols(ordered);
+
+            const x = {};
+            d.filter(item => item.Searchable).forEach(item => {
+                if (item.Type == 'string' || item.Type == 'integer' || item.Type == 'number' || item.Type == 'datetime' || item.Type == 'boolean')
+                    return;
+                x[item.FieldName] = item.Type;
+            });
+            setEnumMap(x);
+
         });
 
         return () => { if (handle != null && handle?.abort != null) handle.abort(); };
@@ -116,12 +125,12 @@ function GenericByPage<T extends U>(props: React.PropsWithChildren<IProps<T>>) {
     const getEnum = React.useCallback((setOptions, field) => {
         let handle = null;
 
-        if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
+        if (field.type != 'enum' || enumMap[field.key] == undefined)
             return () => { };
 
         handle = $.ajax({
             type: "GET",
-            url: `${homePath}api/ValueList/Group/${field.enum[0].Value}`,
+            url: `${homePath}api/ValueList/Group/${enumMap[field.key]}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
