@@ -27,7 +27,7 @@ import { Application } from '@gpa-gemstone/application-typings';
 import { SystemCenter as SC } from '../global';
 import { OpenXDA as LocalXDA } from '../global';
 import { useHistory } from "react-router-dom";
-import { Search, Modal, GenericController } from '@gpa-gemstone/react-interactive';
+import { Modal, GenericController } from '@gpa-gemstone/react-interactive';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import CategoryForm from './CategoryForm';
 import GenericByPage from '../CommonComponents/GenericByPage';
@@ -66,7 +66,7 @@ const ByWidgetCategory: Application.Types.iByComponent = (props) => {
                     </form>
                 </fieldset>
             </li>
-            <Modal Show={showModal} Title={'Add New SE Browser Tab'} CallBack={(c) => {
+            <Modal Show={showModal} Title={'Add New PQ Browser Tab'} CallBack={(c) => {
                 if (c) categoryController.DBAction('POST', newCategory).done(() => refreshData(c => c + 1));
                 setShowModal(false);
                 setNewCategory(emptyCategory);

@@ -24,7 +24,7 @@
 import * as React from 'react';
 import { SystemCenter as SC } from '../global';
 import { OpenXDA, Application } from '@gpa-gemstone/application-typings';
-import { SearchBar, Search, Modal, Warning, GenericController } from '@gpa-gemstone/react-interactive';
+import { Modal, Warning, GenericController } from '@gpa-gemstone/react-interactive';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import EventTagForm from './EventTagForm';
 import GenericByPage from '../CommonComponents/GenericByPage';
@@ -54,7 +54,7 @@ const EventTags: Application.Types.iByComponent = (props) => {
     }, [refreshCount]);
 
     React.useEffect(() => {
-        let e = [];
+        const e: string[] = [];
         if (record.Name === null || record.Name.length === 0)
             e.push('A Name is required.');
         if (record.Name?.length > 200)
