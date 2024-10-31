@@ -28,6 +28,7 @@ import { PhaseSlice, MeasurmentTypeSlice } from '../Store/Store'
 import { ReactTable } from '@gpa-gemstone/react-table';
 import { useAppSelector } from '../hooks';
 import { LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 
 declare var homePath: string;
 
@@ -35,8 +36,8 @@ interface IProps { Name: string, ID: number }
 
 interface ChannelDetail { //TODO: Move to Gemstone
     ID: number,
-    MeterID: string,
-    AssetID: string,
+    MeterID: number,
+    AssetID: number,
     MeasurementTypeID: string,
     MeasurementCharacteristicID: string,
     PhaseID: string,
@@ -59,12 +60,12 @@ interface ChannelDetail { //TODO: Move to Gemstone
     Mapping: string,
     SeriesTypeID: string,
     SeriesType: string,
-    ChannelTrend: boolean
+    ChannelTrend: boolean,
+    Trend: boolean
 }
 
 
 const AssetChannelWindow = (props: IProps) => {
-
     const [assetChannels, setAssetChannels] = React.useState<ChannelDetail[]>([]);
 
     const pStatus = useAppSelector(PhaseSlice.Status) as Application.Types.Status;
@@ -193,6 +194,7 @@ const AssetChannelWindow = (props: IProps) => {
                         Field={'MeterName'}
                         HeaderStyle={{ width: '15%' }}
                         RowStyle={{ width: '15%' }}
+                        Content={(row) => <a href={`${homePath}index.cshtml?name=Meter&MeterID=${row.item.MeterID}&Tab=${row.item.Trend ? "trendChannels" : "eventChannels"}`} target='_blank'>{row.item.MeterName}</a>}
                     > Meter Name
                     </ReactTable.Column>
                     <ReactTable.Column<ChannelDetail>
@@ -201,30 +203,43 @@ const AssetChannelWindow = (props: IProps) => {
                         Field={'AssetName'}
                         HeaderStyle={{ width: '15%' }}
                         RowStyle={{ width: '15%' }}
+                        Content={(row) => (row.item.AssetID !== props.ID ?
+                            <a href={`${homePath}index.cshtml?name=Asset&AssetID=${row.item.AssetID}&Tab=channels`} target='_blank'>{row.item.AssetName}</a> :
+                            row.item.AssetName
+                        )}
                     > Asset Name
                     </ReactTable.Column>
                     <ReactTable.Column<ChannelDetail>
                         Key={'MeasurementType'}
                         AllowSort={true}
                         Field={'MeasurementType'}
-                        HeaderStyle={{ width: '10%' }}
-                        RowStyle={{ width: '10%' }}
+                        HeaderStyle={{ width: '8%' }}
+                        RowStyle={{ width: '8%' }}
                     > Type
                     </ReactTable.Column>
                     <ReactTable.Column<ChannelDetail>
                         Key={'Phase'}
                         AllowSort={true}
                         Field={'Phase'}
-                        HeaderStyle={{ width: '10%' }}
-                        RowStyle={{ width: '10%' }}
+                        HeaderStyle={{ width: '8%' }}
+                        RowStyle={{ width: '8%' }}
                     > Phase
+                    </ReactTable.Column>
+                    <ReactTable.Column<ChannelDetail>
+                        Key={'AssetID'}
+                        AllowSort={true}
+                        Field={'AssetID'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                        Content={row => row.item.AssetID !== props.ID ? <ReactIcons.CheckMark Color="green" /> : <></>}
+                    > Shared Via Asset Connection
                     </ReactTable.Column>
                     <ReactTable.Column<ChannelDetail>
                         Key={'Description'}
                         AllowSort={true}
                         Field={'Description'}
-                        HeaderStyle={{ width: '35%' }}
-                        RowStyle={{ width: '35%' }}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
                     > Description
                     </ReactTable.Column>
                 </ReactTable.Table>

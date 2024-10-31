@@ -36,7 +36,8 @@ interface AssetConnection {
     AssetRelationShipTypeID: number,
     Name: string,
     AssetID: number,
-    AssetKey: string
+    AssetKey: string,
+    AssetName: string
 }
 
 function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number}): JSX.Element{
@@ -269,17 +270,27 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                         KeySelector={(item) => item.AssetID}
                     >
                         <ReactTable.Column<AssetConnection>
+                            Key={'AssetName'}
+                            AllowSort={true}
+                            Field={'AssetName'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Asset Name
+                        </ReactTable.Column>
+                        <ReactTable.Column<AssetConnection>
                             Key={'AssetKey'}
                             AllowSort={true}
                             Field={'AssetKey'}
-                            HeaderStyle={{ width: '47%' }}
-                        > Asset
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Asset Key
                         </ReactTable.Column>
                         <ReactTable.Column<AssetConnection>
                             Key={'Name'}
                             AllowSort={true}
                             Field={'Name'}
-                            HeaderStyle={{ width: '47%' }}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
                         > Relationship
                         </ReactTable.Column>
                         <ReactTable.Column<AssetConnection>
