@@ -125,7 +125,7 @@ const LocationDrawings = (props: IProps) => {
                             setShowDrawings(true);
                         }
                     }}
-                >Open Drawings {props.Locations[0].Name}
+                >Open {props.Locations[0].Name} Drawings
                 </button>
             }
             <ToolTip
