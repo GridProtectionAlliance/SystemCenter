@@ -532,7 +532,7 @@ export default function AssetPage(props: IProps) {
                             </div>
                         </div>
                         <div className="col-4">
-                            <div className="row h-100">
+                            <div className="h-100" style={{paddingBottom: '4rem'}}> {/* kind of hacky to remove scroll bar b/c the select overflows */}
                                 {newEditAsset.AssetType != 'Transformer' && newEditAsset.AssetType != 'Breaker' ?
                                     <ChannelSelector
                                         Label="Associated Channels"
