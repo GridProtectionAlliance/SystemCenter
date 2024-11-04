@@ -1360,7 +1360,6 @@ namespace SystemCenter.Controllers
                 }
 
                 string measurementType = "None";
-                string measurementCharacteristic = "Instantaneous";
                 switch (measurementTypeString)
                 {
                     case "Digital":
@@ -1384,7 +1383,7 @@ namespace SystemCenter.Controllers
                     Meter = meterKey,
                     Asset = "",
                     MeasurementType = measurementType,
-                    MeasurementCharacteristic = measurementCharacteristic,
+                    MeasurementCharacteristic = "Instantaneous",
                     Phase = phase,
                     Name = channelName,
                     SamplesPerHour = 0,
