@@ -29,7 +29,7 @@ import { Input, TextArea } from '@gpa-gemstone/react-forms';
 import { AssetAttributes } from '../../AssetAttribute/Asset';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
 import { ByLocationSlice } from '../../Store/Store';
-import LocationDrawings from './LocationDrawings';
+import LocationDrawingsModal from '../../Location/LocationDrawingsModal';
 import { useAppSelector } from '../../hooks';
 import { SelectRoles } from '../../Store/UserSettings';
 import { ToolTip } from '@gpa-gemstone/react-interactive';
@@ -165,7 +165,7 @@ const MeterLocationProperties = (props: IProps) => {
                 </div>
                 <div className="col">
                     <div className="pull-right" style={{ marginBottom: 10 }}>
-                        <LocationDrawings Locations={[props.Location]} />
+                        <LocationDrawingsModal Locations={[props.Location]} />
                     </div>
                     <div style={{ marginTop: 43 }}>
                         <Input<OpenXDA.Types.Location> Record={props.Location}

@@ -24,10 +24,10 @@
 
 import * as React from 'react';
 import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
-import { LocationDrawingSlice } from '../../Store/Store';
+import { LocationDrawingSlice } from '../Store/Store';
 import { BtnDropdown, LoadingIcon, Modal, ToolTip } from '@gpa-gemstone/react-interactive';
 import { ReactTable } from '@gpa-gemstone/react-table';
-import { useAppDispatch, useAppSelector } from '../../hooks';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { CreateGuid } from '@gpa-gemstone/helper-functions';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 
@@ -35,7 +35,7 @@ interface IProps {
     Locations: OpenXDA.Types.Location[];
 }
 
-const LocationDrawings = (props: IProps) => {
+const LocationDrawingsModal = (props: IProps) => {
     const dispatch = useAppDispatch();
     const guid = React.useRef(CreateGuid());
 
@@ -207,4 +207,4 @@ const LocationDrawings = (props: IProps) => {
     )
 }
 
-export default LocationDrawings;
+export default LocationDrawingsModal;
