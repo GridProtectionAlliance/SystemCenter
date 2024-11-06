@@ -41,7 +41,7 @@ import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
 import MultipleAssetsPage from './MultipleAssetsPage';
 import CustomerAssetGroupPage from './CustomerAssetGroupPage';
 import LineSegmentWindow from '../AssetAttribute/LineSegmentWindow';
-import LocationDrawings from '../Meter/PropertyUI/LocationDrawings';
+import LocationDrawingsModal from '../Location/LocationDrawingsModal';
 
 // Define Step Numbers
 const generalStep: number = 1;
@@ -405,7 +405,7 @@ export default function NewMeterWizard(props: { IsEngineer: boolean }) {
         else if (currentStep === assetStep
             || currentStep === connectionStep
         )
-            return <LocationDrawings Locations={[locationInfo]} />
+            return <LocationDrawingsModal Locations={[locationInfo]} />
         else if (currentStep >= additionalFieldMeterStep) {
             return (
                 <div>

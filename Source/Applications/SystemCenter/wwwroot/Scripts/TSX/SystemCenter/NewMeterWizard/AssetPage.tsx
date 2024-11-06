@@ -40,7 +40,7 @@ import DERAttributes from '../AssetAttribute/DER';
 import AssetSelect from '../Asset/AssetSelect';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { getAssetWithAdditionalFields } from '../../../TS/Services/Asset';
-import LocationDrawings from '../Meter/PropertyUI/LocationDrawings';
+import LocationDrawingsModal from '../Location/LocationDrawingsModal';
 import { GetNodeSize } from '@gpa-gemstone/helper-functions';
 import { ReactTable } from '@gpa-gemstone/react-table';
 import GenerationAttributes from '../AssetAttribute/Generation';
@@ -484,7 +484,7 @@ export default function AssetPage(props: IProps) {
                         <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                         <form>
                             <div className="form-group">
-                                <LocationDrawings Locations={[props.Location]} />
+                                <LocationDrawingsModal Locations={[props.Location]} />
                             </div>
                         </form>
                     </fieldset>
