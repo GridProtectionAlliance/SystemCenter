@@ -53,12 +53,12 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                 </div>
             </div>
             <div className="card-body" style={{ paddingBottom: 0, flex: 1, overflow: 'hidden' }}>
-                <LocationDrawingsTable Location={props.Location} />
+                <LocationDrawingsTable Location={props.Location} ShowEdit={true} />
             </div>
             <div className="card-footer">
                 <button
                     className={"btn btn-info pull-left" + (!hasPermissions() ? ' disabled' : '')}
-                    data-toggle={"modal" + (!hasPermissions() ? ' disabled' : '')} data-target="#exampleModal"
+                    data-toggle={"modal" + (!hasPermissions() ? ' disabled' : '')} data-target="#exampleModal" // ThiS should be communicating with the AddEditModal
                     data-tooltip='AddDrawing'
                     onMouseEnter={() => setHover('Update')}
                     onMouseLeave={() => setHover('None')}

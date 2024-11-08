@@ -31,7 +31,7 @@ import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { AssetConnectionTypeSlice } from '../Store/Store';
 import { SelectRoles } from '../Store/UserSettings';
-import LocationDrawingsModal from '../Location/LocationDrawingsModal'
+import LocationDrawingsModal from '../CommonComponents/LocationDrawingsModal'
 
 interface AssetConnection {
     AssetRelationShipTypeID: number,

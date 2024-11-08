@@ -40,7 +40,7 @@ import DERAttributes from '../AssetAttribute/DER';
 import AssetSelect from '../Asset/AssetSelect';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { getAssetWithAdditionalFields } from '../../../TS/Services/Asset';
-import LocationDrawingsModal from '../Location/LocationDrawingsModal';
+import LocationDrawingsModal from '../CommonComponents/LocationDrawingsModal';
 import { GetNodeSize } from '@gpa-gemstone/helper-functions';
 import { ReactTable } from '@gpa-gemstone/react-table';
 import GenerationAttributes from '../AssetAttribute/Generation';

@@ -29,7 +29,7 @@ import { Input, TextArea } from '@gpa-gemstone/react-forms';
 import { AssetAttributes } from '../../AssetAttribute/Asset';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
 import { ByLocationSlice } from '../../Store/Store';
-import LocationDrawingsModal from '../../Location/LocationDrawingsModal';
+import LocationDrawingsModal from '../../CommonComponents/LocationDrawingsModal';
 import { useAppSelector } from '../../hooks';
 import { SelectRoles } from '../../Store/UserSettings';
 import { ToolTip } from '@gpa-gemstone/react-interactive';

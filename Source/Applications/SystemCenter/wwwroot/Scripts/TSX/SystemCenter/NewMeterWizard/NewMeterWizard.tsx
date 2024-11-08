@@ -41,7 +41,7 @@ import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
 import MultipleAssetsPage from './MultipleAssetsPage';
 import CustomerAssetGroupPage from './CustomerAssetGroupPage';
 import LineSegmentWindow from '../AssetAttribute/LineSegmentWindow';
-import LocationDrawingsModal from '../Location/LocationDrawingsModal';
+import LocationDrawingsModal from '../CommonComponents/LocationDrawingsModal';
 
 // Define Step Numbers
 const generalStep: number = 1;
