@@ -1,3 +1,25 @@
+//******************************************************************************************************
+//  LocationDrawings.tsx - Gbtc
+//
+//  Copyright � 2023, Grid Protection Alliance.  All Rights Reserved.
+//
+//  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
+//  the NOTICE file distributed with this work for additional information regarding copyright ownership.
+//  The GPA licenses this file to you under the MIT License (MIT), the "License"; you may not use this
+//  file except in compliance with the License. You may obtain a copy of the License at:
+//
+//      http://opensource.org/licenses/MIT
+//
+//  Unless agreed to in writing, the subject software distributed under the License is distributed on an
+//  "AS-IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. Refer to the
+//  License for the specific language governing permissions and limitations.
+//
+//  Code Modification History:
+//  ----------------------------------------------------------------------------------------------------
+//  11/06/2024 - Collins Self
+//       Generated original version of source code.
+//
+//******************************************************************************************************
 import { OpenXDA, SystemCenter } from "@gpa-gemstone/application-typings";
 import { Pencil, TrashCan } from "@gpa-gemstone/gpa-symbols";
 import { GenericController, LoadingScreen, ServerErrorIcon } from "@gpa-gemstone/react-interactive";
@@ -5,9 +27,9 @@ import { ReactTable, Paging } from "@gpa-gemstone/react-table";
 import React from "react";
 import { useAppSelector } from "../hooks";
 import { SelectRoles } from "../Store/UserSettings";
-import { Input, Select } from '@gpa-gemstone/react-forms';
+import AddEditDrawingsModal from "./AddEditDrawingsModal";
 
-const LocationDrawingsTable = (props: { Location: OpenXDA.Types.Location }) => {
+const LocationDrawingsTable = (props: { Location: OpenXDA.Types.Location, ShowEdit: boolean }) => {
     const [links, setLinks] = React.useState<SystemCenter.Types.LocationDrawing[]>([]);
     const [sortKey, setSortKey] = React.useState<keyof SystemCenter.Types.LocationDrawing>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
@@ -110,7 +132,7 @@ const LocationDrawingsTable = (props: { Location: OpenXDA.Types.Location }) => {
         return () => { if (handle != null && handle?.abort != null) handle.abort(); }
     }, [sortKey, ascending, page, props.Location.ID]);
 
-    return (<>
+    return <>
         <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
             <ReactTable.Table<SystemCenter.Types.LocationDrawing>
                 TableClass="table table-hover"
@@ -175,6 +197,7 @@ const LocationDrawingsTable = (props: { Location: OpenXDA.Types.Location }) => {
                     RowStyle={{ width: 'auto' }}
                 > Category
                 </ReactTable.Column>
+                {props.ShowEdit ?
                 <ReactTable.Column<SystemCenter.Types.LocationDrawing>
                     Key={'EditDelete'}
                     AllowSort={false}
@@ -188,6 +211,7 @@ const LocationDrawingsTable = (props: { Location: OpenXDA.Types.Location }) => {
                     }
                 > <p></p>
                 </ReactTable.Column>
+                : null}
             </ReactTable.Table>
             <LoadingScreen Show={pageState == 'loading'} />
             <ServerErrorIcon Show={pageState == 'error'} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
@@ -197,30 +221,15 @@ const LocationDrawingsTable = (props: { Location: OpenXDA.Types.Location }) => {
                 </div>
             </div>
         </div>
-        <div className="modal" id="exampleModal" role="dialog"> // pull this modal out so both the drawing table and the drawing page has access
-            <div className="modal-dialog" role="document">
-                <div className="modal-content">
-                    <div className="modal-header">
-                        <h5 className="modal-title">Add New Drawing</h5>
-                        <button type="button" className="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                        <div className="modal-body">
-                            <Input<SystemCenter.Types.LocationDrawing>  Record={record} Field={'Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={valid} Setter={(r) => setRecord(r)} />
-                            <Input<SystemCenter.Types.LocationDrawing>  Record={record} Field={'Link'} Feedback={'A Link is required.'} Valid={valid} Setter={(r) => setRecord(r)} />
-                            <Input<SystemCenter.Types.LocationDrawing>  Record={record} Field={'Description'} Valid={valid} Setter={(r) => setRecord(r)} />
-                            <Select<SystemCenter.Types.LocationDrawing> Record={record} Field={'Category'} Options={category.map(item => { return { Value: item.Value, Label: item.AltValue ?? item.Value } })} Label={'Category'} Setter={(r) => setRecord(r)} />
-                            <Input<SystemCenter.Types.LocationDrawing>  Record={record} Field={'Number'} Feedback={'Number must be less than 50 characters.'} Valid={valid} AllowNull={true} Setter={(r) => setRecord(r)} />
-                        </div>
-                        <div className="modal-footer">
-                        <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={() => handleSave()}>Save changes</button>
-                        <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </>)
+        {props.ShowEdit ?
+        <AddEditDrawingsModal
+            Record={record}
+            Setter={setRecord}
+            Valid={valid}
+            HandleSave={handleSave}
+            Category={category.map(item => { return { Value: item.Value, Label: item.AltValue ?? item.Value } }) }/>
+        : null}
+    </>
 }
 
 export default LocationDrawingsTable;
