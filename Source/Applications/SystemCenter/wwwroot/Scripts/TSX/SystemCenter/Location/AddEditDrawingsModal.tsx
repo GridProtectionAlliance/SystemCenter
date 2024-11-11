@@ -22,69 +22,87 @@
 //******************************************************************************************************
 import { SystemCenter } from "@gpa-gemstone/application-typings";
 import { Input, Select } from "@gpa-gemstone/react-forms";
+import { Modal } from "@gpa-gemstone/react-interactive";
 import React from "react";
 
 interface IProps {
     Record: SystemCenter.Types.LocationDrawing,
-    Category: {
-        Value: string | number;
-        Label: string;
-    }[],
     Setter: (record) => void,
     Valid: (field) => boolean,
-    HandleSave: () => void
+    HandleSave: () => void,
+    Show: boolean,
+    SetShow: (show: boolean) => void,
 }
 
-const AddEditDrawingsModal = (props: IProps) => {
+const AddEditDrawingsModal = (props: IProps) => { // Change to modal
+    const [category, setCategory] = React.useState<Array<SystemCenter.Types.ValueListItem>>([]);
+
+    function getValueList(listName: string, setter: (value: Array<SystemCenter.Types.ValueListItem>) => void): JQuery.jqXHR<Array<SystemCenter.Types.ValueListItem>> {
+        let h = $.ajax({
+            type: "GET",
+            url: `${homePath}api/ValueList/Group/${listName}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: `json`,
+            cache: false,
+            async: true
+        });
+        h.done((dCat: Array<SystemCenter.Types.ValueListItem>) => {
+            setter(dCat);
+
+        });
+        return h;
+    }
+
+    React.useEffect(() => {
+        let categoryHandle = getValueList("Category", setCategory);
+
+        return () => {
+            if (categoryHandle != null && categoryHandle.abort != null) categoryHandle.abort();
+        }
+    }, [])
+
     return <>
-        <div className="modal" id="exampleModal" role="dialog">
-            <div className="modal-dialog" role="document">
-                <div className="modal-content">
-                    <div className="modal-header">
-                        <h5 className="modal-title">Add New Drawing</h5>
-                        <button type="button" className="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div className="modal-body">
-                        <Input<SystemCenter.Types.LocationDrawing>
-                            Record={props.Record}
-                            Field={'Name'}
-                            Feedback={'A Name of less than 200 characters is required.'}
-                            Valid={props.Valid}
-                            Setter={(r) => props.Setter(r)} />
-                        <Input<SystemCenter.Types.LocationDrawing>
-                            Record={props.Record}
-                            Field={'Link'}
-                            Feedback={'A Link is required.'}
-                            Valid={props.Valid}
-                            Setter={(r) => props.Setter(r)} />
-                        <Input<SystemCenter.Types.LocationDrawing>
-                            Record={props.Record}
-                            Field={'Description'}
-                            Valid={props.Valid}
-                            Setter={(r) => props.Setter(r)} />
-                        <Select<SystemCenter.Types.LocationDrawing>
-                            Record={props.Record}
-                            Field={'Category'}
-                            Options={props.Category}
-                            Label={'Category'}
-                            Setter={(r) => props.Setter(r)} />
-                        <Input<SystemCenter.Types.LocationDrawing>
-                            Record={props.Record}
-                            Field={'Number'}
-                            Feedback={'Number must be less than 50 characters.'}
-                            Valid={props.Valid}
-                            AllowNull={true}
-                            Setter={(r) => props.Setter(r)} />
-                    </div>
-                    <div className="modal-footer">
-                        <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={() => props.HandleSave()}>Save changes</button>
-                        <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <Modal
+            Show={props.Show}
+            Title={'Add/Edit Drawing'}
+            ShowX={true} Size={'sm'}
+            CallBack={(conf) => {
+                props.SetShow(false);
+                if (conf) props.HandleSave();
+            }}
+            ShowCancel={true}
+            ConfirmText={'Save Changes'}>
+            <Input<SystemCenter.Types.LocationDrawing>
+                Record={props.Record}
+                Field={'Name'}
+                Feedback={'A Name of less than 200 characters is required.'}
+                Valid={props.Valid}
+                Setter={(r) => props.Setter(r)} />
+            <Input<SystemCenter.Types.LocationDrawing>
+                Record={props.Record}
+                Field={'Link'}
+                Feedback={'A Link is required.'}
+                Valid={props.Valid}
+                Setter={(r) => props.Setter(r)} />
+            <Input<SystemCenter.Types.LocationDrawing>
+                Record={props.Record}
+                Field={'Description'}
+                Valid={props.Valid}
+                Setter={(r) => props.Setter(r)} />
+            <Select<SystemCenter.Types.LocationDrawing>
+                Record={props.Record}
+                Field={'Category'}
+                Options={category.map(item => { return { Value: item.Value, Label: item.AltValue ?? item.Value } })}
+                Label={'Category'}
+                Setter={(r) => props.Setter(r)} />
+            <Input<SystemCenter.Types.LocationDrawing>
+                Record={props.Record}
+                Field={'Number'}
+                Feedback={'Number must be less than 50 characters.'}
+                Valid={props.Valid}
+                AllowNull={true}
+                Setter={(r) => props.Setter(r)} />
+        </Modal>
     </>
 }
 export default AddEditDrawingsModal;

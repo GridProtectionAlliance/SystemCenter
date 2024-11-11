@@ -255,7 +255,9 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                         <h4>Connections:</h4>
                     </div>
                     <div className="pr-4">
-                        <LocationDrawingsModal Locations={locations} />
+                        <LocationDrawingsModal Location={locations[0]} />
+                        <LocationDrawingsModal Location={locations[1]} />
+                        <LocationDrawingsModal Location={locations[2]} />
                     </div>
                 </div>
             </div>

@@ -29,14 +29,14 @@ import { useAppSelector } from "../hooks";
 import { SelectRoles } from "../Store/UserSettings";
 import AddEditDrawingsModal from "./AddEditDrawingsModal";
 
-const LocationDrawingsTable = (props: { Location: OpenXDA.Types.Location, ShowEdit: boolean }) => {
+const LocationDrawingsTable = (props: { Location: OpenXDA.Types.Location, Edit?: (record: SystemCenter.Types.LocationDrawing) => void }) => {
     const [links, setLinks] = React.useState<SystemCenter.Types.LocationDrawing[]>([]);
     const [sortKey, setSortKey] = React.useState<keyof SystemCenter.Types.LocationDrawing>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
+    const [showModal, setShowModal] = React.useState<boolean>(true);
     const [pageInfo, setPageInfo] = React.useState<{ RecordsPerPage: number, NumberOfPages: number, TotalRecords: number }>({ RecordsPerPage: 0, NumberOfPages: 0, TotalRecords: 0 });
     const [pageState, setPageState] = React.useState<'error' | 'idle' | 'loading'>('idle');
     const [page, setPage] = React.useState<number>(0);
-    const [category, setCategory] = React.useState<Array<SystemCenter.Types.ValueListItem>>([]);
     const emptyRecord: SystemCenter.Types.LocationDrawing = { ID: 0, LocationID: 0, Name: '', Link: '', Description: '', Number: '', Category: '' };
     const [record, setRecord] = React.useState<SystemCenter.Types.LocationDrawing>(emptyRecord);
 
@@ -62,6 +62,7 @@ const LocationDrawingsTable = (props: { Location: OpenXDA.Types.Location, ShowEd
             .fail(() => setPageState('error'));
         return handle;
     }
+
     const handleDelete = (item: SystemCenter.Types.LocationDrawing) => {
         setPageState('loading');
         LocationDrawingController.DBAction('DELETE', item)
@@ -84,22 +85,6 @@ const LocationDrawingsTable = (props: { Location: OpenXDA.Types.Location, ShowEd
             });
     };
 
-    function getValueList(listName: string, setter: (value: Array<SystemCenter.Types.ValueListItem>) => void): JQuery.jqXHR<Array<SystemCenter.Types.ValueListItem>> {
-        let h = $.ajax({
-            type: "GET",
-            url: `${homePath}api/ValueList/Group/${listName}`,
-            contentType: "application/json; charset=utf-8",
-            dataType: `json`,
-            cache: false,
-            async: true
-        });
-        h.done((dCat: Array<SystemCenter.Types.ValueListItem>) => {
-            setter(dCat);
-
-        });
-        return h;
-    }
-
     function valid(field: keyof (SystemCenter.Types.LocationDrawing)): boolean {
         if (field == 'Name')
             return record.Name != null && record.Name.length > 0 && record.Name.length <= 200;
@@ -111,14 +96,6 @@ const LocationDrawingsTable = (props: { Location: OpenXDA.Types.Location, ShowEd
     }
 
     React.useEffect(() => {
-        let categoryHandle = getValueList("Category", setCategory);
-
-        return () => {
-            if (categoryHandle != null && categoryHandle.abort != null) categoryHandle.abort();
-        }
-    }, [])
-
-    React.useEffect(() => {
         const storedInfo = JSON.parse(localStorage.getItem(PagingID) as string);
         if (storedInfo != null) setPage(storedInfo);
     }, []);
@@ -128,7 +105,7 @@ const LocationDrawingsTable = (props: { Location: OpenXDA.Types.Location, ShowEd
     }, [page]);
 
     React.useEffect(() => {
-        const handle = fetchDrawings(sortKey, ascending, page, props.Location.ID);
+        const handle = fetchDrawings(sortKey, ascending, page, props.Location?.ID);
         return () => { if (handle != null && handle?.abort != null) handle.abort(); }
     }, [sortKey, ascending, page, props.Location.ID]);
 
@@ -197,7 +174,7 @@ const LocationDrawingsTable = (props: { Location: OpenXDA.Types.Location, ShowEd
                     RowStyle={{ width: 'auto' }}
                 > Category
                 </ReactTable.Column>
-                {props.ShowEdit ?
+                {props.Edit ?
                 <ReactTable.Column<SystemCenter.Types.LocationDrawing>
                     Key={'EditDelete'}
                     AllowSort={false}
@@ -205,8 +182,10 @@ const LocationDrawingsTable = (props: { Location: OpenXDA.Types.Location, ShowEd
                     RowStyle={{ width: 'auto' }}
                     Content={({ item }) =>
                         <span>
-                            <button title='Edit Link' className={"btn" + (!hasPermissions() ? ' disabled' : '')} data-toggle={"modal" + (!hasPermissions() ? ' disabled' : '')} data-target="#exampleModal" onClick={(e) => { setRecord(item) }}>{Pencil}</button>
-                            <button title='Delete Link' className={"btn" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => { if (hasPermissions()) handleDelete(item); }}>{TrashCan}</button>
+                            <button title='Edit Link' className={"btn" + (!hasPermissions() ? ' disabled' : '')}
+                                onClick={() => { setRecord(item); props.Edit(record); }}>{Pencil}</button>
+                            <button title='Delete Link' className={"btn" + (!hasPermissions() ? ' disabled' : '')}
+                                onClick={() => { if (hasPermissions()) handleDelete(item); }}>{TrashCan}</button>
                         </span>
                     }
                 > <p></p>
@@ -221,13 +200,14 @@ const LocationDrawingsTable = (props: { Location: OpenXDA.Types.Location, ShowEd
                 </div>
             </div>
         </div>
-        {props.ShowEdit ?
+        {props.Edit ?
         <AddEditDrawingsModal
             Record={record}
+            Show={showModal}
+            SetShow={setShowModal}
             Setter={setRecord}
             Valid={valid}
-            HandleSave={handleSave}
-            Category={category.map(item => { return { Value: item.Value, Label: item.AltValue ?? item.Value } }) }/>
+            HandleSave={handleSave} />
         : null}
     </>
 }

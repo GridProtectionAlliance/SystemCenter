@@ -405,7 +405,7 @@ export default function NewMeterWizard(props: { IsEngineer: boolean }) {
         else if (currentStep === assetStep
             || currentStep === connectionStep
         )
-            return <LocationDrawingsModal Locations={[locationInfo]} />
+            return <LocationDrawingsModal Location={locationInfo} />
         else if (currentStep >= additionalFieldMeterStep) {
             return (
                 <div>

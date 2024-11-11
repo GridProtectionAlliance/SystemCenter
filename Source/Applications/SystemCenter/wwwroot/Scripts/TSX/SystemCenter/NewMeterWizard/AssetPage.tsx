@@ -484,7 +484,7 @@ export default function AssetPage(props: IProps) {
                         <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                         <form>
                             <div className="form-group">
-                                <LocationDrawingsModal Locations={[props.Location]} />
+                                <LocationDrawingsModal Location={props.Location} />
                             </div>
                         </form>
                     </fieldset>
