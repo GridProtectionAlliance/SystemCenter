@@ -29,6 +29,7 @@ import { ToolTip } from '@gpa-gemstone/react-interactive';
 import LocationDrawingsTable from './LocationDrawingsTable';
 import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
+import AddEditDrawingsModal from './AddEditDrawingsModal';
 
 
 const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => {
@@ -36,10 +37,45 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
     const emptyRecord: SystemCenter.Types.LocationDrawing = { ID: 0, LocationID: 0, Name: '', Link: '', Description: '', Number: '', Category: '' };
     const [record, setRecord] = React.useState<SystemCenter.Types.LocationDrawing>(emptyRecord);
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
+    const [showModal, setShowModal] = React.useState<boolean>(false);
 
     function hasPermissions(): boolean {
         if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0)
             return false;
+        return true;
+    }
+
+    const fetchDrawings = (sortKey: keyof SystemCenter.Types.LocationDrawing, ascending: boolean, page: number, locationID: number) => {
+        setPageState('loading');
+        const handle = LocationDrawingController.PagedSearch([], sortKey, ascending, page, locationID)
+            .done((result) => {
+                setLinks(JSON.parse(result.Data as unknown as string));
+                if (result.NumberOfPages === 0) result.NumberOfPages = 1;
+                setPageInfo(result);
+                setPageState('idle');
+            })
+            .fail(() => setPageState('error'));
+        return handle;
+    }
+
+    const handleSave = () => {
+        setPageState('loading');
+        LocationDrawingController.DBAction('PATCH', record)
+            .then(() => {
+                fetchDrawings(sortKey, ascending, page, props.Location.ID);
+            })
+            .catch(() => {
+                setPageState('error');
+            });
+    };
+
+    function valid(field: keyof (SystemCenter.Types.LocationDrawing)): boolean {
+        if (field == 'Name')
+            return record.Name != null && record.Name.length > 0 && record.Name.length <= 200;
+        else if (field == 'Link')
+            return record.Link != null && record.Link.length > 0;
+        else if (field == 'Number')
+            return record.Number == null || record.Number.length <= 50;
         return true;
     }
 
@@ -53,19 +89,25 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                 </div>
             </div>
             <div className="card-body" style={{ paddingBottom: 0, flex: 1, overflow: 'hidden' }}>
-                <LocationDrawingsTable Location={props.Location} ShowEdit={true} />
+                <LocationDrawingsTable Location={props.Location} Edit={(record) => { setRecord(record) }} />
             </div>
             <div className="card-footer">
                 <button
                     className={"btn btn-info pull-left" + (!hasPermissions() ? ' disabled' : '')}
-                    data-toggle={"modal" + (!hasPermissions() ? ' disabled' : '')} data-target="#exampleModal" // ThiS should be communicating with the AddEditModal
-                    data-tooltip='AddDrawing'
                     onMouseEnter={() => setHover('Update')}
                     onMouseLeave={() => setHover('None')}
-                    onClick={() => { setRecord({ ...emptyRecord, LocationID: props.Location.ID }) }}
+                    onClick={() => { setRecord({ ...emptyRecord, LocationID: props.Location.ID }); setShowModal(true); }}
                     >Add Drawing
                 </button>
             </div>
+            <AddEditDrawingsModal
+                Record={record}
+                Setter={setRecord}
+                Valid={valid}
+                HandleSave={handleSave}
+                Show={showModal}
+                SetShow={setShowModal}
+            />
             <ToolTip
                 Show={hover == 'Update' && !hasPermissions()}
                 Position={'top'}

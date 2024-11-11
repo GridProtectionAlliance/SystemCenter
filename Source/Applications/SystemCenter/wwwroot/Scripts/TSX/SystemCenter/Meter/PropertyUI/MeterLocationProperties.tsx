@@ -165,7 +165,7 @@ const MeterLocationProperties = (props: IProps) => {
                 </div>
                 <div className="col">
                     <div className="pull-right" style={{ marginBottom: 10 }}>
-                        <LocationDrawingsModal Locations={[props.Location]} />
+                        <LocationDrawingsModal Location={props.Location} />
                     </div>
                     <div style={{ marginTop: 43 }}>
                         <Input<OpenXDA.Types.Location> Record={props.Location}
