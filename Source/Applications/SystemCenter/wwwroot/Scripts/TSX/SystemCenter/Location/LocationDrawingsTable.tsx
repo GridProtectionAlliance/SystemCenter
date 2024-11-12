@@ -27,18 +27,23 @@ import { ReactTable, Paging } from "@gpa-gemstone/react-table";
 import React from "react";
 import { useAppSelector } from "../hooks";
 import { SelectRoles } from "../Store/UserSettings";
-import AddEditDrawingsModal from "./AddEditDrawingsModal";
 
-const LocationDrawingsTable = (props: { Location: OpenXDA.Types.Location, Edit?: (record: SystemCenter.Types.LocationDrawing) => void }) => {
+interface IProps {
+    Location: OpenXDA.Types.Location,
+    Edit?: (record: SystemCenter.Types.LocationDrawing) => void,
+    /**
+     * @param UpdateTable Counter that triggers a fetchDrawings function
+     */
+    UpdateTable?: number,
+}
+
+const LocationDrawingsTable = (props: IProps) => {
     const [links, setLinks] = React.useState<SystemCenter.Types.LocationDrawing[]>([]);
     const [sortKey, setSortKey] = React.useState<keyof SystemCenter.Types.LocationDrawing>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
-    const [showModal, setShowModal] = React.useState<boolean>(true);
     const [pageInfo, setPageInfo] = React.useState<{ RecordsPerPage: number, NumberOfPages: number, TotalRecords: number }>({ RecordsPerPage: 0, NumberOfPages: 0, TotalRecords: 0 });
     const [pageState, setPageState] = React.useState<'error' | 'idle' | 'loading'>('idle');
     const [page, setPage] = React.useState<number>(0);
-    const emptyRecord: SystemCenter.Types.LocationDrawing = { ID: 0, LocationID: 0, Name: '', Link: '', Description: '', Number: '', Category: '' };
-    const [record, setRecord] = React.useState<SystemCenter.Types.LocationDrawing>(emptyRecord);
 
     const roles = useAppSelector(SelectRoles); // Deprecated
     const LocationDrawingController = new GenericController<SystemCenter.Types.LocationDrawing>(`${homePath}api/LocationDrawing`, "Name", true);
@@ -74,26 +79,10 @@ const LocationDrawingsTable = (props: { Location: OpenXDA.Types.Location, Edit?:
             });
     };
 
-    const handleSave = () => {
-        setPageState('loading');
-        LocationDrawingController.DBAction('PATCH', record)
-            .then(() => {
-                fetchDrawings(sortKey, ascending, page, props.Location.ID);
-            })
-            .catch(() => {
-                setPageState('error');
-            });
-    };
-
-    function valid(field: keyof (SystemCenter.Types.LocationDrawing)): boolean {
-        if (field == 'Name')
-            return record.Name != null && record.Name.length > 0 && record.Name.length <= 200;
-        else if (field == 'Link')
-            return record.Link != null && record.Link.length > 0;
-        else if (field == 'Number')
-            return record.Number == null || record.Number.length <= 50;
-        return true;
-    }
+    React.useEffect(() => {
+        if (props.UpdateTable != undefined)
+            fetchDrawings(sortKey, ascending, page, props.Location.ID);
+    }, [props.UpdateTable])
 
     React.useEffect(() => {
         const storedInfo = JSON.parse(localStorage.getItem(PagingID) as string);
@@ -183,7 +172,7 @@ const LocationDrawingsTable = (props: { Location: OpenXDA.Types.Location, Edit?:
                     Content={({ item }) =>
                         <span>
                             <button title='Edit Link' className={"btn" + (!hasPermissions() ? ' disabled' : '')}
-                                onClick={() => { setRecord(item); props.Edit(record); }}>{Pencil}</button>
+                                onClick={() => { props.Edit(item); }}>{Pencil}</button>
                             <button title='Delete Link' className={"btn" + (!hasPermissions() ? ' disabled' : '')}
                                 onClick={() => { if (hasPermissions()) handleDelete(item); }}>{TrashCan}</button>
                         </span>
@@ -200,15 +189,6 @@ const LocationDrawingsTable = (props: { Location: OpenXDA.Types.Location, Edit?:
                 </div>
             </div>
         </div>
-        {props.Edit ?
-        <AddEditDrawingsModal
-            Record={record}
-            Show={showModal}
-            SetShow={setShowModal}
-            Setter={setRecord}
-            Valid={valid}
-            HandleSave={handleSave} />
-        : null}
     </>
 }
 

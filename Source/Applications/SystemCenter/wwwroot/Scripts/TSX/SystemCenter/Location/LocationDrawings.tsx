@@ -25,7 +25,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
-import { ToolTip } from '@gpa-gemstone/react-interactive';
+import { GenericController, ToolTip } from '@gpa-gemstone/react-interactive';
 import LocationDrawingsTable from './LocationDrawingsTable';
 import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
@@ -38,6 +38,9 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
     const [record, setRecord] = React.useState<SystemCenter.Types.LocationDrawing>(emptyRecord);
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
     const [showModal, setShowModal] = React.useState<boolean>(false);
+    const [editMode, setEditMode] = React.useState<boolean>(false);
+    const [updateTable, setUpdateTable] = React.useState<number>(0);
+    const LocationDrawingController = new GenericController<SystemCenter.Types.LocationDrawing>(`${homePath}api/LocationDrawing`, "Name", true);
 
     function hasPermissions(): boolean {
         if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0)
@@ -45,41 +48,16 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
         return true;
     }
 
-    const fetchDrawings = (sortKey: keyof SystemCenter.Types.LocationDrawing, ascending: boolean, page: number, locationID: number) => {
-        setPageState('loading');
-        const handle = LocationDrawingController.PagedSearch([], sortKey, ascending, page, locationID)
-            .done((result) => {
-                setLinks(JSON.parse(result.Data as unknown as string));
-                if (result.NumberOfPages === 0) result.NumberOfPages = 1;
-                setPageInfo(result);
-                setPageState('idle');
-            })
-            .fail(() => setPageState('error'));
-        return handle;
-    }
-
     const handleSave = () => {
-        setPageState('loading');
-        LocationDrawingController.DBAction('PATCH', record)
-            .then(() => {
-                fetchDrawings(sortKey, ascending, page, props.Location.ID);
-            })
-            .catch(() => {
-                setPageState('error');
-            });
+        setShowModal(false);
+        setRecord(record);
+        editMode ? LocationDrawingController.DBAction('PATCH', record)
+            .done(() => {setUpdateTable(updateTable + 1)})
+            : LocationDrawingController.DBAction('POST', record)
+            .done(() => {setUpdateTable(updateTable + 1)});
     };
 
-    function valid(field: keyof (SystemCenter.Types.LocationDrawing)): boolean {
-        if (field == 'Name')
-            return record.Name != null && record.Name.length > 0 && record.Name.length <= 200;
-        else if (field == 'Link')
-            return record.Link != null && record.Link.length > 0;
-        else if (field == 'Number')
-            return record.Number == null || record.Number.length <= 50;
-        return true;
-    }
-
-    return (
+    return (<>
         <div className="card" style={{ flex: 1, overflow: 'hidden' }}>
             <div className="card-header">
                 <div className="row">
@@ -89,21 +67,32 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                 </div>
             </div>
             <div className="card-body" style={{ paddingBottom: 0, flex: 1, overflow: 'hidden' }}>
-                <LocationDrawingsTable Location={props.Location} Edit={(record) => { setRecord(record) }} />
+                <LocationDrawingsTable
+                    Location={props.Location}
+                    Edit={(record) => {
+                        setRecord(record);
+                        setEditMode(true);
+                        setShowModal(true);
+                    }}
+                    UpdateTable={updateTable}
+                />
             </div>
             <div className="card-footer">
                 <button
                     className={"btn btn-info pull-left" + (!hasPermissions() ? ' disabled' : '')}
                     onMouseEnter={() => setHover('Update')}
                     onMouseLeave={() => setHover('None')}
-                    onClick={() => { setRecord({ ...emptyRecord, LocationID: props.Location.ID }); setShowModal(true); }}
+                    onClick={() => {
+                        setRecord({ ...emptyRecord, LocationID: props.Location.ID });
+                        setEditMode(false);
+                        setShowModal(true);
+                    }}
                     >Add Drawing
                 </button>
             </div>
             <AddEditDrawingsModal
                 Record={record}
                 Setter={setRecord}
-                Valid={valid}
                 HandleSave={handleSave}
                 Show={showModal}
                 SetShow={setShowModal}
@@ -116,9 +105,7 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                 <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
             </ToolTip>
         </div>
-
-    );
-
+    </>);
 }
 
 export default LocationDrawingsWindow;
