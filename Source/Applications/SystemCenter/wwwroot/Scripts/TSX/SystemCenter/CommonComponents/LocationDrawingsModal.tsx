@@ -28,7 +28,6 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 import { CreateGuid } from '@gpa-gemstone/helper-functions';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import LocationDrawingsTable from '../Location/LocationDrawingsTable';
-import AddEditDrawingsModal from '../Location/AddEditDrawingsModal';
 
 interface IProps {
     Location: OpenXDA.Types.Location;
