@@ -28,14 +28,23 @@ import React from "react";
 interface IProps {
     Record: SystemCenter.Types.LocationDrawing,
     Setter: (record) => void,
-    Valid: (field) => boolean,
     HandleSave: () => void,
     Show: boolean,
     SetShow: (show: boolean) => void,
 }
 
-const AddEditDrawingsModal = (props: IProps) => { // Change to modal
+const AddEditDrawingsModal = (props: IProps) => {
     const [category, setCategory] = React.useState<Array<SystemCenter.Types.ValueListItem>>([]);
+
+    function valid(field: keyof (SystemCenter.Types.LocationDrawing)): boolean {
+        if (field == 'Name')
+            return props.Record.Name != null && props.Record.Name.length > 0 && props.Record.Name.length <= 200;
+        else if (field == 'Link')
+            return props.Record.Link != null && props.Record.Link.length > 0;
+        else if (field == 'Number')
+            return props.Record.Number == null || props.Record.Number.length <= 50;
+        return true;
+    }
 
     function getValueList(listName: string, setter: (value: Array<SystemCenter.Types.ValueListItem>) => void): JQuery.jqXHR<Array<SystemCenter.Types.ValueListItem>> {
         let h = $.ajax({
@@ -65,29 +74,33 @@ const AddEditDrawingsModal = (props: IProps) => { // Change to modal
         <Modal
             Show={props.Show}
             Title={'Add/Edit Drawing'}
-            ShowX={true} Size={'sm'}
+            ShowX={true} Size={'lg'}
             CallBack={(conf) => {
                 props.SetShow(false);
                 if (conf) props.HandleSave();
             }}
             ShowCancel={true}
-            ConfirmText={'Save Changes'}>
+            DisableConfirm={
+                !(valid('Name') &&
+                valid('Link') &&
+                valid('Number'))}
+            ConfirmText={'Save'}>
             <Input<SystemCenter.Types.LocationDrawing>
                 Record={props.Record}
                 Field={'Name'}
                 Feedback={'A Name of less than 200 characters is required.'}
-                Valid={props.Valid}
+                Valid={valid}
                 Setter={(r) => props.Setter(r)} />
             <Input<SystemCenter.Types.LocationDrawing>
                 Record={props.Record}
                 Field={'Link'}
                 Feedback={'A Link is required.'}
-                Valid={props.Valid}
+                Valid={valid}
                 Setter={(r) => props.Setter(r)} />
             <Input<SystemCenter.Types.LocationDrawing>
                 Record={props.Record}
                 Field={'Description'}
-                Valid={props.Valid}
+                Valid={valid}
                 Setter={(r) => props.Setter(r)} />
             <Select<SystemCenter.Types.LocationDrawing>
                 Record={props.Record}
@@ -99,7 +112,7 @@ const AddEditDrawingsModal = (props: IProps) => { // Change to modal
                 Record={props.Record}
                 Field={'Number'}
                 Feedback={'Number must be less than 50 characters.'}
-                Valid={props.Valid}
+                Valid={valid}
                 AllowNull={true}
                 Setter={(r) => props.Setter(r)} />
         </Modal>
