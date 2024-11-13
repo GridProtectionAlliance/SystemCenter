@@ -71,7 +71,7 @@ const ByCustomer: Application.Types.iByComponent = (props) => {
             OnClick={(item) => { handleSelect(item); }}
             Columns={fieldCols}
             DefaultSearchAscending={false} DefaultSearchKey='Name'
-            QueryAdditionalFields={() => 
+            QueryAdditionalFields={() =>
                 $.ajax({
                     type: "GET",
                     url: `${homePath}api/SystemCenter/AdditionalFieldView/ParentTable/Customer/FieldName/0`,
