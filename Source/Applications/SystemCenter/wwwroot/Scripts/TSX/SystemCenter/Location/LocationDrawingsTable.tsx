@@ -34,7 +34,13 @@ interface IProps {
     /**
      * @param UpdateTable Counter that triggers a fetchDrawings function
      */
-    UpdateTable?: number,
+    UpdateTable: number,
+    /**
+     * Used to pass number of drawings up to be used in relevant setters.
+     * @param n number of records
+     * @returns
+     */
+    SetTotalRecords: (n: number) => void;
 }
 
 const LocationDrawingsTable = (props: IProps) => {
@@ -80,8 +86,11 @@ const LocationDrawingsTable = (props: IProps) => {
     };
 
     React.useEffect(() => {
-        if (props.UpdateTable != undefined)
-            fetchDrawings(sortKey, ascending, page, props.Location.ID);
+        props.SetTotalRecords(pageInfo.TotalRecords);
+    }, [pageInfo])
+
+    React.useEffect(() => {
+        fetchDrawings(sortKey, ascending, page, props.Location.ID);
     }, [props.UpdateTable])
 
     React.useEffect(() => {

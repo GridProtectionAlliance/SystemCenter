@@ -75,6 +75,7 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                         setShowModal(true);
                     }}
                     UpdateTable={updateTable}
+                    SetTotalRecords={() => {}}
                 />
             </div>
             <div className="card-footer">

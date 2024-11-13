@@ -22,9 +22,7 @@
 //******************************************************************************************************
 import React from 'react';
 import { OpenXDA } from '@gpa-gemstone/application-typings'
-import { LocationDrawingSlice } from '../Store/Store';
-import { LoadingIcon, Modal, ToolTip } from '@gpa-gemstone/react-interactive';
-import { useAppDispatch, useAppSelector } from '../hooks';
+import { Modal, ToolTip } from '@gpa-gemstone/react-interactive';
 import { CreateGuid } from '@gpa-gemstone/helper-functions';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import LocationDrawingsTable from '../Location/LocationDrawingsTable';
@@ -34,26 +32,17 @@ interface IProps {
 }
 
 const LocationDrawingsModal = (props: IProps) => {
-    const dispatch = useAppDispatch();
     const guid = React.useRef(CreateGuid());
-
-    const drawingData = useAppSelector(LocationDrawingSlice.Data);
-    const drawingStatus = useAppSelector(LocationDrawingSlice.Status);
-    const drawingParentID = useAppSelector(LocationDrawingSlice.ParentID);
 
     const [hover, setHover] = React.useState<'none' | 'drawings'>('none');
     const [errors, setErrors] = React.useState<string[]>([]);
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [disableButton, setDisableButton] = React.useState<boolean>(false);
+    const [totalRecords, setTotalRecords] = React.useState<number>();
 
     React.useEffect(() => {
         setDisableButton(errors.length > 0);
     }, [errors]);
-
-    React.useEffect(() => {
-        if (drawingStatus == 'unintiated' || drawingStatus == 'changed' || drawingParentID != props.Location?.ID)
-            dispatch(LocationDrawingSlice.Fetch(props.Location?.ID));
-    }, [props.Location, drawingStatus, drawingParentID]);
 
     React.useEffect(() => {
         let e = [];
@@ -67,11 +56,11 @@ const LocationDrawingsModal = (props: IProps) => {
             && props.Location.Longitude == null
             && props.Location.Name == ""))
             e.push('No locations have been set.');
-        else if (drawingData.length == 0)
+        else if (totalRecords == 0)
             e.push('No drawings associated with selected location.');
 
         setErrors(e);
-    }, [props.Location, drawingData]);
+    }, [props.Location, totalRecords]);
 
     return (
         <div>
@@ -102,8 +91,10 @@ const LocationDrawingsModal = (props: IProps) => {
                 ConfirmText={'Done'}>
                 <div className="row">
                     <div className="col" style={{ width: '100%' }}>
-                        <LoadingIcon Show={drawingStatus == 'loading'} />
-                        <LocationDrawingsTable Location={props.Location} />
+                        <LocationDrawingsTable
+                            Location={props.Location}
+                            UpdateTable={0}
+                            SetTotalRecords={(r) => { setTotalRecords(r) }}/>
                     </div>
                 </div>
             </Modal>
