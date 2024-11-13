@@ -20,7 +20,7 @@
 //       Generated original version of source code.
 //
 //******************************************************************************************************
-import { OpenXDA, SystemCenter } from "@gpa-gemstone/application-typings";
+import { SystemCenter } from "@gpa-gemstone/application-typings";
 import { Pencil, TrashCan } from "@gpa-gemstone/gpa-symbols";
 import { GenericController, LoadingScreen, ServerErrorIcon } from "@gpa-gemstone/react-interactive";
 import { ReactTable, Paging } from "@gpa-gemstone/react-table";
@@ -29,7 +29,7 @@ import { useAppSelector } from "../hooks";
 import { SelectRoles } from "../Store/UserSettings";
 
 interface IProps {
-    Location: OpenXDA.Types.Location,
+    LocationID: number,
     Edit?: (record: SystemCenter.Types.LocationDrawing) => void,
     /**
      * @param UpdateTable Counter that triggers a fetchDrawings function
@@ -78,7 +78,7 @@ const LocationDrawingsTable = (props: IProps) => {
         setPageState('loading');
         LocationDrawingController.DBAction('DELETE', item)
             .then(() => {
-                fetchDrawings(sortKey, ascending, page, props.Location.ID);
+                fetchDrawings(sortKey, ascending, page, props.LocationID);
             })
             .catch(() => {
                 setPageState('error');
@@ -86,12 +86,13 @@ const LocationDrawingsTable = (props: IProps) => {
     };
 
     React.useEffect(() => {
+        console.log('called')
         props.SetTotalRecords(pageInfo.TotalRecords);
-    }, [pageInfo])
+    }, [pageInfo.TotalRecords]);
 
     React.useEffect(() => {
-        fetchDrawings(sortKey, ascending, page, props.Location.ID);
-    }, [props.UpdateTable])
+        fetchDrawings(sortKey, ascending, page, props.LocationID);
+    }, [props.UpdateTable]);
 
     React.useEffect(() => {
         const storedInfo = JSON.parse(localStorage.getItem(PagingID) as string);
@@ -103,9 +104,9 @@ const LocationDrawingsTable = (props: IProps) => {
     }, [page]);
 
     React.useEffect(() => {
-        const handle = fetchDrawings(sortKey, ascending, page, props.Location?.ID);
+        const handle = fetchDrawings(sortKey, ascending, page, props.LocationID);
         return () => { if (handle != null && handle?.abort != null) handle.abort(); }
-    }, [sortKey, ascending, page, props.Location.ID]);
+    }, [sortKey, ascending, page, props.LocationID]);
 
     return <>
         <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>

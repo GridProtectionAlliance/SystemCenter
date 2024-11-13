@@ -24,7 +24,7 @@
 //******************************************************************************************************
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
+import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { GenericController, ToolTip } from '@gpa-gemstone/react-interactive';
 import LocationDrawingsTable from './LocationDrawingsTable';
 import { useAppSelector } from '../hooks';
@@ -32,7 +32,7 @@ import { SelectRoles } from '../Store/UserSettings';
 import AddEditDrawingsModal from './AddEditDrawingsModal';
 
 
-const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => {
+const LocationDrawingsWindow = (props: { LocationID: number }) => {
     const roles = useAppSelector(SelectRoles); // Deprecated
     const emptyRecord: SystemCenter.Types.LocationDrawing = { ID: 0, LocationID: 0, Name: '', Link: '', Description: '', Number: '', Category: '' };
     const [record, setRecord] = React.useState<SystemCenter.Types.LocationDrawing>(emptyRecord);
@@ -68,7 +68,7 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
             </div>
             <div className="card-body" style={{ paddingBottom: 0, flex: 1, overflow: 'hidden' }}>
                 <LocationDrawingsTable
-                    Location={props.Location}
+                    LocationID={props.LocationID}
                     Edit={(record) => {
                         setRecord(record);
                         setEditMode(true);
@@ -84,7 +84,7 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                     onMouseEnter={() => setHover('Update')}
                     onMouseLeave={() => setHover('None')}
                     onClick={() => {
-                        setRecord({ ...emptyRecord, LocationID: props.Location.ID });
+                        setRecord({ ...emptyRecord, LocationID: props.LocationID });
                         setEditMode(false);
                         setShowModal(true);
                     }}
