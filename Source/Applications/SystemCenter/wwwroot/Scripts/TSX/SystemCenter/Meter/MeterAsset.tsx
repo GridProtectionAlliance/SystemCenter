@@ -42,6 +42,7 @@ import { SelectRoles } from '../Store/UserSettings';
 import GenerationAttributes from '../AssetAttribute/Generation';
 import StationAuxAttributes from '../AssetAttribute/StationAux';
 import StationBatteryAttributes from '../AssetAttribute/StationBattery';
+import { SystemCenterSettingSlice } from '../Store/Store';
 
 declare var homePath: string;
 
@@ -50,6 +51,9 @@ interface IProps { Meter: OpenXDA.Types.Meter }
 const MeterAssetWindow = (props: IProps) => {
     const MeterAssetController = new GenericController<OpenXDA.Types.MeterAsset>(`${homePath}api/OpenXDA/DetailedMeterAsset/${props.Meter.ID}`, "AssetName", true);
     const PagingID = 'MeterAssetPage'
+
+    const settings = useAppSelector(SystemCenterSettingSlice.Data);
+    const settingStatus = useAppSelector(SystemCenterSettingSlice.Status);
 
     const [assetTypes, setAssetTypes] = React.useState<OpenXDA.Types.AssetType[]>([]);
     const [newEdit, setNewEdit] = React.useState<Application.Types.NewEdit>('New');
@@ -74,6 +78,11 @@ const MeterAssetWindow = (props: IProps) => {
     const [page, setPage] = React.useState<number>(0);
     const [pageInfo, setPageInfo] = React.useState<{ RecordsPerPage: number, NumberOfPages: number, TotalRecords: number }>({ RecordsPerPage: 0, NumberOfPages: 0, TotalRecords: 0 });
     const [pageState, setPageState] = React.useState<'error' | 'idle' | 'loading'>('idle');
+
+    React.useEffect(() => {
+        if (settingStatus == 'unintiated' || settingStatus == 'changed')
+            dispatch(SystemCenterSettingSlice.Fetch());
+    }, [settingStatus]);
 
     React.useEffect(() => {
         let h = getAssetTypes()
@@ -163,6 +172,10 @@ const MeterAssetWindow = (props: IProps) => {
                                 Field={'AssetKey'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
+                                Content={({ item, field }) =>
+                                <a href={`${homePath}index.cshtml?name=Asset&AssetID=${item.ID}`} target='_blank'>
+                                    {item[field]}
+                                </a>}
                             > Key
                             </ReactTable.Column>
                             <ReactTable.Column<OpenXDA.Types.MeterAsset>
