@@ -37,12 +37,8 @@ const LocationDrawingsModal = (props: IProps) => {
     const [hover, setHover] = React.useState<'none' | 'drawings'>('none');
     const [errors, setErrors] = React.useState<string[]>([]);
     const [showModal, setShowModal] = React.useState<boolean>(false);
-    const [disableButton, setDisableButton] = React.useState<boolean>(false);
     const [totalRecords, setTotalRecords] = React.useState<number>();
-
-    React.useEffect(() => {
-        setDisableButton(errors.length > 0);
-    }, [errors]);
+    const [disableButton, setDisableButton] = React.useState<boolean>(false);
 
     React.useEffect(() => {
         let e = [];
@@ -57,10 +53,14 @@ const LocationDrawingsModal = (props: IProps) => {
             && props.Location.Name == ""))
             e.push('No locations have been set.');
         else if (totalRecords == 0)
-            e.push('No drawings associated with selected location.');
+            e.push('No drawings associated with location.');
 
         setErrors(e);
     }, [props.Location, totalRecords]);
+
+    React.useEffect(() => {
+        setDisableButton(errors.length > 0);
+    }, [errors]);
 
     return (
         <div>
@@ -92,7 +92,7 @@ const LocationDrawingsModal = (props: IProps) => {
                 <div className="row">
                     <div className="col" style={{ width: '100%' }}>
                         <LocationDrawingsTable
-                            Location={props.Location}
+                            LocationID={props.Location?.ID}
                             UpdateTable={0}
                             SetTotalRecords={(r) => { setTotalRecords(r) }}/>
                     </div>
