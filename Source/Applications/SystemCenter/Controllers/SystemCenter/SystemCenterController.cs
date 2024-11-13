@@ -1381,7 +1381,7 @@ namespace SystemCenter.Controllers
 
                 return new ParsedChannel()
                 {
-                    ID = index + 1,
+                    ID = index,
                     Meter = meterKey,
                     Asset = "",
                     MeasurementType = measurementType,
@@ -1401,8 +1401,9 @@ namespace SystemCenter.Controllers
                 };
             };
 
-            IEnumerable<ParsedChannel> parsedAnalog = analogChannels.Select((chan, index) => ParseChannel(chan.title.Trim(), chan.type.ToUpper(), chan.primary, index));
-            IEnumerable<ParsedChannel> parsedDigital = digitalChannels.Select((chan, index) => ParseChannel(chan.e_title.Trim(), "Digital", "1", index));
+            // EMAX files have channels begin indexing at index 1
+            IEnumerable<ParsedChannel> parsedAnalog = analogChannels.Select((chan, index) => ParseChannel(chan.title.Trim(), chan.type.ToUpper(), chan.primary, index + 1));
+            IEnumerable<ParsedChannel> parsedDigital = digitalChannels.Select((chan, index) => ParseChannel(chan.e_title.Trim(), "Digital", "1", index + 1));
 
             return parsedAnalog.Concat(parsedDigital);
         }
