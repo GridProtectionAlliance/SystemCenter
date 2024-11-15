@@ -23,9 +23,8 @@
 
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { SystemCenter } from '../global';
-import { Modal, Search, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
+import { Modal, Warning } from '@gpa-gemstone/react-interactive';
 import * as React from 'react';
-import { useAppDispatch, useAppSelector } from '../hooks';
 import { DataOperationSlice } from '../Store/Store';
 import GenericByPage from '../CommonComponents/GenericByPage';
 import { Input } from '@gpa-gemstone/react-forms';
@@ -42,14 +41,6 @@ const fieldCols: SystemCenter.IByCol<OpenXDA.Types.DataOperation>[] = [
 const DataOperations: Application.Types.iByComponent = (props) => {
     const [refreshCount, refreshData] = React.useState<number>(0);
 
-    const search = useAppSelector(DataOperationSlice.SearchFilters);
-    const searchStatus = useAppSelector(DataOperationSlice.SearchStatus);
-
-    const data = useAppSelector(DataOperationSlice.SearchResults);
-    const status = useAppSelector(DataOperationSlice.Status);
-    const sortField = useAppSelector(DataOperationSlice.SortField);
-    const ascending = useAppSelector(DataOperationSlice.Ascending);
-
     const emptySetting: OpenXDA.Types.DataOperation = { ID: 0, AssemblyName: '', TypeName: '', LoadOrder: 0 };
     const [editnewSetting, setEditNewSetting] = React.useState<OpenXDA.Types.DataOperation>(emptySetting);
     const [editNew, setEditNew] = React.useState<Application.Types.NewEdit>('New');
@@ -59,17 +50,7 @@ const DataOperations: Application.Types.iByComponent = (props) => {
     const [hasChanged, setHasChanged] = React.useState<boolean>(false);
 
     const [errors, setErrors] = React.useState<string[]>([]);
-/*
-    React.useEffect(() => {
-        if (status === 'unintiated' || status === 'changed')
-            dispatch(DataOperationSlice.Fetch());
-    }, [dispatch, status]);
 
-    React.useEffect(() => {
-        if (searchStatus === 'unintiated' || status === 'changed')
-            dispatch(DataOperationSlice.DBSearch({ filter: search, sortField, ascending }));
-    }, [dispatch, searchStatus, ascending, sortField, search]);
-*/
     React.useEffect(() => { setHasChanged(false) }, [showModal]);
 
     React.useEffect(() => {
@@ -80,11 +61,6 @@ const DataOperations: Application.Types.iByComponent = (props) => {
             e.push('An Type Name is required.')
         setErrors(e)
     }, [editnewSetting])
-
-    if (status === 'error')
-        return <div style={{ width: '100%', height: '100%' }}>
-            <ServerErrorIcon Show={true} Label={'A Server Error Occurred. Please Reload the Application.'} />
-        </div>;
 
     function addNewOperation() {
         let handle = $.ajax({
