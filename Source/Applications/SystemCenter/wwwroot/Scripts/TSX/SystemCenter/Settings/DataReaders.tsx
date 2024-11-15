@@ -20,46 +20,32 @@
 //       Generated original version of source code.
 //
 //******************************************************************************************************
-import { Application, SystemCenter, OpenXDA } from '@gpa-gemstone/application-typings';
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import { Input } from '@gpa-gemstone/react-forms';
-import { LoadingScreen, Modal, Search, SearchBar, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Modal, Warning } from '@gpa-gemstone/react-interactive';
 import * as React from 'react';
-import { useAppDispatch, useAppSelector } from '../hooks';
-import { SystemCenter as GlobalSC } from '../global';
-import { DataReaderSlice } from '../Store/Store';
+import { SystemCenter } from '../global';
+import GenericByPage from '../CommonComponents/GenericByPage';
+
+const controllerPath = `${homePath}api/OpenXDA/DataReader`;
+
+const fieldCols: SystemCenter.IByCol<OpenXDA.Types.DataReader>[] = [
+    { Field: 'FilePattern', Label: 'File Pattern', Type: 'string', Width: '20%' },
+    { Field: 'AssemblyName', Label: 'Assembly Name', Type: 'string', Width: '20%' },
+    { Field: 'TypeName', Label: 'TypeName', Type: 'string', Width: 'auto' },
+    { Field: 'LoadOrder', Label: 'Load Order', Type: 'integer', Width: '20%' }
+]
+
 const DataReaders: Application.Types.iByComponent = (props) => {
-
-    const dispatch = useAppDispatch();
-
-    const search = useAppSelector(DataReaderSlice.SearchFilters);
-    const searchStatus = useAppSelector(DataReaderSlice.SearchStatus);
-
-    const data = useAppSelector(DataReaderSlice.SearchResults);
-    const status = useAppSelector(DataReaderSlice.Status);
-    const sortField = useAppSelector(DataReaderSlice.SortField);
-    const ascending = useAppSelector(DataReaderSlice.Ascending);
-
     const emptySetting: OpenXDA.Types.DataReader = { ID: 0, FilePattern: '',  AssemblyName: '', TypeName: '', LoadOrder: 0 };
     const [editnewSetting, setEditNewSetting] = React.useState<OpenXDA.Types.DataReader>(emptySetting);
     const [editNew, setEditNew] = React.useState<Application.Types.NewEdit>('New');
-
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
     const [hasChanged, setHasChanged] = React.useState<boolean>(false);
-
     const [errors, setErrors] = React.useState<string[]>([]);
-
-    React.useEffect(() => {
-        if (status === 'unintiated' || status === 'changed')
-            dispatch(DataReaderSlice.Fetch());
-    }, [dispatch, status]);
-
-    React.useEffect(() => {
-        if (searchStatus === 'unintiated' || status === 'changed')
-            dispatch(DataReaderSlice.DBSearch({ filter: search, sortField, ascending }));
-    }, [dispatch, searchStatus, ascending, sortField, search]);
+    const [refreshCount, refreshData] = React.useState<number>(0);
 
     React.useEffect(() => { setHasChanged(false) }, [showModal]);
 
@@ -76,97 +62,108 @@ const DataReaders: Application.Types.iByComponent = (props) => {
         setErrors(e)
     }, [editnewSetting])
 
-    const searchFields: Search.IField<OpenXDA.Types.DataReader>[] = [
-        { key: 'FilePattern', label: 'File Pattern', type: 'string', isPivotField: false },
-        { key: 'AssemblyName', label: 'Assembly Name', type: 'string', isPivotField: false },
-        { key: 'TypeName', label: 'Type Name', type: 'string', isPivotField: false },
-        { key: 'LoadOrder', label: 'Load Order', type: 'number', isPivotField: false }
-    ]
+    function addOperation() {
+        let handle = $.ajax({
+            type: "POST",
+            url: `${homePath}api/OpenXDA/DataReader/Add`,
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(editnewSetting),
+            dataType: "json",
+            cache: false,
+            async: true
+        }).done(() => {
+            refreshData(x => x + 1);
+        })
 
-    if (status === 'error')
-        return <div style={{ width: '100%', height: '100%' }}>
-            <ServerErrorIcon Show={true} Label={'A Server Error Occurred. Please Reload the Application.'} />
-        </div>;
+        return () => {
+            if (handle != null && handle.abort != null) handle.abort();
+        };
+    }
+
+    function updateOperation() {
+        let handle = $.ajax({
+            type: "PATCH",
+            url: `${homePath}api/OpenXDA/DataReader/Update`,
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(editnewSetting),
+            dataType: "json",
+            cache: false,
+            async: true
+        }).done(() => {
+            refreshData(x => x + 1);
+        })
+
+        return () => {
+            if (handle != null && handle.abort != null) handle.abort();
+        };
+    }
+
+    function deleteOperation() {
+        let handle = $.ajax({
+            type: "DELETE",
+            url: `${homePath}api/OpenXDA/DataReader/Delete`,
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(editnewSetting),
+            dataType: "json",
+            cache: false,
+            async: true
+        }).done(() => {
+            refreshData(x => x + 1);
+        })
+
+        return () => {
+            if (handle != null && handle.abort != null) handle.abort();
+        };
+    }
+
+    function handleSelect(item) {
+        setEditNewSetting(item.row);
+        setEditNew('Edit');
+        setShowModal(true);
+    }
 
     return (
-        <>
-            <LoadingScreen Show={status === 'loading'} />
-            <div style={{ width: '100%', height: '100%' }}>
-                <SearchBar<OpenXDA.Types.DataReader> CollumnList={searchFields} StorageID="DataReadersFilter" SetFilter={(flds) => dispatch(DataReaderSlice.DBSearch({ filter: flds, sortField, ascending }))}
-                    Direction={'left'} defaultCollumn={{ key: 'AssemblyName', label: 'Assembly Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
-                    ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Data Reader(s)'}
-                    GetEnum={() => {
-                        return () => { }
-                    }}
-                >
-                    <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
-                        <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                            <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
-                            <form>
-                                <button className="btn btn-primary" onClick={(event) => { setEditNewSetting(emptySetting); setEditNew('New'); setShowModal(true); event.preventDefault() }}>Add Operation</button>
-                            </form>
-                        </fieldset>
-                    </li>
-                </SearchBar>
-
-                <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                    <ReactTable.Table<OpenXDA.Types.DataReader>
-                        TableClass="table table-hover"
-                        Data={data}
-                        SortKey={sortField}
-                        Ascending={ascending}
-                        OnSort={(d) => {
-                            dispatch(DataReaderSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
-                        }}
-                        OnClick={(item) => { setEditNewSetting(item.row); setShowModal(true); setEditNew('Edit'); }}
-                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        Selected={(item) => false}
-                        KeySelector={(item) => item.ID}
-                    >
-                        <ReactTable.Column<OpenXDA.Types.DataReader>
-                            Key={'FilePattern'}
-                            AllowSort={true}
-                            Field={'FilePattern'}
-                            HeaderStyle={{ width: '20%' }}
-                            RowStyle={{ width: '20%' }}
-                        > File Pattern
-                        </ReactTable.Column>
-                        <ReactTable.Column<OpenXDA.Types.DataReader>
-                            Key={'AssemblyName'}
-                            AllowSort={true}
-                            Field={'AssemblyName'}
-                            HeaderStyle={{ width: '20%' }}
-                            RowStyle={{ width: '20%' }}
-                        > Assembly Name
-                        </ReactTable.Column>
-                        <ReactTable.Column<OpenXDA.Types.DataReader>
-                            Key={'TypeName'}
-                            AllowSort={true}
-                            Field={'TypeName'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Type Name
-                        </ReactTable.Column>
-                        <ReactTable.Column<OpenXDA.Types.DataReader>
-                            Key={'LoadOrder'}
-                            AllowSort={true}
-                            Field={'LoadOrder'}
-                            HeaderStyle={{ width: '20%' }}
-                            RowStyle={{ width: '20%' }}
-                        > Load Order
-                        </ReactTable.Column>
-                    </ReactTable.Table>
-                </div>
-            </div>
-            <Modal Title={editNew === 'Edit' ? 'Edit ' + (editnewSetting?.AssemblyName ?? 'Data Reader'): 'Add New Data Reader'}
-                Show={showModal} ShowX={true} Size={'lg'} ShowCancel={editNew === 'Edit'} ConfirmText={'Save'} CancelText={'Delete'}
+        <GenericByPage<OpenXDA.Types.DataReader>
+            ControllerPath={controllerPath}
+            RefreshData={refreshCount}
+            DefaultSortKey='LoadOrder'
+            PagingID='DataReaders'
+            OnClick={(item) => { handleSelect(item); }}
+            Columns={fieldCols}
+            DefaultSearchAscending={false}
+            DefaultSearchKey='FilePattern'
+        >
+            <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
+                <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                    <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
+                    <form>
+                        <button
+                            className="btn btn-primary"
+                            onClick={(event) => {
+                                setEditNewSetting(emptySetting);
+                                setEditNew('New');
+                                setShowModal(true);
+                                event.preventDefault()
+                            }}
+                        >Add Operation</button>
+                    </form>
+                </fieldset>
+            </li>
+            <Modal
+                Title={editNew === 'Edit'
+                    ? 'Edit ' + (editnewSetting?.AssemblyName ?? 'Data Reader')
+                    : 'Add New Data Reader'}
+                Show={showModal}
+                ShowX={true}
+                Size={'lg'}
+                ShowCancel={editNew === 'Edit'}
+                ConfirmText={'Save'}
+                CancelText={'Delete'}
                 CallBack={(conf, isBtn) => {
                     if (conf && editNew === 'New')
-                        dispatch(DataReaderSlice.DBAction({ verb: 'POST', record: editnewSetting }))
+                        addOperation();
                     if (conf && editNew === 'Edit')
-                        dispatch(DataReaderSlice.DBAction({ verb: 'PATCH', record: editnewSetting }))
+                        updateOperation();
                     if (!conf && isBtn)
                         setShowWarning(true);
                     setShowModal(false);
@@ -179,28 +176,69 @@ const DataReaders: Application.Types.iByComponent = (props) => {
             >
                 <div className="row">
                     <div className="col">
-                        <Input<OpenXDA.Types.DataReader> Record={editnewSetting} Field={'FilePattern'} Label='File Pattern' Feedback={'A File Pattern under 500 characters is required'}
-                            Valid={field => editnewSetting.FilePattern != null && editnewSetting.FilePattern.length > 0 && editnewSetting.FilePattern.length <= 500}
-                            Setter={(record) => { setEditNewSetting(record); setHasChanged(true); }}
+                        <Input<OpenXDA.Types.DataReader>
+                            Record={editnewSetting}
+                            Field={'FilePattern'}
+                            Label='File Pattern'
+                            Feedback={'A File Pattern under 500 characters is required'}
+                            Valid={field => editnewSetting.FilePattern != null
+                                && editnewSetting.FilePattern.length > 0
+                                && editnewSetting.FilePattern.length <= 500}
+                            Setter={(record) => {
+                                setEditNewSetting(record);
+                                setHasChanged(true);
+                            }}
                         />
-
-                        <Input<OpenXDA.Types.DataReader> Record={editnewSetting} Field={'AssemblyName'} Label='Assembly Name' Feedback={'An Assembly name is required'}
-                            Valid={field => editnewSetting.AssemblyName != null && editnewSetting.AssemblyName.length > 0}
-                            Setter={(record) => { setEditNewSetting(record); setHasChanged(true); }}
+                        <Input<OpenXDA.Types.DataReader>
+                            Record={editnewSetting}
+                            Field={'AssemblyName'}
+                            Label='Assembly Name'
+                            Feedback={'An Assembly name is required'}
+                            Valid={field => editnewSetting.AssemblyName != null
+                                && editnewSetting.AssemblyName.length > 0}
+                            Setter={(record) => {
+                                setEditNewSetting(record);
+                                setHasChanged(true);
+                            }}
                         />
-                        <Input<OpenXDA.Types.DataReader> Record={editnewSetting} Field={'TypeName'} Label='Type Name' Feedback={'A Type Name is required.'}
-                            Valid={field => editnewSetting.TypeName != null && editnewSetting.TypeName.length > 0}
-                            Setter={(record) => { setEditNewSetting(record); setHasChanged(true); }}
+                        <Input<OpenXDA.Types.DataReader>
+                            Record={editnewSetting}
+                            Field={'TypeName'}
+                            Label='Type Name'
+                            Feedback={'A Type Name is required.'}
+                            Valid={field => editnewSetting.TypeName != null
+                                && editnewSetting.TypeName.length > 0}
+                            Setter={(record) => {
+                                setEditNewSetting(record);
+                                setHasChanged(true);
+                            }}
                         />
-                        <Input<OpenXDA.Types.DataReader> Record={editnewSetting} Field={'LoadOrder'} Type='number' Label='Load Order' Valid={field => editnewSetting.LoadOrder != null}
-                            Setter={(record) => { setEditNewSetting(record); setHasChanged(true); }}
+                        <Input<OpenXDA.Types.DataReader>
+                            Record={editnewSetting}
+                            Field={'LoadOrder'}
+                            Type='number'
+                            Label='Load Order'
+                            Valid={field => editnewSetting.LoadOrder != null}
+                            Setter={(record) => {
+                                setEditNewSetting(record);
+                                setHasChanged(true);
+                            }}
                         />
                     </div>
                 </div>
             </Modal>
-            <Warning Title={'Delete ' + (editnewSetting?.AssemblyName ?? 'Data Reader')} Message={'This will delete this Data Reader from the system. This can have unintended consequences and cause the system to crash. Are you sure you want to continue?'}
-                Show={showWarning} CallBack={(conf) => { if (conf) dispatch(DataReaderSlice.DBAction({ verb: 'DELETE', record: editnewSetting })); setShowWarning(false); }} />
-        </>)
+            <Warning
+                Title={'Delete ' + (editnewSetting?.AssemblyName ?? 'Data Reader')}
+                Message={'This will delete this Data Reader from the system. This can have unintended consequences and cause the system to crash. Are you sure you want to continue?'}
+                Show={showWarning}
+                CallBack={(conf) => {
+                    if (conf)
+                        deleteOperation();
+                    setShowWarning(false);
+                }}
+            />
+        </GenericByPage>
+    )
 }
 
 export default DataReaders;
