@@ -21,131 +21,88 @@
 //
 //******************************************************************************************************
 
-import * as React from 'react';
-import { ReactTable } from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
-import { useHistory } from "react-router-dom";
-import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { Modal } from '@gpa-gemstone/react-interactive';
-import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols'
+import * as React from 'react';
 import EventTypeForm from './EventTypeForm';
-import { useAppSelector, useAppDispatch } from '../hooks';
-import { EventTypeAssetTypeSlice, EventTypeSlice } from '../Store/Store';
+import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import GenericByPage from '../CommonComponents/GenericByPage';
+import { SystemCenter } from '../global'
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 
 declare var homePath: string;
+const fieldCols: SystemCenter.IByCol<OpenXDA.Types.EventType>[] = [
+    { Field: 'Name', Label: 'Name', Type: 'string', Width: 'auto' },
+    { Field: 'Category', Label: 'Category', Type: 'string', Width: 'auto' },
+    { Field: 'Description', Label: 'Description', Type: 'string', Width: 'auto'},
+    { Field: 'ShowInFilter', Label: 'Show in UI', Type: 'boolean', Width: 'auto' }
+]
+const controllerPath = `${homePath}api/OpenXDA/EventType`
 
 const ByEventType: Application.Types.iByComponent = (props) => {
-    let history = useHistory();
-
-    const dispatch = useAppDispatch();
-    const eventTypes = useAppSelector(EventTypeSlice.Data) as OpenXDA.Types.EventType[];
-    const status = useAppSelector(EventTypeSlice.Status) as Application.Types.Status;
-    const sortKey = useAppSelector(EventTypeSlice.SortField);
-    const ascending = useAppSelector(EventTypeSlice.Ascending);
-
-    const [selected, setSelected] = React.useState<OpenXDA.Types.EventType>(null);
+    const [record, setRecord] = React.useState<OpenXDA.Types.EventType>(null);
     const [errors, setErrors] = React.useState<string[]>([]);
+    const [showModal, setShowModal] = React.useState<boolean>(false);
+    const [refreshCount, refreshData] = React.useState<number>(0);
+    const [assetTypeET, setAssettypeET] = React.useState<OpenXDA.Types.EventTypeAssetType[]>([]);
 
-    const [assetTypeET, setAssettypeET] = React.useState<OpenXDA.Types.EventTypeAssetType[]>([])
-    const eventTypeAssetTypeData = useAppSelector(EventTypeAssetTypeSlice.Data);
-    const eventTypeAssettypeParentID = useAppSelector(EventTypeAssetTypeSlice.ParentID);
-    const atetStatus = useAppSelector(EventTypeAssetTypeSlice.Status) as Application.Types.Status;
+    function updateEventType() {
+        let handle = $.ajax({
+            type: "PATCH",
+            url: `${homePath}api/OpenXDA/EventType/Update`,
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(record),
+            dataType: "json",
+            cache: false,
+            async: true
+        }).done(() => {
+            refreshData(x => x + 1);
+        })
 
-    React.useEffect(() => {
-        if (atetStatus == 'unintiated' || atetStatus == 'changed' || eventTypeAssettypeParentID != selected?.ID)
-            dispatch(EventTypeAssetTypeSlice.Fetch(selected?.ID));
-    }, [atetStatus, selected]);
-  
-    React.useEffect(() => {
-        if (status != 'unintiated' && status != 'changed') return;
-        dispatch(EventTypeSlice.Fetch());
-    }, [status]);
-
-    function saveChange() {
-        dispatch(EventTypeSlice.DBAction({ verb: 'PATCH', record: selected }))
-
-        eventTypeAssetTypeData.filter(item => assetTypeET.findIndex(a => a.AssetTypeID == item.AssetTypeID) < 0)
-            .forEach(item => dispatch(EventTypeAssetTypeSlice.DBAction({ verb: 'DELETE', record: item })))
-
-        assetTypeET.filter(item => eventTypeAssetTypeData.findIndex(a => a.AssetTypeID == item.AssetTypeID) < 0)
-            .forEach(item => dispatch(EventTypeAssetTypeSlice.DBAction({ verb: 'POST', record: item })))
+        return () => {
+            if (handle != null && handle.abort != null) handle.abort();
+        };
     }
 
-    return (
-        <div style={{ width: '100%', height: '100%' }}>
-            <div style={{ width: '100%' }}>
-                <nav className="navbar navbar-expand-lg navbar-light bg-light">
-                    <div className="collapse navbar-collapse" style={{ width: '100%' }}>
-                        <ul className="navbar-nav mr-auto" style={{ width: '100%' }}>
-                        </ul>
-                    </div>
-                </nav>
-            </div>            
-            <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <ReactTable.Table<OpenXDA.Types.EventType>
-                    TableClass="table table-hover"
-                    Data={eventTypes}
-                    SortKey={sortKey}
-                    Ascending={ascending}
-                    OnSort={(d) => {
-                        dispatch(EventTypeSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
-                    }}
-                    OnClick={(item) => setSelected(item.row) }
-                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                    RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    Selected={(item) => false}
-                    KeySelector={(item) => item.ID}
-                >
-                    <ReactTable.Column<OpenXDA.Types.EventType>
-                        Key={'Name'}
-                        AllowSort={true}
-                        Field={'Name'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                    > Name
-                    </ReactTable.Column>
-                    <ReactTable.Column<OpenXDA.Types.EventType>
-                        Key={'Category'}
-                        AllowSort={true}
-                        Field={'Category'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                    > Category
-                    </ReactTable.Column>
-                    <ReactTable.Column<OpenXDA.Types.EventType>
-                        Key={'Description'}
-                        AllowSort={true}
-                        Field={'Description'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                    > Description
-                    </ReactTable.Column>
-                    <ReactTable.Column<OpenXDA.Types.EventType>
-                        Key={'ShowInFilter'}
-                        AllowSort={true}
-                        Field={'ShowInFilter'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                        Content={({ item }) => item.ShowInFilter ? HeavyCheckMark : CrossMark }
-                    > Show in UI
-                    </ReactTable.Column>
-                </ReactTable.Table>
-            </div>
+    function handleSelect(item) {
+        setRecord(item);
+        setShowModal(true);
+    }
 
-            <Modal Show={selected != null} Title={'Edit ' + (selected?.Name ?? 'Event Type')}
+    return ( // TODO: Search
+        <GenericByPage<OpenXDA.Types.EventType>
+            PagingID='EventType'
+            OnClick={(item) => handleSelect(item.row)}
+            Columns={fieldCols}
+            RefreshData={refreshCount}
+            DefaultSortKey='Name'
+            ControllerPath={controllerPath}
+            DefaultSearchKey='Name'
+            DefaultSearchAscending={true}
+        >
+            <Modal
+                Show={showModal}
+                Title={'Edit ' + (record?.Name ?? 'Event Type')}
                 ShowCancel={true}
-                CallBack={(conf) => { if (conf) saveChange(); setSelected(null); }}
+                CallBack={(conf) => {
+                    if (conf)
+                        updateEventType();
+                    setShowModal(false);
+                }}
                 DisableConfirm={errors.length > 0}
                 ShowX={true}
                 ConfirmShowToolTip={errors.length > 0}
                 ConfirmToolTipContent={
                     errors.map((t, i) => <p key={i}> {CrossMark} {t} </p>)
                 }>
-                <EventTypeForm Record={selected} Setter={setSelected} setErrors={setErrors} setAssetTypeETs={setAssettypeET} />
+                    <EventTypeForm
+                        Record={record}
+                        Setter={setRecord}
+                        setErrors={setErrors}
+                        setAssetTypeETs={setAssettypeET}
+                    />
             </Modal>
-            
-        </div>
+        </GenericByPage>
     )
 }
 
