@@ -89,7 +89,7 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
             ControllerPath={controllerPath}
             RefreshData={refreshCount}
             DefaultSortKey='Name'
-            PagingID='DataReaders'
+            PagingID='ByExternalDB'
             OnClick={handleSelect}
             Columns={fieldCols}
             DefaultSearchAscending={false}

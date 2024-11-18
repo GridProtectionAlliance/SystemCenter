@@ -135,7 +135,7 @@ const DBCleanup: Application.Types.iByComponent = (props) => {
             ControllerPath={controllerPath}
             RefreshData={refreshCount}
             DefaultSortKey='Name'
-            PagingID='DataReaders'
+            PagingID='DBCleanup'
             OnClick={(item) => { handleSelect(item); }}
             Columns={fieldCols}
             DefaultSearchAscending={true}
