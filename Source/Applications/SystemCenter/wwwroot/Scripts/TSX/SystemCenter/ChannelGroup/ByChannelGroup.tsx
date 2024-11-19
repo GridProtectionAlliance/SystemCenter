@@ -22,55 +22,33 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { useAppSelector, useAppDispatch } from '../hooks';
-import { ChannelGroupSlice, ChannelGroupDetailsSlice, ChannelGroupViewSlice } from '../Store/Store';
+import { useAppDispatch } from '../hooks';
+import { ChannelGroupSlice } from '../Store/Store';
 import { SystemCenter as LocalSC } from '../global';
-import { ReactTable } from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
-import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
-
-import { DefaultSearchField, SearchFields, TransformSearchFields } from '../CommonComponents/SearchFields';
+import { Modal } from '@gpa-gemstone/react-interactive';
 import ChannelGroupForm from './ChannelGroupForm';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import GenericByPage from '../CommonComponents/GenericByPage';
 
+const fieldCols: LocalSC.IByCol<LocalSC.ChannelGroupView>[] = [
+    { Field: 'Name', Label: 'Name', Type: 'string', Width: '15%' },
+    { Field: 'Description', Label: 'Description', Type: 'string', Width: 'auto' },
+    { Field: 'ItemCount', Label: 'Items', Type: 'string', Width: '10%' }
+];
+const emptyRecord = { ID: 0, Name: '', Description: '' };
+const controllerPath = `${homePath}api/ChannelGroup`;
 
-const ChannelGroups: Application.Types.iByComponent = (props) => {
+const ChannelGroups: Application.Types.iByComponent = () => {
     const dispatch = useAppDispatch();
-
-    const data = useAppSelector(ChannelGroupViewSlice.SearchResults);
-    const status = useAppSelector(ChannelGroupViewSlice.SearchStatus);
-    const items = useAppSelector(ChannelGroupDetailsSlice.Data);
-    const itemStatus = useAppSelector(ChannelGroupDetailsSlice.Status);
-    const parentID = useAppSelector(ChannelGroupDetailsSlice.ParentID);
-    const sortField = useAppSelector(ChannelGroupViewSlice.SortField);
-    const ascending = useAppSelector(ChannelGroupViewSlice.Ascending);
+    let history = useHistory();
 
     const [showNew, setShowNew] = React.useState<boolean>(false);
     const [errors, setErrors] = React.useState<string[]>([]);
-
-    const emptyRecord = { ID: 0, Name: '', Description: '' };
-    let history = useHistory();
-
-    const ChannelGroupSearchFields = [
-        { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
-        { label: 'Description', key: 'Description', type: 'string', isPivotField: false },
-    ];
-    const ChannelGroupDefaultSearchField = { label: 'Name', key: 'Name', type: 'string', isPivotField: false };
-    const [search, setSearch] = React.useState<Array<Search.IFilter<LocalSC.ChannelGroupView>>>([]);
-
     const [record, setRecord] = React.useState<SystemCenter.Types.ChannelGroup>(emptyRecord);
-
-    React.useEffect(() => {
-        if (status == 'unintiated' || status == 'changed')
-            dispatch(ChannelGroupViewSlice.DBSearch({ filter: search, sortField, ascending }));
-    }, [dispatch, status]);
-
-    React.useEffect(() => {
-        if (itemStatus == 'unintiated' || itemStatus == 'changed' || parentID != null)
-            dispatch(ChannelGroupDetailsSlice.Fetch());
-    }, [dispatch, itemStatus, parentID]);
+    const [refreshCount, refreshData] = React.useState<number>(0);
 
     React.useEffect(() => {
         let e = [];
@@ -84,86 +62,59 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
         setErrors(e);
     }, [record]);
 
+    function addNewChannelGroup() {
+        let handle = $.ajax({
+            type: "POST",
+            url: `${homePath}api/ChannelGroup/Add`,
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(record),
+            dataType: "json",
+            cache: false,
+            async: true
+        }).done(() => {
+            refreshData(x => x + 1);
+        })
+
+        return () => {
+            if (handle != null && handle.abort != null) handle.abort();
+        };
+    }
+
     function handleSelect(item) {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=ChannelGroup&GroupID=' + item.row.ID })
     }
 
     return (
-        <div className="container-fluid d-flex h-100 flex-column">
-            <SearchBar< SystemCenter.Types.ChannelGroup>
-                CollumnList={ChannelGroupSearchFields as Search.IField<SystemCenter.Types.ChannelGroup>[]}
-                SetFilter={(flds) => dispatch(ChannelGroupViewSlice.DBSearch({ filter: flds }))}
-                Direction={'left'}
-                defaultCollumn={ChannelGroupDefaultSearchField as Search.IField<SystemCenter.Types.ChannelGroup>}
-                Width={'50%'}
-                StorageID="ChannelGroupsFilter"
-                Label={'Search'}
-                ShowLoading={status == 'loading'}
-                ResultNote={status == 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Channel Groups(s)'}
-            >
-
-                <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
-                    <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                        <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
-                        <form>
-                            <button className="btn btn-primary" 
-                                onClick={(evt) => { evt.preventDefault(); setRecord({ ...emptyRecord }); setShowNew(true); }}>Add Group</button>
-                        </form>
-                    </fieldset>
-                </li>
-            </SearchBar>
-
-            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                <ReactTable.Table<LocalSC.ChannelGroupView>
-                    TableClass="table table-hover"
-                    Data={data}
-                    SortKey={sortField}
-                    Ascending={ascending}
-                    OnSort={(d) => {
-                        dispatch(ChannelGroupViewSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
-                    }}
-                    OnClick={handleSelect}
-                    TableStyle={{
-                        padding: 0, width: '100%', height: '100%',
-                        tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column', marginBottom: 0
-                    }}
-                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
-                    RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    Selected={(item) => false}
-                    KeySelector={(item) => item.ID}
-                >
-                    <ReactTable.Column<LocalSC.ChannelGroupView>
-                        Key={'Name'}
-                        AllowSort={true}
-                        Field={'Name'}
-                        HeaderStyle={{ width: '15%' }}
-                        RowStyle={{ width: '15%' }}
-                    > Name
-                    </ReactTable.Column>
-                    <ReactTable.Column<LocalSC.ChannelGroupView>
-                        Key={'Description'}
-                        AllowSort={true}
-                        Field={'Description'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                    > Description
-                    </ReactTable.Column>
-                    <ReactTable.Column<LocalSC.ChannelGroupView>
-                        Key={'ItemCount'}
-                        AllowSort={true}
-                        Field={'ItemCount'}
-                        HeaderStyle={{ width: '10%' }}
-                        RowStyle={{ width: '10%' }}
-                    > Items
-                    </ReactTable.Column>
-                </ReactTable.Table>
-            </div>
-
+        <GenericByPage<LocalSC.ChannelGroupView>
+            ControllerPath={controllerPath}
+            RefreshData={refreshCount}
+            Columns={fieldCols}
+            PagingID='ChannelGroupView'
+            DefaultSortKey='Name'
+            DefaultSearchKey='Name'
+            OnClick={(item) => { handleSelect(item); }}
+            DefaultSearchAscending={false}
+        >
+            <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
+                <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                    <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
+                    <form>
+                        <button
+                            className="btn btn-primary"
+                            onClick={(evt) => {
+                                evt.preventDefault();
+                                setRecord({ ...emptyRecord })
+                                setShowNew(true);
+                            }}
+                        >Add Group
+                        </button>
+                    </form>
+                </fieldset>
+            </li>
             <Modal Title={'Add New Channel Group'}
                 CallBack={(c) => {
                     if (c)
-                        dispatch(ChannelGroupSlice.DBAction({ verb: 'POST', record }));
+                        addNewChannelGroup();
                     setShowNew(false);
                 }}
                 ShowCancel={false}
@@ -176,7 +127,7 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
                 Show={showNew} >
                 <ChannelGroupForm Record={record} Setter={setRecord} />
             </Modal>
-        </div>
+        </GenericByPage>
     )
 }
 
