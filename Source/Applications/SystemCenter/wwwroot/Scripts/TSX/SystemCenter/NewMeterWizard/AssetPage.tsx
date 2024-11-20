@@ -93,16 +93,6 @@ export default function AssetPage(props: IProps) {
     const [asc, setAsc] = React.useState<boolean>(false);
 
     const [tab, setTab] = React.useState<string>('default');
-    const TabGroupOne = [
-        { Id: "default", Label: "Bus Side Associated Channels" },
-        { Id: "line", Label: "Line/XFR Side Associated Channels"},
-    ];
-
-    const TabGroupTwo = [
-        { Id: "default", Label: "Primary Side Associated Channels"},
-        { Id: "secondary", Label: "Secondary Side Associated Channels"},
-        { Id: "tertiary", Label: "Tertiary Side Associated Channels"}
-    ];
 
     const assetData = React.useMemo(() => {
         const u = _.cloneDeep(props.Assets);
@@ -120,9 +110,36 @@ export default function AssetPage(props: IProps) {
         Type: 'query',
         IsPivotColumn: false
     }
+
+    const tabToPriority: Record<string, number> = {
+        default: 0,
+        secondary: 1,
+        tertiary: 2,
+        line: 1,
+    };
+
+    const tabs = React.useMemo(() => {
+        switch (newEditAsset.AssetType) {
+            case 'Transformer':
+                return [
+                    { Id: "default", Label: "Primary Side"},
+                    { Id: "secondary", Label: "Secondary Side"},
+                    { Id: "tertiary", Label: "Tertiary Side"}
+                ];
+            case 'Breaker':
+                return [
+                    { Id: "default", Label: "Bus Side" },
+                    { Id: "line", Label: "Line/XFR Side"},
+                ];
+            default:
+                return [{ Label: 'Default', Id: 'default' }];
+        }
+    }, [newEditAsset.AssetType]);
+
     React.useEffect(() => {
         setTab('default');
     }, [newEditAsset])
+
     React.useEffect(() => {
         if (props.PageID !== undefined && !localStorage.hasOwnProperty(props.PageID))
             localStorage.setItem(props.PageID, JSON.stringify([defaultFilt]));
@@ -202,7 +219,7 @@ export default function AssetPage(props: IProps) {
 
 
     }, [newEditAsset.AssetType]);
-    
+
     function editAsset(index: number) {
         const asset = props.Assets.find(a => a.AssetKey === assetData[index].AssetKey);
         setNewEdit('Edit');
@@ -532,8 +549,36 @@ export default function AssetPage(props: IProps) {
                             </div>
                         </div>
                         <div className="col-4">
-                            <div className="h-100" style={{paddingBottom: '4rem'}}> {/* kind of hacky to remove scroll bar b/c the select overflows */}
-                                {newEditAsset.AssetType != 'Transformer' && newEditAsset.AssetType != 'Breaker' ?
+                            <div className="h-100" style={{paddingBottom: '6rem'}}> {/* kind of hacky to remove scroll bar b/c the select overflows */}
+                                {tabs.length > 1 && (
+                                    <TabSelector
+                                        CurrentTab={tab}
+                                        SetTab={setTab}
+                                        Tabs={tabs}
+                                    />
+                                )}
+                                <ChannelSelector
+                                    Label="Associated Channels"
+                                    Channels={props.Channels}
+                                    SelectedChannels={newEditAsset.Channels.filter((ch) =>
+                                        ch.ConnectionPriority === tabToPriority[tab]    // Only channels with priority == current priority
+                                    )}
+                                    UpdateChannels={(c) => {
+                                        const updatedChannels = [   // List of new channels
+                                            ...c.map(ch => ({ ...ch, ConnectionPriority: tabToPriority[tab] })), // 1) updates new ch priority to current priority
+                                            ...newEditAsset.Channels.filter(ch => !c.some(d => d.ID === ch.ID))  // 2) adds back already selected channels (omits new)
+                                        ];
+
+                                        const updatedAsset = { ...newEditAsset, Channels: updatedChannels };
+                                        setNewEditAsset(updatedAsset);
+
+                                        const globalChannels = props.Channels.map(ch => ({  // updates global chs if in new chs, updating connection priority
+                                            ...ch, ConnectionPriority: c.some(d => d.ID === ch.ID) ? tabToPriority[tab] : ch.ConnectionPriority
+                                        }));
+                                        props.UpdateChannels(globalChannels);
+                                    }}
+                                />
+                                {/* {newEditAsset.AssetType != 'Transformer' && newEditAsset.AssetType != 'Breaker' ?
                                     <ChannelSelector
                                         Label="Associated Channels"
                                         Channels={props.Channels}
@@ -644,7 +689,7 @@ export default function AssetPage(props: IProps) {
                                             }}
                                         />
                                     : null}
-                                </>: null}
+                                </>: null} */}
                             </div>
                         </div>
                     </div>
