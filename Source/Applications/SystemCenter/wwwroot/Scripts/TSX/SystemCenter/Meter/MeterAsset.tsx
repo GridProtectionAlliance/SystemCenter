@@ -164,7 +164,7 @@ const MeterAssetWindow = (props: IProps) => {
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                                 Content={({ item, field }) =>
-                                <a href={`${homePath}index.cshtml?name=Asset&AssetID=${item.ID}`} target='_blank'>
+                                <a href={`${homePath}index.cshtml?name=Asset&AssetID=${item.ID}`}>
                                     {item[field]}
                                 </a>}
                             > Key
