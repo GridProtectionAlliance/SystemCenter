@@ -191,6 +191,7 @@ const RemoteMeterTab = (props: IProps) => {
                     Field={'RemoteXDAName'}
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
+                    Content={({ item }) => item.Obsfucate ? item.RemoteXDAName : item.LocalMeterName}
                 > Remote Meter Name
                 </ReactTable.Column>
                 <ReactTable.Column<OpenXDA.Types.RemoteXDAMeter>

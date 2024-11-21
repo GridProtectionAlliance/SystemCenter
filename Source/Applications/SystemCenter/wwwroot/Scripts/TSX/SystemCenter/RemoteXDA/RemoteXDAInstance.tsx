@@ -51,7 +51,11 @@ function RemoteXDAInstance(props: IProps) {
             dispatch(RemoteXDAInstanceSlice.Fetch());
     }, [dispatch, instStatus]);
 
-    if (connection == null) return null;
+    React.useEffect(() => {
+        const saved = getTab();
+        if (saved !== tab)
+            sessionStorage.setItem('RemoteXDAInstance.Tab', JSON.stringify(tab));
+    }, [tab]);
 
     function getTab(): Tab {
         if (props.Tab != undefined) return props.Tab;
@@ -60,12 +64,6 @@ function RemoteXDAInstance(props: IProps) {
         else
             return 'systemSettings';
     }
-
-    React.useEffect(() => {
-        const saved = getTab();
-        if (saved !== tab)
-            sessionStorage.setItem('RemoteXDAInstance.Tab', JSON.stringify(tab));
-    }, [tab]);
 
     function returnMain() {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=RemoteXDAInstanceMain', state: {} })
@@ -89,6 +87,8 @@ function RemoteXDAInstance(props: IProps) {
         { Id: "remoteMeter", Label: "Remote Meters" },
         { Id: "remoteAsset", Label: "Remote Assets" },
     ];
+
+    if (connection == null) return null;
 
     return (
         <div style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>

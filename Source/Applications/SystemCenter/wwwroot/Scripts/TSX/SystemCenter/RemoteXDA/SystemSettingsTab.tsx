@@ -28,7 +28,7 @@ import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { RemoteXDAInstanceSlice } from '../Store/Store';
 import { LoadingScreen, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
 import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
-import { RemoteXDAInstanceForm, RemoteXDAInstanceComparator} from './RemoteXDAInstanceForm';
+import { RemoteXDAInstanceForm} from './RemoteXDAInstanceForm';
 
 interface IProps { ID: number }
 
@@ -82,10 +82,10 @@ const SystemSettingsTab = (props: IProps) => {
             <div className="card-footer">
                 <div className="btn-group mr-2">
                     <button
-                        className={"btn btn-primary" + ((newInstErrors.length == 0 && RemoteXDAInstanceComparator(baseInstance, formInstance)) ? '' : ' disabled')}
+                        className={"btn btn-primary" + ((newInstErrors.length !== 0 || _.isEqual(baseInstance, formInstance)) ? ' disabled' : '')}
                         type="submit"
                         onClick={() => {
-                            if (newInstErrors.length == 0 && RemoteXDAInstanceComparator(baseInstance, formInstance)) {
+                            if (newInstErrors.length === 0 && !_.isEqual(baseInstance, formInstance)) {
                                 dispatch(RemoteXDAInstanceSlice.DBAction({ verb: 'PATCH', record: formInstance }));
                             }
                         }}
@@ -106,7 +106,7 @@ const SystemSettingsTab = (props: IProps) => {
                 </ToolTip>
                 <div className="btn-group mr-2">
                     <button
-                        className={"btn btn-warning" + (RemoteXDAInstanceComparator(baseInstance, formInstance) ? '' : ' disabled')}
+                        className={"btn btn-warning" + (_.isEqual(baseInstance, formInstance) ? ' disabled' : '')}
                         data-tooltip="clear" onClick={() => {
                             setBaseInstance(_.cloneDeep(connection));
                         }}
@@ -116,7 +116,7 @@ const SystemSettingsTab = (props: IProps) => {
                     </button>
                 </div>
                 <ToolTip
-                    Show={RemoteXDAInstanceComparator(baseInstance, formInstance) && hover == 'clear'}
+                    Show={!_.isEqual(baseInstance, formInstance) && hover == 'clear'}
                     Position={'top'}
                     Theme={'dark'}
                     Target={"clear"}>
@@ -124,7 +124,6 @@ const SystemSettingsTab = (props: IProps) => {
                     {baseInstance.Name != formInstance.Name ? <p> {Warning} Changes to Name will be discarded.</p> : null}
                     {baseInstance.Address != formInstance.Address ? <p> {Warning} Changes to Address will be discarded.</p> : null}
                     {baseInstance.Frequency != formInstance.Frequency ? <p> {Warning} Changes to Frequency will be discarded.</p> : null}
-                    {baseInstance.UserAccountID != formInstance.UserAccountID ? <p> {Warning} Changes to User will be discarded.</p> : null}
                 </ToolTip>
             </div>
 
