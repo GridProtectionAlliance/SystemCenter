@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { MiMDSettingSlice, OpenXDASettingSlice, SystemCenterSettingSlice } from '../Store/Store';
+import { MiMDSettingSlice, OpenSEESettingSlice, OpenXDASettingSlice, SystemCenterSettingSlice } from '../Store/Store';
 import { Application } from '@gpa-gemstone/application-typings';
 import Setting from './Setting';
 import { SystemCenter } from '../global';
@@ -30,7 +30,7 @@ import { SystemCenter } from '../global';
 declare var homePath: string;
 
 interface IProps {
-    System: 'SystemCenter' | 'MiMD' | 'OpenXDA',
+    System: 'SystemCenter' | 'MiMD' | 'OpenXDA' | 'OpenSEE',
     Roles: Application.Types.SecurityRoleName[]
 }
 
@@ -40,6 +40,8 @@ const BySetting = (props: IProps) => {
         return <Setting SettingsSlice={SystemCenterSettingSlice} key='SystemCenter' />
     if (props.System == 'MiMD')
         return <Setting SettingsSlice={MiMDSettingSlice} key='MiMD' />
+    if (props.System == 'OpenSEE')
+        return <Setting SettingsSlice={OpenSEESettingSlice} key='OpenSEE' />
     return <Setting SettingsSlice={OpenXDASettingSlice} key='OpenXDA' />
     
 }
