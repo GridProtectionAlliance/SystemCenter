@@ -86,13 +86,8 @@ const LocationDrawingsTable = (props: IProps) => {
     };
 
     React.useEffect(() => {
-        console.log('called')
         props.SetTotalRecords(pageInfo.TotalRecords);
     }, [pageInfo.TotalRecords]);
-
-    React.useEffect(() => {
-        fetchDrawings(sortKey, ascending, page, props.LocationID);
-    }, [props.UpdateTable]);
 
     React.useEffect(() => {
         const storedInfo = JSON.parse(localStorage.getItem(PagingID) as string);
@@ -104,9 +99,10 @@ const LocationDrawingsTable = (props: IProps) => {
     }, [page]);
 
     React.useEffect(() => {
+        fetchDrawings(sortKey, ascending, page, props.LocationID);
         const handle = fetchDrawings(sortKey, ascending, page, props.LocationID);
         return () => { if (handle != null && handle?.abort != null) handle.abort(); }
-    }, [sortKey, ascending, page, props.LocationID]);
+    }, [sortKey, ascending, page, props.LocationID, props.UpdateTable]);
 
     return <>
         <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
