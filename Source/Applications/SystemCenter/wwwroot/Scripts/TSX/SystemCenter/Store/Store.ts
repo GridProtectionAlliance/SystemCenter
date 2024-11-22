@@ -60,6 +60,8 @@ export const ChannelGroupDetailsSlice = new GenericSlice<SystemCenter.Types.Chan
 export const SystemCenterSettingSlice = new GenericSlice<SystemCenter.Types.Setting>('SystemCenterSetting', `${homePath}api/Setting`, 'Name');
 export const OpenXDASettingSlice = new GenericSlice<SystemCenter.Types.Setting>('OpenXDASetting', `${homePath}api/OpenXDA/Setting`, 'Name');
 export const MiMDSettingSlice = new GenericSlice<SystemCenter.Types.Setting>('MiMDSetting', `${homePath}api/MiMD/Setting`, 'Name');
+export const OpenSEESettingSlice = new GenericSlice<SystemCenter.Types.Setting>('OpenSEESetting', `${homePath}api/OpenSEE/Setting`, 'Name');
+
 
 export const AssetConnectionTypeSlice = new GenericSlice<OpenXDA.Types.AssetConnectionType>("AssetConnectionType", `${homePath}api/OpenXDA/AssetConnectionType`, 'Name');
 export const AssetTypeSlice = new GenericSlice<OpenXDA.Types.AssetType>("AssetType", `${homePath}api/OpenXDA/AssetType`, 'Name');
@@ -149,6 +151,7 @@ const store = configureStore({
         SystemCenterSetting: SystemCenterSettingSlice.Reducer,
         OpenXDASetting: OpenXDASettingSlice.Reducer,
         MiMDSetting: MiMDSettingSlice.Reducer,
+        OpenSEESetting: OpenSEESettingSlice.Reducer,
         AssetType: AssetTypeSlice.Reducer,
         DataFile: DataFileSlice.Reducer,
         Customer: CustomerSlice.Reducer,
