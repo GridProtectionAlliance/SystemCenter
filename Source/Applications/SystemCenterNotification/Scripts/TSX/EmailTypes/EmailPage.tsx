@@ -121,6 +121,7 @@ const EmailPage = (props: IProps) => {
                             dispatch(EmailTypeSlice.DBAction({ verb: 'DELETE', record: email }));
                             window.location.href = `${homePath}EventEmails`;
                         }
+                        setShowDelete(false);
                     }} />
             </>}
         </div>)
