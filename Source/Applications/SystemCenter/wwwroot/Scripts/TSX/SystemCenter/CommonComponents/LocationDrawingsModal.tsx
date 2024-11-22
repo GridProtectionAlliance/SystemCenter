@@ -21,8 +21,8 @@
 //
 //******************************************************************************************************
 import React from 'react';
-import { OpenXDA } from '@gpa-gemstone/application-typings'
-import { Modal, ToolTip } from '@gpa-gemstone/react-interactive';
+import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
+import { GenericController, LoadingScreen, Modal, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
 import { CreateGuid } from '@gpa-gemstone/helper-functions';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import LocationDrawingsTable from '../Location/LocationDrawingsTable';
@@ -33,12 +33,27 @@ interface IProps {
 
 const LocationDrawingsModal = (props: IProps) => {
     const guid = React.useRef(CreateGuid());
-
     const [hover, setHover] = React.useState<'none' | 'drawings'>('none');
     const [errors, setErrors] = React.useState<string[]>([]);
     const [showModal, setShowModal] = React.useState<boolean>(false);
+    const [pageState, setPageState] = React.useState<"loading" | "error" | "idle">("idle");
     const [totalRecords, setTotalRecords] = React.useState<number>();
     const [disableButton, setDisableButton] = React.useState<boolean>(false);
+    const LocationDrawingController = new GenericController<SystemCenter.Types.LocationDrawing>(`${homePath}api/LocationDrawing`, "Name", true);
+
+    const fetchDrawings = (sortKey: keyof SystemCenter.Types.LocationDrawing, ascending: boolean, page: number, locationID: number) => {
+        setPageState('loading');
+        LocationDrawingController.PagedSearch([], sortKey, ascending, page, locationID)
+            .done((result) => {
+                setTotalRecords(JSON.parse(result.Data as unknown as string).TotalRecords);
+                setPageState('idle');
+            })
+            .fail(() => setPageState('error'));
+    }
+
+    React.useEffect(() => {
+        fetchDrawings('Name', true, 1, props.Location?.ID);
+    }, [])
 
     React.useEffect(() => {
         let e = [];
@@ -64,6 +79,8 @@ const LocationDrawingsModal = (props: IProps) => {
 
     return (
         <div>
+            <LoadingScreen Show={pageState == 'loading'} />
+            <ServerErrorIcon Show={pageState == 'error'} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
             <button
                 type="button"
                 className={disableButton ? "btn btn-primary disabled" : "btn btn-primary"}
@@ -94,7 +111,8 @@ const LocationDrawingsModal = (props: IProps) => {
                         <LocationDrawingsTable
                             LocationID={props.Location?.ID}
                             UpdateTable={0}
-                            SetTotalRecords={(r) => { setTotalRecords(r) }}/>
+                            SetTotalRecords={setTotalRecords}
+                        />
                     </div>
                 </div>
             </Modal>
