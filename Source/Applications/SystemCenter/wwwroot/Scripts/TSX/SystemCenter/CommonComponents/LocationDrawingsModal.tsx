@@ -29,6 +29,11 @@ import LocationDrawingsTable from '../Location/LocationDrawingsTable';
 
 interface IProps {
     Location: OpenXDA.Types.Location;
+    /**
+     * @param Show Shows if equal to location ID
+     */
+    Show: number;
+    ID: number;
 }
 
 const LocationDrawingsModal = (props: IProps) => {
@@ -37,41 +42,35 @@ const LocationDrawingsModal = (props: IProps) => {
     const [errors, setErrors] = React.useState<string[]>([]);
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [pageState, setPageState] = React.useState<"loading" | "error" | "idle">("idle");
-    const [totalRecords, setTotalRecords] = React.useState<number>();
     const [disableButton, setDisableButton] = React.useState<boolean>(false);
     const LocationDrawingController = new GenericController<SystemCenter.Types.LocationDrawing>(`${homePath}api/LocationDrawing`, "Name", true);
 
-    const fetchDrawings = (sortKey: keyof SystemCenter.Types.LocationDrawing, ascending: boolean, page: number, locationID: number) => {
-        setPageState('loading');
-        LocationDrawingController.PagedSearch([], sortKey, ascending, page, locationID)
-            .done((result) => {
-                setTotalRecords(JSON.parse(result.Data as unknown as string).TotalRecords);
-                setPageState('idle');
-            })
-            .fail(() => setPageState('error'));
-    }
-
-    React.useEffect(() => {
-        fetchDrawings('Name', true, 1, props.Location?.ID);
-    }, [])
-
-    React.useEffect(() => {
+    const isValid = (drawingData) => {
         let e = [];
 
         if (props.Location == undefined
             || (props.Location.Alias == ""
-            && props.Location.Description == ""
-            && props.Location.ID == 0
-            && props.Location.Latitude == null
-            && props.Location.LocationKey == ""
-            && props.Location.Longitude == null
-            && props.Location.Name == ""))
+                && props.Location.Description == ""
+                && props.Location.ID == 0
+                && props.Location.Latitude == null
+                && props.Location.LocationKey == ""
+                && props.Location.Longitude == null
+                && props.Location.Name == ""))
             e.push('No locations have been set.');
-        else if (totalRecords == 0)
+        else if (drawingData.TotalRecords == 0)
             e.push('No drawings associated with location.');
+        return e;
+    }
 
-        setErrors(e);
-    }, [props.Location, totalRecords]);
+    React.useEffect(() => {
+        setPageState('loading');
+        LocationDrawingController.PagedSearch([], 'Name', true, 1, props.Location?.ID)
+            .done((result) => {
+                setErrors(isValid(result));
+                setPageState('idle');
+            })
+            .fail(() => setPageState('error'));
+    }, [props.Location])
 
     React.useEffect(() => {
         setDisableButton(errors.length > 0);
@@ -82,7 +81,6 @@ const LocationDrawingsModal = (props: IProps) => {
             <LoadingScreen Show={pageState == 'loading'} />
             <ServerErrorIcon Show={pageState == 'error'} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
             <button
-                type="button"
                 className={disableButton ? "btn btn-primary disabled" : "btn btn-primary"}
                 data-tooltip={guid.current}
                 onMouseEnter={() => setHover('drawings')}
@@ -92,15 +90,18 @@ const LocationDrawingsModal = (props: IProps) => {
                         setShowModal(true);
                     }
                 }}
-            >Open {props.Location?.Name} Drawings
+                >Open {props.Location?.Name} Drawings
             </button>
             <ToolTip
                 Show={hover === 'drawings' && (disableButton)}
-                Theme={'dark'} Position={'top'} Target={guid.current} Zindex={9999}>
-                {errors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}
+                Theme={'dark'}
+                Position={'top'}
+                Target={guid.current}
+                Zindex={9999}
+                > {errors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}
             </ToolTip>
             <Modal
-                Show={showModal}
+                Show={props.Location?.ID == props.Show}
                 Title={'Drawings'}
                 ShowX={true} Size={'lg'}
                 CallBack={() => setShowModal(false)}
@@ -111,7 +112,6 @@ const LocationDrawingsModal = (props: IProps) => {
                         <LocationDrawingsTable
                             LocationID={props.Location?.ID}
                             UpdateTable={0}
-                            SetTotalRecords={setTotalRecords}
                         />
                     </div>
                 </div>
