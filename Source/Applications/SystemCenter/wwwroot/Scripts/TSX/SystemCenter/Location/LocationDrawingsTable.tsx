@@ -34,13 +34,7 @@ interface IProps {
     /**
      * @param UpdateTable Counter that triggers a fetchDrawings function
      */
-    UpdateTable: number,
-    /**
-     * Used to pass number of drawings up to be used in relevant setters.
-     * @param n number of records
-     * @returns
-     */
-    SetTotalRecords: (n: number) => void;
+    UpdateTable: number
 }
 
 const LocationDrawingsTable = (props: IProps) => {
@@ -84,10 +78,6 @@ const LocationDrawingsTable = (props: IProps) => {
                 setPageState('error');
             });
     };
-
-    React.useEffect(() => {
-        props.SetTotalRecords(pageInfo.TotalRecords);
-    }, [pageInfo.TotalRecords]);
 
     React.useEffect(() => {
         const storedInfo = JSON.parse(localStorage.getItem(PagingID) as string);
