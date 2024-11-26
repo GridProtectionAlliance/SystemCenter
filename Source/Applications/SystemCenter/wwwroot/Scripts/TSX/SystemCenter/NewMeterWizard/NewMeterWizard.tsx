@@ -97,6 +97,8 @@ export default function NewMeterWizard(props: { IsEngineer: boolean }) {
     const [hover, setHover] = React.useState<'None' | 'Next' | 'Prev'>('None');
     const [showSubmit, setShowSubmit] = React.useState<boolean>(false);
     const [status, setStatus] = React.useState<Application.Types.Status>('unintiated');
+    const [showDrawingsModal, setShowDrawingsModal] = React.useState<boolean>();
+    const [disableDrawingButton, setDisableDrawingButton] = React.useState<boolean>(false);
 
     React.useEffect(() => {
         if (mStatus === 'unintiated' || mStatus === 'changed')
@@ -405,7 +407,20 @@ export default function NewMeterWizard(props: { IsEngineer: boolean }) {
         else if (currentStep === assetStep
             || currentStep === connectionStep
         )
-            return <LocationDrawingsModal Location={locationInfo} />
+            return (<>
+                <button
+                    className={disableDrawingButton ? "btn btn-primary disabled" : "btn btn-primary"}
+                    onClick={() => setShowDrawingsModal(true)}
+                    disabled={disableDrawingButton}
+                    >Open {locationInfo.Name} Drawings
+                </button>
+                <LocationDrawingsModal
+                    Location={locationInfo}
+                    Show={showDrawingsModal}
+                    SetShow={setShowDrawingsModal}
+                    SetDisabled={setDisableDrawingButton}
+                />
+            </>)
         else if (currentStep >= additionalFieldMeterStep) {
             return (
                 <div>

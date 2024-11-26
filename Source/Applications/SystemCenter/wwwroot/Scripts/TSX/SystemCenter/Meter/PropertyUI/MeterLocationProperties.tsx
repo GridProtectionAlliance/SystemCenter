@@ -50,6 +50,9 @@ const MeterLocationProperties = (props: IProps) => {
     const [validKey, setValidKey] = React.useState<boolean>(true);
     const [showStationSelector, setShowStationSelector] = React.useState<boolean>(false);
     const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
+    const [showDrawingsModal, setShowDrawingsModal] = React.useState<boolean>();
+    const [disableDrawingButton, setDisableDrawingButton] = React.useState<boolean>(false);
+
     const roles = useAppSelector(SelectRoles);
 
     React.useEffect(() => {
@@ -165,7 +168,18 @@ const MeterLocationProperties = (props: IProps) => {
                 </div>
                 <div className="col">
                     <div className="pull-right" style={{ marginBottom: 10 }}>
-                        <LocationDrawingsModal Location={props.Location} />
+                        <button
+                            className={disableDrawingButton ? "btn btn-primary disabled" : "btn btn-primary"}
+                            onClick={() => setShowDrawingsModal(true)}
+                            disabled={disableDrawingButton}
+                        >Open {props.Location?.Name} Drawings
+                        </button>
+                        <LocationDrawingsModal
+                            Location={props.Location}
+                            Show={showDrawingsModal}
+                            SetShow={setShowDrawingsModal}
+                            SetDisabled={setDisableDrawingButton}
+                        />
                     </div>
                     <div style={{ marginTop: 43 }}>
                         <Input<OpenXDA.Types.Location> Record={props.Location}

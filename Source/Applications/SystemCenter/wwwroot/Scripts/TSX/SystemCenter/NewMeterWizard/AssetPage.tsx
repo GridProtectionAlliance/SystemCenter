@@ -82,6 +82,9 @@ export default function AssetPage(props: IProps) {
     const [newEdit, setNewEdit] = React.useState<'New' | 'Edit'>('New');
     const [showAssetModal, setShowAssetModal] = React.useState<boolean>(false);
 
+    const [showDrawingsModal, setShowDrawingsModal] = React.useState<boolean>();
+    const [disableDrawingButton, setDisableDrawingButton] = React.useState<boolean>(false);
+
     const [showAssetSelect, setShowAssetSelect] = React.useState<boolean>(false);
     const [selectedAssets, setSelectedAssets] = React.useState<SystemCenter.Types.DetailedAsset[]>([]);
 
@@ -484,7 +487,18 @@ export default function AssetPage(props: IProps) {
                         <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                         <form>
                             <div className="form-group">
-                                <LocationDrawingsModal Location={props.Location} />
+                                <button
+                                    className={disableDrawingButton ? 'btn btn-primary disabled' : 'btn btn-primary'}
+                                    onClick={() => setShowDrawingsModal(true)}
+                                    disabled={disableDrawingButton}
+                                >Open {props.Location?.Name} Drawings
+                                </button>
+                                <LocationDrawingsModal
+                                    Location={props.Location}
+                                    Show={showDrawingsModal}
+                                    SetShow={setShowDrawingsModal}
+                                    SetDisabled={setDisableDrawingButton}
+                                />
                             </div>
                         </form>
                     </fieldset>
