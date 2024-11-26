@@ -25,7 +25,7 @@ import * as React from 'react';
 import _ from 'lodash';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import { useHistory } from "react-router-dom";
-import { LoadingIcon, Modal, Search, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
+import { BtnDropdown, LoadingIcon, Modal, Search, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
 import { TrashCan } from '@gpa-gemstone/gpa-symbols'
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { useAppSelector, useAppDispatch } from '../hooks';
@@ -51,7 +51,11 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
     const [selectedAssetID, setSelectedAssetID] = React.useState<number>(0);
     const [selectedTypeID, setSelectedtypeID] = React.useState<number>(0);
     const [localAssets, setLocalAssets] = React.useState<Array<OpenXDA.Types.Asset>>([]);
+
     const [locations, setLocations] = React.useState<OpenXDA.Types.Location[]>([]);
+    const [showDrawingsModal, setShowDrawingsModal] = React.useState<boolean>(false);
+    const [selectedLocation, setSelectedLocation] = React.useState<OpenXDA.Types.Location>();
+    const [disableDrawingButton, setDisableDrawingButton] = React.useState<boolean>(false);
 
     const [sortKey, setSortKey] = React.useState<string>('AssetKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
@@ -247,6 +251,10 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
         </div>
 
     const connectionsAvailable = !(assetConnectionTypes == undefined) && (assetConnectionTypes.length > 0);
+    const handleShowDrawingsModal = (loc: OpenXDA.Types.Location) => {
+        setSelectedLocation(loc);
+        setShowDrawingsModal(true);
+    }
     return (
         <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="card-header">
@@ -255,9 +263,29 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                         <h4>Connections:</h4>
                     </div>
                     <div className="pr-4">
-                        <LocationDrawingsModal Location={locations[0]} />
-                        <LocationDrawingsModal Location={locations[1]} />
-                        <LocationDrawingsModal Location={locations[2]} />
+                        <BtnDropdown
+                            Label={'Open ' + locations[0]?.Name + ' Drawings'}
+                            Callback={() => handleShowDrawingsModal(locations[0])}
+                            Disabled={disableDrawingButton} // TODO: get from modal componenet
+                            //ToolTipContent={} // TODO: 
+                            ShowToolTip={false} // TODO: hover
+                            BtnClass={disableDrawingButton ? 'btn btn-primary disabled' : 'btn btn-primary'}
+                            Options={locations.slice(1).map((loc, i) => ({
+                                Label: 'Open ' + loc?.Name + ' Drawings',
+                                Callback: () => handleShowDrawingsModal(loc),
+                                Disabled: disableDrawingButton, // TODO: 
+                                //ToolTipContent={},
+                                ShowToolTip: false, //TODO:
+                                ToolTipLocation: 'left',
+                                Key: i
+                            }))}
+                        />
+                        <LocationDrawingsModal
+                            Location={selectedLocation}
+                            Show={showDrawingsModal}
+                            SetShow={setShowDrawingsModal}
+                            SetDisabled={setDisableDrawingButton}
+                        />
                     </div>
                 </div>
             </div>
