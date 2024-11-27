@@ -269,13 +269,16 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                             TooltipContent={<>{
                                 drawingsModalErrors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)
                             }</>}
-                            ShowToolTip={drawingsModalErrors.length > 0 && hover === 'Drawings'}
-                            BtnClass={drawingsModalErrors.length > 0 ? 'btn btn-primary disabled' : 'btn btn-primary'}
+                            ShowToolTip={drawingsModalErrors.length > 0}
+                            Disabled={drawingsModalErrors.length > 0}
+                            BtnClass={'btn-primary'}
                             Options={locations.slice(1).map((loc, i) => ({
                                 Label: 'Open ' + loc?.Name + ' Drawings',
                                 Callback: () => handleShowDrawingsModal(loc),
-                                //ToolTipContent={},
-                                ShowToolTip: false, //TODO:
+                                ToolTipContent: <>{
+                                    drawingsModalErrors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)
+                                }</>,
+                                ShowToolTip: drawingsModalErrors.length > 0,
                                 ToolTipLocation: 'left',
                                 Key: i
                             }))}
