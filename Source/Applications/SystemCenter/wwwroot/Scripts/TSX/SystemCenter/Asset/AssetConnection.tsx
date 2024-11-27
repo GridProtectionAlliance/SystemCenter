@@ -55,7 +55,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
     const [locations, setLocations] = React.useState<OpenXDA.Types.Location[]>([]);
     const [showDrawingsModal, setShowDrawingsModal] = React.useState<boolean>(false);
     const [selectedLocation, setSelectedLocation] = React.useState<OpenXDA.Types.Location>();
-    const [drawingsModalErrors, setDrawingsModalErrors] = React.useState<string[]>([]);
+    const [locationsWithErrors, setLocationsWithErrors] = React.useState<Map<OpenXDA.Types.Location, string[]>>(new Map())
 
     const [sortKey, setSortKey] = React.useState<string>('AssetKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
@@ -255,6 +255,16 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
         setSelectedLocation(loc);
         setShowDrawingsModal(true);
     }
+    const handleAddLocationError = (locMap: Map<OpenXDA.Types.Location, string[]>) => {
+        setLocationsWithErrors(prev => new Map([...prev, ...locMap]));
+    }
+    const handleRemoveLocationError = (loc: OpenXDA.Types.Location) => {
+        setLocationsWithErrors(prev => {
+            const newMap = new Map(prev);
+            newMap.delete(loc);
+            return newMap;
+        });
+    }
     return (
         <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="card-header">
@@ -267,19 +277,20 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                             Label={'Open ' + locations[0]?.Name + ' Drawings'}
                             Callback={() => handleShowDrawingsModal(locations[0])}
                             TooltipContent={<>{
-                                drawingsModalErrors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)
+                                locationsWithErrors.get(locations[0])?.map((e, i) => <p key={i}>{CrossMark} {e}</p>)
                             }</>}
-                            ShowToolTip={drawingsModalErrors.length > 0}
-                            Disabled={drawingsModalErrors.length > 0}
+                            ShowToolTip={locationsWithErrors.has(locations[0])}
+                            Disabled={locationsWithErrors.has(locations[0])}
                             BtnClass={'btn-primary'}
                             Options={locations.slice(1).map((loc, i) => ({
                                 Label: 'Open ' + loc?.Name + ' Drawings',
                                 Callback: () => handleShowDrawingsModal(loc),
+                                Disabled: locationsWithErrors.has(loc),
                                 ToolTipContent: <>{
-                                    drawingsModalErrors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)
+                                    locationsWithErrors.get(loc)?.map((e, i) => <p key={i}>{CrossMark} {e}</p>)
                                 }</>,
-                                ShowToolTip: drawingsModalErrors.length > 0,
-                                ToolTipLocation: 'left',
+                                ShowToolTip: locationsWithErrors.has(loc),
+                                ToolTipLocation: "left",
                                 Key: i
                             }))}
                         />
@@ -287,7 +298,9 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                             Location={selectedLocation}
                             Show={showDrawingsModal}
                             SetShow={setShowDrawingsModal}
-                            Errors={setDrawingsModalErrors}
+                            Errors={() => {}}
+                            AddLocationWithErrors={handleAddLocationError}
+                            RemoveLocationWithErrors={handleRemoveLocationError}
                         />
                     </div>
                 </div>
