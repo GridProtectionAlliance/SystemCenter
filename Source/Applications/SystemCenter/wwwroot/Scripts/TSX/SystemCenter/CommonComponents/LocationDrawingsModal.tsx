@@ -29,17 +29,12 @@ import LocationDrawingsTable from '../Location/LocationDrawingsTable';
 
 interface IProps {
     Location: OpenXDA.Types.Location;
-    /**
-     * @param Show Shows if equal to location ID
-     */
     Show: boolean;
     SetShow: (b: boolean) => void;
-    SetDisabled: (b: boolean) => void;
+    Errors: (e: string[]) => void;
 }
 
 const LocationDrawingsModal = (props: IProps) => {
-    const guid = React.useRef(CreateGuid());
-    const [hover, setHover] = React.useState<'none' | 'drawings'>('none');
     const [errors, setErrors] = React.useState<string[]>([]);
     const [pageState, setPageState] = React.useState<"loading" | "error" | "idle">("idle");
     const LocationDrawingController = new GenericController<SystemCenter.Types.LocationDrawing>(`${homePath}api/LocationDrawing`, "Name", true);
@@ -69,24 +64,16 @@ const LocationDrawingsModal = (props: IProps) => {
                 setPageState('idle');
             })
             .fail(() => setPageState('error'));
-    }, [props.Location])
+    }, [props.Location?.ID])
 
     React.useEffect(() => {
-        props.SetDisabled(errors.length > 0);
+        props.Errors(errors);
     }, [errors]);
 
     return (
         <div>
             <LoadingScreen Show={pageState == 'loading'} />
             <ServerErrorIcon Show={pageState == 'error'} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
-            <ToolTip
-                Show={hover === 'drawings'  /*&& (disableButton)*/}
-                Theme={'dark'}
-                Position={'top'}
-                Target={guid.current}
-                Zindex={9999}
-            > {errors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}
-            </ToolTip>
             <Modal
                 Show={props.Show}
                 Title={'Drawings'}

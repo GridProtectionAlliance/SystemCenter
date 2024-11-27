@@ -34,13 +34,12 @@ import CapBankRelayAttributes from '../AssetAttribute/CapBankRelay';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { ByAssetSlice, AssetTypeSlice } from '../Store/Store';
 import { SelectAssetStatus, FetchAsset, SelectAssets } from '../Store/AssetSlice';
-import { Modal, Search } from '@gpa-gemstone/react-interactive';
+import { Modal, Search, ToolTip } from '@gpa-gemstone/react-interactive';
 import DERAttributes from '../AssetAttribute/DER';
 import AssetSelect from '../Asset/AssetSelect';
 import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { getAssetWithAdditionalFields } from '../../../TS/Services/Asset';
 import LocationDrawingsModal from '../CommonComponents/LocationDrawingsModal';
-import { GetNodeSize } from '@gpa-gemstone/helper-functions';
 import { ReactTable } from '@gpa-gemstone/react-table';
 import GenerationAttributes from '../AssetAttribute/Generation';
 import StationAuxAttributes from '../AssetAttribute/StationAux';
@@ -80,7 +79,8 @@ export default function AssetPage(props: IProps) {
     const [showAssetModal, setShowAssetModal] = React.useState<boolean>(false);
 
     const [showDrawingsModal, setShowDrawingsModal] = React.useState<boolean>();
-    const [disableDrawingButton, setDisableDrawingButton] = React.useState<boolean>(false);
+    const [drawingsModalErrors, setDrawingsModalErrors] = React.useState<string[]>([]);
+    const [hover, setHover] = React.useState<'none' | 'drawings'>();
 
     const [showAssetSelect, setShowAssetSelect] = React.useState<boolean>(false);
     const [selectedAssets, setSelectedAssets] = React.useState<SystemCenter.Types.DetailedAsset[]>([]);
@@ -437,16 +437,26 @@ export default function AssetPage(props: IProps) {
                         <form>
                             <div className="form-group">
                                 <button
-                                    className={disableDrawingButton ? 'btn btn-primary disabled' : 'btn btn-primary'}
+                                    className={drawingsModalErrors.length > 0 ? 'btn btn-primary disabled' : 'btn btn-primary'}
                                     onClick={() => setShowDrawingsModal(true)}
-                                    disabled={disableDrawingButton}
+                                    onMouseEnter={() => setHover('drawings')}
+                                    onMouseLeave={() => setHover('none')}
+                                    data-tooltip={"DrawingsModal"}
                                 >Open {props.Location?.Name} Drawings
                                 </button>
+                                <ToolTip
+                                    Show={drawingsModalErrors.length > 0 && hover == 'drawings'}
+                                    Theme={'dark'}
+                                    Position={'top'}
+                                    Zindex={9999}
+                                    Target={"DrawingsModal"}
+                                > {drawingsModalErrors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}
+                                </ToolTip>
                                 <LocationDrawingsModal
                                     Location={props.Location}
                                     Show={showDrawingsModal}
                                     SetShow={setShowDrawingsModal}
-                                    SetDisabled={setDisableDrawingButton}
+                                    Errors={setDrawingsModalErrors}
                                 />
                             </div>
                         </form>
