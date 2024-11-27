@@ -22,9 +22,7 @@
 //******************************************************************************************************
 import React from 'react';
 import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
-import { GenericController, LoadingScreen, Modal, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
-import { CreateGuid } from '@gpa-gemstone/helper-functions';
-import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import { GenericController, LoadingScreen, Modal, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import LocationDrawingsTable from '../Location/LocationDrawingsTable';
 
 interface IProps {
@@ -32,6 +30,11 @@ interface IProps {
     Show: boolean;
     SetShow: (b: boolean) => void;
     Errors: (e: string[]) => void;
+    /**
+     * For use with multiple LocationDrawingsModal's
+     */
+    AddLocationWithErrors?: (locationErrorsMap: Map<OpenXDA.Types.Location, string[]>) => void;
+    RemoveLocationWithErrors?: (l: OpenXDA.Types.Location) => void;
 }
 
 const LocationDrawingsModal = (props: IProps) => {
@@ -68,6 +71,13 @@ const LocationDrawingsModal = (props: IProps) => {
 
     React.useEffect(() => {
         props.Errors(errors);
+
+        const locationErrorsMap = new Map<OpenXDA.Types.Location, string[]>();
+        locationErrorsMap.set(props.Location, errors);
+
+        if (errors.length > 0 && props.Location != undefined)
+            props.AddLocationWithErrors?.(locationErrorsMap);
+        else props.RemoveLocationWithErrors?.(props.Location);
     }, [errors]);
 
     return (
