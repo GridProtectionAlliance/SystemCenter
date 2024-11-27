@@ -26,7 +26,7 @@ import _ from 'lodash';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import { useHistory } from "react-router-dom";
 import { BtnDropdown, LoadingIcon, Modal, Search, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
-import { TrashCan } from '@gpa-gemstone/gpa-symbols'
+import { CrossMark, TrashCan } from '@gpa-gemstone/gpa-symbols'
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { AssetConnectionTypeSlice } from '../Store/Store';
@@ -55,7 +55,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
     const [locations, setLocations] = React.useState<OpenXDA.Types.Location[]>([]);
     const [showDrawingsModal, setShowDrawingsModal] = React.useState<boolean>(false);
     const [selectedLocation, setSelectedLocation] = React.useState<OpenXDA.Types.Location>();
-    const [disableDrawingButton, setDisableDrawingButton] = React.useState<boolean>(false);
+    const [drawingsModalErrors, setDrawingsModalErrors] = React.useState<string[]>([]);
 
     const [sortKey, setSortKey] = React.useState<string>('AssetKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
@@ -65,7 +65,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
     const actStatus = useAppSelector(AssetConnectionTypeSlice.SearchStatus);
     const [trigger, setTrigger] = React.useState<number>(0);
 
-    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
+    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None' | 'Drawings')>('None');
     const roles = useAppSelector(SelectRoles);
 
     React.useEffect(() => {
@@ -266,14 +266,14 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                         <BtnDropdown
                             Label={'Open ' + locations[0]?.Name + ' Drawings'}
                             Callback={() => handleShowDrawingsModal(locations[0])}
-                            Disabled={disableDrawingButton} // TODO: get from modal componenet
-                            //ToolTipContent={} // TODO: 
-                            ShowToolTip={false} // TODO: hover
-                            BtnClass={disableDrawingButton ? 'btn btn-primary disabled' : 'btn btn-primary'}
+                            TooltipContent={<>{
+                                drawingsModalErrors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)
+                            }</>}
+                            ShowToolTip={drawingsModalErrors.length > 0 && hover === 'Drawings'}
+                            BtnClass={drawingsModalErrors.length > 0 ? 'btn btn-primary disabled' : 'btn btn-primary'}
                             Options={locations.slice(1).map((loc, i) => ({
                                 Label: 'Open ' + loc?.Name + ' Drawings',
                                 Callback: () => handleShowDrawingsModal(loc),
-                                Disabled: disableDrawingButton, // TODO: 
                                 //ToolTipContent={},
                                 ShowToolTip: false, //TODO:
                                 ToolTipLocation: 'left',
@@ -284,7 +284,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                             Location={selectedLocation}
                             Show={showDrawingsModal}
                             SetShow={setShowDrawingsModal}
-                            SetDisabled={setDisableDrawingButton}
+                            Errors={setDrawingsModalErrors}
                         />
                     </div>
                 </div>
