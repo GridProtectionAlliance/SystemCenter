@@ -94,11 +94,11 @@ export default function NewMeterWizard(props: { IsEngineer: boolean }) {
     // Wizard Page Control
     const [error, setError] = React.useState<string[]>([]);
     const [warning, setWarning] = React.useState<string[]>([]);
-    const [hover, setHover] = React.useState<'None' | 'Next' | 'Prev'>('None');
+    const [hover, setHover] = React.useState<'None' | 'Next' | 'Prev' | 'Drawings'>('None');
     const [showSubmit, setShowSubmit] = React.useState<boolean>(false);
     const [status, setStatus] = React.useState<Application.Types.Status>('unintiated');
     const [showDrawingsModal, setShowDrawingsModal] = React.useState<boolean>();
-    const [disableDrawingButton, setDisableDrawingButton] = React.useState<boolean>(false);
+    const [drawingsModalErrors, setDrawingsModalErrors] = React.useState<string[]>([]);
 
     React.useEffect(() => {
         if (mStatus === 'unintiated' || mStatus === 'changed')
@@ -409,16 +409,26 @@ export default function NewMeterWizard(props: { IsEngineer: boolean }) {
         )
             return (<>
                 <button
-                    className={disableDrawingButton ? "btn btn-primary disabled" : "btn btn-primary"}
+                    className={drawingsModalErrors.length > 0 ? "btn btn-primary disabled" : "btn btn-primary"}
                     onClick={() => setShowDrawingsModal(true)}
-                    disabled={disableDrawingButton}
+                    onMouseEnter={() => setHover('Drawings')}
+                    onMouseLeave={() => setHover('None')}
+                    data-tooltip={"DrawingsModal"}
                     >Open {locationInfo.Name} Drawings
                 </button>
+                <ToolTip
+                    Show={drawingsModalErrors.length > 0 && hover == 'Drawings'}
+                    Theme={'dark'}
+                    Position={'top'}
+                    Zindex={9999}
+                    Target={"DrawingsModal"}
+                > {drawingsModalErrors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}
+                </ToolTip>
                 <LocationDrawingsModal
                     Location={locationInfo}
                     Show={showDrawingsModal}
                     SetShow={setShowDrawingsModal}
-                    SetDisabled={setDisableDrawingButton}
+                    Errors={setDrawingsModalErrors}
                 />
             </>)
         else if (currentStep >= additionalFieldMeterStep) {
