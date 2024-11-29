@@ -12,6 +12,7 @@ using OpenQA.Selenium.Support.UI;
 using OpenQA.Selenium.Interactions;
 using SeleniumExtras.WaitHelpers;
 using NUnit.Framework;
+using UserInterface;
 [TestFixture]
 public class InitialLoginTest
 {
@@ -38,7 +39,7 @@ public class InitialLoginTest
 
     private void PerformLogin(string username, string password)
     {
-        driver.Navigate().GoToUrl("https://systemcenter.demo.gridprotectionalliance.org/index.cshtml?name=Meters");
+        driver.Navigate().GoToUrl(Settings.BaseURL + "/index.cshtml?name=Meters");
 
         // Use WebDriverWait to ensure elements are present and interactable
         var usernameField = wait.Until(d => d.FindElement(By.Id("username")));
@@ -61,7 +62,7 @@ public class InitialLoginTest
     [Test]
     public void attemptInitialLogin()
     {
-        PerformLogin("Admin", "7h1515457r0ngP455w0rd");
+        PerformLogin(Settings.adminUsername, Settings.adminPassword);
 
         var meters = wait.Until(d => d.FindElements(By.LinkText("Meters")));
 
@@ -70,7 +71,7 @@ public class InitialLoginTest
     [Test]
     public void postLoginInfoPresent()
     {
-        PerformLogin("Admin", "7h1515457r0ngP455w0rd");
+        PerformLogin(Settings.adminUsername, Settings.adminPassword);
 
         // Monitors and Assets Section
         wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("/html/body/div[1]/div/div/nav/div[1]/h6[1]")));
