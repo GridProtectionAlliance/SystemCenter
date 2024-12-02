@@ -410,7 +410,10 @@ export default function NewMeterWizard(props: { IsEngineer: boolean }) {
             return (<>
                 <button
                     className={drawingsModalErrors.length > 0 ? "btn btn-primary disabled" : "btn btn-primary"}
-                    onClick={() => setShowDrawingsModal(true)}
+                    onClick={() => {
+                        if (drawingsModalErrors.length > 0) return;
+                        setShowDrawingsModal(true);
+                    }}
                     onMouseEnter={() => setHover('Drawings')}
                     onMouseLeave={() => setHover('None')}
                     data-tooltip={"DrawingsModal"}
