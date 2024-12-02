@@ -63,7 +63,8 @@ const LocationDrawingsModal = (props: IProps) => {
         setPageState('loading');
         LocationDrawingController.PagedSearch([], 'Name', true, 1, props.Location?.ID)
             .done((result) => {
-                setErrors(isValid(result));
+                const validationErrors = isValid(result);
+                setErrors(validationErrors);
                 setPageState('idle');
             })
             .fail(() => setPageState('error'));
@@ -71,7 +72,6 @@ const LocationDrawingsModal = (props: IProps) => {
 
     React.useEffect(() => {
         props.Errors(errors);
-
         const locationErrorsMap = new Map<OpenXDA.Types.Location, string[]>();
         locationErrorsMap.set(props.Location, errors);
 
