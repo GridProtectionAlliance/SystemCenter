@@ -266,6 +266,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 <li className={"nav-item"}>
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Settings&System=MiMD"} to={controllerViewPath + "?name=Settings&System=MiMD"}>miMD</NavLink>
                                 </li>
+                                <li className={"nav-item"}>
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Settings&System=OpenSEE"} to={controllerViewPath + "?name=Settings&System=OpenSEE"}>OpenSEE</NavLink>
+                                </li>
                             </ul>
 
                             <div hidden={roles.indexOf('Administrator') < 0}>
@@ -444,7 +447,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 }
                                 else if (qs['?name'] == "Settings") {
                                     if (roles.indexOf('Administrator') < 0) return null;
-                                    return <BySettings Roles={roles} System={qs.System as 'SystemCenter' | 'OpenXDA' | 'MiMD'} />
+                                    return <BySettings Roles={roles} System={qs.System as 'SystemCenter' | 'OpenXDA' | 'MiMD' | 'OpenSEE'} />
                                 }
                                 else if (qs['?name'] == "ByAdditionalField") {
                                     if (roles.indexOf('Administrator') < 0) return null;

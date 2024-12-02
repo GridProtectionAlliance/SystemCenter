@@ -1,7 +1,7 @@
 ﻿//******************************************************************************************************
-//  BySetting.tsx - Gbtc
+//  OpenSEESetting.cs - Gbtc
 //
-//  Copyright © 2021, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright © 2016, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -16,34 +16,30 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  04/28/2021 - C. Lackner
+//  11/25/2024 - C. Lackner
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
-import * as React from 'react';
-import { MiMDSettingSlice, OpenSEESettingSlice, OpenXDASettingSlice, SystemCenterSettingSlice } from '../Store/Store';
-import { Application } from '@gpa-gemstone/application-typings';
-import Setting from './Setting';
-import { SystemCenter } from '../global';
+using System.Text;
+using System.Web.Http;
+using GSF.Data;
+using GSF.Data.Model;
+using GSF.Identity;
+using GSF.Web;
+using GSF.Web.Model;
 
-declare var homePath: string;
+namespace SystemCenter.Model
+{
+    [AllowSearch]
+    [DeleteRoles("Administrator")]
+    [PatchRoles("Administrator")]
+    [PostRoles("Administrator")]
+    [TableName("OpenSEE.Setting")]
+    [UseEscapedName]
+    public class OpenSEESetting : openXDA.Model.Setting { };
 
-interface IProps {
-    System: 'SystemCenter' | 'MiMD' | 'OpenXDA' | 'OpenSEE',
-    Roles: Application.Types.SecurityRoleName[]
+
+    [RoutePrefix("api/OpenSEE/Setting")]
+    public class OpenSEESettingController : ModelController<OpenSEESetting> { }
 }
-
-const BySetting = (props: IProps) => {
-
-    if (props.System == 'SystemCenter')
-        return <Setting SettingsSlice={SystemCenterSettingSlice} key='SystemCenter' />
-    if (props.System == 'MiMD')
-        return <Setting SettingsSlice={MiMDSettingSlice} key='MiMD' />
-    if (props.System == 'OpenSEE')
-        return <Setting SettingsSlice={OpenSEESettingSlice} key='OpenSEE' />
-    return <Setting SettingsSlice={OpenXDASettingSlice} key='OpenXDA' />
-    
-}
-export default BySetting;
-
