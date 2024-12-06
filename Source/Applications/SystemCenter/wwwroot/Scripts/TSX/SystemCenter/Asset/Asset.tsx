@@ -40,6 +40,7 @@ import { LoadingScreen, TabSelector, Warning } from '@gpa-gemstone/react-interac
 import SourceImpedanceWindow from '../AssetAttribute/SourceImpedanceWindow';
 import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
+import { ByAssetSlice } from '../Store/Store';
 
 declare var homePath: string;
 declare type Tab = 'notes' | 'assetInfo' | 'substations' | 'meters' | 'connections' | 'additionalFields' | 'extDB' | 'segments' | 'sourceImpedances' | 'channels';
@@ -113,6 +114,7 @@ function Asset(props: IProps) {
         });
         handle.done((msg) => {
             sessionStorage.clear();
+            ByAssetSlice.SetChanged();
             if (window.location.href.includes('LineSegment'))
                 navigate(`${homePath}index.cshtml?name=LineSegments`);
             else
