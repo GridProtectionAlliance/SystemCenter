@@ -29,10 +29,11 @@ import { Input, TextArea } from '@gpa-gemstone/react-forms';
 import { AssetAttributes } from '../../AssetAttribute/Asset';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
 import { ByLocationSlice } from '../../Store/Store';
-import LocationDrawings from './LocationDrawings';
+import LocationDrawingsModal from '../../CommonComponents/LocationDrawingsModal';
 import { useAppSelector } from '../../hooks';
 import { SelectRoles } from '../../Store/UserSettings';
 import { ToolTip } from '@gpa-gemstone/react-interactive';
+import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 
 declare var homePath: string;
 
@@ -48,7 +49,10 @@ interface IProps {
 const MeterLocationProperties = (props: IProps) => {
     const [validKey, setValidKey] = React.useState<boolean>(true);
     const [showStationSelector, setShowStationSelector] = React.useState<boolean>(false);
-    const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
+    const [hover, setHover] = React.useState<('submit' | 'clear' | 'none' | 'drawings')>('none');
+    const [showDrawingsModal, setShowDrawingsModal] = React.useState<boolean>();
+    const [drawingsModalErrors, setDrawingsModalErrors] = React.useState<string[]>([]);
+
     const roles = useAppSelector(SelectRoles);
 
     React.useEffect(() => {
@@ -144,11 +148,11 @@ const MeterLocationProperties = (props: IProps) => {
                     <ToolTip Show={hover == 'submit' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"SelectLocation"}>
                         <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                     </ToolTip>
-                    <Input<OpenXDA.Types.Location> 
-                        Record={props.Location} Field={'LocationKey'} 
+                    <Input<OpenXDA.Types.Location>
+                        Record={props.Location} Field={'LocationKey'}
                         Label={'Key'}
                         Feedback={'A unique key of less than 50 characters is required.'}
-                        Valid={valid} 
+                        Valid={valid}
                         Setter={(loc) => props.SetLocation(loc)} Disabled={!hasPermissions() || props.DisableLocation} />
                     <Input<OpenXDA.Types.Location> Record={props.Location}
                         Field={'Name'}
@@ -164,25 +168,46 @@ const MeterLocationProperties = (props: IProps) => {
                 </div>
                 <div className="col">
                     <div className="pull-right" style={{ marginBottom: 10 }}>
-                        <LocationDrawings LocationID={props.Location.ID} />
+                        <button
+                            className={drawingsModalErrors.length > 0 ? "btn btn-primary disabled" : "btn btn-primary"}
+                            onClick={() => drawingsModalErrors.length > 0 ? null : setShowDrawingsModal(true)}
+                            data-tooltip={"DrawingsModal"}
+                            onMouseEnter={() => setHover('drawings')}
+                            onMouseLeave={() => setHover('none')}
+                        >Open {props.Location?.Name} Drawings
+                        </button>
+                        <ToolTip
+                            Show={drawingsModalErrors.length > 0 && hover === 'drawings'}
+                            Theme={'dark'}
+                            Position={'top'}
+                            Target={"DrawingsModal"}
+                            Zindex={9999}
+                        > {drawingsModalErrors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}
+                        </ToolTip>
+                        <LocationDrawingsModal
+                            Location={props.Location}
+                            Show={showDrawingsModal}
+                            SetShow={setShowDrawingsModal}
+                            Errors={setDrawingsModalErrors}
+                        />
                     </div>
                     <div style={{ marginTop: 43 }}>
-                        <Input<OpenXDA.Types.Location> Record={props.Location} 
-                            Field={'Alias'} Label={'Alias'} Feedback={'Alias must be less than 200 characters.'} 
+                        <Input<OpenXDA.Types.Location> Record={props.Location}
+                            Field={'Alias'} Label={'Alias'} Feedback={'Alias must be less than 200 characters.'}
                             Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={!hasPermissions() || props.DisableLocation} />
-                        <Input<OpenXDA.Types.Location> Record={props.Location} 
-                            Field={'Latitude'} Label={'Latitude'} 
-                            Feedback={'A numeric Latitude value between -180 and 180 is required.'} 
+                        <Input<OpenXDA.Types.Location> Record={props.Location}
+                            Field={'Latitude'} Label={'Latitude'}
+                            Feedback={'A numeric Latitude value between -180 and 180 is required.'}
                             Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={!hasPermissions() || props.DisableLocation} />
-                        <Input<OpenXDA.Types.Location> Record={props.Location} Field={'Longitude'} Label={'Longitude'} 
-                            Feedback={'A numeric Longitude value between -180 and 180 is required.'} 
+                        <Input<OpenXDA.Types.Location> Record={props.Location} Field={'Longitude'} Label={'Longitude'}
+                            Feedback={'A numeric Longitude value between -180 and 180 is required.'}
                             Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={!hasPermissions() || props.DisableLocation} />
-                        <TextArea<OpenXDA.Types.Location> Rows={3} Record={props.Location} Field={'Description'} Label={'Description'} 
+                        <TextArea<OpenXDA.Types.Location> Rows={3} Record={props.Location} Field={'Description'} Label={'Description'}
                             Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={!hasPermissions() || props.DisableLocation} />
                     </div>
                 </div>
             </div>
-            <DefaultSelects.Location 
+            <DefaultSelects.Location
                 Slice={ByLocationSlice}
                 Selection={[]}
                 OnClose={(selected, conf) => {
