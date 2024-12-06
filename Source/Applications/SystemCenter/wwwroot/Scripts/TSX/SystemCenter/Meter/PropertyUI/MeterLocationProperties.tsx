@@ -171,7 +171,7 @@ const MeterLocationProperties = (props: IProps) => {
                     <div className="pull-right" style={{ marginBottom: 10 }}>
                         <button
                             className={drawingsModalErrors.length > 0 ? "btn btn-primary disabled" : "btn btn-primary"}
-                            onClick={() => setShowDrawingsModal(true)}
+                            onClick={() => drawingsModalErrors.length > 0 ? null : setShowDrawingsModal(true)}
                             data-tooltip={"DrawingsModal"}
                             onMouseEnter={() => setHover('drawings')}
                             onMouseLeave={() => setHover('none')}
