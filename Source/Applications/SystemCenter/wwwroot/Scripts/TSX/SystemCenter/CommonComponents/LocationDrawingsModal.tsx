@@ -29,12 +29,12 @@ interface IProps {
     Location: OpenXDA.Types.Location;
     Show: boolean;
     SetShow: (b: boolean) => void;
+    /** For use when keeping track of a single Location's error to display */
     Errors: (e: string[]) => void;
-    /**
-     * For use with multiple LocationDrawingsModal's
-     */
+    /** For use with multiple locations with multiple LocationDrawingsModal's */
     AddLocationWithErrors?: (locationErrorsMap: Map<OpenXDA.Types.Location, string[]>) => void;
-    RemoveLocationWithErrors?: (l: OpenXDA.Types.Location) => void;
+    /** For use with multiple locations with multiple LocationDrawingsModal's */
+    RemoveLocationWithErrors?: (locationErrorsMap: OpenXDA.Types.Location) => void;
 }
 
 const LocationDrawingsModal = (props: IProps) => {
