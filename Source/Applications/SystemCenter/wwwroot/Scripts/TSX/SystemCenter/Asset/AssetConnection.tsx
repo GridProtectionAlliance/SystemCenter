@@ -25,12 +25,13 @@ import * as React from 'react';
 import _ from 'lodash';
 import { ReactTable } from '@gpa-gemstone/react-table';
 import { useHistory } from "react-router-dom";
-import { LoadingIcon, Modal, Search, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
-import { TrashCan } from '@gpa-gemstone/gpa-symbols'
+import { BtnDropdown, LoadingIcon, Modal, Search, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
+import { CrossMark, TrashCan } from '@gpa-gemstone/gpa-symbols'
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { AssetConnectionTypeSlice } from '../Store/Store';
 import { SelectRoles } from '../Store/UserSettings';
+import LocationDrawingsModal from '../CommonComponents/LocationDrawingsModal'
 
 interface AssetConnection {
     AssetRelationShipTypeID: number,
@@ -40,8 +41,7 @@ interface AssetConnection {
     AssetName: string
 }
 
-function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number}): JSX.Element{
-
+function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number }): JSX.Element {
     let history = useHistory();
     let dispatch = useAppDispatch();
 
@@ -52,6 +52,11 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
     const [selectedTypeID, setSelectedtypeID] = React.useState<number>(0);
     const [localAssets, setLocalAssets] = React.useState<Array<OpenXDA.Types.Asset>>([]);
 
+    const [locations, setLocations] = React.useState<OpenXDA.Types.Location[]>([]);
+    const [showDrawingsModal, setShowDrawingsModal] = React.useState<boolean>(false);
+    const [selectedLocation, setSelectedLocation] = React.useState<OpenXDA.Types.Location>();
+    const [locationsWithErrors, setLocationsWithErrors] = React.useState<Map<OpenXDA.Types.Location, string[]>>(new Map())
+
     const [sortKey, setSortKey] = React.useState<string>('AssetKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [showModal, setShowModal] = React.useState<boolean>(false);
@@ -60,30 +65,25 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
     const actStatus = useAppSelector(AssetConnectionTypeSlice.SearchStatus);
     const [trigger, setTrigger] = React.useState<number>(0);
 
-    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
+    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None' | 'Drawings')>('None');
     const roles = useAppSelector(SelectRoles);
-
-    React.useEffect(() => {
-        let handle = getAssetConnections();
-        return () => { if (handle != null || handle.abort != null) handle.abort();}
-    }, [props.ID, trigger])
 
     React.useEffect(() => {
         if (props.ID > 0) {
             let sqlString = `(SELECT AssetRelationshipTypeID FROM AssetRelationshipTypeAssetType LEFT JOIN Asset ON `
-            sqlString = sqlString +  `Asset.AssetTypeID <> ${props.TypeID} AND Asset.AssetTypeID = AssetRelationshipTypeAssetType.assetTypeID AND `
-            sqlString = sqlString +  `Asset.ID IN (SELECT AssetID FROM AssetLocation WHERE LocationID IN (Select LocationID FROM AssetLocation WHERE AssetID = ${props.ID})) `
-            sqlString = sqlString +  `GROUP BY AssetRelationshipTypeAssetType.AssetTypeID, AssetRelationshipTypeAssetType.AssetRelationshipTypeID `
-            sqlString = sqlString +  `HAVING COUNT(Asset.ID) > 0)`
+            sqlString = sqlString + `Asset.AssetTypeID <> ${props.TypeID} AND Asset.AssetTypeID = AssetRelationshipTypeAssetType.assetTypeID AND `
+            sqlString = sqlString + `Asset.ID IN (SELECT AssetID FROM AssetLocation WHERE LocationID IN (Select LocationID FROM AssetLocation WHERE AssetID = ${props.ID})) `
+            sqlString = sqlString + `GROUP BY AssetRelationshipTypeAssetType.AssetTypeID, AssetRelationshipTypeAssetType.AssetRelationshipTypeID `
+            sqlString = sqlString + `HAVING COUNT(Asset.ID) > 0)`
             const filter: Search.IFilter<OpenXDA.Types.AssetConnectionType>[] = [
                 { FieldName: 'ID', SearchText: `(SELECT AssetRelationshipTypeID FROM AssetRelationshipTypeAssetType WHERE AssetTypeID = ${props.TypeID})`, Operator: 'IN', Type: 'query', IsPivotColumn: false },
                 {
                     FieldName: 'ID', SearchText: sqlString, Operator: 'IN', Type: 'query', IsPivotColumn: false
                 }
-                ]
+            ]
             dispatch(AssetConnectionTypeSlice.DBSearch({ filter: filter }))
         }
-        }, [props.TypeID])
+    }, [props.TypeID])
 
     React.useEffect(() => {
         if (selectedTypeID == 0) {
@@ -97,7 +97,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
 
     React.useEffect(() => {
         let index = assetConnectionTypes.findIndex(t => t.ID == selectedTypeID);
-        if (index == -1 && assetConnectionTypes.length> 0)
+        if (index == -1 && assetConnectionTypes.length > 0)
             setSelectedtypeID(assetConnectionTypes[0].ID)
     }, [assetConnectionTypes])
 
@@ -106,7 +106,30 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
         if (index == -1 && localAssets.length > 0)
             setSelectedAssetID(localAssets[0].ID)
     }, [localAssets])
-   
+
+    React.useEffect(() => {
+        let handle = getAssetConnections();
+        return () => { if (handle != null && handle.abort != null) handle.abort(); }
+    }, [props.ID, trigger])
+
+    React.useEffect(() => {
+        const h = getLocations();
+        return () => { if (h!= null && h.abort != null) h.abort(); }
+    }, [assetConnections])
+
+    function getLocations() {
+        const h = $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/Asset/${props.ID}/Locations`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        });
+        h.done(data => setLocations(data));
+        return h;
+    }
+
     function getAssetConnections(): JQuery.jqXHR<OpenXDA.Types.AssetConnection> {
         setStatus('loading');
         return $.ajax({
@@ -171,7 +194,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
             url: `${homePath}api/OpenXDA/AssetConnection/Add`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify({ ID: 0, AssetRelationshipTypeID: selectedTypeID, ParentID: props.ID, ChildID: selectedAssetID}),
+            data: JSON.stringify({ ID: 0, AssetRelationshipTypeID: selectedTypeID, ParentID: props.ID, ChildID: selectedAssetID }),
             cache: false,
             async: true
         }).done(() => {
@@ -181,9 +204,8 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
         });
     }
 
-
     function handleSelect(item) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + item.row.AssetID})
+        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + item.row.AssetID })
     }
 
     function hasPermissions(): boolean {
@@ -210,7 +232,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
             </div>
         </div>
 
-    if (status == 'loading' || actStatus == 'loading' )
+    if (status == 'loading' || actStatus == 'loading')
         return <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
                 <div className="row">
@@ -229,12 +251,57 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
         </div>
 
     const connectionsAvailable = !(assetConnectionTypes == undefined) && (assetConnectionTypes.length > 0);
+    const handleShowDrawingsModal = (loc: OpenXDA.Types.Location) => {
+        setSelectedLocation(loc);
+        setShowDrawingsModal(true);
+    }
+    const handleAddLocationError = (locMap: Map<OpenXDA.Types.Location, string[]>) => {
+        setLocationsWithErrors(prev => new Map([...prev, ...locMap]));
+    }
+    const handleRemoveLocationError = (loc: OpenXDA.Types.Location) => {
+        setLocationsWithErrors(prev => {
+            const newMap = new Map(prev);
+            newMap.delete(loc);
+            return newMap;
+        });
+    }
     return (
         <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="card-header">
-                <div className="row">
-                    <div className="col">
+                <div className="row justify-content-between">
+                    <div className="col-6">
                         <h4>Connections:</h4>
+                    </div>
+                    <div className="pr-4">
+                        <BtnDropdown
+                            Label={'Open ' + locations[0]?.Name + ' Drawings'}
+                            Callback={() => handleShowDrawingsModal(locations[0])}
+                            TooltipContent={<>{
+                                locationsWithErrors.get(locations[0])?.map((e, i) => <p key={i}>{CrossMark} {e}</p>)
+                            }</>}
+                            ShowToolTip={locationsWithErrors.has(locations[0])}
+                            Disabled={locationsWithErrors.has(locations[0])}
+                            BtnClass={'btn-primary'}
+                            Options={locations.slice(1).map((loc, i) => ({
+                                Label: 'Open ' + loc?.Name + ' Drawings',
+                                Callback: () => handleShowDrawingsModal(loc),
+                                Disabled: locationsWithErrors.has(loc),
+                                ToolTipContent: <>{
+                                    locationsWithErrors.get(loc)?.map((e, i) => <p key={i}>{CrossMark} {e}</p>)
+                                }</>,
+                                ShowToolTip: locationsWithErrors.has(loc),
+                                ToolTipLocation: "left",
+                                Key: i
+                            }))}
+                        />
+                        <LocationDrawingsModal
+                            Location={selectedLocation}
+                            Show={showDrawingsModal}
+                            SetShow={setShowDrawingsModal}
+                            Errors={() => {}}
+                            AddLocationWithErrors={handleAddLocationError}
+                            RemoveLocationWithErrors={handleRemoveLocationError}
+                        />
                     </div>
                 </div>
             </div>
@@ -304,7 +371,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                                     e.stopPropagation();
                                     if (hasPermissions()) deleteAssetConnection(item);
                                 }}><span>{TrashCan}</span></button>
-                            </> }
+                            </>}
                         > <p></p>
                         </ReactTable.Column>
                     </ReactTable.Table>
@@ -356,7 +423,6 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                     </div>}
             </Modal>
         </div>
-                
     );
 
 }

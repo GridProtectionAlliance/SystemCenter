@@ -133,7 +133,7 @@ function Location(props: IProps) {
             {tab === 'meters' ? <LocationMeterWindow Location={location} /> : null}
             {tab === 'assets' ? <LocationAssetWindow Location={location} /> : null}
             {tab === 'images' ? <LocationImagesWindow Location={location} /> : null}
-            {tab === 'drawings' ? <LocationDrawingsWindow Location={location} /> : null}
+            {tab === 'drawings' ? <LocationDrawingsWindow LocationID={location.ID} /> : null}
 
 
             <Warning Message={'This will permanently delete this Substation and cannot be undone.'} Show={showDelete} Title={'Delete ' + (location?.Name ?? 'Substation')} CallBack={(conf) => { if (conf) deleteLocation(); setShowDelete(false); }} />
