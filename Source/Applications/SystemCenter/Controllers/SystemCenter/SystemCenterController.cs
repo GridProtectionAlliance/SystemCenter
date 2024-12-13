@@ -1356,6 +1356,9 @@ namespace SystemCenter.Controllers
                         case "AN": case "BN": case "CN":
                             phase = phaseMatch;
                             break;
+                        case "N":
+                            phase = "NG";
+                            break;
                     }
                 }
 
