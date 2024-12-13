@@ -1334,7 +1334,7 @@ namespace SystemCenter.Controllers
                 });
 
                 string phase = "None";
-                GroupCollection phaseMatchGroup = Regex.Match(channelName, @"(?<=[VI])(\S*)$", RegexOptions.IgnoreCase).Groups;
+                GroupCollection phaseMatchGroup = Regex.Match(channelName, @"(?<=\s\-\s[VI])(\S*)$", RegexOptions.IgnoreCase).Groups;
                 if(phaseMatchGroup.Count > 0)
                 {
                     string phaseMatch = phaseMatchGroup[0].Value.ToUpper();
@@ -1355,6 +1355,9 @@ namespace SystemCenter.Controllers
                         case "AB": case "BC": case "CA":
                         case "AN": case "BN": case "CN":
                             phase = phaseMatch;
+                            break;
+                        case "N":
+                            phase = "NG";
                             break;
                     }
                 }
