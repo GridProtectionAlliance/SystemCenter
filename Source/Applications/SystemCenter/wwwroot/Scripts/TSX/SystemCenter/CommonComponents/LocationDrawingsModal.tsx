@@ -21,86 +21,33 @@
 //
 //******************************************************************************************************
 import React from 'react';
-import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
-import { GenericController, LoadingScreen, Modal, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { Modal } from '@gpa-gemstone/react-interactive';
 import LocationDrawingsTable from '../Location/LocationDrawingsTable';
 
 interface IProps {
-    Location: OpenXDA.Types.Location;
+    LocationID: number;
     Show: boolean;
     SetShow: (b: boolean) => void;
-    /** For use when keeping track of a single Location's error to display */
-    Errors: (e: string[]) => void;
-    /** For use with multiple locations with multiple LocationDrawingsModal's */
-    AddLocationWithErrors?: (locationErrorsMap: Map<OpenXDA.Types.Location, string[]>) => void;
-    /** For use with multiple locations with multiple LocationDrawingsModal's */
-    RemoveLocationWithErrors?: (locationErrorsMap: OpenXDA.Types.Location) => void;
 }
 
 const LocationDrawingsModal = (props: IProps) => {
-    const [errors, setErrors] = React.useState<string[]>([]);
-    const [pageState, setPageState] = React.useState<"loading" | "error" | "idle">("idle");
-    const LocationDrawingController = new GenericController<SystemCenter.Types.LocationDrawing>(`${homePath}api/LocationDrawing`, "Name", true);
-
-    const isValid = (drawingData) => {
-        let e = [];
-
-        if (props.Location == undefined
-            || (props.Location.Alias == ""
-                && props.Location.Description == ""
-                && props.Location.ID == 0
-                && props.Location.Latitude == null
-                && props.Location.LocationKey == ""
-                && props.Location.Longitude == null
-                && props.Location.Name == ""))
-            e.push('No locations have been set.');
-        else if (drawingData.TotalRecords == 0)
-            e.push('No drawings associated with location.');
-        return e;
-    }
-
-    React.useEffect(() => {
-        setPageState('loading');
-        LocationDrawingController.PagedSearch([], 'Name', true, 1, props.Location?.ID)
-            .done((result) => {
-                const validationErrors = isValid(result);
-                setErrors(validationErrors);
-                setPageState('idle');
-            })
-            .fail(() => setPageState('error'));
-    }, [props.Location?.ID])
-
-    React.useEffect(() => {
-        props.Errors(errors);
-        const locationErrorsMap = new Map<OpenXDA.Types.Location, string[]>();
-        locationErrorsMap.set(props.Location, errors);
-
-        if (errors.length > 0 && props.Location != undefined)
-            props.AddLocationWithErrors?.(locationErrorsMap);
-        else props.RemoveLocationWithErrors?.(props.Location);
-    }, [errors]);
-
     return (
-        <div>
-            <LoadingScreen Show={pageState == 'loading'} />
-            <ServerErrorIcon Show={pageState == 'error'} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
-            <Modal
-                Show={props.Show}
-                Title={'Drawings'}
-                ShowX={true} Size={'lg'}
-                CallBack={() => props.SetShow(false)}
-                ShowCancel={false}
-                ConfirmText={'Done'}>
-                <div className="row">
-                    <div className="col" style={{ width: '100%' }}>
-                        <LocationDrawingsTable
-                            LocationID={props.Location?.ID}
-                            UpdateTable={0}
-                        />
-                    </div>
+        <Modal
+            Show={props.Show}
+            Title={'Drawings'}
+            ShowX={true} Size={'lg'}
+            CallBack={() => props.SetShow(false)}
+            ShowCancel={false}
+            ConfirmText={'Done'}>
+            <div className="row">
+                <div className="col" style={{ width: '100%' }}>
+                    <LocationDrawingsTable
+                        LocationID={props.LocationID}
+                        UpdateTable={0}
+                    />
                 </div>
-            </Modal>
-        </div>
+            </div>
+        </Modal>
     )
 }
 export default LocationDrawingsModal;

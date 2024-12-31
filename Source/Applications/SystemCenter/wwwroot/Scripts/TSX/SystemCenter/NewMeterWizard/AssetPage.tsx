@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
+import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import BreakerAttributes from '../AssetAttribute/Breaker';
 import BusAttributes from '../AssetAttribute/Bus';
 import CapBankAttributes from '../AssetAttribute/CapBank';
@@ -34,17 +34,17 @@ import CapBankRelayAttributes from '../AssetAttribute/CapBankRelay';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { ByAssetSlice, AssetTypeSlice } from '../Store/Store';
 import { SelectAssetStatus, FetchAsset, SelectAssets } from '../Store/AssetSlice';
-import { Modal, Search, ToolTip } from '@gpa-gemstone/react-interactive';
+import { Modal, Search } from '@gpa-gemstone/react-interactive';
 import DERAttributes from '../AssetAttribute/DER';
 import AssetSelect from '../Asset/AssetSelect';
 import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { getAssetWithAdditionalFields } from '../../../TS/Services/Asset';
-import LocationDrawingsModal from '../CommonComponents/LocationDrawingsModal';
 import { ReactTable } from '@gpa-gemstone/react-table';
 import GenerationAttributes from '../AssetAttribute/Generation';
 import StationAuxAttributes from '../AssetAttribute/StationAux';
 import StationBatteryAttributes from '../AssetAttribute/StationBattery';
 import ChannelSelector from './ChannelSelector';
+import LocationDrawingsButton from '../CommonComponents/LocationDrawingsButton';
 
 declare var homePath: string;
 
@@ -77,11 +77,6 @@ export default function AssetPage(props: IProps) {
 
     const [newEdit, setNewEdit] = React.useState<'New' | 'Edit'>('New');
     const [showAssetModal, setShowAssetModal] = React.useState<boolean>(false);
-
-    const [showDrawingsModal, setShowDrawingsModal] = React.useState<boolean>();
-    const [drawingsModalErrors, setDrawingsModalErrors] = React.useState<string[]>([]);
-    const [hover, setHover] = React.useState<'none' | 'drawings'>();
-
     const [showAssetSelect, setShowAssetSelect] = React.useState<boolean>(false);
     const [selectedAssets, setSelectedAssets] = React.useState<SystemCenter.Types.DetailedAsset[]>([]);
 
@@ -436,27 +431,8 @@ export default function AssetPage(props: IProps) {
                         <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                         <form>
                             <div className="form-group">
-                                <button
-                                    className={drawingsModalErrors.length > 0 ? 'btn btn-primary disabled' : 'btn btn-primary'}
-                                    onClick={() => setShowDrawingsModal(true)}
-                                    onMouseEnter={() => setHover('drawings')}
-                                    onMouseLeave={() => setHover('none')}
-                                    data-tooltip={"DrawingsModal"}
-                                >Open {props.Location?.Name} Drawings
-                                </button>
-                                <ToolTip
-                                    Show={drawingsModalErrors.length > 0 && hover == 'drawings'}
-                                    Theme={'dark'}
-                                    Position={'top'}
-                                    Zindex={9999}
-                                    Target={"DrawingsModal"}
-                                > {drawingsModalErrors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}
-                                </ToolTip>
-                                <LocationDrawingsModal
-                                    Location={props.Location}
-                                    Show={showDrawingsModal}
-                                    SetShow={setShowDrawingsModal}
-                                    Errors={setDrawingsModalErrors}
+                                <LocationDrawingsButton
+                                    Locations={[props.Location]}
                                 />
                             </div>
                         </form>
