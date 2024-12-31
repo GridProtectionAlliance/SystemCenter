@@ -22,161 +22,107 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { ReactTable } from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-import { Modal, Search, SearchBar } from '@gpa-gemstone/react-interactive';
+import { Modal } from '@gpa-gemstone/react-interactive';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
-import { useAppDispatch, useAppSelector } from '../hooks';
-import { RemoteXDAInstanceSlice } from '../Store/Store';
 import { RemoteXDAInstanceForm, BlankRemoteXDAInstance } from './RemoteXDAInstanceForm';
+import GenericByPage from '../CommonComponents/GenericByPage';
+import { SystemCenter } from '../global';
 
 declare var homePath: string;
 
-const defaultSearchcols: Array<Search.IField<OpenXDA.Types.RemoteXDAInstance>> = [
-    { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
-    { label: 'URL', key: 'Address', type: 'string', isPivotField: false },
-];
+const controllerPath = `${homePath}api/OpenXDA/remoteXDAInstance`
+
+const fieldCols: SystemCenter.IByCol<OpenXDA.Types.RemoteXDAInstance>[] = [
+    { Field: 'Name', Label: 'Name', Type: 'string', Width: 'auto' },
+    { Field: 'Address', Label: 'Address', Type: 'string', Width: 'auto' }
+]
 
 const RemoteXDAInstanceMain: Application.Types.iByComponent = (props) => {
     let history = useHistory();
-
     const [showNew, setShowNew] = React.useState<boolean>(false);
-
-    const [sortKey, setSortKey] = React.useState<keyof OpenXDA.Types.RemoteXDAInstance>('Name');
-    const [ascending, setAscending] = React.useState<boolean>(true);
-
-    const [newInstErrors, setNewInstErrors] = React.useState<string[]>([]);
+    const [refreshCount, refreshData] = React.useState<number>(0);
     const [formInstance, setFormInstance] = React.useState<OpenXDA.Types.RemoteXDAInstance>(BlankRemoteXDAInstance);
+    const [newInstErrors, setNewInstErrors] = React.useState<string[]>([]);
 
-    const dispatch = useAppDispatch();
-    const instStatus = useAppSelector(RemoteXDAInstanceSlice.Status) as Application.Types.Status;
-    const searchResults = useAppSelector(RemoteXDAInstanceSlice.SearchResults);
-    const searchState = useAppSelector(RemoteXDAInstanceSlice.SearchStatus);
-    const searchFilters = useAppSelector(RemoteXDAInstanceSlice.SearchFilters);
+    function addNewFormInstance() {
+        let handle = $.ajax({
+            type: "POST",
+            url: `${homePath}api/OpenXDA/remoteXDAInstance/Add`,
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(formInstance),
+            dataType: "json",
+            cache: false,
+            async: true
+        }).done(() => {
+            refreshData(x => x + 1);
+        })
 
-    React.useEffect(() => {
-        if (instStatus === 'unintiated' || instStatus === 'changed')
-            dispatch(RemoteXDAInstanceSlice.Fetch());
-    }, [dispatch, instStatus]);
-
-    React.useEffect(() => {
-        if (searchState === 'unintiated' || searchState === 'changed')
-            dispatch(RemoteXDAInstanceSlice.DBSearch({ filter: searchFilters, ascending: ascending, sortField: sortKey }));
-    }, [dispatch, searchState]);
-
-    React.useEffect(() => {
-        dispatch(RemoteXDAInstanceSlice.DBSearch({ sortField: sortKey, ascending, filter: searchFilters }))
-    }, [ascending, sortKey]);
-
-    function handleSelect(item) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=RemoteXDAInstance&ID=' + item.row.ID, state: {} })
+        return () => {
+            if (handle != null && handle.abort != null) handle.abort();
+        };
     }
 
-    const standardSearch: Search.IField<OpenXDA.Types.RemoteXDAInstance> = { label: 'Name', key: 'Name', type: 'string', isPivotField: false };
+    function handleSelect(item) {
+        history.push({
+            pathname: homePath + 'index.cshtml',
+            search: '?name=RemoteXDAInstance&ID=' + item.row.ID,
+            state: {}
+        })
+    }
 
-    return (
-        <div style={{ width: '100%', height: '100%' }}>
-            <SearchBar<OpenXDA.Types.RemoteXDAInstance>
-                CollumnList={defaultSearchcols}
-                SetFilter={(flds) => dispatch(RemoteXDAInstanceSlice.DBSearch({ filter: flds, ascending: ascending, sortField: sortKey }))}
-                Direction={'left'}
-                defaultCollumn={standardSearch}
-                Width={'50%'}
-                Label={'Search'}
-                StorageID="RemoteOpenXDAInstancesFilter"
-                ShowLoading={searchState == 'loading'}
-                ResultNote={searchState == 'error' ? 'Could not complete Search' : 'Found ' + searchResults.length + ' Remote openXDA Intance(s)'}
-                GetEnum={(setOptions, field) => {
-                    let handle = null;
-                    if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
-                        return () => { };
-
-                    handle = $.ajax({
-                        type: "GET",
-                        url: `${homePath}api/ValueList/Group/${field.enum[0].Value}`,
-                        contentType: "application/json; charset=utf-8",
-                        dataType: 'json',
-                        cache: true,
-                        async: true
-                    });
-
-                    handle.done(d => setOptions(d.map(item => ({ Value: item.ID, Label: item.Value }))))
-                    return () => { if (handle != null && handle.abort == null) handle.abort(); }
-                }}
-
-            >
-                <li className="nav-item" hidden={props.Roles.indexOf('Administrator') < 0} style={{ width: '15%', paddingRight: 10 }}>
-                    <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                        <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
-                        <form>
-                            <button className="btn btn-primary" onClick={(event) => {
-                                if (props.Roles.indexOf('Administrator') > -1) {
-                                    event.preventDefault();
-                                    setShowNew(true);
-                                }
-                            }}>Add Remote Connection</button>
-                        </form>
-                    </fieldset>
-                </li>
-            </SearchBar>
-            <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <ReactTable.Table<OpenXDA.Types.RemoteXDAInstance>
-                    TableClass="table table-hover"
-                    Data={searchResults}
-                    SortKey={sortKey}
-                    Ascending={ascending}
-                    OnSort={(d) => {
-                        if (d.colKey === sortKey)
-                            setAscending(!ascending);
-                        else {
-                            setAscending(true);
-                            setSortKey(d.colField);
-                        }
-                    }}
-                    OnClick={handleSelect}
-                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                    RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    Selected={(item) => false}
-                    KeySelector={(item) => item.ID}
-                >
-                    <ReactTable.Column<OpenXDA.Types.RemoteXDAInstance>
-                        Key={'Name'}
-                        AllowSort={true}
-                        Field={'Name'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                    > Name
-                    </ReactTable.Column>
-                    <ReactTable.Column<OpenXDA.Types.RemoteXDAInstance>
-                        Key={'Address'}
-                        AllowSort={true}
-                        Field={'Address'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                    > URL
-                    </ReactTable.Column>
-                </ReactTable.Table>
-            </div>
-
-            <Modal Show={showNew} Title={'New Remote openXDA Instance Connection'}
+    return <>
+        <GenericByPage<OpenXDA.Types.RemoteXDAInstance>
+            ControllerPath={controllerPath}
+            RefreshData={refreshCount}
+            DefaultSortKey='Name'
+            PagingID='RemoteXDAInstanceMain'
+            OnClick={(item) => { handleSelect(item); }}
+            Columns={fieldCols}
+            DefaultSearchAscending={true}
+            DefaultSearchKey='Name'
+        >
+            <li className="nav-item" hidden={props.Roles.indexOf('Administrator') < 0} style={{ width: '15%', paddingRight: 10 }}>
+                <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                    <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
+                    <form>
+                        <button className="btn btn-primary" onClick={(event) => {
+                            if (props.Roles.indexOf('Administrator') > -1) {
+                                event.preventDefault();
+                                setShowNew(true);
+                            }
+                        }}>Add Remote Connection</button>
+                    </form>
+                </fieldset>
+            </li>
+            <Modal
+                Show={showNew}
+                Title={'New Remote openXDA Instance Connection'}
                 ShowCancel={true}
-                CallBack={(conf) => { if (conf) dispatch(RemoteXDAInstanceSlice.DBAction({ verb: 'POST', record: formInstance })); setShowNew(false); }}
+                CallBack={(conf) => {
+                    if (conf)
+                        addNewFormInstance();
+                    setShowNew(false);
+                }}
                 DisableConfirm={newInstErrors.length > 0}
                 ShowX={true}
                 ConfirmShowToolTip={newInstErrors.length > 0}
-                ConfirmToolTipContent={
-                    newInstErrors.map((t, i) => <p key={i}> {CrossMark} {t} </p>)
-                }>
-                <RemoteXDAInstanceForm BaseInstance={BlankRemoteXDAInstance} SetInstance={setFormInstance} SetErrors={setNewInstErrors} RenderPortalId={'userModal'}/>
+                ConfirmToolTipContent={newInstErrors.map((t, i) =>
+                    <p key={i}> {CrossMark} {t} </p>
+                )}>
+                <RemoteXDAInstanceForm
+                    BaseInstance={BlankRemoteXDAInstance}
+                    SetInstance={setFormInstance}
+                    SetErrors={setNewInstErrors}
+                    RenderPortalId={'userModal'}
+                />
             </Modal>
-
             { /* Portal endpoint for inner modal for new remote instance connection */ }
             <div id='userModal' />
-        </div>
-    )
+        </GenericByPage>
+    </>
 }
 
 export default RemoteXDAInstanceMain;
