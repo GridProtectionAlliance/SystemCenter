@@ -41,7 +41,7 @@ import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
 import MultipleAssetsPage from './MultipleAssetsPage';
 import CustomerAssetGroupPage from './CustomerAssetGroupPage';
 import LineSegmentWindow from '../AssetAttribute/LineSegmentWindow';
-import LocationDrawingsModal from '../CommonComponents/LocationDrawingsModal';
+import LocationDrawingsButton from '../CommonComponents/LocationDrawingsButton';
 
 // Define Step Numbers
 const generalStep: number = 1;
@@ -97,8 +97,6 @@ export default function NewMeterWizard(props: { IsEngineer: boolean }) {
     const [hover, setHover] = React.useState<'None' | 'Next' | 'Prev' | 'Drawings'>('None');
     const [showSubmit, setShowSubmit] = React.useState<boolean>(false);
     const [status, setStatus] = React.useState<Application.Types.Status>('unintiated');
-    const [showDrawingsModal, setShowDrawingsModal] = React.useState<boolean>();
-    const [drawingsModalErrors, setDrawingsModalErrors] = React.useState<string[]>([]);
 
     React.useEffect(() => {
         if (mStatus === 'unintiated' || mStatus === 'changed')
@@ -408,30 +406,8 @@ export default function NewMeterWizard(props: { IsEngineer: boolean }) {
             || currentStep === connectionStep
         )
             return (<>
-                <button
-                    className={drawingsModalErrors.length > 0 ? "btn btn-primary disabled" : "btn btn-primary"}
-                    onClick={() => {
-                        if (drawingsModalErrors.length > 0) return;
-                        setShowDrawingsModal(true);
-                    }}
-                    onMouseEnter={() => setHover('Drawings')}
-                    onMouseLeave={() => setHover('None')}
-                    data-tooltip={"DrawingsModal"}
-                    >Open {locationInfo.Name} Drawings
-                </button>
-                <ToolTip
-                    Show={drawingsModalErrors.length > 0 && hover == 'Drawings'}
-                    Theme={'dark'}
-                    Position={'top'}
-                    Zindex={9999}
-                    Target={"DrawingsModal"}
-                > {drawingsModalErrors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}
-                </ToolTip>
-                <LocationDrawingsModal
-                    Location={locationInfo}
-                    Show={showDrawingsModal}
-                    SetShow={setShowDrawingsModal}
-                    Errors={setDrawingsModalErrors}
+                <LocationDrawingsButton
+                    Locations={[locationInfo]}
                 />
             </>)
         else if (currentStep >= additionalFieldMeterStep) {
