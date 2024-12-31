@@ -29,11 +29,10 @@ import { Input, TextArea } from '@gpa-gemstone/react-forms';
 import { AssetAttributes } from '../../AssetAttribute/Asset';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
 import { ByLocationSlice } from '../../Store/Store';
-import LocationDrawingsModal from '../../CommonComponents/LocationDrawingsModal';
 import { useAppSelector } from '../../hooks';
 import { SelectRoles } from '../../Store/UserSettings';
 import { ToolTip } from '@gpa-gemstone/react-interactive';
-import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import LocationDrawingsButton from '../../CommonComponents/LocationDrawingsButton';
 import { Column } from '@gpa-gemstone/react-table';
 
 declare var homePath: string;
@@ -50,9 +49,7 @@ interface IProps {
 const MeterLocationProperties = (props: IProps) => {
     const [validKey, setValidKey] = React.useState<boolean>(true);
     const [showStationSelector, setShowStationSelector] = React.useState<boolean>(false);
-    const [hover, setHover] = React.useState<('submit' | 'clear' | 'none' | 'drawings')>('none');
-    const [showDrawingsModal, setShowDrawingsModal] = React.useState<boolean>();
-    const [drawingsModalErrors, setDrawingsModalErrors] = React.useState<string[]>([]);
+    const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
 
     const roles = useAppSelector(SelectRoles);
 
@@ -169,27 +166,8 @@ const MeterLocationProperties = (props: IProps) => {
                 </div>
                 <div className="col">
                     <div className="pull-right" style={{ marginBottom: 10 }}>
-                        <button
-                            className={drawingsModalErrors.length > 0 ? "btn btn-primary disabled" : "btn btn-primary"}
-                            onClick={() => drawingsModalErrors.length > 0 ? null : setShowDrawingsModal(true)}
-                            data-tooltip={"DrawingsModal"}
-                            onMouseEnter={() => setHover('drawings')}
-                            onMouseLeave={() => setHover('none')}
-                        >Open {props.Location?.Name} Drawings
-                        </button>
-                        <ToolTip
-                            Show={drawingsModalErrors.length > 0 && hover === 'drawings'}
-                            Theme={'dark'}
-                            Position={'top'}
-                            Target={"DrawingsModal"}
-                            Zindex={9999}
-                        > {drawingsModalErrors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}
-                        </ToolTip>
-                        <LocationDrawingsModal
-                            Location={props.Location}
-                            Show={showDrawingsModal}
-                            SetShow={setShowDrawingsModal}
-                            Errors={setDrawingsModalErrors}
+                        <LocationDrawingsButton
+                            Locations={[props.Location]}
                         />
                     </div>
                     <div style={{ marginTop: 43 }}>
