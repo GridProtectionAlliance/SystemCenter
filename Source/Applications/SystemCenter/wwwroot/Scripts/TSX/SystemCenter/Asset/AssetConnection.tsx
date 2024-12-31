@@ -25,13 +25,13 @@ import * as React from 'react';
 import _ from 'lodash';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import { useHistory } from "react-router-dom";
-import { BtnDropdown, LoadingIcon, Modal, Search, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
-import { CrossMark, TrashCan } from '@gpa-gemstone/gpa-symbols'
+import { LoadingIcon, Modal, Search, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
+import { TrashCan } from '@gpa-gemstone/gpa-symbols'
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { AssetConnectionTypeSlice } from '../Store/Store';
 import { SelectRoles } from '../Store/UserSettings';
-import LocationDrawingsModal from '../CommonComponents/LocationDrawingsModal'
+import LocationDrawingsButton from '../CommonComponents/LocationDrawingsButton';
 
 interface AssetConnection {
     AssetRelationShipTypeID: number,
@@ -53,17 +53,14 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
     const [localAssets, setLocalAssets] = React.useState<Array<OpenXDA.Types.Asset>>([]);
 
     const [locations, setLocations] = React.useState<OpenXDA.Types.Location[]>([]);
-    const [showDrawingsModal, setShowDrawingsModal] = React.useState<boolean>(false);
-    const [selectedLocation, setSelectedLocation] = React.useState<OpenXDA.Types.Location>();
-    const [locationsWithErrors, setLocationsWithErrors] = React.useState<Map<OpenXDA.Types.Location, string[]>>(new Map())
 
     const [sortKey, setSortKey] = React.useState<string>('AssetKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [showModal, setShowModal] = React.useState<boolean>(false);
 
     const [status, setStatus] = React.useState<'idle' | 'loading' | 'error'>('idle');
-    const actStatus = useAppSelector(AssetConnectionTypeSlice.SearchStatus);
     const [trigger, setTrigger] = React.useState<number>(0);
+    const actStatus = useAppSelector(AssetConnectionTypeSlice.SearchStatus);
 
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None' | 'Drawings')>('None');
     const roles = useAppSelector(SelectRoles);
@@ -251,20 +248,6 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
         </div>
 
     const connectionsAvailable = !(assetConnectionTypes == undefined) && (assetConnectionTypes.length > 0);
-    const handleShowDrawingsModal = (loc: OpenXDA.Types.Location) => {
-        setSelectedLocation(loc);
-        setShowDrawingsModal(true);
-    }
-    const handleAddLocationError = (locMap: Map<OpenXDA.Types.Location, string[]>) => {
-        setLocationsWithErrors(prev => new Map([...prev, ...locMap]));
-    }
-    const handleRemoveLocationError = (loc: OpenXDA.Types.Location) => {
-        setLocationsWithErrors(prev => {
-            const newMap = new Map(prev);
-            newMap.delete(loc);
-            return newMap;
-        });
-    }
     return (
         <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="card-header">
@@ -273,35 +256,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                         <h4>Connections:</h4>
                     </div>
                     <div className="pr-4">
-                        <BtnDropdown
-                            Label={'Open ' + locations[0]?.Name + ' Drawings'}
-                            Callback={() => handleShowDrawingsModal(locations[0])}
-                            TooltipContent={<>{
-                                locationsWithErrors.get(locations[0])?.map((e, i) => <p key={i}>{CrossMark} {e}</p>)
-                            }</>}
-                            ShowToolTip={locationsWithErrors.has(locations[0])}
-                            Disabled={locationsWithErrors.has(locations[0])}
-                            BtnClass={'btn-primary'}
-                            Options={locations.slice(1).map((loc, i) => ({
-                                Label: 'Open ' + loc?.Name + ' Drawings',
-                                Callback: () => handleShowDrawingsModal(loc),
-                                Disabled: locationsWithErrors.has(loc),
-                                ToolTipContent: <>{
-                                    locationsWithErrors.get(loc)?.map((e, i) => <p key={i}>{CrossMark} {e}</p>)
-                                }</>,
-                                ShowToolTip: locationsWithErrors.has(loc),
-                                ToolTipLocation: "left",
-                                Key: i
-                            }))}
-                        />
-                        <LocationDrawingsModal
-                            Location={selectedLocation}
-                            Show={showDrawingsModal}
-                            SetShow={setShowDrawingsModal}
-                            Errors={() => {}}
-                            AddLocationWithErrors={handleAddLocationError}
-                            RemoveLocationWithErrors={handleRemoveLocationError}
-                        />
+                        <LocationDrawingsButton Locations={locations} />
                     </div>
                 </div>
             </div>
