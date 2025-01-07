@@ -163,6 +163,10 @@ const MeterAssetWindow = (props: IProps) => {
                                 Field={'AssetKey'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
+                                Content={({ item, field }) =>
+                                <a href={`${homePath}index.cshtml?name=Asset&AssetID=${item.ID}`} target='_blank'>
+                                    {item[field]}
+                                </a>}
                             > Key
                             </ReactTable.Column>
                             <ReactTable.Column<OpenXDA.Types.MeterAsset>
