@@ -549,7 +549,7 @@ export default function AssetPage(props: IProps) {
                             </div>
                         </div>
                         <div className="col-4">
-                            <div className="h-100" style={{paddingBottom: '6rem'}}> {/* kind of hacky to remove scroll bar b/c the select overflows */}
+                            <div className="h-100 d-flex">
                                 {tabs.length > 1 && (
                                     <TabSelector
                                         CurrentTab={tab}
@@ -557,27 +557,29 @@ export default function AssetPage(props: IProps) {
                                         Tabs={tabs}
                                     />
                                 )}
-                                <ChannelSelector
-                                    Label=""
-                                    Channels={props.Channels}
-                                    SelectedChannels={newEditAsset.Channels.filter((ch) =>
-                                        ch.ConnectionPriority === parseInt(tab)    // Only channels with priority == current priority
-                                    )}
-                                    UpdateChannels={(c) => {
-                                        const updatedChannels = [   // List of new channels
-                                            ...c.map(ch => ({ ...ch, ConnectionPriority: parseInt(tab) })), // 1) updates new ch priority to current priority
-                                            ...newEditAsset.Channels.filter(ch => !c.some(d => d.ID === ch.ID))  // 2) adds back already selected channels (omits new)
-                                        ];
+                                <div className="w-100 flex-1">
+                                    <ChannelSelector
+                                        Label=""
+                                        Channels={props.Channels}
+                                        SelectedChannels={newEditAsset.Channels.filter((ch) =>
+                                            ch.ConnectionPriority === parseInt(tab)    // Only channels with priority == current priority
+                                        )}
+                                        UpdateChannels={(c) => {
+                                            const updatedChannels = [   // List of new channels
+                                                ...c.map(ch => ({ ...ch, ConnectionPriority: parseInt(tab) })), // 1) updates new ch priority to current priority
+                                                ...newEditAsset.Channels.filter(ch => !c.some(d => d.ID === ch.ID))  // 2) adds back already selected channels (omits new)
+                                            ];
 
-                                        const updatedAsset = { ...newEditAsset, Channels: updatedChannels };
-                                        setNewEditAsset(updatedAsset);
+                                            const updatedAsset = { ...newEditAsset, Channels: updatedChannels };
+                                            setNewEditAsset(updatedAsset);
 
-                                        const globalChannels = props.Channels.map(ch => ({  // updates global chs if in new chs, updating connection priority
-                                            ...ch, ConnectionPriority: c.some(d => d.ID === ch.ID) ? parseInt(tab) : ch.ConnectionPriority
-                                        }));
-                                        props.UpdateChannels(globalChannels);
-                                    }}
-                                />
+                                            const globalChannels = props.Channels.map(ch => ({  // updates global chs if in new chs, updating connection priority
+                                                ...ch, ConnectionPriority: c.some(d => d.ID === ch.ID) ? parseInt(tab) : ch.ConnectionPriority
+                                            }));
+                                            props.UpdateChannels(globalChannels);
+                                        }}
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>
