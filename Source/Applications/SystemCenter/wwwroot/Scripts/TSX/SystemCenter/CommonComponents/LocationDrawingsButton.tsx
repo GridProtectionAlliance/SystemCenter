@@ -14,13 +14,13 @@ const LocationDrawingsButton: React.FC<LocationDrawingsButtonProps> = (props) =>
     const [selectedLocation, setSelectedLocation] = React.useState<OpenXDA.Types.Location>();
     const [multipleLocations, setMultipleLocations] = React.useState<boolean>(false);
     const [showDrawingsModal, setShowDrawingsModal] = React.useState<boolean>(false);
-    const [locationsWithErrors, setLocationsWithErrors] = React.useState<Map<OpenXDA.Types.Location, string[]>>(new Map())
+    const [locationsWithErrors, setLocationsWithErrors] = React.useState<Map<number, string[]>>(new Map())
     const LocationDrawingController = new GenericController(`${homePath}api/LocationDrawing`, "Name", true);
 
-    const isValid = (location, drawingData) => {
+    const isValid = (location: OpenXDA.Types.Location, drawingData) => {
         let e = [];
 
-        if (location == undefined
+        if (!location
             || (location.Alias == ""
                 && location.Description == ""
                 && location.ID == 0
@@ -36,9 +36,9 @@ const LocationDrawingsButton: React.FC<LocationDrawingsButtonProps> = (props) =>
 
     React.useEffect(() => { // Generates the map of errors for each location
         if (props.Locations.length > 1) setMultipleLocations(true);
-        else setMultipleLocations(false); // TODO: check for undefined location isValid is not doing it
+        else setMultipleLocations(false);
         for (const location of props.Locations) {
-            if (location?.ID) {
+            if (location) {
                 setPageState('loading');
                 LocationDrawingController.PagedSearch([], 'Name', true, 1, location.ID)
                     .done((result) => {
@@ -49,38 +49,39 @@ const LocationDrawingsButton: React.FC<LocationDrawingsButtonProps> = (props) =>
                     .fail(() => setPageState('error'));
             }
         }
-    }, [props.Locations]);
+    }, [props.Locations]); // ? Calls too frequently
 
-    const handleAddLocationError = (locMap: Map<OpenXDA.Types.Location, string[]>) => {
+    const handleAddLocationError = (locMap: Map<number, string[]>) => {
         setLocationsWithErrors(prev => {
             const newMap = new Map(prev);
-            locMap.forEach((errors, loc) => {
-                if (newMap.has(loc)) {
-                    const existingErrors = newMap.get(loc);
-                    newMap.set(loc, Array.from(new Set([...existingErrors, ...errors])));
-                } else {
-                    newMap.set(loc, errors);
+            locMap.forEach((errors, locID) => {
+                if (newMap.has(locID)) {  // If the location already has errors
+                    const existingErrors = newMap.get(locID);
+                    newMap.set(locID, Array.from(new Set([...existingErrors, ...errors]))); // supresses duplicate values
+                } else { // otherwise add new
+                    newMap.set(locID, errors);
                 }
             });
             return newMap;
         });
     }
 
-    const handleRemoveLocationError = (loc: OpenXDA.Types.Location) => {
+    const handleRemoveLocationError = (locID: number) => {
         setLocationsWithErrors(prev => {
             const newMap = new Map(prev);
-            newMap.delete(loc);
+            newMap.delete(locID);
             return newMap;
         });
     }
 
     const updateLocationErrors = (loc: OpenXDA.Types.Location, errors: string[]) => {
-        if (errors.length > 0 && loc != undefined) {
-            const locationErrorsMap = new Map<OpenXDA.Types.Location, string[]>();
-            locationErrorsMap.set(loc, errors);
+        if (locationsWithErrors.has(loc?.ID)                             // Remove if the location has
+            && locationsWithErrors.get(loc?.ID).length > errors.length) {// fewer errors than before
+            handleRemoveLocationError(loc.ID);
+        } else if (errors.length > 0) {
+            const locationErrorsMap = new Map<number, string[]>();
+            locationErrorsMap.set(loc?.ID, errors);
             handleAddLocationError(locationErrorsMap);
-        } else {
-            handleRemoveLocationError(loc);
         }
     }
 
@@ -97,39 +98,39 @@ const LocationDrawingsButton: React.FC<LocationDrawingsButtonProps> = (props) =>
             {!multipleLocations
             ? <>
             <button
-                className={locationsWithErrors.size > 0 ? "btn btn-primary disabled" : "btn btn-primary"}
-                onClick={() => locationsWithErrors.size > 0 ? null : setShowDrawingsModal(true)}
+                className={locationsWithErrors.has(props.Locations[0]?.ID) ? "btn btn-primary disabled" : "btn btn-primary"}
+                onClick={() => locationsWithErrors.has(props.Locations[0]?.ID) ? null : handleShowDrawingsModal(props.Locations[0])}
                 data-tooltip={"DrawingsModal"}
                 onMouseEnter={() => setHover('drawings')}
                 onMouseLeave={() => setHover('none')}
                 >Open {props.Locations[0]?.Name} Drawings
             </button>
             <ToolTip
-                Show={locationsWithErrors.size > 0 && hover === 'drawings'}
+                Show={locationsWithErrors.has(props.Locations[0]?.ID) && hover === 'drawings'}
                 Theme={'dark'}
                 Position={'top'}
                 Target={"DrawingsModal"}
                 Zindex={9999}
-                > {locationsWithErrors.get(props.Locations[0])?.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}
+                > {locationsWithErrors.get(props.Locations[0]?.ID)?.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}
             </ToolTip>
             </>
             : <BtnDropdown
                 Label={'Open ' + props.Locations[0]?.Name + ' Drawings'}
                 Callback={() => handleShowDrawingsModal(props.Locations[0])}
                 TooltipContent={
-                    <>{locationsWithErrors.get(props.Locations[0])?.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}</>
+                    <>{locationsWithErrors.get(props.Locations[0]?.ID)?.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}</>
                 }
-                ShowToolTip={locationsWithErrors.has(props.Locations[0])}
-                Disabled={locationsWithErrors.has(props.Locations[0])}
+                ShowToolTip={locationsWithErrors.has(props.Locations[0]?.ID)}
+                Disabled={locationsWithErrors.has(props.Locations[0]?.ID)}
                 BtnClass={'btn-primary'}
                 Options={props.Locations.slice(1).map((loc, i) => ({
                     Label: 'Open ' + loc?.Name + ' Drawings',
                     Callback: () => handleShowDrawingsModal(loc),
-                    Disabled: locationsWithErrors.has(loc),
+                    Disabled: locationsWithErrors.has(loc?.ID),
                     ToolTipContent: <>{
-                        locationsWithErrors.get(loc)?.map((e, i) => <p key={i}>{CrossMark} {e}</p>)
+                        locationsWithErrors.get(loc?.ID)?.map((e, i) => <p key={i}>{CrossMark} {e}</p>)
                     }</>,
-                    ShowToolTip: locationsWithErrors.has(loc),
+                    ShowToolTip: locationsWithErrors.has(loc?.ID),
                     ToolTipLocation: "left",
                     Key: i
                 }))}
