@@ -549,7 +549,7 @@ export default function AssetPage(props: IProps) {
                             </div>
                         </div>
                         <div className="col-4">
-                            <div className="h-100 d-flex">
+                            <div className="d-flex flex-column h-100">
                                 {tabs.length > 1 && (
                                     <TabSelector
                                         CurrentTab={tab}
@@ -557,7 +557,7 @@ export default function AssetPage(props: IProps) {
                                         Tabs={tabs}
                                     />
                                 )}
-                                <div className="w-100 flex-1">
+                                <div className="d-flex flex-column h-100">
                                     <ChannelSelector
                                         Label=""
                                         Channels={props.Channels}
