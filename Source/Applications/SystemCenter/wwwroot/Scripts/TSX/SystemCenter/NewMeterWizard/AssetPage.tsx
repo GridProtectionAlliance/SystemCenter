@@ -564,19 +564,12 @@ export default function AssetPage(props: IProps) {
                                             ch.ConnectionPriority === tabToPriority[tab]    // Only channels with priority == current priority
                                         )}
                                         UpdateChannels={(c) => {
-                                            console.log("updatechannels param: ", c);
-                                            console.log("newEditAsset channels (w/o new ones): ", newEditAsset.Channels.filter(ch => !c.some(d => d.ID === ch.ID)));
                                             const updatedChannels = [   // List of new channels
-                                                ...c.map(ch => ({ ...ch, ConnectionPriority: tabToPriority[tab] }))/* , // 1) updates new ch priority to current priority
-                                                ...newEditAsset.Channels.filter(ch => !c.some(d => d.ID === ch.ID))  */ // 2) adds back already selected channels (omits new)
+                                                ...c.map(ch => ({ ...ch, ConnectionPriority: tabToPriority[tab] }))
                                             ];
-
-                                            console.log("updatedChannels: ", updatedChannels);
 
                                             const updatedAsset = { ...newEditAsset, Channels: updatedChannels };
                                             setNewEditAsset(updatedAsset);
-
-                                            console.log("new newEditAsset: ", newEditAsset);
 
                                             const globalChannels = props.Channels.map(ch => ({  // updates global chs if in new chs, updating connection priority
                                                 ...ch, ConnectionPriority: c.some(d => d.ID === ch.ID) ? tabToPriority[tab] : ch.ConnectionPriority
