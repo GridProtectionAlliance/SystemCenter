@@ -48,7 +48,6 @@ import StationBatteryAttributes from '../AssetAttribute/StationBattery';
 import ChannelSelector from './ChannelSelector';
 
 declare var homePath: string;
-type Tab = 'bus' | 'line' | 'primary' | 'tertiary' | 'secondary' | 'default';
 
 interface IProps {
     Assets: Array<AssetType>,
@@ -92,7 +91,7 @@ export default function AssetPage(props: IProps) {
     const [sortKey, setSortKey] = React.useState<string>();
     const [asc, setAsc] = React.useState<boolean>(false);
 
-    const [tab, setTab] = React.useState<string>('default');
+    const [tab, setTab] = React.useState<string>('Default');
 
     const assetData = React.useMemo(() => {
         const u = _.cloneDeep(props.Assets);
@@ -112,10 +111,10 @@ export default function AssetPage(props: IProps) {
     }
 
     const tabToPriority: Record<string, number> = {
-        default: 0,
-        secondary: 1,
-        tertiary: 2,
-        line: 1,
+        "Default": 3,
+        "Secondary": 1,
+        "Tertiary": 2,
+        "Line": 1,
     };
 
     const tabs = React.useMemo(() => {
@@ -132,12 +131,12 @@ export default function AssetPage(props: IProps) {
                     { Id: "1", Label: "Line/XFR Side"},
                 ];
             default:
-                return [{ Label: 'Default', Id: 'default' }];
+                return [{ Label: 'Default', Id: '1' }];
         }
     }, [newEditAsset.AssetType]);
 
     React.useEffect(() => {
-        setTab('default');
+        setTab('Default');
     }, [newEditAsset])
 
     React.useEffect(() => {
@@ -560,21 +559,27 @@ export default function AssetPage(props: IProps) {
                                 <div className="d-flex flex-column h-100">
                                     <ChannelSelector
                                         Label=""
-                                        Channels={props.Channels}
+                                        Channels={props.Channels.filter(ch => ch.Asset === newEditAsset.AssetKey || ch.Asset == "")}
                                         SelectedChannels={newEditAsset.Channels.filter((ch) =>
-                                            ch.ConnectionPriority === parseInt(tab)    // Only channels with priority == current priority
+                                            ch.ConnectionPriority === tabToPriority[tab]    // Only channels with priority == current priority
                                         )}
                                         UpdateChannels={(c) => {
+                                            console.log("updatechannels param: ", c);
+                                            console.log("newEditAsset channels (w/o new ones): ", newEditAsset.Channels.filter(ch => !c.some(d => d.ID === ch.ID)));
                                             const updatedChannels = [   // List of new channels
-                                                ...c.map(ch => ({ ...ch, ConnectionPriority: parseInt(tab) })), // 1) updates new ch priority to current priority
-                                                ...newEditAsset.Channels.filter(ch => !c.some(d => d.ID === ch.ID))  // 2) adds back already selected channels (omits new)
+                                                ...c.map(ch => ({ ...ch, ConnectionPriority: tabToPriority[tab] }))/* , // 1) updates new ch priority to current priority
+                                                ...newEditAsset.Channels.filter(ch => !c.some(d => d.ID === ch.ID))  */ // 2) adds back already selected channels (omits new)
                                             ];
+
+                                            console.log("updatedChannels: ", updatedChannels);
 
                                             const updatedAsset = { ...newEditAsset, Channels: updatedChannels };
                                             setNewEditAsset(updatedAsset);
 
+                                            console.log("new newEditAsset: ", newEditAsset);
+
                                             const globalChannels = props.Channels.map(ch => ({  // updates global chs if in new chs, updating connection priority
-                                                ...ch, ConnectionPriority: c.some(d => d.ID === ch.ID) ? parseInt(tab) : ch.ConnectionPriority
+                                                ...ch, ConnectionPriority: c.some(d => d.ID === ch.ID) ? tabToPriority[tab] : ch.ConnectionPriority
                                             }));
                                             props.UpdateChannels(globalChannels);
                                         }}
