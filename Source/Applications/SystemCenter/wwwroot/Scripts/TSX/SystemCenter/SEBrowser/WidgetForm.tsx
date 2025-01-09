@@ -22,10 +22,9 @@
 //******************************************************************************************************
 import * as React from 'react';
 import * as _ from 'lodash';
-import { Select, CheckBox, Input } from '@gpa-gemstone/react-forms';
+import { Select, Input } from '@gpa-gemstone/react-forms';
 import { OpenXDA as LocalXDA } from '../global';
 import { AllWidgets } from '../../../../../EventWidgets/TSX/WidgetWrapper';
-import { useSelector } from 'react-redux';
 import { useAppSelector } from '../hooks';
 import { SEBrowserWidgetSlice } from '../Store/Store';
 import { cloneDeep } from 'lodash';
@@ -75,7 +74,6 @@ export default function WidgetForm(props: IProps) {
                 Label='Type'
                 Setter={(record) => props.stateSetter(record)}
                 Options={AllWidgets.map(o => ({ Value: o.Name, Label: o.Name }))}
-                EmptyOption={true}
                 EmptyLabel=''
             />
             {props.Widget.Type == null ?
