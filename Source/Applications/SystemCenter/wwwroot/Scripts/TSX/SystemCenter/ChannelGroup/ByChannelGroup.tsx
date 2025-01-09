@@ -28,7 +28,7 @@ import { SystemCenter as LocalSC } from '../global';
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
-import { Modal } from '@gpa-gemstone/react-interactive';
+import { GenericController, Modal } from '@gpa-gemstone/react-interactive';
 import ChannelGroupForm from './ChannelGroupForm';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import GenericByPage from '../CommonComponents/GenericByPage';
@@ -42,13 +42,14 @@ const emptyRecord = { ID: 0, Name: '', Description: '' };
 const controllerPath = `${homePath}api/ChannelGroup`;
 
 const ChannelGroups: Application.Types.iByComponent = () => {
-    const dispatch = useAppDispatch();
     let history = useHistory();
 
     const [showNew, setShowNew] = React.useState<boolean>(false);
     const [errors, setErrors] = React.useState<string[]>([]);
     const [record, setRecord] = React.useState<SystemCenter.Types.ChannelGroup>(emptyRecord);
     const [refreshCount, refreshData] = React.useState<number>(0);
+
+    const ChannelController = new GenericController<SystemCenter.Types.ChannelGroup>(controllerPath, "ID", true);
 
     React.useEffect(() => {
         let e = [];
@@ -63,21 +64,9 @@ const ChannelGroups: Application.Types.iByComponent = () => {
     }, [record]);
 
     function addNewChannelGroup() {
-        let handle = $.ajax({
-            type: "POST",
-            url: `${homePath}api/ChannelGroup/Add`,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(record),
-            dataType: "json",
-            cache: false,
-            async: true
-        }).done(() => {
-            refreshData(x => x + 1);
-        })
-
-        return () => {
-            if (handle != null && handle.abort != null) handle.abort();
-        };
+        return ChannelController.DBAction('POST', record).done(() => {
+            refreshData(x => x + 1)
+        });
     }
 
     function handleSelect(item) {

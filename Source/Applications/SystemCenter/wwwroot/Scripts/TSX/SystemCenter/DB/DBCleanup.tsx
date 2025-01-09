@@ -24,7 +24,7 @@
 import * as React from 'react';
 import { TextArea } from '@gpa-gemstone/react-forms';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
-import { Modal, Warning } from '@gpa-gemstone/react-interactive';
+import { GenericController, Modal, Warning } from '@gpa-gemstone/react-interactive';
 import { Application } from '@gpa-gemstone/application-typings';
 import { SystemCenter } from '../global';
 import { DBCleanupSlice } from '../Store/Store';
@@ -55,6 +55,8 @@ const DBCleanup: Application.Types.iByComponent = (props) => {
     const [errors, setErrors] = React.useState<string[]>([]);
     const [refreshCount, refreshData] = React.useState<number>(0);
 
+    const DBCleanupController = new GenericController<DBCleanup>(controllerPath, "ID", true);
+
     React.useEffect(() => { setHasChanged(false) }, [showModal]);
 
     React.useEffect(() => {
@@ -71,57 +73,21 @@ const DBCleanup: Application.Types.iByComponent = (props) => {
     }, [editNewDBCleanup])
 
     function addNewDBCleanup() {
-        let handle = $.ajax({
-            type: "POST",
-            url: `${homePath}api/OpenXDA/DBCleanup/Add`,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(editNewDBCleanup),
-            dataType: "json",
-            cache: false,
-            async: true
-        }).done(() => {
+        return DBCleanupController.DBAction("POST", editNewDBCleanup).done(() => {
             refreshData(x => x + 1);
         })
-
-        return () => {
-            if (handle != null && handle.abort != null) handle.abort();
-        };
     }
 
     function updateDBCleanup() {
-        let handle = $.ajax({
-            type: "PATCH",
-            url: `${homePath}api/OpenXDA/DBCleanup/Update`,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(editNewDBCleanup),
-            dataType: "json",
-            cache: false,
-            async: true
-        }).done(() => {
+        return DBCleanupController.DBAction("PATCH", editNewDBCleanup).done(() => {
             refreshData(x => x + 1);
         })
-
-        return () => {
-            if (handle != null && handle.abort != null) handle.abort();
-        };
     }
 
     function deleteDBCleanup() {
-        let handle = $.ajax({
-            type: "DELETE",
-            url: `${homePath}api/OpenXDA/DBCleanup/Delete`,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(editNewDBCleanup),
-            dataType: "json",
-            cache: false,
-            async: true
-        }).done(() => {
+        return DBCleanupController.DBAction("DELETE", editNewDBCleanup).done(() => {
             refreshData(x => x + 1);
         })
-
-        return () => {
-            if (handle != null && handle.abort != null) handle.abort();
-        };
     }
 
     function handleSelect(item) {

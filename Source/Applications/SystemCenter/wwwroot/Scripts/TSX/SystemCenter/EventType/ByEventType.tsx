@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as _ from 'lodash';
-import { Modal } from '@gpa-gemstone/react-interactive';
+import { Modal, GenericController } from '@gpa-gemstone/react-interactive';
 import * as React from 'react';
 import EventTypeForm from './EventTypeForm';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
@@ -46,22 +46,12 @@ const ByEventType: Application.Types.iByComponent = (props) => {
     const [refreshCount, refreshData] = React.useState<number>(0);
     const [assetTypeET, setAssettypeET] = React.useState<OpenXDA.Types.EventTypeAssetType[]>([]);
 
-    function updateEventType() {
-        let handle = $.ajax({
-            type: "PATCH",
-            url: `${homePath}api/OpenXDA/EventType/Update`,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(record),
-            dataType: "json",
-            cache: false,
-            async: true
-        }).done(() => {
-            refreshData(x => x + 1);
-        })
+    const EventTypeController = new GenericController<OpenXDA.Types.EventType>(controllerPath, "ID", true);
 
-        return () => {
-            if (handle != null && handle.abort != null) handle.abort();
-        };
+    function updateEventType() {
+        return EventTypeController.DBAction('PATCH', record).done(() =>
+            refreshData(x => x + 1)
+        );
     }
 
     function handleSelect(item) {
