@@ -24,7 +24,7 @@
 import * as React from 'react';
 import { useHistory } from "react-router-dom";
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
-import { Modal } from '@gpa-gemstone/react-interactive';
+import { GenericController, Modal } from '@gpa-gemstone/react-interactive';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import { IsCron } from '@gpa-gemstone/helper-functions';
 import ExternalDBForm from './ExternalDBForm';
@@ -50,22 +50,12 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
     const [showNew, setShowNew] = React.useState<boolean>(false);
     const [refreshCount, refreshData] = React.useState<number>(0);
 
-    function addExternalDatabase() {
-        let handle = $.ajax({
-            type: "POST",
-            url: `${homePath}api/SystemCenter/ExternalDatabases/Add`,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(record),
-            dataType: "json",
-            cache: false,
-            async: true
-        }).done(() => {
-            refreshData(x => x + 1);
-        })
+    const ExternalDBController = new GenericController<SystemCenter.Types.DetailedExternalDatabases>(controllerPath, "ID", true);
 
-        return () => {
-            if (handle != null && handle.abort != null) handle.abort();
-        };
+    function addExternalDatabase() {
+        return ExternalDBController.DBAction('POST', record).done(() =>
+            refreshData(x => x + 1)
+        )
     }
 
     React.useEffect(() => {

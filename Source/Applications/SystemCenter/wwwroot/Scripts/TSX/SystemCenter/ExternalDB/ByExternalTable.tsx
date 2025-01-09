@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  ByExternalTable.tsx - Gbtc
 //
-//  Copyright � 2019, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright © 2019, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -24,7 +24,7 @@
 import * as React from 'react';
 import { useHistory } from "react-router-dom";
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
-import { Modal } from '@gpa-gemstone/react-interactive';
+import { GenericController, Modal } from '@gpa-gemstone/react-interactive';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import ExternalDBTableForm from './ExternalDBTableForm';
 import { SystemCenter as SC } from '../global';
@@ -48,6 +48,8 @@ const ByExternalTable: Application.Types.iByComponent = (props) => {
     const [record, setRecord] = React.useState<SystemCenter.Types.DetailedExtDBTables>(emptyRecord);
     const [refreshCount, refreshData] = React.useState<number>(0);
 
+    const ExternalTableController = new GenericController<SystemCenter.Types.DetailedExtDBTables>(controllerPath, "ID", true);
+
     React.useEffect(() => {
         let e = [];
         if (record.TableName == null || record.TableName.length == 0)
@@ -61,21 +63,9 @@ const ByExternalTable: Application.Types.iByComponent = (props) => {
     }, [record]);
 
     function addNewExternalTable() {
-        let handle = $.ajax({
-            type: "POST",
-            url: `${homePath}api/SystemCenter/extDBTables/Add`,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(record),
-            dataType: "json",
-            cache: false,
-            async: true
-        }).done(() => {
-            refreshData(x => x + 1);
-        })
-
-        return () => {
-            if (handle != null && handle.abort != null) handle.abort();
-        };
+        return ExternalTableController.DBAction('POST', record).done(() =>
+            refreshData(x => x + 1)
+        )
     }
 
     function handleSelect(item) {

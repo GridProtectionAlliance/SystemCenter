@@ -22,9 +22,8 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { ReactTable } from '@gpa-gemstone/react-table';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
-import { Search, Modal} from '@gpa-gemstone/react-interactive';
+import { Modal, GenericController} from '@gpa-gemstone/react-interactive';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols'
 import { SystemCenter as LocalSC } from '../global';
 import { useAppSelector, useAppDispatch } from '../hooks';
@@ -45,8 +44,7 @@ const fieldCols: LocalSC.IByCol<ApplicationCategory>[] = [
     { Field: 'SortOrder', Label: 'Sort Order', Type: 'string', Width: '50%'}
 ];
 
-const ByApplicationCategory: Application.Types.iByComponent = (props) => {
-    const dispatch = useAppDispatch();
+const ByApplicationCategory: Application.Types.iByComponent = () => {
     let history = useHistory();
 
     const emptyApplicationCategory = { ID: 0, Name: '', SortOrder: 0 };
@@ -56,6 +54,10 @@ const ByApplicationCategory: Application.Types.iByComponent = (props) => {
     const [refreshCount, refreshData] = React.useState<number>(0);
 
     const allApplicationCategories: ApplicationCategory[] = useAppSelector(ApplicationCategorySlice.Data);
+
+    const CategoryController = new GenericController<SystemCenter.Types.ApplicationCategory>(
+        controllerPath, "ID", true
+    );
 
     React.useEffect(() => {
         const e: string[] = [];
@@ -87,21 +89,8 @@ const ByApplicationCategory: Application.Types.iByComponent = (props) => {
     }
 
     function addNewApplicationCategory() {
-        let handle = $.ajax({
-            type: "POST",
-            url: `${homePath}api/OpenXDA/ApplicationCategory/Add`,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(editNewApplicationCategory),
-            dataType: "json",
-            cache: false,
-            async: true
-        }).done(() => {
-            refreshData(x => x + 1);
-        })
-
-        return () => {
-            if (handle != null && handle.abort != null) handle.abort();
-        };
+        return CategoryController.DBAction("POST", editNewApplicationCategory)
+            .done(() => refreshData(refreshCount + 1));
     }
 
     return (
