@@ -28,7 +28,7 @@ import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
 import { ScheduledEmailType } from '../global';
 import { EmailCategorySlice, ScheduledEmailTypeSlice } from '../Store';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { IsCron } from '@gpa-gemstone/helper-functions';
 import ReportForm from './ReportForm';
 import { useNavigate } from 'react-router-dom';
@@ -137,7 +137,7 @@ const ByReport = (props: IProps) => {
             </div>
             <div className='row' style={{ flex: 1, overflow: 'hidden' }}>
                 <div className='col-12' style={{ height: '100%', overflow: 'hidden' }}>
-                    <ReactTable.Table<ScheduledEmailType>
+                    <Table<ScheduledEmailType>
                         TableClass="table table-hover"
                         Data={data}
                         SortKey={sortField}
@@ -157,23 +157,23 @@ const ByReport = (props: IProps) => {
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
                     >
-                        <ReactTable.Column<ScheduledEmailType>
+                        <Column<ScheduledEmailType>
                             Key={'Name'}
                             AllowSort={true}
                             Field={'Name'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Name
-                        </ReactTable.Column>
-                        <ReactTable.Column<ScheduledEmailType>
+                        </Column>
+                        <Column<ScheduledEmailType>
                             Key={'Schedule'}
                             AllowSort={true}
                             Field={'Schedule'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Schedule
-                        </ReactTable.Column>
-                        <ReactTable.Column<ScheduledEmailType>
+                        </Column>
+                        <Column<ScheduledEmailType>
                             Key={'SMS'}
                             AllowSort={true}
                             Field={'SMS'}
@@ -181,8 +181,8 @@ const ByReport = (props: IProps) => {
                             RowStyle={{ width: 'auto' }}
                             Content={({ item }) => item.SMS ? HeavyCheckMark : CrossMark }
                         > Text Message
-                        </ReactTable.Column>
-                        <ReactTable.Column<ScheduledEmailType>
+                        </Column>
+                        <Column<ScheduledEmailType>
                             Key={'ShowSubscription'}
                             AllowSort={true}
                             Field={'ShowSubscription'}
@@ -190,8 +190,8 @@ const ByReport = (props: IProps) => {
                             RowStyle={{ width: '15%' }}
                             Content={({ item }) => item.ShowSubscription ? HeavyCheckMark : CrossMark }
                         > Self Subscription
-                        </ReactTable.Column>
-                        <ReactTable.Column<ScheduledEmailType>
+                        </Column>
+                        <Column<ScheduledEmailType>
                             Key={'RequireApproval'}
                             AllowSort={true}
                             Field={'RequireApproval'}
@@ -199,8 +199,8 @@ const ByReport = (props: IProps) => {
                             RowStyle={{ width: '10%' }}
                             Content={({ item }) => item.RequireApproval ? HeavyCheckMark : CrossMark }
                         > Requires Approval
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                 </div>
             </div>
             <Modal Title={'Add New Report'}

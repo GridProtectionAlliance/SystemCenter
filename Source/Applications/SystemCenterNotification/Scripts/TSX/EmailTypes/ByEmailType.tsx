@@ -28,7 +28,7 @@ import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
 import { EmailType } from '../global';
 import { EmailCategorySlice, EmailTypeSlice } from '../Store';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import EmailForm from './EmailForm';
 import { IsNumber } from '@gpa-gemstone/helper-functions';
 import { useNavigate } from 'react-router-dom';
@@ -152,7 +152,7 @@ const ByEmailType = (props: IProps) => {
             </div>
             <div className='row' style={{ flex: 1, overflow: 'hidden' }}>
                 <div className='col-12' style={{ height: '100%', overflow: 'hidden' }}>
-                    <ReactTable.Table<EmailType>
+                    <Table<EmailType>
                         TableClass="table table-hover"
                         Data={data}
                         SortKey={sortField}
@@ -171,31 +171,31 @@ const ByEmailType = (props: IProps) => {
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
                     >
-                        <ReactTable.Column<EmailType>
+                        <Column<EmailType>
                             Key={'Name'}
                             AllowSort={true}
                             Field={'Name'}
                             HeaderStyle={{ width: '30%' }}
                             RowStyle={{ width: '30%' }}
                         > Name
-                        </ReactTable.Column>
-                        <ReactTable.Column<EmailType>
+                        </Column>
+                        <Column<EmailType>
                             Key={'MaxDelay'}
                             AllowSort={true}
                             Field={'MaxDelay'}
                             HeaderStyle={{ width: '15%' }}
                             RowStyle={{ width: '15%' }}
                         > Maximum Delay (s)
-                        </ReactTable.Column>
-                        <ReactTable.Column<EmailType>
+                        </Column>
+                        <Column<EmailType>
                             Key={'MinDelay'}
                             AllowSort={true}
                             Field={'MinDelay'}
                             HeaderStyle={{ width: '15%' }}
                             RowStyle={{ width: '15%' }}
                         > Minimum Delay (s)
-                        </ReactTable.Column>
-                        <ReactTable.Column<EmailType>
+                        </Column>
+                        <Column<EmailType>
                             Key={'SMS'}
                             AllowSort={true}
                             Field={'SMS'}
@@ -203,8 +203,8 @@ const ByEmailType = (props: IProps) => {
                             RowStyle={{ width: '15%' }}
                             Content={({ item }) => item.SMS ? HeavyCheckMark : CrossMark }
                         > Text Message
-                        </ReactTable.Column>
-                        <ReactTable.Column<EmailType>
+                        </Column>
+                        <Column<EmailType>
                             Key={'ShowSubscription'}
                             AllowSort={true}
                             Field={'ShowSubscription'}
@@ -212,8 +212,8 @@ const ByEmailType = (props: IProps) => {
                             RowStyle={{ width: '15%' }}
                             Content={({ item }) => item.ShowSubscription ? HeavyCheckMark : CrossMark }
                         > Self Subscription
-                        </ReactTable.Column>
-                        <ReactTable.Column<EmailType>
+                        </Column>
+                        <Column<EmailType>
                             Key={'RequireApproval'}
                             AllowSort={true}
                             Field={'RequireApproval'}
@@ -221,8 +221,8 @@ const ByEmailType = (props: IProps) => {
                             RowStyle={{ width: '10%' }}
                             Content={({ item }) => item.RequireApproval ? HeavyCheckMark : CrossMark }
                         > Requires Approval
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                 </div>
             </div>
             <Modal Title={'Add New Email'}

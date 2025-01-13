@@ -26,7 +26,7 @@ import * as React from 'react';
 import { ScheduledEmailType, IDataSourceScheduledEmailType } from '../../global';
 import { ScheduledEmailDataSourceSlice } from '../../Store';
 import DataSourceModal from './DataSourceModal';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import DataSourceTesting from './DataSourceTesting';
 
 
@@ -67,7 +67,7 @@ const DataSourceWindow = (props: IProps) => {
                         <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
                             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
                                 <div className="col-12" style={{ height: '100%', overflow: 'hidden' }}>
-                                    <ReactTable.Table<IDataSourceScheduledEmailType>
+                                    <Table<IDataSourceScheduledEmailType>
                                         TableClass="table table-hover"
                                         Data={data}
                                         SortKey={''}
@@ -84,15 +84,15 @@ const DataSourceWindow = (props: IProps) => {
                                         Selected={(item) => false}
                                         KeySelector={(item, index) => index}
                                     >
-                                        <ReactTable.Column<IDataSourceScheduledEmailType>
+                                        <Column<IDataSourceScheduledEmailType>
                                             Key={'ScheduledEmailDataSourceName'}
                                             AllowSort={false}
                                             Field={'ScheduledEmailDataSourceName'}
                                             HeaderStyle={{ width: '100%' }}
                                             RowStyle={{ width: '100%' }}
                                         > Data Source
-                                        </ReactTable.Column>
-                                    </ReactTable.Table>
+                                        </Column>
+                                    </Table>
                                 </div>
                            </div>      
                         </div>

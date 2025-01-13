@@ -26,7 +26,7 @@ import * as React from 'react';
 import { EmailType, IDataSourceTriggeredEmailType } from '../../global';
 import { TriggeredEmailDataSourceSlice } from '../../Store';
 import DataSourceModal from './DataSourceModal';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import DataSourceTesting from './DataSourceTesting';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Warning } from '@gpa-gemstone/react-interactive';
@@ -71,7 +71,7 @@ const DataSourceWindow = (props: IProps) => {
                         <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
                             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
                                 <div className="col-12" style={{ height: '100%', overflow: 'hidden' }}>
-                                    <ReactTable.Table<IDataSourceTriggeredEmailType>
+                                    <Table<IDataSourceTriggeredEmailType>
                                         TableClass="table table-hover"
                                         Data={data}
                                         SortKey={''}
@@ -88,15 +88,15 @@ const DataSourceWindow = (props: IProps) => {
                                         Selected={(item) => false}
                                         KeySelector={(item, index) => index}
                                     >
-                                        <ReactTable.Column<IDataSourceTriggeredEmailType>
+                                        <Column<IDataSourceTriggeredEmailType>
                                             Key={'TriggeredEmailDataSourceName'}
                                             AllowSort={false}
                                             Field={'TriggeredEmailDataSourceName'}
                                             HeaderStyle={{ width: '100%' }}
                                             RowStyle={{ width: '100%' }}
                                         > Data Source
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<IDataSourceTriggeredEmailType>
+                                        </Column>
+                                        <Column<IDataSourceTriggeredEmailType>
                                             Key={'Remove'}
                                             AllowSort={true}
                                             HeaderStyle={{ width: '20%' }}
@@ -120,8 +120,8 @@ const DataSourceWindow = (props: IProps) => {
                                                 </button>
                                             </>}
                                         >
-                                        </ReactTable.Column>
-                                    </ReactTable.Table>
+                                        </Column>
+                                    </Table>
                                 </div>
                             </div>
                         </div>

@@ -120,13 +120,13 @@ const GeneralInfo = (props: IProps) => {
                     </div>
                 </div>
             </div>
-            <ToolTip Show={(errors.length > 0 || !hasChanged) && hover == 'submit'} Position={'top'} Theme={'dark'} Target={"submit"}>
+            <ToolTip Show={(errors.length > 0 || !hasChanged) && hover == 'submit'} Position={'top'} Target={"submit"}>
                 {!hasChanged ? <p> No changes made.</p> : null}
                 {errors.map((t, i) => <p key={i}>
                     <ReactIcons.CrossMark/> {t}
                 </p>)}
             </ToolTip>
-            <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Theme={'dark'} Target={"clear"}>
+            <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Target={"clear"}>
                 {props.Record.Name != email.Name ? <p> <ReactIcons.Warning/> Changes to Name will be discarded.</p> : null}
                 {props.Record.EmailCategoryID != email.EmailCategoryID ? <p> <ReactIcons.Warning /> Changes to Category will be discarded.</p> : null}
                 {props.Record.MaxDelay != email.MaxDelay ? <p> <ReactIcons.Warning /> Changes to maximum delay will be discarded.</p> : null}

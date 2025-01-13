@@ -27,7 +27,7 @@ import { IScheduledDataSource, ScheduledEmailType } from '../../global';
 import * as $ from 'jquery';
 import { Application } from '@gpa-gemstone/application-typings';
 import { pd } from 'pretty-data';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { SVGIcons } from '@gpa-gemstone/gpa-symbols';
 
 declare var homePath;
@@ -95,7 +95,7 @@ const DataSourceTesting = (props: IProps) => {
                 <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
                     <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
                         <div className="col-4" style={{ height: '100%', overflow: 'hidden' }}>
-                            <ReactTable.Table<IResults>
+                            <Table<IResults>
                                 TableClass="table table-hover"
                                 Data={data}
                                 SortKey={'Error'}
@@ -112,7 +112,7 @@ const DataSourceTesting = (props: IProps) => {
                                 Selected={(item) => selectedSource !== null && selectedSource.Model.ID == item.Model.ID}
                                 KeySelector={(item, index) => index}
                             >
-                                <ReactTable.Column<IResults>
+                                <Column<IResults>
                                     Key={'Success'}
                                     AllowSort={false}
                                     Field={'Success'}
@@ -120,8 +120,8 @@ const DataSourceTesting = (props: IProps) => {
                                     RowStyle={{ width: 'auto' }}
                                     Content={({ item }) => (item.Created && item.Success) ? SVGIcons.CircleCheck : SVGIcons.CircledX}
                                 > Data Source
-                                </ReactTable.Column>
-                                <ReactTable.Column<IResults>
+                                </Column>
+                                <Column<IResults>
                                     Key={'Name'}
                                     AllowSort={false}
                                     Field={'Model'}
@@ -129,8 +129,8 @@ const DataSourceTesting = (props: IProps) => {
                                     RowStyle={{ width: 'auto' }}
                                     Content={({ item }) => item.Model.Name}
                                 > <p></p>
-                                </ReactTable.Column>
-                            </ReactTable.Table>
+                                </Column>
+                            </Table>
                         </div>
                         <div className="col-8">
                             {selectedSource != null ? (selectedSource.Success? < div className="form-group">
