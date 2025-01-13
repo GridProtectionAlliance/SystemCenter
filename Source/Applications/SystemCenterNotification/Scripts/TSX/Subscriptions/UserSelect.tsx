@@ -24,7 +24,7 @@
 import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
 import { UserAccountSlice } from '../Store';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { DefaultSearch } from '@gpa-gemstone/common-pages';
 import { Application } from '@gpa-gemstone/application-typings'
 import { GenericSlice } from '@gpa-gemstone/react-interactive';
@@ -54,7 +54,7 @@ const UserSelect = (props: IProps) => {
             <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
                 <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
                     <div className="col-12" style={{ height: '100%', overflow: 'hidden' }}>
-                        <ReactTable.Table<Application.Types.iUserAccount>
+                        <Table<Application.Types.iUserAccount>
                             TableClass="table table-hover"
                             Data={data}
                             SortKey={sortField}
@@ -74,39 +74,39 @@ const UserSelect = (props: IProps) => {
                             Selected={(item) => props.UserAccountID == item.ID}
                             KeySelector={(item) => item.ID}
                         >
-                            <ReactTable.Column<Application.Types.iUserAccount>
+                            <Column<Application.Types.iUserAccount>
                                 Key={'Name'}
                                 AllowSort={true}
                                 Field={'Name'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                             > Account
-                            </ReactTable.Column>
-                            <ReactTable.Column<Application.Types.iUserAccount>
+                            </Column>
+                            <Column<Application.Types.iUserAccount>
                                 Key={'FirstName'}
                                 AllowSort={true}
                                 Field={'FirstName'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                             > First Name
-                            </ReactTable.Column>
-                            <ReactTable.Column<Application.Types.iUserAccount>
+                            </Column>
+                            <Column<Application.Types.iUserAccount>
                                 Key={'LastName'}
                                 AllowSort={true}
                                 Field={'LastName'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                             > Last Name
-                            </ReactTable.Column>
-                            <ReactTable.Column<Application.Types.iUserAccount>
+                            </Column>
+                            <Column<Application.Types.iUserAccount>
                                 Key={'Email'}
                                 AllowSort={true}
                                 Field={'Email'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                             > Email
-                            </ReactTable.Column>
-                        </ReactTable.Table>
+                            </Column>
+                        </Table>
                     </div>
                 </div>
             </div>

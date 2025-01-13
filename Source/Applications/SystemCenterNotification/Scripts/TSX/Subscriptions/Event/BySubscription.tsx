@@ -26,7 +26,7 @@ import * as React from 'react';
 import { LoadingScreen, Warning } from '@gpa-gemstone/react-interactive'
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { ActiveSubscriptionSlice } from '../../Store';
 import { ActiveSubscription } from '../../global';
 import moment from 'moment';
@@ -61,7 +61,7 @@ const BySubscription = (props: IProps) => {
             <LoadingScreen Show={status === 'loading'} />
             <div className='row' style={{ flex: 1, overflow: 'hidden' }}>
                 <div className='col-12' style={{ height: '100%', overflow: 'hidden' }}>
-                    <ReactTable.Table<ActiveSubscription>
+                    <Table<ActiveSubscription>
                         TableClass="table table-hover"
                         Data={data}
                         SortKey={sortField}
@@ -80,31 +80,31 @@ const BySubscription = (props: IProps) => {
                         Selected={(item) => false}
                         KeySelector={(item, index) => index}
                     >
-                        <ReactTable.Column<ActiveSubscription>
+                        <Column<ActiveSubscription>
                             Key={'Category'}
                             AllowSort={true}
                             Field={'Category'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Category
-                        </ReactTable.Column>
-                        <ReactTable.Column<ActiveSubscription>
+                        </Column>
+                        <Column<ActiveSubscription>
                             Key={'EmailName'}
                             AllowSort={true}
                             Field={'EmailName'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Notification
-                        </ReactTable.Column>
-                        <ReactTable.Column<ActiveSubscription>
+                        </Column>
+                        <Column<ActiveSubscription>
                             Key={'AssetGroup'}
                             AllowSort={true}
                             Field={'AssetGroup'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Assets
-                        </ReactTable.Column>
-                        <ReactTable.Column<ActiveSubscription>
+                        </Column>
+                        <Column<ActiveSubscription>
                             Key={'Approved'}
                             AllowSort={true}
                             Field={'Approved'}
@@ -112,8 +112,8 @@ const BySubscription = (props: IProps) => {
                             RowStyle={{ width: 'auto' }}
                             Content={({ item }) => item.RequireApproval ? (item.Approved ? HeavyCheckMark : CrossMark) : 'N/A'}
                         > Approved
-                        </ReactTable.Column>
-                        <ReactTable.Column<ActiveSubscription>
+                        </Column>
+                        <Column<ActiveSubscription>
                             Key={'LastSent'}
                             AllowSort={true}
                             Field={'LastSent'}
@@ -121,8 +121,8 @@ const BySubscription = (props: IProps) => {
                             RowStyle={{ width: 'auto' }}
                             Content={({ item }) => (item.Approved && item.LastSent != null) ? moment(item.LastSent).format("dd/MM/yy hh:mm") : "N/A" }
                         > Last Sent
-                        </ReactTable.Column>
-                        <ReactTable.Column<ActiveSubscription>
+                        </Column>
+                        <Column<ActiveSubscription>
                             Key={'Subject'}
                             AllowSort={true}
                             Field={'Subject'}
@@ -130,8 +130,8 @@ const BySubscription = (props: IProps) => {
                             RowStyle={{ width: 'auto' }}
                             Content={({ item }) => (item.Approved && item.Subject != null) ? item.Subject : "N/A" }
                         > Last Subject
-                        </ReactTable.Column>
-                        <ReactTable.Column<ActiveSubscription>
+                        </Column>
+                        <Column<ActiveSubscription>
                             Key={'btns'}
                             AllowSort={false}
                             HeaderStyle={{ width: 'auto' }}
@@ -143,8 +143,8 @@ const BySubscription = (props: IProps) => {
                                     setSubscription(item);
                                 }}>Unsubscribe</button>}
                         > <p></p>
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                 </div>
             </div>
             <Warning Show={showWarning}
