@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA, Application } from '@gpa-gemstone/application-typings'
-import { ReactTable, Paging } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { useHistory } from "react-router-dom";
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import BreakerAttributes from '../AssetAttribute/Breaker';
@@ -291,7 +291,7 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
             </div>
             <div className="card-body" style={{ paddingBottom: 0, flex: 1, overflow: 'hidden' }}>
                 <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-                    <ReactTable.Table<OpenXDA.Types.Asset>
+                    <Table<OpenXDA.Types.Asset>
                         TableClass="table table-hover"
                         Data={data}
                         SortKey={sortKey}
@@ -316,31 +316,31 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
                     >
-                        <ReactTable.Column<OpenXDA.Types.Asset>
+                        <Column<OpenXDA.Types.Asset>
                             Key={'AssetKey'}
                             AllowSort={true}
                             Field={'AssetKey'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Key
-                        </ReactTable.Column>
-                        <ReactTable.Column<OpenXDA.Types.Asset>
+                        </Column>
+                        <Column<OpenXDA.Types.Asset>
                             Key={'AssetName'}
                             AllowSort={true}
                             Field={'AssetName'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Name
-                        </ReactTable.Column>
-                        <ReactTable.Column<OpenXDA.Types.Asset>
+                        </Column>
+                        <Column<OpenXDA.Types.Asset>
                             Key={'AssetType'}
                             AllowSort={true}
                             Field={'AssetType'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Type
-                        </ReactTable.Column>
-                        <ReactTable.Column<OpenXDA.Types.Asset>
+                        </Column>
+                        <Column<OpenXDA.Types.Asset>
                             Key={'EditDelete'}
                             AllowSort={false}
                             HeaderStyle={{ width: '10%' }}
@@ -364,8 +364,8 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
                                 }}><ReactIcons.TrashCan/></button></>
                             }
                         > <p></p>
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                     <div className="row">
                         <div className="col">
                             <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p - 1)} />
@@ -378,7 +378,7 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
                     <button className={"btn btn-info pull-right" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='AddAsset' onMouseEnter={() => setHover('Update')}
                     onMouseLeave={() => setHover('None')} onClick={() => { if (hasPermissions()) addNewButton() }}>Add Asset</button>
                 </div>
-                <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"AddAsset"}>
+                <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Target={"AddAsset"}>
                     <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                 </ToolTip>
             </div>

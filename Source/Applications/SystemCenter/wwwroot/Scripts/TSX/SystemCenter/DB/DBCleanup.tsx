@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import { Input, TextArea } from '@gpa-gemstone/react-forms';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import { SearchBar, Search, Modal, Warning, LoadingScreen } from '@gpa-gemstone/react-interactive';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
@@ -117,7 +117,7 @@ const DBCleanup: Application.Types.iByComponent = (props) => {
                 </SearchBar>
 
                 <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                    <ReactTable.Table<DBCleanup>
+                    <Table<DBCleanup>
                         TableClass="table table-hover"
                         Data={data}
                         SortKey={sortField}
@@ -141,21 +141,21 @@ const DBCleanup: Application.Types.iByComponent = (props) => {
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
                     >
-                        <ReactTable.Column<DBCleanup>
+                        <Column<DBCleanup>
                             Key={'Name'}
                             AllowSort={true}
                             Field={'Name'}
                             HeaderStyle={{ width: '50%' }}
                         > Name
-                        </ReactTable.Column>
-                        <ReactTable.Column<DBCleanup>
+                        </Column>
+                        <Column<DBCleanup>
                             Key={'Schedule'}
                             AllowSort={true}
                             Field={'Schedule'}
                             HeaderStyle={{ width: '50%' }}
                         > Schedule
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                 </div>
             </div>
             <Modal Title={editNew === 'Edit' ? 'Edit ' + (editNewDBCleanup?.Name ?? 'Database Cleanup') : 'Add New Database Cleanup'}

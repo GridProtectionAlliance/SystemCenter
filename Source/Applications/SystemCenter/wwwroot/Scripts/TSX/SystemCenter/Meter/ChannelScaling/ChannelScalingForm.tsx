@@ -29,7 +29,7 @@ import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { useAppSelector, useAppDispatch } from '../../hooks';
 import { MeasurementCharacteristicSlice, MeasurmentTypeSlice, PhaseSlice } from '../../Store/Store';
 import { LoadingIcon, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { ChannelScalingWrapper, ChannelScalingType, IMultiplier } from './ChannelScalingWrapper';
 import { Input } from '@gpa-gemstone/react-forms';
 import { SelectRoles } from '../../Store/UserSettings';
@@ -202,7 +202,7 @@ const ChannelScalingForm = (props: IProps) => {
                     </div>
                 </div>
             <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden'}}>
-                    <ReactTable.Table<ChannelScalingWrapper>
+                    <Table<ChannelScalingWrapper>
                         TableClass="table table-hover"
                         Data={Wrappers}
                         SortKey={''}
@@ -215,23 +215,23 @@ const ChannelScalingForm = (props: IProps) => {
                         Selected={(item) => false}
                         KeySelector={(item) => item.Channel.ID.toString()}
                     >
-                        <ReactTable.Column<ChannelScalingWrapper>
+                        <Column<ChannelScalingWrapper>
                             Key={'Descriptor'}
                             AllowSort={false}
                             Field={'Descriptor'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Description
-                        </ReactTable.Column>
-                        <ReactTable.Column<ChannelScalingWrapper>
+                        </Column>
+                        <Column<ChannelScalingWrapper>
                             Key={'Identity'}
                             AllowSort={false}
                             Field={'Identity'}
                             HeaderStyle={{ width: '20%' }}
                             RowStyle={{ width: '20%' }}
                         > Type
-                        </ReactTable.Column>
-                        <ReactTable.Column<ChannelScalingWrapper>
+                        </Column>
+                        <Column<ChannelScalingWrapper>
                             Key={'ScalingType'}
                             AllowSort={false}
                             Field={'ScalingType'}
@@ -246,32 +246,32 @@ const ChannelScalingForm = (props: IProps) => {
                                 }}>{ScalingTypes.map(a => <option key={ChannelScalingType[a]} value={ChannelScalingType[a]}>{ChannelScalingType[a]}</option>)}</select>
                             }
                         > Scaling Type
-                        </ReactTable.Column>
-                        <ReactTable.Column<ChannelScalingWrapper>
+                        </Column>
+                        <Column<ChannelScalingWrapper>
                             Key={'PresentMultiplier'}
                             AllowSort={false}
                             Field={'PresentMultiplier'}
                             HeaderStyle={{ width: '10%' }}
                             RowStyle={{ width: '10%' }}
                         > Applied Multiplier
-                        </ReactTable.Column>
-                        <ReactTable.Column<ChannelScalingWrapper>
+                        </Column>
+                        <Column<ChannelScalingWrapper>
                             Key={'ReplacedMultiplier'}
                             AllowSort={false}
                             Field={'ReplacedMultiplier'}
                             HeaderStyle={{ width: '10%' }}
                             RowStyle={{ width: '10%' }}
                         > If Replaced
-                        </ReactTable.Column>
-                        <ReactTable.Column<ChannelScalingWrapper>
+                        </Column>
+                        <Column<ChannelScalingWrapper>
                             Key={'AdjustedMultiplier'}
                             AllowSort={false}
                             Field={'AdjustedMultiplier'}
                             HeaderStyle={{ width: '10%' }}
                             RowStyle={{ width: '10%' }}
                         > If Adjusted
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                 </div> 
             </>
 
@@ -285,7 +285,7 @@ const ChannelScalingForm = (props: IProps) => {
                     <button className={"btn btn-primary pull-right" + ((multiplier.Voltage == 1 && multiplier.Current == 1) ? ' disabled' : '')} onClick={() => { if (multiplier.Voltage != 1 || multiplier.Current != 1) useReplacedMultiplier(); }}
                         onMouseEnter={() => setHover('Replace')} onMouseLeave={() => setHover('None')} data-tooltip={"rep"}
                     >Replace Multipliers</button>
-                    <ToolTip Show={hover == 'Replace' && (multiplier.Voltage == 1 && multiplier.Current == 1)} Position={'top'} Theme={'dark'} Target={"rep"}>
+                    <ToolTip Show={hover == 'Replace' && (multiplier.Voltage == 1 && multiplier.Current == 1)} Position={'top'} Target={"rep"}>
                         {!hasPermissions() ? <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p> : null}
                         {hasPermissions() ? <p> There are no changes to be applied. </p> : null}
                     </ToolTip>
@@ -294,7 +294,7 @@ const ChannelScalingForm = (props: IProps) => {
                     <button className={"btn btn-info pull-right" + ((multiplier.Voltage == 1 && multiplier.Current == 1) ? ' disabled' : '')} onClick={() => { if (multiplier.Voltage != 1 || multiplier.Current != 1) useAdjustedMultiplier(); }}
                         onMouseEnter={() => setHover('Adjust')} onMouseLeave={() => setHover('None')} data-tooltip={"adj"}
                     >Adjust Multipliers</button>
-                    <ToolTip Show={hover == 'Adjust' && (multiplier.Voltage == 1 && multiplier.Current == 1)} Position={'top'} Theme={'dark'} Target={"adj"}>
+                    <ToolTip Show={hover == 'Adjust' && (multiplier.Voltage == 1 && multiplier.Current == 1)} Position={'top'} Target={"adj"}>
                         {!hasPermissions() ? <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p> : null}
                         {hasPermissions() ? <p> There are no changes to be applied. </p> : null}
                     </ToolTip>
@@ -303,7 +303,7 @@ const ChannelScalingForm = (props: IProps) => {
                     <button className={"btn btn-warning" + ((multiplier.Voltage == 1 && multiplier.Current == 1) ? ' disabled' : '')} onClick={() => { if (multiplier.Voltage != 1 || multiplier.Current != 1) initializeWrappers(); }}
                         onMouseEnter={() => setHover('Reset')} onMouseLeave={() => setHover('None')} data-tooltip={"res"}
                     >Clear Changes</button>
-                    <ToolTip Show={hover == 'Reset' && (multiplier.Voltage == 1 || multiplier.Current == 1)} Position={'top'} Theme={'dark'} Target={"res"}>
+                    <ToolTip Show={hover == 'Reset' && (multiplier.Voltage == 1 || multiplier.Current == 1)} Position={'top'} Target={"res"}>
                         <p> All changes will be lost. </p>
                     </ToolTip>
                 </div>

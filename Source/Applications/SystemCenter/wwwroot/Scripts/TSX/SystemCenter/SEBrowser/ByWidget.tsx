@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { Application } from '@gpa-gemstone/application-typings';
@@ -85,7 +85,7 @@ const ByWidget: Application.Types.iByComponent = (props) => {
                 </li>
             </SearchBar>
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <ReactTable.Table<LocalXDA.IWidget>
+                <Table<LocalXDA.IWidget>
                     TableClass="table table-hover"
                     Data={data}
                     SortKey={sortKey}
@@ -100,23 +100,23 @@ const ByWidget: Application.Types.iByComponent = (props) => {
                     Selected={(item) => false}
                     KeySelector={(item) => item.ID}
                 >
-                    <ReactTable.Column<LocalXDA.IWidget>
+                    <Column<LocalXDA.IWidget>
                         Key={'Name'}
                         AllowSort={true}
                         Field={'Name'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                     > Name
-                    </ReactTable.Column>
-                    <ReactTable.Column<LocalXDA.IWidget>
+                    </Column>
+                    <Column<LocalXDA.IWidget>
                         Key={'Type'}
                         AllowSort={true}
                         Field={'Type'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                     > Type
-                    </ReactTable.Column>
-                </ReactTable.Table>
+                    </Column>
+                </Table>
             </div>
 
             <Modal Show={showModal} Title={'Add New PQ Browser Widget'} CallBack={(c) => {

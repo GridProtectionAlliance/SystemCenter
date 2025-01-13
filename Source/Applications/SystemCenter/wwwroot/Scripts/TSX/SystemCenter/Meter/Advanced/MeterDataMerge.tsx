@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { ReactTable } from '@gpa-gemstone/react-table'
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { Search, SearchBar, Warning } from '@gpa-gemstone/react-interactive';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 
@@ -239,7 +239,7 @@ export default function DataMergeWindow(props: {
                         {" "}
                     </SearchBar>
 
-                    <ReactTable.Table<Meter>
+                    <Table<Meter>
                         TableClass="table table-hover"
                         Data={meters}
                         SortKey={sortKey}
@@ -253,47 +253,47 @@ export default function DataMergeWindow(props: {
                         Selected={(item) => item === mergeMeter}
                         KeySelector={(item) => item.ID}
                     >
-                        <ReactTable.Column<Meter>
+                        <Column<Meter>
                             Key={'Name'}
                             AllowSort={true}
                             Field={'Name'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Name
-                        </ReactTable.Column>
-                        <ReactTable.Column<Meter>
+                        </Column>
+                        <Column<Meter>
                             Key={'AssetKey'}
                             AllowSort={true}
                             Field={'AssetKey'}
                             HeaderStyle={{ width: '15%' }}
                             RowStyle={{ width: '15%' }}
                         > Key
-                        </ReactTable.Column>
-                        <ReactTable.Column<Meter>
+                        </Column>
+                        <Column<Meter>
                             Key={'Location'}
                             AllowSort={true}
                             Field={'Location'}
                             HeaderStyle={{ width: '10%' }}
                             RowStyle={{ width: '10%' }}
                         > Substation
-                        </ReactTable.Column>
-                        <ReactTable.Column<Meter>
+                        </Column>
+                        <Column<Meter>
                             Key={'Make'}
                             AllowSort={true}
                             Field={'Make'}
                             HeaderStyle={{ width: '10%' }}
                             RowStyle={{ width: '10%' }}
                         > Make
-                        </ReactTable.Column>
-                        <ReactTable.Column<Meter>
+                        </Column>
+                        <Column<Meter>
                             Key={'Model'}
                             AllowSort={true}
                             Field={'Model'}
                             HeaderStyle={{ width: '10%' }}
                             RowStyle={{ width: '10%' }}
                         > Model
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                 </div>
             </div>
             <div className="card-footer">

@@ -26,7 +26,7 @@ import { useAppSelector, useAppDispatch } from '../hooks';
 import { ValueListGroupSlice, ValueListGroupViewSlice } from '../Store/Store';
 import { ValueListSlice } from '../Store/Store';
 
-import { ReactTable } from '@gpa-gemstone/react-table'
+import { Table, Column } from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
@@ -127,7 +127,7 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
             </SearchBar>
 
             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                <ReactTable.Table<localSC.ValueListGroupView>
+                <Table<localSC.ValueListGroupView>
                     TableClass="table table-hover"
                     Data={data}
                     SortKey={sortField}
@@ -149,31 +149,31 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
                     Selected={(item) => false}
                     KeySelector={(item) => item.ID}
                 >
-                    <ReactTable.Column<localSC.ValueListGroupView>
+                    <Column<localSC.ValueListGroupView>
                         Key={'Name'}
                         AllowSort={true}
                         Field={'Name'}
                         HeaderStyle={{ width: '15%' }}
                         RowStyle={{ width: '15%' }}
                     > Name
-                    </ReactTable.Column>
-                    <ReactTable.Column<localSC.ValueListGroupView>
+                    </Column>
+                    <Column<localSC.ValueListGroupView>
                         Key={'Description'}
                         AllowSort={true}
                         Field={'Description'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                     > Description
-                    </ReactTable.Column>
-                    <ReactTable.Column<localSC.ValueListGroupView>
+                    </Column>
+                    <Column<localSC.ValueListGroupView>
                         Key={'ItemCount'}
                         AllowSort={true}
                         Field={'ItemCount'}
                         HeaderStyle={{ width: '10%' }}
                         RowStyle={{ width: '10%' }}
                     > Items
-                    </ReactTable.Column>
-                </ReactTable.Table>
+                    </Column>
+                </Table>
             </div>
 
             <Modal Title={'Add New Value List Group'}

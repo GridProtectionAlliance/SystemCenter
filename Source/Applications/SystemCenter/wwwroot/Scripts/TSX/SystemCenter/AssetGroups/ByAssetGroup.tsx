@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
@@ -254,7 +254,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
                     </li>
                 </DefaultSearch.AssetGroup>
                 <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                    <ReactTable.Table<OpenXDA.Types.AssetGroup>
+                    <Table<OpenXDA.Types.AssetGroup>
                         TableClass="table table-hover"
                         Data={data}
                         SortKey={sortKey}
@@ -277,39 +277,39 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
                     >
-                        <ReactTable.Column<OpenXDA.Types.AssetGroup>
+                        <Column<OpenXDA.Types.AssetGroup>
                             Key={'Name'}
                             AllowSort={true}
                             Field={'Name'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Name
-                        </ReactTable.Column>
-                        <ReactTable.Column<OpenXDA.Types.AssetGroup>
+                        </Column>
+                        <Column<OpenXDA.Types.AssetGroup>
                             Key={'Assets'}
                             AllowSort={true}
                             Field={'Assets'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Num. of Assets
-                        </ReactTable.Column>
-                        <ReactTable.Column<OpenXDA.Types.AssetGroup>
+                        </Column>
+                        <Column<OpenXDA.Types.AssetGroup>
                             Key={'Meters'}
                             AllowSort={true}
                             Field={'Meters'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Num. of Meters
-                        </ReactTable.Column>
-                        <ReactTable.Column<OpenXDA.Types.AssetGroup>
+                        </Column>
+                        <Column<OpenXDA.Types.AssetGroup>
                             Key={'AssetGroups'}
                             AllowSort={true}
                             Field={'AssetGroups'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Num. of Asset Groups
-                        </ReactTable.Column>
-                        <ReactTable.Column<OpenXDA.Types.AssetGroup>
+                        </Column>
+                        <Column<OpenXDA.Types.AssetGroup>
                             Key={'DisplayDashboard'}
                             AllowSort={true}
                             Field={'DisplayDashboard'}
@@ -317,8 +317,8 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
                             RowStyle={{ width: 'auto' }}
                             Content={({ item }) => item.DisplayDashboard ? HeavyCheckMark : null }
                         > Show in PQ Dashboard
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                 </div>
             </div>
             <Modal Size='xlg' Show={showNewGroup} Title={'Add New Asset Group'} ShowX={true}
@@ -363,18 +363,23 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
                 }}
                 Show={showFilter == 'Meter'}
                 Type={'multiple'}
-                Columns={[
-                    { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Location', field: 'Location', label: 'Substation', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'MappedAssets', field: 'MappedAssets', label: 'Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Make', field: 'Make', label: 'Make', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Model', field: 'Model', label: 'Model', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                ]}
                 Title={"Add Meters to " + (newAssetGroup.Name == undefined || newAssetGroup.Name.length == 0 ? "Asset Group" : newAssetGroup.Name)}
                 GetEnum={getEnum}
-                GetAddlFields={getAdditionalMeterFields} />
+                GetAddlFields={getAdditionalMeterFields}
+            >
+                <Column Key="AssetKey" Field="AssetKey" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Key</Column>
+                <Column Key="Name" Field="Name" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Name</Column>
+                <Column Key="Location" Field="Location" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Substation</Column>
+                <Column Key="MappedAssets" Field="MappedAssets" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Assets</Column>
+                <Column Key="Make" Field="Make" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Make</Column>
+                <Column Key="Model" Field="Model" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Model</Column>
+            </DefaultSelects.Meter>
 
             <AssetSelect Type='multiple' StorageID='ByAssetGroup.Asset' ShowModal={showFilter == 'Asset'} SelectedAssets={newAssetGroup.AssetList}
                 Title={"Add Transmission Assets to " + (newAssetGroup.Name == undefined || newAssetGroup.Name.length == 0 ? "Asset Group" : newAssetGroup.Name)}
@@ -404,16 +409,19 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
                 }}
                 Show={showFilter == 'Asset Group'}
                 Type={'multiple'}
-                Columns={[
-                    { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Assets', field: 'Assets', label: 'Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Meters', field: 'Meters', label: 'Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'AssetGroups', field: 'AssetGroups', label: 'Sub Groups', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                ]}
                 Title={"Add Asset Groups to " + (newAssetGroup.Name == undefined || newAssetGroup.Name.length == 0 ? "Asset Group" : newAssetGroup.Name)}
                 GetEnum={getEnum}
-                GetAddlFields={() => () => { }} />
+                GetAddlFields={() => () => { }}
+            >
+                <Column Key="Name" Field="Name" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Name</Column>
+                <Column Key="Assets" Field="Assets" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Assets</Column>
+                <Column Key="Meters" Field="Meters" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Meters</Column>
+                <Column Key="AssetGroups" Field="AssetGroups" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Sub Groups</Column>
+            </DefaultSelects.AssetGroup>
     
         </>
     )

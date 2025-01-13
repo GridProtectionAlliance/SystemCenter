@@ -27,8 +27,8 @@ import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { SystemCenter as SC } from '../global';
 import _ from 'lodash';
 import * as React from 'react';
-import { ConfigTable, GenericController } from '@gpa-gemstone/react-interactive';
-import { ReactTable } from '@gpa-gemstone/react-table'
+import { GenericController } from '@gpa-gemstone/react-interactive';
+import { ConfigurableTable, ConfigurableColumn, Column } from '@gpa-gemstone/react-table';
 import Reason from './Reason';
 import moment from 'moment';
 import { useAppDispatch, useAppSelector } from '../hooks';
@@ -79,7 +79,7 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
             </div>
         </div>
         <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
-            <ConfigTable.Table<SC.MiMDDailyStatistic>
+            <ConfigurableTable<SC.MiMDDailyStatistic>
                 LocalStorageKey="MiMDIssuesConfigTable"
                 TableClass="table table-hover"
                 Data={data}
@@ -101,7 +101,7 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                     }
                 }}
             >
-                <ReactTable.Column<SC.MiMDDailyStatistic>
+                <Column<SC.MiMDDailyStatistic>
                     Key={'Date'}
                     AllowSort={true}
                     Content={({ item, field }) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : ''}
@@ -110,9 +110,9 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                     RowStyle={{ width: 'auto' }}
                 >
                     Date
-                </ReactTable.Column>
-                <ConfigTable.Configurable Key='LastSuccessfulFileProcessed' Label='Last Succ' Default={true}>
-                    <ReactTable.Column<SC.MiMDDailyStatistic>
+                </Column>
+                <ConfigurableColumn Key='LastSuccessfulFileProcessed' Label='Last Succ' Default={true}>
+                    <Column<SC.MiMDDailyStatistic>
                         Key={'LastSuccessfulFileProcessed'}
                         AllowSort={true}
                         Field={'LastSuccessfulFileProcessed'}
@@ -121,10 +121,10 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         RowStyle={{ width: 'auto' }}
                     >
                         Last Succ
-                    </ReactTable.Column>
-                </ConfigTable.Configurable>
-                <ConfigTable.Configurable Key='LastUnsuccessfulFileProcessed' Label='Last Unsucc' Default={true}>
-                    <ReactTable.Column<SC.MiMDDailyStatistic>
+                    </Column>
+                </ConfigurableColumn>
+                <ConfigurableColumn Key='LastUnsuccessfulFileProcessed' Label='Last Unsucc' Default={true}>
+                    <Column<SC.MiMDDailyStatistic>
                         Key={'LastUnsuccessfulFileProcessed'}
                         AllowSort={true}
                         Field={'LastUnsuccessfulFileProcessed'}
@@ -133,8 +133,8 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         RowStyle={{ width: 'auto' }}
                     >
                         Last Unsucc
-                    </ReactTable.Column>
-                    <ReactTable.Column<SC.MiMDDailyStatistic>
+                    </Column>
+                    <Column<SC.MiMDDailyStatistic>
                         Key={'LastUnsuccessfulFileProcessedExplanation'}
                         AllowSort={true}
                         Field={'LastUnsuccessfulFileProcessedExplanation'}
@@ -143,10 +143,10 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         RowStyle={{ width: 'auto' }}
                     >
                         Reason
-                    </ReactTable.Column>
-                </ConfigTable.Configurable>
-                <ConfigTable.Configurable Key='TotalFilesProcessed' Label='Total' Default={true}>
-                    <ReactTable.Column<SC.MiMDDailyStatistic>
+                    </Column>
+                </ConfigurableColumn>
+                <ConfigurableColumn Key='TotalFilesProcessed' Label='Total' Default={true}>
+                    <Column<SC.MiMDDailyStatistic>
                         Key={'TotalFilesProcessed'}
                         AllowSort={true}
                         Field={'TotalFilesProcessed'}
@@ -154,10 +154,10 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         RowStyle={{ width: 'auto' }}
                     >
                         Total
-                    </ReactTable.Column>
-                </ConfigTable.Configurable>
-                <ConfigTable.Configurable Key='TotalSuccessfulFilesProcessed' Label='Total Succ' Default={true}>
-                    <ReactTable.Column<SC.MiMDDailyStatistic>
+                    </Column>
+                </ConfigurableColumn>
+                <ConfigurableColumn Key='TotalSuccessfulFilesProcessed' Label='Total Succ' Default={true}>
+                    <Column<SC.MiMDDailyStatistic>
                         Key={'TotalSuccessfulFilesProcessed'}
                         AllowSort={true}
                         Field={'TotalSuccessfulFilesProcessed'}
@@ -165,10 +165,10 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         RowStyle={{ width: 'auto' }}
                     >
                         Total Succ
-                    </ReactTable.Column>
-                </ConfigTable.Configurable>
-                <ConfigTable.Configurable Key='TotalUnsuccessfulFilesProcessed' Label='Total Unsucc' Default={true}>
-                    <ReactTable.Column<SC.MiMDDailyStatistic>
+                    </Column>
+                </ConfigurableColumn>
+                <ConfigurableColumn Key='TotalUnsuccessfulFilesProcessed' Label='Total Unsucc' Default={true}>
+                    <Column<SC.MiMDDailyStatistic>
                         Key={'TotalUnsuccessfulFilesProcessed'}
                         AllowSort={true}
                         Field={'TotalUnsuccessfulFilesProcessed'}
@@ -176,10 +176,10 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         RowStyle={{ width: 'auto' }}
                     >
                         Total Unsucc
-                    </ReactTable.Column>
-                </ConfigTable.Configurable>
-                <ConfigTable.Configurable Key='ConfigChanges' Label='Config Changes' Default={true}>
-                    <ReactTable.Column<SC.MiMDDailyStatistic>
+                    </Column>
+                </ConfigurableColumn>
+                <ConfigurableColumn Key='ConfigChanges' Label='Config Changes' Default={true}>
+                    <Column<SC.MiMDDailyStatistic>
                         Key={'ConfigChanges'}
                         AllowSort={true}
                         Field={'ConfigChanges'}
@@ -187,8 +187,8 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         RowStyle={{ width: 'auto' }}
                     >
                         Config Changes
-                    </ReactTable.Column>
-                    <ReactTable.Column<SC.MiMDDailyStatistic>
+                    </Column>
+                    <Column<SC.MiMDDailyStatistic>
                         Key={'LastConfigFileChange'}
                         AllowSort={true}
                         Field={'LastConfigFileChange'}
@@ -197,8 +197,8 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         RowStyle={{ width: 'auto' }}
                     >
                         Last Change
-                    </ReactTable.Column>
-                    <ReactTable.Column<SC.MiMDDailyStatistic>
+                    </Column>
+                    <Column<SC.MiMDDailyStatistic>
                         Key={'DiagnosticAlarms'}
                         AllowSort={true}
                         Field={'DiagnosticAlarms'}
@@ -207,8 +207,8 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                                     RowStyle={{ width: 'auto' }}
                                 >
                         Diagnostic Alarms
-                    </ReactTable.Column>     
-                    <ReactTable.Column<SC.MiMDDailyStatistic>
+                    </Column>     
+                    <Column<SC.MiMDDailyStatistic>
                         Key={'ComplianceIssues'}
                         AllowSort={true}
                         Field={'ComplianceIssues'}
@@ -217,9 +217,9 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         RowStyle={{ width: 'auto' }}
                     >
                         Compliance Issues
-                    </ReactTable.Column>
-                </ConfigTable.Configurable>
-            </ConfigTable.Table>
+                    </Column>
+                </ConfigurableColumn>
+            </ConfigurableTable>
         </div>
     </div>
 }

@@ -25,7 +25,7 @@ import * as _ from 'lodash';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { SEBrowserWidgetSlice } from '../Store/Store';
 import { Input } from '@gpa-gemstone/react-forms';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { Circle, Line, Plot } from '@gpa-gemstone/react-graph';
 import { DownArrow, TrashCan, UpArrow } from '@gpa-gemstone/gpa-symbols';
 import { ColorPicker } from '@gpa-gemstone/react-forms'
@@ -132,7 +132,7 @@ export default function CurveForm(props: IProps) {
             </div>
             <div className="row">
                 <div className="col-6">
-                    <ReactTable.Table<Point>
+                    <Table<Point>
                         TableClass="table table-hover"
                         Data={curve}
                         SortKey={''}
@@ -144,7 +144,7 @@ export default function CurveForm(props: IProps) {
                         Selected={(item) => false}
                         KeySelector={(item, index) => `${item.toString()}-${index}`}
                     >
-                        <ReactTable.Column<Point>
+                        <Column<Point>
                             Key={'Index'}
                             AllowSort={false}
                             HeaderStyle={{ width: 'auto' }}
@@ -153,8 +153,8 @@ export default function CurveForm(props: IProps) {
                                 <p>{index + 1}</p>
                             </>}
                         > Point Index
-                        </ReactTable.Column>
-                        <ReactTable.Column<Point>
+                        </Column>
+                        <Column<Point>
                             Key={'Magnitude'}
                             AllowSort={false}
                             Field={'1'}
@@ -172,8 +172,8 @@ export default function CurveForm(props: IProps) {
                                 />
                             }
                         > Magnitude (pu)
-                        </ReactTable.Column>
-                        <ReactTable.Column<Point>
+                        </Column>
+                        <Column<Point>
                             Key={'Duration'}
                             AllowSort={false}
                             Field={'1'}
@@ -191,8 +191,8 @@ export default function CurveForm(props: IProps) {
                                 />
                             }
                         > Duration (s)
-                        </ReactTable.Column>
-                        <ReactTable.Column<Point>
+                        </Column>
+                        <Column<Point>
                             Key={'Remove'}
                             AllowSort={false}
                             Field={'1'}
@@ -239,8 +239,8 @@ export default function CurveForm(props: IProps) {
                                 </button>
                             </>}
                         > <p></p>
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                     <form>
                         <button className="btn btn-primary"
                             onClick={(event) => { event.preventDefault(); setCurve((d) => [...d, [d[d.length - 1][0], d[d.length - 1][1]]]); }}

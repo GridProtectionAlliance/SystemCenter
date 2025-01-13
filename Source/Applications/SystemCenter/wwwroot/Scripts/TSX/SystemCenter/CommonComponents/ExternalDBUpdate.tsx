@@ -25,7 +25,7 @@
 
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import { LoadingIcon, LoadingScreen, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import * as React from 'react';
 import _ from 'lodash';
 import moment from 'moment';
@@ -130,7 +130,7 @@ const ExternalDBUpdate = React.memo((props: {
         <>
             {status === 'error' ?
                 <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} /> : 
-                <ReactTable.Table<SystemCenter.Types.DetailedExternalDatabases>
+                <Table<SystemCenter.Types.DetailedExternalDatabases>
                     TableClass="table table-hover"
                     Data={externalDB}
                     SortKey={sort}
@@ -153,15 +153,15 @@ const ExternalDBUpdate = React.memo((props: {
                     Selected={(item) => false}
                     KeySelector={(item) => item.ID}
                 >
-                    <ReactTable.Column<SystemCenter.Types.DetailedExternalDatabases>
+                    <Column<SystemCenter.Types.DetailedExternalDatabases>
                         Key={'Name'}
                         AllowSort={true}
                         Field={'Name'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                     > Database Name
-                    </ReactTable.Column>
-                    <ReactTable.Column<SystemCenter.Types.DetailedExternalDatabases>
+                    </Column>
+                    <Column<SystemCenter.Types.DetailedExternalDatabases>
                         Key={'LastDataUpdate'}
                         AllowSort={true}
                         Field={'LastDataUpdate'}
@@ -172,8 +172,8 @@ const ExternalDBUpdate = React.memo((props: {
                             else return moment(item.LastDataUpdate).format('MM/DD/YYYY HH:mm.ss.ssss')
                         }}
                     > Last Data Update
-                    </ReactTable.Column>
-                    <ReactTable.Column<SystemCenter.Types.DetailedExternalDatabases>
+                    </Column>
+                    <Column<SystemCenter.Types.DetailedExternalDatabases>
                         Key={'ID'}
                         AllowSort={false}
                         Field={'ID'}
@@ -193,8 +193,8 @@ const ExternalDBUpdate = React.memo((props: {
                             );
                         }}
                     > <p></p>
-                    </ReactTable.Column>
-                </ReactTable.Table>
+                    </Column>
+                </Table>
             }
             <LoadingScreen Show={status === 'loading'} />
         </>

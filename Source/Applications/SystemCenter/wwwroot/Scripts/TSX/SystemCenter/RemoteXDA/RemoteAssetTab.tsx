@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import { RemoteXDAAssetSlice, ByAssetSlice } from '../Store/Store';
 import { LoadingScreen, Modal, Search, ServerErrorIcon, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
@@ -105,7 +105,7 @@ const RemoteAssetTab = (props: IProps) => {
         cardBody = <LoadingScreen Show={true} />
     } else {
         cardBody =
-            <ReactTable.Table<OpenXDA.Types.RemoteXDAAsset>
+            <Table<OpenXDA.Types.RemoteXDAAsset>
                 TableClass="table table-hover"
                 Data={searchResults}
                 SortKey={sortKey}
@@ -126,39 +126,39 @@ const RemoteAssetTab = (props: IProps) => {
                 Selected={(item) => false}
                 KeySelector={(item) => item.ID}
             >
-                <ReactTable.Column<OpenXDA.Types.RemoteXDAAsset>
+                <Column<OpenXDA.Types.RemoteXDAAsset>
                     Key={'LocalAssetName'}
                     AllowSort={true}
                     Field={'LocalAssetName'}
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
                 > Local Asset Name
-                </ReactTable.Column>
-                <ReactTable.Column<OpenXDA.Types.RemoteXDAAsset>
+                </Column>
+                <Column<OpenXDA.Types.RemoteXDAAsset>
                     Key={'LocalAssetKey'}
                     AllowSort={true}
                     Field={'LocalAssetKey'}
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
                 > Local Asset Key
-                </ReactTable.Column>
-                <ReactTable.Column<OpenXDA.Types.RemoteXDAAsset>
+                </Column>
+                <Column<OpenXDA.Types.RemoteXDAAsset>
                     Key={'RemoteAssetName'}
                     AllowSort={true}
                     Field={'RemoteAssetName'}
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
                 > Remote Asset Name
-                </ReactTable.Column>
-                <ReactTable.Column<OpenXDA.Types.RemoteXDAAsset>
+                </Column>
+                <Column<OpenXDA.Types.RemoteXDAAsset>
                     Key={'RemoteAssetKey'}
                     AllowSort={true}
                     Field={'RemoteAssetKey'}
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
                 > Remote Asset Key
-                </ReactTable.Column>
-                <ReactTable.Column<OpenXDA.Types.RemoteXDAAsset>
+                </Column>
+                <Column<OpenXDA.Types.RemoteXDAAsset>
                     Key={'Obsfucate'}
                     AllowSort={true}
                     Field={'Obsfucate'}
@@ -166,8 +166,8 @@ const RemoteAssetTab = (props: IProps) => {
                     RowStyle={{ width: 'auto' }}
                     Content={({ item }) => item.Obsfucate ? HeavyCheckMark : null }
                 > Obfuscated
-                </ReactTable.Column>
-                <ReactTable.Column<OpenXDA.Types.RemoteXDAAsset>
+                </Column>
+                <Column<OpenXDA.Types.RemoteXDAAsset>
                     Key={'Synced'}
                     AllowSort={true}
                     Field={'Synced'}
@@ -175,8 +175,8 @@ const RemoteAssetTab = (props: IProps) => {
                     RowStyle={{ width: 'auto' }}
                     Content={({ item }) => item.Synced ? HeavyCheckMark : null}
                 > Synced
-                </ReactTable.Column>
-                <ReactTable.Column<OpenXDA.Types.RemoteXDAAsset>
+                </Column>
+                <Column<OpenXDA.Types.RemoteXDAAsset>
                     Key={'Edit'}
                     AllowSort={false}
                     HeaderStyle={{ width: '10%' }}
@@ -197,8 +197,8 @@ const RemoteAssetTab = (props: IProps) => {
                         </button> : null)
                     }
                 > <p></p>
-                </ReactTable.Column>
-                <ReactTable.Column<OpenXDA.Types.RemoteXDAAsset>
+                </Column>
+                <Column<OpenXDA.Types.RemoteXDAAsset>
                     Key={'Delete'}
                     AllowSort={false}
                     HeaderStyle={{ width: '10%' }}
@@ -219,8 +219,8 @@ const RemoteAssetTab = (props: IProps) => {
                         </button> : null)
                     }
                 > <p></p>
-                </ReactTable.Column>
-            </ReactTable.Table>
+                </Column>
+            </Table>
     }
 
     return (
@@ -249,7 +249,7 @@ const RemoteAssetTab = (props: IProps) => {
                         Add Assets
                     </button>
                 </div>
-                <ToolTip Show={hover == 'submit' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"AddAssets"}>
+                <ToolTip Show={hover == 'submit' && !hasPermissions()} Position={'top'} Target={"AddAssets"}>
                     <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                 </ToolTip>
             </div>

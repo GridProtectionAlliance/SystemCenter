@@ -98,7 +98,6 @@ const SystemSettingsTab = (props: IProps) => {
                 <ToolTip
                     Show={(newInstErrors.length != 0) && hover == 'submit'}
                     Position={'top'}
-                    Theme={'dark'}
                     Target={"submit"}>
                     {newInstErrors.map((t, i) =>
                         <p key={i}> {CrossMark} {t} </p>
@@ -118,7 +117,6 @@ const SystemSettingsTab = (props: IProps) => {
                 <ToolTip
                     Show={!_.isEqual(baseInstance, formInstance) && hover == 'clear'}
                     Position={'top'}
-                    Theme={'dark'}
                     Target={"clear"}>
 
                     {baseInstance.Name != formInstance.Name ? <p> {Warning} Changes to Name will be discarded.</p> : null}

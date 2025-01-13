@@ -25,7 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 
 interface IProps {
     Assets: Array<OpenXDA.Types.Asset>,
@@ -86,7 +86,7 @@ const MultipleAssetsPage: React.FC<IProps> = (props) => {
                                 height: '100%', overflow: 'hidden',
                                 display: 'flex', flexDirection: 'column'
                             }}>
-                                <ReactTable.Table<OpenXDA.Types.Asset>
+                                <Table<OpenXDA.Types.Asset>
                                     TableClass="table table-hover"
                                     Data={tableData}
                                     SortKey={sortKey}
@@ -109,31 +109,31 @@ const MultipleAssetsPage: React.FC<IProps> = (props) => {
                                     KeySelector={(item) => item.AssetKey}
                                     OnClick={(item) => setCurrentAsset(item.row)}
                                 >
-                                    <ReactTable.Column<OpenXDA.Types.Asset>
+                                    <Column<OpenXDA.Types.Asset>
                                         Key={'AssetName'}
                                         AllowSort={true}
                                         Field={'AssetName'}
                                         HeaderStyle={{ width: 'auto' }}
                                         RowStyle={{ width: 'auto' }}
                                     > Name
-                                    </ReactTable.Column>
-                                    <ReactTable.Column<OpenXDA.Types.Asset>
+                                    </Column>
+                                    <Column<OpenXDA.Types.Asset>
                                         Key={'AssetKey'}
                                         AllowSort={true}
                                         Field={'AssetKey'}
                                         HeaderStyle={{ width: 'auto' }}
                                         RowStyle={{ width: 'auto' }}
                                     > Key
-                                    </ReactTable.Column>
-                                    <ReactTable.Column<OpenXDA.Types.Asset>
+                                    </Column>
+                                    <Column<OpenXDA.Types.Asset>
                                         Key={'AssetType'}
                                         AllowSort={true}
                                         Field={'AssetType'}
                                         HeaderStyle={{ width: 'auto' }}
                                         RowStyle={{ width: 'auto' }}
                                     > Type
-                                    </ReactTable.Column>
-                                </ReactTable.Table>
+                                    </Column>
+                                </Table>
                             </div>
                         </div>
                     </div>

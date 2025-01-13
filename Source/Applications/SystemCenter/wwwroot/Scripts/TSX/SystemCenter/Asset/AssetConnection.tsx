@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import _ from 'lodash';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { useHistory } from "react-router-dom";
 import { LoadingIcon, Modal, Search, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
 import { TrashCan } from '@gpa-gemstone/gpa-symbols'
@@ -240,7 +240,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
             </div>
             <div className="card-body" style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
                 <div style={{ width: '100%', padding: 30, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-                    <ReactTable.Table<AssetConnection>
+                    <Table<AssetConnection>
                         TableClass="table table-hover"
                         Data={assetConnections}
                         SortKey={sortKey}
@@ -269,31 +269,31 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                         Selected={(item) => false}
                         KeySelector={(item) => item.AssetID}
                     >
-                        <ReactTable.Column<AssetConnection>
+                        <Column<AssetConnection>
                             Key={'AssetName'}
                             AllowSort={true}
                             Field={'AssetName'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Asset Name
-                        </ReactTable.Column>
-                        <ReactTable.Column<AssetConnection>
+                        </Column>
+                        <Column<AssetConnection>
                             Key={'AssetKey'}
                             AllowSort={true}
                             Field={'AssetKey'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Asset Key
-                        </ReactTable.Column>
-                        <ReactTable.Column<AssetConnection>
+                        </Column>
+                        <Column<AssetConnection>
                             Key={'Name'}
                             AllowSort={true}
                             Field={'Name'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Relationship
-                        </ReactTable.Column>
-                        <ReactTable.Column<AssetConnection>
+                        </Column>
+                        <Column<AssetConnection>
                             Key={'DeleteButton'}
                             AllowSort={false}
                             HeaderStyle={{ width: '6%' }}
@@ -306,8 +306,8 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                                 }}><span>{TrashCan}</span></button>
                             </> }
                         > <p></p>
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                 </div>
             </div>
             <div className="card-footer">
@@ -315,7 +315,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                     <button className={"btn btn-info pull-right" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='Connect'
                         onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={(evt) => { evt.preventDefault(); if (hasPermissions()) setShowModal(true); }}>Add Connection</button>
                 </div>
-                <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"Connect"}>
+                <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Target={"Connect"}>
                     <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                 </ToolTip>
             </div>

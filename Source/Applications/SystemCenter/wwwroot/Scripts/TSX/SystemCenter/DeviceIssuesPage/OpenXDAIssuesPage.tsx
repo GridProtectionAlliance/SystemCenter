@@ -27,8 +27,8 @@ import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { SystemCenter as SC } from '../global';
 import _ from 'lodash';
 import * as React from 'react';
-import { ConfigTable, GenericController } from '@gpa-gemstone/react-interactive';
-import { ReactTable } from '@gpa-gemstone/react-table'
+import { GenericController } from '@gpa-gemstone/react-interactive';
+import { ConfigurableTable, ConfigurableColumn, Column } from '@gpa-gemstone/react-table';
 import Reason from './Reason';
 import moment from 'moment';
 
@@ -68,7 +68,7 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
             </div>
         </div>
         <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
-            <ConfigTable.Table<SC.OpenXDADailyStatistic>
+            <ConfigurableTable<SC.OpenXDADailyStatistic>
                 LocalStorageKey="MiMDIssuesConfigTable"
                 TableClass="table table-hover"
                 Data={data}
@@ -93,7 +93,7 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                     }
                 }}
             >
-                <ReactTable.Column<SC.OpenXDADailyStatistic>
+                <Column<SC.OpenXDADailyStatistic>
                     Key={'Date'}
                     AllowSort={true}
                     Field={'Date'}
@@ -102,9 +102,9 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                     RowStyle={{ width: 'auto' }}
                 >
                     Date
-                </ReactTable.Column>
-                <ConfigTable.Configurable Key='LastSuccessfulFileProcessed' Label='Last Succ' Default={true}>
-                    <ReactTable.Column<SC.OpenXDADailyStatistic>
+                </Column>
+                <ConfigurableColumn Key='LastSuccessfulFileProcessed' Label='Last Succ' Default={true}>
+                    <Column<SC.OpenXDADailyStatistic>
                         Key={'LastSuccessfulFileProcessed'}
                         AllowSort={true}
                         Field={'LastSuccessfulFileProcessed'}
@@ -113,10 +113,10 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         RowStyle={{ width: 'auto' }}
                     >
                         Last Succ
-                    </ReactTable.Column>
-                </ConfigTable.Configurable>
-                <ConfigTable.Configurable Key='LastUnsuccessfulFileProcessed' Label='Last Unsucc' Default={true}>
-                    <ReactTable.Column<SC.OpenXDADailyStatistic>
+                    </Column>
+                </ConfigurableColumn>
+                <ConfigurableColumn Key='LastUnsuccessfulFileProcessed' Label='Last Unsucc' Default={true}>
+                    <Column<SC.OpenXDADailyStatistic>
                         Key={'LastUnsuccessfulFileProcessed'}
                         AllowSort={true}
                         Field={'LastUnsuccessfulFileProcessed'}
@@ -125,8 +125,8 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         RowStyle={{ width: 'auto' }}
                     >
                         Last Unsucc
-                    </ReactTable.Column>
-                    <ReactTable.Column<SC.OpenXDADailyStatistic>
+                    </Column>
+                    <Column<SC.OpenXDADailyStatistic>
                         Key={'LastUnsuccessfulFileProcessedExplanation'}
                         AllowSort={true}
                         Field={'LastUnsuccessfulFileProcessedExplanation'}
@@ -135,10 +135,10 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         RowStyle={{ width: 'auto' }}
                     >
                         Reason
-                    </ReactTable.Column>
-                </ConfigTable.Configurable>
-                <ConfigTable.Configurable Key='TotalFilesProcessed' Label='Total' Default={true}>
-                    <ReactTable.Column<SC.OpenXDADailyStatistic>
+                    </Column>
+                </ConfigurableColumn>
+                <ConfigurableColumn Key='TotalFilesProcessed' Label='Total' Default={true}>
+                    <Column<SC.OpenXDADailyStatistic>
                         Key={'TotalFilesProcessed'}
                         AllowSort={true}
                         Field={'TotalFilesProcessed'}
@@ -146,10 +146,10 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         RowStyle={{ width: 'auto' }}
                     >
                         Total
-                    </ReactTable.Column>
-                </ConfigTable.Configurable>
-                <ConfigTable.Configurable Key='TotalSuccessfulFilesProcessed' Label='Total Succ' Default={true}>
-                    <ReactTable.Column<SC.OpenXDADailyStatistic>
+                    </Column>
+                </ConfigurableColumn>
+                <ConfigurableColumn Key='TotalSuccessfulFilesProcessed' Label='Total Succ' Default={true}>
+                    <Column<SC.OpenXDADailyStatistic>
                         Key={'TotalSuccessfulFilesProcessed'}
                         AllowSort={true}
                         Field={'TotalSuccessfulFilesProcessed'}
@@ -157,10 +157,10 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         RowStyle={{ width: 'auto' }}
                     >
                         Total Succ
-                    </ReactTable.Column>
-                </ConfigTable.Configurable>
-                <ConfigTable.Configurable Key='TotalUnsuccessfulFilesProcessed' Label='Total Unsucc' Default={true}>
-                    <ReactTable.Column<SC.OpenXDADailyStatistic>
+                    </Column>
+                </ConfigurableColumn>
+                <ConfigurableColumn Key='TotalUnsuccessfulFilesProcessed' Label='Total Unsucc' Default={true}>
+                    <Column<SC.OpenXDADailyStatistic>
                         Key={'TotalUnsuccessfulFilesProcessed'}
                         AllowSort={true}
                         Field={'TotalUnsuccessfulFilesProcessed'}
@@ -168,10 +168,10 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         RowStyle={{ width: 'auto' }}
                     >
                         Total Unsucc
-                    </ReactTable.Column>
-                </ConfigTable.Configurable>
-                <ConfigTable.Configurable Key='TotalEmailsSent' Label='Tot Emails Sent' Default={true}>
-                    <ReactTable.Column<SC.OpenXDADailyStatistic>
+                    </Column>
+                </ConfigurableColumn>
+                <ConfigurableColumn Key='TotalEmailsSent' Label='Tot Emails Sent' Default={true}>
+                    <Column<SC.OpenXDADailyStatistic>
                         Key={'TotalEmailsSent'}
                         AllowSort={true}
                         Field={'TotalEmailsSent'}
@@ -179,11 +179,11 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         RowStyle={{ width: 'auto' }}
                     >
                         Tot Emails Sent
-                    </ReactTable.Column>
-                </ConfigTable.Configurable>
+                    </Column>
+                </ConfigurableColumn>
 
-                <ConfigTable.Configurable Key='AverageDownloadLatency' Label='Avg Dnld Lat' Default={true}>
-                    <ReactTable.Column<SC.OpenXDADailyStatistic>
+                <ConfigurableColumn Key='AverageDownloadLatency' Label='Avg Dnld Lat' Default={true}>
+                    <Column<SC.OpenXDADailyStatistic>
                         Key={'AverageDownloadLatency'}
                         AllowSort={true}
                         Field={'AverageDownloadLatency'}
@@ -192,10 +192,10 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         Content={({ item, field }) => item[field] != undefined ? (item[field] as number).toFixed(2) : ''}
                     >
                         Avg Dnld Lat
-                    </ReactTable.Column>
-                </ConfigTable.Configurable>
-                <ConfigTable.Configurable Key='AverageProcessingStartLatency' Label='Avg Proc Start Lat' Default={true}>
-                    <ReactTable.Column<SC.OpenXDADailyStatistic>
+                    </Column>
+                </ConfigurableColumn>
+                <ConfigurableColumn Key='AverageProcessingStartLatency' Label='Avg Proc Start Lat' Default={true}>
+                    <Column<SC.OpenXDADailyStatistic>
                         Key={'AverageProcessingStartLatency'}
                         AllowSort={true}
                         Field={'AverageProcessingStartLatency'}
@@ -204,9 +204,9 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         Content={({ item, field }) => item[field] != undefined ? (item[field] as number).toFixed(2) : ''}
                     >
                         Avg Proc Start Lat
-                    </ReactTable.Column>
-                    <ConfigTable.Configurable Key='AverageProcessingEndLatency' Label='Avg Proc End Lat' Default={true}>
-                        <ReactTable.Column<SC.OpenXDADailyStatistic>
+                    </Column>
+                    <ConfigurableColumn Key='AverageProcessingEndLatency' Label='Avg Proc End Lat' Default={true}>
+                        <Column<SC.OpenXDADailyStatistic>
                             Key={'AverageProcessingEndLatency'}
                             AllowSort={true}
                             Field={'AverageProcessingEndLatency'}
@@ -215,10 +215,10 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                             Content={({ item, field }) => item[field] != undefined ? (item[field] as number).toFixed(2) : ''}
                         >
                             Avg Proc End Lat
-                        </ReactTable.Column>
-                    </ConfigTable.Configurable>
-                    <ConfigTable.Configurable Key='AverageEmailLatency' Label='Avg Email Lat' Default={true}>
-                        <ReactTable.Column<SC.OpenXDADailyStatistic>
+                        </Column>
+                    </ConfigurableColumn>
+                    <ConfigurableColumn Key='AverageEmailLatency' Label='Avg Email Lat' Default={true}>
+                        <Column<SC.OpenXDADailyStatistic>
                             Key={'AverageEmailLatency'}
                             AllowSort={true}
                             Field={'AverageEmailLatency'}
@@ -227,10 +227,10 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                             Content={({ item, field }) => item[field] != undefined ? (item[field] as number).toFixed(2) : ''}
                         >
                             Avg Email Lat
-                        </ReactTable.Column>
-                    </ConfigTable.Configurable>
-                    <ConfigTable.Configurable Key='AverageTotalProcessingLatency' Label='Avg Tot Proc Lat' Default={true}>
-                        <ReactTable.Column<SC.OpenXDADailyStatistic>
+                        </Column>
+                    </ConfigurableColumn>
+                    <ConfigurableColumn Key='AverageTotalProcessingLatency' Label='Avg Tot Proc Lat' Default={true}>
+                        <Column<SC.OpenXDADailyStatistic>
                             Key={'AverageTotalProcessingLatency'}
                             AllowSort={true}
                             Field={'AverageTotalProcessingLatency'}
@@ -239,9 +239,9 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                             Content={({ item, field }) => item[field] != undefined ? (item[field] as number).toFixed(2) : ''}
                         >
                             Avg Tot Proc Lat
-                        </ReactTable.Column>
-                        <ConfigTable.Configurable Key='AverageTotalEmailLatency' Label='Avg Tot Email Lat' Default={true}>
-                            <ReactTable.Column<SC.OpenXDADailyStatistic>
+                        </Column>
+                        <ConfigurableColumn Key='AverageTotalEmailLatency' Label='Avg Tot Email Lat' Default={true}>
+                            <Column<SC.OpenXDADailyStatistic>
                                 Key={'AverageTotalEmailLatency'}
                                 AllowSort={true}
                                 Field={'AverageTotalEmailLatency'}
@@ -250,12 +250,12 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                                 Content={({ item, field }) => item[field] != undefined ? (item[field] as number).toFixed(2) : ''}
                             >
                                 Avg Tot Email Lat
-                            </ReactTable.Column>
-                        </ConfigTable.Configurable>
+                            </Column>
+                        </ConfigurableColumn>
 
-                    </ConfigTable.Configurable>
-                </ConfigTable.Configurable>
-            </ConfigTable.Table>
+                    </ConfigurableColumn>
+                </ConfigurableColumn>
+            </ConfigurableTable>
         </div>
     </div>
 }

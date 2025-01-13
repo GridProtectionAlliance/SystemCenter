@@ -27,7 +27,7 @@ import { useHistory } from "react-router-dom";
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 import { Search, Modal, LoadingIcon, ServerErrorIcon, GenericController, SearchBar } from '@gpa-gemstone/react-interactive';
-import { ReactTable, Paging } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 
 declare var homePath: string;
 
@@ -154,7 +154,7 @@ const ByLineSegment: Application.Types.iByComponent = (props) => {
             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
                 {
                     pageStatus === 'idle' ?
-                        <ReactTable.Table<OpenXDA.Types.LineSegment>
+                        <Table<OpenXDA.Types.LineSegment>
                             TableClass="table table-hover"
                             Data={data}
                             SortKey={sortKey.toString()}
@@ -174,55 +174,55 @@ const ByLineSegment: Application.Types.iByComponent = (props) => {
                             Selected={(item) => false}
                             KeySelector={(item) => item.ID}
                         >
-                            <ReactTable.Column<OpenXDA.Types.LineSegment>
+                            <Column<OpenXDA.Types.LineSegment>
                                 Key={'AssetName'}
                                 AllowSort={true}
                                 Field={'AssetName'}
                                 HeaderStyle={{ width: '15%' }}
                                 RowStyle={{ width: '15%' }}
                             > Name
-                            </ReactTable.Column>
-                            <ReactTable.Column<OpenXDA.Types.LineSegment>
+                            </Column>
+                            <Column<OpenXDA.Types.LineSegment>
                                 Key={'AssetKey'}
                                 AllowSort={true}
                                 Field={'AssetKey'}
                                 HeaderStyle={{ width: '15%' }}
                                 RowStyle={{ width: '15%' }}
                             > Key
-                            </ReactTable.Column>
-                            <ReactTable.Column<OpenXDA.Types.LineSegment>
+                            </Column>
+                            <Column<OpenXDA.Types.LineSegment>
                                 Key={'VoltageKV'}
                                 AllowSort={true}
                                 Field={'VoltageKV'}
                                 HeaderStyle={{ width: '20%' }}
                                 RowStyle={{ width: '20%' }}
                             > Nominal Voltage (L-L kV)
-                            </ReactTable.Column>
-                            <ReactTable.Column<OpenXDA.Types.LineSegment>
+                            </Column>
+                            <Column<OpenXDA.Types.LineSegment>
                                 Key={'ThermalRating'}
                                 AllowSort={true}
                                 Field={'ThermalRating'}
                                 HeaderStyle={{ width: '10%' }}
                                 RowStyle={{ width: '10%' }}
                             > Thermal Rating
-                            </ReactTable.Column>
-                            <ReactTable.Column<OpenXDA.Types.LineSegment>
+                            </Column>
+                            <Column<OpenXDA.Types.LineSegment>
                                 Key={'Length'}
                                 AllowSort={true}
                                 Field={'Length'}
                                 HeaderStyle={{ width: '10%' }}
                                 RowStyle={{ width: '10%' }}
                             > Length (miles)
-                            </ReactTable.Column>
-                            <ReactTable.Column<OpenXDA.Types.LineSegment>
+                            </Column>
+                            <Column<OpenXDA.Types.LineSegment>
                                 Key={'Description'}
                                 AllowSort={true}
                                 Field={'Description'}
                                 HeaderStyle={{ width: '30%' }}
                                 RowStyle={{ width: '30%' }}
                             > Description
-                            </ReactTable.Column>
-                        </ReactTable.Table> : 
+                            </Column>
+                        </Table> : 
                         <>
                             <LoadingIcon Show={pageStatus === 'loading'} Size={40} />
                             <ServerErrorIcon Show={pageStatus === 'error'} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />

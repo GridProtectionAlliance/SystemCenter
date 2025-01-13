@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { SystemCenter, Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { RemoteXDAMeterSlice, ByMeterSlice, RemoteXDAAssetSlice } from '../Store/Store';
 import { LoadingScreen, Modal, Search, ServerErrorIcon, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
@@ -140,7 +140,7 @@ const RemoteMeterTab = (props: IProps) => {
         cardBody = <LoadingScreen Show={true} />
     } else {
         cardBody =
-            <ReactTable.Table<OpenXDA.Types.RemoteXDAMeter>
+            <Table<OpenXDA.Types.RemoteXDAMeter>
                 TableClass="table table-hover"
                 Data={searchResults}
                 SortKey={sortKey}
@@ -161,31 +161,31 @@ const RemoteMeterTab = (props: IProps) => {
                 Selected={(item) => false}
                 KeySelector={(item) => item.ID}
             >
-                <ReactTable.Column<OpenXDA.Types.RemoteXDAMeter>
+                <Column<OpenXDA.Types.RemoteXDAMeter>
                     Key={'LocalMeterName'}
                     AllowSort={true}
                     Field={'LocalMeterName'}
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
                 > Local Meter Name
-                </ReactTable.Column>
-                <ReactTable.Column<OpenXDA.Types.RemoteXDAMeter>
+                </Column>
+                <Column<OpenXDA.Types.RemoteXDAMeter>
                     Key={'LocalAssetKey'}
                     AllowSort={true}
                     Field={'LocalAssetKey'}
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
                 > Local Meter Key
-                </ReactTable.Column>
-                <ReactTable.Column<OpenXDA.Types.RemoteXDAMeter>
+                </Column>
+                <Column<OpenXDA.Types.RemoteXDAMeter>
                     Key={'LocalAlias'}
                     AllowSort={true}
                     Field={'LocalAlias'}
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
                 > Local Meter Alias
-                </ReactTable.Column>
-                <ReactTable.Column<OpenXDA.Types.RemoteXDAMeter>
+                </Column>
+                <Column<OpenXDA.Types.RemoteXDAMeter>
                     Key={'RemoteXDAName'}
                     AllowSort={true}
                     Field={'RemoteXDAName'}
@@ -193,24 +193,24 @@ const RemoteMeterTab = (props: IProps) => {
                     RowStyle={{ width: 'auto' }}
                     Content={({ item }) => item.Obsfucate ? item.RemoteXDAName : item.LocalMeterName}
                 > Remote Meter Name
-                </ReactTable.Column>
-                <ReactTable.Column<OpenXDA.Types.RemoteXDAMeter>
+                </Column>
+                <Column<OpenXDA.Types.RemoteXDAMeter>
                     Key={'RemoteXDAAssetKey'}
                     AllowSort={true}
                     Field={'RemoteXDAAssetKey'}
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
                 > Remote Meter Key
-                </ReactTable.Column>
-                <ReactTable.Column<OpenXDA.Types.RemoteXDAMeter>
+                </Column>
+                <Column<OpenXDA.Types.RemoteXDAMeter>
                     Key={'RemoteAlias'}
                     AllowSort={true}
                     Field={'RemoteAlias'}
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
                 > Remote Meter Alias
-                </ReactTable.Column>
-                <ReactTable.Column<OpenXDA.Types.RemoteXDAMeter>
+                </Column>
+                <Column<OpenXDA.Types.RemoteXDAMeter>
                     Key={'Obsfucate'}
                     AllowSort={true}
                     Field={'Obsfucate'}
@@ -218,8 +218,8 @@ const RemoteMeterTab = (props: IProps) => {
                     RowStyle={{ width: 'auto' }}
                     Content={({ item }) => item.Obsfucate ? HeavyCheckMark : null }
                 > Obfuscated
-                </ReactTable.Column>
-                <ReactTable.Column<OpenXDA.Types.RemoteXDAMeter>
+                </Column>
+                <Column<OpenXDA.Types.RemoteXDAMeter>
                     Key={'Synced'}
                     AllowSort={true}
                     Field={'Synced'}
@@ -227,8 +227,8 @@ const RemoteMeterTab = (props: IProps) => {
                     RowStyle={{ width: 'auto' }}
                     Content={({ item }) => item.Synced ? HeavyCheckMark : null }
                 > Synced
-                </ReactTable.Column>
-                <ReactTable.Column<OpenXDA.Types.RemoteXDAMeter>
+                </Column>
+                <Column<OpenXDA.Types.RemoteXDAMeter>
                     Key={'Edit'}
                     AllowSort={false}
                     HeaderStyle={{ width: '10%' }}
@@ -249,8 +249,8 @@ const RemoteMeterTab = (props: IProps) => {
                         </button> : null)
                     }
                 > <p></p>
-                </ReactTable.Column>
-                <ReactTable.Column<OpenXDA.Types.RemoteXDAMeter>
+                </Column>
+                <Column<OpenXDA.Types.RemoteXDAMeter>
                     Key={'Delete'}
                     AllowSort={false}
                     HeaderStyle={{ width: '10%' }}
@@ -271,8 +271,8 @@ const RemoteMeterTab = (props: IProps) => {
                         </button> : null)
                     }
                 > <p></p>
-                </ReactTable.Column>
-            </ReactTable.Table>
+                </Column>
+            </Table>
     }
 
     return (
@@ -301,7 +301,7 @@ const RemoteMeterTab = (props: IProps) => {
                         Add Meter
                     </button>
                 </div>
-                <ToolTip Show={hover == 'submit' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"AddMeters"}>
+                <ToolTip Show={hover == 'submit' && !hasPermissions()} Position={'top'} Target={"AddMeters"}>
                     <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                 </ToolTip>
             </div>
@@ -387,17 +387,18 @@ const RemoteMeterTab = (props: IProps) => {
                 }}
                 Show={showAddMeters}
                 Type={'single'}
-                Columns={[
-                    { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Location', field: 'Location', label: 'Substation', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                ]}
                 Title={"Add Meter to Remote openXDA Instance:"}
                 GetEnum={() => () => { }}
                 GetAddlFields={() => () => { }}
                 AddlFilters={[noSameFilter]}
-            />
+            >
+                <Column Key="Name" Field="Name" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Name</Column>
+                <Column Key="AssetKey" Field="AssetKey" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Key</Column>
+                <Column Key="Location" Field="Location" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Substation</Column>
+            </DefaultSelects.Meter>
         </div>
     );
 

@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { ReactTable } from '@gpa-gemstone/react-table'
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { useHistory } from "react-router-dom";
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { Modal, Search, SearchBar } from '@gpa-gemstone/react-interactive';
@@ -114,7 +114,7 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
 
             <div className='row' style={{ flex: 1, overflow: 'hidden' }}>
                 <div className='col-12' style={{ height: '100%', overflow: 'hidden' }}>
-                    <ReactTable.Table<SystemCenter.Types.DetailedExternalDatabases>
+                    <Table<SystemCenter.Types.DetailedExternalDatabases>
                         TableClass="table table-hover"
                         Data={data}
                         SortKey={sortField}
@@ -133,31 +133,31 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
                     >
-                        <ReactTable.Column<SystemCenter.Types.DetailedExternalDatabases>
+                        <Column<SystemCenter.Types.DetailedExternalDatabases>
                             Key={'Name'}
                             AllowSort={true}
                             Field={'Name'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Database Name
-                        </ReactTable.Column>
-                        <ReactTable.Column<SystemCenter.Types.DetailedExternalDatabases>
+                        </Column>
+                        <Column<SystemCenter.Types.DetailedExternalDatabases>
                             Key={'MappedTables'}
                             AllowSort={true}
                             Field={'MappedTables'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Mapped Tables
-                        </ReactTable.Column>
-                        <ReactTable.Column<SystemCenter.Types.DetailedExternalDatabases>
+                        </Column>
+                        <Column<SystemCenter.Types.DetailedExternalDatabases>
                             Key={'MappedFields'}
                             AllowSort={true}
                             Field={'MappedFields'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Mapped Fields
-                        </ReactTable.Column>
-                        <ReactTable.Column<SystemCenter.Types.DetailedExternalDatabases>
+                        </Column>
+                        <Column<SystemCenter.Types.DetailedExternalDatabases>
                             Key={'LastDataUpdate'}
                             AllowSort={true}
                             Field={'LastDataUpdate'}
@@ -168,8 +168,8 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
                                 else return moment(item.LastDataUpdate).format('MM/DD/YYYY HH:mm.ss.ssss')
                             }}
                         > Last Data Update
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                 </div>
             </div>
 

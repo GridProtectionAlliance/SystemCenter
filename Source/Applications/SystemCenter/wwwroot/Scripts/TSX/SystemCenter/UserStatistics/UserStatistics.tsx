@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { Application } from '@gpa-gemstone/application-typings';
 import { Plot, Line } from '@gpa-gemstone/react-graph';
 import { LoadingScreen, TabSelector } from '@gpa-gemstone/react-interactive';
@@ -218,7 +218,7 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
             <TabSelector CurrentTab={tab} SetTab={setTab} Tabs={tabs} />
             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
                 <div className="col h-100" >
-                    <ReactTable.Table<AccessLogTable>
+                    <Table<AccessLogTable>
                         TableClass="table table-hover"
                         Data={tableData}
                         SortKey={sortField}
@@ -242,23 +242,23 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
                         Selected={(item) => false}
                         KeySelector={(item) => item.UserName}
                     >
-                        <ReactTable.Column<AccessLogTable>
+                        <Column<AccessLogTable>
                             Key={'UserName'}
                             AllowSort={true}
                             Field={'UserName'}
                             HeaderStyle={{ width: '30%' }}
                             RowStyle={{ width: '30%' }}
                         > User
-                        </ReactTable.Column>
-                        <ReactTable.Column<AccessLogTable>
+                        </Column>
+                        <Column<AccessLogTable>
                             Key={'Logins'}
                             AllowSort={true}
                             Field={'Logins'}
                             HeaderStyle={{ width: '30%' }}
                             RowStyle={{ width: '30%' }}
                         > Logins for Period
-                        </ReactTable.Column>
-                        <ReactTable.Column<AccessLogTable>
+                        </Column>
+                        <Column<AccessLogTable>
                             Key={'LastAccess'}
                             AllowSort={true}
                             Field={'LastAccess'}
@@ -266,8 +266,8 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
                             RowStyle={{ width: 'auto' }}
                             Content={({ item }) => moment(item.LastAccess).format('MM/DD/YYYY HH:mm:ss')}
                         > Last Access Time
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                 </div>
                 </div>
             

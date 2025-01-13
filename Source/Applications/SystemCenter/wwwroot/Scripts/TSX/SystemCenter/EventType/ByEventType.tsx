@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { ReactTable } from '@gpa-gemstone/react-table'
+import { Table, Column } from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
@@ -82,7 +82,7 @@ const ByEventType: Application.Types.iByComponent = (props) => {
                 </nav>
             </div>            
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <ReactTable.Table<OpenXDA.Types.EventType>
+                <Table<OpenXDA.Types.EventType>
                     TableClass="table table-hover"
                     Data={eventTypes}
                     SortKey={sortKey}
@@ -97,31 +97,31 @@ const ByEventType: Application.Types.iByComponent = (props) => {
                     Selected={(item) => false}
                     KeySelector={(item) => item.ID}
                 >
-                    <ReactTable.Column<OpenXDA.Types.EventType>
+                    <Column<OpenXDA.Types.EventType>
                         Key={'Name'}
                         AllowSort={true}
                         Field={'Name'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                     > Name
-                    </ReactTable.Column>
-                    <ReactTable.Column<OpenXDA.Types.EventType>
+                    </Column>
+                    <Column<OpenXDA.Types.EventType>
                         Key={'Category'}
                         AllowSort={true}
                         Field={'Category'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                     > Category
-                    </ReactTable.Column>
-                    <ReactTable.Column<OpenXDA.Types.EventType>
+                    </Column>
+                    <Column<OpenXDA.Types.EventType>
                         Key={'Description'}
                         AllowSort={true}
                         Field={'Description'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                     > Description
-                    </ReactTable.Column>
-                    <ReactTable.Column<OpenXDA.Types.EventType>
+                    </Column>
+                    <Column<OpenXDA.Types.EventType>
                         Key={'ShowInFilter'}
                         AllowSort={true}
                         Field={'ShowInFilter'}
@@ -129,8 +129,8 @@ const ByEventType: Application.Types.iByComponent = (props) => {
                         RowStyle={{ width: 'auto' }}
                         Content={({ item }) => item.ShowInFilter ? HeavyCheckMark : CrossMark }
                     > Show in UI
-                    </ReactTable.Column>
-                </ReactTable.Table>
+                    </Column>
+                </Table>
             </div>
 
             <Modal Show={selected != null} Title={'Edit ' + (selected?.Name ?? 'Event Type')}

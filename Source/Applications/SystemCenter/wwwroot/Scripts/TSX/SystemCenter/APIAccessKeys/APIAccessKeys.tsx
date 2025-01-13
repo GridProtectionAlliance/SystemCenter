@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { ReactTable, Paging } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { Application } from '@gpa-gemstone/application-typings';
 import { SearchBar, Search, Modal, Warning, Alert } from '@gpa-gemstone/react-interactive';
@@ -130,7 +130,7 @@ const ByAPIAccessKeys: Application.Types.iByComponent = (props) => {
                         </SearchBar>
                 </div>
                 <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                    <ReactTable.Table<IAPIAccessKey>
+                    <Table<IAPIAccessKey>
                         TableClass="table table-hover"
                         Data={data}
                         SortKey={sortKey}
@@ -155,23 +155,23 @@ const ByAPIAccessKeys: Application.Types.iByComponent = (props) => {
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
                     >
-                        <ReactTable.Column<IAPIAccessKey>
+                        <Column<IAPIAccessKey>
                             Key={'RegistrationKey'}
                             AllowSort={true}
                             Field={'RegistrationKey'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Registration Key
-                        </ReactTable.Column>
-                        <ReactTable.Column<IAPIAccessKey>
+                        </Column>
+                        <Column<IAPIAccessKey>
                             Key={'APIToken'}
                             AllowSort={false}
                             Field={'APIToken'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > API Token
-                        </ReactTable.Column>
-                        <ReactTable.Column<IAPIAccessKey>
+                        </Column>
+                        <Column<IAPIAccessKey>
                             Key={'Expires'}
                             AllowSort={true}
                             Field={'Expires'}
@@ -179,8 +179,8 @@ const ByAPIAccessKeys: Application.Types.iByComponent = (props) => {
                             RowStyle={{ width: 'auto' }}
                             Content={({ item }) => item.Expires == null ? 'N/A' : moment(item.Expires).format("MM/DD/YYYY HH:mm")}
                         > Expires
-                        </ReactTable.Column>
-                        <ReactTable.Column<IAPIAccessKey>
+                        </Column>
+                        <Column<IAPIAccessKey>
                             Key={'AllowImpersonation'}
                             AllowSort={true}
                             Field={'AllowImpersonation'}
@@ -188,8 +188,8 @@ const ByAPIAccessKeys: Application.Types.iByComponent = (props) => {
                             RowStyle={{ width: 'auto' }}
                             Content={({ item }) => item.AllowImpersonation ? HeavyCheckMark : CrossMark}
                         > Allow Impersonation
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                 </div>
                 <div className="row">
                     <div className="col">

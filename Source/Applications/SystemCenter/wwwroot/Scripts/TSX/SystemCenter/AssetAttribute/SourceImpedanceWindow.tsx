@@ -27,7 +27,7 @@ import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { AssetAttributes } from './Asset';
 import LineSegmentAttributes from './LineSegment';
 import { LoadingScreen, Modal, Warning, Search, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { CrossMark, HeavyCheckMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import moment from 'moment';
 import { useAppDispatch, useAppSelector } from '../hooks';
@@ -172,7 +172,7 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
                 <h4>Line Source Impedances:</h4>
             </div>
             <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
-                <ReactTable.Table<OpenXDA.Types.SourceImpedance>
+                <Table<OpenXDA.Types.SourceImpedance>
                     TableClass="table table-hover"
                     Data={data}
                     SortKey={sortKey}
@@ -197,7 +197,7 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
                     Selected={(item) => false}
                     KeySelector={(item) => item.ID}
                 >
-                    <ReactTable.Column<OpenXDA.Types.SourceImpedance>
+                    <Column<OpenXDA.Types.SourceImpedance>
                         Key={'AssetLocationID'}
                         AllowSort={true}
                         Field={'AssetLocationID'}
@@ -205,24 +205,24 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
                         RowStyle={{ width: 'auto' }}
                         Content={({ item }) => getLocationName(item)}
                     > Substation
-                    </ReactTable.Column>
-                    <ReactTable.Column<OpenXDA.Types.SourceImpedance>
+                    </Column>
+                    <Column<OpenXDA.Types.SourceImpedance>
                         Key={'RSrc'}
                         AllowSort={true}
                         Field={'RSrc'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                     > R (pu)
-                    </ReactTable.Column>
-                    <ReactTable.Column<OpenXDA.Types.SourceImpedance>
+                    </Column>
+                    <Column<OpenXDA.Types.SourceImpedance>
                         Key={'XSrc'}
                         AllowSort={true}
                         Field={'XSrc'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                     > X (pu)
-                    </ReactTable.Column>
-                    <ReactTable.Column<OpenXDA.Types.SourceImpedance>
+                    </Column>
+                    <Column<OpenXDA.Types.SourceImpedance>
                         Key={'EditDelete'}
                         AllowSort={false}
                         HeaderStyle={{ width: 80, paddingLeft: 0, paddingRight: 5 }}
@@ -245,15 +245,15 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
                                 }}><span>{TrashCan}</span></button>
                         </> }
                     > <p></p>
-                    </ReactTable.Column>
-                </ReactTable.Table>
+                    </Column>
+                </Table>
             </div>
             <div className="card-footer">
                     <div className="btn-group mr-2">
                         <button className={"btn btn-info" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='Source'
                             onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (hasPermissions()) setShowAdd(true); setNewEditImpedance(newImpedance); }}>Add Source Impedance</button>
                     </div>
-                    <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"Source"}>
+                    <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Target={"Source"}>
                         <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                     </ToolTip>
             </div>

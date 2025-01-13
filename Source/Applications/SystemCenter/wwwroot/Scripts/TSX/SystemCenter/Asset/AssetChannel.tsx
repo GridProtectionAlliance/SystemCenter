@@ -25,7 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { PhaseSlice, MeasurmentTypeSlice } from '../Store/Store'
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { useAppSelector } from '../hooks';
 import { LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
@@ -155,7 +155,7 @@ const AssetChannelWindow = (props: IProps) => {
                 </div>
             </div>
             <div className="card-body" style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-                <ReactTable.Table<ChannelDetail>
+                <Table<ChannelDetail>
                     TableClass="table table-hover"
                     Data={assetChannels}
                     SortKey={sortField}
@@ -180,15 +180,15 @@ const AssetChannelWindow = (props: IProps) => {
                     Selected={(item) => false}
                     KeySelector={(item) => item.ID}
                 >
-                    <ReactTable.Column<ChannelDetail>
+                    <Column<ChannelDetail>
                         Key={'Name'}
                         AllowSort={true}
                         Field={'Name'}
                         HeaderStyle={{ width: '15%' }}
                         RowStyle={{ width: '15%' }}
                     > Label
-                    </ReactTable.Column>
-                    <ReactTable.Column<ChannelDetail>
+                    </Column>
+                    <Column<ChannelDetail>
                         Key={'MeterName'}
                         AllowSort={true}
                         Field={'MeterName'}
@@ -196,8 +196,8 @@ const AssetChannelWindow = (props: IProps) => {
                         RowStyle={{ width: '15%' }}
                         Content={(row) => <a href={`${homePath}index.cshtml?name=Meter&MeterID=${row.item.MeterID}&Tab=${row.item.Trend ? "trendChannels" : "eventChannels"}`} target='_blank'>{row.item.MeterName}</a>}
                     > Meter Name
-                    </ReactTable.Column>
-                    <ReactTable.Column<ChannelDetail>
+                    </Column>
+                    <Column<ChannelDetail>
                         Key={'AssetName'}
                         AllowSort={true}
                         Field={'AssetName'}
@@ -208,24 +208,24 @@ const AssetChannelWindow = (props: IProps) => {
                             row.item.AssetName
                         )}
                     > Asset Name
-                    </ReactTable.Column>
-                    <ReactTable.Column<ChannelDetail>
+                    </Column>
+                    <Column<ChannelDetail>
                         Key={'MeasurementType'}
                         AllowSort={true}
                         Field={'MeasurementType'}
                         HeaderStyle={{ width: '8%' }}
                         RowStyle={{ width: '8%' }}
                     > Type
-                    </ReactTable.Column>
-                    <ReactTable.Column<ChannelDetail>
+                    </Column>
+                    <Column<ChannelDetail>
                         Key={'Phase'}
                         AllowSort={true}
                         Field={'Phase'}
                         HeaderStyle={{ width: '8%' }}
                         RowStyle={{ width: '8%' }}
                     > Phase
-                    </ReactTable.Column>
-                    <ReactTable.Column<ChannelDetail>
+                    </Column>
+                    <Column<ChannelDetail>
                         Key={'AssetID'}
                         AllowSort={true}
                         Field={'AssetID'}
@@ -233,16 +233,16 @@ const AssetChannelWindow = (props: IProps) => {
                         RowStyle={{ width: 'auto' }}
                         Content={row => row.item.AssetID !== props.ID ? <ReactIcons.CheckMark Color="green" /> : <></>}
                     > Shared Via Asset Connection
-                    </ReactTable.Column>
-                    <ReactTable.Column<ChannelDetail>
+                    </Column>
+                    <Column<ChannelDetail>
                         Key={'Description'}
                         AllowSort={true}
                         Field={'Description'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                     > Description
-                    </ReactTable.Column>
-                </ReactTable.Table>
+                    </Column>
+                </Table>
             </div>
         </div>
     );

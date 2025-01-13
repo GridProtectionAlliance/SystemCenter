@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-import { ReactTable, Paging } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { Warning, Modal, LoadingScreen, ServerErrorIcon, ToolTip, GenericController } from '@gpa-gemstone/react-interactive';
 import { Warning as WarningIcon } from '@gpa-gemstone/gpa-symbols';
@@ -131,7 +131,7 @@ const MeterMaintenanceWindow = (props: IProps) => {
         cardBody = (
             <>
                 <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-                    <ReactTable.Table<MaintenanceWindow>
+                    <Table<MaintenanceWindow>
                         TableClass="table table-hover"
                         Data={tableData}
                         SortKey={sortKey}
@@ -153,7 +153,7 @@ const MeterMaintenanceWindow = (props: IProps) => {
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
                     >
-                        <ReactTable.Column<MaintenanceWindow>
+                        <Column<MaintenanceWindow>
                             Key={'StartTime'}
                             AllowSort={true}
                             Field={'StartTime'}
@@ -161,8 +161,8 @@ const MeterMaintenanceWindow = (props: IProps) => {
                             RowStyle={{ width: 'auto' }}
                             Content={({ item }) => item.StartTime ? moment(item.StartTime, defaultFormat).format('MM/DD/YYYY hh:mm A') : 'This window starts at meter creation'}
                         > Start Window Time
-                        </ReactTable.Column>
-                        <ReactTable.Column<MaintenanceWindow>
+                        </Column>
+                        <Column<MaintenanceWindow>
                             Key={'EndTime'}
                             AllowSort={true}
                             Field={'EndTime'}
@@ -170,8 +170,8 @@ const MeterMaintenanceWindow = (props: IProps) => {
                             RowStyle={{ width: 'auto' }}
                             Content={({ item }) => item.EndTime ? moment(item.EndTime, defaultFormat).format('MM/DD/YYYY hh:mm A') : 'This window has no end time'}
                         > End Window Time
-                        </ReactTable.Column>
-                        <ReactTable.Column<MaintenanceWindow>
+                        </Column>
+                        <Column<MaintenanceWindow>
                             Key={'EditDelete'}
                             AllowSort={false}
                             HeaderStyle={{ width: 80, paddingLeft: 0, paddingRight: 5 }}
@@ -191,8 +191,8 @@ const MeterMaintenanceWindow = (props: IProps) => {
                                     }}><span>{TrashCan}</span></button>
                             </>}
                         > <p></p>
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                     <LoadingScreen Show={pageState == 'loading'} />
                     <ServerErrorIcon Show={pageState == 'error'} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
                     <div className="row">
@@ -230,7 +230,7 @@ const MeterMaintenanceWindow = (props: IProps) => {
                                 if (hasPermissions()) setShowEditNew(true);
                             }}>Add New Window</button>
                         </div>
-                        <ToolTip Show={hover == 'Add' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"NewWindow"}>
+                        <ToolTip Show={hover == 'Add' && !hasPermissions()} Position={'top'} Target={"NewWindow"}>
                             <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                         </ToolTip>
                     </div>

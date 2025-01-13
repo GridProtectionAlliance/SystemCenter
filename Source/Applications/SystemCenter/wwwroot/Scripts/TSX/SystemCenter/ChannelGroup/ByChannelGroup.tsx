@@ -25,7 +25,7 @@ import * as React from 'react';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { ChannelGroupSlice, ChannelGroupDetailsSlice, ChannelGroupViewSlice } from '../Store/Store';
 import { SystemCenter as LocalSC } from '../global';
-import { ReactTable } from '@gpa-gemstone/react-table'
+import { Table, Column } from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
@@ -114,7 +114,7 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
             </SearchBar>
 
             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                <ReactTable.Table<LocalSC.ChannelGroupView>
+                <Table<LocalSC.ChannelGroupView>
                     TableClass="table table-hover"
                     Data={data}
                     SortKey={sortField}
@@ -133,31 +133,31 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
                     Selected={(item) => false}
                     KeySelector={(item) => item.ID}
                 >
-                    <ReactTable.Column<LocalSC.ChannelGroupView>
+                    <Column<LocalSC.ChannelGroupView>
                         Key={'Name'}
                         AllowSort={true}
                         Field={'Name'}
                         HeaderStyle={{ width: '15%' }}
                         RowStyle={{ width: '15%' }}
                     > Name
-                    </ReactTable.Column>
-                    <ReactTable.Column<LocalSC.ChannelGroupView>
+                    </Column>
+                    <Column<LocalSC.ChannelGroupView>
                         Key={'Description'}
                         AllowSort={true}
                         Field={'Description'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                     > Description
-                    </ReactTable.Column>
-                    <ReactTable.Column<LocalSC.ChannelGroupView>
+                    </Column>
+                    <Column<LocalSC.ChannelGroupView>
                         Key={'ItemCount'}
                         AllowSort={true}
                         Field={'ItemCount'}
                         HeaderStyle={{ width: '10%' }}
                         RowStyle={{ width: '10%' }}
                     > Items
-                    </ReactTable.Column>
-                </ReactTable.Table>
+                    </Column>
+                </Table>
             </div>
 
             <Modal Title={'Add New Channel Group'}

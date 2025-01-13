@@ -28,8 +28,7 @@ import CFGParser from '../../../TS/CFGParser';
 import { Input, Select, TextArea } from '@gpa-gemstone/react-forms';
 import { Modal, ToolTip, Warning, ServerErrorIcon, BtnDropdown } from '@gpa-gemstone/react-interactive';
 import PARParser from '../../../TS/PARParser';
-import { ConfigTable } from '@gpa-gemstone/react-interactive';
-import { ReactTable } from '@gpa-gemstone/react-table'
+import { ConfigurableTable, ConfigurableColumn, Column } from '@gpa-gemstone/react-table';
 import { TrashCan } from '@gpa-gemstone/gpa-symbols';
 import ChannelScalingForm from '../Meter/ChannelScaling/ChannelScalingForm';
 import { MeasurementCharacteristicSlice, MeasurmentTypeSlice, PhaseSlice } from '../Store/Store';
@@ -481,7 +480,7 @@ export default function ChannelPage(props: IProps) {
             </div> : null}
             <div className={'row'} style={{ flex: 1, overflow: 'hidden' }}>
                 <div className={'col-12'} style={{ height: '100%', overflow: 'hidden' }}>
-                    <ConfigTable.Table<OpenXDA.Types.Channel>
+                    <ConfigurableTable<OpenXDA.Types.Channel>
                         LocalStorageKey="ChannelPageConfigTable"
                         TableClass="table table-hover"
                         Data={currentChannels}
@@ -500,8 +499,9 @@ export default function ChannelPage(props: IProps) {
                             setSortKey(d.colKey);
                         }}
                     >
-                        <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
+                        <Column<OpenXDA.Types.Channel>
                             Key={'Name'}
+                            Adjustable={true}
                             AllowSort={true}
                             Field={'Name'}
                             HeaderStyle={{width: 'auto'}}
@@ -509,10 +509,11 @@ export default function ChannelPage(props: IProps) {
                             Content={({ item }) => <Input<OpenXDA.Types.Channel> Field={'Name'}
                                 Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />}
                         > Label
-                        </ReactTable.AdjustableColumn>
-                        <ConfigTable.Configurable Key='Series' Label='Channel' Default={true}>
-                            <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
+                        </Column>
+                        <ConfigurableColumn Key='Series' Label='Channel' Default={true}>
+                            <Column<OpenXDA.Types.Channel>
                                 Key={'Series'}
+                                Adjustable={true}
                                 AllowSort={true}
                                 HeaderStyle={{width: 'auto'}}
                                 RowStyle={{width: 'auto'}}
@@ -522,21 +523,23 @@ export default function ChannelPage(props: IProps) {
                                         editChannel(item)
                                     }} Label={''} Valid={() => true} />}
                             > Identifier
-                            </ReactTable.AdjustableColumn>
-                        </ConfigTable.Configurable>
-                        <ConfigTable.Configurable Key='MeasurementType' Label='Type' Default={false}>
-                            <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
+                            </Column>
+                        </ConfigurableColumn>
+                        <ConfigurableColumn Key='MeasurementType' Label='Type' Default={false}>
+                            <Column<OpenXDA.Types.Channel>
                                 Key={'MeasurementType'}
+                                Adjustable={true}
                                 HeaderStyle={{width: 'auto'}}
                                 RowStyle={{width: 'auto'}}
                                 Content={({ item }) => <Select<OpenXDA.Types.Channel> Field={'MeasurementType'}
                                 Record={item} Setter={(ch) => editChannel(ch)} Label={''}
                                     Options={measurementTypes.map((t) => ({ Value: t.Name, Label: t.Name }))} />}>
                             Type
-                            </ReactTable.AdjustableColumn>
-                        </ConfigTable.Configurable>
-                        <ConfigTable.Configurable Key='MeasurementCharacteristic' Label='Characteristic' Default={false}>
-                            <ReactTable.AdjustableColumn<OpenXDA.Types.Channel> Key={'MeasurementCharacteristic'}
+                            </Column>
+                        </ConfigurableColumn>
+                        <ConfigurableColumn Key='MeasurementCharacteristic' Label='Characteristic' Default={false}>
+                            <Column<OpenXDA.Types.Channel> Key={'MeasurementCharacteristic'}
+                                Adjustable={true}
                                 HeaderStyle={{width: 'auto'}}
                                 RowStyle={{width: 'auto'}}
                                 Content={({ item }) => <Select<OpenXDA.Types.Channel>
@@ -544,81 +547,88 @@ export default function ChannelPage(props: IProps) {
                                     Setter={(ch) => editChannel(ch)} Label={''}
                                     Options={measurementCharateristics.map((t) => ({ Value: t.Name, Label: t.Name }))}/>}>
                                 Characteristic
-                            </ReactTable.AdjustableColumn>
-                        </ConfigTable.Configurable>
-                        <ConfigTable.Configurable Key='Phase' Label='Phase' Default={true}>
-                            <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
+                            </Column>
+                        </ConfigurableColumn>
+                        <ConfigurableColumn Key='Phase' Label='Phase' Default={true}>
+                            <Column<OpenXDA.Types.Channel>
                                 Key={'Phase'}
+                                Adjustable={true}
                                 HeaderStyle={{width: 'auto'}}
                                 RowStyle={{width: 'auto'}}
                                 Content={({ item }) => <Select<OpenXDA.Types.Channel> Field={'Phase'}
                                     Record={item} Setter={(ch) => editChannel(ch)} Label={''}
                                     Options={phases.map((t) => ({ Value: t.Name, Label: t.Name }))} />}>
                                     Phase
-                            </ReactTable.AdjustableColumn>
-                        </ConfigTable.Configurable>
-                        <ConfigTable.Configurable Key='SamplesPerHour' Label='Sampling Rate' Default={false}>
-                            <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
+                            </Column>
+                        </ConfigurableColumn>
+                        <ConfigurableColumn Key='SamplesPerHour' Label='Sampling Rate' Default={false}>
+                            <Column<OpenXDA.Types.Channel>
                                 Key={'SamplesPerHour'}
+                                Adjustable={true}
                                 HeaderStyle={{width: 'auto'}}
                                 RowStyle={{width: 'auto'}}
                                 Content={({ item }) => <Input<OpenXDA.Types.Channel>
                                     Field={'SamplesPerHour'} Type={'number'} Record={item} Valid={() => true}
                                     Setter={(ch) => editChannel(ch)} Label={''} />}>
                                 Sampling Rate (sph)
-                            </ReactTable.AdjustableColumn>
-                        </ConfigTable.Configurable>
-                        <ConfigTable.Configurable Key='PerUnitValue' Label='Per Unit' Default={false}>
-                            <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
+                            </Column>
+                        </ConfigurableColumn>
+                        <ConfigurableColumn Key='PerUnitValue' Label='Per Unit' Default={false}>
+                            <Column<OpenXDA.Types.Channel>
                                 Key={'PerUnitValue'}
+                                Adjustable={true}
                                 HeaderStyle={{width: 'auto'}}
                                 RowStyle={{width: 'auto'}}
                                 Content={({ item }) => <Input<OpenXDA.Types.Channel> Field={'PerUnitValue'} Type={'number'} Record={item}
                                     Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />}>
                                 Per Unit
-                            </ReactTable.AdjustableColumn>
-                        </ConfigTable.Configurable >
-                        <ConfigTable.Configurable Key='HarmonicGroup' Label='Harmonic' Default={false}>
-                            <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
+                            </Column>
+                        </ConfigurableColumn >
+                        <ConfigurableColumn Key='HarmonicGroup' Label='Harmonic' Default={false}>
+                            <Column<OpenXDA.Types.Channel>
                                 Key={'HarmonicGroup'}
+                                Adjustable={true}
                                 HeaderStyle={{width: 'auto'}}
                                 RowStyle={{width: 'auto'}}
                                 Content={({ item }) => <Input<OpenXDA.Types.Channel> Field={'HarmonicGroup'}
                                     Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />}>
                                 Harmonic
-                            </ReactTable.AdjustableColumn>
-                        </ConfigTable.Configurable >
-                        <ConfigTable.Configurable Key='Adder' Label='Adder' Default={true}>
-                            <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
+                            </Column>
+                        </ConfigurableColumn >
+                        <ConfigurableColumn Key='Adder' Label='Adder' Default={true}>
+                            <Column<OpenXDA.Types.Channel>
                                 Key={'Adder'}
+                                Adjustable={true}
                                 HeaderStyle={{width: 'auto'}}
                                 RowStyle={{width: 'auto'}}
                                 Content={({ item }) => <Input<OpenXDA.Types.Channel> Field={'Adder'} Type={'number'}
                                     Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />}>
                                 Adder
-                            </ReactTable.AdjustableColumn>
-                        </ConfigTable.Configurable >
-                        <ConfigTable.Configurable Key='Multiplier' Label='Multiplier' Default={true}>
-                            <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
+                            </Column>
+                        </ConfigurableColumn >
+                        <ConfigurableColumn Key='Multiplier' Label='Multiplier' Default={true}>
+                            <Column<OpenXDA.Types.Channel>
                                 Key={'Multiplier'}
+                                Adjustable={true}
                                 HeaderStyle={{width: 'auto'}}
                                 RowStyle={{width: 'auto'}}
                                 Content={({ item }) => <Input<OpenXDA.Types.Channel> Field={'Multiplier'}
                                     Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />}>
                                 Multiplier
-                            </ReactTable.AdjustableColumn>
-                        </ConfigTable.Configurable >
-                        <ConfigTable.Configurable Key='Description' Label='Description' Default={true}>
-                            <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
+                            </Column>
+                        </ConfigurableColumn>
+                        <ConfigurableColumn Key='Description' Label='Description' Default={true}>
+                            <Column<OpenXDA.Types.Channel>
                                 Key={'Description'}
+                                Adjustable={true}
                                 HeaderStyle={{width: 'auto'}}
                                 RowStyle={{width: 'auto'}}
                                 Content={({ item }) => <TextArea<OpenXDA.Types.Channel> Field={'Description'}
                                     Rows={2} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />}>
                                 Description
-                            </ReactTable.AdjustableColumn>
-                        </ConfigTable.Configurable >
-                        <ReactTable.Column<OpenXDA.Types.Channel>
+                            </Column>
+                        </ConfigurableColumn >
+                        <Column<OpenXDA.Types.Channel>
                             Key={'DeleteButton'}
                             AllowSort={false}
                             Content={({ index }) => <button className="btn btn-sm"
@@ -626,8 +636,8 @@ export default function ChannelPage(props: IProps) {
                             RowStyle={{ width: '62px', paddingTop: 36, paddingBottom: 36 }}
                         >
                             <p></p>
-                        </ReactTable.Column>
-                    </ConfigTable.Table>
+                        </Column>
+                    </ConfigurableTable>
             </div>
         </div>
             <Warning Show={showCFGError} Title={'Error Parsing File'} Message={`File type not supported. Please select a file of the following types: ${allTypes}. Note COMTRADE files for trending data are automatically ingested using the event channels and can not be uploaded in the wizard.`} CallBack={() => setShowCFGError(false)} />
