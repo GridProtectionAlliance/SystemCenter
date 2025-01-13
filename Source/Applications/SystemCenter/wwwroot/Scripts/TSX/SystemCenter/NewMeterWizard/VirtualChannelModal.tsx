@@ -25,8 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { Modal } from '@gpa-gemstone/react-interactive';
-import { ConfigTable } from '@gpa-gemstone/react-interactive';
-import { ReactTable } from '@gpa-gemstone/react-table'
+import { ConfigurableTable, ConfigurableColumn, Column } from '@gpa-gemstone/react-table'
 import { Input } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 
@@ -209,7 +208,7 @@ export default function VirtualChannelModal(props: IProps) {
             <div style={{height: 'calc(-250px + 100vh)'}}>
                 <div className='row' style={{height: '50%', overflowY: 'auto'}}>
                     <div className={'col-12 h-100 px-0'}>
-                        <ConfigTable.Table<OpenXDA.Types.Channel>
+                        <ConfigurableTable<OpenXDA.Types.Channel>
                             // LocalStorageKey='ChannelPageConfigTable'
                             Data={props.CurrentChannels}
                             SortKey={props.SortKey}
@@ -228,102 +227,113 @@ export default function VirtualChannelModal(props: IProps) {
                                 }
                             }}
                         >
-                            <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
+                            <Column<OpenXDA.Types.Channel>
                                 Key={'Name'}
                                 AllowSort={true}
+                                Adjustable={true}
                                 Field={'Name'}
                                 HeaderStyle={{ maxWidth: 'auto' }}
                                 >Label
-                            </ReactTable.AdjustableColumn>
-                            <ConfigTable.Configurable Key='Series' Label='Identifier' Default={true}>
-                                <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
+                            </Column>
+                            <ConfigurableColumn Key='Series' Label='Identifier' Default={true}>
+                                <Column<OpenXDA.Types.Channel>
                                     Key={'Series'}
                                     Field='Series' 
                                     AllowSort={true}
+                                    Adjustable={true}
                                     HeaderStyle={{ maxWidth: 'auto' }}
                                     Content={({ item }) => item.Series[0].SourceIndexes}
                                     >Identifier
-                                </ReactTable.AdjustableColumn>
-                            </ConfigTable.Configurable>
-                            <ConfigTable.Configurable Key='MeasurementType' Label='Type' Default={true}>
-                                <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
+                                </Column>
+                            </ConfigurableColumn>
+                            <ConfigurableColumn Key='MeasurementType' Label='Type' Default={true}>
+                                <Column<OpenXDA.Types.Channel>
                                     Key={'MeasurementType'}
                                     AllowSort={true}
+                                    Adjustable={true}
                                     HeaderStyle={{ maxWidth: 'auto' }}
                                     Field={'MeasurementType'}
                                     >Type
-                                </ReactTable.AdjustableColumn>
-                            </ConfigTable.Configurable>
-                            <ConfigTable.Configurable Key='MeasurementCharacteristic' Label='Characteristic' Default={false}>
-                                <ReactTable.AdjustableColumn<OpenXDA.Types.Channel> Key={'MeasurementCharacteristic'}
+                                </Column>
+                            </ConfigurableColumn>
+                            <ConfigurableColumn Key='MeasurementCharacteristic' Label='Characteristic' Default={false}>
+                                <Column<OpenXDA.Types.Channel> Key={'MeasurementCharacteristic'}
                                     HeaderStyle={{ maxWidth: 'auto' }}
+                                    Adjustable={true}
                                     Field={'MeasurementCharacteristic'}
                                 >Characteristic
-                                </ReactTable.AdjustableColumn>
-                            </ConfigTable.Configurable>
-                            <ConfigTable.Configurable Key='Phase' Label='Phase' Default={true}>
-                                <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
+                                </Column>
+                            </ConfigurableColumn>
+                            <ConfigurableColumn Key='Phase' Label='Phase' Default={true}>
+                                <Column<OpenXDA.Types.Channel>
                                     Key={'Phase'}
                                     HeaderStyle={{ maxWidth: 'auto' }}
                                     AllowSort={true}
+                                    Adjustable={true}
                                     Field={'Phase'}
                                 >Phase
-                                </ReactTable.AdjustableColumn>
-                            </ConfigTable.Configurable>
-                            <ConfigTable.Configurable Key='SamplesPerHour' Label='Sampling Rate' Default={false}>
-                                <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
+                                </Column>
+                            </ConfigurableColumn>
+                            <ConfigurableColumn Key='SamplesPerHour' Label='Sampling Rate' Default={false}>
+                                <Column<OpenXDA.Types.Channel>
                                     Key={'SamplesPerHour'}
                                     HeaderStyle={{ maxWidth: 'auto' }}
                                     AllowSort={true}
+                                    Adjustable={true}
                                     Field={'SamplesPerHour'}
                                 >Sampling Rate (sph)
-                                </ReactTable.AdjustableColumn>
-                            </ConfigTable.Configurable>
-                            <ConfigTable.Configurable Key='PerUnitValue' Label='Per Unit' Default={false}>
-                                <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
+                                </Column>
+                            </ConfigurableColumn>
+                            <ConfigurableColumn Key='PerUnitValue' Label='Per Unit' Default={false}>
+                                <Column<OpenXDA.Types.Channel>
                                     Key={'PerUnitValue'}
                                     HeaderStyle={{ maxWidth: 'auto' }}
                                     AllowSort={true}
+                                    Adjustable={true}
                                     Field={'PerUnitValue'}
                                 >Per Unit
-                                </ReactTable.AdjustableColumn>
-                            </ConfigTable.Configurable >
-                            <ConfigTable.Configurable Key='HarmonicGroup' Label='Harmonic' Default={false}>
-                                <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
+                                </Column>
+                            </ConfigurableColumn >
+                            <ConfigurableColumn Key='HarmonicGroup' Label='Harmonic' Default={false}>
+                                <Column<OpenXDA.Types.Channel>
                                     Key={'HarmonicGroup'}
                                     HeaderStyle={{ maxWidth: 'auto' }}
                                     AllowSort={true}
+                                    Adjustable={true}
                                     Field={'HarmonicGroup'}
                                 >Harmonic
-                                </ReactTable.AdjustableColumn>
-                            </ConfigTable.Configurable >
-                            <ConfigTable.Configurable Key='Adder' Label='Adder' Default={false}>
-                                <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
+                                </Column>
+                            </ConfigurableColumn >
+                            <ConfigurableColumn Key='Adder' Label='Adder' Default={false}>
+                                <Column<OpenXDA.Types.Channel>
                                     Key={'Adder'}
                                     HeaderStyle={{ maxWidth: 'auto' }}
                                     AllowSort={true}
+                                    Adjustable={true}
                                     Field={'Adder'}
                                 >Adder
-                                </ReactTable.AdjustableColumn>
-                            </ConfigTable.Configurable >
-                            <ConfigTable.Configurable Key='Multiplier' Label='Multiplier' Default={false}>
-                                <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
+                                </Column>
+                            </ConfigurableColumn >
+                            <ConfigurableColumn Key='Multiplier' Label='Multiplier' Default={false}>
+                                <Column<OpenXDA.Types.Channel>
                                     Key={'Multiplier'}
                                     HeaderStyle={{ maxWidth: 'auto' }}
                                     AllowSort={true}
+                                    Adjustable={true}
                                     Field={'Multiplier'}
                                 >Multiplier
-                                </ReactTable.AdjustableColumn>
-                            </ConfigTable.Configurable >
-                            <ConfigTable.Configurable Key='Description' Label='Description' Default={true}>
-                                <ReactTable.AdjustableColumn<OpenXDA.Types.Channel>
+                                </Column>
+                            </ConfigurableColumn >
+                            <ConfigurableColumn Key='Description' Label='Description' Default={true}>
+                                <Column<OpenXDA.Types.Channel>
                                     Key={'Description'}
+                                    Adjustable={true}
                                     HeaderStyle={{ maxWidth: 'auto' }}
                                     Field={'Description'}
                                 >Description
-                                </ReactTable.AdjustableColumn>
-                            </ConfigTable.Configurable>
-                        </ConfigTable.Table>
+                                </Column>
+                            </ConfigurableColumn>
+                        </ConfigurableTable>
                     </div>
                 </div>
                 <div className={'row justify-content-center pt-3 pr-2'} style={{ maxHeight: '50%', overflow: 'auto'}}>

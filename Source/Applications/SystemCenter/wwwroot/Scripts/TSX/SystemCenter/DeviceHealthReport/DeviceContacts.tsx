@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { SystemCenter } from '../global';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
 import { useAppSelector } from '../hooks';
@@ -81,7 +81,7 @@ function DeviceContacts(props: {ID: string, Name: string, Field: 'TSC' | 'Sector
                     }}>Select All</button>
                 </div>
             </div>
-            <ReactTable.Table<UserAccount>
+            <Table<UserAccount>
                 TableClass="table table-hover"
                 Data={data}
                 SortKey={sortKey}
@@ -105,31 +105,31 @@ function DeviceContacts(props: {ID: string, Name: string, Field: 'TSC' | 'Sector
                 Selected={(item) => false}
                 KeySelector={(item) => item.ID}
             >
-                <ReactTable.Column<UserAccount>
+                <Column<UserAccount>
                     Key={'Selected'}
                     AllowSort={true}
                     HeaderStyle={{ width: '5%' }}
                     RowStyle={{ width: '5%' }}
                     Content={({ item }) => item.Selected ? <span>{HeavyCheckMark}</span> : ''}
                 > <p></p>
-                </ReactTable.Column>
-                <ReactTable.Column<UserAccount>
+                </Column>
+                <Column<UserAccount>
                     Key={'FirstName'}
                     AllowSort={true}
                     Field={'FirstName'}
                     HeaderStyle={{ width: '10%' }}
                     RowStyle={{ width: '10%' }}
                 > First Name
-                </ReactTable.Column>
-                <ReactTable.Column<UserAccount>
+                </Column>
+                <Column<UserAccount>
                     Key={'LastName'}
                     AllowSort={true}
                     Field={'LastName'}
                     HeaderStyle={{ width: '10%' }}
                     RowStyle={{ width: '10%' }}
                 > Last Name
-                </ReactTable.Column>
-                <ReactTable.Column<UserAccount>
+                </Column>
+                <Column<UserAccount>
                     Key={'Email'}
                     AllowSort={true}
                     Field={'Email'}
@@ -137,16 +137,16 @@ function DeviceContacts(props: {ID: string, Name: string, Field: 'TSC' | 'Sector
                     RowStyle={{ width: '15%' }}
                     Content={({ item, key }) => <a href={`mailto:${item[key]}`}>{item[key]}</a>}
                 > Email
-                </ReactTable.Column>
-                <ReactTable.Column<UserAccount>
+                </Column>
+                <Column<UserAccount>
                     Key={'Phone'}
                     AllowSort={true}
                     Field={'Phone'}
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
                 > Phone
-                </ReactTable.Column>
-            </ReactTable.Table>
+                </Column>
+            </Table>
         </div>
 
     )

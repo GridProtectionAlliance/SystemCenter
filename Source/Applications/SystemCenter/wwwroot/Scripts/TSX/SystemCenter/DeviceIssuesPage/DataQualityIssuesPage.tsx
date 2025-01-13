@@ -28,7 +28,7 @@
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { SystemCenter as SC } from '../global';
 import * as React from 'react';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import moment from 'moment';
 import { GenericController } from '@gpa-gemstone/react-interactive';
@@ -69,7 +69,7 @@ function DataQualityIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
             </div>
         </div>
         <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
-            <ReactTable.Table<SC.MeterDataQualitySummary>
+            <Table<SC.MeterDataQualitySummary>
                 TableClass="table table-hover"
                 Data={data}
                 SortKey={sortField}
@@ -93,7 +93,7 @@ function DataQualityIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                 Selected={(item) => false}
                 KeySelector={(item) => item.ID}
             >
-                <ReactTable.Column<SC.MeterDataQualitySummary>
+                <Column<SC.MeterDataQualitySummary>
                     Key={'Date'}
                     AllowSort={true}
                     Field={'Date'}
@@ -101,56 +101,56 @@ function DataQualityIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                     RowStyle={{ width: 'auto', textAlign: 'left' }}
                     Content={({ item, key }) => moment(item[key], "YYYY-MM-DDTHH:mm:ss").format("MM/DD/YYYY") }
                 > Date
-                </ReactTable.Column>
-                <ReactTable.Column<SC.MeterDataQualitySummary>
+                </Column>
+                <Column<SC.MeterDataQualitySummary>
                     Key={'ExpectedPoints'}
                     AllowSort={true}
                     Field={'ExpectedPoints'}
                     HeaderStyle={{ width: '15%' }}
                     RowStyle={{ width: '15%' }}
                 > Expected Points
-                </ReactTable.Column>
-                <ReactTable.Column<SC.MeterDataQualitySummary>
+                </Column>
+                <Column<SC.MeterDataQualitySummary>
                     Key={'GoodPoints'}
                     AllowSort={true}
                     Field={'GoodPoints'}
                     HeaderStyle={{ width: '15%' }}
                     RowStyle={{ width: '15%' }}
                 > Good Points
-                </ReactTable.Column>
-                <ReactTable.Column<SC.MeterDataQualitySummary>
+                </Column>
+                <Column<SC.MeterDataQualitySummary>
                     Key={'LatchedPoints'}
                     AllowSort={true}
                     Field={'LatchedPoints'}
                     HeaderStyle={{ width: '15%' }}
                     RowStyle={{ width: '15%' }}
                 > Latched Points
-                </ReactTable.Column>
-                <ReactTable.Column<SC.MeterDataQualitySummary>
+                </Column>
+                <Column<SC.MeterDataQualitySummary>
                     Key={'UnreasonablePoints'}
                     AllowSort={true}
                     Field={'UnreasonablePoints'}
                     HeaderStyle={{ width: '15%' }}
                     RowStyle={{ width: '15%' }}
                 > Unreasonable Points
-                </ReactTable.Column>
-                <ReactTable.Column<SC.MeterDataQualitySummary>
+                </Column>
+                <Column<SC.MeterDataQualitySummary>
                     Key={'NoncongruentPoints'}
                     AllowSort={true}
                     Field={'NoncongruentPoints'}
                     HeaderStyle={{ width: '15%' }}
                     RowStyle={{ width: '15%' }}
                 > Noncongruent Points
-                </ReactTable.Column>
-                <ReactTable.Column<SC.MeterDataQualitySummary>
+                </Column>
+                <Column<SC.MeterDataQualitySummary>
                     Key={'DuplicatePoints'}
                     AllowSort={true}
                     Field={'DuplicatePoints'}
                     HeaderStyle={{ width: '15%' }}
                     RowStyle={{ width: '15%' }}
                 > Duplicate Points
-                </ReactTable.Column>
-            </ReactTable.Table>
+                </Column>
+            </Table>
         </div>
     </div>
 }

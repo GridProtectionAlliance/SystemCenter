@@ -406,7 +406,7 @@ function AssetInfoWindow(props: IProps) {
             <div className="btn-group mr-2">
                 <button className={"btn btn-primary" + (errors.length == 0 && addlFieldErrorAsset.length === 0 && addlFieldErrorType.length === 0 && hasChanged ? '' : ' disabled')} type="submit" onClick={() => { if (errors.length == 0 && addlFieldErrorAsset.length === 0 && addlFieldErrorType.length === 0 && hasChanged) return SaveChanges(); }} data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
             </div>
-            <ToolTip Show={(errors.length > 0 || addlFieldErrorAsset.length > 0 || addlFieldErrorType.length > 0 || !hasChanged) && hover == 'submit'} Position={'top'} Theme={'dark'} Target={"submit"}>
+            <ToolTip Show={(errors.length > 0 || addlFieldErrorAsset.length > 0 || addlFieldErrorType.length > 0 || !hasChanged) && hover == 'submit'} Position={'top'} Target={"submit"}>
                 {!hasChanged && hasPermissions()? <p> No changes made.</p> : null}
                 {!hasPermissions() ? <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p> : null}
                 {errors.map((t, i) => <p key={i}>
@@ -426,7 +426,7 @@ function AssetInfoWindow(props: IProps) {
                     if (resetAddlType.current !== undefined) resetAddlType.current();
                 }} onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')} >Clear Changes</button>
             </div>
-            <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Theme={'dark'} Target={"clear"}>
+            <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Target={"clear"}>
                 {changedFields().map((t, i) => <p key={i}> <ReactIcons.Warning /> Changes to {t} will be discarded.</p>)}
                 {addlFieldErrorAsset.map((t, i) => <p key={`a_${i}`}>
                     <ReactIcons.Warning /> {t}

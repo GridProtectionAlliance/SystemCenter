@@ -27,7 +27,7 @@ import { OpenXDA as LocalXDA } from '../global';
 import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { CustomerAssetSlice } from '../Store/Store'
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { LoadingIcon, ServerErrorIcon, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
 import AssetSelect from '../Asset/AssetSelect';
@@ -124,7 +124,7 @@ const CustomerAssetWindow = (props: IProps) => {
         </div>
         <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
             <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-                <ReactTable.Table<LocalXDA.CustomerAsset>
+                <Table<LocalXDA.CustomerAsset>
                     TableClass="table table-hover"
                     Data={data}
                     SortKey={sortField}
@@ -141,39 +141,39 @@ const CustomerAssetWindow = (props: IProps) => {
                     Selected={(item) => false}
                     KeySelector={(item) => item.ID}
                 >
-                    <ReactTable.Column<LocalXDA.CustomerAsset>
+                    <Column<LocalXDA.CustomerAsset>
                         Key={'AssetKey'}
                         AllowSort={true}
                         Field={'AssetKey'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                     > Key
-                    </ReactTable.Column>
-                    <ReactTable.Column<LocalXDA.CustomerAsset>
+                    </Column>
+                    <Column<LocalXDA.CustomerAsset>
                         Key={'AssetName'}
                         AllowSort={true}
                         Field={'AssetName'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                     > Name
-                    </ReactTable.Column>
-                    <ReactTable.Column<LocalXDA.CustomerAsset>
+                    </Column>
+                    <Column<LocalXDA.CustomerAsset>
                         Key={'AssetType'}
                         AllowSort={true}
                         Field={'AssetType'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                     > Type
-                    </ReactTable.Column>
-                    <ReactTable.Column<LocalXDA.CustomerAsset>
+                    </Column>
+                    <Column<LocalXDA.CustomerAsset>
                         Key={'Remove'}
                         AllowSort={false}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                         Content={({ item }) => <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => { if (hasPermissions()) setRemoveRecord(item) }}><span>{TrashCan}</span></button> }
                     > <p></p>
-                    </ReactTable.Column>
-                </ReactTable.Table>
+                    </Column>
+                </Table>
             </div>
         </div>
         <div className="card-footer">
@@ -183,7 +183,7 @@ const CustomerAssetWindow = (props: IProps) => {
                         setShowAdd(true);
                 }}>Add Asset</button>
             </div>
-                <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"AssignedAssets"}>
+                <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Target={"AssignedAssets"}>
                     <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                 </ToolTip>
         </div>

@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { ReactTable } from '@gpa-gemstone/react-table'
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { Warning, LoadingScreen } from '@gpa-gemstone/react-interactive';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { OpenXDA as OpenXDAGlobal } from '../../global';
@@ -388,7 +388,7 @@ function DataRescueTable(props: {
     const renderChannelAdjustments = (item: OpenXDAGlobal.DataRescueOperation) => <>{item.ChannelAdjustments.length}</>;
 
     return (
-        <ReactTable.Table<OpenXDAGlobal.DataRescueOperation>
+        <Table<OpenXDAGlobal.DataRescueOperation>
             TableClass="table table-hover"
             Data={props.DataRescueOperations}
             SortKey={"None"}
@@ -402,7 +402,7 @@ function DataRescueTable(props: {
             Selected={(item) => false}
             KeySelector={(item) => item.ID}
         >
-            <ReactTable.Column<OpenXDAGlobal.DataRescueOperation>
+            <Column<OpenXDAGlobal.DataRescueOperation>
                 Key={'StartTime'}
                 AllowSort={false}
                 Field={'StartTime'}
@@ -410,8 +410,8 @@ function DataRescueTable(props: {
                 RowStyle={{ width: '25%' }}
                 Content={({ item }) => renderStartTime(item)}
             > Start
-            </ReactTable.Column>
-            <ReactTable.Column<OpenXDAGlobal.DataRescueOperation>
+            </Column>
+            <Column<OpenXDAGlobal.DataRescueOperation>
                 Key={'EndTime'}
                 AllowSort={false}
                 Field={'EndTime'}
@@ -419,8 +419,8 @@ function DataRescueTable(props: {
                 RowStyle={{ width: '25%' }}
                 Content={({ item }) => renderEndTime(item)}
             > End
-            </ReactTable.Column>
-            <ReactTable.Column<OpenXDAGlobal.DataRescueOperation>
+            </Column>
+            <Column<OpenXDAGlobal.DataRescueOperation>
                 Key={'TimeShift'}
                 AllowSort={false}
                 Field={'TimeShift'}
@@ -428,8 +428,8 @@ function DataRescueTable(props: {
                 RowStyle={{ width: '25%' }}
                 Content={({ item }) => renderTimeShift(item)}
             > Time Shift
-            </ReactTable.Column>
-            <ReactTable.Column<OpenXDAGlobal.DataRescueOperation>
+            </Column>
+            <Column<OpenXDAGlobal.DataRescueOperation>
                 Key={'ChannelAdjustments'}
                 AllowSort={false}
                 Field={'ChannelAdjustments'}
@@ -437,8 +437,8 @@ function DataRescueTable(props: {
                 RowStyle={{ width: '25%' }}
                 Content={({ item }) => renderChannelAdjustments(item)}
             > Channel Adjustments
-            </ReactTable.Column>
-        </ReactTable.Table>
+            </Column>
+        </Table>
     );
 }
 
@@ -666,7 +666,7 @@ function ChannelAdjustmentTable(props: {
     }
 
     return (
-        <ReactTable.Table<OpenXDAGlobal.DataRescueChannelAdjustment>
+        <Table<OpenXDAGlobal.DataRescueChannelAdjustment>
             TableClass="table table-hover"
             Data={channelAdjustments}
             SortKey={"None"}
@@ -679,15 +679,15 @@ function ChannelAdjustmentTable(props: {
             Selected={(item) => false}
             KeySelector={(item) => item.ID}
         >
-            <ReactTable.Column<OpenXDAGlobal.DataRescueChannelAdjustment>
+            <Column<OpenXDAGlobal.DataRescueChannelAdjustment>
                 Key={'Channel'}
                 AllowSort={false}
                 Field={'Channel'}
                 HeaderStyle={{ width: 'auto', cursor: 'initial' }}
                 RowStyle={{ width: 'auto', cursor: 'initial' }}
             > Channel
-            </ReactTable.Column>
-            <ReactTable.Column<OpenXDAGlobal.DataRescueChannelAdjustment>
+            </Column>
+            <Column<OpenXDAGlobal.DataRescueChannelAdjustment>
                 Key={'Adder'}
                 AllowSort={false}
                 Field={'Adder'}
@@ -695,8 +695,8 @@ function ChannelAdjustmentTable(props: {
                 RowStyle={{ width: '15rem', cursor: 'initial' }}
                 Content={({ item }) => renderAdderInput(item)}
             > Adder
-            </ReactTable.Column>
-            <ReactTable.Column<OpenXDAGlobal.DataRescueChannelAdjustment>
+            </Column>
+            <Column<OpenXDAGlobal.DataRescueChannelAdjustment>
                 Key={'Multiplier'}
                 AllowSort={false}
                 Field={'Multiplier'}
@@ -704,8 +704,8 @@ function ChannelAdjustmentTable(props: {
                 RowStyle={{ width: '15rem', cursor: 'initial' }}
                 Content={({ item }) => renderMultiplierInput(item)}
             > Multiplier
-            </ReactTable.Column>
-        </ReactTable.Table>
+            </Column>
+        </Table>
     );
 }
 

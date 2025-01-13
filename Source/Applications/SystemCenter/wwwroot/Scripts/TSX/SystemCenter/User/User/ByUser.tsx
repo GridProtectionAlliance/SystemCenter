@@ -21,7 +21,7 @@
 // ******************************************************************************************************
 
 import * as React from 'react';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import { SearchBar, Search, Modal, ServerErrorIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
 import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
@@ -173,7 +173,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
             </SearchBar>
 
              <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                 <ReactTable.Table<IUserAccount>
+                 <Table<IUserAccount>
                      TableClass="table table-hover"
                      Data={data}
                      SortKey={sortField}
@@ -192,55 +192,55 @@ const ByUser: Application.Types.iByComponent = (props) => {
                      Selected={(item) => false}
                      KeySelector={(item) => item.ID}
                  >
-                     <ReactTable.Column<IUserAccount>
+                     <Column<IUserAccount>
                          Key={'DisplayName'}
                          AllowSort={true}
                          Field={'DisplayName'}
                          HeaderStyle={{ width: 'auto' }}
                          RowStyle={{ width: 'auto' }}
                      > Username
-                     </ReactTable.Column>
-                     <ReactTable.Column<IUserAccount>
+                     </Column>
+                     <Column<IUserAccount>
                          Key={'FirstName'}
                          AllowSort={true}
                          Field={'FirstName'}
                          HeaderStyle={{ width: 'auto' }}
                          RowStyle={{ width: 'auto' }}
                      > First Name
-                     </ReactTable.Column>
-                     <ReactTable.Column<IUserAccount>
+                     </Column>
+                     <Column<IUserAccount>
                          Key={'LastName'}
                          AllowSort={true}
                          Field={'LastName'}
                          HeaderStyle={{ width: 'auto' }}
                          RowStyle={{ width: 'auto' }}
                      > Last Name
-                     </ReactTable.Column>
-                     <ReactTable.Column<IUserAccount>
+                     </Column>
+                     <Column<IUserAccount>
                          Key={'Phone'}
                          AllowSort={true}
                          Field={'Phone'}
                          HeaderStyle={{ width: 'auto' }}
                          RowStyle={{ width: 'auto' }}
                      > Phone
-                     </ReactTable.Column>
-                     <ReactTable.Column<IUserAccount>
+                     </Column>
+                     <Column<IUserAccount>
                          Key={'Email'}
                          AllowSort={true}
                          Field={'Email'}
                          HeaderStyle={{ width: 'auto' }}
                          RowStyle={{ width: 'auto' }}
                      > Email
-                     </ReactTable.Column>
-                     <ReactTable.Column<IUserAccount>
+                     </Column>
+                     <Column<IUserAccount>
                          Key={'Type'}
                          AllowSort={true}
                          Field={'Type'}
                          HeaderStyle={{ width: 'auto' }}
                          RowStyle={{ width: 'auto' }}
                      > Type
-                     </ReactTable.Column>
-                 </ReactTable.Table>
+                     </Column>
+                 </Table>
             </div>
             <Modal Show={showModal} Size={'lg'} ShowCancel={false} ShowX={true} ConfirmText={'Save'}
                 Title={'Add New User'} CallBack={(confirm) => {

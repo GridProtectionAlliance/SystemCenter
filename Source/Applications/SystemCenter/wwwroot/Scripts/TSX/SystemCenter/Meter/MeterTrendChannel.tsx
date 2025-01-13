@@ -32,8 +32,7 @@ import { IsNumber } from '@gpa-gemstone/helper-functions';
 import { TrendChannelSlice, PhaseSlice, MeasurmentTypeSlice, MeasurementCharacteristicSlice } from '../Store/Store';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { useAppSelector, useAppDispatch } from '../hooks';
-import { ConfigTable } from '@gpa-gemstone/react-interactive';
-import { ReactTable } from '@gpa-gemstone/react-table'
+import { ConfigurableTable, ConfigurableColumn, Column } from '@gpa-gemstone/react-table';
 import { SelectRoles } from '../Store/UserSettings';
 
 declare var homePath: string;
@@ -253,7 +252,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
             </div>
             <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
                 <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-                    <ConfigTable.Table<OpenXDA.TrendChannel>
+                    <ConfigurableTable<OpenXDA.TrendChannel>
                         LocalStorageKey="MeterTrendChannelConfigTable"
                         TableClass="table table-hover"
                         Data={data.map(c => replicateChanges(c))}
@@ -273,7 +272,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                 dispatch(TrendChannelSlice.Sort({ SortField: d.colField as keyof OpenXDA.TrendChannel, Ascending: true }));
                         }}
                     >
-                        <ReactTable.Column<OpenXDA.TrendChannel>
+                        <Column<OpenXDA.TrendChannel>
                             Key={'Name'} Field={'Name'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -289,9 +288,9 @@ const MeterTrendChannelWindow = (props: IProps) => {
                             )}
                         >
                             Label
-                        </ReactTable.Column>
-                        <ConfigTable.Configurable Key='Description' Label='Description' Default={true}>
-                            <ReactTable.Column<OpenXDA.TrendChannel>
+                        </Column>
+                        <ConfigurableColumn Key='Description' Label='Description' Default={true}>
+                            <Column<OpenXDA.TrendChannel>
                                 Key={'Description'} Field={'Description'} HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                                 Content={({ item }) => (
@@ -305,9 +304,9 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                     />
                                 )}
                             />
-                        </ConfigTable.Configurable>
-                        <ConfigTable.Configurable Key='MeasurementType' Label='Type' Default={true}>
-                            <ReactTable.Column<OpenXDA.TrendChannel>
+                        </ConfigurableColumn>
+                        <ConfigurableColumn Key='MeasurementType' Label='Type' Default={true}>
+                            <Column<OpenXDA.TrendChannel>
                                 Key={'MeasurementType'}
                                 Field={'MeasurementType'}
                                 HeaderStyle={{ width: '10%' }}
@@ -324,10 +323,10 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                 )}
                             >
                                 Type
-                            </ReactTable.Column>
-                        </ConfigTable.Configurable>
-                        <ConfigTable.Configurable Key='MeasurementCharacteristic' Label='Characteristic' Default={true}>
-                            <ReactTable.Column<OpenXDA.TrendChannel>
+                            </Column>
+                        </ConfigurableColumn>
+                        <ConfigurableColumn Key='MeasurementCharacteristic' Label='Characteristic' Default={true}>
+                            <Column<OpenXDA.TrendChannel>
                                 Key={'MeasurementCharacteristic'}
                                 Field={'MeasurementCharacteristic'}
                                 HeaderStyle={{ width: '10%' }}
@@ -344,10 +343,10 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                 )}
                             >
                                 Characteristic
-                            </ReactTable.Column>
-                        </ConfigTable.Configurable>
-                        <ConfigTable.Configurable Key='Phase' Label='Phase' Default={true}>
-                            <ReactTable.Column<OpenXDA.TrendChannel>
+                            </Column>
+                        </ConfigurableColumn>
+                        <ConfigurableColumn Key='Phase' Label='Phase' Default={true}>
+                            <Column<OpenXDA.TrendChannel>
                                 Key={'Phase'}
                                 Field={'Phase'}
                                 HeaderStyle={{ width: '10%' }}
@@ -363,9 +362,9 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                     />
                                 )}
                             />
-                        </ConfigTable.Configurable>
-                        <ConfigTable.Configurable Key='HarmonicGroup' Label='Harmonic' Default={false}>
-                            <ReactTable.Column<OpenXDA.TrendChannel>
+                        </ConfigurableColumn>
+                        <ConfigurableColumn Key='HarmonicGroup' Label='Harmonic' Default={false}>
+                            <Column<OpenXDA.TrendChannel>
                                 Key={'HarmonicGroup'}
                                 HeaderStyle={{ width: '7%' }}
                                 RowStyle={{ width: '7%' }}
@@ -382,10 +381,10 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                 )}
                             >
                                 Harmonic
-                            </ReactTable.Column>
-                        </ConfigTable.Configurable>
-                        <ConfigTable.Configurable Key='Adder' Label='Adder' Default={true}>
-                            <ReactTable.Column<OpenXDA.TrendChannel>
+                            </Column>
+                        </ConfigurableColumn>
+                        <ConfigurableColumn Key='Adder' Label='Adder' Default={true}>
+                            <Column<OpenXDA.TrendChannel>
                                 Key={'Adder'}
                                 Field={'Adder'}
                                 HeaderStyle={{ width: '7%' }}
@@ -402,9 +401,9 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                     />
                                 )}
                             />
-                        </ConfigTable.Configurable>
-                        <ConfigTable.Configurable Key='Multiplier' Label='Multiplier' Default={true}>
-                            <ReactTable.Column<OpenXDA.TrendChannel>
+                        </ConfigurableColumn>
+                        <ConfigurableColumn Key='Multiplier' Label='Multiplier' Default={true}>
+                            <Column<OpenXDA.TrendChannel>
                                 Key={'Multiplier'}
                                 Field={'Multiplier'}
                                 HeaderStyle={{ width: '7%' }}
@@ -421,9 +420,9 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                     />
                                 )}
                             />
-                        </ConfigTable.Configurable>
-                        <ConfigTable.Configurable Key='SamplesPerHour' Label='Sampling Rate' Default={false}>
-                            <ReactTable.Column<OpenXDA.TrendChannel>
+                        </ConfigurableColumn>
+                        <ConfigurableColumn Key='SamplesPerHour' Label='Sampling Rate' Default={false}>
+                            <Column<OpenXDA.TrendChannel>
                                 Key={'SamplesPerHour'}
                                 HeaderStyle={{ width: '7%' }}
                                 RowStyle={{ width: '7%' }}
@@ -440,10 +439,10 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                 )}
                             >
                                 Sampling Rate (sph)
-                            </ReactTable.Column>
-                        </ConfigTable.Configurable>
-                        <ConfigTable.Configurable Key='PerUnitValue' Label='Per Unit' Default={false}>
-                            <ReactTable.Column<OpenXDA.TrendChannel>
+                            </Column>
+                        </ConfigurableColumn>
+                        <ConfigurableColumn Key='PerUnitValue' Label='Per Unit' Default={false}>
+                            <Column<OpenXDA.TrendChannel>
                                 Key={'PerUnitValue'}
                                 HeaderStyle={{ width: '7%' }}
                                 RowStyle={{ width: '7%' }}
@@ -460,10 +459,10 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                 )}
                             >
                                 Per Unit
-                            </ReactTable.Column>
-                        </ConfigTable.Configurable>
-                        <ConfigTable.Configurable Key='Asset' Label='Asset' Default={true}>
-                            <ReactTable.Column<OpenXDA.TrendChannel>
+                            </Column>
+                        </ConfigurableColumn>
+                        <ConfigurableColumn Key='Asset' Label='Asset' Default={true}>
+                            <Column<OpenXDA.TrendChannel>
                                 Key={'Asset'}
                                 Field={'Asset'}
                                 HeaderStyle={{ width: 'auto' }}
@@ -479,9 +478,9 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                     />
                                 )}
                             />
-                        </ConfigTable.Configurable>
-                        <ConfigTable.Configurable Key='ConnectionPriority' Label='Connection Type' Default={true}>
-                            <ReactTable.Column<OpenXDA.TrendChannel>
+                        </ConfigurableColumn>
+                        <ConfigurableColumn Key='ConnectionPriority' Label='Connection Type' Default={true}>
+                            <Column<OpenXDA.TrendChannel>
                                 Key={'ConnectionPriority'}
                                 Field={'ConnectionPriority'}
                                 HeaderStyle={{ width: '7%' }}
@@ -499,9 +498,9 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                 )}
                             >
                                 Conn Type
-                            </ReactTable.Column>
-                        </ConfigTable.Configurable>
-                        <ReactTable.Column<OpenXDA.TrendChannel>
+                            </Column>
+                        </ConfigurableColumn>
+                        <Column<OpenXDA.TrendChannel>
                             Key={'Remove'}
                             AllowSort={false}
                             HeaderStyle={{ width: '70px' }}
@@ -514,8 +513,9 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                     <span>{TrashCan}</span>
                                 </button>
                             )}
-                        />
-                    </ConfigTable.Table>
+                        >&nbsp;
+                        </Column>
+                    </ConfigurableTable>
                 </div>
             </div>
             <div className="card-footer">
@@ -556,14 +556,14 @@ const MeterTrendChannelWindow = (props: IProps) => {
                         }
                     }}>Add Channel</button>
                 </div>
-                <ToolTip Show={hover == 'Add' && (!hasPermissions() || assets.length == 0)} Position={'top'} Theme={'dark'} Target={"AddChannel"}>
+                <ToolTip Show={hover == 'Add' && (!hasPermissions() || assets.length == 0)} Position={'top'} Target={"AddChannel"}>
                     {!hasPermissions() ? <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p> : null}
                     {assets.length == 0 ? <p>Must connect assets to meter.</p> : null}
                 </ToolTip>
                 <div className="btn-group mr-2">
                     <button className={"btn btn-primary" + (errors.length > 0 || recordChanges.size == 0 ? ' disabled' : '')} onClick={() => { if (errors.length === 0 && recordChanges.size > 0 && hasPermissions()) applyUpdates() }}
                         onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} data-tooltip={'Save'}>Save Changes</button>
-                    <ToolTip Show={hover == 'Update' && (errors.length > 0 || recordChanges.size == 0)} Position={'top'} Theme={'dark'} Target={"Save"}>
+                    <ToolTip Show={hover == 'Update' && (errors.length > 0 || recordChanges.size == 0)} Position={'top'} Target={"Save"}>
                         {recordChanges.size == 0 && hasPermissions() ? <p> No changes have been made. </p> : null}
                         {!hasPermissions() ? <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p> : null}
                         {errors.length > 0 ? errors.map((e, i) => <> {CrossMark} <p key={i}> {e} </p> </>) : null}
@@ -572,7 +572,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                 <div className="btn-group mr-2">
                     <button className={"btn btn-warning" + (recordChanges.size == 0 ? ' disabled' : '')} onClick={() => { if (recordChanges.size > 0 && hasPermissions()) setRecordChanges(new Map<number, Partial<OpenXDA.TrendChannel>>()); }}
                         onMouseEnter={() => setHover('Reset')} onMouseLeave={() => setHover('None')} data-tooltip={"Clea    "}>Clear Changes</button>
-                    <ToolTip Show={hover == 'Reset' && (recordChanges.size > 0)} Position={'top'} Theme={'dark'} Target={"Clear"}>
+                    <ToolTip Show={hover == 'Reset' && (recordChanges.size > 0)} Position={'top'} Target={"Clear"}>
                         <p> There are {recordChanges.size} channels with changes that will be lost. </p>
                     </ToolTip>
                 </div>

@@ -108,7 +108,7 @@ function AssetgroupInfoWindow(props: { AssetGroup: OpenXDA.Types.AssetGroup, Sta
                             props.StateSetter(assetGroup);
                         }}>Save Changes</button>
                 </div>
-                <ToolTip Show={hover == 'Update' && (!hasPermissions() || !hasChanged())} Position={'top'} Theme={'dark'} Target={"SaveInfo"}>
+                <ToolTip Show={hover == 'Update' && (!hasPermissions() || !hasChanged())} Position={'top'} Target={"SaveInfo"}>
                     {!hasChanged() ? <p> No changes made.</p> : null}
                     {!hasPermissions() ? <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p> : null}
                 </ToolTip>
@@ -119,7 +119,7 @@ function AssetgroupInfoWindow(props: { AssetGroup: OpenXDA.Types.AssetGroup, Sta
                         data-tooltip='ClearInfo'
                         onClick={() => setAssetGroup(props.AssetGroup)} >Clear Changes</button>
                 </div>
-                <ToolTip Show={hover == 'Reset' && !hasChanged()} Position={'top'} Theme={'dark'} Target={"ClearInfo"}>
+                <ToolTip Show={hover == 'Reset' && !hasChanged()} Position={'top'} Target={"ClearInfo"}>
                     {!hasChanged() ? <p> No changes made.</p> : null}
                 </ToolTip>
             </div>

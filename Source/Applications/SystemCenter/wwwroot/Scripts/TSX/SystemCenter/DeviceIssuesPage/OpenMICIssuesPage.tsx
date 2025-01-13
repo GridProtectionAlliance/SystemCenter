@@ -28,8 +28,8 @@ import { SystemCenter as SC } from '../global';
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import _ from 'lodash';
 import * as React from 'react';
-import { ConfigTable, GenericController, ToolTip } from '@gpa-gemstone/react-interactive';
-import { ReactTable } from '@gpa-gemstone/react-table'
+import { GenericController, ToolTip } from '@gpa-gemstone/react-interactive';
+import { ConfigurableTable, ConfigurableColumn, Column } from '@gpa-gemstone/react-table';
 import Reason from './Reason';
 import moment from 'moment';
 import { useAppSelector } from '../hooks';
@@ -74,7 +74,7 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
             </div>
         </div>
         <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
-            <ConfigTable.Table<SC.OpenMICDailyStatistic>
+            <ConfigurableTable<SC.OpenMICDailyStatistic>
                 LocalStorageKey="MiMDIssuesConfigTable"
                 TableClass="table table-hover"
                 Data={data}
@@ -99,7 +99,7 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
                     }
                 }}
             >
-                <ReactTable.Column<SC.OpenMICDailyStatistic>
+                <Column<SC.OpenMICDailyStatistic>
                     Key={'Date'}
                     AllowSort={true}
                     Field={'Date'}
@@ -108,9 +108,9 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
                     RowStyle={{ width: 'auto' }}
                 >
                     Date
-                </ReactTable.Column>
-                <ConfigTable.Configurable Key='LastSuccessfulConnection' Label='Last Succ Conn' Default={true}>
-                    <ReactTable.Column<SC.OpenMICDailyStatistic>
+                </Column>
+                <ConfigurableColumn Key='LastSuccessfulConnection' Label='Last Succ Conn' Default={true}>
+                    <Column<SC.OpenMICDailyStatistic>
                         Key={'LastSuccessfulConnection'}
                         AllowSort={true}
                         Field={'LastSuccessfulConnection'}
@@ -119,10 +119,10 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
                         RowStyle={{ width: 'auto' }}
                     >
                         Last Succ Conn
-                    </ReactTable.Column>
-                </ConfigTable.Configurable>
-                <ConfigTable.Configurable Key='LastUnsuccessfulConnection' Label='Last Unsucc Conn' Default={true}>
-                    <ReactTable.Column<SC.OpenMICDailyStatistic>
+                    </Column>
+                </ConfigurableColumn>
+                <ConfigurableColumn Key='LastUnsuccessfulConnection' Label='Last Unsucc Conn' Default={true}>
+                    <Column<SC.OpenMICDailyStatistic>
                         Key={'LastUnsuccessfulConnection'}
                         AllowSort={true}
                         Field={'LastUnsuccessfulConnection'}
@@ -131,8 +131,8 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
                         RowStyle={{ width: 'auto' }}
                     >
                         Last Unsucc Conn
-                    </ReactTable.Column>
-                    <ReactTable.Column<SC.OpenMICDailyStatistic>
+                    </Column>
+                    <Column<SC.OpenMICDailyStatistic>
                         Key={'LastUnsuccessfulConnectionExplanation'}
                         AllowSort={true}
                         Field={'LastUnsuccessfulConnectionExplanation'}
@@ -141,10 +141,10 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
                         RowStyle={{ width: 'auto' }}
                     >
                         Reason
-                    </ReactTable.Column>
-                </ConfigTable.Configurable>
-                <ConfigTable.Configurable Key='TotalConnections' Label='Total Conn' Default={true}>
-                    <ReactTable.Column<SC.OpenMICDailyStatistic>
+                    </Column>
+                </ConfigurableColumn>
+                <ConfigurableColumn Key='TotalConnections' Label='Total Conn' Default={true}>
+                    <Column<SC.OpenMICDailyStatistic>
                         Key={'TotalConnections'}
                         AllowSort={true}
                         Field={'TotalConnections'}
@@ -152,10 +152,10 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
                         RowStyle={{ width: 'auto' }}
                     >
                         Total Conn
-                    </ReactTable.Column>
-                </ConfigTable.Configurable>
-                <ConfigTable.Configurable Key='TotalSuccessfulConnections' Label='Total Succ Conn' Default={true}>
-                    <ReactTable.Column<SC.OpenMICDailyStatistic>
+                    </Column>
+                </ConfigurableColumn>
+                <ConfigurableColumn Key='TotalSuccessfulConnections' Label='Total Succ Conn' Default={true}>
+                    <Column<SC.OpenMICDailyStatistic>
                         Key={'TotalSuccessfulConnections'}
                         AllowSort={true}
                         Field={'TotalSuccessfulConnections'}
@@ -163,10 +163,10 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
                         RowStyle={{ width: 'auto' }}
                     >
                         Total Succ Conn
-                    </ReactTable.Column>
-                </ConfigTable.Configurable>
-                <ConfigTable.Configurable Key='TotalUnsuccessfulConnections' Label='Total Unsucc Conn' Default={true}>
-                    <ReactTable.Column<SC.OpenMICDailyStatistic>
+                    </Column>
+                </ConfigurableColumn>
+                <ConfigurableColumn Key='TotalUnsuccessfulConnections' Label='Total Unsucc Conn' Default={true}>
+                    <Column<SC.OpenMICDailyStatistic>
                         Key={'TotalUnsuccessfulConnections'}
                         AllowSort={true}
                         Field={'TotalUnsuccessfulConnections'}
@@ -174,9 +174,9 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
                         RowStyle={{ width: 'auto' }}
                     >
                         Total Unsucc Conn
-                    </ReactTable.Column>
-                </ConfigTable.Configurable>
-            </ConfigTable.Table>
+                    </Column>
+                </ConfigurableColumn>
+            </ConfigurableTable>
         </div>
     </div>
 }
@@ -231,7 +231,7 @@ const Test = (props: { Meter: OpenXDA.Types.Meter }) => {
         <div className="col">
             <button className={"btn btn-info pull-right" + (hasPermissions() ? '' : 'disabled')} data-tooltip='PingDevice' onMouseEnter={() => setHover('ping')} onMouseLeave={() => setHover('none')}
                 onClick={RunTest}>Ping Device</button>
-            <ToolTip Show={hover == 'ping' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"PingDevice"}>
+            <ToolTip Show={hover == 'ping' && !hasPermissions()} Position={'top'} Target={"PingDevice"}>
                 <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
             </ToolTip>
             <span style={{marginLeft: 20}}>{Flag()}</span>

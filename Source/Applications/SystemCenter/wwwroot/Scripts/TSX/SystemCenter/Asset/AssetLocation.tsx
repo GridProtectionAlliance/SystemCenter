@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { useHistory } from "react-router-dom";
 import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols'
 import { useAppSelector } from '../hooks';
@@ -140,7 +140,7 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
             </div>
             <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
                 <div style={{ width: '100%', height: '100%', padding: 30, display: 'flex', flexDirection: 'column' }}>
-                    <ReactTable.Table<OpenXDA.Types.Location>
+                    <Table<OpenXDA.Types.Location>
                         TableClass="table table-hover"
                         Data={locations}
                         SortKey={sortField}
@@ -166,39 +166,39 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
                     >
-                        <ReactTable.Column<OpenXDA.Types.Location>
+                        <Column<OpenXDA.Types.Location>
                             Key={'LocationKey'}
                             AllowSort={true}
                             Field={'LocationKey'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Key
-                        </ReactTable.Column>
-                        <ReactTable.Column<OpenXDA.Types.Location>
+                        </Column>
+                        <Column<OpenXDA.Types.Location>
                             Key={'Name'}
                             AllowSort={true}
                             Field={'Name'}
                             HeaderStyle={{ width: '30%' }}
                             RowStyle={{ width: '30%' }}
                         > Name
-                        </ReactTable.Column>
-                        <ReactTable.Column<OpenXDA.Types.Location>
+                        </Column>
+                        <Column<OpenXDA.Types.Location>
                             Key={'Latitude'}
                             AllowSort={true}
                             Field={'Latitude'}
                             HeaderStyle={{ width: '15%' }}
                             RowStyle={{ width: '15%' }}
                         > Latitude
-                        </ReactTable.Column>
-                        <ReactTable.Column<OpenXDA.Types.Location>
+                        </Column>
+                        <Column<OpenXDA.Types.Location>
                             Key={'Longitude'}
                             AllowSort={true}
                             Field={'Longitude'}
                             HeaderStyle={{ width: '15%' }}
                             RowStyle={{ width: '15%' }}
                         > Longitude
-                        </ReactTable.Column>
-                        <ReactTable.Column<OpenXDA.Types.Location>
+                        </Column>
+                        <Column<OpenXDA.Types.Location>
                             Key={'Delete'}
                             AllowSort={false}
                             HeaderStyle={{ width: '10%' }}
@@ -212,8 +212,8 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
                                 }}><span>{TrashCan}</span></button>
                             </> }
                         > <p></p>
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                 </div>
             </div>
             <div className="card-footer">
@@ -221,7 +221,7 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
                     <button className={"btn btn-info pull-right" + (!hasPermissions() ? ' disabled' : '')} data-toggle={"modal" + (!hasPermissions() ? ' disabled' : '')} data-target='#locationModal' data-tooltip='AddSubst'
                         onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')}>Add Substation</button>
                 </div>
-                <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"AddSubst"}>
+                <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Target={"AddSubst"}>
                     <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                 </ToolTip>
             </div>

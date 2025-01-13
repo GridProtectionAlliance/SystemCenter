@@ -53,7 +53,7 @@
     "leaflet": "1.7.1"
   },
   "scripts": {
-    "build": " npm prune && webpack --mode=development",
+    "build": " npm prune && npm ci && webpack --mode=development",
     "builddebug": "webpack --mode=none",
     "buildrelease": "npm prune && npm ci && webpack --mode=production",
     "watch": "webpack --watch --color --mode=development",

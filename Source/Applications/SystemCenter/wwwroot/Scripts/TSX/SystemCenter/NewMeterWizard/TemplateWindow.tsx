@@ -32,7 +32,7 @@ import { TrashCan, CrossMark } from '@gpa-gemstone/gpa-symbols';
 import ChannelScalingForm from '../Meter/ChannelScaling/ChannelScalingForm';
 import { MeasurementCharacteristicSlice, MeasurmentTypeSlice, PhaseSlice, ChannelTemplateSlice } from '../Store/Store';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { SystemCenter } from '../global';
 
 declare var homePath: string;
@@ -119,7 +119,7 @@ export default function TemplateWindow(props: IProps) {
                 </div>
             </> : null}
         </div>
-        <ToolTip Show={hover && !hasDefault} Position={'top'} Theme={'dark'} Target={"DefaultChannel"}>
+        <ToolTip Show={hover && !hasDefault} Position={'top'} Target={"DefaultChannel"}>
             <p>No template is available.</p>
             {!showEdit? <p> Contact an Administrator or SME to add a Template.</p> : null}
         </ToolTip>
@@ -142,7 +142,7 @@ export default function TemplateWindow(props: IProps) {
         >
             <div className="row">
                 <div className="col">
-                    <ReactTable.Table<SystemCenter.ChannelTemplateFile>
+                    <Table<SystemCenter.ChannelTemplateFile>
                         TableClass="table table-hover"
                         Data={templates}
                         SortKey={sortField}
@@ -163,19 +163,19 @@ export default function TemplateWindow(props: IProps) {
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
                     >
-                        <ReactTable.Column<SystemCenter.ChannelTemplateFile>
+                        <Column<SystemCenter.ChannelTemplateFile>
                             Key={'Name'}
                             AllowSort={true}
                             Field={'Name'}
                         > Name
-                        </ReactTable.Column>
-                        <ReactTable.Column<SystemCenter.ChannelTemplateFile>
+                        </Column>
+                        <Column<SystemCenter.ChannelTemplateFile>
                             Key={'FileName'}
                             AllowSort={true}
                             Field={'FileName'}
                         > File
-                        </ReactTable.Column>
-                        <ReactTable.Column<SystemCenter.ChannelTemplateFile>
+                        </Column>
+                        <Column<SystemCenter.ChannelTemplateFile>
                             Key={'ShowEvents'}
                             AllowSort={true}
                             Field={'ShowEvents'}
@@ -184,8 +184,8 @@ export default function TemplateWindow(props: IProps) {
                             Content={({ item }) => <CheckBox<SystemCenter.ChannelTemplateFile> Field='ShowEvents' Record={item}
                                 Setter={(r) => dispatch(ChannelTemplateSlice.DBAction({ verb: 'PATCH', record: r }))} Label='' /> }
                         > Events
-                        </ReactTable.Column>
-                        <ReactTable.Column<SystemCenter.ChannelTemplateFile>
+                        </Column>
+                        <Column<SystemCenter.ChannelTemplateFile>
                             Key={'ShowTrend'}
                             AllowSort={true}
                             Field={'ShowTrend'}
@@ -194,16 +194,16 @@ export default function TemplateWindow(props: IProps) {
                             Content={({ item }) => <CheckBox<SystemCenter.ChannelTemplateFile> Field='ShowTrend' Record={item}
                                 Setter={(r) => dispatch(ChannelTemplateSlice.DBAction({ verb: 'PATCH', record: r }))} Label='' /> }
                         > Trend
-                        </ReactTable.Column>
-                        <ReactTable.Column<SystemCenter.ChannelTemplateFile>
+                        </Column>
+                        <Column<SystemCenter.ChannelTemplateFile>
                             Key={'SortOrder'}
                             AllowSort={true}
                             Field={'SortOrder'}
                             Content={({ item }) => <Input<SystemCenter.ChannelTemplateFile> Field='SortOrder' Type={'integer'} Valid={() => true} Record={item}
                                 Setter={(r) => dispatch(ChannelTemplateSlice.DBAction({ verb: 'PATCH', record: r }))} Label='' /> }
                         > Sort Order
-                        </ReactTable.Column>
-                        <ReactTable.Column<SystemCenter.ChannelTemplateFile>
+                        </Column>
+                        <Column<SystemCenter.ChannelTemplateFile>
                             Key={'btn'}
                             AllowSort={false}
                             HeaderStyle={{ width: 40, paddingLeft: 0, paddingRight: 5 }}
@@ -216,8 +216,8 @@ export default function TemplateWindow(props: IProps) {
                                     }}><span>{TrashCan}</span></button>
                             </> }
                         > <p></p>
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                 </div>
             </div>
             <div className="row">

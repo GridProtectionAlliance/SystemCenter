@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
-import { ReactTable, Paging } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ServerErrorIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
 import { useHistory } from "react-router-dom";
 import moment from 'moment';
@@ -81,7 +81,7 @@ function MeterConfigurationHistoryWindow(props: { Meter: OpenXDA.Types.Meter }) 
                         </div>
                     </div>
                     <div className="card-body" style={{ paddingBottom: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-                        <ReactTable.Table<MeterConfiguration>
+                        <Table<MeterConfiguration>
                             TableClass="table table-hover"
                             Data={meterConfigurations}
                             SortKey={''}
@@ -95,32 +95,32 @@ function MeterConfigurationHistoryWindow(props: { Meter: OpenXDA.Types.Meter }) 
                             Selected={(item) => false}
                             KeySelector={(item) => item.ID}
                         >
-                            <ReactTable.Column<MeterConfiguration>
+                            <Column<MeterConfiguration>
                                 Key={'Revision'}
-                                AllowSort={true}
+                                AllowSort={false}
                                 Field={'Revision'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                             > Revision
-                            </ReactTable.Column>
-                            <ReactTable.Column<MeterConfiguration>
+                            </Column>
+                            <Column<MeterConfiguration>
                                 Key={'FilesProcessed'}
-                                AllowSort={true}
+                                AllowSort={false}
                                 Field={'FilesProcessed'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                             > Files Processed
-                            </ReactTable.Column>
-                            <ReactTable.Column<MeterConfiguration>
+                            </Column>
+                            <Column<MeterConfiguration>
                         Key={'LastProcessedTime'}
-                        AllowSort={true}
+                        AllowSort={false}
                         Field={'LastProcessedTime'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                         Content={({ item }) => moment(item.LastProcessedTime).isValid() ? moment(item.LastProcessedTime).format('MM/DD/YYYY HH:mm:ss') : 'N/A'}
                             > Last Processed Time
-                            </ReactTable.Column>
-                        </ReactTable.Table>
+                            </Column>
+                        </Table>
                         <LoadingScreen Show={pageState == 'loading'} />
                         <ServerErrorIcon Show={pageState == 'error'} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
                         <div className="row">

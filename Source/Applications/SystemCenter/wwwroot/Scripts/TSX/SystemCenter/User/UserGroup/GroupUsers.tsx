@@ -26,7 +26,7 @@ import * as _ from 'lodash';
 import { LoadingScreen } from '@gpa-gemstone/react-interactive';
 import { UserAccountSliceRemote } from '../../Store/Store';
 import { ISecurityGroup } from '../Types';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
 
 const GroupUser = (props: {Group: ISecurityGroup}) => {
@@ -102,7 +102,7 @@ const GroupUser = (props: {Group: ISecurityGroup}) => {
                     Users in an Active Directory Group cannot be edited in System Center. To add or remove Users, please contact your AD Administrator.
                 </div> : null}
                 {props.Group.Type == 'Database' ?
-                    <ReactTable.Table<Application.Types.iUserAccount>
+                    <Table<Application.Types.iUserAccount>
                         TableClass="table table-hover"
                         Data={users}
                         SortKey={sortField}
@@ -122,47 +122,47 @@ const GroupUser = (props: {Group: ISecurityGroup}) => {
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
                     >
-                        <ReactTable.Column<Application.Types.iUserAccount>
+                        <Column<Application.Types.iUserAccount>
                             Key={'AccountName'}
                             AllowSort={true}
                             Field={'AccountName'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Username
-                        </ReactTable.Column>
-                        <ReactTable.Column<Application.Types.iUserAccount>
+                        </Column>
+                        <Column<Application.Types.iUserAccount>
                             Key={'FirstName'}
                             AllowSort={true}
                             Field={'FirstName'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > First Name
-                        </ReactTable.Column>
-                        <ReactTable.Column<Application.Types.iUserAccount>
+                        </Column>
+                        <Column<Application.Types.iUserAccount>
                             Key={'LastName'}
                             AllowSort={true}
                             Field={'LastName'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Last Name
-                        </ReactTable.Column>
-                        <ReactTable.Column<Application.Types.iUserAccount>
+                        </Column>
+                        <Column<Application.Types.iUserAccount>
                             Key={'Phone'}
                             AllowSort={true}
                             Field={'Phone'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Phone
-                        </ReactTable.Column>
-                        <ReactTable.Column<Application.Types.iUserAccount>
+                        </Column>
+                        <Column<Application.Types.iUserAccount>
                             Key={'Email'}
                             AllowSort={true}
                             Field={'Email'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Email
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
 
                     : null}
             </div>
@@ -184,18 +184,21 @@ const GroupUser = (props: {Group: ISecurityGroup}) => {
                 }}
                 Show={showSelect}
                 Type={'multiple'}
-                Columns={[
-                    { key: 'Name', field: 'Name', label: 'Username', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                    { key: 'FirstName', field: 'FirstName', label: 'First Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                    { key: 'LastName', field: 'LastName', label: 'Last Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                    { key: 'Phone', field: 'Phone', label: 'Phone', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                    { key: 'Email', field: 'Email', label: 'Email', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                ]}
                 Title={"Add Users to " + props.Group.Name}
                 GetEnum={() => () => { }}
                 GetAddlFields={() => () => { }}
-            />
+            >
+                <Column Key="Name" Field="Name" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: '10%' }}
+                >Username</Column>
+                <Column Key="FirstName" Field="FirstName" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: '10%' }}
+                >First Name</Column>
+                <Column Key="LastName" Field="LastName" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: '10%' }}
+                >Last Name</Column>
+                <Column Key="Phone" Field="Phone" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: '10%' }}
+                >Phone</Column>
+                <Column Key="Email" Field="Email" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Email</Column>
+            </DefaultSelects.User>
 
         </div>
     );

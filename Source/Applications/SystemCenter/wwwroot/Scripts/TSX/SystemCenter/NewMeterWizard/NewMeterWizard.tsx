@@ -526,11 +526,11 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
                         {getNextButton()}
                     </div>
                 </div>
-                <ToolTip Show={hover == 'Next' && (warning.length > 0 || error.length > 0)} Position={'top'} Theme={'dark'} Target={"Next"}>
+                <ToolTip Show={hover == 'Next' && (warning.length > 0 || error.length > 0)} Position={'top'} Target={"Next"}>
                     {error.map((item, index) => <p key={index}> {CrossMark} {item} </p>)}
                     {warning.map((item, index) => <p key={index + 'w'}> {WarningSymbol} {item} </p>)}
                 </ToolTip>
-                <ToolTip Show={hover == 'Prev' && currentStep === saveStep + 1} Position={'top'} Theme={'dark'} Target={"Prev"}>
+                <ToolTip Show={hover == 'Prev' && currentStep === saveStep + 1} Position={'top'} Target={"Prev"}>
                     <p> {CrossMark} Cannot return to steps prior to submission. </p>
                 </ToolTip>
                 <Warning Title="Create Meter" Message="Save Meter configuration to openXDA? Meter creation is required for additional configuration." Show={showSubmit} CallBack={(confirmed) => {

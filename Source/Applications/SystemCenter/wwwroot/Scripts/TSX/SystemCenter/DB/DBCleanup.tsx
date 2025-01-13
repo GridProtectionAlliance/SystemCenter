@@ -49,6 +49,10 @@ const DBCleanup: Application.Types.iByComponent = (props) => {
     const allDBCleanup: DBCleanup[] = useAppSelector(DBCleanupSlice.Data);
     const emptyDBCleanup = { ID: 0, Name: '', SQLCommand: '', Schedule: '' };
 
+    const [sortField, setSortField] = React.useState<keyof DBCleanup>('Name');
+    const [ascending, setAscending] = React.useState<boolean>(true);
+
+    const emptyDBCleanup = { ID: 0, Name: '', SQLCommand: '', Schedule: ''};
     const [editNewDBCleanup, setEditNewDBCleanup] = React.useState<DBCleanup>(emptyDBCleanup);
     const [editNew, setEditNew] = React.useState<Application.Types.NewEdit>('New');
     const [showWarning, setShowWarning] = React.useState<boolean>(false);

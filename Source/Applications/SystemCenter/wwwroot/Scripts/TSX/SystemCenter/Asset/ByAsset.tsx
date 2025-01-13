@@ -35,7 +35,7 @@ import TransformerAttributes from '../AssetAttribute/Transformer';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 import CapBankRelayAttributes from '../AssetAttribute/CapBankRelay';
 import { Search, Modal, LoadingIcon, ServerErrorIcon, TabSelector, SearchBar, GenericController } from '@gpa-gemstone/react-interactive';
-import { Paging, ReactTable } from '@gpa-gemstone/react-table'
+import { Paging, Table, Column } from '@gpa-gemstone/react-table';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { SelectAssetStatus, FetchAsset, SelectAssets } from '../Store/AssetSlice';
 import { AssetTypeSlice } from '../Store/Store';
@@ -295,7 +295,7 @@ const ByAsset: Application.Types.iByComponent = (props) => {
             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
                 {
                     pageState === 'idle' ?
-                        <ReactTable.Table<SystemCenter.Types.DetailedAsset>
+                        <Table<SystemCenter.Types.DetailedAsset>
                             TableClass="table table-hover"
                             Data={data}
                             SortKey={sortKey.toString()}
@@ -315,55 +315,55 @@ const ByAsset: Application.Types.iByComponent = (props) => {
                             Selected={(item) => false}
                             KeySelector={(item) => item.ID}
                         >
-                            <ReactTable.Column<SystemCenter.Types.DetailedAsset>
+                            <Column<SystemCenter.Types.DetailedAsset>
                                 Key={'AssetName'}
                                 AllowSort={true}
                                 Field={'AssetName'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                             > Name
-                            </ReactTable.Column>
-                            <ReactTable.Column<SystemCenter.Types.DetailedAsset>
+                            </Column>
+                            <Column<SystemCenter.Types.DetailedAsset>
                                 Key={'AssetKey'}
                                 AllowSort={true}
                                 Field={'AssetKey'}
                                 HeaderStyle={{ width: '15%' }}
                                 RowStyle={{ width: '15%' }}
                             > Key
-                            </ReactTable.Column>
-                            <ReactTable.Column<SystemCenter.Types.DetailedAsset>
+                            </Column>
+                            <Column<SystemCenter.Types.DetailedAsset>
                                 Key={'AssetType'}
                                 AllowSort={true}
                                 Field={'AssetType'}
                                 HeaderStyle={{ width: '10%' }}
                                 RowStyle={{ width: '10%' }}
                             > Type
-                            </ReactTable.Column>
-                            <ReactTable.Column<SystemCenter.Types.DetailedAsset>
+                            </Column>
+                            <Column<SystemCenter.Types.DetailedAsset>
                                 Key={'VoltageKV'}
                                 AllowSort={true}
                                 Field={'VoltageKV'}
-                                HeaderStyle={{ width: '10%' }}
-                                RowStyle={{ width: '10%' }}
+                                HeaderStyle={{ width: '20%' }}
+                                RowStyle={{ width: '20%' }}
                             > Nominal Voltage (L-L kV)
-                            </ReactTable.Column>
-                            <ReactTable.Column<SystemCenter.Types.DetailedAsset>
+                            </Column>
+                            <Column<SystemCenter.Types.DetailedAsset>
                                 Key={'Meters'}
                                 AllowSort={true}
                                 Field={'Meters'}
                                 HeaderStyle={{ width: '10%' }}
                                 RowStyle={{ width: '10%' }}
                             > Meters
-                            </ReactTable.Column>
-                            <ReactTable.Column<SystemCenter.Types.DetailedAsset>
+                            </Column>
+                            <Column<SystemCenter.Types.DetailedAsset>
                                 Key={'Locations'}
                                 AllowSort={true}
                                 Field={'Locations'}
                                 HeaderStyle={{ width: '10%' }}
                                 RowStyle={{ width: '10%' }}
                             > Substations
-                            </ReactTable.Column>
-                        </ReactTable.Table> :
+                            </Column>
+                        </Table> :
                         <>
                             <LoadingIcon Show={pageState === 'loading'} Size={40} />
                             <ServerErrorIcon Show={pageState === 'error'} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
