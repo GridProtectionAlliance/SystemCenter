@@ -1,3 +1,25 @@
+//******************************************************************************************************
+//  LocationDrawings.tsx - Gbtc
+//
+//  Copyright © 2024, Grid Protection Alliance.  All Rights Reserved.
+//
+//  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
+//  the NOTICE file distributed with this work for additional information regarding copyright ownership.
+//  The GPA licenses this file to you under the MIT License (MIT), the "License"; you may not use this
+//  file except in compliance with the License. You may obtain a copy of the License at:
+//
+//      http://opensource.org/licenses/MIT
+//
+//  Unless agreed to in writing, the subject software distributed under the License is distributed on an
+//  "AS-IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. Refer to the
+//  License for the specific language governing permissions and limitations.
+//
+//  Code Modification History:
+//  ----------------------------------------------------------------------------------------------------
+//  01/06/2024 - Collins Self
+//       Generated original version of source code.
+//
+//******************************************************************************************************
 import React from 'react';
 import { BtnDropdown, GenericController, LoadingScreen, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
 import LocationDrawingsModal from './LocationDrawingsModal';
@@ -37,18 +59,19 @@ const LocationDrawingsButton: React.FC<LocationDrawingsButtonProps> = (props) =>
     React.useEffect(() => { // Generates the map of errors for each location
         if (props.Locations.length > 1) setMultipleLocations(true);
         else setMultipleLocations(false);
+
+        setPageState('loading');
         for (const location of props.Locations) {
-            if (location) {
-                setPageState('loading');
+            if (location != null) {
                 LocationDrawingController.PagedSearch([], 'Name', true, 1, location.ID)
                     .done((result) => {
                         const errors = isValid(location, result);
                         updateLocationErrors(location, errors);
-                        setPageState('idle')
                     })
                     .fail(() => setPageState('error'));
             }
         }
+        if (pageState != 'error') setPageState('idle');
     }, [props.Locations]); // ? Calls too frequently
 
     const handleAddLocationError = (locMap: Map<number, string[]>) => {
@@ -137,7 +160,7 @@ const LocationDrawingsButton: React.FC<LocationDrawingsButtonProps> = (props) =>
             />
             }
             <LocationDrawingsModal
-                LocationID={selectedLocation?.ID}
+                Location={selectedLocation}
                 Show={showDrawingsModal}
                 SetShow={setShowDrawingsModal}
             />
