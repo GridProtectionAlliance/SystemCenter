@@ -34,7 +34,7 @@ const LocationDrawingsButton: React.FC<LocationDrawingsButtonProps> = (props) =>
     const [hover, setHover] = React.useState<'none' | 'drawings'>('none');
     const [pageState, setPageState] = React.useState<"loading" | "error" | "idle">("idle");
     const [selectedLocation, setSelectedLocation] = React.useState<OpenXDA.Types.Location>();
-    const [multipleLocations, setMultipleLocations] = React.useState<boolean>(false);
+    const multipleLocations = React.useMemo(() => props.Locations.length > 1, [props.Locations]);
     const [showDrawingsModal, setShowDrawingsModal] = React.useState<boolean>(false);
     const [locationsWithErrors, setLocationsWithErrors] = React.useState<Map<number, string[]>>(new Map())
     const LocationDrawingController = new GenericController(`${homePath}api/LocationDrawing`, "Name", true);
@@ -57,22 +57,24 @@ const LocationDrawingsButton: React.FC<LocationDrawingsButtonProps> = (props) =>
     }
 
     React.useEffect(() => { // Generates the map of errors for each location
-        if (props.Locations.length > 1) setMultipleLocations(true);
-        else setMultipleLocations(false);
-
         setPageState('loading');
-        for (const location of props.Locations) {
+
+        const handles = props.Locations.map(location=> {
             if (location != null) {
-                LocationDrawingController.PagedSearch([], 'Name', true, 1, location.ID)
-                    .done((result) => {
+                return LocationDrawingController.PagedSearch([], 'Name', true, 1, location.ID)
+                    .then((result) => {
                         const errors = isValid(location, result);
                         updateLocationErrors(location, errors);
                     })
-                    .fail(() => setPageState('error'));
+                    .fail(() => { throw new Error() });
             }
-        }
-        if (pageState != 'error') setPageState('idle');
-    }, [props.Locations]); // ? Calls too frequently
+            return Promise.resolve();
+        });
+
+        Promise.all(handles)
+            .then(() => { setPageState('idle')},
+                  () => { setPageState('error') });
+    }, [props.Locations]);
 
     const handleAddLocationError = (locMap: Map<number, string[]>) => {
         setLocationsWithErrors(prev => {
