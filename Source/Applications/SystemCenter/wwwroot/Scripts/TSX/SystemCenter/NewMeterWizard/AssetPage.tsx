@@ -34,7 +34,7 @@ import CapBankRelayAttributes from '../AssetAttribute/CapBankRelay';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { ByAssetSlice, AssetTypeSlice } from '../Store/Store';
 import { SelectAssetStatus, FetchAsset, SelectAssets } from '../Store/AssetSlice';
-import { Modal, Search } from '@gpa-gemstone/react-interactive';
+import { Modal, Search, TabSelector } from '@gpa-gemstone/react-interactive';
 import DERAttributes from '../AssetAttribute/DER';
 import AssetSelect from '../Asset/AssetSelect';
 import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
@@ -58,7 +58,7 @@ interface IProps {
     UpdateAssetConnections: (record: OpenXDA.Types.AssetConnection[]) => void,
     SetWarning: (e: string[]) => void,
     Location: OpenXDA.Types.Location,
-    PageID?: string
+    PageID?: string,
 }
 
 type AssetType = OpenXDA.Types.DetailedAsset
@@ -90,6 +90,9 @@ export default function AssetPage(props: IProps) {
 
     const [sortKey, setSortKey] = React.useState<string>();
     const [asc, setAsc] = React.useState<boolean>(false);
+
+    const [tab, setTab] = React.useState<string>('Default');
+
     const assetData = React.useMemo(() => {
         const u = _.cloneDeep(props.Assets);
         if (sortKey === 'Channels')
@@ -106,6 +109,35 @@ export default function AssetPage(props: IProps) {
         Type: 'query',
         IsPivotColumn: false
     }
+
+    const tabToPriority: Record<string, number> = {
+        "Default": 3,
+        "Secondary": 1,
+        "Tertiary": 2,
+        "Line": 1,
+    };
+
+    const tabs = React.useMemo(() => {
+        switch (newEditAsset.AssetType) {
+            case 'Transformer':
+                return [
+                    { Id: "0", Label: "Primary Side"},
+                    { Id: "1", Label: "Secondary Side"},
+                    { Id: "2", Label: "Tertiary Side"}
+                ];
+            case 'Breaker':
+                return [
+                    { Id: "0", Label: "Bus Side" },
+                    { Id: "1", Label: "Line/XFR Side"},
+                ];
+            default:
+                return [{ Label: 'Default', Id: '1' }];
+        }
+    }, [newEditAsset.AssetType]);
+
+    React.useEffect(() => {
+        setTab('Default');
+    }, [newEditAsset])
 
     React.useEffect(() => {
         if (props.PageID !== undefined && !localStorage.hasOwnProperty(props.PageID))
@@ -186,7 +218,7 @@ export default function AssetPage(props: IProps) {
 
 
     }, [newEditAsset.AssetType]);
-    
+
     function editAsset(index: number) {
         const asset = props.Assets.find(a => a.AssetKey === assetData[index].AssetKey);
         setNewEdit('Edit');
@@ -507,7 +539,6 @@ export default function AssetPage(props: IProps) {
                                             newRecord.Channels = record.Channels;
                                             setNewEditAsset(newRecord);
                                         }
-                                    
                                     }}
                                     GetDifferentAsset={getDifferentAsset} HideAssetType={newEdit == 'Edit'} HideSelectAsset={true} />
                             </div>
@@ -517,124 +548,39 @@ export default function AssetPage(props: IProps) {
                             </div>
                         </div>
                         <div className="col-4">
-                            <div className="row h-100">
-                        {newEditAsset.AssetType != 'Transformer' && newEditAsset.AssetType != 'Breaker' ?
-                                    <div className="col-12 d-flex flex-column">
-                                        <ChannelSelector
-                                            Label="Associated Channels"
-                                            Channels={filterChannels}
-                                            SelectedChannels={newEditAsset.Channels}
-                                            UpdateChannels={(c) => {
-                                                setNewEditAsset((prev) => ({ ...prev, Channels: c }));
+                            <div className="d-flex flex-column h-100">
+                                {tabs.length > 1 && (
+                                    <TabSelector
+                                        CurrentTab={tab}
+                                        SetTab={setTab}
+                                        Tabs={tabs}
+                                    />
+                                )}
+                                <div className="d-flex flex-column h-100">
+                                    <ChannelSelector
+                                        Label=""
+                                        Channels={props.Channels.filter(ch => ch.Asset === newEditAsset.AssetKey || ch.Asset == "")}
+                                        SelectedChannels={newEditAsset.Channels.filter((ch) =>
+                                            ch.ConnectionPriority === tabToPriority[tab]    // Only channels with priority == current priority
+                                        )}
+                                        UpdateChannels={(c) => {
+                                            const updatedChannels = [   // List of new channels
+                                                ...c.map(ch => ({ ...ch, ConnectionPriority: tabToPriority[tab] }))
+                                            ];
 
-                                                //Update Channels with new ConnectionPriority
-                                                let channels = _.clone(props.Channels);
-                                                channels = channels.map(ch => ({ ...ch, ConnectionPriority: c.find(d => d.ID == ch.ID) == null ? ch.ConnectionPriority : 0 }));
-                                                props.UpdateChannels(channels);
-                                            }
-                                        }
-                                        />
-                                    </div> : null}
-                        {newEditAsset.AssetType == 'Breaker'? <>
-                                    <div className="col-6 d-flex flex-column">
-                                        <ChannelSelector
-                                            Label="Associated Channels Bus Side"
-                                            Channels={filterChannels}
-                                            SelectedChannels={newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 0)}
-                                            UpdateChannels={(c) => {
-                                                let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
-                                                asset.Channels = _.uniqBy(c.map(ch => ({ ...ch, ConnectionPriority: 0 }))
-                                                    .concat(newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 1)), (ch) => ch.ID);
-                                                setNewEditAsset(asset);
+                                            const updatedAsset = { ...newEditAsset, Channels: updatedChannels };
+                                            setNewEditAsset(updatedAsset);
 
-                                                //Update Channels with new ConnectionPriority
-                                                let channels = _.clone(props.Channels);
-                                                channels = channels.map(ch => ({ ...ch, ConnectionPriority: c.find(d => d.ID == ch.ID) == null ? ch.ConnectionPriority : 0 }));
-                                                props.UpdateChannels(channels);
-                                            }}
-                                        />
-                                    </div>
-                                    <div className="col-6 d-flex flex-column">
-                                        <ChannelSelector
-                                            Label="Associated Channels Line/XFR Side"
-                                            Channels={filterChannels}
-                                            SelectedChannels={newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 1)}
-                                            UpdateChannels={(c) => {
-                                                let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
-                                                asset.Channels = _.uniqBy(c.map(ch => ({ ...ch, ConnectionPriority: 1 }))
-                                                    .concat(newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 0)), (ch) => ch.ID);
-                                                setNewEditAsset(asset);
-
-                                                //Update Channels with new ConnectionPriority
-                                                let channels = _.clone(props.Channels);
-                                                channels = channels.map(ch => ({ ...ch, ConnectionPriority: c.find(d => d.ID == ch.ID) == null ? ch.ConnectionPriority : 1 }));
-                                                props.UpdateChannels(channels);
-                                            }}
-                                        />
-                                    </div> </> : null}
-                                {newEditAsset.AssetType === 'Transformer' ? (
-                                    <div className="col-12">
-                                        <div className="row justify-content-center h-100">
-                                            <div className="col-4 d-flex flex-column">
-                                                <ChannelSelector
-                                                    Label="Associated Channels Primary Side"
-                                                    Channels={filterChannels}
-                                                    SelectedChannels={newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 0)}
-                                                    UpdateChannels={(c) => {
-                                                        let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
-                                                        asset.Channels = _.uniqBy(c.map(ch => ({ ...ch, ConnectionPriority: 0 }))
-                                                            .concat(newEditAsset.Channels.filter(ch => ch.ConnectionPriority != 0)), (ch) => ch.ID);
-                                                        setNewEditAsset(asset);
-
-                                                        //Update Channels with new ConnectionPriority
-                                                        let channels = _.clone(props.Channels);
-                                                        channels = channels.map(ch => ({ ...ch, ConnectionPriority: c.find(d => d.ID == ch.ID) == null ? ch.ConnectionPriority : 0 }));
-                                                        props.UpdateChannels(channels);
-                                                    }}
-                                                />
-                                            </div>
-                                            <div className="col-4 d-flex flex-column">
-                                                <ChannelSelector
-                                                    Label="Associated Channels Secondary Side"
-                                                    Channels={filterChannels}
-                                                    SelectedChannels={newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 1)}
-                                                    UpdateChannels={(c) => {
-                                                        let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
-                                                        asset.Channels = _.uniqBy(c.map(ch => ({ ...ch, ConnectionPriority: 1 }))
-                                                            .concat(newEditAsset.Channels.filter(ch => ch.ConnectionPriority != 1)), (ch) => ch.ID);
-                                                        setNewEditAsset(asset);
-
-                                                        //Update Channels with new ConnectionPriority
-                                                        let channels = _.clone(props.Channels);
-                                                        channels = channels.map(ch => ({ ...ch, ConnectionPriority: c.find(d => d.ID == ch.ID) == null ? ch.ConnectionPriority : 1 }));
-                                                        props.UpdateChannels(channels);
-                                                    }}
-                                                />
-                                            </div>
-                                            <div className="col-4 d-flex flex-column">
-                                                <ChannelSelector
-                                                    Label="Associated Channels Tertiary Side"
-                                                    Channels={filterChannels}
-                                                    SelectedChannels={newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 2)}
-                                                    UpdateChannels={(c) => {
-                                                        let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
-                                                        asset.Channels = _.uniqBy(c.map(ch => ({ ...ch, ConnectionPriority: 2 }))
-                                                            .concat(newEditAsset.Channels.filter(ch => ch.ConnectionPriority != 2)), (ch) => ch.ID);
-                                                        setNewEditAsset(asset);
-
-                                                        //Update Channels with new ConnectionPriority
-                                                        let channels = _.clone(props.Channels);
-                                                        channels = channels.map(ch => ({ ...ch, ConnectionPriority: c.find(d => d.ID == ch.ID) == null ? ch.ConnectionPriority : 2}));
-                                                        props.UpdateChannels(channels);
-                                                    }}
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                ) : null}
+                                            const globalChannels = props.Channels.map(ch => ({  // updates global chs if in new chs, updating connection priority
+                                                ...ch, ConnectionPriority: c.some(d => d.ID === ch.ID) ? tabToPriority[tab] : ch.ConnectionPriority
+                                            }));
+                                            props.UpdateChannels(globalChannels);
+                                        }}
+                                    />
+                                </div>
                             </div>
-                            </div> 
                         </div>
+                    </div>
                 </Modal>
             </div>
         );
