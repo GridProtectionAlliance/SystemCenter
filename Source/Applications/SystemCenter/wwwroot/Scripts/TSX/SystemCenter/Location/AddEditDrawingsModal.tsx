@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  LocationDrawings.tsx - Gbtc
 //
-//  Copyright � 2023, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright © 2024, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -63,7 +63,7 @@ const AddEditDrawingsModal = (props: IProps) => {
     }
 
     React.useEffect(() => {
-        let categoryHandle = getValueList("Category", setCategory);
+        const categoryHandle = getValueList("Category", setCategory);
 
         return () => {
             if (categoryHandle != null && categoryHandle.abort != null) categoryHandle.abort();
