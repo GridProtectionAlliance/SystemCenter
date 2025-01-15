@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  LocationDrawings.tsx - Gbtc
 //
-//  Copyright � 2023, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright © 2024, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -23,9 +23,10 @@
 import React from 'react';
 import { Modal } from '@gpa-gemstone/react-interactive';
 import LocationDrawingsTable from '../Location/LocationDrawingsTable';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
 
 interface IProps {
-    LocationID: number;
+    Location: OpenXDA.Types.Location;
     Show: boolean;
     SetShow: (b: boolean) => void;
 }
@@ -34,16 +35,16 @@ const LocationDrawingsModal = (props: IProps) => {
     return (
         <Modal
             Show={props.Show}
-            Title={'Drawings'}
+            Title={'Drawings for ' + props.Location?.Name}
             ShowX={true} Size={'lg'}
             CallBack={() => props.SetShow(false)}
             ShowCancel={false}
             ConfirmText={'Done'}>
             <div className="row">
-                <div className="col" style={{ width: '100%' }}>
+                <div className="col-12">
                     <LocationDrawingsTable
-                        LocationID={props.LocationID}
-                        UpdateTable={0}
+                        LocationID={props.Location?.ID}
+                        RefreshDrawings={0}
                     />
                 </div>
             </div>
