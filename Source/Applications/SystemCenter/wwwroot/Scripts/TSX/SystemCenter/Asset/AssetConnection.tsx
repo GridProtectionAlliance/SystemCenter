@@ -105,7 +105,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
     }, [localAssets])
 
     React.useEffect(() => {
-        let handle = getAssetConnections();
+        const handle = getAssetConnections();
         return () => { if (handle != null && handle.abort != null) handle.abort(); }
     }, [props.ID, trigger])
 

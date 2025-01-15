@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  LocationDrawings.tsx - Gbtc
 //
-//  Copyright � 2023, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright © 2023, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -32,9 +32,9 @@ interface IProps {
     LocationID: number,
     Edit?: (record: SystemCenter.Types.LocationDrawing) => void,
     /**
-     * @param UpdateTable Counter that triggers a fetchDrawings function
+     * @param RefreshDrawings Counter that triggers a fetchDrawings function
      */
-    UpdateTable: number
+    RefreshDrawings: number
 }
 
 const LocationDrawingsTable = (props: IProps) => {
@@ -45,7 +45,7 @@ const LocationDrawingsTable = (props: IProps) => {
     const [pageState, setPageState] = React.useState<'error' | 'idle' | 'loading'>('idle');
     const [page, setPage] = React.useState<number>(0);
 
-    const roles = useAppSelector(SelectRoles); // Deprecated
+    const roles = useAppSelector(SelectRoles);
     const LocationDrawingController = new GenericController<SystemCenter.Types.LocationDrawing>(`${homePath}api/LocationDrawing`, "Name", true);
     const PagingID = 'LocationDrawingPage'
 
@@ -71,12 +71,8 @@ const LocationDrawingsTable = (props: IProps) => {
     const handleDelete = (item: SystemCenter.Types.LocationDrawing) => {
         setPageState('loading');
         LocationDrawingController.DBAction('DELETE', item)
-            .then(() => {
-                fetchDrawings(sortKey, ascending, page, props.LocationID);
-            })
-            .catch(() => {
-                setPageState('error');
-            });
+            .then(() => fetchDrawings(sortKey, ascending, page, props.LocationID),
+                  () => setPageState('error'))
     };
 
     React.useEffect(() => {
@@ -89,13 +85,12 @@ const LocationDrawingsTable = (props: IProps) => {
     }, [page]);
 
     React.useEffect(() => {
-        fetchDrawings(sortKey, ascending, page, props.LocationID);
         const handle = fetchDrawings(sortKey, ascending, page, props.LocationID);
         return () => { if (handle != null && handle?.abort != null) handle.abort(); }
-    }, [sortKey, ascending, page, props.LocationID, props.UpdateTable]);
+    }, [sortKey, ascending, page, props.LocationID, props.RefreshDrawings]);
 
     return <>
-        <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <div className="w-100 h-100 d-flex flex-column">
             <ReactTable.Table<SystemCenter.Types.LocationDrawing>
                 TableClass="table table-hover"
                 Data={links}

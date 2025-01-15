@@ -74,7 +74,7 @@ const LocationDrawingsWindow = (props: { LocationID: number }) => {
                         setEditMode(true);
                         setShowModal(true);
                     }}
-                    UpdateTable={updateTable}
+                    RefreshDrawings={updateTable}
                 />
             </div>
             <div className="card-footer">
