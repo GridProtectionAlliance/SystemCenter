@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { ReactTable } from '@gpa-gemstone/react-table'
+import { Table, Column } from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
@@ -122,7 +122,7 @@ const RemoteXDAInstanceMain: Application.Types.iByComponent = (props) => {
                 </li>
             </SearchBar>
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <ReactTable.Table<OpenXDA.Types.RemoteXDAInstance>
+                <Table<OpenXDA.Types.RemoteXDAInstance>
                     TableClass="table table-hover"
                     Data={searchResults}
                     SortKey={sortKey}
@@ -142,23 +142,23 @@ const RemoteXDAInstanceMain: Application.Types.iByComponent = (props) => {
                     Selected={(item) => false}
                     KeySelector={(item) => item.ID}
                 >
-                    <ReactTable.Column<OpenXDA.Types.RemoteXDAInstance>
+                    <Column<OpenXDA.Types.RemoteXDAInstance>
                         Key={'Name'}
                         AllowSort={true}
                         Field={'Name'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                     > Name
-                    </ReactTable.Column>
-                    <ReactTable.Column<OpenXDA.Types.RemoteXDAInstance>
+                    </Column>
+                    <Column<OpenXDA.Types.RemoteXDAInstance>
                         Key={'Address'}
                         AllowSort={true}
                         Field={'Address'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                     > URL
-                    </ReactTable.Column>
-                </ReactTable.Table>
+                    </Column>
+                </Table>
             </div>
 
             <Modal Show={showNew} Title={'New Remote openXDA Instance Connection'}

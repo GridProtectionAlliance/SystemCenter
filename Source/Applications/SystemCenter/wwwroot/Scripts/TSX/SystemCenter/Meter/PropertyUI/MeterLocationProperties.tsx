@@ -33,6 +33,7 @@ import LocationDrawings from './LocationDrawings';
 import { useAppSelector } from '../../hooks';
 import { SelectRoles } from '../../Store/UserSettings';
 import { ToolTip } from '@gpa-gemstone/react-interactive';
+import { Column } from '@gpa-gemstone/react-table';
 
 declare var homePath: string;
 
@@ -138,10 +139,10 @@ const MeterLocationProperties = (props: IProps) => {
                         <button type="button" className={"btn btn-secondary" + (hasPermissions() || isEmpty() ? '' : 'disabled')} data-tooltip='ClearLocation' onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')}
                             onClick={() => { if (hasPermissions()) props.UpdateMeter({ ...props.Meter, LocationID: null }) }}>Clear</button>
                     </div>
-                    <ToolTip Show={hover == 'clear' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"ClearLocation"}>
+                    <ToolTip Show={hover == 'clear' && !hasPermissions()} Position={'top'} Target={"ClearLocation"}>
                         <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                     </ToolTip>
-                    <ToolTip Show={hover == 'submit' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"SelectLocation"}>
+                    <ToolTip Show={hover == 'submit' && !hasPermissions()} Position={'top'} Target={"SelectLocation"}>
                         <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                     </ToolTip>
                     <Input<OpenXDA.Types.Location> 
@@ -192,16 +193,19 @@ const MeterLocationProperties = (props: IProps) => {
                 }}
                 Show={showStationSelector}
                 Type={'single'}
-                Columns={[
-                    { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'LocationKey', field: 'LocationKey', label: 'Key', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
-                    { key: 'Meters', field: 'Meters', label: 'Meters', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                    { key: 'Assets', field: 'Assets', label: 'Assets', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                ]}
                 Title={"Select Substation"}
                 GetEnum={getEnum}
-                GetAddlFields={() => { return () => { } }} />
+                GetAddlFields={() => { return () => { } }}
+            >
+                <Column Key="Name" Field="Name" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Name</Column>
+                <Column Key="LocationKey" Field="LocationKey" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Key</Column>
+                <Column Key="Meters" Field="Meters" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Meters</Column>
+                <Column Key="Assets" Field="Assets" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Assets</Column>
+            </DefaultSelects.Location>
         </>
     );
 

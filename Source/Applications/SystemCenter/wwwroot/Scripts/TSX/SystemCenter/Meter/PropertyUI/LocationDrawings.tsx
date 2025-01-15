@@ -26,7 +26,7 @@ import * as React from 'react';
 import { SystemCenter } from '@gpa-gemstone/application-typings'
 import { LocationDrawingSlice } from '../../Store/Store';
 import { Modal, ToolTip } from '@gpa-gemstone/react-interactive';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { CreateGuid } from '@gpa-gemstone/helper-functions';
 
@@ -66,7 +66,7 @@ const LocationDrawings = (props: IProps) => {
             <Modal Show={showDrawings} Title={'Drawings'} ShowX={true} Size={'lg'} CallBack={() => setShowDrawings(false)} ShowCancel={false} ConfirmText={'Done'}>
                 <div className="row">
                     <div className="col" style={{ width: '100%' }}>
-                        <ReactTable.Table<SystemCenter.Types.LocationDrawing>
+                        <Table<SystemCenter.Types.LocationDrawing>
                             TableClass="table table-hover"
                             Data={drawingData}
                             SortKey={drawingSortKey}
@@ -81,45 +81,45 @@ const LocationDrawings = (props: IProps) => {
                             Selected={(item) => false}
                             KeySelector={(item) => item.ID}
                         >
-                            <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                            <Column<SystemCenter.Types.LocationDrawing>
                                 Key={'Name'}
                                 AllowSort={true}
                                 Field={'Name'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                             > Name
-                            </ReactTable.Column>
-                            <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                            </Column>
+                            <Column<SystemCenter.Types.LocationDrawing>
                                 Key={'Description'}
                                 AllowSort={true}
                                 Field={'Description'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                             > Description
-                            </ReactTable.Column>
-                            <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                            </Column>
+                            <Column<SystemCenter.Types.LocationDrawing>
                                 Key={'Number'}
                                 AllowSort={true}
                                 Field={'Number'}
                                 HeaderStyle={{ width: '15%' }}
                                 RowStyle={{ width: '15%' }}
                             > Number
-                            </ReactTable.Column>
-                            <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                            </Column>
+                            <Column<SystemCenter.Types.LocationDrawing>
                                 Key={'Category'}
                                 AllowSort={true}
                                 Field={'Category'}
                                 HeaderStyle={{ width: '15%' }}
                                 RowStyle={{ width: '15%' }}
                             > Category
-                            </ReactTable.Column>
-                        </ReactTable.Table>
+                            </Column>
+                        </Table>
                     </div>
                 </div>
             </Modal>
 
             <ToolTip Show={hover === 'drawings' && (props.LocationID == null || props.LocationID == 0 || drawingData.length == 0)}
-                Theme={'dark'} Position={'top'} Target={guid.current} Zindex={9999}>
+                Position={'top'} Target={guid.current} Zindex={9999}>
                 <p>No drawings associated with this substation.</p>
             </ToolTip>
         </div>

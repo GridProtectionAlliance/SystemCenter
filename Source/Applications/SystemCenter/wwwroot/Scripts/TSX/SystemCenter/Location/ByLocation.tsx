@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { ReactTable, Paging } from '@gpa-gemstone/react-table'
+import { Table, Column, Paging } from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
@@ -210,7 +210,7 @@ const ByLocation: Application.Types.iByComponent = (props) => {
             </DefaultSearch.Location>
 
             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                <ReactTable.Table<SystemCenter.Types.DetailedLocation>
+                <Table<SystemCenter.Types.DetailedLocation>
                     TableClass="table table-hover"
                     Data={data}
                     SortKey={sortKey}
@@ -233,39 +233,39 @@ const ByLocation: Application.Types.iByComponent = (props) => {
                     Selected={(item) => false}
                     KeySelector={(item) => item.ID}
                 >
-                    <ReactTable.Column<SystemCenter.Types.DetailedLocation>
+                    <Column<SystemCenter.Types.DetailedLocation>
                         Key={'Name'}
                         AllowSort={true}
                         Field={'Name'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                     > Name
-                    </ReactTable.Column>
-                    <ReactTable.Column<SystemCenter.Types.DetailedLocation>
+                    </Column>
+                    <Column<SystemCenter.Types.DetailedLocation>
                         Key={'LocationKey'}
                         AllowSort={true}
                         Field={'LocationKey'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                     > Key
-                    </ReactTable.Column>
-                    <ReactTable.Column<SystemCenter.Types.DetailedLocation>
+                    </Column>
+                    <Column<SystemCenter.Types.DetailedLocation>
                         Key={'Meters'}
                         AllowSort={true}
                         Field={'Meters'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                     > Meters
-                    </ReactTable.Column>
-                    <ReactTable.Column<SystemCenter.Types.DetailedLocation>
+                    </Column>
+                    <Column<SystemCenter.Types.DetailedLocation>
                         Key={'Assets'}
                         AllowSort={true}
                         Field={'Assets'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                     > Assets
-                    </ReactTable.Column>
-                </ReactTable.Table>
+                    </Column>
+                </Table>
             </div>
             <div className="row">
                 <div className="col">

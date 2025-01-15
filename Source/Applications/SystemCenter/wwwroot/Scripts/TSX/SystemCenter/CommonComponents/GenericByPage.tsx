@@ -26,7 +26,7 @@ import * as _ from 'lodash';
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import { SystemCenter as SC } from '../global';
 import { Search, Modal, GenericController, SearchBar, LoadingScreen } from '@gpa-gemstone/react-interactive';
-import { ReactTable, Paging } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 
 interface U {
@@ -163,7 +163,7 @@ function GenericByPage<T extends U>(props: React.PropsWithChildren<IProps<T>>) {
                 {props.children}
             </SearchBar>
             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                <ReactTable.Table<T>
+                <Table<T>
                     TableClass="table table-hover"
                     Data={data}
                     SortKey={sortKey.toString()}
@@ -185,7 +185,7 @@ function GenericByPage<T extends U>(props: React.PropsWithChildren<IProps<T>>) {
                 >
                     {
                         ...props.Columns.map(col => (
-                            <ReactTable.Column<T>
+                            <Column<T>
                                 Key={col.Field.toString()}
                                 AllowSort={true}
                                 Field={col.Field}
@@ -193,10 +193,10 @@ function GenericByPage<T extends U>(props: React.PropsWithChildren<IProps<T>>) {
                                 RowStyle={{ width: col?.Width ?? 'auto' }}
                                 Content={datum => getContent(datum, col)}
                             >{col.Label}
-                            </ReactTable.Column>
+                            </Column>
                         ))
                     }
-                </ReactTable.Table>
+                </Table>
             </div>
             <div className="row justify-content-center">
                 <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p - 1)} />

@@ -129,10 +129,10 @@ const TriggerWindow = (props: IProps) => {
                     </div>
                 </div>
             </div>
-            <ToolTip Show={triggerStatus == 'invalid' && hover == 'submit'} Position={'top'} Theme={'dark'} Target={"submit"}>
+            <ToolTip Show={triggerStatus == 'invalid' && hover == 'submit'} Position={'top'} Target={"submit"}>
                 {triggerStatus == 'invalid' ? <p> {CrossMark} Trigger SQL is invalid.</p> : null}
             </ToolTip>
-            <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Theme={'dark'} Target={"clear"}>
+            <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Target={"clear"}>
                 {props.Record.TriggerEmailSQL != email.TriggerEmailSQL ? <p> {Warning} Changes to Trigger SQL will be discarded.</p> : null}
             </ToolTip>
         </div>

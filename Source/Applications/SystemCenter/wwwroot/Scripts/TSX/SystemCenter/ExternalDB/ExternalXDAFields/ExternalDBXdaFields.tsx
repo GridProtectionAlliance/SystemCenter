@@ -26,7 +26,7 @@ import { useAppSelector, useAppDispatch } from '../../hooks';
 import { ExternalXDAFieldsSlice } from '../../Store/Store';
 import ExternalDBXdaFieldsForm from './ExternalDBXdaFieldsForm';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { Modal, Warning } from '@gpa-gemstone/react-interactive';
 
@@ -71,7 +71,7 @@ export default function ExternalDBXdaFields(props: { ID: number }) {
                         <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
                             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
                                 <div className="col-12" style={{ height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-                                    <ReactTable.Table<SystemCenter.Types.ExternalOpenXDAField>
+                                    <Table<SystemCenter.Types.ExternalOpenXDAField>
                                         TableClass="table table-hover"
                                         Data={data}
                                         SortKey={sortKey}
@@ -87,23 +87,23 @@ export default function ExternalDBXdaFields(props: { ID: number }) {
                                         Selected={(item) => false}
                                         KeySelector={(item) => item.ID}
                                     >
-                                        <ReactTable.Column<SystemCenter.Types.ExternalOpenXDAField>
+                                        <Column<SystemCenter.Types.ExternalOpenXDAField>
                                             Key={'FieldName'}
                                             AllowSort={true}
                                             Field={'FieldName'}
                                             HeaderStyle={{ width: 'auto' }}
                                             RowStyle={{ width: 'auto' }}
                                         > Name
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<SystemCenter.Types.ExternalOpenXDAField>
+                                        </Column>
+                                        <Column<SystemCenter.Types.ExternalOpenXDAField>
                                             Key={'ParentTable'}
                                             AllowSort={true}
                                             Field={'ParentTable'}
                                             HeaderStyle={{ width: 'auto' }}
                                             RowStyle={{ width: 'auto' }}
                                         > Parent Type
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<SystemCenter.Types.ExternalOpenXDAField>
+                                        </Column>
+                                        <Column<SystemCenter.Types.ExternalOpenXDAField>
                                             Key={'btns'}
                                             AllowSort={false}
                                             HeaderStyle={{ width: 'auto' }}
@@ -121,8 +121,8 @@ export default function ExternalDBXdaFields(props: { ID: number }) {
                                                 }}>{TrashCan}</button>
                                             </>}
                                         > <p></p>
-                                        </ReactTable.Column>
-                                    </ReactTable.Table>
+                                        </Column>
+                                    </Table>
                                 </div>
                             </div>
                         </div>

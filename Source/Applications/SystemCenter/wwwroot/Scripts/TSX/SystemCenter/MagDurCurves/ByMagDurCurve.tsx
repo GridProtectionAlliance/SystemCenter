@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { SearchBar, Search, Modal, Warning } from '@gpa-gemstone/react-interactive';
@@ -93,7 +93,7 @@ const ByMagDurCurve: Application.Types.iByComponent = (props) => {
                 </li>
             </SearchBar>
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <ReactTable.Table<OpenXDA.Types.MagDurCurve>
+                <Table<OpenXDA.Types.MagDurCurve>
                     TableClass="table table-hover"
                     Data={data}
                     SortKey={sortKey}
@@ -106,15 +106,15 @@ const ByMagDurCurve: Application.Types.iByComponent = (props) => {
                     Selected={(item) => false}
                     KeySelector={(item) => item.ID}
                 >
-                    <ReactTable.Column<OpenXDA.Types.MagDurCurve>
+                    <Column<OpenXDA.Types.MagDurCurve>
                         Key={'Name'}
                         AllowSort={true}
                         Field={'Name'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                     > Name
-                    </ReactTable.Column>
-                </ReactTable.Table>
+                    </Column>
+                </Table>
             </div>
 
             <Modal Show={showModal} Title={newEdit == 'Edit' ? 'Edit ' + (curve?.Name ?? 'MagDur Curve') : 'Add New MagDur Curve'} Size={'xlg'} CallBack={(c,b) => {

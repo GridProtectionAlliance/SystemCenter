@@ -137,11 +137,11 @@ const ByUserInformation = (props: IProps) => {
                     </div>
                 </div>
             </div>
-            <ToolTip Show={(!validPhone || (phone == userPhone && carrier.ID == userCarrier)) && hover == 'submit'} Position={'top'} Theme={'dark'} Target={"submit"}>
+            <ToolTip Show={(!validPhone || (phone == userPhone && carrier.ID == userCarrier)) && hover == 'submit'} Position={'top'} Target={"submit"}>
                 {!validPhone ? <p> {CrossMark} A valid Cell Phone is required.</p> : null}
                 {(phone == userPhone && carrier.ID == userCarrier) ? <p> No Changes were made.</p> : null}
             </ToolTip>
-            <ToolTip Show={hover == 'clear'} Position={'top'} Theme={'dark'} Target={"clear"}>
+            <ToolTip Show={hover == 'clear'} Position={'top'} Target={"clear"}>
                 {(phone == userPhone && carrier.ID == userCarrier) ? <p> No Changes were made.</p> : null}
                 {(phone != userPhone) ? <p> {Warning} Changes to Cell Phone will be lost.</p> : null}
                 {(carrier.ID != userCarrier) ? <p> {Warning} Changes to Cell Carrier will be lost.</p> : null}

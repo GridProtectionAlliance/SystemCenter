@@ -27,7 +27,7 @@ import { LoadingScreen } from '@gpa-gemstone/react-interactive';
 import { HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import { ScheduledEmailType, SubscribeReports } from '../global';
 import { ReportSubscriptionSlice } from '../Store';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import * as $ from 'jquery';
 import { Application } from '@gpa-gemstone/application-typings';
 
@@ -108,7 +108,7 @@ const Subscriptions = (props: IProps) => {
                             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
                                 <div className="col-12" style={{ height: '100%', overflow: 'hidden' }}>
                                     <LoadingScreen Show={status == 'loading' || approvalStatus == 'loading'} />
-                                    <ReactTable.Table<SubscribeReports>
+                                    <Table<SubscribeReports>
                                         TableClass="table table-hover"
                                         Data={subscriptions}
                                         SortKey={sortKey}
@@ -127,40 +127,40 @@ const Subscriptions = (props: IProps) => {
                                         Selected={(item) => false}
                                         KeySelector={(item) => item.ID}
                                     >
-                                        <ReactTable.Column<SubscribeReports>
+                                        <Column<SubscribeReports>
                                             Key={'FirstName'}
                                             AllowSort={true}
                                             Field={'FirstName'}
                                             HeaderStyle={{ width: props.Record.RequireApproval ? '20%' : '25%' }}
                                             RowStyle={{ width: props.Record.RequireApproval ? '20%' : '25%' }}
                                         > First Name
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<SubscribeReports>
+                                        </Column>
+                                        <Column<SubscribeReports>
                                             Key={'LastName'}
                                             AllowSort={true}
                                             Field={'LastName'}
                                             HeaderStyle={{ width: props.Record.RequireApproval ? '20%' : '25%' }}
                                             RowStyle={{ width: props.Record.RequireApproval ? '20%' : '25%' }}
                                         > Last Name
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<SubscribeReports>
+                                        </Column>
+                                        <Column<SubscribeReports>
                                             Key={'Email'}
                                             AllowSort={true}
                                             Field={'Email'}
                                             HeaderStyle={{ width: props.Record.RequireApproval ? '20%' : '25%' }}
                                             RowStyle={{ width: props.Record.RequireApproval ? '20%' : '25%' }}
                                         > Email
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<SubscribeReports>
+                                        </Column>
+                                        <Column<SubscribeReports>
                                             Key={'AssetGroup'}
                                             AllowSort={true}
                                             Field={'AssetGroup'}
                                             HeaderStyle={{ width: props.Record.RequireApproval ? '20%' : '25%' }}
                                             RowStyle={{ width: props.Record.RequireApproval ? '20%' : '25%' }}
                                         > Assets
-                                        </ReactTable.Column>
+                                        </Column>
                                         {props.Record.RequireApproval ?
-                                            <ReactTable.Column<SubscribeReports>
+                                            <Column<SubscribeReports>
                                                 Key={'Approved'}
                                                 AllowSort={true}
                                                 Field={'Approved'}
@@ -169,9 +169,9 @@ const Subscriptions = (props: IProps) => {
                                                 Content={({ item }) => item.Approved ? HeavyCheckMark :
                                                     <button type="button" className="btn btn-primary btn-sm" onClick={() => approve(item)}>Approve</button>}
                                             > Approved
-                                            </ReactTable.Column>
+                                            </Column>
                                         : null}
-                                    </ReactTable.Table>
+                                    </Table>
                                 </div>
                             </div>
                         </div>

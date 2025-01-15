@@ -244,7 +244,7 @@ const LocationInfo = (props: IProps) => {
                             if (locationErrors.length == 0 && addlFieldError.length === 0 && hasChanged) return updateLocation()
                         }} data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
                 </div>
-                <ToolTip Show={(locationErrors.length > 0 || addlFieldError.length > 0 || !hasChanged) && hover == 'submit'} Position={'top'} Theme={'dark'} Target={"submit"}>
+                <ToolTip Show={(locationErrors.length > 0 || addlFieldError.length > 0 || !hasChanged) && hover == 'submit'} Position={'top'} Target={"submit"}>
                     {!hasChanged && hasPermissions()? <p> No changes made.</p> : null}
                     {!hasPermissions() ? <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p> : null}
                     {locationErrors.map((t, i) => <p key={i}>
@@ -260,7 +260,7 @@ const LocationInfo = (props: IProps) => {
                         if (resetAddl.current !== undefined) resetAddl.current();
                     }} onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')} >Clear Changes</button>
                 </div>
-                <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Theme={'dark'} Target={"clear"}>
+                <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Target={"clear"}>
                     {props.Location.LocationKey != location.LocationKey ? <p> {Warning} Changes to Key will be discarded.</p> : null}
                     {props.Location.Name != location.Name ? <p> {Warning} Changes to Name will be discarded.</p> : null}
                     {props.Location.ShortName != location.ShortName ? <p> {Warning} Changes to Short Name will be discarded.</p> : null}

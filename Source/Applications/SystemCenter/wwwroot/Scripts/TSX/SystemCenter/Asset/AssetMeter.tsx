@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { useHistory } from "react-router-dom";
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
 import { ByMeterSlice } from '../Store/Store';
@@ -177,7 +177,7 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
             </div>
             <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
                 <div style={{ width: '100%', height: '100%', padding: 30, display: 'flex', flexDirection: 'column' }}>
-                    <ReactTable.Table<OpenXDA.Types.Meter>
+                    <Table<OpenXDA.Types.Meter>
                         TableClass="table table-hover"
                         Data={meters}
                         SortKey={sortField}
@@ -203,39 +203,39 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
                     >
-                        <ReactTable.Column<OpenXDA.Types.Meter>
+                        <Column<OpenXDA.Types.Meter>
                             Key={'AssetKey'}
                             AllowSort={true}
                             Field={'AssetKey'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Key
-                        </ReactTable.Column>
-                        <ReactTable.Column<OpenXDA.Types.Meter>
+                        </Column>
+                        <Column<OpenXDA.Types.Meter>
                             Key={'Name'}
                             AllowSort={true}
                             Field={'Name'}
                             HeaderStyle={{ width: '30%' }}
                             RowStyle={{ width: '30%' }}
                         > Name
-                        </ReactTable.Column>
-                        <ReactTable.Column<OpenXDA.Types.Meter>
+                        </Column>
+                        <Column<OpenXDA.Types.Meter>
                             Key={'Make'}
                             AllowSort={true}
                             Field={'Make'}
                             HeaderStyle={{ width: '20%' }}
                             RowStyle={{ width: '20%' }}
                         > Make
-                        </ReactTable.Column>
-                        <ReactTable.Column<OpenXDA.Types.Meter>
+                        </Column>
+                        <Column<OpenXDA.Types.Meter>
                             Key={'Model'}
                             AllowSort={true}
                             Field={'Model'}
                             HeaderStyle={{ width: '20%' }}
                             RowStyle={{ width: '20%' }}
                         > Model
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                 </div>
             </div>
             <div className="card-footer">
@@ -243,7 +243,7 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
                     <button className={"btn btn-info pull-right" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='ChangeMeters'
                         onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (hasPermissions()) setShowAdd(true); }}>Change Meters</button>
                 </div>
-                <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"ChangeMeters"}>
+                <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Target={"ChangeMeters"}>
                     <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                 </ToolTip>
             </div>
@@ -258,18 +258,23 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
                 }}
                 Show={showAdd}
                 Type={'multiple'}
-                Columns={[
-                    { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Location', field: 'Location', label: 'Substation', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'MappedAssets', field: 'MappedAssets', label: 'Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Make', field: 'Make', label: 'Make', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Model', field: 'Model', label: 'Model', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                ]}
                 Title={"Add Meters to " + (props.Asset?.AssetName ?? 'Asset')}
                 GetEnum={getEnum}
-                GetAddlFields={getAdditionalMeterFields} />
+                GetAddlFields={getAdditionalMeterFields}
+            >
+                <Column Key="AssetKey" Field="AssetKey" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Key</Column>
+                <Column Key="Name" Field="Name" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Name</Column>
+                <Column Key="Location" Field="Location" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Substation</Column>
+                <Column Key="MappedAssets" Field="MappedAssets" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Assets</Column>
+                <Column Key="Make" Field="Make" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Make</Column>
+                <Column Key="Model" Field="Model" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Model</Column>
+            </DefaultSelects.Meter>
         </div>
                 
     );

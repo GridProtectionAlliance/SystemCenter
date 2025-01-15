@@ -22,7 +22,7 @@
 
 import * as React from 'react';
 import { Input } from '@gpa-gemstone/react-forms';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import { SearchBar, Search, Modal, Warning, LoadingScreen, ServerErrorIcon, GenericSlice } from '@gpa-gemstone/react-interactive';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
@@ -104,7 +104,7 @@ const ByApplicationNode: Application.Types.iByComponent = (props) => {
                 </SearchBar>
 
                 <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                    <ReactTable.Table<Application.Types.iApplicationNode>
+                    <Table<Application.Types.iApplicationNode>
                         TableClass="table table-hover"
                         Data={data}
                         SortKey={sortField}
@@ -119,23 +119,23 @@ const ByApplicationNode: Application.Types.iByComponent = (props) => {
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
                     >
-                        <ReactTable.Column<Application.Types.iApplicationNode>
+                        <Column<Application.Types.iApplicationNode>
                             Key={'Name'}
                             AllowSort={true}
                             Field={'Name'}
                             HeaderStyle={{ width: '50%' }}
                             RowStyle={{ width: '50%' }}
                         > Name
-                        </ReactTable.Column>
-                        <ReactTable.Column<Application.Types.iApplicationNode>
+                        </Column>
+                        <Column<Application.Types.iApplicationNode>
                             Key={'ID'}
                             AllowSort={true}
                             Field={'ID'}
                             HeaderStyle={{ width: '50%' }}
                             RowStyle={{ width: '50%' }}
                         > Node ID
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                 </div>
             </div>
             <Modal Title={editNew === 'Edit' ? ('Edit ' + (editnewNode?.Name ?? 'SSO Application')) : 'Add New SSO Application'}

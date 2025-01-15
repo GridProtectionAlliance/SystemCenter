@@ -186,7 +186,7 @@ const MeterInforWindow = (props: IProps) => {
                 <div className="btn-group mr-2">
                     <button className={"btn btn-primary" + (validMeter() && hasChanged() ? '' : ' disabled')} type="submit" onClick={() => { if (validMeter() && hasChanged()) return updateMeter(); }} data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
                 </div>
-                <ToolTip Show={(!validMeter() || !hasChanged()) && hover == 'submit'} Position={'top'} Theme={'dark'} Target={"submit"}>
+                <ToolTip Show={(!validMeter() || !hasChanged()) && hover == 'submit'} Position={'top'} Target={"submit"}>
                     {!hasChanged() && hasPermissions()? <p> No changes made.</p> : null}
                     {!hasPermissions() ? <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p> : null}
                     {!valid('AssetKey') ? <p> {CrossMark} A unique Key of less than 50 characters is required.</p> : null}
@@ -203,7 +203,7 @@ const MeterInforWindow = (props: IProps) => {
                         if (resetAddl.current !== undefined) resetAddl.current();
                     }} onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')} >Clear Changes</button>
                 </div>
-                <ToolTip Show={hasChanged() && hover == 'clear'} Position={'top'} Theme={'dark'} Target={"clear"}>
+                <ToolTip Show={hasChanged() && hover == 'clear'} Position={'top'} Target={"clear"}>
                     {props.Meter.AssetKey != meter.AssetKey ? <p> {Warning} Changes to Key will be discarded.</p> : null}
                     {props.Meter.Name != meter.Name ? <p> {Warning} Changes to Name will be discarded.</p> : null}
                     {props.Meter.ShortName != meter.ShortName ? <p> {Warning} Changes to Short Name will be discarded.</p> : null}

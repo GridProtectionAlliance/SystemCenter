@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { TrashCan, Warning } from '@gpa-gemstone/gpa-symbols';
 import { Select } from '@gpa-gemstone/react-forms';
 import { ISection, ITap } from './Types';
@@ -91,7 +91,7 @@ function SectionSelect(props: IProps): JSX.Element {
             <div className="row">
                 <div className="col">
                     <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540}}>
-                        <ReactTable.Table<ISection>
+                        <Table<ISection>
                             TableClass="table table-hover"
                             Data={data}
                             SortKey={sortKey}
@@ -112,7 +112,7 @@ function SectionSelect(props: IProps): JSX.Element {
                             Selected={(item) => false}
                             KeySelector={(item) => item.ID ?? `${item.StartStationID}-${item.EndStationID}-${item.Segments.length}`}
                         >
-                            <ReactTable.Column<ISection>
+                            <Column<ISection>
                                 Key={'StartBus'}
                                 AllowSort={true}
                                 Field={'StartBus'}
@@ -125,8 +125,8 @@ function SectionSelect(props: IProps): JSX.Element {
                                         Options={props.Taps.map(l => ({ Value: l.Bus, Label: generateBusLabel(l) }))} EmptyOption={false} />
                                 </> }
                             > Start
-                            </ReactTable.Column>
-                            <ReactTable.Column<ISection>
+                            </Column>
+                            <Column<ISection>
                                 Key={'EndBus'}
                                 AllowSort={true}
                                 Field={'EndBus'}
@@ -139,8 +139,8 @@ function SectionSelect(props: IProps): JSX.Element {
                                         Options={props.Taps.map(l => ({ Value: l.Bus, Label: generateBusLabel(l) }))} EmptyOption={false} />
                                 </> }
                             > End
-                            </ReactTable.Column>
-                            <ReactTable.Column<ISection>
+                            </Column>
+                            <Column<ISection>
                                 Key={'Segments'}
                                 AllowSort={true}
                                 Field={'Segments'}
@@ -148,8 +148,8 @@ function SectionSelect(props: IProps): JSX.Element {
                                 RowStyle={{ width: 'auto' }}
                                 Content={({ item }) => item.Segments.length }
                             > # of Segments
-                            </ReactTable.Column>
-                            <ReactTable.Column<ISection>
+                            </Column>
+                            <Column<ISection>
                                 Key={'Length'}
                                 AllowSort={true}
                                 Field={'Segments'}
@@ -157,16 +157,16 @@ function SectionSelect(props: IProps): JSX.Element {
                                 RowStyle={{ width: 'auto' }}
                                 Content={({ item }) => item.Segments.reduce((acc, seg) => acc + seg.Length, 0).toFixed(3) }
                             > Length (miles)
-                            </ReactTable.Column>
-                            <ReactTable.Column<ISection>
+                            </Column>
+                            <Column<ISection>
                                 Key={'Warning'}
                                 AllowSort={false}
                                 HeaderStyle={{ width: 40, paddingLeft: 0, paddingRight: 5 }}
                                 RowStyle={{ width: 40, paddingLeft: 0, paddingRight: 5 }}
                                 Content={({ item }) => DisplayWarning(item) }
                             > <p></p>
-                            </ReactTable.Column>
-                            <ReactTable.Column<ISection>
+                            </Column>
+                            <Column<ISection>
                                 Key={'DeleteButton'}
                                 AllowSort={false}
                                 HeaderStyle={{ width: 40, paddingLeft: 0, paddingRight: 5 }}
@@ -176,8 +176,8 @@ function SectionSelect(props: IProps): JSX.Element {
                                         onClick={(e) => props.RemoveSections(item.ID)}><span>{TrashCan}</span></button>
                                 </> }
                             > <p></p>
-                            </ReactTable.Column>
-                        </ReactTable.Table>
+                            </Column>
+                        </Table>
                     </div>
                 </div>
             </div>

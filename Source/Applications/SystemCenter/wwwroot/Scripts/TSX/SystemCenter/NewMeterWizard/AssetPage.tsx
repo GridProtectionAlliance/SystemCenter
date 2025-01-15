@@ -41,7 +41,7 @@ import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { getAssetWithAdditionalFields } from '../../../TS/Services/Asset';
 import LocationDrawings from '../Meter/PropertyUI/LocationDrawings';
 import { GetNodeSize } from '@gpa-gemstone/helper-functions';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import GenerationAttributes from '../AssetAttribute/Generation';
 import StationAuxAttributes from '../AssetAttribute/StationAux';
 import StationBatteryAttributes from '../AssetAttribute/StationBattery';
@@ -335,7 +335,7 @@ export default function AssetPage(props: IProps) {
                             </div>
                             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
                                 <div className="col" style={{height: '100%'}}>
-                                    <ReactTable.Table<AssetType>
+                                    <Table<AssetType>
                                         TableClass="table table-hover"
                                         Data={assetData}
                                         SortKey={sortKey}
@@ -356,47 +356,47 @@ export default function AssetPage(props: IProps) {
                                         Selected={(item) => false}
                                         KeySelector={(item) => item.ID}
                                     >
-                                        <ReactTable.Column<AssetType>
+                                        <Column<AssetType>
                                             Key={'Status'}
                                             AllowSort={true}
                                             HeaderStyle={{ width: '10%' }}
                                             RowStyle={{ width: '10%' }}
                                             Content={({ item }) => item.ID == 0 ? 'New' : 'Existing' }
                                         > Status
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<AssetType>
+                                        </Column>
+                                        <Column<AssetType>
                                             Key={'AssetKey'}
                                             AllowSort={true}
                                             Field={'AssetKey'}
                                             HeaderStyle={{ width: '20%' }}
                                             RowStyle={{ width: '20%' }}
                                         > Key
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<AssetType>
+                                        </Column>
+                                        <Column<AssetType>
                                             Key={'AssetName'}
                                             AllowSort={true}
                                             Field={'AssetName'}
                                             HeaderStyle={{ width: '30%' }}
                                             RowStyle={{ width: '30%' }}
                                         > Name
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<AssetType>
+                                        </Column>
+                                        <Column<AssetType>
                                             Key={'AssetType'}
                                             AllowSort={true}
                                             Field={'AssetType'}
                                             HeaderStyle={{ width: '10%' }}
                                             RowStyle={{ width: '10%' }}
                                         > Type
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<AssetType>
+                                        </Column>
+                                        <Column<AssetType>
                                             Key={'VoltageKV'}
                                             AllowSort={true}
                                             Field={'VoltageKV'}
                                             HeaderStyle={{ width: '10%' }}
                                             RowStyle={{ width: '10%' }}
                                         > kV
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<AssetType>
+                                        </Column>
+                                        <Column<AssetType>
                                             Key={'Channels'}
                                             AllowSort={true}
                                             Field={'Channels'}
@@ -404,8 +404,8 @@ export default function AssetPage(props: IProps) {
                                             RowStyle={{ width: '10%' }}
                                             Content={({ item }) => item.Channels.length }
                                         > Channels
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<AssetType>
+                                        </Column>
+                                        <Column<AssetType>
                                             Key={'Buttons'}
                                             AllowSort={false}
                                             HeaderStyle={{ width: '10%' }}
@@ -415,8 +415,8 @@ export default function AssetPage(props: IProps) {
                                                 <button className="btn btn-sm" onClick={(e) => { e.stopPropagation(); deleteAsset(index); }}><span>{TrashCan}</span></button>
                                             </> }
                                         > <p></p>
-                                        </ReactTable.Column>
-                                    </ReactTable.Table>
+                                        </Column>
+                                    </Table>
                                 </div>
                             </div>
                         </div>                        

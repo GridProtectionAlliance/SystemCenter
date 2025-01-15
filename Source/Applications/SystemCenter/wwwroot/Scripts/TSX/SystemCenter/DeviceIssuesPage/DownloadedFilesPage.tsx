@@ -26,7 +26,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import moment from 'moment';
 import { GenericController } from '@gpa-gemstone/react-interactive';
 
@@ -69,7 +69,7 @@ function DownloadedFilesPage(props: { Meter: OpenXDA.Types.Meter }) {
                 </div>
             </div>
             <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>      
-                <ReactTable.Table<OpenXDA.Types.DataFile>
+                <Table<OpenXDA.Types.DataFile>
                     TableClass="table table-hover"
                     Data={data}
                     SortKey={sortField}
@@ -93,15 +93,15 @@ function DownloadedFilesPage(props: { Meter: OpenXDA.Types.Meter }) {
                     Selected={(item) => false}
                     KeySelector={(item) => item.ID}
                 >
-                    <ReactTable.Column<OpenXDA.Types.DataFile>
+                    <Column<OpenXDA.Types.DataFile>
                         Key={'FilePath'}
                         AllowSort={true}
                         Field={'FilePath'}
                         HeaderStyle={{ width: '30%' }}
                         RowStyle={{ width: '30%' }}
                     > File
-                    </ReactTable.Column>
-                    <ReactTable.Column<OpenXDA.Types.DataFile>
+                    </Column>
+                    <Column<OpenXDA.Types.DataFile>
                         Key={'DataStartTime'}
                         AllowSort={true}
                         Field={'DataStartTime'}
@@ -109,8 +109,8 @@ function DownloadedFilesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         RowStyle={{ width: '15%' }}
                         Content={({ item, key }) => moment(item[key], "YYYY-MM-DDTHH:mm:ss.fffffff").format("MM/DD/YYYY HH:mm:ss") }
                     > Date
-                    </ReactTable.Column>
-                    <ReactTable.Column<OpenXDA.Types.DataFile>
+                    </Column>
+                    <Column<OpenXDA.Types.DataFile>
                         Key={'ProcessingEndTime'}
                         AllowSort={true}
                         Field={'ProcessingEndTime'}
@@ -118,16 +118,16 @@ function DownloadedFilesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         RowStyle={{ width: '15%' }}
                         Content={({ item, key }) => moment(item[key], "YYYY-MM-DDTHH:mm:ss.fffffff").format("MM/DD/YYYY HH:mm:ss") }
                     > Processed
-                    </ReactTable.Column>
-                    <ReactTable.Column<OpenXDA.Types.DataFile>
+                    </Column>
+                    <Column<OpenXDA.Types.DataFile>
                         Key={'FileSize'}
                         AllowSort={true}
                         Field={'FileSize'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                     > Size (kB)
-                    </ReactTable.Column>
-                </ReactTable.Table>
+                    </Column>
+                </Table>
             </div>
         </div>
     )

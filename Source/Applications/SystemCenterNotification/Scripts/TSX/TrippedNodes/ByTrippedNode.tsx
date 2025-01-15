@@ -25,7 +25,7 @@ import * as React from 'react';
 import { LoadingIcon, LoadingScreen } from '@gpa-gemstone/react-interactive'
 import { INode } from '../global';
 import * as $ from 'jquery';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 
 declare var homePath;
 declare var version;
@@ -59,7 +59,7 @@ const ByTrippedNode = (props: IProps) => {
             </div>
             <div className='row' style={{ flex: 1, overflow: 'hidden' }}>
                 <div className='col-12' style={{ height: '100%', overflow: 'hidden' }}>
-                    <ReactTable.Table<INode>
+                    <Table<INode>
                         TableClass="table table-hover"
                         Data={nodes}
                         SortKey={''}
@@ -75,23 +75,23 @@ const ByTrippedNode = (props: IProps) => {
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
                     >
-                        <ReactTable.Column<INode>
+                        <Column<INode>
                             Key={'Name'}
                             AllowSort={false}
                             Field={'Name'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Name
-                        </ReactTable.Column>
-                        <ReactTable.Column<INode>
+                        </Column>
+                        <Column<INode>
                             Key={'btn'}
                             AllowSort={false}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                             Content={({ item }) => <ReActivateBtn NodeID={item.ID} /> }
                         > <p></p>
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                 </div>
             </div>
         </div>)

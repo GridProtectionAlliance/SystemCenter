@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { Modal, Search, SearchBar } from '@gpa-gemstone/react-interactive';
 import { CrossMark, HeavyCheckMark, Warning as WarningIcon } from '@gpa-gemstone/gpa-symbols';
@@ -145,7 +145,7 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
 
             <div className='row' style={{ flex: 1, overflow: 'hidden' }}>
                 <div className='col-12' style={{ height: '100%', overflow: 'hidden' }}>
-                    <ReactTable.Table<SystemCenter.Types.AdditionalFieldView>
+                    <Table<SystemCenter.Types.AdditionalFieldView>
                         TableClass="table table-hover"
                         Data={data}
                         SortKey={sortField as string}
@@ -165,15 +165,15 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
                     >
-                        <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
+                        <Column<SystemCenter.Types.AdditionalFieldView>
                             Key={'FieldName'}
                             AllowSort={true}
                             Field={'FieldName'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Name
-                        </ReactTable.Column>
-                        <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
+                        </Column>
+                        <Column<SystemCenter.Types.AdditionalFieldView>
                             Key={'ParentTable'}
                             AllowSort={true}
                             Field={'ParentTable'}
@@ -181,32 +181,32 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
                             RowStyle={{ width: 'auto' }}
                             Content={({ item }) => item.ParentTable != '' ? item.ParentTable : 'No Associated Table' }
                         > Parent Type
-                        </ReactTable.Column>
-                        <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
+                        </Column>
+                        <Column<SystemCenter.Types.AdditionalFieldView>
                             Key={'ExternalDB'}
                             AllowSort={true}
                             Field={'ExternalDB'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > External DB
-                        </ReactTable.Column>
-                        <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
+                        </Column>
+                        <Column<SystemCenter.Types.AdditionalFieldView>
                             Key={'ExternalTable'}
                             AllowSort={true}
                             Field={'ExternalTable'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > External Table
-                        </ReactTable.Column>
-                        <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
+                        </Column>
+                        <Column<SystemCenter.Types.AdditionalFieldView>
                             Key={'Type'}
                             AllowSort={true}
                             Field={'Type'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Field Type
-                        </ReactTable.Column>
-                        <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
+                        </Column>
+                        <Column<SystemCenter.Types.AdditionalFieldView>
                             Key={'Searchable'}
                             AllowSort={true}
                             Field={'Searchable'}
@@ -214,8 +214,8 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
                             RowStyle={{ width: 'auto' }}
                             Content={({ item }) => item.Searchable ? HeavyCheckMark : CrossMark }
                         > Searchable
-                        </ReactTable.Column>
-                        <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
+                        </Column>
+                        <Column<SystemCenter.Types.AdditionalFieldView>
                             Key={'IsSecure'}
                             AllowSort={true}
                             Field={'IsSecure'}
@@ -223,8 +223,8 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
                             RowStyle={{ width: 'auto' }}
                             Content={({ item }) => item.IsSecure ? HeavyCheckMark : CrossMark }
                         > Secure
-                        </ReactTable.Column>
-                        <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
+                        </Column>
+                        <Column<SystemCenter.Types.AdditionalFieldView>
                             Key={'IsInfo'}
                             AllowSort={true}
                             Field={'IsInfo'}
@@ -232,8 +232,8 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
                             RowStyle={{ width: 'auto' }}
                             Content={({ item }) => item.IsInfo ? HeavyCheckMark : CrossMark }
                         > Info
-                        </ReactTable.Column>
-                        <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
+                        </Column>
+                        <Column<SystemCenter.Types.AdditionalFieldView>
                             Key={'IsKey'}
                             AllowSort={true}
                             Field={'IsKey'}
@@ -241,8 +241,8 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
                             RowStyle={{ width: 'auto' }}
                             Content={({ item }) => item.IsKey ? HeavyCheckMark : CrossMark }
                         > Key
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                 </div>
             </div>
 

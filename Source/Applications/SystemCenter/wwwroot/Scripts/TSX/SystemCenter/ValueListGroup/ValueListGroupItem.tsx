@@ -28,7 +28,7 @@ import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { ValueListSlice } from '../Store/Store';
 import ValueListForm from './ValueListForm';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { Modal, Warning } from '@gpa-gemstone/react-interactive';
 import { ValueListItemDelete } from './ValueListGroupDelete';
@@ -71,7 +71,7 @@ export default function ValueListGroupItems(props: IProps) {
             </div>
             <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
                 <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', padding: 0 }}>
-                    <ReactTable.Table<SystemCenter.Types.ValueListItem>
+                    <Table<SystemCenter.Types.ValueListItem>
                         TableClass="table table-hover"
                         Data={data}
                         SortKey={sortKey}
@@ -88,31 +88,31 @@ export default function ValueListGroupItems(props: IProps) {
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
                     >
-                        <ReactTable.Column<SystemCenter.Types.ValueListItem>
+                        <Column<SystemCenter.Types.ValueListItem>
                             Key={'Value'}
                             AllowSort={true}
                             Field={'Value'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Value
-                        </ReactTable.Column>
-                        <ReactTable.Column<SystemCenter.Types.ValueListItem>
+                        </Column>
+                        <Column<SystemCenter.Types.ValueListItem>
                             Key={'AltValue'}
                             AllowSort={true}
                             Field={'AltValue'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Label
-                        </ReactTable.Column>
-                        <ReactTable.Column<SystemCenter.Types.ValueListItem>
+                        </Column>
+                        <Column<SystemCenter.Types.ValueListItem>
                             Key={'SortOrder'}
                             AllowSort={true}
                             Field={'SortOrder'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Sort Order
-                        </ReactTable.Column>
-                        <ReactTable.Column<SystemCenter.Types.ValueListItem>
+                        </Column>
+                        <Column<SystemCenter.Types.ValueListItem>
                             Key={'btns'}
                             AllowSort={false}
                             HeaderStyle={{ width: 'auto' }}
@@ -130,8 +130,8 @@ export default function ValueListGroupItems(props: IProps) {
                                 }}>{TrashCan}</button>
                             </> }
                         > <p></p>
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                 </div>
             </div>
             <div className="card-footer">

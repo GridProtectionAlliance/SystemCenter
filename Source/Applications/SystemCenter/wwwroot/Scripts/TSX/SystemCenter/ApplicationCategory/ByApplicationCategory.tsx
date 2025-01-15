@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { ReactTable } from '@gpa-gemstone/react-table'
+import { Table, Column } from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { SearchBar, Search, Modal} from '@gpa-gemstone/react-interactive';
@@ -124,7 +124,7 @@ const ByApplicationCategory: Application.Types.iByComponent = (props) => {
             </SearchBar>
 
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <ReactTable.Table<ApplicationCategory>
+                <Table<ApplicationCategory>
                     TableClass="table table-hover"
                     Data={data}
                     SortKey={sortField}
@@ -146,21 +146,21 @@ const ByApplicationCategory: Application.Types.iByComponent = (props) => {
                     Selected={(item) => false}
                     KeySelector={(item) => item.ID}
                 >
-                    <ReactTable.Column<ApplicationCategory>
+                    <Column<ApplicationCategory>
                         Key={'Name'}
                         AllowSort={true}
                         Field={'Name'}
                         HeaderStyle={{ width: '50%' }}
                     > Name
-                    </ReactTable.Column>
-                    <ReactTable.Column<ApplicationCategory>
+                    </Column>
+                    <Column<ApplicationCategory>
                         Key={'SortOrder'}
                         AllowSort={true}
                         Field={'SortOrder'}
                         HeaderStyle={{ width: '50%' }}
                     > Sort Order
-                    </ReactTable.Column>
-                </ReactTable.Table>
+                    </Column>
+                </Table>
             </div>
 
             <Modal Title={'Add New Category'}

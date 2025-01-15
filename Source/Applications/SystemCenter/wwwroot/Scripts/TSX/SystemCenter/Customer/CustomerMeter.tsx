@@ -27,7 +27,7 @@ import { PQView, OpenXDA as LocalXDA } from '../global';
 import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { ByMeterSlice, CustomerMeterSlice } from '../Store/Store'
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { LoadingIcon, Search, ServerErrorIcon, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
@@ -189,7 +189,7 @@ const CustomerMeterWindow = (props: IProps) => {
         </div>
         <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
             <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-                <ReactTable.Table<LocalXDA.CustomerMeter>
+                <Table<LocalXDA.CustomerMeter>
                     TableClass="table table-hover"
                     Data={data}
                     SortKey={sortField}
@@ -206,39 +206,39 @@ const CustomerMeterWindow = (props: IProps) => {
                     Selected={(item) => false}
                     KeySelector={(item) => item.ID}
                 >
-                    <ReactTable.Column<LocalXDA.CustomerMeter>
+                    <Column<LocalXDA.CustomerMeter>
                         Key={'MeterKey'}
                         AllowSort={true}
                         Field={'MeterKey'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                     > Key
-                    </ReactTable.Column>
-                    <ReactTable.Column<LocalXDA.CustomerMeter>
+                    </Column>
+                    <Column<LocalXDA.CustomerMeter>
                         Key={'MeterName'}
                         AllowSort={true}
                         Field={'MeterName'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                     > Name
-                    </ReactTable.Column>
-                    <ReactTable.Column<LocalXDA.CustomerMeter>
+                    </Column>
+                    <Column<LocalXDA.CustomerMeter>
                         Key={'MeterLocation'}
                         AllowSort={true}
                         Field={'MeterLocation'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                     > Substation
-                    </ReactTable.Column>
-                    <ReactTable.Column<LocalXDA.CustomerMeter>
+                    </Column>
+                    <Column<LocalXDA.CustomerMeter>
                         Key={'Remove'}
                         AllowSort={false}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                         Content={({ item }) => <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => { if (hasPermissions()) setRemoveRecord(item) }}><span>{TrashCan}</span></button> }
                     > <p></p>
-                    </ReactTable.Column>
-                </ReactTable.Table>
+                    </Column>
+                </Table>
             </div>
         </div>
         <div className="card-footer">
@@ -248,7 +248,7 @@ const CustomerMeterWindow = (props: IProps) => {
                         setShowAdd(true);
                 }}>Add Meters</button>
             </div>
-                <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"Meters"}>
+                <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Target={"Meters"}>
                     <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                 </ToolTip>
         </div>
@@ -264,18 +264,23 @@ const CustomerMeterWindow = (props: IProps) => {
             }}
             Show={showAdd}
             Type={'multiple'}
-            Columns={[
-                { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                { key: 'Location', field: 'Location', label: 'Substation', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                { key: 'MappedAssets', field: 'MappedAssets', label: 'Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                { key: 'Make', field: 'Make', label: 'Make', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                { key: 'Model', field: 'Model', label: 'Model', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-            ]}
             Title={"Add Meters to Customer"}
             GetEnum={getEnum}
-            GetAddlFields={getAdditionalMeterFields} />
+            GetAddlFields={getAdditionalMeterFields}
+        >
+            <Column Key="AssetKey" Field="AssetKey" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+            >Key</Column>
+            <Column Key="Name" Field="Name" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+            >Name</Column>
+            <Column Key="Location" Field="Location" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+            >Substation</Column>
+            <Column Key="MappedAssets" Field="MappedAssets" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+            >Assets</Column>
+            <Column Key="Make" Field="Make" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+            >Make</Column>
+            <Column Key="Model" Field="Model" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+            >Model</Column>
+        </DefaultSelects.Meter>
     </>
 }
 

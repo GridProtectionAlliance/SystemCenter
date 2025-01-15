@@ -25,7 +25,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { useHistory } from 'react-router-dom';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { AssetGroupSlice, AssetTypeSlice } from '../Store/Store';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { ToolTip, Warning } from '@gpa-gemstone/react-interactive';
@@ -139,7 +139,7 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
             </div>
             <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
                 <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-                    <ReactTable.Table<SystemCenter.Types.DetailedAsset>
+                    <Table<SystemCenter.Types.DetailedAsset>
                         TableClass="table table-hover"
                         Data={assetList}
                         SortKey={sortKey}
@@ -171,31 +171,31 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
                     >
-                        <ReactTable.Column<SystemCenter.Types.DetailedAsset>
+                        <Column<SystemCenter.Types.DetailedAsset>
                             Key={'AssetKey'}
                             AllowSort={true}
                             Field={'AssetKey'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Key
-                        </ReactTable.Column>
-                        <ReactTable.Column<SystemCenter.Types.DetailedAsset>
+                        </Column>
+                        <Column<SystemCenter.Types.DetailedAsset>
                             Key={'AssetName'}
                             AllowSort={true}
                             Field={'AssetName'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Name
-                        </ReactTable.Column>
-                        <ReactTable.Column<SystemCenter.Types.DetailedAsset>
+                        </Column>
+                        <Column<SystemCenter.Types.DetailedAsset>
                             Key={'AssetType'}
                             AllowSort={true}
                             Field={'AssetType'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Type
-                        </ReactTable.Column>
-                        <ReactTable.Column<SystemCenter.Types.DetailedAsset>
+                        </Column>
+                        <Column<SystemCenter.Types.DetailedAsset>
                             Key={'Remove'}
                             AllowSort={false}
                             HeaderStyle={{ width: 'auto' }}
@@ -204,8 +204,8 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                                 <button className={"btn btn-sm" + (hasPermissions() ? ' disabled' : '')} onClick={(e) => { if (!hasPermissions()) setRemoveAsset(item.ID) }}><span>{TrashCan}</span></button>
                             </> }
                         > <p></p>
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                 </div>
             </div>
             <div className="card-footer">
@@ -213,7 +213,7 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                         <button className={"btn btn-info pull-right" + (hasPermissions() ? ' disabled' : '')} data-tooltip='AddAsset'
                             onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (!hasPermissions()) setShowAdd(true) }}>Add Transmission Assets</button>
                 </div>
-                    <ToolTip Show={hover == 'Update' && hasPermissions()} Position={'top'} Theme={'dark'} Target={"AddAsset"}>
+                    <ToolTip Show={hover == 'Update' && hasPermissions()} Position={'top'} Target={"AddAsset"}>
                         <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                     </ToolTip>
             </div>

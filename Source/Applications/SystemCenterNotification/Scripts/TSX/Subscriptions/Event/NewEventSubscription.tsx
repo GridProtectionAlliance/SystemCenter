@@ -174,7 +174,7 @@ const NewEventSubscription = (props: {}) => {
                     </div>
                 </div>
             </div>
-            <ToolTip Show={hoverNext && error.length > 0} Position={'top'} Theme={'dark'} Target={"Next"}>
+            <ToolTip Show={hoverNext && error.length > 0} Position={'top'} Target={"Next"}>
                 {error.map((item, index) => <p key={index}> <ReactIcons.CircledX Color={'red'} Size={'1rem'} /> {item} </p>)}
             </ToolTip>
         </div>

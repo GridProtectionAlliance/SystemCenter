@@ -28,7 +28,7 @@ import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
 import { EmailCategory } from '../global';
 import { EmailCategorySlice } from '../Store';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import EmailCategoryForm from './EmailCategoryForm';
 import { useNavigate } from 'react-router-dom';
 
@@ -100,7 +100,7 @@ const ByEmailCategory = (props: IProps) => {
 
             <div className='row' style={{ flex: 1, overflow: 'hidden' }}>
                 <div className='col-12' style={{ height: '100%', overflow: 'hidden' }}>
-                    <ReactTable.Table<EmailCategory>
+                    <Table<EmailCategory>
                         TableClass="table table-hover"
                         Data={data}
                         SortKey={sortField}
@@ -120,15 +120,15 @@ const ByEmailCategory = (props: IProps) => {
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
                     >
-                        <ReactTable.Column<EmailCategory>
+                        <Column<EmailCategory>
                             Key={'Name'}
                             AllowSort={true}
                             Field={'Name'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Name
-                        </ReactTable.Column>
-                        <ReactTable.Column<EmailCategory>
+                        </Column>
+                        <Column<EmailCategory>
                             Key={'SelfSubscribe'}
                             AllowSort={true}
                             Field={'SelfSubscribe'}
@@ -136,8 +136,8 @@ const ByEmailCategory = (props: IProps) => {
                             RowStyle={{ width: 'auto' }}
                             Content={({ item }) => item.SelfSubscribe ? HeavyCheckMark : CrossMark }
                         > Self Subscription
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                 </div>
             </div>
 

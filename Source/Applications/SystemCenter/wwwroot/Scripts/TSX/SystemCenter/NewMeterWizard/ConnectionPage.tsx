@@ -27,7 +27,7 @@ import { OpenXDA, Application } from '@gpa-gemstone/application-typings';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { AssetConnectionTypeSlice } from '../Store/Store';
 import { LoadingIcon, Modal, Search, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { CrossMark, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { cross } from 'd3';
 
@@ -229,7 +229,7 @@ export default function ConnectionPage(props: IProps) {
         </div>
         <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
             <div className="col d-none d-lg-block">
-                <ReactTable.Table<IConnection>
+                <Table<IConnection>
                     TableClass="table table-hover"
                     Data={currentConnections}
                     SortKey={sortKey}
@@ -249,39 +249,39 @@ export default function ConnectionPage(props: IProps) {
                     Selected={(item) => false}
                     KeySelector={(item) => `${item.Connection.ID}-${item.Asset.ID}`}
                 >
-                    <ReactTable.Column<IConnection>
+                    <Column<IConnection>
                         Key={'AssetName'}
                         AllowSort={true}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                         Content={({ item }) => item.Asset.AssetName}
                     > Name
-                    </ReactTable.Column>
-                    <ReactTable.Column<IConnection>
+                    </Column>
+                    <Column<IConnection>
                         Key={'AssetKey'}
                         AllowSort={true}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                         Content={({ item }) => item.Asset.AssetKey}
                     > Key
-                    </ReactTable.Column>
-                    <ReactTable.Column<IConnection>
+                    </Column>
+                    <Column<IConnection>
                         Key={'AssetType'}
                         AllowSort={true}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                         Content={({ item }) => item.Asset.AssetType}
                     > Type
-                    </ReactTable.Column>
-                    <ReactTable.Column<IConnection>
+                    </Column>
+                    <Column<IConnection>
                         Key={'VoltageKV'}
                         AllowSort={true}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                         Content={({ item }) => item.Asset.VoltageKV}
                     > Voltage (kV)
-                    </ReactTable.Column>
-                    <ReactTable.Column<IConnection>
+                    </Column>
+                    <Column<IConnection>
                         Key={'btns'}
                         AllowSort={false}
                         HeaderStyle={{ width: 'auto' }}
@@ -293,8 +293,8 @@ export default function ConnectionPage(props: IProps) {
                             />
                         }
                     ><p></p>
-                    </ReactTable.Column>
-                </ReactTable.Table>
+                    </Column>
+                </Table>
             </div>
         </div>
         <Modal Show={showAssetConnection} Size={'sm'} Title={'Add New Connection to ' + (props.CurrentAsset?.AssetKey ?? 'Asset')}
@@ -377,7 +377,6 @@ const StatefulButton: React.FC<IButtonProps> = ({ TargetID, OnClick }) => {
             <ToolTip
                 Show={showToolTip}
                 Position={'bottom'}
-                Theme={'dark'}
                 Target={`button-${TargetID}`}
                 Zindex={99999}
             >

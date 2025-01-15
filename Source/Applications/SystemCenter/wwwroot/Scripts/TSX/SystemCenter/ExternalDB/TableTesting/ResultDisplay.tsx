@@ -23,8 +23,8 @@
 
 import * as React from 'react';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
-import { FilterableTable, ServerErrorIcon, Search, LoadingScreen } from '@gpa-gemstone/react-interactive';
-import { Paging } from '@gpa-gemstone/react-table';
+import { ServerErrorIcon, Search, LoadingScreen } from '@gpa-gemstone/react-interactive';
+import { Paging, Table, Column } from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 
 interface IProps {
@@ -46,7 +46,7 @@ export default function ResultDisplay(props: IProps) {
     const [count, setCount] = React.useState<number>(0);
     const [page, setPage] = React.useState<number>(0);
     const [filters, setFilters] = React.useState<Search.IFilter<any>[]>([]);
-    const [cols, setCols] = React.useState<any[]>([]);
+    const [cols, setCols] = React.useState<string[]>([]);
 
     React.useEffect(() => {
         setCountStatus('loading');
@@ -66,9 +66,10 @@ export default function ResultDisplay(props: IProps) {
         const dataHandle = props.GetTable(page * RowsPerPage + 1, (page + 1) * RowsPerPage, filters, sortExt, ascExt);
 
         dataHandle.then((d) => {
-            setExternalData(d ?? []);
+            const keyedData = d?.map((datum, index) => ({ ...datum, __tempXdaKey__: index }));
+            setExternalData(keyedData ?? []);
             setDataStatus('idle');
-            if (d == null || d.length == 0)
+            if (keyedData == null || keyedData.length == 0)
                 setCount(0);
         }, (d) => {if (d.statusText === 'abort') return; setDataStatus('error')})
         return () => {
@@ -79,9 +80,7 @@ export default function ResultDisplay(props: IProps) {
     React.useEffect(() => {
         if (externalData.length == 0)
             return;
-        const updatedCols = Object.keys(externalData[0]).map((field: string) => {
-            return { key: field, field: field, label: field, Type: 'string' }
-        })
+        const updatedCols = Object.keys(externalData[0]);
         if (!_.isEqual(updatedCols, cols))
             setCols(updatedCols);
     }, [externalData])
@@ -94,14 +93,13 @@ export default function ResultDisplay(props: IProps) {
         <div className="row" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="col" style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
                 {countstatus !== 'error' && datastatus !== 'error' ?
-                    <FilterableTable<any>
-                        cols={cols}
-                        SetFilter={setFilters}
-                        tableClass="table table-hover"
-                        data={externalData}
-                        sortKey={sortExt}
-                        ascending={ascExt}
-                        onSort={(d) => {
+                    <Table<any>
+                        SetFilters={setFilters}
+                        TableClass="table table-hover"
+                        Data={externalData}
+                        SortKey={sortExt}
+                        Ascending={ascExt}
+                        OnSort={(d) => {
                             if (d.colKey === sortExt)
                                 setAscExt(!ascExt);
                             else {
@@ -109,15 +107,26 @@ export default function ResultDisplay(props: IProps) {
                                 setSortExt(d.colKey);
                             }
                         }}
-                        onClick={(d) => {
+                        OnClick={(d) => {
                             if (props.OnSelection !== undefined) props.OnSelection!(d.row);
                         }}
-                        tableStyle={{ padding: 0, width: '100%', height: '100%', tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
-                        theadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
-                        tbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
-                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', overflowX: 'scroll' }}
-                        selected={(item) => props.Selected === undefined? false : props.Selected!(item) ?? false}
-                    /> : null}
+                        TableStyle={{ padding: 0, width: '100%', height: '100%', tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
+                        TheadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', overflowX: 'scroll' }}
+                        Selected={(item) => props.Selected === undefined ? false : props.Selected!(item) ?? false}
+                        KeySelector={item => item.__tempXdaKey__}
+                    > 
+                        {
+                            cols.map(col =>
+                                <Column<any>
+                                    Key={col} Field={col}
+                                    AllowSort={true} Adjustable={true}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                >{col}</Column>)
+                        }
+                    </Table> : null}
             </div>
         </div>
         <div className="row">

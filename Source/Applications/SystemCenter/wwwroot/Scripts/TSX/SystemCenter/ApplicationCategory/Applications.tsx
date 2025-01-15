@@ -22,11 +22,10 @@
 //******************************************************************************************************
 
 import { Application, SystemCenter } from "@gpa-gemstone/application-typings";
-import { ValueList } from "@gpa-gemstone/common-pages";
 import { Pencil, TrashCan } from "@gpa-gemstone/gpa-symbols";
 import { Input, Select } from "@gpa-gemstone/react-forms";
 import { Modal, Search, ToolTip, Warning } from "@gpa-gemstone/react-interactive";
-import { ReactTable } from "@gpa-gemstone/react-table";
+import { Table, Column } from "@gpa-gemstone/react-table";
 import React from "react";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { PQApplicationsSlice } from "../Store/Store";
@@ -114,7 +113,7 @@ function Applications(props: IProps) {
                 </div>
             </div>
             <div className="card-body" style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
-                <ReactTable.Table<PQApplications>
+                <Table<PQApplications>
                     TableClass="table table-hover"
                     Data={data}
                     SortKey={sortField}
@@ -131,39 +130,39 @@ function Applications(props: IProps) {
                     Selected={(item) => false}
                     KeySelector={(item) => item.ID}
                 >
-                    <ReactTable.Column<PQApplications>
+                    <Column<PQApplications>
                         Key={'Name'}
                         AllowSort={true}
                         Field={'Name'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                     > Name
-                    </ReactTable.Column>
-                    <ReactTable.Column<PQApplications>
+                    </Column>
+                    <Column<PQApplications>
                         Key={'Url'}
                         AllowSort={true}
                         Field={'Url'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                     > URL
-                    </ReactTable.Column>
-                    <ReactTable.Column<PQApplications>
+                    </Column>
+                    <Column<PQApplications>
                         Key={'SortOrder'}
                         AllowSort={true}
                         Field={'SortOrder'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                     > Sort Order
-                    </ReactTable.Column>
-                    <ReactTable.Column<PQApplications>
+                    </Column>
+                    <Column<PQApplications>
                         Key={'Image'}
                         AllowSort={true}
                         Field={'Image'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                     > Image
-                    </ReactTable.Column>
-                </ReactTable.Table>
+                    </Column>
+                </Table>
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">

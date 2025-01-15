@@ -25,7 +25,7 @@ import { Application, SystemCenter, OpenXDA } from '@gpa-gemstone/application-ty
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import { Input } from '@gpa-gemstone/react-forms';
 import { LoadingScreen, Modal, Search, SearchBar, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import * as React from 'react';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { SystemCenter as GlobalSC } from '../global';
@@ -107,7 +107,7 @@ const DataOperations: Application.Types.iByComponent = (props) => {
                 </SearchBar>
 
                 <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                    <ReactTable.Table<OpenXDA.Types.DataOperation>
+                    <Table<OpenXDA.Types.DataOperation>
                         TableClass="table table-hover"
                         Data={data}
                         SortKey={sortField}
@@ -122,31 +122,31 @@ const DataOperations: Application.Types.iByComponent = (props) => {
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
                     >
-                        <ReactTable.Column<OpenXDA.Types.DataOperation>
+                        <Column<OpenXDA.Types.DataOperation>
                             Key={'AssemblyName'}
                             AllowSort={true}
                             Field={'AssemblyName'}
                             HeaderStyle={{ width: '20%' }}
                             RowStyle={{ width: '20%' }}
                         > Assembly Name
-                        </ReactTable.Column>
-                        <ReactTable.Column<OpenXDA.Types.DataOperation>
+                        </Column>
+                        <Column<OpenXDA.Types.DataOperation>
                             Key={'TypeName'}
                             AllowSort={true}
                             Field={'TypeName'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Type Name
-                        </ReactTable.Column>
-                        <ReactTable.Column<OpenXDA.Types.DataOperation>
+                        </Column>
+                        <Column<OpenXDA.Types.DataOperation>
                             Key={'LoadOrder'}
                             AllowSort={true}
                             Field={'LoadOrder'}
                             HeaderStyle={{ width: '20%' }}
                             RowStyle={{ width: '20%' }}
                         > Load Order
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                 </div>
             </div>
             <Modal Title={editNew === 'Edit' ? 'Edit ' + (editnewSetting?.AssemblyName ?? 'Data Operation') : 'Add New Data Operation'}

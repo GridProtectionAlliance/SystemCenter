@@ -29,6 +29,7 @@ import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import { Search } from '@gpa-gemstone/react-interactive';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
 import { useAppDispatch, useAppSelector } from '../hooks';
+import { Column } from '@gpa-gemstone/react-table';
 
 declare var homePath: string;
 
@@ -143,19 +144,22 @@ export default function FilterSelect(props: IProps) {
                 Show={props.ShowModal}
                 Type={(props.Single ?? false) ? 'single' : 'multiple'}
                 StorageID={props.StorageID}
-                Columns={[
-                    { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Location', field: 'Location', label: 'Substation', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'MappedAssets', field: 'MappedAssets', label: 'Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Make', field: 'Make', label: 'Make', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Model', field: 'Model', label: 'Model', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                ]}
                 Title={props.Title === undefined ? "Select Meters" : props.Title}
                 GetEnum={getEnum}
                 GetAddlFields={getAdditionalAssetFields}>
                 {props.children}
+                <Column Key="AssetKey" Field="AssetKey" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Key</Column>
+                <Column Key="Name" Field="Name" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Name</Column>
+                <Column Key="Location" Field="Location" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Substation</Column>
+                <Column Key="MappedAssets" Field="MappedAssets" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Assets</Column>
+                <Column Key="Make" Field="Make" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Make</Column>
+                <Column Key="Model" Field="Model" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Model</Column>
             </DefaultSelects.Meter>
         );
         case "Location": return (
@@ -166,17 +170,18 @@ export default function FilterSelect(props: IProps) {
                 Show={props.ShowModal}
                 Type={(props.Single ?? false) ? 'single' : 'multiple'}
                 StorageID={props.StorageID}
-                Columns={[
-                    { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'LocationKey', field: 'LocationKey', label: 'Key', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
-                    { key: 'Meters', field: 'Meters', label: 'Meters', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                    { key: 'Assets', field: 'Assets', label: 'Assets', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                ]}
                 Title={props.Title === undefined ? "Select Substations" : props.Title}
                 GetEnum={getEnum}
                 GetAddlFields={getAdditionalAssetFields}>
                 {props.children}
+                <Column Key="Name" Field="Name" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Name</Column>
+                <Column Key="LocationKey" Field="LocationKey" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Key</Column>
+                <Column Key="Meters" Field="Meters" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Meters</Column>
+                <Column Key="Assets" Field="Assets" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Assets</Column>
             </DefaultSelects.Location>
         );
         case "Customer": return (
@@ -187,17 +192,18 @@ export default function FilterSelect(props: IProps) {
                 Show={props.ShowModal}
                 Type={(props.Single ?? false) ? 'single' : 'multiple'}
                 StorageID={props.StorageID}
-                Columns={[
-                    { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'CustomerKey', field: 'CustomerKey', label: 'Key', headerStyle: { width: '20%' }, rowStyle: { width: '20%' } },
-                    { key: 'LSCVS', field: 'LSCVS', label: 'LSCVS', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                    { key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: '40%' }, rowStyle: { width: '40%' } },
-                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                ]}
                 Title={props.Title === undefined ? "Select Assets" : props.Title}
                 GetEnum={getEnum}
                 GetAddlFields={getAdditionalAssetFields}>
                 {props.children}
+                <Column Key="Name" Field="Name" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Name</Column>
+                <Column Key="CustomerKey" Field="CustomerKey" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Key</Column>
+                <Column Key="LSCVS" Field="LSCVS" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >LSCVS</Column>
+                <Column Key="Description" Field="Description" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Description</Column>
             </DefaultSelects.Customer>
         );
         case "Asset": return (
@@ -208,19 +214,22 @@ export default function FilterSelect(props: IProps) {
                 Show={props.ShowModal}
                 Type={(props.Single ?? false) ? 'single' : 'multiple'}
                 StorageID={props.StorageID}
-                Columns={[
-                    { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'AssetName', field: 'AssetName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'AssetType', field: 'AssetType', label: 'Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'VoltageKV', field: 'VoltageKV', label: 'Voltage (kV)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Meters', field: 'Meters', label: 'Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Locations', field: 'Locations', label: 'Substations', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                ]}
                 Title={props.Title === undefined ? "Select Assets" : props.Title}
                 GetEnum={getEnum}
                 GetAddlFields={getAdditionalAssetFields}>
                 {props.children}
+                <Column Key="AssetKey" Field="AssetKey" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Key</Column>
+                <Column Key="AssetName" Field="AssetName" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Name</Column>
+                <Column Key="AssetType" Field="AssetType" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Type</Column>
+                <Column Key="VoltageKV" Field="VoltageKV" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Voltage (kV)</Column>
+                <Column Key="Meters" Field="Meters" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Meters</Column>
+                <Column Key="Locations" Field="Locations" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Substations</Column>
             </DefaultSelects.Asset>
         );
     }

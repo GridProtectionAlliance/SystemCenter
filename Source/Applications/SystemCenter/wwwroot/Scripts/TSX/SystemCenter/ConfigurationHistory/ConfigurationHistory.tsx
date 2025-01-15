@@ -25,7 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { TabSelector } from '@gpa-gemstone/react-interactive';
-import { ReactTable, Paging } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { useHistory } from 'react-router-dom';
 import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
@@ -172,7 +172,7 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
                                             <button className={"btn btn-primary pull-right" + (!hasPermissions() ? ' disabled' : '')} onClick={saveEdit} disabled={!changed} data-tooltip='SaveEdits'
                                                 onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')}>Save Changes</button>
                                         </div>
-                                        <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"SaveEdits"}>
+                                        <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Target={"SaveEdits"}>
                                             <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                                         </ToolTip>
                                         <div className="btn-group mr-2">
@@ -186,7 +186,7 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
                             <div className="tab-pane active" style={{ height: '100%',display: 'flex', flexDirection: 'column' }}>
                                 <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
                                     <div className='col-12' style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-                                        <ReactTable.Table<OpenXDA.Types.DataFile>
+                                        <Table<OpenXDA.Types.DataFile>
                                             TableClass="table table-hover"
                                             Data={filesProcessed}
                                             SortKey={'FilePath'}
@@ -199,23 +199,23 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
                                             Selected={(item) => false}
                                             KeySelector={(item) => item.ID}
                                         >
-                                            <ReactTable.Column
+                                            <Column
                                                 Key={'FilePath'}
                                                 AllowSort={false}
                                                 Field={'FilePath'}
                                                 HeaderStyle={{ width: 'auto' }}
                                                 RowStyle={{ width: 'auto' }}
                                             > File Path
-                                            </ReactTable.Column>
-                                            <ReactTable.Column
+                                            </Column>
+                                            <Column
                                                 Key={'CreationTime'}
                                                 AllowSort={false}
                                                 Field={'CreationTime'}
                                                 HeaderStyle={{ width: 'auto' }}
                                                 RowStyle={{ width: 'auto' }}
                                             > Creation Time
-                                            </ReactTable.Column>
-                                        </ReactTable.Table>
+                                            </Column>
+                                        </Table>
                                         <LoadingScreen Show={pageState == 'loading'} />
                                         <ServerErrorIcon Show={pageState == 'error'} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
                                         <div className="row">

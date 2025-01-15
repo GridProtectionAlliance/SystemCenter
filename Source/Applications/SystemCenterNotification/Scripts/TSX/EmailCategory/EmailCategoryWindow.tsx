@@ -88,13 +88,13 @@ const EmailCategoryWindow = (props: IProps) => {
                     </div>
                 </div>
             </div>
-            <ToolTip Show={(errors.length > 0 || !hasChanged) && hover == 'submit'} Position={'top'} Theme={'dark'} Target={"submit"}>
+            <ToolTip Show={(errors.length > 0 || !hasChanged) && hover == 'submit'} Position={'top'} Target={"submit"}>
                 {!hasChanged ? <p> No changes made.</p> : null}
                 {errors.map((t, i) => <p key={i}>
                     {CrossMark} {t}
                 </p>)}
             </ToolTip>
-            <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Theme={'dark'} Target={"clear"}>
+            <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Target={"clear"}>
                 {props.Category.Name != category.Name ? <p> {Warning} Changes to Name will be discarded.</p> : null}
                 {props.Category.SelfSubscribe != category.SelfSubscribe ? <p> {Warning} Changes to Self Subscription will be discarded.</p> : null}
             </ToolTip>

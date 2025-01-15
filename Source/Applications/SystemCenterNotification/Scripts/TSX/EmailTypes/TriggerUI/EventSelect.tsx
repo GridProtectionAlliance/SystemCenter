@@ -24,7 +24,7 @@ import * as React from 'react';
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import * as $ from 'jquery';
 import moment from 'moment';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import EventFilter from '../../EventFilterComponents/EventFilter';
 import { IEvent, IEventFilter } from '../../global';
 import { LoadingIcon } from '@gpa-gemstone/react-interactive';
@@ -108,7 +108,7 @@ const EventSelect = (props: IProps) => {
                             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
                                 <div className="col-12" style={{ height: '100%', overflow: 'hidden' }}>
                                     <LoadingIcon Show={loading} />
-                                    <ReactTable.Table<IEvent>
+                                    <Table<IEvent>
                                         TableClass="table table-hover"
                                         Data={data}
                                         SortKey={'StartTime'}
@@ -125,7 +125,7 @@ const EventSelect = (props: IProps) => {
                                         Selected={(item) => item.EventID == props.SelectedEventID }
                                         KeySelector={(item, index) => index }
                                     >
-                                        <ReactTable.Column<IEvent>
+                                        <Column<IEvent>
                                             Key={'StartTime'}
                                             AllowSort={false}
                                             Field={'StartTime'}
@@ -133,32 +133,32 @@ const EventSelect = (props: IProps) => {
                                             RowStyle={{ width: '20%' }}
                                             Content={({ item }) => <> {moment(item.StartTime).format("MM/DD/YYYY")} <br /> {moment(item.StartTime).format("HH:mm:ss.ssss")}  </>}
                                         > Time
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<IEvent>
+                                        </Column>
+                                        <Column<IEvent>
                                             Key={'Asset'}
                                             AllowSort={false}
                                             Field={'Asset'}
                                             HeaderStyle={{ width: '40%' }}
                                             RowStyle={{ width: '40%' }}
                                         > Asset
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<IEvent>
+                                        </Column>
+                                        <Column<IEvent>
                                             Key={'Meter'}
                                             AllowSort={false}
                                             Field={'Meter'}
                                             HeaderStyle={{ width: '40%' }}
                                             RowStyle={{ width: '40%' }}
                                         > Meter
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<IEvent>
+                                        </Column>
+                                        <Column<IEvent>
                                             Key={'EventType'}
                                             AllowSort={false}
                                             Field={'EventType'}
                                             HeaderStyle={{ width: '20%' }}
                                             RowStyle={{ width: '20%' }}
                                         > Type
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<IEvent>
+                                        </Column>
+                                        <Column<IEvent>
                                             Key={'Triggered'}
                                             AllowSort={false}
                                             Field={'Triggered'}
@@ -166,8 +166,8 @@ const EventSelect = (props: IProps) => {
                                             RowStyle={{ width: '20%' }}
                                             Content={({ item }) => item.Triggered ? HeavyCheckMark : CrossMark }
                                         > Notified
-                                        </ReactTable.Column>
-                                    </ReactTable.Table>
+                                        </Column>
+                                    </Table>
                                 </div>
                             </div>
                         </div>

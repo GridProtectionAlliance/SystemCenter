@@ -30,7 +30,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import { SystemCenter as SCGlobal } from '../global';
-import { ReactTable, Paging } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { Input, Select } from '@gpa-gemstone/react-forms';
 import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
@@ -156,7 +156,7 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
             </div>
             <div className="card-body" style={{ paddingBottom: 0, flex: 1, overflow: 'hidden' }}>
                 <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-                    <ReactTable.Table<SystemCenter.Types.LocationDrawing>
+                    <Table<SystemCenter.Types.LocationDrawing>
                         TableClass="table table-hover"
                         Data={links}
                         SortKey={sortKey}
@@ -178,15 +178,15 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
                     >
-                        <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                        <Column<SystemCenter.Types.LocationDrawing>
                             Key={'Name'}
                             AllowSort={true}
                             Field={'Name'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Name
-                        </ReactTable.Column>
-                        <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                        </Column>
+                        <Column<SystemCenter.Types.LocationDrawing>
                             Key={'Link'}
                             AllowSort={true}
                             Field={'Link'}
@@ -194,32 +194,32 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                             RowStyle={{ width: 'auto' }}
                             Content={({ item, key }) => <a href={item[key] as string} target='_blank'>{item[key]}</a> }
                         > Link
-                        </ReactTable.Column>
-                        <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                        </Column>
+                        <Column<SystemCenter.Types.LocationDrawing>
                             Key={'Description'}
                             AllowSort={true}
                             Field={'Description'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Description
-                        </ReactTable.Column>
-                        <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                        </Column>
+                        <Column<SystemCenter.Types.LocationDrawing>
                             Key={'Number'}
                             AllowSort={true}
                             Field={'Number'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Number
-                        </ReactTable.Column>
-                        <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                        </Column>
+                        <Column<SystemCenter.Types.LocationDrawing>
                             Key={'Category'}
                             AllowSort={true}
                             Field={'Category'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Category
-                        </ReactTable.Column>
-                        <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                        </Column>
+                        <Column<SystemCenter.Types.LocationDrawing>
                             Key={'EditDelete'}
                             AllowSort={false}
                             HeaderStyle={{ width: 'auto' }}
@@ -231,8 +231,8 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                                 </span>
                             }
                         > <p></p>
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                     <LoadingScreen Show={pageState == 'loading'} />
                     <ServerErrorIcon Show={pageState == 'error'} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
                     <div className="row">
@@ -246,7 +246,7 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                 <button className={"btn btn-info pull-left" + (!hasPermissions() ? ' disabled' : '')} data-toggle={"modal" + (!hasPermissions() ? ' disabled' : '')} data-target="#exampleModal" data-tooltip='AddDrawing' onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')}
                     onClick={() => { setRecord({ ...emptyRecord, LocationID: props.Location.ID }) }}>Add Drawing</button>
             </div>
-            <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"AddDrawing"}>
+            <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Target={"AddDrawing"}>
                 <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
             </ToolTip>
             <div className="modal" id="exampleModal" role="dialog">

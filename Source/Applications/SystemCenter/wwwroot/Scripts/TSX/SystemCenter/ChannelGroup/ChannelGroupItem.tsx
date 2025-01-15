@@ -28,7 +28,7 @@ import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { ChannelGroupDetailsSlice } from '../Store/Store';
 import ChannelGroupItemForm from './ChannelGroupItemForm';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { Modal, Warning } from '@gpa-gemstone/react-interactive';
 
@@ -94,7 +94,7 @@ export default function ChannelGroupDetails(props: IProps) {
             <div className="card-body" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                 <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
                     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-                        <ReactTable.Table<SystemCenter.Types.ChannelGroupDetails>
+                        <Table<SystemCenter.Types.ChannelGroupDetails>
                             TableClass="table table-hover"
                             Data={data}
                             SortKey={sortKey}
@@ -111,39 +111,39 @@ export default function ChannelGroupDetails(props: IProps) {
                             Selected={(item) => false}
                             KeySelector={(item) => item.ID}
                         >
-                            <ReactTable.Column<SystemCenter.Types.ChannelGroupDetails>
+                            <Column<SystemCenter.Types.ChannelGroupDetails>
                                 Key={'DisplayName'}
                                 AllowSort={true}
                                 Field={'DisplayName'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                             > Name
-                            </ReactTable.Column>
-                            <ReactTable.Column<SystemCenter.Types.ChannelGroupDetails>
+                            </Column>
+                            <Column<SystemCenter.Types.ChannelGroupDetails>
                                 Key={'MeasurementType'}
                                 AllowSort={true}
                                 Field={'MeasurementType'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                             > Measurement Type
-                            </ReactTable.Column>
-                            <ReactTable.Column<SystemCenter.Types.ChannelGroupDetails>
+                            </Column>
+                            <Column<SystemCenter.Types.ChannelGroupDetails>
                                 Key={'MeasurementCharacteristic'}
                                 AllowSort={true}
                                 Field={'MeasurementCharacteristic'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                             > Measurement Characteristic
-                            </ReactTable.Column>
-                            <ReactTable.Column<SystemCenter.Types.ChannelGroupDetails>
+                            </Column>
+                            <Column<SystemCenter.Types.ChannelGroupDetails>
                                 Key={'Unit'}
                                 AllowSort={true}
                                 Field={'Unit'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                             > Unit
-                            </ReactTable.Column>
-                            <ReactTable.Column<SystemCenter.Types.ChannelGroupDetails>
+                            </Column>
+                            <Column<SystemCenter.Types.ChannelGroupDetails>
                                 Key={'btns'}
                                 AllowSort={false}
                                 HeaderStyle={{ width: 'auto' }}
@@ -161,8 +161,8 @@ export default function ChannelGroupDetails(props: IProps) {
                                     }}>{TrashCan}</button>
                                 </> }
                             > <p></p>
-                            </ReactTable.Column>
-                        </ReactTable.Table>
+                            </Column>
+                        </Table>
                     </div>
                 </div>
             </div>

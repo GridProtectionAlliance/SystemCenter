@@ -28,7 +28,7 @@ import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { ExternalDBTablesSlice } from '../Store/Store';
 import ExternalDBTableForm from './ExternalDBTableForm';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { Modal, Warning } from '@gpa-gemstone/react-interactive';
 
@@ -91,7 +91,7 @@ export default function ExternalDBTables(props: { ID: number }) {
                         <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
                             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
                                 <div className="col-12" style={{ height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-                                    <ReactTable.Table<SystemCenter.Types.DetailedExtDBTables>
+                                    <Table<SystemCenter.Types.DetailedExtDBTables>
                                         TableClass="table table-hover"
                                         Data={data}
                                         SortKey={sortKey.toString()}
@@ -108,23 +108,23 @@ export default function ExternalDBTables(props: { ID: number }) {
                                         Selected={(item) => false}
                                         KeySelector={(item) => item.ID}
                                     >
-                                        <ReactTable.Column<SystemCenter.Types.DetailedExtDBTables>
+                                        <Column<SystemCenter.Types.DetailedExtDBTables>
                                             Key={'TableName'}
                                             AllowSort={true}
                                             Field={'TableName'}
                                             HeaderStyle={{ width: 'auto' }}
                                             RowStyle={{ width: 'auto' }}
                                         > Name
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<SystemCenter.Types.DetailedExtDBTables>
+                                        </Column>
+                                        <Column<SystemCenter.Types.DetailedExtDBTables>
                                             Key={'MappedFields'}
                                             AllowSort={true}
                                             Field={'MappedFields'}
                                             HeaderStyle={{ width: 'auto' }}
                                             RowStyle={{ width: 'auto' }}
                                         > Mapped Fields
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<SystemCenter.Types.DetailedExtDBTables>
+                                        </Column>
+                                        <Column<SystemCenter.Types.DetailedExtDBTables>
                                             Key={'btns'}
                                             AllowSort={false}
                                             HeaderStyle={{ width: 'auto' }}
@@ -137,8 +137,8 @@ export default function ExternalDBTables(props: { ID: number }) {
                                                 }}>{TrashCan}</button>
                                             </>}
                                         > <p></p>
-                                        </ReactTable.Column>
-                                    </ReactTable.Table>
+                                        </Column>
+                                    </Table>
                                 </div>
                             </div>
                         </div>

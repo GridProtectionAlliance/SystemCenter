@@ -25,7 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { OpenXDA as LocalXDA } from '../global';
-import { ReactTable } from '@gpa-gemstone/react-table'
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
 import { CustomerSlice, AssetGroupSlice } from '../Store/Store';
@@ -284,7 +284,7 @@ export default function CustomerAssetGroupPage(props: IProps) {
                             </div>
                             <div className={'row'} style={{ flex: 1, overflow: 'hidden' }}>
                                 <div className={'col-12'} style={{ height: '100%', overflow: 'hidden' }}>
-                                    <ReactTable.Table<CommonCustomerAssetMeter>
+                                    <Table<CommonCustomerAssetMeter>
                                         TableClass="table table-hover"
                                         Data={customerList}
                                         SortKey={customerKey}
@@ -309,31 +309,31 @@ export default function CustomerAssetGroupPage(props: IProps) {
                                         Selected={(item) => false}
                                         KeySelector={(item) => item.ID}
                                     >
-                                        <ReactTable.Column<CommonCustomerAssetMeter>
+                                        <Column<CommonCustomerAssetMeter>
                                             Key={'CustomerName'}
                                             AllowSort={true}
                                             Field={'CustomerName'}
                                             HeaderStyle={{ width: 'auto' }}
                                             RowStyle={{ width: 'auto' }}
                                         > Customer
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<CommonCustomerAssetMeter>
+                                        </Column>
+                                        <Column<CommonCustomerAssetMeter>
                                             Key={'CustomerKey'}
                                             AllowSort={true}
                                             Field={'CustomerKey'}
                                             HeaderStyle={{ width: 'auto' }}
                                             RowStyle={{ width: 'auto' }}
                                         > Key
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<CommonCustomerAssetMeter>
+                                        </Column>
+                                        <Column<CommonCustomerAssetMeter>
                                             Key={'btns'}
                                             AllowSort={false}
                                             HeaderStyle={{ width: 'auto' }}
                                             RowStyle={{ width: 'auto' }}
                                             Content={({ item }) => <button className="btn btn-sm" onClick={(e) => deleteCustomer(item)}>{TrashCan}</button> }
                                         > <p></p>
-                                        </ReactTable.Column>
-                                    </ReactTable.Table>
+                                        </Column>
+                                    </Table>
                                 </div>
                             </div>
                     </div>
@@ -357,7 +357,7 @@ export default function CustomerAssetGroupPage(props: IProps) {
                             </div>
                             <div className={'row'} style={{ flex: 1, overflow: 'hidden' }}>
                                 <div className={'col-12'} style={{ height: '100%', overflow: 'hidden' }}>
-                                    <ReactTable.Table<CommonAssetGroupAssetMeter>
+                                    <Table<CommonAssetGroupAssetMeter>
                                         TableClass="table table-hover"
                                         Data={groupList}
                                         SortKey={groupKey}
@@ -382,31 +382,31 @@ export default function CustomerAssetGroupPage(props: IProps) {
                                         Selected={(item) => false}
                                         KeySelector={(item) => item.ID}
                                     >
-                                        <ReactTable.Column<CommonAssetGroupAssetMeter>
+                                        <Column<CommonAssetGroupAssetMeter>
                                             Key={'Name'}
                                             AllowSort={true}
                                             Field={'Name'}
                                             HeaderStyle={{ width: 'auto' }}
                                             RowStyle={{ width: 'auto' }}
                                         > Asset Group
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<CommonAssetGroupAssetMeter>
+                                        </Column>
+                                        <Column<CommonAssetGroupAssetMeter>
                                             Key={'DisplayDashboard'}
                                             AllowSort={true}
                                             Field={'DisplayDashboard'}
                                             HeaderStyle={{ width: 'auto' }}
                                             RowStyle={{ width: 'auto' }}
                                         > Show in PQ Dashboard
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<CommonAssetGroupAssetMeter>
+                                        </Column>
+                                        <Column<CommonAssetGroupAssetMeter>
                                             Key={'btns'}
                                             AllowSort={false}
                                             HeaderStyle={{ width: 'auto' }}
                                             RowStyle={{ width: 'auto' }}
                                             Content={({ item }) => <button className="btn btn-sm" onClick={(e) => deleteGroup(item)}>{TrashCan}</button> }
                                         > <p></p>
-                                        </ReactTable.Column>
-                                    </ReactTable.Table>
+                                        </Column>
+                                    </Table>
                                 </div>
                             </div>
                     </div>
@@ -426,16 +426,19 @@ export default function CustomerAssetGroupPage(props: IProps) {
                     }}
                     Show={showCustomer}
                     Type={'multiple'}
-                    Columns={[
-                        { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'CustomerKey', field: 'CustomerKey', label: 'Key', headerStyle: { width: '20%' }, rowStyle: { width: '20%' } },
-                        { key: 'LSCVS', field: 'LSCVS', label: 'LSCVS', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                        { key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: '40%' }, rowStyle: { width: '40%' } },
-                        { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                    ]}
                     Title={"Assign to Customers"}
                     GetEnum={() => { return () => { } }}
-                    GetAddlFields={() => { return () => { } }} />
+                        GetAddlFields={() => { return () => { } }}
+                    >
+                        <Column Key="Name" Field="Name" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                        >Name</Column>
+                        <Column Key="CustomerKey" Field="CustomerKey" HeaderStyle={{ width: '20%' }} RowStyle={{ width: '20%' }}
+                        >Key</Column>
+                        <Column Key="LSCVS" Field="LSCVS" HeaderStyle={{ width: '15%' }} RowStyle={{ width: '15%' }}
+                        >LSCVS</Column>
+                        <Column Key="Description" Field="Description" HeaderStyle={{ width: '40%' }} RowStyle={{ width: '40%' }}
+                        >Description</Column>
+                    </DefaultSelects.Customer>
                 <DefaultSelects.AssetGroup
                     Slice={AssetGroupSlice}
                     Selection={selectedGroups}
@@ -451,17 +454,21 @@ export default function CustomerAssetGroupPage(props: IProps) {
                     }}
                     Show={showGroup}
                     Type={'multiple'}
-                    Columns={[
-                        { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Assets', field: 'Assets', label: 'Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Meters', field: 'Meters', label: 'Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Users', field: 'Users', label: 'Users', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'AssetGroups', field: 'AssetGroups', label: 'Sub Groups', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                    ]}
                     Title={"Assign to Asset Groups"}
                     GetEnum={() => { return () => { } }}
-                        GetAddlFields={() => { return () => { } }} />
+                        GetAddlFields={() => { return () => { } }}
+                    >
+                        <Column Key="Name" Field="Name" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                        >Name</Column>
+                        <Column Key="Assets" Field="Assets" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                        >Assets</Column>
+                        <Column Key="Meters" Field="Meters" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                        >Meters</Column>
+                        <Column Key="Users" Field="Users" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                        >Users</Column>
+                        <Column Key="AssetGroups" Field="AssetGroups" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                        >Sub Groups</Column>
+                    </DefaultSelects.AssetGroup>
             </div>
             </>
         );
