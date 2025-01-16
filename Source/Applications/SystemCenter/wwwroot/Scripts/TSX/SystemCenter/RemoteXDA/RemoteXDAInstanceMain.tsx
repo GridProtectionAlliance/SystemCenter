@@ -31,6 +31,7 @@ import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { RemoteXDAInstanceSlice } from '../Store/Store';
 import { RemoteXDAInstanceForm, BlankRemoteXDAInstance } from './RemoteXDAInstanceForm';
+import EnterpriseEditionLockPage from '../CommonComponents/EnterpriseEditionLockPage';
 
 declare var homePath: string;
 
@@ -77,7 +78,7 @@ const RemoteXDAInstanceMain: Application.Types.iByComponent = (props) => {
     const standardSearch: Search.IField<OpenXDA.Types.RemoteXDAInstance> = { label: 'Name', key: 'Name', type: 'string', isPivotField: false };
 
     return (
-        <div style={{ width: '100%', height: '100%' }}>
+        <EnterpriseEditionLockPage Style={{ width: '100%', height: '100%' }}>
             <SearchBar<OpenXDA.Types.RemoteXDAInstance>
                 CollumnList={defaultSearchcols}
                 SetFilter={(flds) => dispatch(RemoteXDAInstanceSlice.DBSearch({ filter: flds, ascending: ascending, sortField: sortKey }))}
@@ -175,7 +176,7 @@ const RemoteXDAInstanceMain: Application.Types.iByComponent = (props) => {
 
             { /* Portal endpoint for inner modal for new remote instance connection */ }
             <div id='userModal' />
-        </div>
+        </EnterpriseEditionLockPage>
     )
 }
 
