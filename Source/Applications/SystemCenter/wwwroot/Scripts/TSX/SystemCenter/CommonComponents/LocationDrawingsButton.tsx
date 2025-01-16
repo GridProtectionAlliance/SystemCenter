@@ -59,21 +59,32 @@ const LocationDrawingsButton: React.FC<LocationDrawingsButtonProps> = (props) =>
     React.useEffect(() => { // Generates the map of errors for each location
         setPageState('loading');
 
-        const handles = props.Locations.map(location=> {
+        const handles = props.Locations.map(location => {
             if (location != null) {
-                return LocationDrawingController.PagedSearch([], 'Name', true, 1, location.ID)
-                    .then((result) => {
+                const handle = LocationDrawingController.PagedSearch([], 'Name', true, 1, location.ID)
+                    .done((result) => {
                         const errors = isValid(location, result);
                         updateLocationErrors(location, errors);
                     })
                     .fail(() => { throw new Error() });
+                return handle;
             }
-            return Promise.resolve();
-        });
+            return null; // invalid location
+        }).filter(handle => handle != null);
 
         Promise.all(handles)
-            .then(() => { setPageState('idle')},
-                  () => { setPageState('error') });
+            .then(() => {
+                setPageState('idle');
+            },
+            () => {
+                setPageState('error')
+            });
+
+        return () => {
+            handles.forEach(handle => {
+                return () => { if (handle != null && handle?.abort != null) handle.abort(); }
+            })
+        };
     }, [props.Locations]);
 
     const handleAddLocationError = (locMap: Map<number, string[]>) => {
