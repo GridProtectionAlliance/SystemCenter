@@ -338,7 +338,7 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA/MeterDataQualitySummary")]
     public class MeterDataQualitySummaryController : ModelController<MeterDataQualitySummary> { }
 
-    [RoutePrefix("api/OpenXDA/remoteXDAInstance")]
+    [RoutePrefix("api/OpenXDA/remoteXDAInstance"), HttpEditionFilter(Edition.Enterprise)]
     public class RemoteXDAInstanceController : ModelController<RemoteXDAInstance>
     {
         #region [Properties]
