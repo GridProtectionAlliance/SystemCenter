@@ -24,7 +24,7 @@
 import * as React from 'react';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { ConfigSlice } from '../Store/Store';
-import { ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { ServerErrorIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
 
 interface IProps {
     Style?: React.CSSProperties,
@@ -48,18 +48,24 @@ const EnterpriseEditionLockPage: React.FunctionComponent<IProps> = (props) => {
     return (
         <div style={props.Style} className={props.ClassName}>
             {
-                inSpecifiedEdition ?
-                    props.children : 
-                    <div className="col" style={{ height: "100%", width: "100%" }}>
-                        <div className="row" style={{ width: "100%", height: "50%", display: "grid", alignItems: "end" }}>
-                            <img src={`${homePath}Images/GiantLogo.png`} className="contain"
-                                style={{ width: "40%", paddingBottom: "50px", marginLeft: "auto", marginRight: "auto" }} />
-                        </div>
-                        <div className="row" style={{ alignItems: "top", justifyContent: "center", width: "100%", height: `50%` }}>
-                            <ServerErrorIcon Show={true} Label={'Enterprise Edition is Required to Use this Feature'} Size={100} />
-                        </div>
-                    </div>
-                }
+                configStatus === 'loading' ?
+                    <LoadingScreen Show={true} /> :
+                    <>
+                        {
+                            inSpecifiedEdition ?
+                                props.children :
+                                <div className="col" style={{ height: "100%", width: "100%" }}>
+                                    <div className="row" style={{ width: "100%", height: "50%", display: "grid", alignItems: "end" }}>
+                                        <img src={`${homePath}Images/GiantLogo.png`} className="contain"
+                                            style={{ width: "40%", paddingBottom: "50px", marginLeft: "auto", marginRight: "auto" }} />
+                                    </div>
+                                    <div className="row" style={{ alignItems: "top", justifyContent: "center", width: "100%", height: `50%` }}>
+                                        <ServerErrorIcon Show={true} Label={'Enterprise Edition is Required to Use this Feature'} Size={100} />
+                                    </div>
+                                </div>
+                        }
+                    </>
+            }
         </div>
     )
 }
