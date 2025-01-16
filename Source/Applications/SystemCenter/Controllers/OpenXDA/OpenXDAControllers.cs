@@ -454,6 +454,7 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             // Ensuring XDA is in lockstep with us
             Task<string> responseTask = SendGetRequest($"/api/GetEdition");
+            EditionChecker.UpdateEdition();
             // Build comparitor object for typescript
             JObject editionComparitor = new JObject();
             foreach (Edition edition in Enum.GetValues(typeof(Edition))) editionComparitor.Add(edition.ToString(), EditionChecker.CheckEdition(edition));
