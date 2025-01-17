@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
+import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import BreakerAttributes from '../AssetAttribute/Breaker';
 import BusAttributes from '../AssetAttribute/Bus';
 import CapBankAttributes from '../AssetAttribute/CapBank';
@@ -39,13 +39,12 @@ import DERAttributes from '../AssetAttribute/DER';
 import AssetSelect from '../Asset/AssetSelect';
 import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { getAssetWithAdditionalFields } from '../../../TS/Services/Asset';
-import LocationDrawings from '../Meter/PropertyUI/LocationDrawings';
-import { GetNodeSize } from '@gpa-gemstone/helper-functions';
 import { ReactTable } from '@gpa-gemstone/react-table';
 import GenerationAttributes from '../AssetAttribute/Generation';
 import StationAuxAttributes from '../AssetAttribute/StationAux';
 import StationBatteryAttributes from '../AssetAttribute/StationBattery';
 import ChannelSelector from './ChannelSelector';
+import LocationDrawings from '../Location/LocationDrawings';
 
 declare var homePath: string;
 
