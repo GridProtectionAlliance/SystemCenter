@@ -27,6 +27,7 @@ using GSF.Data;
 using GSF.Data.Model;
 using GSF.Security.Model;
 using GSF.Web.Model;
+using openXDA.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -37,7 +38,7 @@ using SystemCenter.Controllers;
 namespace SystemCenter.Controllers
 {
     
-    [RoutePrefix("api/SystemCenter/AccessLog")]
+    [RoutePrefix("api/SystemCenter/AccessLog"), HttpEditionFilter(Edition.Enterprise)]
     public class SystemCenterAccessLogController : ApiController {
 
         private string Connection { get; } = "systemSettings";
