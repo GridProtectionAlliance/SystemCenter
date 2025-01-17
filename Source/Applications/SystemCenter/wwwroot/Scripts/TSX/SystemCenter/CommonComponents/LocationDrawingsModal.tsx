@@ -39,7 +39,7 @@ const LocationDrawingsModal = (props: IProps) => {
             ShowX={true} Size={'lg'}
             CallBack={() => props.SetShow(false)}
             ShowCancel={false}
-            ConfirmText={'Done'}>
+            ShowConfirm={false}>
             <div className="row">
                 <div className="col-12">
                     <LocationDrawingsTable
