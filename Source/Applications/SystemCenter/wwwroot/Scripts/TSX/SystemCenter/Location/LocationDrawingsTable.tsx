@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  LocationDrawings.tsx - Gbtc
 //
-//  Copyright © 2023, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright © 2024, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -61,7 +61,9 @@ const LocationDrawingsTable = (props: IProps) => {
             .done((result) => {
                 setLinks(JSON.parse(result.Data as unknown as string));
                 if (result.NumberOfPages === 0) result.NumberOfPages = 1;
-                setPageInfo(result);
+                setPageInfo({RecordsPerPage: result.RecordsPerPage, 
+                            NumberOfPages: result.NumberOfPages,
+                            TotalRecords: result.TotalRecords});
                 setPageState('idle');
             })
             .fail(() => setPageState('error'));
