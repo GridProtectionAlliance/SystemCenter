@@ -320,9 +320,9 @@ namespace SystemCenter.Notifications.Controllers
                     request.Method = HttpMethod.Get;
                 }
 
-                string dateTimeNow = DateTime.UtcNow.ToString();
+                long timeTicksNow = DateTime.UtcNow.Ticks;
 
-                HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"/api/email/testReportData/{emailID}/{dateTimeNow}").Result;
+                HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"/api/email/testReportData/{emailID}/{timeTicksNow}").Result;
 
                 responseMessage.EnsureSuccessStatusCode();
 
