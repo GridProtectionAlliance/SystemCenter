@@ -89,7 +89,7 @@ namespace SystemCenter.Controllers.OpenXDA.Meters
             using (AdoDataConnection connection = CreateDbConnection())
             {
                 DeleteDuplicateRecords(connection, "Event", new[] { "AssetID", "StartTime", "EndTime", "Samples" }, fromMeterID, toMeterID);
-                DeleteDuplicateRecords(connection, "MeterAlarmSummary", new[] { "AlarmTypeID", "Date" }, fromMeterID, toMeterID);
+                DeleteDuplicateRecords(connection, "MeterAlarmSummary", new[] { "Date" }, fromMeterID, toMeterID);
                 DeleteDuplicateRecords(connection, "MeterAssetGroup", new[] { "AssetGroupID" }, fromMeterID, toMeterID);
                 DeleteDuplicateRecords(connection, "MeterDataQualitySummary", new[] { "Date" }, fromMeterID, toMeterID);
                 DeleteDuplicateRecords(connection, "MeterFacility", new[] { "FacilityID" }, fromMeterID, toMeterID);
