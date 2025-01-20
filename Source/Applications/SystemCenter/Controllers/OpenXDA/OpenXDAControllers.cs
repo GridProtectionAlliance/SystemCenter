@@ -70,7 +70,7 @@ namespace SystemCenter.Controllers.OpenXDA
 
     // ToDo: ByAsset and ByRestrictedDetailedAsset should eventually be combined, but only when it is assured that this combination will not break things
     [RoutePrefix("api/OpenXDA/ByRestrictedDetailedAsset")]
-    public class RestrictedDetailedAssetController : ModelController<RestrictedDetailedAsset> { }
+    public class RestrictedDetailedAssetController : DetailedAssetController<RestrictedDetailedAsset> { }
 
     [RoutePrefix("api/OpenXDA/ByAsset")]
     public class OpenXDAByAssetController : DetailedAssetController<DetailedAsset>
