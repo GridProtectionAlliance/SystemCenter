@@ -42,6 +42,8 @@ const fieldCols: SC.IByCol<SystemCenter.Types.DetailedExternalDatabases>[] = [
 
 const emptyRecord = { ID: 0, Name: '', Schedule: '', ConnectionString: '', DataProviderString: '', Encrypt: false };
 
+const ExternalDBController = new GenericController<SystemCenter.Types.DetailedExternalDatabases>(controllerPath, "ID", true);
+
 const ByExternalDB: Application.Types.iByComponent = (props) => {
     let history = useHistory();
 
@@ -49,14 +51,6 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
     const [record, setRecord] = React.useState<SystemCenter.Types.ExternalDatabases>(emptyRecord);
     const [showNew, setShowNew] = React.useState<boolean>(false);
     const [refreshCount, refreshData] = React.useState<number>(0);
-
-    const ExternalDBController = new GenericController<SystemCenter.Types.DetailedExternalDatabases>(controllerPath, "ID", true);
-
-    function addExternalDatabase() {
-        return ExternalDBController.DBAction('POST', record).done(() =>
-            refreshData(x => x + 1)
-        )
-    }
 
     React.useEffect(() => {
         let e = [];
@@ -101,7 +95,7 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
                 CallBack={(conf) => {
                     if (conf) {
                         record.Schedule = record.Schedule?.length == 0 ? null : record.Schedule;
-                        addExternalDatabase();
+                        ExternalDBController.DBAction('POST', record).done(() => refreshData(x => x + 1))
                     }
                     setShowNew(false);
                 }}
@@ -115,89 +109,7 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
                 DisableConfirm={errors.length > 0} >
                 <ExternalDBForm Record={record} Setter={setRecord} setErrors={setErrors} />
             </Modal>
-        </GenericByPage> {/*
-        <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit', padding: 0 }}>
-            <div className="row">
-                <div className="col">
-                    <SearchBar<SystemCenter.Types.DetailedExternalDatabases>
-                        CollumnList={ExternalDBSearchField}
-                        SetFilter={(flds) => dispatch(ExternalDatabasesSlice.DBSearch({ filter: flds }))}
-                        Direction={'left'}
-                        defaultCollumn={ExternalDBDefaultSearchField}
-                        Width={'50%'}
-                        Label={'Search'}
-                        StorageID="ExternalDatabasesFilter"
-                        ShowLoading={status == 'loading'}
-                        ResultNote={status == 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' External Database(s)'}
-                    >
-                        
-                    </SearchBar>
-                </div>
-            </div>
-
-            <div className='row' style={{ flex: 1, overflow: 'hidden' }}>
-                <div className='col-12' style={{ height: '100%', overflow: 'hidden' }}>
-                    <ReactTable.Table<SystemCenter.Types.DetailedExternalDatabases>
-                        TableClass="table table-hover"
-                        Data={data}
-                        SortKey={sortField}
-                        Ascending={ascending}
-                        OnSort={(d) => {
-                            dispatch(ExternalDatabasesSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
-                        }}
-                        OnClick={handleSelect}
-                        TableStyle={{
-                            padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
-                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
-                        }}
-                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
-                        RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        Selected={(item) => false}
-                        KeySelector={(item) => item.ID}
-                    >
-                        <ReactTable.Column<SystemCenter.Types.DetailedExternalDatabases>
-                            Key={'Name'}
-                            AllowSort={true}
-                            Field={'Name'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Database Name
-                        </ReactTable.Column>
-                        <ReactTable.Column<SystemCenter.Types.DetailedExternalDatabases>
-                            Key={'MappedTables'}
-                            AllowSort={true}
-                            Field={'MappedTables'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Mapped Tables
-                        </ReactTable.Column>
-                        <ReactTable.Column<SystemCenter.Types.DetailedExternalDatabases>
-                            Key={'MappedFields'}
-                            AllowSort={true}
-                            Field={'MappedFields'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Mapped Fields
-                        </ReactTable.Column>
-                        <ReactTable.Column<SystemCenter.Types.DetailedExternalDatabases>
-                            Key={'LastDataUpdate'}
-                            AllowSort={true}
-                            Field={'LastDataUpdate'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                            Content={({ item }) => {
-                                if (item.LastDataUpdate == null || item.LastDataUpdate == '') return ''
-                                else return moment(item.LastDataUpdate).format('MM/DD/YYYY HH:mm.ss.ssss')
-                            }}
-                        > Last Data Update
-                        </ReactTable.Column>
-                    </ReactTable.Table>
-                </div>
-            </div>
-
-            
-        </div>*/}
+        </GenericByPage>
     </>
 }
 

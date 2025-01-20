@@ -24,14 +24,15 @@
 import * as React from 'react';
 import WidgetForm from './WidgetForm';
 import GenericByPage from '../CommonComponents/GenericByPage';
-import {  Modal } from '@gpa-gemstone/react-interactive';
+import {  GenericController, Modal } from '@gpa-gemstone/react-interactive';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import { AllWidgets } from '../../../../../EventWidgets/TSX/WidgetWrapper';
 import { Application } from '@gpa-gemstone/application-typings';
 import { OpenXDA as LocalXDA, SystemCenter } from '../global';
 
 declare var homePath: string;
-const controllerPath = `${homePath}api/SEbrowser/Widget`
+const controllerPath = `${homePath}api/SEbrowser/Widget`;
+const WidgetController = new GenericController<LocalXDA.IWidget>(controllerPath, "ID", true);
 const fieldCols: SystemCenter.IByCol<LocalXDA.IWidget>[] = [
     { Field: 'Name', Label: 'Name', Type: 'string', Width: 'auto' },
     { Field: 'Type', Label: 'Type', Type: 'string', Width: 'auto' }
@@ -43,42 +44,6 @@ const ByWidget: Application.Types.iByComponent = () => {
     const [refreshCount, refreshData] = React.useState<number>(0);
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [errors, setErrors] = React.useState<string[]>([]);
-
-    function addNewWidget() {
-        let handle = $.ajax({
-            type: "POST",
-            url: `${homePath}api/SEbrowser/Widget/Add`,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(record),
-            dataType: "json",
-            cache: false,
-            async: true
-        }).done(() => {
-            refreshData(x => x + 1);
-        })
-
-        return () => {
-            if (handle != null && handle.abort != null) handle.abort();
-        };
-    }
-
-    function updateWidget() {
-        let handle = $.ajax({
-            type: "PATCH",
-            url: `${homePath}api/SEbrowser/Widget/Update`,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(record),
-            dataType: "json",
-            cache: false,
-            async: true
-        }).done(() => {
-            refreshData(x => x + 1);
-        })
-
-        return () => {
-            if (handle != null && handle.abort != null) handle.abort();
-        };
-    }
 
     return (
         <GenericByPage<LocalXDA.IWidget>
@@ -109,9 +74,9 @@ const ByWidget: Application.Types.iByComponent = () => {
                 CallBack={(c) => {
                     setShowModal(false);
                     if (c && record.ID == 0)
-                        addNewWidget();
+                        WidgetController.DBAction("POST", record).done(() => refreshData(x => x + 1));
                     if (c && record.ID > 0)
-                        updateWidget();
+                        WidgetController.DBAction("PATCH", record).done(() => refreshData(x => x + 1));
                     setRecord(emptyWidget);
                 }}
                 ShowCancel={false}

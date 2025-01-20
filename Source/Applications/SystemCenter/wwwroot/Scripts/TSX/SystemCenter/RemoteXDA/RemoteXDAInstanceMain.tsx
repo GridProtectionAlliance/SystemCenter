@@ -25,7 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-import { Modal } from '@gpa-gemstone/react-interactive';
+import { GenericController, Modal } from '@gpa-gemstone/react-interactive';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import { RemoteXDAInstanceForm, BlankRemoteXDAInstance } from './RemoteXDAInstanceForm';
 import GenericByPage from '../CommonComponents/GenericByPage';
@@ -34,7 +34,7 @@ import { SystemCenter } from '../global';
 declare var homePath: string;
 
 const controllerPath = `${homePath}api/OpenXDA/remoteXDAInstance`
-
+const RemoteXDAInstanceController = new GenericController<OpenXDA.Types.RemoteXDAInstance>(controllerPath, "ID", true);
 const fieldCols: SystemCenter.IByCol<OpenXDA.Types.RemoteXDAInstance>[] = [
     { Field: 'Name', Label: 'Name', Type: 'string', Width: 'auto' },
     { Field: 'Address', Label: 'Address', Type: 'string', Width: 'auto' }
@@ -46,24 +46,6 @@ const RemoteXDAInstanceMain: Application.Types.iByComponent = (props) => {
     const [refreshCount, refreshData] = React.useState<number>(0);
     const [formInstance, setFormInstance] = React.useState<OpenXDA.Types.RemoteXDAInstance>(BlankRemoteXDAInstance);
     const [newInstErrors, setNewInstErrors] = React.useState<string[]>([]);
-
-    function addNewFormInstance() {
-        let handle = $.ajax({
-            type: "POST",
-            url: `${homePath}api/OpenXDA/remoteXDAInstance/Add`,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(formInstance),
-            dataType: "json",
-            cache: false,
-            async: true
-        }).done(() => {
-            refreshData(x => x + 1);
-        })
-
-        return () => {
-            if (handle != null && handle.abort != null) handle.abort();
-        };
-    }
 
     function handleSelect(item) {
         history.push({
@@ -103,7 +85,9 @@ const RemoteXDAInstanceMain: Application.Types.iByComponent = (props) => {
                 ShowCancel={true}
                 CallBack={(conf) => {
                     if (conf)
-                        addNewFormInstance();
+                        RemoteXDAInstanceController.DBAction("POST", formInstance).done(() => {
+                            refreshData(x => x + 1);
+                        });
                     setShowNew(false);
                 }}
                 DisableConfirm={newInstErrors.length > 0}

@@ -24,12 +24,13 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { Application } from '@gpa-gemstone/application-typings';
-import { Modal } from '@gpa-gemstone/react-interactive';
+import { GenericController, Modal } from '@gpa-gemstone/react-interactive';
 import {SystemCenter as localSC } from '../global'
 import ValueListGroupForm from './ValueListGroupForm';
 import GenericByPage from '../CommonComponents/GenericByPage';
 
 const controllerPath = `${homePath}api/ValueListGroup`;
+const ValueListGroupController = new GenericController<localSC.ValueListGroupView>(controllerPath, "ID", true);
 const fieldCols: localSC.IByCol<localSC.ValueListGroupView>[] = [
     { Field: 'Name', Label: 'Name', Type: 'string', Width: '15%' },
     { Field: 'Description', Label: 'Description', Type: 'string', Width: 'auto' },
@@ -43,24 +44,6 @@ const ValueListGroups: Application.Types.iByComponent = () => {
     const [refreshCount, refreshData] = React.useState<number>(0);
     const [showNew, setShowNew] = React.useState<boolean>(false);
     const [record, setRecord] = React.useState<localSC.ValueListGroupView>(emptyRecord);
-
-    function addValueListGroup() {
-        let handle = $.ajax({
-            type: "POST",
-            url: `${homePath}api/ValueListGroup/Add`,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(record),
-            dataType: "json",
-            cache: false,
-            async: true
-        }).done(() => {
-            refreshData(x => x + 1);
-        })
-
-        return () => {
-            if (handle != null && handle.abort != null) handle.abort();
-        };
-    }
 
     function handleSelect(item) {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=ValueListGroup&GroupID=' + item.row.ID })
@@ -90,7 +73,7 @@ const ValueListGroups: Application.Types.iByComponent = () => {
                 Title={'Add New Value List Group'}
                 CallBack={(c) => {
                     if (c)
-                        addValueListGroup();
+                        ValueListGroupController.DBAction("POST", record).done(() => refreshData(x => x + 1));
                     setShowNew(false);
                 }}
                 ShowCancel={false}
