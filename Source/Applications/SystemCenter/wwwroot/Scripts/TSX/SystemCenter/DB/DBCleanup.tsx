@@ -43,6 +43,8 @@ const fieldCols: SystemCenter.IByCol<DBCleanup>[] = [
 ];
 const controllerPath = `${homePath}api/OpenXDA/DBCleanup`
 
+const DBCleanupController = new GenericController<DBCleanup>(controllerPath, "ID", true);
+
 const DBCleanup: Application.Types.iByComponent = (props) => {
     const allDBCleanup: DBCleanup[] = useAppSelector(DBCleanupSlice.Data);
     const emptyDBCleanup = { ID: 0, Name: '', SQLCommand: '', Schedule: '' };
@@ -54,8 +56,6 @@ const DBCleanup: Application.Types.iByComponent = (props) => {
     const [hasChanged, setHasChanged] = React.useState<boolean>(false);
     const [errors, setErrors] = React.useState<string[]>([]);
     const [refreshCount, refreshData] = React.useState<number>(0);
-
-    const DBCleanupController = new GenericController<DBCleanup>(controllerPath, "ID", true);
 
     React.useEffect(() => { setHasChanged(false) }, [showModal]);
 
@@ -71,24 +71,6 @@ const DBCleanup: Application.Types.iByComponent = (props) => {
             e.push("A SQL Command is required.");
         setErrors(e)
     }, [editNewDBCleanup])
-
-    function addNewDBCleanup() {
-        return DBCleanupController.DBAction("POST", editNewDBCleanup).done(() => {
-            refreshData(x => x + 1);
-        })
-    }
-
-    function updateDBCleanup() {
-        return DBCleanupController.DBAction("PATCH", editNewDBCleanup).done(() => {
-            refreshData(x => x + 1);
-        })
-    }
-
-    function deleteDBCleanup() {
-        return DBCleanupController.DBAction("DELETE", editNewDBCleanup).done(() => {
-            refreshData(x => x + 1);
-        })
-    }
 
     function handleSelect(item) {
         setEditNewDBCleanup(item.row);
@@ -134,9 +116,9 @@ const DBCleanup: Application.Types.iByComponent = (props) => {
                 CancelText={'Delete'}
                 CallBack={(conf, isBtn) => {
                     if (conf && editNew === 'New')
-                        addNewDBCleanup();
+                        DBCleanupController.DBAction("POST", editNewDBCleanup).done(() => refreshData(x => x + 1))
                     if (conf && editNew === 'Edit')
-                        updateDBCleanup();
+                        DBCleanupController.DBAction("PATCH", editNewDBCleanup).done(() => refreshData(x => x + 1))
                     if (!conf && isBtn)
                         setShowWarning(true);
                     setShowModal(false);
@@ -170,7 +152,7 @@ const DBCleanup: Application.Types.iByComponent = (props) => {
                 Show={showWarning}
                 CallBack={(conf) => {
                     if (conf)
-                        deleteDBCleanup();
+                        DBCleanupController.DBAction("DELETE", editNewDBCleanup).done(() => refreshData(x => x + 1))
                     setShowWarning(false);
                 }} />
         </GenericByPage>

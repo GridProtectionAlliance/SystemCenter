@@ -39,6 +39,8 @@ const fieldCols: SystemCenter.IByCol<OpenXDA.Types.EventType>[] = [
 ]
 const controllerPath = `${homePath}api/OpenXDA/EventType`
 
+const EventTypeController = new GenericController<OpenXDA.Types.EventType>(controllerPath, "ID", true);
+
 const ByEventType: Application.Types.iByComponent = (props) => {
     const [record, setRecord] = React.useState<OpenXDA.Types.EventType>(null);
     const [errors, setErrors] = React.useState<string[]>([]);
@@ -46,20 +48,12 @@ const ByEventType: Application.Types.iByComponent = (props) => {
     const [refreshCount, refreshData] = React.useState<number>(0);
     const [assetTypeET, setAssettypeET] = React.useState<OpenXDA.Types.EventTypeAssetType[]>([]);
 
-    const EventTypeController = new GenericController<OpenXDA.Types.EventType>(controllerPath, "ID", true);
-
-    function updateEventType() {
-        return EventTypeController.DBAction('PATCH', record).done(() =>
-            refreshData(x => x + 1)
-        );
-    }
-
     function handleSelect(item) {
         setRecord(item);
         setShowModal(true);
     }
 
-    return ( // TODO: Search
+    return (
         <GenericByPage<OpenXDA.Types.EventType>
             PagingID='EventType'
             OnClick={(item) => handleSelect(item.row)}
@@ -76,7 +70,7 @@ const ByEventType: Application.Types.iByComponent = (props) => {
                 ShowCancel={true}
                 CallBack={(conf) => {
                     if (conf)
-                        updateEventType();
+                        EventTypeController.DBAction('PATCH', record).done(() => refreshData(x => x + 1));
                     setShowModal(false);
                 }}
                 DisableConfirm={errors.length > 0}

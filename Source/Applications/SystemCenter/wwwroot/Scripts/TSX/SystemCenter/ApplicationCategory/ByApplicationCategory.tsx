@@ -44,6 +44,10 @@ const fieldCols: LocalSC.IByCol<ApplicationCategory>[] = [
     { Field: 'SortOrder', Label: 'Sort Order', Type: 'string', Width: '50%'}
 ];
 
+const CategoryController = new GenericController<SystemCenter.Types.ApplicationCategory>(
+    controllerPath, "ID", true
+);
+
 const ByApplicationCategory: Application.Types.iByComponent = () => {
     let history = useHistory();
 
@@ -54,10 +58,6 @@ const ByApplicationCategory: Application.Types.iByComponent = () => {
     const [refreshCount, refreshData] = React.useState<number>(0);
 
     const allApplicationCategories: ApplicationCategory[] = useAppSelector(ApplicationCategorySlice.Data);
-
-    const CategoryController = new GenericController<SystemCenter.Types.ApplicationCategory>(
-        controllerPath, "ID", true
-    );
 
     React.useEffect(() => {
         const e: string[] = [];
@@ -86,11 +86,6 @@ const ByApplicationCategory: Application.Types.iByComponent = () => {
 
     function handleSelect(item) {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=ApplicationCategory&ID=' + item.row.ID, state: {} })
-    }
-
-    function addNewApplicationCategory() {
-        return CategoryController.DBAction("POST", editNewApplicationCategory)
-            .done(() => refreshData(refreshCount + 1));
     }
 
     return (
@@ -125,7 +120,7 @@ const ByApplicationCategory: Application.Types.iByComponent = () => {
                 ConfirmText={'Save'}
                 CallBack={(conf, isBtn) => {
                     if (conf && errors.length == 0)
-                        addNewApplicationCategory();
+                        CategoryController.DBAction("POST", editNewApplicationCategory).done(() => refreshData(refreshCount + 1));
                     setShowModal(false);
                 }}
                 DisableConfirm={errors.length > 0}

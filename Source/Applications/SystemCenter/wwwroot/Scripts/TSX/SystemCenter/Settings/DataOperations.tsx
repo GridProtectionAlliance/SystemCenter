@@ -23,7 +23,7 @@
 
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { SystemCenter } from '../global';
-import { Modal, Warning } from '@gpa-gemstone/react-interactive';
+import { GenericController, Modal, Warning } from '@gpa-gemstone/react-interactive';
 import * as React from 'react';
 import { DataOperationSlice } from '../Store/Store';
 import GenericByPage from '../CommonComponents/GenericByPage';
@@ -31,7 +31,7 @@ import { Input } from '@gpa-gemstone/react-forms';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 
 const controllerPath = `${homePath}api/OpenXDA/DataOperation`;
-
+const DataOperationController = new GenericController<OpenXDA.Types.DataOperation>(controllerPath, "ID", true);
 const fieldCols: SystemCenter.IByCol<OpenXDA.Types.DataOperation>[] = [
     { Field: 'AssemblyName', Label: 'Assembly Name', Type: 'string', Width: '20%'},
     { Field: 'TypeName', Label: 'Type Name', Type: 'string', Width: 'auto' },
@@ -61,60 +61,6 @@ const DataOperations: Application.Types.iByComponent = (props) => {
             e.push('An Type Name is required.')
         setErrors(e)
     }, [editnewSetting])
-
-    function addNewOperation() {
-        let handle = $.ajax({
-            type: "POST",
-            url:  `${homePath}api/OpenXDA/DataOperation/Add`,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(editnewSetting),
-            dataType: "json",
-            cache: false,
-            async: true
-        }).done(() => {
-            refreshData(x => x + 1);
-        })
-
-        return () => {
-            if (handle != null && handle.abort != null) handle.abort();
-        };
-    }
-
-    function updateOperation() {
-        let handle = $.ajax({
-            type: "PATCH",
-            url: `${homePath}api/OpenXDA/DataOperation/Update`,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(editnewSetting),
-            dataType: "json",
-            cache: false,
-            async: true
-        }).done(() => {
-            refreshData(x => x + 1);
-        })
-
-        return () => {
-            if (handle != null && handle.abort != null) handle.abort();
-        };
-    }
-
-    function deleteOperation() {
-        let handle = $.ajax({
-            type: "DELETE",
-            url: `${homePath}api/OpenXDA/DataOperation/Delete`,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(editnewSetting),
-            dataType: "json",
-            cache: false,
-            async: true
-        }).done(() => {
-            refreshData(x => x + 1);
-        })
-
-        return () => {
-            if (handle != null && handle.abort != null) handle.abort();
-        };
-    }
 
     function handleSelect(item) {
         setEditNewSetting(item.row);
@@ -160,9 +106,9 @@ const DataOperations: Application.Types.iByComponent = (props) => {
                 CancelText={'Delete'}
                 CallBack={(conf, isBtn) => {
                     if (conf && editNew === 'New')
-                        addNewOperation();
+                        DataOperationController.DBAction("POST", editnewSetting).done(() => refreshData(x => x + 1));
                     if (conf && editNew === 'Edit')
-                        updateOperation();
+                        DataOperationController.DBAction("PATCH", editnewSetting).done(() => refreshData(x => x + 1));
                     if (!conf && isBtn)
                         setShowWarning(true);
                     setShowModal(false);
@@ -208,7 +154,7 @@ const DataOperations: Application.Types.iByComponent = (props) => {
                 Show={showWarning}
                 CallBack={(conf) => {
                     if (conf)
-                        deleteOperation();
+                        DataOperationController.DBAction("DELETE", editnewSetting).done(() => refreshData(x => x + 1));
                         DataOperationSlice.DBAction({ verb: 'DELETE', record: editnewSetting });
                     setShowWarning(false);
                 }}

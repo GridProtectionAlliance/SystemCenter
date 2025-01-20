@@ -39,6 +39,8 @@ const fieldCols: SC.IByCol<SystemCenter.Types.DetailedExtDBTables>[] = [
 const controllerPath = `${homePath}api/SystemCenter/extDBTables`;
 const emptyRecord = { ID: -1, TableName: '', ExtDBID: -1, Query: ''};
 
+const ExternalTableController = new GenericController<SystemCenter.Types.DetailedExtDBTables>(controllerPath, "ID", true);
+
 const ByExternalTable: Application.Types.iByComponent = (props) => {
     let history = useHistory();
 
@@ -47,8 +49,6 @@ const ByExternalTable: Application.Types.iByComponent = (props) => {
 
     const [record, setRecord] = React.useState<SystemCenter.Types.DetailedExtDBTables>(emptyRecord);
     const [refreshCount, refreshData] = React.useState<number>(0);
-
-    const ExternalTableController = new GenericController<SystemCenter.Types.DetailedExtDBTables>(controllerPath, "ID", true);
 
     React.useEffect(() => {
         let e = [];
@@ -61,12 +61,6 @@ const ByExternalTable: Application.Types.iByComponent = (props) => {
 
         setErrors(e);
     }, [record]);
-
-    function addNewExternalTable() {
-        return ExternalTableController.DBAction('POST', record).done(() =>
-            refreshData(x => x + 1)
-        )
-    }
 
     function handleSelect(item) {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=ExternalTable&ID=' + item.row.ID })
@@ -97,7 +91,7 @@ const ByExternalTable: Application.Types.iByComponent = (props) => {
             </li>
             <Modal Title={'Add New External Table'}
                 CallBack={(conf) => {
-                    if (conf) addNewExternalTable();
+                    if (conf) ExternalTableController.DBAction('POST', record).done(() => refreshData(x => x + 1));
                     setShowNew(false);
                 }}
                 Show={showNew}
