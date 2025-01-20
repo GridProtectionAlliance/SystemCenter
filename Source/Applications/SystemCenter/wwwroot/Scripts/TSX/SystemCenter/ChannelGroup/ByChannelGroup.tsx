@@ -41,6 +41,8 @@ const fieldCols: LocalSC.IByCol<LocalSC.ChannelGroupView>[] = [
 const emptyRecord = { ID: 0, Name: '', Description: '' };
 const controllerPath = `${homePath}api/ChannelGroup`;
 
+const ChannelController = new GenericController<SystemCenter.Types.ChannelGroup>(controllerPath, "ID", true);
+
 const ChannelGroups: Application.Types.iByComponent = () => {
     let history = useHistory();
 
@@ -48,8 +50,6 @@ const ChannelGroups: Application.Types.iByComponent = () => {
     const [errors, setErrors] = React.useState<string[]>([]);
     const [record, setRecord] = React.useState<SystemCenter.Types.ChannelGroup>(emptyRecord);
     const [refreshCount, refreshData] = React.useState<number>(0);
-
-    const ChannelController = new GenericController<SystemCenter.Types.ChannelGroup>(controllerPath, "ID", true);
 
     React.useEffect(() => {
         let e = [];
@@ -62,12 +62,6 @@ const ChannelGroups: Application.Types.iByComponent = () => {
 
         setErrors(e);
     }, [record]);
-
-    function addNewChannelGroup() {
-        return ChannelController.DBAction('POST', record).done(() => {
-            refreshData(x => x + 1)
-        });
-    }
 
     function handleSelect(item) {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=ChannelGroup&GroupID=' + item.row.ID })
@@ -103,7 +97,7 @@ const ChannelGroups: Application.Types.iByComponent = () => {
             <Modal Title={'Add New Channel Group'}
                 CallBack={(c) => {
                     if (c)
-                        addNewChannelGroup();
+                        ChannelController.DBAction('POST', record).done(() => refreshData(x => x + 1));
                     setShowNew(false);
                 }}
                 ShowCancel={false}

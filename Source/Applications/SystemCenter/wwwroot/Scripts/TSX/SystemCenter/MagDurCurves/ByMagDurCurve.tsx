@@ -25,12 +25,13 @@ import * as React from 'react';
 import CurveForm from './CurveForm';
 import GenericByPage from '../CommonComponents/GenericByPage';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-import { Modal, Warning } from '@gpa-gemstone/react-interactive';
+import { GenericController, Modal, Warning } from '@gpa-gemstone/react-interactive';
 import { SystemCenter } from '../global';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 
 declare var homePath: string;
 const controllerPath = `${homePath}api/SystemCenter/StandardMagDurCurve`
+const MagDurCurveController = new GenericController<OpenXDA.Types.MagDurCurve>(controllerPath, "ID", true);
 const emptyCurve: OpenXDA.Types.MagDurCurve = {
     ID: 0,
     Name: 'Curve',
@@ -48,60 +49,6 @@ const ByMagDurCurve: Application.Types.iByComponent = () => {
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
     const [refreshCount, refreshData] = React.useState<number>(0);
-
-    function addMagDurCurve() {
-        let handle = $.ajax({
-            type: "POST",
-            url: `${homePath}api/SystemCenter/StandardMagDurCurve/Add`,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(curve),
-            dataType: "json",
-            cache: false,
-            async: true
-        }).done(() => {
-            refreshData(x => x + 1);
-        })
-
-        return () => {
-            if (handle != null && handle.abort != null) handle.abort();
-        };
-    }
-
-    function updateMagDurCurve() {
-        let handle = $.ajax({
-            type: "PATCH",
-            url: `${homePath}api/SystemCenter/StandardMagDurCurve/Update`,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(curve),
-            dataType: "json",
-            cache: false,
-            async: true
-        }).done(() => {
-            refreshData(x => x + 1);
-        })
-
-        return () => {
-            if (handle != null && handle.abort != null) handle.abort();
-        };
-    }
-
-    function deleteMagDurCurve() {
-        let handle = $.ajax({
-            type: "DELETE",
-            url: `${homePath}api/SystemCenter/StandardMagDurCurve/Delete`,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(curve),
-            dataType: "json",
-            cache: false,
-            async: true
-        }).done(() => {
-            refreshData(x => x + 1);
-        })
-
-        return () => {
-            if (handle != null && handle.abort != null) handle.abort();
-        };
-    }
 
     function handleSelect(item) {
         setCurve(item.row);
@@ -140,8 +87,8 @@ const ByMagDurCurve: Application.Types.iByComponent = () => {
                         setShowDelete(true)
                     if (c) {
                         curve.ID == 0
-                        ? addMagDurCurve()
-                        : updateMagDurCurve();
+                        ? MagDurCurveController.DBAction("POST", curve).done(() => refreshData(x => x + 1))
+                        : MagDurCurveController.DBAction('PATCH', curve).done(() => refreshData(x => x + 1))
                     }
                     if (c || !b)
                         setCurve(emptyCurve);
@@ -162,10 +109,11 @@ const ByMagDurCurve: Application.Types.iByComponent = () => {
                 Show={showDelete}
                 Title={'Delete ' + (curve?.Name ?? 'MagDur Curve')}
                 CallBack={(c) => {
-                    if (c)
-                        deleteMagDurCurve();
-                    setShowDelete(false);
-                    setCurve(emptyCurve);
+                    if (c) {
+                        MagDurCurveController.DBAction('DELETE', curve).done(() => refreshData(x => x + 1));
+                        setShowDelete(false);
+                        setCurve(emptyCurve);
+                    }
                 }}
             />
         </GenericByPage>
