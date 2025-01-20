@@ -40,8 +40,8 @@ const ByMeter: Application.Types.iByComponent = (props) => {
     const dispatch = useAppDispatch();
 
     const data = useAppSelector(ByMeterSlice.SearchResults);
-    const ascending = useAppSelector(ByMeterSlice.Ascending);
-    const sortKey = useAppSelector(ByMeterSlice.SortField);
+    const [ascending, setAscending] = React.useState<boolean>(true);
+    const [sortKey, setSortKey] = React.useState<keyof SystemCenter.Types.DetailedMeter>("Name");
 
     const cState = useAppSelector(ByMeterSlice.PagedStatus);
     const allPages = useAppSelector(ByMeterSlice.TotalPages);
@@ -52,12 +52,12 @@ const ByMeter: Application.Types.iByComponent = (props) => {
     const extDbUpdateAll = React.useRef<() => (() => void)>(undefined);
 
     React.useEffect(() => {
-        dispatch(ByMeterSlice.PagedSearch({ filter: [], sortField: sortKey, ascending, page }));
+        dispatch(ByMeterSlice.PagedSearch({ sortField: sortKey, ascending, page }));
     }, [sortKey, ascending, page]);
 
     React.useEffect(() => {
         if (cState === 'unintiated' || cState === 'changed')
-            dispatch(ByMeterSlice.PagedSearch({ filter: [], sortField: sortKey, ascending, page }));
+            dispatch(ByMeterSlice.PagedSearch({ sortField: sortKey, ascending, page }));
     }, [cState]);
 
     function handleSelect(item) {
@@ -150,9 +150,10 @@ const ByMeter: Application.Types.iByComponent = (props) => {
                         Ascending={ascending}
                         OnSort={(d) => {
                             if (d.colKey === sortKey)
-                                dispatch(ByMeterSlice.Sort({ SortField: sortKey, Ascending: !ascending }));
+                                setAscending(a => !a);
                             else {
-                                dispatch(ByMeterSlice.Sort({ SortField: d.colField as keyof SystemCenter.Types.DetailedMeter, Ascending: true }));
+                                setAscending(true);
+                                setSortKey(d.colField);
                             }
                         }}
                         OnClick={handleSelect}
