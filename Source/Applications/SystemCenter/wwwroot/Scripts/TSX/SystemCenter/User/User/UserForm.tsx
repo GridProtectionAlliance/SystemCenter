@@ -97,7 +97,7 @@ function UserForm(props: IProps) {
             }).fail((d) => {
                 setValid('unknown');
             }); 
-        }, 200);
+        }, 500);
 
         return () => {
             if (timeoutHandle != null) clearTimeout(timeoutHandle);
