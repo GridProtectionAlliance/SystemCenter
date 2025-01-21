@@ -33,7 +33,7 @@ import AddEditDrawingsModal from './AddEditDrawingsModal';
 
 
 const LocationDrawingsWindow = (props: { LocationID: number }) => {
-    const roles = useAppSelector(SelectRoles); // Deprecated
+    const roles = useAppSelector(SelectRoles);
     const emptyRecord: SystemCenter.Types.LocationDrawing = { ID: 0, LocationID: 0, Name: '', Link: '', Description: '', Number: '', Category: '' };
     const [record, setRecord] = React.useState<SystemCenter.Types.LocationDrawing>(emptyRecord);
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');

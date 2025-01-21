@@ -1,4 +1,4 @@
-﻿//******************************************************************************************************
+//******************************************************************************************************
 //  LocationMeter.tsx - Gbtc
 //
 //  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
@@ -53,6 +53,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
     const [localAssets, setLocalAssets] = React.useState<Array<OpenXDA.Types.Asset>>([]);
 
     const [locations, setLocations] = React.useState<OpenXDA.Types.Location[]>([]);
+    const [isLoadingLocations, setIsLoadingLocations] = React.useState<boolean>(false);
 
     const [sortKey, setSortKey] = React.useState<string>('AssetKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
@@ -115,6 +116,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
     }, [assetConnections])
 
     function getLocations() {
+        setIsLoadingLocations(true);
         const h = $.ajax({
             type: "GET",
             url: `${homePath}api/OpenXDA/Asset/${props.ID}/Locations`,
@@ -123,7 +125,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
             cache: true,
             async: true
         });
-        h.done(data => setLocations(data));
+        h.done(data => { setLocations(data); setIsLoadingLocations(false); });
         return h;
     }
 
@@ -256,7 +258,10 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                         <h4>Connections:</h4>
                     </div>
                     <div className="pr-4">
-                        <LocationDrawingsButton Locations={locations} />
+                        <LocationDrawingsButton
+                            Locations={locations}
+                            IsLoadingLocations={isLoadingLocations}
+                        />
                     </div>
                 </div>
             </div>

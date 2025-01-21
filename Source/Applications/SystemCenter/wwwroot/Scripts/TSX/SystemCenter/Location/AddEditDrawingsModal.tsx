@@ -79,7 +79,7 @@ const AddEditDrawingsModal = (props: IProps) => {
                 props.SetShow(false);
                 if (conf) props.HandleSave();
             }}
-            ShowCancel={true}
+            ShowCancel={false}
             DisableConfirm={
                 !(valid('Name') &&
                 valid('Link') &&

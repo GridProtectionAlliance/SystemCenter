@@ -80,7 +80,10 @@ export default function LocationPage(props: IProps) {
 
 
     return (
-        <MeterLocationProperties Meter={{ LocationID: props.LocationInfo.ID == null ? '0' : props.LocationInfo.ID } as OpenXDA.Types.Meter} Location={props.LocationInfo} SetLocation={props.UpdateLocationInfo}
+        <MeterLocationProperties
+            Meter={{ LocationID: props.LocationInfo.ID == null ? '0' : props.LocationInfo.ID } as OpenXDA.Types.Meter}
+            Location={props.LocationInfo}
+            SetLocation={props.UpdateLocationInfo}
             UpdateMeter={(m) => {
                 if (m.LocationID != 0 && m.LocationID != null)
                     getDifferentMeterLocation(m.LocationID)
@@ -96,8 +99,10 @@ export default function LocationPage(props: IProps) {
                         Description: '',
                     });
             }}
-            Locationlist={locations != null ? locations : []} DisableLocation={props.LocationInfo.ID != 0} />
-         
+            Locationlist={locations != null ? locations : []}
+            DisableLocation={props.LocationInfo.ID != 0}
+            LocationStatus={lStatus}
+            />
         );
 
 }

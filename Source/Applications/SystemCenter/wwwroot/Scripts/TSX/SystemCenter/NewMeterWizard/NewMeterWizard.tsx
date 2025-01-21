@@ -404,13 +404,13 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
                 Number of Trend Channels: {channels.reduce((p, c) => c.Trend ? (p + 1) : p, 0)}
             </p>;
         else if (currentStep === assetStep
-            || currentStep === connectionStep
-        )
-            return (<>
+            || currentStep === connectionStep)
+            return (
                 <LocationDrawingsButton
                     Locations={[locationInfo]}
+                    IsLoadingLocations={lStatus === 'loading'}
                 />
-            </>)
+            )
         else if (currentStep >= additionalFieldMeterStep) {
             return (
                 <div>
