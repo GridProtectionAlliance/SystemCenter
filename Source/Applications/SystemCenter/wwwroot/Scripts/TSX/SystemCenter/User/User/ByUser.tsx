@@ -243,9 +243,9 @@ const ByUser: Application.Types.iByComponent = (props) => {
                  </Table>
             </div>
             <Modal Show={showModal} Size={'lg'} ShowCancel={false} ShowX={true} ConfirmText={'Save'}
-                Title={'Add New User'} CallBack={(confirm) => {
+                 Title={'Add New User'} CallBack={(confirm) => {
                     if (confirm)
-                        dispatch(UserAccountSlice.DBAction({ verb: 'POST', record: { ...act, Name: act.DisplayName } }))
+                        dispatch(UserAccountSlice.DBAction({ verb: 'POST', record: act }))
                     setAct(newAcct);
                     setShowModal(false);
                 }}
