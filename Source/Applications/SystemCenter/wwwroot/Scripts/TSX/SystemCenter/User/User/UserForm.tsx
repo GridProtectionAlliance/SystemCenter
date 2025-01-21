@@ -56,6 +56,7 @@ function UserForm(props: IProps) {
             props.SetErrors(errors);
     }, [errors, props.SetErrors]);
 
+    // Only validate every 200ms to avoid hitting the server a bunch
     React.useEffect(() => {
         if (props?.UserAccount?.DisplayName == null || props.UserAccount.Type == 'Database') {
             // Since we rely on name coming out of validate, if we skip it we must set it ourselves
@@ -67,6 +68,7 @@ function UserForm(props: IProps) {
 
         let serverHandle: JQuery.jqXHR<IUserAccount|null>;
 
+        const timeoutHandle = setTimeout(() => {
             serverHandle = $.ajax({
                 type: "POST",
                 url: `${homePath}api/SystemCenter/UserAccount/Verify`,
@@ -95,8 +97,10 @@ function UserForm(props: IProps) {
             }).fail((d) => {
                 setValid('unknown');
             }); 
+        }, 200);
 
         return () => {
+            if (timeoutHandle != null) clearTimeout(timeoutHandle);
             if (serverHandle != null && serverHandle.abort != null) serverHandle.abort();
         }
     }, [props.UserAccount.DisplayName, props.UserAccount.Type]);
