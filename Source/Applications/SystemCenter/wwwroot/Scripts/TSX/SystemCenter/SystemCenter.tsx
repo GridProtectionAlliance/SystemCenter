@@ -93,6 +93,11 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const ByMATLABAnalytic = React.lazy(() => import(/* webpackChunkName: "ByMATLABAnalytic" */ './MATLABAnalytics/ByMATLABAnalytic'));
     const MATLABAnalytic = React.lazy(() => import(/* webpackChunkName: "MATLABAnalytic" */ './MATLABAnalytics/MATLABAnalytic'));
 
+    const RoleAccessErrorPage = React.lazy(() =>
+        import(/* webpackChunkName: "RoleAccessErrorPage" */ '@gpa-gemstone/common-pages')
+            .then(module => ({ default: module.RoleAccessErrorPage }))
+    );
+
     const [ignored, forceUpdate] = React.useReducer((x: number) => x + 1, 0); // integer state for resize renders
 
     React.useEffect(() => {
@@ -340,149 +345,177 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     return <DeviceContacts ID={qs.ID as string} Name={qs.Name as string} Field={qs.Field as 'TSC' | 'Sector'} />
                                 else if (qs['?name'] == "DownloadedFiles")
                                     return <DownloadedFiles MeterID={parseInt(qs.MeterID as string)} MeterName={qs.MeterName as string} />
-
-                                //TO DO: Add page to gemstone for Users who do not have permission to replace null return
                                 else if (qs['?name'] == "DataFiles") {
-                                    if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0) return null;
+                                    if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0)
+                                        return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
                                     return <DataFile Roles={roles} />
                                 }
                                 else if (qs['?name'] == "DataOperations") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    if (roles.indexOf('Administrator') < 0)
+                                        return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
                                     return <DataOperations Roles={roles} />
                                 }
                                 else if (qs['?name'] == "DataReaders") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    if (roles.indexOf('Administrator') < 0)
+                                        return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
                                     return <DataReaders Roles={roles} />
                                 }
                                 else if (qs['?name'] == "DBCleanup") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    if (roles.indexOf('Administrator') < 0)
+                                        return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
                                     return <DBCleanup Roles={roles} />
                                 }
                                 else if (qs['?name'] == "MATLABAnalytics") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    if (roles.indexOf('Administrator') < 0)
+                                        return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
                                     return <ByMATLABAnalytic Roles={roles} />
                                 }
                                 else if (qs['?name'] == "MATLABAnalytic") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    if (roles.indexOf('Administrator') < 0)
+                                        return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
                                     return <MATLABAnalytic AnalyticID={parseInt(qs.AnalyticID as string)} Tab={qs.Tab as any} />
                                 }
-
                                 else if (qs['?name'] == "RemoteXDAInstanceMain") {
-                                    if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0) return null;
+                                    if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0)
+                                        return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
                                     return <RemoteXDAInstanceMain Roles={roles} />
                                 }
                                 else if (qs['?name'] == "RemoteXDAInstance") {
-                                    if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0) return null;
+                                    if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0)
+                                        return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
                                     return <RemoteXDAInstance ID={parseInt(qs.ID as string)} Roles={roles} Tab={qs.Tab as any} />
                                 }
                                 else if (qs['?name'] == "ByExternalDB") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    if (roles.indexOf('Administrator') < 0)
+                                        return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
                                     return <ByExternalDB Roles={roles} />
                                 }
                                 else if (qs['?name'] == "ExternalDB") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    if (roles.indexOf('Administrator') < 0)
+                                        return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
                                     return <ExternalDB ID={parseInt(qs.ID as string)} Tab={qs.Tab as any} />
                                 }
                                 else if (qs['?name'] == "ByExternalTable") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    if (roles.indexOf('Administrator') < 0)
+                                        return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
                                     return <ByExternalTable Roles={roles} />
                                 }
                                 else if (qs['?name'] == "ExternalTable") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    if (roles.indexOf('Administrator') < 0)
+                                        return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
                                     return <ExternalDBTable ID={parseInt(qs.ID as string)} Tab={qs.Tab as any} />
                                 }
-
                                 else if (qs['?name'] == "EventType") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    if (roles.indexOf('Administrator') < 0)
+                                        return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
                                     return <ByEventType Roles={roles} />
                                 }
                                 else if (qs['?name'] == "ValueListGroup") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    if (roles.indexOf('Administrator') < 0)
+                                        return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
                                     return <ValueListGroup GroupID={parseInt(qs.GroupID as string)} Tab={qs.Tab as any} />
                                 }
                                 else if (qs['?name'] == "ValueLists") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    if (roles.indexOf('Administrator') < 0)
+                                        return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
                                     return <ByValueListGroup Roles={roles} />
                                 }
                                 else if (qs['?name'] == "ChannelGroups") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    if (roles.indexOf('Administrator') < 0)
+                                        return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
                                     return <ByChannelGroup Roles={roles} />
                                 }
                                 else if (qs['?name'] == "ChannelGroup") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    if (roles.indexOf('Administrator') < 0)
+                                        return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
                                     return <ChannelGroup GroupID={parseInt(qs.GroupID as string)} Tab={qs.Tab as any} />
                                 }
                                 else if (qs['?name'] == "SEBrowserTabs") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    if (roles.indexOf('Administrator') < 0)
+                                        return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
                                     return <BySEBrowserCategory Roles={roles} />
                                 }
                                 else if (qs['?name'] == "SEBrowserTab") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    if (roles.indexOf('Administrator') < 0)
+                                        return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
                                     return <SEBrowserCategory TabID={parseInt(qs.TabID as string)} Tab={qs.Tab as any} />
                                 }
                                 else if (qs['?name'] == "SEBrowserWidget") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    if (roles.indexOf('Administrator') < 0)
+                                        return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
                                     return <BySEBrowserWidget Roles={roles} />
                                 }
                                 else if (qs['?name'] == "MagDurCurves") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    if (roles.indexOf('Administrator') < 0)
+                                        return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
                                     return <ByMagDurCurve Roles={roles} />
                                 }
                                 else if (qs['?name'] == "EventTags") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    if (roles.indexOf('Administrator') < 0)
+                                        return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
                                     return <ByEventTag Roles={roles} />
                                 }
                                 else if (qs['?name'] == "ByApplicationCategory") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    if (roles.indexOf('Administrator') < 0)
+                                        return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
                                     return <ByApplicationCategory Roles={roles} />
                                 }
                                 else if (qs['?name'] == "ApplicationCategory") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    if (roles.indexOf('Administrator') < 0)
+                                        return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
                                     return <ApplicationCategory ID={parseInt(qs.ID as string)} Tab={qs.Tab as any} />
                                 }
-
                                 else if (qs['?name'] == "AppHost") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    if (roles.indexOf('Administrator') < 0)
+                                        return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
                                     return <AppHost Roles={roles} />
                                 }
                                 else if (qs['?name'] == "Settings") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    if (roles.indexOf('Administrator') < 0)
+                                        return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
                                     return <BySettings Roles={roles} System={qs.System as 'SystemCenter' | 'OpenXDA' | 'MiMD' | 'OpenSEE'} />
                                 }
                                 else if (qs['?name'] == "ByAdditionalField") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    if (roles.indexOf('Administrator') < 0)
+                                        return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
                                     return <ByAdditionalField Roles={roles} />
                                 }
 
                                 else if (qs['?name'] == "UserStatistics") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    if (roles.indexOf('Administrator') < 0)
+                                        return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
                                     return <UserStatistics Roles={roles} />
                                 }
                                 else if (qs['?name'] == "ApplicationNodes") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    if (roles.indexOf('Administrator') < 0)
+                                        return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
                                     return <ByApplicationNode Roles={roles} />
                                 }
                                 else if (qs['?name'] == "APIAccessKey") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    if (roles.indexOf('Administrator') < 0)
+                                        return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
                                     return <APIAccessKey Roles={roles} />
                                 }
                                 else if (qs['?name'] == "Users") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    if (roles.indexOf('Administrator') < 0)
+                                        return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
                                     return <ByUser Roles={roles} />
                                 }
                                 else if (qs['?name'] == "User") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    if (roles.indexOf('Administrator') < 0)
+                                        return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
                                     return <User UserID={qs.UserAccountID as string} Tab={qs.Tab as any} />
                                 }
                                 else if (qs['?name'] == "Group") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    if (roles.indexOf('Administrator') < 0)
+                                        return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
                                     return <UserGroup GroupID={qs.GroupID as string} Tab={qs.Tab as any} />
                                 }
                                 else if (qs['?name'] == "Groups") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    if (roles.indexOf('Administrator') < 0)
+                                        return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
                                     return <BySecuritytGroup Roles={roles} />
                                 }
-                                
                                 else
                                     return <ByMeter Roles={roles} />;
                             }} />
