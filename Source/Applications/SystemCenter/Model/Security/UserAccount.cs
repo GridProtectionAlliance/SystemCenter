@@ -317,7 +317,7 @@ namespace SystemCenter.Model.Security
             User user = request.GetAsync().Result.FirstOrDefault();
 
             return new UserAccount() {
-                Name = user.UserPrincipalName,
+                Name = username,
                 Approved = true,
                 UseADAuthentication = false,
                 FirstName = user.GivenName,
