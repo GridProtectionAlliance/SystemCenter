@@ -21,13 +21,14 @@
 //
 //******************************************************************************************************
 import React from 'react';
-import { BtnDropdown, GenericController, LoadingScreen, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
-import LocationDrawingsModal from './LocationDrawingsModal';
+import { BtnDropdown, GenericController, LoadingScreen, Modal, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import LocationDrawingsTable from '../Location/LocationDrawingsTable';
 
 interface LocationDrawingsButtonProps {
     Locations: OpenXDA.Types.Location[];
+    IsLoadingLocations: boolean;
 }
 
 type DropDownOption = {
@@ -40,6 +41,23 @@ type DropDownOption = {
     Key: string | number
 }
 
+const isValid = (location: OpenXDA.Types.Location, drawingData) => {
+    let e = "";
+
+    if (location == null
+        || (location.Alias === ""
+            && location.Description === ""
+            && location.ID === 0
+            && location.Latitude == null
+            && location.LocationKey === ""
+            && location.Longitude == null
+            && location.Name === ""))
+        e = 'No location(s) have been set.';
+    else if (drawingData.TotalRecords == 0)
+        e = 'No drawing(s) associated with location.';
+    return e;
+}
+
 const LocationDrawingsButton: React.FC<LocationDrawingsButtonProps> = (props) => {
     const [hover, setHover] = React.useState<'none' | 'drawings'>('none');
     const [pageState, setPageState] = React.useState<"loading" | "error" | "idle">("idle");
@@ -49,62 +67,36 @@ const LocationDrawingsButton: React.FC<LocationDrawingsButtonProps> = (props) =>
     const [locationOptions, setLocationOptions] = React.useState<DropDownOption[]>([]);
     const LocationDrawingController = new GenericController(`${homePath}api/LocationDrawing`, "Name", true);
 
-    const isValid = (location: OpenXDA.Types.Location, drawingData) => {
-        let e = "";
-
-        if (!location
-            || (location.Alias == ""
-                && location.Description == ""
-                && location.ID == 0
-                && location.Latitude == null
-                && location.LocationKey == ""
-                && location.Longitude == null
-                && location.Name == ""))
-            e = 'No locations have been set.';
-        else if (drawingData.TotalRecords == 0)
-            e = 'No drawings associated with location.';
-        return e;
-    }
-
     React.useEffect(() => { // Generates the map of errors for each location
         setPageState('loading');
+        setLocationOptions([]);
 
         const handles = props.Locations.map((location, i) => {
-            setLocationOptions([]);
-            if (location != null) {
-                const handle = LocationDrawingController.PagedSearch([], 'Name', true, 1, location.ID)
-                    .done((result) => {
-                        const error = isValid(location, result);
-                        const option: DropDownOption = {
-                            Label: location.Name,
-                            Callback: () => handleShowDrawingsModal(location),
-                            Disabled: error != "",
-                            ToolTipContent: <p>{error}</p>,
-                            ShowToolTip: error != "",
-                            ToolTipLocation: "left",
-                            Key: i
-                        };
-                        setLocationOptions(prev => [...prev, option]);
-                    })
-                    .fail(() => { throw new Error() });
-                return handle;
-            }
-            return null; // invalid location
+            if (location == null)
+                return null;
+            const handle = LocationDrawingController.PagedSearch([], 'Name', true, 1, location.ID)
+                .done((result) => {
+                    const error = isValid(location, result);
+                    const option: DropDownOption = {
+                        Label: location.Name,
+                        Callback: () => handleShowDrawingsModal(location),
+                        Disabled: error != "",
+                        ToolTipContent: <p>{error}</p>,
+                        ShowToolTip: error != "",
+                        ToolTipLocation: "left",
+                        Key: i
+                    };
+                    setLocationOptions(prev => [...prev, option]);
+                })
+                .fail(() => { throw new Error() });
+            return handle;
         }).filter(handle => handle != null);
 
         Promise.all(handles)
-            .then(() => {
-                setPageState('idle');
-            },
-            () => {
-                setPageState('error')
-            });
+            .then(() => setPageState('idle'),
+                () => setPageState('error'));
 
-        return () => {
-            handles.forEach(handle => {
-                return () => { if (handle != null && handle?.abort != null) handle.abort(); }
-            })
-        };
+        return () => handles.forEach(handle => () => { if (handle != null && handle?.abort != null) handle.abort() });
     }, [props.Locations]);
 
     const handleShowDrawingsModal = (loc) => {
@@ -115,7 +107,7 @@ const LocationDrawingsButton: React.FC<LocationDrawingsButtonProps> = (props) =>
 
     return (
         <div>
-            <LoadingScreen Show={pageState == 'loading'} />
+            <LoadingScreen Show={pageState == 'loading' || props.IsLoadingLocations == true} />
             <ServerErrorIcon Show={pageState == 'error'} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
             {!multipleLocations
             ? <>
@@ -148,11 +140,22 @@ const LocationDrawingsButton: React.FC<LocationDrawingsButtonProps> = (props) =>
                 Options={locationOptions.slice(1)}
             />
             }
-            <LocationDrawingsModal
-                Location={selectedLocation}
+            <Modal
                 Show={showDrawingsModal}
-                SetShow={setShowDrawingsModal}
-            />
+                Title={'Drawings for ' + selectedLocation?.Name}
+                ShowX={true} Size={'lg'}
+                CallBack={() => setShowDrawingsModal(false)}
+                ShowCancel={false}
+                ShowConfirm={false}>
+                <div className="row">
+                    <div className="col-12">
+                        <LocationDrawingsTable
+                            LocationID={selectedLocation?.ID}
+                            RefreshDrawings={0}
+                        />
+                    </div>
+                </div>
+            </Modal>
         </div>
     );
 };
