@@ -70,7 +70,7 @@ const UserInfo = (props: { AccountId: string }) => {
     React.useEffect(() => { setUser(currentUser) }, [currentUser])
 
     function updateUser() {
-        dispatch(UserAccountSlice.DBAction({ verb: 'PATCH', record: { ...user, Name: currentUser.DisplayName } }))
+        dispatch(UserAccountSlice.DBAction({ verb: 'PATCH', record: user }))
     }
 
     return (

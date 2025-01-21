@@ -57,10 +57,49 @@ function UserForm(props: IProps) {
     }, [errors, props.SetErrors]);
 
     React.useEffect(() => {
-        const h = validate();
-        return () => { if (h != null && h.abort != null) h.abort(); }
-    }, [props.UserAccount.DisplayName, props.UserAccount.Type])
+        if (props?.UserAccount?.DisplayName == null || props.UserAccount.Type == 'Database') {
+            // Since we rely on name coming out of validate, if we skip it we must set it ourselves
+            props.Setter({ ...props.UserAccount, Name: props.UserAccount.DisplayName });
+            return;
+        }
 
+        setValid('resolving');
+
+        let serverHandle: JQuery.jqXHR<IUserAccount|null>;
+
+            serverHandle = $.ajax({
+                type: "POST",
+                url: `${homePath}api/SystemCenter/UserAccount/Verify`,
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                data: JSON.stringify(props.UserAccount.DisplayName),
+                cache: false,
+                async: true
+            }).done((d: IUserAccount | null) => {
+
+                if (d != null) {
+                    setValid('valid');
+                    if (!props.Edit)
+                        props.Setter({
+                            ...props.UserAccount,
+                            Name: d.Name,
+                            FirstName: d.FirstName,
+                            LastName: d.LastName,
+                            Phone: d.Phone,
+                            Email: d.Email
+                        })
+                }
+
+                else
+                    setValid('invalid');
+            }).fail((d) => {
+                setValid('unknown');
+            }); 
+
+        return () => {
+            if (serverHandle != null && serverHandle.abort != null) serverHandle.abort();
+        }
+    }, [props.UserAccount.DisplayName, props.UserAccount.Type]);
 
     React.useEffect(() => {
         if (props.UserAccount == null)
@@ -96,42 +135,6 @@ function UserForm(props: IProps) {
         else if (field === 'ChangePasswordOn')
             return props.UserAccount.ChangePasswordOn != null && !moment(user.ChangePasswordOn).isBefore(moment())
         return false;
-
-    }
-
-    function validate() {
-        if (props.UserAccount.Type == 'Database' || props.UserAccount.DisplayName == null)
-            return;
-
-        setValid('resolving');
-
-        return $.ajax({
-            type: "POST",
-            url: `${homePath}api/SystemCenter/UserAccount/Verify`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            data: JSON.stringify(props.UserAccount.DisplayName),
-            cache: false,
-            async: true
-        }).done((d: IUserAccount|null) => {
-            
-            if (d != null) {
-                setValid('valid');
-                if (!props.Edit)
-                    props.Setter({
-                        ...props.UserAccount,
-                        FirstName: d.FirstName,
-                        LastName: d.LastName,
-                        Phone: d.Phone,
-                        Email: d.Email
-                    })
-            }
-                
-            else
-                setValid('invalid');
-        }).fail((d) => {
-            setValid('unknown')
-        });;
     }
 
     if (props.UserAccount == null) return null;
