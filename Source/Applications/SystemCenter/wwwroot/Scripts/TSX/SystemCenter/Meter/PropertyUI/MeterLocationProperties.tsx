@@ -42,6 +42,7 @@ interface IProps {
     Locationlist: OpenXDA.Types.Location[],
     Location: OpenXDA.Types.Location,
     SetLocation: (loc: OpenXDA.Types.Location) => void,
+    LocationStatus: string,
     DisableLocation: boolean
 }
 
@@ -167,6 +168,7 @@ const MeterLocationProperties = (props: IProps) => {
                     <div className="pull-right" style={{ marginBottom: 10 }}>
                         <LocationDrawingsButton
                             Locations={[props.Location]}
+                            IsLoadingLocations={props.LocationStatus !== 'idle'}
                         />
                     </div>
                     <div style={{ marginTop: 43 }}>
