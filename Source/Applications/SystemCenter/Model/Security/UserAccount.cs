@@ -284,7 +284,7 @@ namespace SystemCenter.Model.Security
         {
             UserAccount user = new UserAccount()
             {
-                Name = username,
+                Name = UserInfo.UserNameToSID(username),
                 Approved = true,
                 UseADAuthentication = true,
             };
