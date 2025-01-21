@@ -29,20 +29,14 @@ using GSF.Security;
 using GSF.Security.Model;
 using GSF.Web.Model;
 using Microsoft.Graph;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Linq;
-using System.Net.Http;
-using System.Security;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
-using SystemCenter.Controllers;
 
 namespace SystemCenter.Model.Security
 {
