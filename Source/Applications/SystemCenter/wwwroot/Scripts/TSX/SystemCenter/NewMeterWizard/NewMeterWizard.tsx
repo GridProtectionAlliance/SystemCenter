@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-import { LoadingScreen, ServerErrorIcon, ToolTip, Warning, Modal, ProgressBar } from '@gpa-gemstone/react-interactive';
+import { LoadingScreen, ServerErrorIcon, ToolTip, Warning, Modal, ProgressBar, GenericController } from '@gpa-gemstone/react-interactive';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { CrossMark, Warning as WarningSymbol } from '@gpa-gemstone/gpa-symbols';
 import { SelectMeterStatus, FetchMeter } from '../Store/MeterSlice';
@@ -408,7 +408,6 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
             return (
                 <LocationDrawingsButton
                     Locations={[locationInfo]}
-                    IsLoadingLocations={lStatus === 'loading'}
                 />
             )
         else if (currentStep >= additionalFieldMeterStep) {
