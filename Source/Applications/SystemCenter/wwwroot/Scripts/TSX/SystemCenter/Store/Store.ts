@@ -29,6 +29,7 @@ import { EventChannelSlice } from './EventChannelSlice';
 import { SystemCenter, OpenXDA, Application } from '@gpa-gemstone/application-typings';
 import NoteSlice from './NoteSlice';
 import AdditionalUserFieldSlice from './AdditionalUserFieldSlice';
+import ConfigurationSlice from './ConfigurationSlice';
 import { PQApplications } from '../ApplicationCategory/Applications';
 import { DBCleanup } from '../DB/DBCleanup';
 import { ApplicationCategory } from '../ApplicationCategory/ByApplicationCategory';
@@ -128,6 +129,8 @@ export const TrendChannelSlice = new GenericSlice<LocalXDA.TrendChannel>('TrendC
 
 export const ChannelTemplateSlice = new GenericSlice<LocalSystemCenter.ChannelTemplateFile>('ChannelTemplate', `${homePath}api/SystemCenter/ChannelTemplateFile`, 'ID', true);
 
+export const ConfigSlice = new ConfigurationSlice("Config");
+
 const store = configureStore({
     reducer: {
         UserSettings: UserSettingsReducer,
@@ -198,7 +201,8 @@ const store = configureStore({
         TrendChannels: TrendChannelSlice.Reducer,
         ChannelTemplate: ChannelTemplateSlice.Reducer,
         ChannelGroupView: ChannelGroupViewSlice.Reducer,
-        ValueListGroupView: ValueListGroupViewSlice.Reducer
+        ValueListGroupView: ValueListGroupViewSlice.Reducer,
+        Config: ConfigSlice.Reducer
     }
 });
 export default store;

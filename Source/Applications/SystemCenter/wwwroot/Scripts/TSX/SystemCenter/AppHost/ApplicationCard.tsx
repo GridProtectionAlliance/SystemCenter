@@ -30,9 +30,11 @@ export interface IHost {
     Image: string,
     Properties: IHostProperties[],
     PingURL: string,
+    StatsURL?: string,
     ConsoleURL: string,
     Name: string,
-    OpenConsole: () => void;
+    OpenConsole: () => void,
+    OpenStats: () => void
 }
 
 const Applicationcard = (props: IHost) => {
@@ -82,7 +84,11 @@ const Applicationcard = (props: IHost) => {
                     </ul>
                 </div>
                 <div className="card-footer">
-                    <button className="btn btn-primary" onClick={() => props.OpenConsole()}>Console</button>
+                    <button className="btn btn-info" onClick={() => props.OpenConsole()}>Console</button>
+                    {
+                        props.StatsURL == null || props.StatsURL === "" ? null :
+                        <button className="btn btn-info pull-right" onClick={() => props.OpenStats()}>Status</button>
+                    }
                 </div>
             </div>
          </>)
