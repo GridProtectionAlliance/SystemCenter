@@ -69,28 +69,6 @@ const MATLABAnalytics: Application.Types.iByComponent = (props) => {
         }
     }
 
-    function addNewAnalytic() {
-        let handle = $.ajax({
-            type: "POST",
-            url: `${homePath}api/OpenXDA/MATLABAnalytic/Add`,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify({
-                MATLABAnalytic: record,
-                MATLABAnalyticEventType: eventTypeRecord,
-                MATLABAnalyticAssetType: assetTypeRecord,
-            }),
-            dataType: 'json',
-            cache: false,
-            async: true
-        }).done(() => {
-            refreshData(x => x + 1);
-        })
-
-        return () => {
-            if (handle != null && handle.abort != null) handle.abort();
-        };
-    }
-
     return (
         <GenericByPage<OpenXDA.Types.MATLABAnalytic>
             ControllerPath={controllerPath}
@@ -119,7 +97,21 @@ const MATLABAnalytics: Application.Types.iByComponent = (props) => {
             </li>
             <Modal Title={'Add New MATLAB Analytic'}
                 CallBack={(conf) => {
-                    if (conf) addNewAnalytic();
+                    if (conf) $.ajax({
+                        type: "POST",
+                        url: `${homePath}api/OpenXDA/MATLABAnalytic/Add`,
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            MATLABAnalytic: record,
+                            MATLABAnalyticEventType: eventTypeRecord,
+                            MATLABAnalyticAssetType: assetTypeRecord,
+                        }),
+                        dataType: 'json',
+                        cache: false,
+                        async: true
+                    }).done(() => {
+                        refreshData(x => x + 1);
+                    });
                     setShowNew(false);
                 }}
                 ShowCancel={false}
