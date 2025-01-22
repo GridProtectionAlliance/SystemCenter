@@ -28,7 +28,7 @@ import LocationDrawingsTable from '../Location/LocationDrawingsTable';
 
 interface LocationDrawingsButtonProps {
     Locations: OpenXDA.Types.Location[];
-    IsLoadingLocations: boolean;
+    IsLoadingLocations?: boolean;
 }
 
 type DropDownOption = {
