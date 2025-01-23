@@ -42,7 +42,11 @@ const BlankRemoteXDAInstance: OpenXDA.Types.RemoteXDAInstance = {
     RegistrationKey: null
 }
 
-interface IProps { BaseInstance: OpenXDA.Types.RemoteXDAInstance, SetInstance: (instance: OpenXDA.Types.RemoteXDAInstance) => void, SetErrors?: (e: string[]) => void, RenderPortalId?: string }
+interface IProps {
+    BaseInstance: OpenXDA.Types.RemoteXDAInstance,
+    SetInstance: (instance: OpenXDA.Types.RemoteXDAInstance) => void,
+    SetErrors?: (e: string[]) => void, RenderPortalId?: string
+}
 
 export default function RemoteXDAInstanceForm(props: IProps) {
     // Portal rendering const

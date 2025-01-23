@@ -23,12 +23,13 @@
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import { Input } from '@gpa-gemstone/react-forms';
-import { Modal, Warning } from '@gpa-gemstone/react-interactive';
+import { GenericController, Modal, Warning } from '@gpa-gemstone/react-interactive';
 import * as React from 'react';
 import { SystemCenter } from '../global';
 import GenericByPage from '../CommonComponents/GenericByPage';
 
 const controllerPath = `${homePath}api/OpenXDA/DataReader`;
+const DataReaderController = new GenericController<OpenXDA.Types.DataReader>(controllerPath, "ID", true);
 
 const fieldCols: SystemCenter.IByCol<OpenXDA.Types.DataReader>[] = [
     { Field: 'FilePattern', Label: 'File Pattern', Type: 'string', Width: '20%' },
@@ -61,60 +62,6 @@ const DataReaders: Application.Types.iByComponent = (props) => {
             e.push('An Type Name is required.')
         setErrors(e)
     }, [editnewSetting])
-
-    function addOperation() {
-        let handle = $.ajax({
-            type: "POST",
-            url: `${homePath}api/OpenXDA/DataReader/Add`,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(editnewSetting),
-            dataType: "json",
-            cache: false,
-            async: true
-        }).done(() => {
-            refreshData(x => x + 1);
-        })
-
-        return () => {
-            if (handle != null && handle.abort != null) handle.abort();
-        };
-    }
-
-    function updateOperation() {
-        let handle = $.ajax({
-            type: "PATCH",
-            url: `${homePath}api/OpenXDA/DataReader/Update`,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(editnewSetting),
-            dataType: "json",
-            cache: false,
-            async: true
-        }).done(() => {
-            refreshData(x => x + 1);
-        })
-
-        return () => {
-            if (handle != null && handle.abort != null) handle.abort();
-        };
-    }
-
-    function deleteOperation() {
-        let handle = $.ajax({
-            type: "DELETE",
-            url: `${homePath}api/OpenXDA/DataReader/Delete`,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(editnewSetting),
-            dataType: "json",
-            cache: false,
-            async: true
-        }).done(() => {
-            refreshData(x => x + 1);
-        })
-
-        return () => {
-            if (handle != null && handle.abort != null) handle.abort();
-        };
-    }
 
     function handleSelect(item) {
         setEditNewSetting(item.row);
@@ -161,9 +108,9 @@ const DataReaders: Application.Types.iByComponent = (props) => {
                 CancelText={'Delete'}
                 CallBack={(conf, isBtn) => {
                     if (conf && editNew === 'New')
-                        addOperation();
+                        DataReaderController.DBAction('POST', editnewSetting).done(() => refreshData(x => x + 1));
                     if (conf && editNew === 'Edit')
-                        updateOperation();
+                        DataReaderController.DBAction('PATCH', editnewSetting).done(() => refreshData(x => x + 1));
                     if (!conf && isBtn)
                         setShowWarning(true);
                     setShowModal(false);
@@ -233,7 +180,7 @@ const DataReaders: Application.Types.iByComponent = (props) => {
                 Show={showWarning}
                 CallBack={(conf) => {
                     if (conf)
-                        deleteOperation();
+                        DataReaderController.DBAction('DELETE', editnewSetting).done(() => refreshData(x => x + 1));
                     setShowWarning(false);
                 }}
             />

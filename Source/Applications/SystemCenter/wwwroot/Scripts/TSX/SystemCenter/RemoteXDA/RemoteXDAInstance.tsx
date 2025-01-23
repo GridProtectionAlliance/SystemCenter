@@ -38,13 +38,15 @@ declare type Tab = 'systemSettings' | 'remoteMeter' | 'remoteAsset'
 interface IProps { Roles: Array<Application.Types.SecurityRoleName>, ID: number, Tab: Tab }
 
 function RemoteXDAInstance(props: IProps) {
-    let history = useHistory();
-    const [tab, setTab] = React.useState(getTab());
-    const [showDelete, setShowDelete] = React.useState<boolean>(false);
-    const [loading, setLoading] = React.useState<boolean>(false);
     const dispatch = useAppDispatch();
+
     const instStatus = useAppSelector(RemoteXDAInstanceSlice.Status) as Application.Types.Status;
     const connection = useAppSelector((state) => RemoteXDAInstanceSlice.Datum(state, props.ID));
+
+    const [tab, setTab] = React.useState(getTab());
+    const [loading, setLoading] = React.useState<boolean>(false);
+    const [showDelete, setShowDelete] = React.useState<boolean>(false);
+
 
     React.useEffect(() => {
         if (instStatus === 'unintiated' || instStatus === 'changed')
@@ -65,21 +67,12 @@ function RemoteXDAInstance(props: IProps) {
             return 'systemSettings';
     }
 
-    function returnMain() {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=RemoteXDAInstanceMain', state: {} })
-    }
-
     function deleteConnection(): void {
         setLoading(true);
-        if (props.Roles.includes('Administrator')) dispatch(RemoteXDAInstanceSlice.DBAction({ verb: 'DELETE', record: connection }));
+        if (props.Roles.includes('Administrator'))
+            dispatch(RemoteXDAInstanceSlice.DBAction({ verb: 'DELETE', record: connection }));
         setLoading(false);
-        returnMain();
-    };
-
-    function patchConnection(connection: OpenXDA.Types.RemoteXDAInstance): void {
-        setLoading(true);
-        dispatch(RemoteXDAInstanceSlice.DBAction({ verb: 'PATCH', record: connection }));
-        setLoading(false);
+        window.location.href = homePath + 'index.cshtml?name=RemoteXDAInstanceMain';
     };
 
     const Tabs = [
