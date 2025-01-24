@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-import { LoadingScreen, ServerErrorIcon, ToolTip, Warning, Modal, ProgressBar } from '@gpa-gemstone/react-interactive';
+import { LoadingScreen, ServerErrorIcon, ToolTip, Warning, Modal, ProgressBar, GenericController } from '@gpa-gemstone/react-interactive';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { CrossMark, Warning as WarningSymbol } from '@gpa-gemstone/gpa-symbols';
 import { SelectMeterStatus, FetchMeter } from '../Store/MeterSlice';
@@ -41,7 +41,7 @@ import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
 import MultipleAssetsPage from './MultipleAssetsPage';
 import CustomerAssetGroupPage from './CustomerAssetGroupPage';
 import LineSegmentWindow from '../AssetAttribute/LineSegmentWindow';
-import LocationDrawings from '../Meter/PropertyUI/LocationDrawings';
+import LocationDrawingsButton from '../CommonComponents/LocationDrawingsButton';
 
 // Define Step Numbers
 const generalStep: number = 1;
@@ -94,9 +94,11 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
     // Wizard Page Control
     const [error, setError] = React.useState<string[]>([]);
     const [warning, setWarning] = React.useState<string[]>([]);
-    const [hover, setHover] = React.useState<'None' | 'Next' | 'Prev'>('None');
+    const [hover, setHover] = React.useState<'None' | 'Next' | 'Prev' | 'Drawings'>('None');
     const [showSubmit, setShowSubmit] = React.useState<boolean>(false);
     const [status, setStatus] = React.useState<Application.Types.Status>('unintiated');
+
+    const locationInfoArray = React.useMemo(() => [locationInfo], [locationInfo]);
 
     React.useEffect(() => {
         if (mStatus === 'unintiated' || mStatus === 'changed')
@@ -403,8 +405,13 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
             return <p className="pull-right">
                 Number of Trend Channels: {channels.reduce((p, c) => c.Trend ? (p + 1) : p, 0)}
             </p>;
-        else if (currentStep === assetStep)
-            return <LocationDrawings LocationID={locationInfo.ID} />
+        else if (currentStep === assetStep
+            || currentStep === connectionStep)
+            return (
+                <LocationDrawingsButton
+                    Locations={locationInfoArray}
+                />
+            )
         else if (currentStep >= additionalFieldMeterStep) {
             return (
                 <div>
@@ -507,11 +514,11 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
                 <div className="card" style={{width: '100%', height: '100%'}}>
                     <LoadingScreen Show={status === 'loading'} />
                     <div className="card-header">
-                        <div className="row">
+                        <div className="row justify-content-between">
                             <div className="col-6">
                                 <h4>{header}</h4>
                             </div>
-                            <div className="col-6">
+                            <div className="pr-4">
                                 {secondaryHeader}
                             </div>
                         </div>
