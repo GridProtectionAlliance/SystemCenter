@@ -98,6 +98,8 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
     const [showSubmit, setShowSubmit] = React.useState<boolean>(false);
     const [status, setStatus] = React.useState<Application.Types.Status>('unintiated');
 
+    const locationInfoArray = React.useMemo(() => [locationInfo], [locationInfo]);
+
     React.useEffect(() => {
         if (mStatus === 'unintiated' || mStatus === 'changed')
             dispatch(FetchMeter());
@@ -407,7 +409,7 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
             || currentStep === connectionStep)
             return (
                 <LocationDrawingsButton
-                    Locations={[locationInfo]}
+                    Locations={locationInfoArray}
                 />
             )
         else if (currentStep >= additionalFieldMeterStep) {
