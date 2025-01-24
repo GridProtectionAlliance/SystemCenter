@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  ByExternalTable.tsx - Gbtc
 //
-//  Copyright © 2019, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright Â© 2019, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -22,50 +22,33 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { ReactTable } from '@gpa-gemstone/react-table'
 import { useHistory } from "react-router-dom";
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
-import { Modal, Search, SearchBar } from '@gpa-gemstone/react-interactive';
+import { GenericController, Modal } from '@gpa-gemstone/react-interactive';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import ExternalDBTableForm from './ExternalDBTableForm';
-import { useAppDispatch, useAppSelector } from '../hooks';
-import { ExternalDBTablesSlice } from '../Store/Store';
+import { SystemCenter as SC } from '../global';
+import GenericByPage from '../CommonComponents/GenericByPage';
 
 declare var homePath: string;
-
-const ExternalDBSearchField: Array<Search.IField<SystemCenter.Types.DetailedExtDBTables>> = [
-    { label: 'Table Name', key: 'TableName', type: 'string', isPivotField: false },
-    { label: 'External Database', key: 'ExternalDB', type: 'string', isPivotField: false },
-    { label: 'Number of Mapped Fields', key: 'MappedFields', type: 'number', isPivotField: false },
+const fieldCols: SC.IByCol<SystemCenter.Types.DetailedExtDBTables>[] = [
+    { Field: 'TableName', Label: 'Table Name', Type: 'string', Width: 'auto' },
+    { Field: 'ExternalDB', Label: 'External Database', Type: 'string', Width: 'auto' },
+    { Field: 'MappedFields', Label: 'Number of Mapped Fields', Type: 'number', Width: 'auto' }
 ];
-const ExternalDBDefaultSearchField: Search.IField<SystemCenter.Types.DetailedExtDBTables> = { label: 'Table Name', key: 'TableName', type: 'string', isPivotField: false };
+const controllerPath = `${homePath}api/SystemCenter/extDBTables`;
 const emptyRecord = { ID: -1, TableName: '', ExtDBID: -1, Query: ''};
+
+const ExternalTableController = new GenericController<SystemCenter.Types.DetailedExtDBTables>(controllerPath, "ID", true);
 
 const ByExternalTable: Application.Types.iByComponent = (props) => {
     let history = useHistory();
-    const dispatch = useAppDispatch();
-
-    const data = useAppSelector(ExternalDBTablesSlice.SearchResults);
-    const status = useAppSelector(ExternalDBTablesSlice.SearchStatus);
-    const search = useAppSelector(ExternalDBTablesSlice.SearchFilters);
-    const sortField = useAppSelector(ExternalDBTablesSlice.SortField);
-    const ascending = useAppSelector(ExternalDBTablesSlice.Ascending);
-    const parentID = useAppSelector(ExternalDBTablesSlice.ParentID);
 
     const [showNew, setShowNew] = React.useState<boolean>(false);
     const [errors, setErrors] = React.useState<string[]>([]);
 
     const [record, setRecord] = React.useState<SystemCenter.Types.DetailedExtDBTables>(emptyRecord);
-
-    React.useEffect(() => {
-        if (parentID != null)
-            dispatch(ExternalDBTablesSlice.Fetch());
-    }, [parentID]);
-
-    React.useEffect(() => {
-        if ((status === 'unintiated' || status === 'changed') && parentID == null)
-            dispatch(ExternalDBTablesSlice.DBSearch({ filter: search }));
-    }, [status, parentID]);
+    const [refreshCount, refreshData] = React.useState<number>(0);
 
     React.useEffect(() => {
         let e = [];
@@ -84,82 +67,31 @@ const ByExternalTable: Application.Types.iByComponent = (props) => {
     }
 
     return (
-        <div className="container-fluid d-flex h-100 flex-column">
-            <SearchBar<SystemCenter.Types.DetailedExtDBTables>
-                CollumnList={ExternalDBSearchField}
-                SetFilter={(flds) => dispatch(ExternalDBTablesSlice.DBSearch({ filter: flds }))}
-                Direction={'left'}
-                defaultCollumn={ExternalDBDefaultSearchField}
-                Width={'50%'}
-                Label={'Search'}
-                StorageID="ExternalTablesFilter"
-                ShowLoading={status == 'loading'}
-                ResultNote={status == 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' External Table(s)'}
-            >
-                <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
-                    <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                        <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
-                        <form>
-                            <button className="btn btn-primary" onClick={(event) => {
-                                event.preventDefault()
-                                setRecord({ ...emptyRecord });
-                                setShowNew(true);
-                            }}>Add External Table</button>
-                        </form>
-                    </fieldset>
-                </li>
-            </SearchBar>
-
-            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                <ReactTable.Table<SystemCenter.Types.DetailedExtDBTables>
-                    TableClass="table table-hover"
-                    Data={data}
-                    SortKey={sortField}
-                    Ascending={ascending}
-                    OnSort={(d) => {
-                        dispatch(ExternalDBTablesSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
-                    }}
-                    OnClick={handleSelect}
-                    TableStyle={{
-                        padding: 0, width: '100%', height: '100%',
-                        tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column', marginBottom: 0
-                    }}
-                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
-                    RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    Selected={(item) => false}
-                    KeySelector={(item) => item.ID}
-                >
-                    <ReactTable.Column<SystemCenter.Types.DetailedExtDBTables>
-                        Key={'TableName'}
-                        AllowSort={true}
-                        Field={'TableName'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                    > Table Name
-                    </ReactTable.Column>
-                    <ReactTable.Column<SystemCenter.Types.DetailedExtDBTables>
-                        Key={'ExternalDB'}
-                        AllowSort={true}
-                        Field={'ExternalDB'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                    > External Database
-                    </ReactTable.Column>
-                    <ReactTable.Column<SystemCenter.Types.DetailedExtDBTables>
-                        Key={'MappedFields'}
-                        AllowSort={true}
-                        Field={'MappedFields'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                    > Mapped Fields
-                    </ReactTable.Column>
-                </ReactTable.Table>
-            </div>
-
+        <GenericByPage<SystemCenter.Types.DetailedExtDBTables>
+            ControllerPath={controllerPath}
+            RefreshData={refreshCount}
+            DefaultSortKey='TableName'
+            PagingID='ByExternalTable'
+            OnClick={(item) => { handleSelect(item); }}
+            Columns={fieldCols}
+            DefaultSearchAscending={false}
+            DefaultSearchKey='TableName'
+        >
+            <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
+                <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                    <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
+                    <form>
+                        <button className="btn btn-primary" onClick={(event) => {
+                            event.preventDefault()
+                            setRecord({ ...emptyRecord });
+                            setShowNew(true);
+                        }}>Add External Table</button>
+                    </form>
+                </fieldset>
+            </li>
             <Modal Title={'Add New External Table'}
                 CallBack={(conf) => {
-                    if (conf) dispatch(ExternalDBTablesSlice.DBAction({ verb: 'POST', record }));
+                    if (conf) ExternalTableController.DBAction('POST', record).done(() => refreshData(x => x + 1));
                     setShowNew(false);
                 }}
                 Show={showNew}
@@ -170,9 +102,13 @@ const ByExternalTable: Application.Types.iByComponent = (props) => {
                 ConfirmShowToolTip={errors.length > 0}
                 ConfirmToolTipContent={errors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}
                 DisableConfirm={errors.length > 0} >
-                <ExternalDBTableForm Record={record} Setter={setRecord} SetErrors={setErrors} ShowSelectExternalDB={true} />
+                <ExternalDBTableForm
+                    Record={record}
+                    Setter={setRecord}
+                    SetErrors={setErrors}
+                    ShowSelectExternalDB={true} />
             </Modal>
-        </div>
+        </GenericByPage>
     )
 }
 

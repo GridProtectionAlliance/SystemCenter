@@ -21,27 +21,25 @@
 //
 //******************************************************************************************************
 
-import { Application, SystemCenter, OpenXDA } from '@gpa-gemstone/application-typings';
-import { CrossMark } from '@gpa-gemstone/gpa-symbols';
-import { Input } from '@gpa-gemstone/react-forms';
-import { LoadingScreen, Modal, Search, SearchBar, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
+import { SystemCenter } from '../global';
+import { GenericController, Modal, Warning } from '@gpa-gemstone/react-interactive';
 import * as React from 'react';
-import { useAppDispatch, useAppSelector } from '../hooks';
-import { SystemCenter as GlobalSC } from '../global';
 import { DataOperationSlice } from '../Store/Store';
+import GenericByPage from '../CommonComponents/GenericByPage';
+import { Input } from '@gpa-gemstone/react-forms';
+import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+
+const controllerPath = `${homePath}api/OpenXDA/DataOperation`;
+const DataOperationController = new GenericController<OpenXDA.Types.DataOperation>(controllerPath, "ID", true);
+const fieldCols: SystemCenter.IByCol<OpenXDA.Types.DataOperation>[] = [
+    { Field: 'AssemblyName', Label: 'Assembly Name', Type: 'string', Width: '20%'},
+    { Field: 'TypeName', Label: 'Type Name', Type: 'string', Width: 'auto' },
+    { Field: 'LoadOrder', Label: 'Load Order', Type: 'integer', Width: '20%' }
+]
 
 const DataOperations: Application.Types.iByComponent = (props) => {
-
-    const dispatch = useAppDispatch();
-
-    const search = useAppSelector(DataOperationSlice.SearchFilters);
-    const searchStatus = useAppSelector(DataOperationSlice.SearchStatus);
-
-    const data = useAppSelector(DataOperationSlice.SearchResults);
-    const status = useAppSelector(DataOperationSlice.Status);
-    const sortField = useAppSelector(DataOperationSlice.SortField);
-    const ascending = useAppSelector(DataOperationSlice.Ascending);
+    const [refreshCount, refreshData] = React.useState<number>(0);
 
     const emptySetting: OpenXDA.Types.DataOperation = { ID: 0, AssemblyName: '', TypeName: '', LoadOrder: 0 };
     const [editnewSetting, setEditNewSetting] = React.useState<OpenXDA.Types.DataOperation>(emptySetting);
@@ -52,16 +50,6 @@ const DataOperations: Application.Types.iByComponent = (props) => {
     const [hasChanged, setHasChanged] = React.useState<boolean>(false);
 
     const [errors, setErrors] = React.useState<string[]>([]);
-
-    React.useEffect(() => {
-        if (status === 'unintiated' || status === 'changed')
-            dispatch(DataOperationSlice.Fetch());
-    }, [dispatch, status]);
-
-    React.useEffect(() => {
-        if (searchStatus === 'unintiated' || status === 'changed')
-            dispatch(DataOperationSlice.DBSearch({ filter: search, sortField, ascending }));
-    }, [dispatch, searchStatus, ascending, sortField, search]);
 
     React.useEffect(() => { setHasChanged(false) }, [showModal]);
 
@@ -74,88 +62,53 @@ const DataOperations: Application.Types.iByComponent = (props) => {
         setErrors(e)
     }, [editnewSetting])
 
-    const searchFields: Search.IField<OpenXDA.Types.DataOperation>[] = [
-        { key: 'AssemblyName', label: 'Assembly Name', type: 'string', isPivotField: false },
-        { key: 'TypeName', label: 'Type Name', type: 'string', isPivotField: false },
-        { key: 'LoadOrder', label: 'Load Order', type: 'number', isPivotField: false }
-    ]
-
-    if (status === 'error')
-        return <div style={{ width: '100%', height: '100%' }}>
-            <ServerErrorIcon Show={true} Label={'A Server Error Occurred. Please Reload the Application.'} />
-        </div>;
+    function handleSelect(item) {
+        setEditNewSetting(item.row);
+        setEditNew('Edit');
+        setShowModal(true);
+    }
 
     return (
-        <>
-            <LoadingScreen Show={status === 'loading'} />
-            <div style={{ width: '100%', height: '100%' }}>
-                <SearchBar<OpenXDA.Types.DataOperation> CollumnList={searchFields} StorageID="DataOperationsFilter" SetFilter={(flds) => dispatch(DataOperationSlice.DBSearch({ filter: flds, sortField, ascending }))}
-                    Direction={'left'} defaultCollumn={{ key: 'Name', label: 'Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
-                    ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Data Operation(s)'}
-                    GetEnum={() => {
-                        return () => { }
-                    }}
-                >
-                    <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
-                        <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                            <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
-                            <form>
-                                <button className="btn btn-primary" onClick={(event) => { setEditNewSetting(emptySetting); setEditNew('New'); setShowModal(true); event.preventDefault() }}>Add Operation</button>
-                            </form>
-                        </fieldset>
-                    </li>
-                </SearchBar>
-
-                <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                    <ReactTable.Table<OpenXDA.Types.DataOperation>
-                        TableClass="table table-hover"
-                        Data={data}
-                        SortKey={sortField}
-                        Ascending={ascending}
-                        OnSort={(d) => {
-                            dispatch(DataOperationSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
-                        }}
-                        OnClick={(item) => { setEditNewSetting(item.row); setShowModal(true); setEditNew('Edit'); }}
-                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        Selected={(item) => false}
-                        KeySelector={(item) => item.ID}
-                    >
-                        <ReactTable.Column<OpenXDA.Types.DataOperation>
-                            Key={'AssemblyName'}
-                            AllowSort={true}
-                            Field={'AssemblyName'}
-                            HeaderStyle={{ width: '20%' }}
-                            RowStyle={{ width: '20%' }}
-                        > Assembly Name
-                        </ReactTable.Column>
-                        <ReactTable.Column<OpenXDA.Types.DataOperation>
-                            Key={'TypeName'}
-                            AllowSort={true}
-                            Field={'TypeName'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Type Name
-                        </ReactTable.Column>
-                        <ReactTable.Column<OpenXDA.Types.DataOperation>
-                            Key={'LoadOrder'}
-                            AllowSort={true}
-                            Field={'LoadOrder'}
-                            HeaderStyle={{ width: '20%' }}
-                            RowStyle={{ width: '20%' }}
-                        > Load Order
-                        </ReactTable.Column>
-                    </ReactTable.Table>
-                </div>
-            </div>
-            <Modal Title={editNew === 'Edit' ? 'Edit ' + (editnewSetting?.AssemblyName ?? 'Data Operation') : 'Add New Data Operation'}
-                Show={showModal} ShowX={true} Size={'lg'} ShowCancel={editNew === 'Edit'} ConfirmText={'Save'} CancelText={'Delete'}
+        <GenericByPage<OpenXDA.Types.DataOperation>
+            ControllerPath={controllerPath}
+            RefreshData={refreshCount}
+            DefaultSortKey='LoadOrder'
+            PagingID='DataOperations'
+            OnClick={(item) => { handleSelect(item); }}
+            Columns={fieldCols}
+            DefaultSearchAscending={true}
+            DefaultSearchKey='AssemblyName'
+        >
+            <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
+                <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                    <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
+                    <form>
+                        <button className="btn btn-primary"
+                            onClick={(event) => {
+                                setEditNewSetting(emptySetting);
+                                setEditNew('New');
+                                setShowModal(true);
+                                event.preventDefault()
+                            }}
+                        >Add Operation</button>
+                    </form>
+                </fieldset>
+            </li>
+            <Modal
+                Title={editNew === 'Edit'
+                    ? 'Edit ' + (editnewSetting?.AssemblyName ?? 'Data Operation')
+                    : 'Add New Data Operation'}
+                Show={showModal}
+                ShowX={true}
+                Size={'lg'}
+                ShowCancel={editNew === 'Edit'}
+                ConfirmText={'Save'}
+                CancelText={'Delete'}
                 CallBack={(conf, isBtn) => {
                     if (conf && editNew === 'New')
-                        dispatch(DataOperationSlice.DBAction({ verb: 'POST', record: editnewSetting }))
+                        DataOperationController.DBAction("POST", editnewSetting).done(() => refreshData(x => x + 1));
                     if (conf && editNew === 'Edit')
-                        dispatch(DataOperationSlice.DBAction({ verb: 'PATCH', record: editnewSetting }))
+                        DataOperationController.DBAction("PATCH", editnewSetting).done(() => refreshData(x => x + 1));
                     if (!conf && isBtn)
                         setShowWarning(true);
                     setShowModal(false);
@@ -168,23 +121,46 @@ const DataOperations: Application.Types.iByComponent = (props) => {
             >
                 <div className="row">
                     <div className="col">
-                        <Input<OpenXDA.Types.DataOperation> Record={editnewSetting} Field={'AssemblyName'} Label='Assembly Name' Feedback={'An Assembly Name is required'}
+                        <Input<OpenXDA.Types.DataOperation>
+                            Record={editnewSetting}
+                            Field={'AssemblyName'}
+                            Label='Assembly Name'
+                            Feedback={'An Assembly Name is required'}
                             Valid={field => editnewSetting.AssemblyName != null && editnewSetting.AssemblyName.length > 0}
                             Setter={(record) => { setEditNewSetting(record); setHasChanged(true); }}
                         />
-                        <Input<OpenXDA.Types.DataOperation> Record={editnewSetting} Field={'TypeName'} Label='Type Name' Feedback={'A Type Name is required.'}
+                        <Input<OpenXDA.Types.DataOperation>
+                            Record={editnewSetting}
+                            Field={'TypeName'}
+                            Label='Type Name'
+                            Feedback={'A Type Name is required.'}
                             Valid={field => editnewSetting.TypeName != null && editnewSetting.TypeName.length > 0}
                             Setter={(record) => { setEditNewSetting(record); setHasChanged(true); }}
                         />
-                        <Input<OpenXDA.Types.DataOperation> Record={editnewSetting} Field={'LoadOrder'} Type='number' Label='Load Order' Valid={field => true}
+                        <Input<OpenXDA.Types.DataOperation>
+                            Record={editnewSetting}
+                            Field={'LoadOrder'}
+                            Type='number'
+                            Label='Load Order'
+                            Valid={field => true}
                             Setter={(record) => { setEditNewSetting(record); setHasChanged(true); }}
                         />
                     </div>
                 </div>
             </Modal>
-            <Warning Title={'Delete ' + (editnewSetting?.AssemblyName ?? 'Data Operation')} Message={'This will delete this Data Operation from the system. This can have unintended consequences and cause the system to crash. Are you sure you want to continue?'}
-                Show={showWarning} CallBack={(conf) => { if (conf) dispatch(DataOperationSlice.DBAction({ verb: 'DELETE', record: editnewSetting })); setShowWarning(false); }} />
-        </>)
+            <Warning
+                Title={'Delete ' + (editnewSetting?.AssemblyName ?? 'Data Operation')}
+                Message={'This will delete this Data Operation from the system. This can have unintended consequences and cause the system to crash. Are you sure you want to continue?'}
+                Show={showWarning}
+                CallBack={(conf) => {
+                    if (conf)
+                        DataOperationController.DBAction("DELETE", editnewSetting).done(() => refreshData(x => x + 1));
+                        DataOperationSlice.DBAction({ verb: 'DELETE', record: editnewSetting });
+                    setShowWarning(false);
+                }}
+            />
+        </GenericByPage>
+    )
 }
 
 export default DataOperations;
