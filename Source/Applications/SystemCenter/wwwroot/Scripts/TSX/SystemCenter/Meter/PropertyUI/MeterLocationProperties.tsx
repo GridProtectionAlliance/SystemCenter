@@ -53,6 +53,7 @@ const MeterLocationProperties = (props: IProps) => {
     const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
 
     const roles = useAppSelector(SelectRoles);
+    const locationArray = React.useMemo(() => [props.Location], [props.Location]);
 
     React.useEffect(() => {
         const key = props.Location.LocationKey;
@@ -168,7 +169,7 @@ const MeterLocationProperties = (props: IProps) => {
                 <div className="col">
                     <div className="pull-right" style={{ marginBottom: 10 }}>
                         <LocationDrawingsButton
-                            Locations={[props.Location]}
+                            Locations={locationArray}
                             IsLoadingLocations={props.LocationStatus !== 'idle'}
                         />
                     </div>
