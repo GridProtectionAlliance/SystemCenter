@@ -64,7 +64,8 @@ const ByFile: Application.Types.iByComponent = (props) => {
                 { Value: "1", Label: "Queued" },
                 { Value: "2", Label: "Processing" },
                 { Value: "3", Label: "Processed" },
-                { Value: "4", Label: "Error" }
+                { Value: "4", Label: "Failure" },
+                { Value: "5", Label: "Partial Failure" }
             ]
         }     
     ]
@@ -350,6 +351,8 @@ const ProcessingStatus = (props: { Status: number }) => {
             return "badge-success";
         if (props.Status == 4) // Error
             return "badge-danger";
+        if (props.Status == 5) // Partial Success
+            return "badge-warning";
         return "badge-warning";
     }, [props.Status]);
 
@@ -363,7 +366,9 @@ const ProcessingStatus = (props: { Status: number }) => {
         if (props.Status == 3) // Processed
             return "Processed";
         if (props.Status == 4) // Error
-            return "Error";
+            return "Failure";
+        if (props.Status == 5) // Partial Success
+            return "Partial Failure";
         return "Unknwown";
     }, [props.Status]);
 
@@ -378,6 +383,8 @@ const ProcessingStatus = (props: { Status: number }) => {
             return <ReactIcons.CircleCheck Size={15} />
         if (props.Status == 4) // Error
             return <ReactIcons.CircledX Size={15} />;
+        if (props.Status == 5) //Added - Unknown
+            return <ReactIcons.Alert Size={15} />;
         return <ReactIcons.Warning Size={15} />;
     }, [props.Status]);
 
