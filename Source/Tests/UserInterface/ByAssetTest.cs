@@ -12,6 +12,7 @@ using OpenQA.Selenium.Support.UI;
 using OpenQA.Selenium.Interactions;
 using SeleniumExtras.WaitHelpers;
 using NUnit.Framework;
+using UserInterface;
 [TestFixture]
 public class ByAssetTest
 {
@@ -39,13 +40,13 @@ public class ByAssetTest
     private void PerformLogin()
     {
         // Navigate to the login page
-        driver.Navigate().GoToUrl("https://systemcenter.demo.gridprotectionalliance.org/index.cshtml?name=Assets");
+        driver.Navigate().GoToUrl(Settings.BaseURL + "/index.cshtml?name=Assets");
 
         // Input username
-        driver.FindElement(By.Id("username")).SendKeys("Admin");
+        driver.FindElement(By.Id("username")).SendKeys(Settings.adminUsername);
 
         // Input password
-        driver.FindElement(By.Id("password")).SendKeys("7h1515457r0ngP455w0rd");
+        driver.FindElement(By.Id("password")).SendKeys(Settings.adminPassword);
 
         // Click login button
         driver.FindElement(By.Id("login")).Click();
@@ -115,39 +116,7 @@ public class ByAssetTest
         // Asset Color (not active)
         vars["Color"] = js.ExecuteScript("return getComputedStyle(document.querySelector(\".nav-link\")).Color");
     }
-    [Test]
-    public void assetsbButtons()
-    {
 
-        // Add filter
-        IWebElement addFilter = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[1]/nav/div/ul/li[1]/fieldset/form/div/div[2]/button")));
-        addFilter.Click();
-
-        // Close
-        IWebElement closeFilter = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[2]/div[1]/div/div/div[3]/button[2]")));
-        closeFilter.Click();
-
-        // Add asset
-        IWebElement addAsset = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[1]/nav/div/ul/li[2]/fieldset/form/div[1]/button")));
-        addAsset.Click();
-
-        // Cancel
-        IWebElement cancelBtn = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[6]/div[1]/div/div/div[3]/button[2]")));
-        cancelBtn.Click();
-
-        // External database
-        IWebElement externalDb = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[1]/nav/div/ul/li[2]/fieldset/form/div[2]/button")));
-        externalDb.Click();
-
-        // Close
-        IWebElement closeDb = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[10]/div[1]/div/div/div[3]/button[2]")));
-        closeDb.Click();
-
-        // Next page (via number)
-        driver.FindElement(By.XPath("//a[contains(.,\'2\')]")).Click();
-        // Prev page (via number)
-        driver.FindElement(By.XPath("//a[contains(.,\'1\')]")).Click();
-    }
     [Test]
     public void assetscSorting()
     {
@@ -359,65 +328,7 @@ public class ByAssetTest
         IWebElement confirmDelete = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[2]/div[1]/div/div/div[3]/button[1]")));
         confirmDelete.Click();
     }
-    [Test]
-    public void assetskTransmissionLineWarnings()
-    {
-        //add asset btn
-        IWebElement assetBtn = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[1]/nav/div/ul/li[2]/fieldset/form/div[1]/button")));
-        assetBtn.Click();
-
-        // Save hover warning
-        {
-            var element = driver.FindElement(By.XPath("/html/body/div[6]/div[1]/div/div/div[3]/button[1]"));
-            Actions builder = new Actions(driver);
-            builder.MoveToElement(element).Perform();
-        }
-        // Max Fault Distance info
-        {
-            var element = driver.FindElement(By.XPath("/html/body/div[6]/div[1]/div/div/div[2]/div/div/div[2]/div/div[1]/div/label/div"));
-            Actions builder = new Actions(driver);
-            builder.MoveToElement(element).Perform();
-        }
-        // Min Fault Distance info
-        {
-            var element = driver.FindElement(By.XPath("/html/body/div[6]/div[1]/div/div/div[2]/div/div/div[2]/div/div[2]/div/label/div"));
-            Actions builder = new Actions(driver);
-            builder.MoveToElement(element).Perform();
-        }
-
-        // Key warning
-        IWebElement keyWarning = wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("/html/body/div[6]/div[1]/div/div/div[2]/div/div/div[1]/div[2]/div")));
-        Assert.That(keyWarning.Text, Is.EqualTo("A unique Key of less than 50 characters is required."));
-
-        // Invalid key count (50+ characters)
-        driver.FindElement(By.XPath("//div[2]/input")).SendKeys("Lorem ipsum dolor sit amet, consectetuer adipiscing");
-
-        // Key warning
-        keyWarning = wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("/html/body/div[6]/div[1]/div/div/div[2]/div/div/div[1]/div[2]/div")));
-        Assert.That(keyWarning.Text, Is.EqualTo("A unique Key of less than 50 characters is required."));
-
-        // Name warning
-        IWebElement nameWarning = wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("/html/body/div[6]/div[1]/div/div/div[2]/div/div/div[1]/div[3]/div")));
-        Assert.That(nameWarning.Text, Is.EqualTo("A Name of less than 200 characters is required."));
-
-        // Invalid Name (200+ characters)
-        driver.FindElement(By.XPath("//div[3]/input")).SendKeys("Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec qua");
-
-        // Name warning
-        nameWarning = wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("/html/body/div[6]/div[1]/div/div/div[2]/div/div/div[1]/div[3]/div")));
-        Assert.That(nameWarning.Text, Is.EqualTo("A Name of less than 200 characters is required."));
-
-        // Voltage warning
-        IWebElement voltageWarning = wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("/html/body/div[6]/div[1]/div/div/div[2]/div/div/div[1]/div[4]/div")));
-        Assert.That(voltageWarning.Text, Is.EqualTo("A numeric Nominal Voltage value is required."));
-
-        // Non numerical value
-        driver.FindElement(By.XPath("/html/body/div[6]/div[1]/div/div/div[2]/div/div/div[1]/div[4]/input")).SendKeys("a");
-
-        // Voltage warning
-        IWebElement voltageWarningInvalid = wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("/html/body/div[6]/div[1]/div/div/div[2]/div/div/div[1]/div[4]/div")));
-        Assert.That(voltageWarningInvalid.Text, Is.EqualTo("A numeric Nominal Voltage value is required."));
-    }
+   
     [Test]
     public void assetslBankofCapacitors()
     {

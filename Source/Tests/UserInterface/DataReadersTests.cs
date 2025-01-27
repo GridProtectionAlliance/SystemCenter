@@ -12,6 +12,7 @@ using OpenQA.Selenium.Support.UI;
 using OpenQA.Selenium.Interactions;
 using SeleniumExtras.WaitHelpers;
 using NUnit.Framework;
+using UserInterface;
 [TestFixture]
 public class DataReadersFunctionalityTest
 {
@@ -39,13 +40,13 @@ public class DataReadersFunctionalityTest
     private void PerformLogin()
     {
         // Navigate to the login page
-        driver.Navigate().GoToUrl("https://systemcenter.demo.gridprotectionalliance.org/index.cshtml?name=DataReaders&System=OpenXDA");
+        driver.Navigate().GoToUrl(Settings.BaseURL + "/index.cshtml?name=DataReaders&System=OpenXDA");
 
         // Input username
-        driver.FindElement(By.Id("username")).SendKeys("Admin");
+        driver.FindElement(By.Id("username")).SendKeys(Settings.adminUsername);
 
         // Input password
-        driver.FindElement(By.Id("password")).SendKeys("7h1515457r0ngP455w0rd");
+        driver.FindElement(By.Id("password")).SendKeys(Settings.adminPassword);
 
         // Click login button
         driver.FindElement(By.Id("login")).Click();
@@ -106,36 +107,44 @@ public class DataReadersFunctionalityTest
     [Test]
     public void dataReaderscSorting()
     {
-        //This test will purposely fail due to the load error you get when attempting to sort on this page
-        try
-        {
-            // Wait for the Name column header to be clickable
-            IWebElement nameHeader = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[9]/div/div/div/div/div[2]/table/thead/tr/th[1]")));
-            nameHeader.Click();
+        // Name sort
+        IWebElement nameSort = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/div/table/thead/tr/th[1]")));
+        nameSort.Click();
 
-            // Assume there's a loading indicator we can wait for
-            // Here we're using a hypothetical spinner element with id 'loadingSpinner'
-            IWebElement loadingSpinner = wait.Until(ExpectedConditions.ElementIsVisible(By.Id("loadingSpinner")));
+        // Arrow present
+        wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[1]/div")));
+        var nameArrow = driver.FindElements(By.XPath("//th[1]/div"));
+        Assert.That(nameArrow.Count > 0);
 
-            // Wait for the loading spinner to disappear
-            bool loadingFinished = wait.Until(ExpectedConditions.InvisibilityOfElementLocated(By.Id("loadingSpinner")));
+        // Name sort again
+        IWebElement nameSortAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/div/table/thead/tr/th[1]")));
+        nameSortAgain.Click();
 
-            // If the loading spinner is still visible, assert failure
-            if (!loadingFinished)
-            {
-                Assert.Fail("The page did not load correctly after clicking the Name column header.");
-            }
-        }
-        catch (WebDriverTimeoutException)
-        {
-            // Handle the case where the element does not become clickable or the loading spinner never disappears
-            Assert.Fail("The page did not load correctly after clicking the Name column header due to a timeout.");
-        }
-        catch (Exception ex)
-        {
-            // Handle any other exceptions that might occur
-            Assert.Fail($"An unexpected exception occurred: {ex.Message}");
-        }
+        // Type Name
+        IWebElement typeName = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/div/table/thead/tr/th[2]")));
+        typeName.Click();
+
+        // Arrow present
+        wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[2]/div")));
+        var keyArrow = driver.FindElements(By.XPath("//th[2]/div"));
+        Assert.That(keyArrow.Count > 0);
+
+        // Type Name again
+        IWebElement typeNameAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/div/table/thead/tr/th[2]")));
+        typeNameAgain.Click();
+
+        // Load Order
+        IWebElement loadOrder = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/div/table/thead/tr/th[3]")));
+        loadOrder.Click();
+
+        // Arrow present
+        wait.Until(ExpectedConditions.ElementExists(By.XPath("//th[3]/div")));
+        var typeArrow = driver.FindElements(By.XPath("//th[3]/div"));
+        Assert.That(typeArrow.Count > 0);
+
+        // Load Order again
+        IWebElement loadOrderAgain = wait.Until(ExpectedConditions.ElementToBeClickable(By.XPath("/html/body/div[1]/div/div/div/div/div[2]/div/table/thead/tr/th[3]")));
+        loadOrderAgain.Click();
     }
     [Test]
     public void dataReadersdAddOperation()
@@ -151,11 +160,6 @@ public class DataReadersFunctionalityTest
         // Wait for and input the file pattern name
         IWebElement filePatternInput = wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("/html/body/div[6]/div[1]/div/div/div[2]/div/div/div[1]/input")));
         filePatternInput.SendKeys("**\\*.dan");
-
-        // Wait for and verify the "A File Pattern is required" warning is gone
-        // Commented out until https://github.com/GridProtectionAlliance/SystemCenter/blob/master/Source/Applications/SystemCenter/wwwroot/Scripts/TSX/SystemCenter/Settings/DataReaders.tsx#L179 is fixed
-        //IWebElement filePatternWarningGone = wait.Until(ExpectedConditions.ElementExists(By.XPath("/html/body/div[6]/div[1]/div/div/div[2]/div/div/div[1]/div")));
-        //Assert.That(filePatternWarningGone.Text, Is.Not.EqualTo("A File Pattern is required"));
 
         // Wait for and verify the "An Assembly name is required" warning
         IWebElement assemblyNameWarning = wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("/html/body/div[6]/div[1]/div/div/div[2]/div/div/div[2]/div")));
