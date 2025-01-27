@@ -26,6 +26,7 @@ import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import LocationDrawingsTable from '../Location/LocationDrawingsTable';
 
+const LocationDrawingController = new GenericController(`${homePath}api/LocationDrawing`, "Name", true);
 interface LocationDrawingsButtonProps {
     Locations: OpenXDA.Types.Location[];
     IsLoadingLocations?: boolean;
@@ -53,7 +54,7 @@ const isValid = (location: OpenXDA.Types.Location, drawingData) => {
             && location.Longitude == null
             && location.Name === ""))
         e = 'No location(s) have been set.';
-    else if (drawingData.TotalRecords == 0)
+    else if (drawingData.length == 0)
         e = 'No drawing(s) associated with location.';
     return e;
 }
@@ -65,7 +66,6 @@ const LocationDrawingsButton: React.FC<LocationDrawingsButtonProps> = (props) =>
     const multipleLocations = React.useMemo(() => props.Locations.length > 1, [props.Locations]);
     const [showDrawingsModal, setShowDrawingsModal] = React.useState<boolean>(false);
     const [locationOptions, setLocationOptions] = React.useState<DropDownOption[]>([]);
-    const LocationDrawingController = new GenericController(`${homePath}api/LocationDrawing`, "Name", true);
 
     React.useEffect(() => { // Generates the map of errors for each location
         setPageState('loading');
@@ -74,7 +74,7 @@ const LocationDrawingsButton: React.FC<LocationDrawingsButtonProps> = (props) =>
         const handles = props.Locations.map((location, i) => {
             if (location == null)
                 return null;
-            const handle = LocationDrawingController.PagedSearch([], 'Name', true, 1, location.ID)
+            const handle = LocationDrawingController.DBSearch([], 'Name', true, location.ID)
                 .done((result) => {
                     const error = isValid(location, result);
                     const option: DropDownOption = {
