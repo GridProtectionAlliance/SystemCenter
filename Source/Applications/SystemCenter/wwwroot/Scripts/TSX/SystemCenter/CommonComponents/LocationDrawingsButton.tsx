@@ -143,7 +143,7 @@ const LocationDrawingsButton: React.FC<LocationDrawingsButtonProps> = (props) =>
             <Modal
                 Show={showDrawingsModal}
                 Title={'Drawings for ' + selectedLocation?.Name}
-                ShowX={true} Size={'lg'}
+                ShowX={true} Size={'xlg'}
                 CallBack={() => setShowDrawingsModal(false)}
                 ShowCancel={false}
                 ShowConfirm={false}>

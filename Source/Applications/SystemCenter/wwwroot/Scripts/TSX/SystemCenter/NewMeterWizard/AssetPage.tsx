@@ -45,7 +45,7 @@ import GenerationAttributes from '../AssetAttribute/Generation';
 import StationAuxAttributes from '../AssetAttribute/StationAux';
 import StationBatteryAttributes from '../AssetAttribute/StationBattery';
 import ChannelSelector from './ChannelSelector';
-import LocationDrawings from '../Location/LocationDrawings';
+import LocationDrawingsButton from '../CommonComponents/LocationDrawingsButton';
 
 declare var homePath: string;
 
@@ -104,6 +104,8 @@ export default function AssetPage(props: IProps) {
     const filterChannels = React.useMemo(() =>
         channelsWorking.filter(ch => (ch.Asset === (newEdit === 'Edit' ? editAssetKey : tempKey)) || (ch.Asset === ""))
     , [channelsWorking, editAssetKey, newEdit]);
+
+    const locations = React.useMemo(() => [props.Location], [props.Location])
 
     const assetData = React.useMemo(() => {
         const u = _.cloneDeep(props.Assets);
@@ -482,7 +484,7 @@ export default function AssetPage(props: IProps) {
                             <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                             <form>
                                 <div className="form-group">
-                                    <LocationDrawings LocationID={props.Location.ID} />
+                                    <LocationDrawingsButton Locations={locations} />
                                 </div>
                             </form>
                         </fieldset>
