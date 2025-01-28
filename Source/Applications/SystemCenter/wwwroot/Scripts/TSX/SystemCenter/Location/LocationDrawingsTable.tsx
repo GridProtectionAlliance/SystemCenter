@@ -119,18 +119,34 @@ const LocationDrawingsTable = (props: IProps) => {
                     Key={'Name'}
                     AllowSort={true}
                     Field={'Name'}
-                    HeaderStyle={{ width: 'auto' }}
-                    RowStyle={{ width: 'auto' }}
+                    HeaderStyle={{ width: '20%' }}
+                    RowStyle={{ width: '20%' }}
                 > Name
                 </ReactTable.Column>
                 <ReactTable.Column<SystemCenter.Types.LocationDrawing>
                     Key={'Link'}
                     AllowSort={true}
                     Field={'Link'}
-                    HeaderStyle={{ width: 'auto' }}
-                    RowStyle={{ width: 'auto' }}
+                    HeaderStyle={{ width: '20%' }}
+                    RowStyle={{ width: '20%' }}
                     Content={({ item, key }) => <a href={item[key] as string} target='_blank'>{item[key]}</a>}
                 > Link
+                </ReactTable.Column>
+                <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                    Key={'Number'}
+                    AllowSort={true}
+                    Field={'Number'}
+                    HeaderStyle={{ width: '10%' }}
+                    RowStyle={{ width: '10%' }}
+                > Number
+                </ReactTable.Column>
+                <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                    Key={'Category'}
+                    AllowSort={true}
+                    Field={'Category'}
+                    HeaderStyle={{ width: '10%' }}
+                    RowStyle={{ width: '10%' }}
+                > Category
                 </ReactTable.Column>
                 <ReactTable.Column<SystemCenter.Types.LocationDrawing>
                     Key={'Description'}
@@ -140,28 +156,12 @@ const LocationDrawingsTable = (props: IProps) => {
                     RowStyle={{ width: 'auto' }}
                 > Description
                 </ReactTable.Column>
-                <ReactTable.Column<SystemCenter.Types.LocationDrawing>
-                    Key={'Number'}
-                    AllowSort={true}
-                    Field={'Number'}
-                    HeaderStyle={{ width: 'auto' }}
-                    RowStyle={{ width: 'auto' }}
-                > Number
-                </ReactTable.Column>
-                <ReactTable.Column<SystemCenter.Types.LocationDrawing>
-                    Key={'Category'}
-                    AllowSort={true}
-                    Field={'Category'}
-                    HeaderStyle={{ width: 'auto' }}
-                    RowStyle={{ width: 'auto' }}
-                > Category
-                </ReactTable.Column>
                 {props.Edit ?
                 <ReactTable.Column<SystemCenter.Types.LocationDrawing>
                     Key={'EditDelete'}
                     AllowSort={false}
-                    HeaderStyle={{ width: 'auto' }}
-                    RowStyle={{ width: 'auto' }}
+                    HeaderStyle={{ width: '10%' }}
+                    RowStyle={{ width: '10%' }}
                     Content={({ item }) =>
                         <span>
                             <button title='Edit Link' className={"btn" + (!hasPermissions() ? ' disabled' : '')}
