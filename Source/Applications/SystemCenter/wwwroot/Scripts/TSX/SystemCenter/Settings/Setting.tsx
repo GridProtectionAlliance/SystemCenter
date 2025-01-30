@@ -22,7 +22,7 @@
 
 import * as React from 'react';
 import { Input, TextArea } from '@gpa-gemstone/react-forms';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import { SearchBar, Search, Modal, Warning, LoadingScreen, ServerErrorIcon, GenericSlice } from '@gpa-gemstone/react-interactive';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
@@ -115,7 +115,7 @@ function Setting(props: IProps) {
                 </SearchBar>
 
                 <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                    <ReactTable.Table<SystemCenter.Types.Setting>
+                    <Table<SystemCenter.Types.Setting>
                         TableClass="table table-hover"
                         Data={data}
                         SortKey={sortField}
@@ -135,31 +135,31 @@ function Setting(props: IProps) {
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
                     >
-                        <ReactTable.Column<SystemCenter.Types.Setting>
+                        <Column<SystemCenter.Types.Setting>
                             Key={'Name'}
                             AllowSort={true}
                             Field={'Name'}
                             HeaderStyle={{ width: '24%' }}
                             RowStyle={{ width: '24%' }}
                         > Setting Name
-                        </ReactTable.Column>
-                        <ReactTable.Column<SystemCenter.Types.Setting>
+                        </Column>
+                        <Column<SystemCenter.Types.Setting>
                             Key={'Value'}
                             AllowSort={true}
                             Field={'Value'}
                             HeaderStyle={{ width: '38%' }}
                             RowStyle={{ width: '38%' }}
                         > Current Value
-                        </ReactTable.Column>
-                        <ReactTable.Column<SystemCenter.Types.Setting>
+                        </Column>
+                        <Column<SystemCenter.Types.Setting>
                             Key={'DefaultValue'}
                             AllowSort={true}
                             Field={'DefaultValue'}
                             HeaderStyle={{ width: '38%' }}
                             RowStyle={{ width: '38%' }}
                         > Default Value
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                 </div>
             </div>
             <Modal Title={editNew === 'Edit' ? 'Edit ' + (editnewSetting?.Name ?? 'Setting') : 'Add New Setting'}

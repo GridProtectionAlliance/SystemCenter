@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import LineSegmentWizard from './FawgLineSegmentWizard/LineSegmentWizard';
 import moment from 'moment';
@@ -74,7 +74,7 @@ function LineSegmentWindow(props: IProps): JSX.Element {
     let header = (<h4 style={(props.InnerOnly ?? false) ? { width: '100%', padding: '10px' } : null}>{"Line Segments: "}</h4>);
     const tableContent = (
         <>
-            <ReactTable.Table<OpenXDA.Types.LineSegment>
+            <Table<OpenXDA.Types.LineSegment>
                 TableClass="table table-hover"
                 Data={segments}
                 SortKey={sortKey}
@@ -99,79 +99,79 @@ function LineSegmentWindow(props: IProps): JSX.Element {
                 Selected={(item) => false}
                 KeySelector={(item) => item.ID}
             >
-                <ReactTable.Column<OpenXDA.Types.LineSegment>
+                <Column<OpenXDA.Types.LineSegment>
                     Key={'AssetName'}
                     AllowSort={true}
                     Field={'AssetName'}
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
                 > Name
-                </ReactTable.Column>
-                <ReactTable.Column<OpenXDA.Types.LineSegment>
+                </Column>
+                <Column<OpenXDA.Types.LineSegment>
                     Key={'Length'}
                     AllowSort={true}
                     Field={'Length'}
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
                 > Length (miles)
-                </ReactTable.Column>
-                <ReactTable.Column<OpenXDA.Types.LineSegment>
+                </Column>
+                <Column<OpenXDA.Types.LineSegment>
                     Key={'R1'}
                     AllowSort={true}
                     Field={'R1'}
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
                 > R1
-                </ReactTable.Column>
-                <ReactTable.Column<OpenXDA.Types.LineSegment>
+                </Column>
+                <Column<OpenXDA.Types.LineSegment>
                     Key={'X1'}
                     AllowSort={true}
                     Field={'X1'}
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
                 > X1
-                </ReactTable.Column>
-                <ReactTable.Column<OpenXDA.Types.LineSegment>
+                </Column>
+                <Column<OpenXDA.Types.LineSegment>
                     Key={'R0'}
                     AllowSort={true}
                     Field={'R0'}
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
                 > R0
-                </ReactTable.Column>
-                <ReactTable.Column<OpenXDA.Types.LineSegment>
+                </Column>
+                <Column<OpenXDA.Types.LineSegment>
                     Key={'X0'}
                     AllowSort={true}
                     Field={'X0'}
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
                 > X0
-                </ReactTable.Column>
-                <ReactTable.Column<OpenXDA.Types.LineSegment>
+                </Column>
+                <Column<OpenXDA.Types.LineSegment>
                     Key={'ThermalRating'}
                     AllowSort={true}
                     Field={'ThermalRating'}
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
                 > Thermal Rating
-                </ReactTable.Column>
-                <ReactTable.Column<OpenXDA.Types.LineSegment>
+                </Column>
+                <Column<OpenXDA.Types.LineSegment>
                     Key={'FromBus'}
                     AllowSort={true}
                     Field={'FromBus'}
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
                 > From Bus
-                </ReactTable.Column>
-                <ReactTable.Column<OpenXDA.Types.LineSegment>
+                </Column>
+                <Column<OpenXDA.Types.LineSegment>
                     Key={'ToBus'}
                     AllowSort={true}
                     Field={'ToBus'}
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
                 > To Bus
-                </ReactTable.Column>
-                <ReactTable.Column<OpenXDA.Types.LineSegment>
+                </Column>
+                <Column<OpenXDA.Types.LineSegment>
                     Key={'IsEnd'}
                     AllowSort={true}
                     Field={'IsEnd'}
@@ -179,8 +179,8 @@ function LineSegmentWindow(props: IProps): JSX.Element {
                     RowStyle={{ width: 'auto' }}
                     Content={({ item }) => item.IsEnd ? HeavyCheckMark : null }
                 > End?
-                </ReactTable.Column>
-            </ReactTable.Table>
+                </Column>
+            </Table>
             {showFawg ? <LineSegmentWizard LineID={props.ID} LineKey={props.LineKey} LineName={props.LineName} closeWizard={() => { setShowFawg(false); getSegments(); }} /> : null}
         </>);
     const wizardButton = (<button className={"btn btn-info" + ((props.InnerOnly ?? false) ? " pull-right" : "") + (!hasPermissions() ? ' disabled' : '')} data-tooltip='LineSegWiz'
@@ -206,7 +206,7 @@ function LineSegmentWindow(props: IProps): JSX.Element {
                 <div className="btn-group mr-2">
                     {wizardButton}
                 </div>
-                <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"LineSegWiz"}>
+                <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Target={"LineSegWiz"}>
                     <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                 </ToolTip>
             </div>

@@ -25,7 +25,7 @@ import { Application, OpenXDA, SystemCenter } from "@gpa-gemstone/application-ty
 import { CrossMark } from "@gpa-gemstone/gpa-symbols";
 import { Input } from "@gpa-gemstone/react-forms";
 import { Modal, Search, ToolTip } from "@gpa-gemstone/react-interactive";
-import { ReactTable } from "@gpa-gemstone/react-table";
+import { Table, Column } from "@gpa-gemstone/react-table";
 import React from "react";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { LSCVSAccountSlice } from "../Store/Store";
@@ -97,7 +97,7 @@ function MDMKeys(props: IProps) {
                 </div>
                 <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
                     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-                        <ReactTable.Table<SystemCenter.Types.LSCVSAccount>
+                        <Table<SystemCenter.Types.LSCVSAccount>
                             TableClass="table table-hover"
                             Data={data}
                             SortKey={sortField}
@@ -117,22 +117,22 @@ function MDMKeys(props: IProps) {
                             Selected={(item) => false}
                             KeySelector={(item) => item.ID}
                         >
-                            <ReactTable.Column<SystemCenter.Types.LSCVSAccount>
+                            <Column<SystemCenter.Types.LSCVSAccount>
                                 Key={'AccountID'}
                                 AllowSort={true}
                                 Field={'AccountID'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                             > Account ID
-                            </ReactTable.Column>
-                        </ReactTable.Table>
+                            </Column>
+                        </Table>
                     </div>
                 </div>
                 <div className="card-footer">
                     <button className={"btn btn-info" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='AddID'
                         onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (hasPermissions()) setShowAdd(true) }}>Add Account ID</button>
                 </div>
-                <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"AddID"}>
+                <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Target={"AddID"}>
                     <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                 </ToolTip>
                 <Modal Title={'Add Account ID'}

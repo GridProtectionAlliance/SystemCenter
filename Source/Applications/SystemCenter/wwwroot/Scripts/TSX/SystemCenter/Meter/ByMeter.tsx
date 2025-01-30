@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { ReactTable } from '@gpa-gemstone/react-table'
+import { Table, Column } from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
@@ -143,7 +143,7 @@ const ByMeter: Application.Types.iByComponent = (props) => {
                     </DefaultSearch.Meter>
                 </div>
                 <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                    <ReactTable.Table<SystemCenter.Types.DetailedMeter>
+                    <Table<SystemCenter.Types.DetailedMeter>
                         TableClass="table table-hover"
                         Data={data}
                         SortKey={sortKey}
@@ -166,55 +166,55 @@ const ByMeter: Application.Types.iByComponent = (props) => {
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
                     >
-                        <ReactTable.Column<SystemCenter.Types.DetailedMeter>
+                        <Column<SystemCenter.Types.DetailedMeter>
                             Key={'Name'}
                             AllowSort={true}
                             Field={'Name'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Name
-                        </ReactTable.Column>
-                        <ReactTable.Column<SystemCenter.Types.DetailedMeter>
+                        </Column>
+                        <Column<SystemCenter.Types.DetailedMeter>
                             Key={'AssetKey'}
                             AllowSort={true}
                             Field={'AssetKey'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Key
-                        </ReactTable.Column>
-                        <ReactTable.Column<SystemCenter.Types.DetailedMeter>
+                        </Column>
+                        <Column<SystemCenter.Types.DetailedMeter>
                             Key={'Location'}
                             AllowSort={true}
                             Field={'Location'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Substation
-                        </ReactTable.Column>
-                        <ReactTable.Column<SystemCenter.Types.DetailedMeter>
+                        </Column>
+                        <Column<SystemCenter.Types.DetailedMeter>
                             Key={'MappedAssets'}
                             AllowSort={true}
                             Field={'MappedAssets'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Assets
-                        </ReactTable.Column>
-                        <ReactTable.Column<SystemCenter.Types.DetailedMeter>
+                        </Column>
+                        <Column<SystemCenter.Types.DetailedMeter>
                             Key={'Make'}
                             AllowSort={true}
                             Field={'Make'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Make
-                        </ReactTable.Column>
-                        <ReactTable.Column<SystemCenter.Types.DetailedMeter>
+                        </Column>
+                        <Column<SystemCenter.Types.DetailedMeter>
                             Key={'Model'}
                             AllowSort={true}
                             Field={'Model'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Model
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                 </div>
                 <div className="row">
                     <div className="col">

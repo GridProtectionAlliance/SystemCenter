@@ -35,8 +35,7 @@ import { SelectAscending, SelectSortKey, SelectEventChannels, SelectEventChannel
 import { FetchChannels } from '../Store/EventChannelSlice';
 import { IsNumber } from '@gpa-gemstone/helper-functions';
 import { cloneDeep } from 'lodash';
-import { ConfigTable } from '@gpa-gemstone/react-interactive';
-import { ReactTable } from '@gpa-gemstone/react-table'
+import { ConfigurableTable, ConfigurableColumn, Column } from '@gpa-gemstone/react-table';
 import { SelectRoles } from '../Store/UserSettings';
 
 declare var homePath: string;
@@ -246,7 +245,7 @@ const MeterEventChannelWindow = (props: IProps) => {
             </div>
             <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
                 <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-                    <ConfigTable.Table<OpenXDA.EventChannel>
+                    <ConfigurableTable<OpenXDA.EventChannel>
                         LocalStorageKey="MeterEventChannelConfigTable"
                         TableClass="table table-hover"
                         Data={data.map(c => replicateChanges(c))}
@@ -265,8 +264,8 @@ const MeterEventChannelWindow = (props: IProps) => {
                                 dispatch(FetchChannels({ sortField: d.colField, ascending: true, meterId: props.Meter.ID }));
                         }}
                     >
-                        <ConfigTable.Configurable Key='SourceIndices' Label='Channel' Default={true}>
-                            <ReactTable.Column<OpenXDA.EventChannel>
+                        <ConfigurableColumn Key='SourceIndices' Label='Channel' Default={true}>
+                            <Column<OpenXDA.EventChannel>
                                 Key={'SourceIndices'} Field={'SourceIndices'}
                                 HeaderStyle={{ width: '7%' }} RowStyle={{ width: '7%' }}
                                 Content={({ item }) => <Input<OpenXDA.EventChannel>
@@ -274,9 +273,9 @@ const MeterEventChannelWindow = (props: IProps) => {
                                     Label={''}
                                     Setter={(r) => createChange(r, 'SourceIndices')}
                                     Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()}/>}>
-                                Identifier</ReactTable.Column>
-                        </ConfigTable.Configurable >
-                        <ReactTable.Column<OpenXDA.EventChannel>
+                                Identifier</Column>
+                        </ConfigurableColumn >
+                        <Column<OpenXDA.EventChannel>
                             Key={'Name'} Field={'Name'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
@@ -284,10 +283,10 @@ const MeterEventChannelWindow = (props: IProps) => {
                                 Label={''} Setter={(r) => createChange(r, 'Name')}
                                 Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()}/>}
                         >
-                            Label </ReactTable.Column>
+                            Label </Column>
 
-                        <ConfigTable.Configurable Key='Description' Label='Description' Default={true}>
-                            <ReactTable.Column<OpenXDA.EventChannel>
+                        <ConfigurableColumn Key='Description' Label='Description' Default={true}>
+                            <Column<OpenXDA.EventChannel>
                                 Key={'Description'} Field={'Description'} 
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
@@ -295,10 +294,10 @@ const MeterEventChannelWindow = (props: IProps) => {
                                     Field={'Description'} Label={''}
                                     Setter={(r) => createChange(r, 'Description')}
                                     Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()}/>}>
-                            </ReactTable.Column>
-                        </ConfigTable.Configurable >
-                        <ConfigTable.Configurable Key='MeasurementType' Label='Type' Default={true}>
-                            <ReactTable.Column<OpenXDA.EventChannel>
+                            </Column>
+                        </ConfigurableColumn >
+                        <ConfigurableColumn Key='MeasurementType' Label='Type' Default={true}>
+                            <Column<OpenXDA.EventChannel>
                                 Key={'MeasurementType'}
                                 Field={'MeasurementType'}
                                 HeaderStyle={{ width: '10%' }}
@@ -308,10 +307,10 @@ const MeterEventChannelWindow = (props: IProps) => {
                                     Options={measurementTypes.map(d => ({ Label: d.Name, Value: d.ID.toString() }))}
                                     Setter={(r) => createChange(r, 'MeasurementTypeID')} Disabled={!hasPermissions()}/>}>
                                 Type
-                            </ReactTable.Column>
-                        </ConfigTable.Configurable >
-                        <ConfigTable.Configurable Key='Phase' Label='Phase' Default={true}>
-                            <ReactTable.Column<OpenXDA.EventChannel>
+                            </Column>
+                        </ConfigurableColumn >
+                        <ConfigurableColumn Key='Phase' Label='Phase' Default={true}>
+                            <Column<OpenXDA.EventChannel>
                                 Key={'Phase'}
                                 Field={'Phase'}
                                 HeaderStyle={{ width: '10%' }}
@@ -319,10 +318,10 @@ const MeterEventChannelWindow = (props: IProps) => {
                                 Content={({ item }) => <Select Record={item} Field={'PhaseID'}
                                     Label={''} Options={phases.map(d => ({ Label: d.Name, Value: d.ID.toString() }))}
                                     Setter={(r) => createChange(r, 'PhaseID')} Disabled={!hasPermissions()}/>}>
-                            </ReactTable.Column>
-                        </ConfigTable.Configurable >
-                        <ConfigTable.Configurable Key='Adder' Label='Adder' Default={true}>
-                            <ReactTable.Column<OpenXDA.EventChannel>
+                            </Column>
+                        </ConfigurableColumn >
+                        <ConfigurableColumn Key='Adder' Label='Adder' Default={true}>
+                            <Column<OpenXDA.EventChannel>
                                 Key={'Adder'}
                                 Field={'Adder'}
                                 HeaderStyle={{ width: '7%' }}
@@ -331,10 +330,10 @@ const MeterEventChannelWindow = (props: IProps) => {
                                     Record={item} Field={'Adder'} Type={'number'}
                                     Label={''} Setter={(r) => createChange(r, 'Adder')}
                                     Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()}/>}>
-                            </ReactTable.Column>
-                        </ConfigTable.Configurable >
-                        <ConfigTable.Configurable Key='Multiplier' Label='Multiplier' Default={true}>
-                            <ReactTable.Column<OpenXDA.EventChannel>
+                            </Column>
+                        </ConfigurableColumn >
+                        <ConfigurableColumn Key='Multiplier' Label='Multiplier' Default={true}>
+                            <Column<OpenXDA.EventChannel>
                                 Key={'Multiplier'}
                                 Field={'Multiplier'}
                                 HeaderStyle={{ width: '7%' }}
@@ -343,10 +342,10 @@ const MeterEventChannelWindow = (props: IProps) => {
                                     Record={item} Field={'Multiplier'} Type={'number'}
                                     Label={''} Setter={(r) => createChange(r, 'Multiplier')}
                                     Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()}/>}>
-                            </ReactTable.Column>
-                        </ConfigTable.Configurable >
-                        <ConfigTable.Configurable Key='Asset' Label='Asset' Default={true}>
-                            <ReactTable.Column<OpenXDA.EventChannel>
+                            </Column>
+                        </ConfigurableColumn >
+                        <ConfigurableColumn Key='Asset' Label='Asset' Default={true}>
+                            <Column<OpenXDA.EventChannel>
                                 Key={'Asset'} Field={'Asset'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
@@ -355,10 +354,10 @@ const MeterEventChannelWindow = (props: IProps) => {
                                     Options={assets.map(d => ({ Label: d.AssetKey, Value: d.ID.toString() }))}
                                     Setter={(r) => createChange(r, 'AssetID')} Disabled={!hasPermissions()}/>}>
 
-                            </ReactTable.Column>
-                        </ConfigTable.Configurable >
-                        <ConfigTable.Configurable Key='ConnectionPriority' Label='Connection Type' Default={true}>
-                            <ReactTable.Column<OpenXDA.EventChannel>
+                            </Column>
+                        </ConfigurableColumn >
+                        <ConfigurableColumn Key='ConnectionPriority' Label='Connection Type' Default={true}>
+                            <Column<OpenXDA.EventChannel>
                                 Key={'ConnectionPriority'}
                                 Field={'ConnectionPriority'}
                                 HeaderStyle={{ width: '7%' }}
@@ -369,9 +368,9 @@ const MeterEventChannelWindow = (props: IProps) => {
                                     Setter={(r) => createChange(r, 'ConnectionPriority')}
                                     Disabled={(assets.find(d => d.ID == item.AssetID)?.AssetType != 'Transformer') || !hasPermissions()} />}>
                                 Conn Type
-                            </ReactTable.Column>
-                        </ConfigTable.Configurable >
-                        <ReactTable.Column<OpenXDA.EventChannel>
+                            </Column>
+                        </ConfigurableColumn >
+                        <Column<OpenXDA.EventChannel>
                             Key={'Remove'}
                             AllowSort={false}
                             HeaderStyle={{ width: 'auto' }}
@@ -379,8 +378,8 @@ const MeterEventChannelWindow = (props: IProps) => {
                             Content={({ item }) => <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
                                 onClick={(e) => { if (hasPermissions()) setRemoveRecord(item) }}><span>{TrashCan}</span></button>}>
                             <p></p>
-                        </ReactTable.Column>
-                    </ConfigTable.Table>
+                        </Column>
+                    </ConfigurableTable>
 
                 </div>
             </div>
@@ -421,14 +420,14 @@ const MeterEventChannelWindow = (props: IProps) => {
                         }
                     }}>Add Channel</button>
                 </div>
-                <ToolTip Show={hover == 'Add' && (!hasPermissions() || assets.length == 0)} Position={'top'} Theme={'dark'} Target={"AddChannel"}>
+                <ToolTip Show={hover == 'Add' && (!hasPermissions() || assets.length == 0)} Position={'top'} Target={"AddChannel"}>
                     {!hasPermissions() ? <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p> : null}
                     {assets.length == 0 ? <p>Must connect assets to meter.</p> : null}
                 </ToolTip>
                 <div className="btn-group mr-2">
                     <button className={"btn btn-primary" + (errors.length > 0 || recordChanges.size == 0 ? ' disabled' : '')} onClick={() => { if (errors.length === 0 && recordChanges.size > 0 && hasPermissions())  applyUpdates()}}
                         onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} data-tooltip={'save'}>Save Changes</button>
-                    <ToolTip Show={hover == 'Update' && (errors.length > 0 || recordChanges.size == 0)} Position={'top'} Theme={'dark'} Target={"save"}>
+                    <ToolTip Show={hover == 'Update' && (errors.length > 0 || recordChanges.size == 0)} Position={'top'} Target={"save"}>
                         {recordChanges.size == 0 && hasPermissions()? <p> No changes have been made. </p> : null}
                         {!hasPermissions() ? <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p> : null}
                         {errors.length > 0 ? errors.map((e, i) => <> {CrossMark} <p key={i}> {e} </p> </>) : null}
@@ -437,10 +436,10 @@ const MeterEventChannelWindow = (props: IProps) => {
                 <div className="btn-group mr-2">
                     <button className={"btn btn-warning" + (recordChanges.size == 0 ? ' disabled' : '')} onClick={() => { if (recordChanges.size > 0 && hasPermissions()) setRecordChanges(new Map<number, Map<keyof OpenXDA.EventChannel, number | string>>()); }}
                         onMouseEnter={() => setHover('Reset')} onMouseLeave={() => setHover('None')} data-tooltip={"clr"}>Clear Changes</button>
-                <ToolTip Show={hover == 'Reset' && (recordChanges.size  > 0)} Position={'top'} Theme={'dark'} Target={"clr"}>
+                <ToolTip Show={hover == 'Reset' && (recordChanges.size  > 0)} Position={'top'} Target={"clr"}>
                         <p> There are {recordChanges.size} channels with changes that will be lost. </p>
                     </ToolTip>
-                    <ToolTip Show={hover == 'Reset' && (recordChanges.size == 0)} Position={'top'} Theme={'dark'} Target={"clr"}>
+                    <ToolTip Show={hover == 'Reset' && (recordChanges.size == 0)} Position={'top'} Target={"clr"}>
                         <p> No changes have been made. </p>
                     </ToolTip>
                 </div>

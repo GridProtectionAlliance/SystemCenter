@@ -211,10 +211,10 @@ export default function RemoteXDAInstanceForm(props: IProps) {
                             }
                         </div>
                     </div>
-                    <ToolTip Show={hover == 'submit' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"TestConnection"}>
+                    <ToolTip Show={hover == 'submit' && !hasPermissions()} Position={'top'} Target={"TestConnection"}>
                         {<p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>}
                     </ToolTip>
-                    <ToolTip Show={hover == 'reset' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"PushRemote"}>
+                    <ToolTip Show={hover == 'reset' && !hasPermissions()} Position={'top'} Target={"PushRemote"}>
                         {<p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>}
                     </ToolTip>
                 </form>

@@ -25,7 +25,7 @@ import * as React from 'react';
 import { LoadingScreen, Modal, Search, SearchBar } from '@gpa-gemstone/react-interactive'
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import moment from 'moment';
 import { ICellCarrier } from '../global';
 import { CellCarrierSlice } from '../Store';
@@ -95,7 +95,7 @@ const ByCellCarrier = (props: IProps) => {
 
             <div className='row' style={{ flex: 1, overflow: 'hidden' }}>
                 <div className='col-12' style={{ height: '100%', overflow: 'hidden' }}>
-                    <ReactTable.Table<ICellCarrier>
+                    <Table<ICellCarrier>
                         TableClass="table table-hover"
                         Data={data}
                         SortKey={sortField}
@@ -115,23 +115,23 @@ const ByCellCarrier = (props: IProps) => {
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
                     >
-                        <ReactTable.Column<ICellCarrier>
+                        <Column<ICellCarrier>
                             Key={'Name'}
                             AllowSort={true}
                             Field={'Name'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Name
-                        </ReactTable.Column>
-                        <ReactTable.Column<ICellCarrier>
+                        </Column>
+                        <Column<ICellCarrier>
                             Key={'Transform'}
                             AllowSort={true}
                             Field={'Transform'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Transform
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                 </div>
             </div>
 

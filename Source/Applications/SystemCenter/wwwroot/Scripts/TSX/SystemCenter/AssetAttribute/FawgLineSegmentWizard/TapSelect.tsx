@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { Pencil, TrashCan, Warning } from '@gpa-gemstone/gpa-symbols';
 import { Select, Input } from '@gpa-gemstone/react-forms';
 import { ITap } from './Types';
@@ -63,7 +63,7 @@ function TapSelect(props: IProps): JSX.Element {
             <div className="row">
                 <div className="col">
                     <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540 }}>
-                        <ReactTable.Table<ITap>
+                        <Table<ITap>
                             TableClass="table table-hover"
                             Data={props.Taps}
                             SortKey={'IsXDA'}
@@ -75,7 +75,7 @@ function TapSelect(props: IProps): JSX.Element {
                             Selected={(item) => item.StationID != null}
                             KeySelector={(item) => item.ID ?? `${item.Bus}-${item.StationID}`}
                         >
-                            <ReactTable.Column<ITap>
+                            <Column<ITap>
                                 Key={'Bus'}
                                 AllowSort={true}
                                 Field={'Bus'}
@@ -88,8 +88,8 @@ function TapSelect(props: IProps): JSX.Element {
                                         Valid={() => item.Bus != null && item.Bus.length > 0} />
                                 </> }
                             > Bus
-                            </ReactTable.Column>
-                            <ReactTable.Column<ITap>
+                            </Column>
+                            <Column<ITap>
                                 Key={'Location'}
                                 AllowSort={true}
                                 HeaderStyle={{ width: 'auto' }}
@@ -100,16 +100,16 @@ function TapSelect(props: IProps): JSX.Element {
                                         Options={props.Locations.map(l => ({ Value: l.ID.toString(), Label: l.Name + '(' + l.LocationKey + ')' }))} EmptyOption={true} />
                                 </> }
                             > Substation
-                            </ReactTable.Column>
-                            <ReactTable.Column<ITap>
+                            </Column>
+                            <Column<ITap>
                                 Key={'Warning'}
                                 AllowSort={false}
                                 HeaderStyle={{ width: 40, paddingLeft: 0, paddingRight: 5 }}
                                 RowStyle={{ width: 40, paddingLeft: 0, paddingRight: 5 }}
                                 Content={({ item }) => DisplayWarning(item)}
                             > <p></p>
-                            </ReactTable.Column>
-                            <ReactTable.Column<ITap>
+                            </Column>
+                            <Column<ITap>
                                 Key={'DeleteButton'}
                                 AllowSort={false}
                                 HeaderStyle={{ width: 40, paddingLeft: 0, paddingRight: 5 }}
@@ -119,8 +119,8 @@ function TapSelect(props: IProps): JSX.Element {
                                         onClick={(e) => props.RemoveTap(index)}><span>{TrashCan}</span></button>
                                 </> }
                             > <p></p>
-                            </ReactTable.Column>
-                        </ReactTable.Table>
+                            </Column>
+                        </Table>
                     </div>
                 </div>
             </div>

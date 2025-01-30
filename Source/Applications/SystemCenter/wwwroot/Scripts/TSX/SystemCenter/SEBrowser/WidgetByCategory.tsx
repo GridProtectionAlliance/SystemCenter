@@ -25,7 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { SEBrowserWidgetSlice, SEBrowserWidgetViewSlice } from '../Store/Store'
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { CrossMark, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { LoadingIcon, Modal, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
 import { EventWidget } from '../../../../../EventWidgets/TSX/global';
@@ -113,7 +113,7 @@ const WidgetByCategory = (props: IProps) => {
         </div>
         <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
             <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', padding: 0 }}>
-                <ReactTable.Table<EventWidget.IWidgetView>
+                <Table<EventWidget.IWidgetView>
                     TableClass="table table-hover"
                     Data={data}
                     SortKey={sortField}
@@ -131,23 +131,23 @@ const WidgetByCategory = (props: IProps) => {
                     Selected={(item) => false}
                     KeySelector={(item) => item.ID}
                 >
-                    <ReactTable.Column<EventWidget.IWidgetView>
+                    <Column<EventWidget.IWidgetView>
                         Key={'Name'}
                         AllowSort={true}
                         Field={'Name'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                     > Widget Name
-                    </ReactTable.Column>
-                    <ReactTable.Column<EventWidget.IWidgetView>
+                    </Column>
+                    <Column<EventWidget.IWidgetView>
                         Key={'Type'}
                         AllowSort={true}
                         Field={'Type'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                     > Widget Type
-                    </ReactTable.Column>
-                    <ReactTable.Column<EventWidget.IWidgetView>
+                    </Column>
+                    <Column<EventWidget.IWidgetView>
                         Key={'Remove'}
                         AllowSort={false}
                         HeaderStyle={{ width: 'auto' }}
@@ -162,8 +162,8 @@ const WidgetByCategory = (props: IProps) => {
                             </button>
                         </>}
                     > <p></p>
-                    </ReactTable.Column>
-                </ReactTable.Table>
+                    </Column>
+                </Table>
             </div>
         </div>
         <div className="card-footer">

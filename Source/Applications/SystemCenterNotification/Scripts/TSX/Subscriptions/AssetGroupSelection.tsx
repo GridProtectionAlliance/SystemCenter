@@ -26,7 +26,7 @@ import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { AssetGroupSlice } from '../Store';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import * as $ from 'jquery';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { Select } from '@gpa-gemstone/react-forms';
 
 declare var homePath;
@@ -140,7 +140,7 @@ const AssetGroupSelection = (props: IProps) => {
                 </div>
                 <div className='row'>
                     <div className='col'>
-                        <ReactTable.Table<OpenXDA.Types.AssetGroup>
+                        <Table<OpenXDA.Types.AssetGroup>
                             TableClass="table table-hover"
                             Data={assetGrps}
                             SortKey={sort}
@@ -164,31 +164,31 @@ const AssetGroupSelection = (props: IProps) => {
                             Selected={(item) => props.assetGroupID.includes(item.ID)}
                             KeySelector={(item) => item.ID}
                         >
-                            <ReactTable.Column<OpenXDA.Types.AssetGroup>
+                            <Column<OpenXDA.Types.AssetGroup>
                                 Key={'Name'}
                                 AllowSort={true}
                                 Field={'Name'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                             > Name
-                            </ReactTable.Column>
-                            <ReactTable.Column<OpenXDA.Types.AssetGroup>
+                            </Column>
+                            <Column<OpenXDA.Types.AssetGroup>
                                 Key={'Meters'}
                                 AllowSort={true}
                                 Field={'Meters'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                             > Num. Meters
-                            </ReactTable.Column>
-                            <ReactTable.Column<OpenXDA.Types.AssetGroup>
+                            </Column>
+                            <Column<OpenXDA.Types.AssetGroup>
                                 Key={'Assets'}
                                 AllowSort={true}
                                 Field={'Assets'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                             > Num. Assets
-                            </ReactTable.Column>
-                        </ReactTable.Table>
+                            </Column>
+                        </Table>
                     </div>
                 </div>
                 <Warning

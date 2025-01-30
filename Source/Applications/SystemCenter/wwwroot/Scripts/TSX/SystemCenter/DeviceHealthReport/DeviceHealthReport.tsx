@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { ReactTable } from '@gpa-gemstone/react-table'
+import { Table, Column } from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { SystemCenter as SCGlobal } from '../global';
@@ -178,7 +178,7 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
             </div>
             <div className={'row'} style={{ flex: 1, overflow: 'hidden' }}>
                 <div className={'col-12 p-0'} style={{ height: '100%', overflow: 'hidden' }}>
-                    <ReactTable.Table<SCGlobal.DeviceHealthReport>
+                    <Table<SCGlobal.DeviceHealthReport>
                         TableClass="table table-hover"
                         Data={data}
                         SortKey={sortKey}
@@ -202,7 +202,7 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
                     >
-                        <ReactTable.Column<SCGlobal.DeviceHealthReport>
+                        <Column<SCGlobal.DeviceHealthReport>
                             Key={'Name'}
                             AllowSort={true}
                             Field={'Name'}
@@ -210,8 +210,8 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                             RowStyle={{ width: 'auto' }}
                             Content={({ item, field }) => <a href={`${homePath}index.cshtml?name=Meter&MeterID=${item.ID}&MeterName=${item.Name}`} target='_blank'>{item[field]}</a> }
                         > Name
-                        </ReactTable.Column>
-                        <ReactTable.Column<SCGlobal.DeviceHealthReport>
+                        </Column>
+                        <Column<SCGlobal.DeviceHealthReport>
                             Key={'OpenMIC'}
                             AllowSort={true}
                             Field={'OpenMIC'}
@@ -226,8 +226,8 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                                     return trimString(item.OpenMIC, 10)
                             }}
                         > openMIC ID
-                        </ReactTable.Column>
-                        <ReactTable.Column<SCGlobal.DeviceHealthReport>
+                        </Column>
+                        <Column<SCGlobal.DeviceHealthReport>
                             Key={'LocationKey'}
                             AllowSort={true}
                             Field={'LocationKey'}
@@ -244,8 +244,8 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
 
                                 
                         > Substn
-                        </ReactTable.Column>
-                        <ReactTable.Column<SCGlobal.DeviceHealthReport>
+                        </Column>
+                        <Column<SCGlobal.DeviceHealthReport>
                             Key={'Model'}
                             AllowSort={true}
                             Field={'Model'}
@@ -260,8 +260,8 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                                     return item[field]
                             }}
                         > Model
-                        </ReactTable.Column>
-                        <ReactTable.Column<SCGlobal.DeviceHealthReport>
+                        </Column>
+                        <Column<SCGlobal.DeviceHealthReport>
                             Key={'TSC'}
                             AllowSort={true}
                             Field={'TSC'}
@@ -269,8 +269,8 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                             RowStyle={{ width: 50 }}
                             Content={({ item, field }) => <a href={`${homePath}index.cshtml?name=DeviceContacts&ID=${item.TSC}&Name=${item.TSC}&Field=TSC`} target='_blank'>{item[field]}</a> }
                         > TSC
-                        </ReactTable.Column>
-                        <ReactTable.Column<SCGlobal.DeviceHealthReport>
+                        </Column>
+                        <Column<SCGlobal.DeviceHealthReport>
                             Key={'Sector'}
                             AllowSort={true}
                             Field={'Sector'}
@@ -278,8 +278,8 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                             RowStyle={{ width: '5%' }}
                             Content={({ item, field }) => <a href={`${homePath}index.cshtml?name=DeviceContacts&ID=${item.Sector}&Name=${item.Sector}&Field=Sector`} target='_blank'>{item[field]}</a> }
                         > Sector
-                        </ReactTable.Column>
-                        <ReactTable.Column<SCGlobal.DeviceHealthReport>
+                        </Column>
+                        <Column<SCGlobal.DeviceHealthReport>
                             Key={'IP'}
                             AllowSort={true}
                             Field={'IP'}
@@ -294,8 +294,8 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                                     return item[field]
                             }}
                         > IP
-                        </ReactTable.Column>
-                        <ReactTable.Column<SCGlobal.DeviceHealthReport>
+                        </Column>
+                        <Column<SCGlobal.DeviceHealthReport>
                             Key={'LastGood'}
                             AllowSort={true}
                             Field={'LastGood'}
@@ -310,16 +310,16 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                                     <span className={`badge badge-pill badge-${className}`}>{moment(item[field]).format('MM/DD/YYYY HH:mm')}</span></a>
                             }}
                         > Last Succ Conn
-                        </ReactTable.Column>
-                        <ReactTable.Column<SCGlobal.DeviceHealthReport>
+                        </Column>
+                        <Column<SCGlobal.DeviceHealthReport>
                             Key={'BadDays'}
                             AllowSort={true}
                             Field={'BadDays'}
                             HeaderStyle={{ width: 100 }}
                             RowStyle={{ width: 100, textAlign: 'center' }}
                         > Bad Days
-                        </ReactTable.Column>
-                        <ReactTable.Column<SCGlobal.DeviceHealthReport>
+                        </Column>
+                        <Column<SCGlobal.DeviceHealthReport>
                             Key={'LastConfigChange'}
                             AllowSort={true}
                             Field={'LastConfigChange'}
@@ -337,8 +337,8 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                                 }
                             }}
                         > Last Cfg Chg
-                        </ReactTable.Column>
-                        <ReactTable.Column<SCGlobal.DeviceHealthReport>
+                        </Column>
+                        <Column<SCGlobal.DeviceHealthReport>
                             Key={'MICStatus'}
                             AllowSort={true}
                             Field={'MICStatus'}
@@ -360,8 +360,8 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                                     return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=openmic&OpenMICAcronym=${item.OpenMIC}`} target='_blank'>{HeavyCheckMark}</a>;
                             }}
                         > MIC
-                        </ReactTable.Column>
-                        <ReactTable.Column<SCGlobal.DeviceHealthReport>
+                        </Column>
+                        <Column<SCGlobal.DeviceHealthReport>
                             Key={'MiMDStatus'}
                             AllowSort={true}
                             Field={'MiMDStatus'}
@@ -383,8 +383,8 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                                     return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=openmic&OpenMICAcronym=${item.OpenMIC}`} target='_blank'>{HeavyCheckMark}</a>;
                             }}
                         > miMD
-                        </ReactTable.Column>
-                        <ReactTable.Column<SCGlobal.DeviceHealthReport>
+                        </Column>
+                        <Column<SCGlobal.DeviceHealthReport>
                             Key={'XDAStatus'}
                             AllowSort={true}
                             Field={'XDAStatus'}
@@ -403,8 +403,8 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                                     return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=xda`} target='_blank'>{HeavyCheckMark}</a>;
                             }}
                         > XDA
-                        </ReactTable.Column>
-                        <ReactTable.Column<SCGlobal.DeviceHealthReport>
+                        </Column>
+                        <Column<SCGlobal.DeviceHealthReport>
                             Key={'DQStatus'}
                             AllowSort={true}
                             Field={'DQStatus'}
@@ -423,8 +423,8 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                                     return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=dq`} target='_blank'>{HeavyCheckMark}</a>;
                             }}
                         > DQ
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                 </div>
             </div>
         </div>

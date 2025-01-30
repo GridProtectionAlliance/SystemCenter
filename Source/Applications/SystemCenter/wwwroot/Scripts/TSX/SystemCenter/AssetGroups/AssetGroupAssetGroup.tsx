@@ -26,7 +26,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { useHistory } from 'react-router-dom';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { AssetGroupSlice } from '../Store/Store';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
 import { Search, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
@@ -160,7 +160,7 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
             </div>
             <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
                 <div style={{  width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-                    <ReactTable.Table<OpenXDA.Types.AssetGroup>
+                    <Table<OpenXDA.Types.AssetGroup>
                         TableClass="table table-hover"
                         Data={groupList}
                         SortKey={sortField}
@@ -186,39 +186,39 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
                     >
-                        <ReactTable.Column<OpenXDA.Types.AssetGroup>
+                        <Column<OpenXDA.Types.AssetGroup>
                             Key={'Name'}
                             AllowSort={true}
                             Field={'Name'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Name
-                        </ReactTable.Column>
-                        <ReactTable.Column<OpenXDA.Types.AssetGroup>
+                        </Column>
+                        <Column<OpenXDA.Types.AssetGroup>
                             Key={'Assets'}
                             AllowSort={true}
                             Field={'Assets'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Num. of Assets
-                        </ReactTable.Column>
-                        <ReactTable.Column<OpenXDA.Types.AssetGroup>
+                        </Column>
+                        <Column<OpenXDA.Types.AssetGroup>
                             Key={'Meters'}
                             AllowSort={true}
                             Field={'Meters'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Num. of Meters
-                        </ReactTable.Column>
-                        <ReactTable.Column<OpenXDA.Types.AssetGroup>
+                        </Column>
+                        <Column<OpenXDA.Types.AssetGroup>
                             Key={'AssetGroups'}
                             AllowSort={true}
                             Field={'AssetGroups'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Num. of Asset Groups
-                        </ReactTable.Column>
-                        <ReactTable.Column<OpenXDA.Types.AssetGroup>
+                        </Column>
+                        <Column<OpenXDA.Types.AssetGroup>
                             Key={'Remove'}
                             AllowSort={false}
                             HeaderStyle={{ width: 'auto' }}
@@ -228,8 +228,8 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
                                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (!hasPermissions()) setRemoveGroup(item.ID); }}><span>{TrashCan}</span></button>
                             </> }
                         > <p></p>
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                 </div>
                 
             </div>
@@ -237,7 +237,7 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
                     <button className={"btn btn-info pull-left" + (hasPermissions() ? ' disabled' : '')} data-tooltip='AddGroup'
                         onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (!hasPermissions()) setShowAdd(true); }}>Add Asset Groups</button>
                 </div>
-                <ToolTip Show={hover == 'Update' && hasPermissions()} Position={'top'} Theme={'dark'} Target={"AddGroup"}>
+                <ToolTip Show={hover == 'Update' && hasPermissions()} Position={'top'} Target={"AddGroup"}>
                     <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                 </ToolTip>
 
@@ -252,16 +252,19 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
                     Show={showAdd}
                     Type={'multiple'}
                     AddlFilters={[noSameFilter]}
-                    Columns={[
-                        { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Assets', field: 'Assets', label: 'Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Meters', field: 'Meters', label: 'Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'AssetGroups', field: 'AssetGroups', label: 'SubGroups', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                    ]}
                     Title={"Add Asset Groups to Asset Group"}
                     GetEnum={getEnum}
-                    GetAddlFields={() => () => { }} />
+                    GetAddlFields={() => () => { }}
+                >
+                    <Column Key="Name" Field="Name" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                    >Name</Column>
+                    <Column Key="Assets" Field="Assets" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                    >Assets</Column>
+                    <Column Key="Meters" Field="Meters" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                    >Meters</Column>
+                    <Column Key="AssetGroups" Field="AssetGroups" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                    >Sub Groups</Column>
+                </DefaultSelects.AssetGroup>
                 <Warning Show={removeGroup > -1} Title={'Remove Asset Group from Asset Group'} Message={'This will remove the Asset Group from this Asset Group.'} CallBack={(c) => { if (c) removeItem(removeGroup); setRemoveGroup(-1); }} />
             </div>
             </>

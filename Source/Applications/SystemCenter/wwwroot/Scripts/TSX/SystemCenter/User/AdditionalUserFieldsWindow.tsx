@@ -21,7 +21,7 @@
 // ******************************************************************************************************
 
 import * as React from 'react';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { CrossMark, HeavyCheckMark, Pencil, Warning, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { Modal, ToolTip, ServerErrorIcon, Warning as WarningModal } from '@gpa-gemstone/react-interactive';
 import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
@@ -184,7 +184,7 @@ function AdditionalField(props: IProps) {
 						{(mode === 'Edit') ?
 							<button className="btn btn-default pull-right" data-tooltip='View' onClick={() => { setMode('View'); setEditValues(values) }} onMouseEnter={() => setHover('View')} onMouseLeave={() => setHover('None')}>View</button> :
 							<button className="btn btn-primary pull-right" onClick={() => setMode('Edit')}>Edit</button>}
-						<ToolTip Show={hover === 'View' && changedFields.length > 0} Position={'left'} Theme={'dark'} Target={"View"}>
+						<ToolTip Show={hover === 'View' && changedFields.length > 0} Position={'left'} Target={"View"}>
 							{changedFields.map((fld, i) => <p key={i}>{Warning} Changes to '{fld}' will be lost. </p>)}
 						</ToolTip>
 					</div>
@@ -192,7 +192,7 @@ function AdditionalField(props: IProps) {
 
 			</div>
 			<div className="card-body" style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
-				<ReactTable.Table<Application.Types.iAdditionalUserField>
+				<Table<Application.Types.iAdditionalUserField>
 					TableClass="table table-hover"
 					Data={fields}
 					SortKey={sortField}
@@ -210,23 +210,23 @@ function AdditionalField(props: IProps) {
 					Selected={(item) => false}
 					KeySelector={props.FieldKeySelector}
 				>
-					<ReactTable.Column<Application.Types.iAdditionalUserField>
+					<Column<Application.Types.iAdditionalUserField>
 						Key={'FieldName'}
 						AllowSort={true}
 						Field={'FieldName'}
 						HeaderStyle={{ width: 'auto' }}
 						RowStyle={{ width: 'auto' }}
 					> Field
-					</ReactTable.Column>
-					<ReactTable.Column<Application.Types.iAdditionalUserField>
+					</Column>
+					<Column<Application.Types.iAdditionalUserField>
 						Key={'Type'}
 						AllowSort={true}
 						Field={'Type'}
 						HeaderStyle={{ width: 'auto' }}
 						RowStyle={{ width: 'auto' }}
 					> Type
-					</ReactTable.Column>
-					<ReactTable.Column<Application.Types.iAdditionalUserField>
+					</Column>
+					<Column<Application.Types.iAdditionalUserField>
 						Key={'Value'}
 						AllowSort={true}
 						HeaderStyle={{ width: 'auto' }}
@@ -241,38 +241,38 @@ function AdditionalField(props: IProps) {
 							return <ValueDisplay Mode={mode} Type={item.Type} ValueListItems={vList} Value={props.CreateValue(item)} Setter={(val: Application.Types.iAdditionalUserFieldValue) => setEditValues((d) => { const u = [...d]; u.push(val); return u; })} />
 						}}
 					> Value
-					</ReactTable.Column>
-					<ReactTable.Column<Application.Types.iAdditionalUserField>
+					</Column>
+					<Column<Application.Types.iAdditionalUserField>
 						Key={'EditButton'}
 						AllowSort={false}
 						HeaderStyle={{ width: 40, paddingRight: 0, paddingLeft: 10 }}
 						RowStyle={{ width: 40, paddingRight: 0, paddingLeft: 10, paddingTop: 36 }}
 						Content={({ item }) => (mode === 'Edit' ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowEdit(true); setEditNew('Edit'); }}><span>{Pencil}</span></button> : '')}
 					> <p></p>
-					</ReactTable.Column>
-					<ReactTable.Column<Application.Types.iAdditionalUserField>
+					</Column>
+					<Column<Application.Types.iAdditionalUserField>
 						Key={'DeleteButton'}
 						AllowSort={false}
 						HeaderStyle={{ width: 40, paddingRight: 0, paddingLeft: 10 }}
 						RowStyle={{ width: 40, paddingRight: 0, paddingLeft: 10, paddingTop: 36 }}
 						Content={({ item }) => (mode === 'Edit' ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowWarning(true); }}><span>{TrashCan}</span></button> : '')}
 					> <p></p>
-					</ReactTable.Column>
-				</ReactTable.Table>
+					</Column>
+				</Table>
 			</div>
 			<div className="card-footer">
 				<div className="btn-group mr-2">
 					<button className={"btn btn-primary" + (mode === 'View' ? ' disabled' : '')} onMouseEnter={() => setHover('New')} onMouseLeave={() => setHover('None')}
 						onClick={() => { if (mode === 'Edit') { setShowEdit(true); setNewField(props.EmptyField) } }} data-tooltip={'New'} >Add Field</button>
 				</div>
-				<ToolTip Show={hover === 'New' && mode === 'View'} Position={'top'} Theme={'dark'} Target={"New"}>
+				<ToolTip Show={hover === 'New' && mode === 'View'} Position={'top'} Target={"New"}>
 					<p> To add a new Field, switch to Edit mode by clicking on the Edit button on the upper right corner.</p>
 				</ToolTip>
 				<div className="btn-group mr-2">
 					<button className={"btn btn-primary" + (changedFields.length === 0 || mode === 'View' || errorFields.length > 0 ? ' disabled' : '')} onClick={() => { if (errorFields.length === 0 && changedFields.length > 0 && mode === 'Edit') dispatch(UserAdditionalFieldSlice.UpdateValues({ ParentID: props.Id, Values: editValues })); }}
 						onMouseEnter={() => setHover('Save')} onMouseLeave={() => setHover('None')} data-tooltip={'SaveValues'}>Save Changes</button>
 				</div>
-				<ToolTip Show={hover === 'Save' && (mode === 'View' || changedFields.length > 0)} Position={'top'} Theme={'dark'} Target={"SaveValues"}>
+				<ToolTip Show={hover === 'Save' && (mode === 'View' || changedFields.length > 0)} Position={'top'} Target={"SaveValues"}>
 					{mode === 'View' ? <p> To change any Fields, switch to Edit mode by clicking on the Edit button on the upper right corner.</p> : null}
 					{changedFields.length > 0 && errorFields.length === 0 ? changedFields.map((fld, i) => <p key={i}> {HeavyCheckMark} Changes to '{fld}' are valid.</p>) : null}
 					{changedFields.length > 0 && errorFields.length > 0 ? errorFields.map((t, i) => <p key={i}> {CrossMark} {t}.</p>) : null}
@@ -286,7 +286,7 @@ function AdditionalField(props: IProps) {
 						onMouseEnter={() => setHover('Clear')}
 						onMouseLeave={() => setHover('None')} data-tooltip={'Reset'}>Reset</button>
 				</div>
-				<ToolTip Show={hover === 'Clear' && (mode === 'View' || changedFields.length > 0)} Position={'top'} Theme={'dark'} Target={'Reset'}>
+				<ToolTip Show={hover === 'Clear' && (mode === 'View' || changedFields.length > 0)} Position={'top'} Target={'Reset'}>
 					{mode === 'View' ? <p> To change any Fields, switch to Edit mode by clicking on the Edit button on the upper right corner.</p> : null}
 					{changedFields.length > 0 ? changedFields.map((fld, i) => <p key={i}>{Warning} Changes to '{fld}' will be lost. </p>) : null}
 				</ToolTip>

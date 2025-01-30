@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 
@@ -187,7 +187,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
                 </div>
 
                 <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                    <ReactTable.Table<OpenXDA.Types.DataFile>
+                    <Table<OpenXDA.Types.DataFile>
                         TableClass="table table-hover"
                         Data={data}
                         SortKey={sortKey}
@@ -211,7 +211,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
                     >
-                        <ReactTable.Column<OpenXDA.Types.DataFile>
+                        <Column<OpenXDA.Types.DataFile>
                             Key={'FilePath'}
                             AllowSort={true}
                             Field={'FilePath'}
@@ -219,8 +219,8 @@ const ByFile: Application.Types.iByComponent = (props) => {
                             RowStyle={{ width: '60%' }}
                             Content={({ item }) => item.FilePath.length > 100 ? item.FilePath.substr(item.FilePath.length - 100, 100) : item.FilePath}
                         > File Path
-                        </ReactTable.Column>
-                        <ReactTable.Column<OpenXDA.Types.DataFile>
+                        </Column>
+                        <Column<OpenXDA.Types.DataFile>
                             Key={'CreationTime'}
                             AllowSort={true}
                             Field={'CreationTime'}
@@ -228,8 +228,8 @@ const ByFile: Application.Types.iByComponent = (props) => {
                             RowStyle={{ width: '15%' }}
                             Content={({ item }) => moment(item.CreationTime).format('MM/DD/YYYY HH:mm.ss.SSS')}
                         > File Processed
-                        </ReactTable.Column>
-                        <ReactTable.Column<OpenXDA.Types.DataFile>
+                        </Column>
+                        <Column<OpenXDA.Types.DataFile>
                             Key={'DataStartTime'}
                             AllowSort={true}
                             Field={'DataStartTime'}
@@ -237,8 +237,8 @@ const ByFile: Application.Types.iByComponent = (props) => {
                             RowStyle={{ width: '15%' }}
                             Content={({ item }) => ((moment(item.DataStartTime).isValid()) ? moment(item.DataStartTime).format('MM/DD/YYYY HH:mm.ss.SSS') : 'N/A')}
                         > Data Start
-                        </ReactTable.Column>
-                        <ReactTable.Column<OpenXDA.Types.DataFile>
+                        </Column>
+                        <Column<OpenXDA.Types.DataFile>
                             Key={'ProcessingState'}
                             AllowSort={true}
                             Field={'ProcessingState'}
@@ -246,8 +246,8 @@ const ByFile: Application.Types.iByComponent = (props) => {
                             RowStyle={{ width: '10%' }}
                             Content={({ item }) => <ProcessingStatus Status={item.ProcessingState} />}
                         > Status
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                 </div>
                 <div className="row">
                     <div className="col">
@@ -285,7 +285,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
                 </div>
                 <div className="row">
                     <div className="col">
-                        {eState == 'loading' ? <LoadingIcon Show={true} /> : <ReactTable.Table<GlobalXDA.Event>
+                        {eState == 'loading' ? <LoadingIcon Show={true} /> : <Table<GlobalXDA.Event>
                             TableClass="table table-hover"
                             Data={evts}
                             SortKey={'StartTime'}
@@ -297,15 +297,15 @@ const ByFile: Application.Types.iByComponent = (props) => {
                             Selected={(item) => false}
                             KeySelector={(item) => item.ID}
                         >
-                            <ReactTable.Column<GlobalXDA.Event>
+                            <Column<GlobalXDA.Event>
                                 Key={'ID'}
                                 AllowSort={false}
                                 Field={'ID'}
                                 HeaderStyle={{ width: '20%' }}
                                 RowStyle={{ width: '20%' }}
                             > Event ID
-                            </ReactTable.Column>
-                            <ReactTable.Column<GlobalXDA.Event>
+                            </Column>
+                            <Column<GlobalXDA.Event>
                                 Key={'StartTime'}
                                 AllowSort={false}
                                 Field={'StartTime'}
@@ -313,8 +313,8 @@ const ByFile: Application.Types.iByComponent = (props) => {
                                 RowStyle={{ width: '40%' }}
                                 Content={({ item }) => moment(item.StartTime).format('MM/DD/YYYY hh:mm.ss.ssss')}
                             > Event Start
-                            </ReactTable.Column>
-                            <ReactTable.Column<GlobalXDA.Event>
+                            </Column>
+                            <Column<GlobalXDA.Event>
                                 Key={'EndTime'}
                                 AllowSort={false}
                                 Field={'EndTime'}
@@ -322,8 +322,8 @@ const ByFile: Application.Types.iByComponent = (props) => {
                                 RowStyle={{ width: '40%' }}
                                 Content={({ item }) => moment(item.EndTime).format('hh:mm.ss.ssss')}
                             > Event End
-                            </ReactTable.Column>
-                        </ReactTable.Table>}
+                            </Column>
+                        </Table>}
                     </div>
                 </div>
                 

@@ -73,7 +73,7 @@ export default function CategoryInfo(props: IProps) {
                         onMouseEnter={() => setHover('Submit')} onMouseLeave={() => setHover('None')} data-tooltip={"Update"}
                     >Update</button>
                 </div>
-                <ToolTip Show={hover == 'Submit' && (errors.length > 0)} Position={'top'} Theme={'dark'} Target={"Update"}>
+                <ToolTip Show={hover == 'Submit' && (errors.length > 0)} Position={'top'} Target={"Update"}>
                     {errors.map((t, i) => <p key={i}>{CrossMark} {t}</p>)}
                 </ToolTip>
                 <div className="btn-group mr-2">
@@ -85,7 +85,7 @@ export default function CategoryInfo(props: IProps) {
                         onMouseEnter={() => setHover('Clear')} onMouseLeave={() => setHover('None')} data-tooltip={"Clr"}
                     >Reset</button>
                 </div>
-                <ToolTip Show={hover == 'Clear' && (warnings.length > 0)} Position={'top'} Theme={'dark'} Target={"Clr"}>
+                <ToolTip Show={hover == 'Clear' && (warnings.length > 0)} Position={'top'} Target={"Clr"}>
                     {warnings.map((t, i) => <p key={i}>{Warning} {t}</p>)}
                 </ToolTip>
             </div>

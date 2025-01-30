@@ -86,10 +86,10 @@ const GroupInfo = (props: {Group: ISecurityGroup}) => {
                         data-tooltip={'Clr'}
                         onMouseEnter={() => setHover('Clear')} onMouseLeave={() => setHover('None')}>Reset</button>
                 </div>
-                <ToolTip Show={hover === 'Clear' && (warnings.length > 0)} Position={'top'} Theme={'dark'} Target={"Clr"}>
+                <ToolTip Show={hover === 'Clear' && (warnings.length > 0)} Position={'top'} Target={"Clr"}>
                     {warnings.map((t, i) => <p key={i}>{Warning} {t}</p>)}
                 </ToolTip>
-                <ToolTip Show={hover === 'Save' && (errors.length > 0)} Position={'top'} Theme={'dark'} Target={"Save"}>
+                <ToolTip Show={hover === 'Save' && (errors.length > 0)} Position={'top'} Target={"Save"}>
                     {errors.map((t, i) => <p key={i}>{CrossMark} {t}</p>)}
                 </ToolTip>
             </div>

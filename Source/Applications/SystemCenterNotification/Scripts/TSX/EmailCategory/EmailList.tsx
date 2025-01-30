@@ -25,7 +25,7 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
 import { EmailType } from '../global';
 import { EmailTypeSlice } from '../Store';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 
 interface IProps { CategoryID: number}
 
@@ -61,7 +61,7 @@ const EmailList = (props: IProps) => {
                         <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
                             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
                                 <div className="col-12" style={{ height: '100%', overflow: 'hidden' }}>
-                                    <ReactTable.Table<EmailType>
+                                    <Table<EmailType>
                                         TableClass="table table-hover"
                                         Data={emails}
                                         SortKey={sortField}
@@ -80,31 +80,31 @@ const EmailList = (props: IProps) => {
                                         Selected={(item) => false}
                                         KeySelector={(item) => item.ID}
                                     >
-                                        <ReactTable.Column<EmailType>
+                                        <Column<EmailType>
                                             Key={'Name'}
                                             AllowSort={true}
                                             Field={'Name'}
                                             HeaderStyle={{ width: '70%' }}
                                             RowStyle={{ width: '70%' }}
                                         > Name
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<EmailType>
+                                        </Column>
+                                        <Column<EmailType>
                                             Key={'MinDelay'}
                                             AllowSort={true}
                                             Field={'MinDelay'}
                                             HeaderStyle={{ width: '10%' }}
                                             RowStyle={{ width: '10%' }}
                                         > Min Delay
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<EmailType>
+                                        </Column>
+                                        <Column<EmailType>
                                             Key={'MaxDelay'}
                                             AllowSort={true}
                                             Field={'MaxDelay'}
                                             HeaderStyle={{ width: '10%' }}
                                             RowStyle={{ width: '10%' }}
                                         > Max Delay
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<EmailType>
+                                        </Column>
+                                        <Column<EmailType>
                                             Key={'SMS'}
                                             AllowSort={true}
                                             Field={'SMS'}
@@ -112,8 +112,8 @@ const EmailList = (props: IProps) => {
                                             RowStyle={{ width: '10%' }}
                                             Content={({ item }) => item.SMS ? 'Text' : 'Email' }
                                         > Type
-                                        </ReactTable.Column>
-                                    </ReactTable.Table>
+                                        </Column>
+                                    </Table>
                                 </div>
                             </div>
                         </div>

@@ -21,7 +21,7 @@
 // ******************************************************************************************************
 
 import * as React from 'react';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import { SearchBar, Search, Modal, ServerErrorIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
 import { Application } from '@gpa-gemstone/application-typings';
@@ -107,7 +107,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
 
             <div className="row" style={{flex: 1, overflow: 'hidden'}}>
                 <div className={'col-12'} style={{ height: '100%', overflow: 'hidden' }}>
-                    <ReactTable.Table<ISecurityGroup>
+                    <Table<ISecurityGroup>
                         TableClass="table table-hover"
                         Data={data}
                         SortKey={sortField}
@@ -126,47 +126,47 @@ const ByUser: Application.Types.iByComponent = (props) => {
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
                     >
-                        <ReactTable.Column<ISecurityGroup>
+                        <Column<ISecurityGroup>
                             Key={'DisplayName'}
                             AllowSort={true}
                             Field={'DisplayName'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Name
-                        </ReactTable.Column>
-                        <ReactTable.Column<ISecurityGroup>
+                        </Column>
+                        <Column<ISecurityGroup>
                             Key={'Description'}
                             AllowSort={true}
                             Field={'Description'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Description
-                        </ReactTable.Column>
-                        <ReactTable.Column<ISecurityGroup>
+                        </Column>
+                        <Column<ISecurityGroup>
                             Key={'CreatedOn'}
                             AllowSort={true}
                             Field={'CreatedOn'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Added On
-                        </ReactTable.Column>
-                        <ReactTable.Column<ISecurityGroup>
+                        </Column>
+                        <Column<ISecurityGroup>
                             Key={'CreatedBy'}
                             AllowSort={true}
                             Field={'CreatedBy'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Created By
-                        </ReactTable.Column>
-                        <ReactTable.Column<ISecurityGroup>
+                        </Column>
+                        <Column<ISecurityGroup>
                             Key={'Type'}
                             AllowSort={true}
                             Field={'Type'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Type
-                        </ReactTable.Column>
-                    </ReactTable.Table>
+                        </Column>
+                    </Table>
                 </div>
             </div>
             <Modal Show={showModal} Size={'lg'} ShowCancel={false} ShowX={true} ConfirmText={'Save'}

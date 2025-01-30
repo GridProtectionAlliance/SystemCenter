@@ -27,7 +27,7 @@ import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { OpenXDA as LocalXDA } from '../global';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { LoadingIcon, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
-import { ReactTable } from '@gpa-gemstone/react-table';
+import { Table, Column } from '@gpa-gemstone/react-table';
 import { CrossMark, HeavyCheckMark, Pencil, Warning as WarningIcon } from '@gpa-gemstone/gpa-symbols'
 import AdditionalFieldsKeyModal from './AdditionalFieldsKeyModal';
 import AdditionalFieldsValueField from './AdditionalFieldsValueField';
@@ -250,7 +250,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
             </div>);
 
     let tableComponent = (
-        <ReactTable.Table<SystemCenter.Types.AdditionalFieldView>
+        <Table<SystemCenter.Types.AdditionalFieldView>
             TableClass="table table-hover"
             Data={additionalFields}
             SortKey={sortKey}
@@ -273,31 +273,31 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
             Selected={(item) => false}
             KeySelector={(item) => item.ID}
         >
-            <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
+            <Column<SystemCenter.Types.AdditionalFieldView>
                 Key={'FieldName'}
                 AllowSort={true}
                 Field={'FieldName'}
                 HeaderStyle={{ width: 'auto' }}
                 RowStyle={{ width: 'auto' }}
             > Field Name
-            </ReactTable.Column>
-            <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
+            </Column>
+            <Column<SystemCenter.Types.AdditionalFieldView>
                 Key={'ExternalDB'}
                 AllowSort={true}
                 Field={'ExternalDB'}
                 HeaderStyle={{ width: 'auto' }}
                 RowStyle={{ width: 'auto' }}
             > Ext Database
-            </ReactTable.Column>
-            <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
+            </Column>
+            <Column<SystemCenter.Types.AdditionalFieldView>
                 Key={'ExternalTable'}
                 AllowSort={true}
                 Field={'ExternalTable'}
                 HeaderStyle={{ width: 'auto' }}
                 RowStyle={{ width: 'auto' }}
             > Ext Table
-            </ReactTable.Column>
-            <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
+            </Column>
+            <Column<SystemCenter.Types.AdditionalFieldView>
                 Key={'Type'}
                 AllowSort={true}
                 Field={'Type'}
@@ -305,8 +305,8 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                 RowStyle={{ width: 'auto' }}
                 Content={({ item }) => `${item.Type}${item.IsKey ? " (external key)" : ""}`}
             > Type
-            </ReactTable.Column>
-            <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
+            </Column>
+            <Column<SystemCenter.Types.AdditionalFieldView>
                 Key={'Searchable'}
                 AllowSort={true}
                 Field={'Searchable'}
@@ -314,8 +314,8 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                 RowStyle={{ width: 'auto' }}
                 Content={({ item }) => item.Searchable ? HeavyCheckMark : '' }
             > Searchable
-            </ReactTable.Column>
-            <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
+            </Column>
+            <Column<SystemCenter.Types.AdditionalFieldView>
                 Key={'Value'}
                 AllowSort={false}
                 HeaderStyle={{ width: 'auto' }}
@@ -325,8 +325,8 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                         Setter={(val: SystemCenter.Types.AdditionalFieldValue[]) => {setAdditionalFieldValuesWorking(val)}} />
                 </> }
             > Value
-            </ReactTable.Column>
-            <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
+            </Column>
+            <Column<SystemCenter.Types.AdditionalFieldView>
                 Key={'IsKey'}
                 AllowSort={false}
                 Field={'IsKey'}
@@ -348,8 +348,8 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                                 }}>{CrossMark}</button>
                         </> : null}
             > <p></p>
-            </ReactTable.Column>
-        </ReactTable.Table>
+            </Column>
+        </Table>
     );
 
     if (props.InnerOnly ?? false) return (
@@ -371,10 +371,10 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
             </div>
             <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
                 {tableComponent}
-                <ToolTip Show={hoverEdit !== 'None'} Position={'left'} Theme={'dark'} Target={hoverEdit}>
+                <ToolTip Show={hoverEdit !== 'None'} Position={'left'} Target={hoverEdit}>
                     Select Key Field Value
                 </ToolTip>
-                <ToolTip Show={hoverDelete !== 'None'} Position={'left'} Theme={'dark'} Target={hoverDelete}>
+                <ToolTip Show={hoverDelete !== 'None'} Position={'left'} Target={hoverDelete}>
                     Clear Key Field Value
                 </ToolTip>
             </div>
@@ -382,7 +382,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                 <div className="btn-group mr-2">
                     <button className={"btn btn-primary" + (!HasValueChanged() || HasInvalidChanges() ? ' disabled' : '')} onClick={() => { if (HasValueChanged() && !HasInvalidChanges()) addOrUpdateValues(); }}
                         onMouseEnter={() => setHover('Save')} onMouseLeave={() => setHover('None')} data-tooltip={'SaveValues'}>Save Changes</button>
-                    <ToolTip Show={hover == 'Save' && (HasValueChanged() || !hasPermissions())} Position={'top'} Theme={'dark'} Target={"SaveValues"}>
+                    <ToolTip Show={hover == 'Save' && (HasValueChanged() || !hasPermissions())} Position={'top'} Target={"SaveValues"}>
                         {HasValueChanged() && !HasInvalidChanges() ? ChangedValues(false) : null}
                         {HasValueChanged() && HasInvalidChanges() ? InvalidChanges() : null}
                         {!hasPermissions() ? <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p> : null}
@@ -391,7 +391,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                 <div className="btn-group mr-2">
                     <button className={"btn btn-warning" + (!(HasValueChanged()) ? ' disabled' : '')} onClick={() => { if (HasValueChanged()) getFieldValues(); }} onMouseEnter={() => setHover('Clear')}
                         onMouseLeave={() => setHover('None')} data-tooltip={'Clear'}>Clear Changes</button>
-                    <ToolTip Show={hover == 'Clear' && (HasValueChanged())} Position={'top'} Theme={'dark'} Target={"Clear"}>
+                    <ToolTip Show={hover == 'Clear' && (HasValueChanged())} Position={'top'} Target={"Clear"}>
                         {HasValueChanged() ? ChangedValues(true) : null}
                     </ToolTip>
                 </div>
