@@ -79,9 +79,9 @@ const LocationDrawingsButton: React.FC<LocationDrawingsButtonProps> = (props) =>
                     const error = isValid(location, result);
                     const option: DropDownOption = {
                         Label: location.Name,
-                        Callback: () => handleShowDrawingsModal(location),
+                        Callback: () => handleClickDrawingsModal(location),
                         Disabled: error != "",
-                        ToolTipContent: <p>{error}</p>,
+                        ToolTipContent: <p>{CrossMark} {error}</p>,
                         ShowToolTip: error != "",
                         ToolTipLocation: "left",
                         Key: i
@@ -99,21 +99,25 @@ const LocationDrawingsButton: React.FC<LocationDrawingsButtonProps> = (props) =>
         return () => handles.forEach(handle => () => { if (handle != null && handle?.abort != null) handle.abort() });
     }, [props.Locations]);
 
-    const handleShowDrawingsModal = (loc) => {
+    const handleClickDrawingsModal = (loc?: OpenXDA.Types.Location) => {
+        if (showDrawingsModal) {
+            setShowDrawingsModal(false);
+            return;
+        }
         if (loc == undefined) return;
         setSelectedLocation(loc);
         setShowDrawingsModal(true);
     };
 
     return (
-        <div>
+        <>
             <LoadingScreen Show={pageState == 'loading' || props.IsLoadingLocations == true} />
             <ServerErrorIcon Show={pageState == 'error'} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
             {!multipleLocations
             ? <>
             <button
                 className={locationOptions[0]?.Disabled ? "btn btn-primary disabled" : "btn btn-primary"}
-                onClick={() => locationOptions[0]?.Disabled ? null : handleShowDrawingsModal(props.Locations[0])}
+                onClick={() => locationOptions[0]?.Disabled ? null : handleClickDrawingsModal(props.Locations[0])}
                 onMouseEnter={() => setHover('drawings')}
                 onMouseLeave={() => setHover('none')}
                 >Open {props.Locations[0]?.Name} Drawings
@@ -129,7 +133,7 @@ const LocationDrawingsButton: React.FC<LocationDrawingsButtonProps> = (props) =>
             </>
             : <BtnDropdown
                 Label={'Open ' + props.Locations[0]?.Name + ' Drawings'}
-                Callback={() => handleShowDrawingsModal(props.Locations[0])}
+                Callback={() => handleClickDrawingsModal(props.Locations[0])}
                 TooltipContent={
                     <p>{CrossMark} {locationOptions[0]?.Disabled}</p>
                 }
@@ -155,7 +159,7 @@ const LocationDrawingsButton: React.FC<LocationDrawingsButtonProps> = (props) =>
                     </div>
                 </div>
             </Modal>
-        </div>
+        </>
     );
 };
 
