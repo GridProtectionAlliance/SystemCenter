@@ -73,13 +73,13 @@ export default function ChannelSelector(props: IProps) {
                     return (
                         <option key={channel.ID} value={channel.ID} style={{ textDecoration: mismatchPrio ? 'line-through' : undefined }}>
                             {
+                                (mismatchPrio ?
+                                    `${(props.ConnectionPriorityTranslation
+                                        .find(translation => translation.Id === channel.ConnectionPriority.toString())
+                                        ?.Label ?? "Unknown").split(' ')[0]} - ` : '') +
                                 channel.Name +
                                 (channel.Name !== channel.Description ? ` - ${channel.Description}` : '') +
-                                (props.ShowSeries && channel.Series.length > 0 ? ` - ${channel.Series[0].SeriesType}` : '') +
-                                (mismatchPrio ?
-                                    ` - ${props.ConnectionPriorityTranslation
-                                        .find(translation => translation.Id === channel.ConnectionPriority.toString())
-                                        ?.Label ?? "Unknown"}` : '')
+                                (props.ShowSeries && channel.Series.length > 0 ? ` - ${channel.Series[0].SeriesType}` : '')
                             }
                         </option>
                     );

@@ -90,7 +90,7 @@ export default function AssetPage(props: IProps) {
     const [connectionPriority, setConnectionPriority] = React.useState<number>(0);
     // Represents channels being assigned before saving
     const [channelsWorking, setChannelsWorking] = React.useState<OpenXDA.Types.Channel[]>(props.Channels);
-    const [showSeries, setShowSeries] = React.useState<boolean>(true);
+    const [showSeries, setShowSeries] = React.useState<boolean>(false);
     
     const allAssetKeys = React.useMemo(() => detailedAssets
         .filter(a => a.ID !== newEditAsset.ID)
@@ -330,23 +330,24 @@ export default function AssetPage(props: IProps) {
                 <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
                     <div className="d-none d-sm-block col-6 col-lg-4" style={{ overflow: 'hidden',height: '100%' }}>
                         <ul style={{ width: '100%', height: '100%', overflowY: 'auto' }}>
-                            <div className="form-check">
-                                <input
-                                    type="checkbox"
-                                    className="form-check-input"
-                                    style={{ zIndex: 1 }}
-                                    onChange={() => setShowSeries(s => !s)}
-                                    value={showSeries ? 'on' : 'off'}
-                                    checked={showSeries}
-                                />
-                                <label className='form-check-label'>
-                                    Show Series Info
-                                </label>
+                            <div className="row" style={{ width: '100%', height: '2em'}}>
+                                <div className="form-check">
+                                    <input
+                                        type="checkbox"
+                                        className="form-check-input"
+                                        style={{ zIndex: 1 }}
+                                        onChange={() => setShowSeries(s => !s)}
+                                        value={showSeries ? 'on' : 'off'}
+                                        checked={showSeries}
+                                    />
+                                    <label className='form-check-label'>
+                                        Show Series Info
+                                    </label>
+                                </div>
                             </div>
-                            <br/>
                             {
                                 props.Channels.map((channel) =>
-                                    <li style={{ textDecoration: (channel.Asset.length > 0 ? 'line-through' : null) }} key={channel.ID}>
+                                    <li style={{ width: '100%', textDecoration: (channel.Asset.length > 0 ? 'line-through' : null) }} key={channel.ID}>
                                         {
                                             channel.Name +
                                             (channel.Name !== channel.Description ? ` - ${channel.Description}` : '') +
@@ -354,7 +355,7 @@ export default function AssetPage(props: IProps) {
                                         }
                                     </li>
                                 )
-                            }
+                                }
                         </ul>
                     </div>
                     <div className="col-12 col-sm-6 col-lg-8" style={{ overflow: 'hidden', height: '100%' }}>
@@ -614,7 +615,7 @@ export default function AssetPage(props: IProps) {
                                             const arrayIndex = updatedChannelArray.findIndex(ch => ch.ID === chan.ID);
                                             if (arrayIndex > -1)
                                                 return updatedChannelArray[arrayIndex];
-                                            else if (chan.Asset == key)
+                                            if (chan.Asset === key && chan.ConnectionPriority === connectionPriority)
                                                 return { ...chan, Asset: '', ConnectionPriority: 0 };
 
                                             return chan;
