@@ -24,6 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
+import { CreateGuid } from '@gpa-gemstone/helper-functions';
 import BreakerAttributes from '../AssetAttribute/Breaker';
 import BusAttributes from '../AssetAttribute/Bus';
 import CapBankAttributes from '../AssetAttribute/CapBank';
@@ -37,7 +38,7 @@ import { SelectAssetStatus, FetchAsset, SelectAssets } from '../Store/AssetSlice
 import { Modal, Search, TabSelector } from '@gpa-gemstone/react-interactive';
 import DERAttributes from '../AssetAttribute/DER';
 import AssetSelect from '../Asset/AssetSelect';
-import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { getAssetWithAdditionalFields } from '../../../TS/Services/Asset';
 import LocationDrawings from '../Meter/PropertyUI/LocationDrawings';
 import { GetNodeSize } from '@gpa-gemstone/helper-functions';
@@ -61,6 +62,9 @@ interface IProps {
     PageID?: string,
 }
 
+// temp key for new assets, this should never make it out of here
+const tempKey = "Something_is_wrong_with_NMW";
+
 type AssetType = OpenXDA.Types.DetailedAsset
 export default function AssetPage(props: IProps) {
     const dispatch = useAppDispatch();
@@ -74,14 +78,6 @@ export default function AssetPage(props: IProps) {
 
     const [newEditAsset, setNewEditAsset] = React.useState<AssetType>(AssetAttributes.getNewAsset('Line'));
     const [editAssetKey, setEditAssetKey] = React.useState<string>('');
-    const allAssetKeys = React.useMemo(() => detailedAssets.filter(a => a.ID !== newEditAsset.ID).map(a => a.AssetKey).concat(props.Assets.filter((a) => a.AssetKey !== editAssetKey).map(a => a.AssetKey)), [detailedAssets, props.Assets, newEditAsset.ID, editAssetKey])
-    const filterChannels = React.useMemo(() => {
-        const chans = props.Channels.filter(ch => {
-            return (ch.Asset === editAssetKey) || (ch.Asset === "");
-        });
-        return chans;
-    }, [props.Channels, editAssetKey]);
-
     const [newEdit, setNewEdit] = React.useState<'New' | 'Edit'>('New');
     const [showAssetModal, setShowAssetModal] = React.useState<boolean>(false);
 
@@ -91,7 +87,24 @@ export default function AssetPage(props: IProps) {
     const [sortKey, setSortKey] = React.useState<string>();
     const [asc, setAsc] = React.useState<boolean>(false);
 
-    const [tab, setTab] = React.useState<string>('Default');
+    const [connectionPriority, setConnectionPriority] = React.useState<number>(0);
+    // Represents channels being assigned before saving
+    const [channelsWorking, setChannelsWorking] = React.useState<OpenXDA.Types.Channel[]>(props.Channels);
+    const [showSeries, setShowSeries] = React.useState<boolean>(true);
+    
+    const allAssetKeys = React.useMemo(() => detailedAssets
+        .filter(a => a.ID !== newEditAsset.ID)
+        .map(a => a.AssetKey)
+        .concat(
+            props.Assets
+                .filter((a) => a.AssetKey !== editAssetKey)
+                .map(a => a.AssetKey)
+        )
+    , [detailedAssets, props.Assets, newEditAsset.ID, editAssetKey]);
+
+    const filterChannels = React.useMemo(() =>
+        channelsWorking.filter(ch => (ch.Asset === (newEdit === 'Edit' ? editAssetKey : tempKey)) || (ch.Asset === ""))
+    , [channelsWorking, editAssetKey, newEdit]);
 
     const assetData = React.useMemo(() => {
         const u = _.cloneDeep(props.Assets);
@@ -110,40 +123,34 @@ export default function AssetPage(props: IProps) {
         IsPivotColumn: false
     }
 
-    const tabToPriority: Record<string, number> = {
-        "Default": 3,
-        "Secondary": 1,
-        "Tertiary": 2,
-        "Line": 1,
-    };
-
     const tabs = React.useMemo(() => {
+        // Id here = ConnectionPriority
         switch (newEditAsset.AssetType) {
             case 'Transformer':
                 return [
-                    { Id: "0", Label: "Primary Side"},
-                    { Id: "1", Label: "Secondary Side"},
-                    { Id: "2", Label: "Tertiary Side"}
+                    { Id: "1", Label: "Primary Side"},
+                    { Id: "2", Label: "Secondary Side"},
+                    { Id: "3", Label: "Tertiary Side"}
                 ];
             case 'Breaker':
                 return [
-                    { Id: "0", Label: "Bus Side" },
-                    { Id: "1", Label: "Line/XFR Side"},
+                    { Id: "1", Label: "Bus Side" },
+                    { Id: "2", Label: "Line/XFR Side"},
                 ];
             default:
-                return [{ Label: 'Default', Id: '1' }];
+                return [];
         }
     }, [newEditAsset.AssetType]);
-
-    React.useEffect(() => {
-        setTab('Default');
-    }, [newEditAsset])
 
     React.useEffect(() => {
         if (props.PageID !== undefined && !localStorage.hasOwnProperty(props.PageID))
             localStorage.setItem(props.PageID, JSON.stringify([defaultFilt]));
         setShowAssetSelect(props.Assets.length === 0);
     }, []);
+
+    React.useEffect(() => {
+        setChannelsWorking(props.Channels);
+    }, [props.Channels]);
 
     React.useEffect(() => {
         if (atStatus === 'unintiated' || atStatus === 'changed') {
@@ -182,6 +189,11 @@ export default function AssetPage(props: IProps) {
     }, [props.Assets]);
 
     React.useEffect(() => {
+        if (newEditAsset.AssetType === 'Transformer' || newEditAsset.AssetType === 'Breaker') setConnectionPriority(1);
+        else setConnectionPriority(0);
+    }, [newEditAsset.AssetType]);
+
+    React.useEffect(() => {
         if (newEditAsset.AssetType == 'Breaker') {
             let handle = getEDNAPoint(newEditAsset.ID);
             handle.done((ednaPoint: OpenXDA.Types.EDNAPoint) => {
@@ -199,7 +211,7 @@ export default function AssetPage(props: IProps) {
         else if (newEditAsset.AssetType == 'Line'){
             let handle = getLineSegment(newEditAsset.ID);
             handle.done((lineSegment: OpenXDA.Types.LineDetail) => {
-                let record = _.clone(newEditAsset as OpenXDA.Types.Line);
+                let record = _.cloneDeep(newEditAsset as OpenXDA.Types.Line);
                 if (lineSegment != undefined) {
                     record.Detail = lineSegment
                 }
@@ -229,10 +241,10 @@ export default function AssetPage(props: IProps) {
 
     function deleteAsset(index: number) {
         const i = props.Assets.findIndex(a => a.AssetKey === assetData[index].AssetKey);
-        let list = _.clone(props.Assets);
+        let list = _.cloneDeep(props.Assets);
         let record: Array<OpenXDA.Types.Asset> = list.splice(i, 1);
-        let assetConnections: Array<OpenXDA.Types.AssetConnection> = _.clone(props.AssetConnections);
-        let channels: Array<OpenXDA.Types.Channel> = _.clone(props.Channels);
+        let assetConnections: Array<OpenXDA.Types.AssetConnection> = _.cloneDeep(props.AssetConnections);
+        let channels: Array<OpenXDA.Types.Channel> = _.cloneDeep(props.Channels);
 
         $.each(channels, (i, channel) => {
             if (channel.Asset == record[0].AssetKey)
@@ -317,9 +329,31 @@ export default function AssetPage(props: IProps) {
             <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
                 <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
                     <div className="d-none d-sm-block col-6 col-lg-4" style={{ overflow: 'hidden',height: '100%' }}>
-                        <ul style={{ width: '100%', height: '100%', overflowY: 'auto'}}>
+                        <ul style={{ width: '100%', height: '100%', overflowY: 'auto' }}>
+                            <div className="form-check">
+                                <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    style={{ zIndex: 1 }}
+                                    onChange={() => setShowSeries(s => !s)}
+                                    value={showSeries ? 'on' : 'off'}
+                                    checked={showSeries}
+                                />
+                                <label className='form-check-label'>
+                                    Show Series Info
+                                </label>
+                            </div>
+                            <br/>
                             {
-                                props.Channels.map((channel) => <li style={{textDecoration: (channel.Asset.length > 0 ? 'line-through' : null)}} key={channel.ID}>{channel.Name + ' - ' + channel.Description}</li>)
+                                props.Channels.map((channel) =>
+                                    <li style={{ textDecoration: (channel.Asset.length > 0 ? 'line-through' : null) }} key={channel.ID}>
+                                        {
+                                            channel.Name +
+                                            (channel.Name !== channel.Description ? ` - ${channel.Description}` : '') +
+                                            (showSeries && channel.Series.length > 0 ? ` - ${channel.Series[0].SeriesType}` : '')
+                                        }
+                                    </li>
+                                )
                             }
                         </ul>
                     </div>
@@ -354,7 +388,7 @@ export default function AssetPage(props: IProps) {
                                         TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
                                         RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
                                         Selected={(item) => false}
-                                        KeySelector={(item) => item.ID}
+                                        KeySelector={(item) => item.AssetKey}
                                     >
                                         <Column<AssetType>
                                             Key={'Status'}
@@ -411,8 +445,16 @@ export default function AssetPage(props: IProps) {
                                             HeaderStyle={{ width: '10%' }}
                                             RowStyle={{ width: '10%' }}
                                             Content={({ index }) => <>
-                                                <button className="btn btn-sm" onClick={(e) => editAsset(index)}><span>{Pencil}</span></button>
-                                                <button className="btn btn-sm" onClick={(e) => { e.stopPropagation(); deleteAsset(index); }}><span>{TrashCan}</span></button>
+                                                <button className="btn btn-sm" onClick={(e) => editAsset(index)}>
+                                                    <span>
+                                                        <ReactIcons.Pencil />
+                                                    </span>
+                                                </button>
+                                                <button className="btn btn-sm" onClick={(e) => { e.stopPropagation(); deleteAsset(index); }}>
+                                                    <span>
+                                                        <ReactIcons.TrashCan />
+                                                    </span>
+                                                </button>
                                             </> }
                                         > <p></p>
                                         </Column>
@@ -428,8 +470,8 @@ export default function AssetPage(props: IProps) {
                         if (!confirm) return;
 
                         let list: Array<OpenXDA.Types.Asset> = [];
-                        let channels: Array<OpenXDA.Types.Channel> = _.clone(props.Channels);
-                        let assetConnections: Array<OpenXDA.Types.AssetConnection> = _.clone(props.AssetConnections);
+                        let channels: Array<OpenXDA.Types.Channel> = _.cloneDeep(props.Channels);
+                        let assetConnections: Array<OpenXDA.Types.AssetConnection> = _.cloneDeep(props.AssetConnections);
 
                         let removedAssets: Array<OpenXDA.Types.Asset> = props.Assets.filter((asset) =>  asset.ID > 0 && selected.findIndex((selectedAsset) => (asset.ID === selectedAsset.ID)) < 0);
 
@@ -448,7 +490,9 @@ export default function AssetPage(props: IProps) {
                         });
                         let promises = [];
                         $.each(selected, async (index, record) => {
-                            let assetRecord = getAssetWithAdditionalFields(record.ID, record.AssetType as OpenXDA.Types.AssetTypeName);
+                            const oldRecord = props.Assets.find(asset => asset.ID === record.ID);
+                            let assetRecord = getAssetWithAdditionalFields(record.ID, record.AssetType as OpenXDA.Types.AssetTypeName)
+                                .then(a => ({ ...a, Channels: oldRecord?.Channels ?? []}));
                             // Push promises into promises
                             promises.push(assetRecord);
                         });
@@ -482,102 +526,102 @@ export default function AssetPage(props: IProps) {
                     ConfirmBtnClass={'btn-success'}
                     ConfirmText={newEdit == 'Edit' ? 'Save' : 'Add'}
                     CancelBtnClass={'btn-danger'}
-                    CancelText={'Close'}
+                    ShowCancel={false}
+                    ShowX={true}
                     Size={'xlg'}
                     CallBack={(confirm) => {
+                        if (confirm) {
+                            const record: OpenXDA.Types.Asset = _.cloneDeep(newEditAsset);
+                            const list = _.cloneDeep(props.Assets);
+                            if (newEdit == 'New') {
+                                // We have to do this swap because the key isn't set in stone until now
+                                const channelsWithNewKey = channelsWorking
+                                    .map(chan => (chan.Asset === tempKey) ? ({ ...chan, Asset: record.AssetKey }) : chan);
+                                record.Channels = channelsWithNewKey
+                                    .filter(chan => chan.Asset === record.AssetKey);                                    ;
+                                list.push(record);
+                                props.UpdateChannels(channelsWithNewKey);
+                            }
+                            else if (newEdit == 'Edit') {
+                                const index = list.findIndex(a => a.AssetKey == editAssetKey);
+                                list[index] = record;
+                                props.UpdateChannels(channelsWorking);
+                            }
+                            props.UpdateAssets(list);
+                        }
+                        else setChannelsWorking(props.Channels);
+
                         setShowAssetModal(false);
-
-                        if (!confirm) {
-                            setNewEditAsset(AssetAttributes.getNewAsset('Line'));
-                            return;
-                        }
-
-                        let record: OpenXDA.Types.Asset = _.clone(newEditAsset);
-                        let list = _.clone(props.Assets);
-                        let channels: Array<OpenXDA.Types.Channel> = _.clone(props.Channels);
-
-                        $.each(channels, (index, channel) => {
-                            if (channel.Asset == record.AssetKey)
-                                channel.Asset = ''
-
-                            if (record.Channels.findIndex(c => c.ID == channel.ID) >= 0)
-                                channel.Asset = record.AssetKey
-                        });
-
-                        if (newEdit == 'New')
-                            list.push(record);
-                        if (newEdit == 'Edit') {
-                            const index = list.findIndex(a => a.AssetKey == editAssetKey);
-                            list[index] = record;
-                        }
-
-                        props.UpdateChannels(channels);
-                        props.UpdateAssets(list);
                         setNewEditAsset(AssetAttributes.getNewAsset('Line'));
                     }}
                     DisableConfirm={(AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType, allAssetKeys).length > 0) }
                     ConfirmShowToolTip={AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType, allAssetKeys).length > 0}
                     ConfirmToolTipContent={
-                        AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType, allAssetKeys).map((e, i) => <p key={i}>{CrossMark} {e}</p>)
+                        AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType, allAssetKeys).map((e, i) => <p key={i}><ReactIcons.CrossMark />{e}</p>)
                     }
                 >
                     <div className="row">
                         <div className="col-8">
-                        <div className="row" style={{ maxHeight: innerHeight - 300, overflow:'auto' }}>
-                            <div className="col-6">
-                                <AssetAttributes.AssetAttributeFields Asset={newEditAsset} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={assets}
-                                    AllowEdit={newEditAsset.ID === 0}
-                                    UpdateState={(record) => {
-                                        if (record.AssetType == newEditAsset.AssetType)
-                                            setNewEditAsset(record);
-                                        else {
-                                            let newRecord = AssetAttributes.getNewAsset(record.AssetType);
-                                            newRecord.AssetKey = record.AssetKey;
-                                            newRecord.AssetName = record.AssetName;
-                                            newRecord.VoltageKV = record.VoltageKV;
-                                            newRecord.Description = record.Description;
-                                            newRecord.Channels = record.Channels;
-                                            setNewEditAsset(newRecord);
-                                        }
-                                    }}
-                                    GetDifferentAsset={getDifferentAsset} HideAssetType={newEdit == 'Edit'} HideSelectAsset={true} />
-                            </div>
-                            <div className="col-6">
-                                {showAttributes()}
-                            </div>
+                            <div className="row" style={{ maxHeight: innerHeight - 300, overflow:'auto' }}>
+                                <div className="col-6">
+                                    <AssetAttributes.AssetAttributeFields Asset={newEditAsset} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={assets}
+                                        AllowEdit={newEditAsset.ID === 0}
+                                        UpdateState={(record) => {
+                                            if (record.AssetType == newEditAsset.AssetType)
+                                                setNewEditAsset(record);
+                                            else {
+                                                let newRecord = AssetAttributes.getNewAsset(record.AssetType);
+                                                newRecord.AssetKey = record.AssetKey;
+                                                newRecord.AssetName = record.AssetName;
+                                                newRecord.VoltageKV = record.VoltageKV;
+                                                newRecord.Description = record.Description;
+                                                newRecord.Channels = record.Channels;
+                                                setNewEditAsset(newRecord);
+                                            }
+                                        }}
+                                        GetDifferentAsset={getDifferentAsset} HideAssetType={newEdit == 'Edit'} HideSelectAsset={true} />
+                                </div>
+                                <div className="col-6">
+                                    {showAttributes()}
+                                </div>
                             </div>
                         </div>
                         <div className="col-4">
                             <div className="d-flex flex-column h-100">
-                                {tabs.length > 1 && (
-                                    <TabSelector
-                                        CurrentTab={tab}
-                                        SetTab={setTab}
-                                        Tabs={tabs}
-                                    />
-                                )}
-                                <div className="d-flex flex-column h-100">
-                                    <ChannelSelector
-                                        Label=""
-                                        Channels={props.Channels.filter(ch => ch.Asset === newEditAsset.AssetKey || ch.Asset == "")}
-                                        SelectedChannels={newEditAsset.Channels.filter((ch) =>
-                                            ch.ConnectionPriority === tabToPriority[tab]    // Only channels with priority == current priority
-                                        )}
-                                        UpdateChannels={(c) => {
-                                            const updatedChannels = [   // List of new channels
-                                                ...c.map(ch => ({ ...ch, ConnectionPriority: tabToPriority[tab] }))
-                                            ];
+                                {
+                                    tabs.length > 1 ?
+                                        <TabSelector
+                                            CurrentTab={connectionPriority.toString()}
+                                            SetTab={tabId => {
+                                                let newConPrio = parseInt(tabId);
+                                                if (isNaN(connectionPriority)) newConPrio = 1;
+                                                setConnectionPriority(newConPrio);
+                                            }}
+                                            Tabs={tabs}
+                                        /> : <></>
+                                }
+                                <ChannelSelector
+                                    Label=""
+                                    Channels={filterChannels}
+                                    CurrentConnectionPriority={connectionPriority}
+                                    Asset={newEdit === 'Edit' ? newEditAsset.AssetKey : tempKey}
+                                    ConnectionPriorityTranslation={tabs}
+                                    ShowSeries={showSeries}
+                                    UpdateChannels={(updatedChannelArray) => {
+                                        const key = newEdit === 'Edit' ? newEditAsset.AssetKey : tempKey;
+                                        // update our channel working set
+                                        setChannelsWorking(chans => chans.map(chan => {
+                                            const arrayIndex = updatedChannelArray.findIndex(ch => ch.ID === chan.ID);
+                                            if (arrayIndex > -1)
+                                                return updatedChannelArray[arrayIndex];
+                                            else if (chan.Asset == key)
+                                                return { ...chan, Asset: '', ConnectionPriority: 0 };
 
-                                            const updatedAsset = { ...newEditAsset, Channels: updatedChannels };
-                                            setNewEditAsset(updatedAsset);
-
-                                            const globalChannels = props.Channels.map(ch => ({  // updates global chs if in new chs, updating connection priority
-                                                ...ch, ConnectionPriority: c.some(d => d.ID === ch.ID) ? tabToPriority[tab] : ch.ConnectionPriority
-                                            }));
-                                            props.UpdateChannels(globalChannels);
-                                        }}
-                                    />
-                                </div>
+                                            return chan;
+                                        }));
+                                        setNewEditAsset({ ...newEditAsset, Channels: updatedChannelArray });
+                                    }}
+                                />
                             </div>
                         </div>
                     </div>
