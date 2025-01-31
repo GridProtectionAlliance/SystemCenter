@@ -23,7 +23,7 @@
 import { SystemCenter } from "@gpa-gemstone/application-typings";
 import { Pencil, TrashCan } from "@gpa-gemstone/gpa-symbols";
 import { GenericController, LoadingScreen, ServerErrorIcon } from "@gpa-gemstone/react-interactive";
-import { ReactTable, Paging } from "@gpa-gemstone/react-table";
+import { Column, Table, Paging } from "@gpa-gemstone/react-table";
 import React from "react";
 import { useAppSelector } from "../hooks";
 import { SelectRoles } from "../Store/UserSettings";
@@ -93,7 +93,7 @@ const LocationDrawingsTable = (props: IProps) => {
 
     return <>
         <div className="w-100 h-100 d-flex flex-column">
-            <ReactTable.Table<SystemCenter.Types.LocationDrawing>
+            <Table<SystemCenter.Types.LocationDrawing>
                 TableClass="table table-hover"
                 Data={links}
                 SortKey={sortKey}
@@ -115,15 +115,15 @@ const LocationDrawingsTable = (props: IProps) => {
                 Selected={(item) => false}
                 KeySelector={(item) => item.ID}
             >
-                <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                <Column<SystemCenter.Types.LocationDrawing>
                     Key={'Name'}
                     AllowSort={true}
                     Field={'Name'}
                     HeaderStyle={{ width: '20%' }}
                     RowStyle={{ width: '20%' }}
                 > Name
-                </ReactTable.Column>
-                <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                </Column>
+                <Column<SystemCenter.Types.LocationDrawing>
                     Key={'Link'}
                     AllowSort={true}
                     Field={'Link'}
@@ -131,33 +131,33 @@ const LocationDrawingsTable = (props: IProps) => {
                     RowStyle={{ width: '20%' }}
                     Content={({ item, key }) => <a href={item[key] as string} target='_blank'>{item[key]}</a>}
                 > Link
-                </ReactTable.Column>
-                <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                </Column>
+                <Column<SystemCenter.Types.LocationDrawing>
                     Key={'Number'}
                     AllowSort={true}
                     Field={'Number'}
                     HeaderStyle={{ width: '10%' }}
                     RowStyle={{ width: '10%' }}
                 > Number
-                </ReactTable.Column>
-                <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                </Column>
+                <Column<SystemCenter.Types.LocationDrawing>
                     Key={'Category'}
                     AllowSort={true}
                     Field={'Category'}
                     HeaderStyle={{ width: '10%' }}
                     RowStyle={{ width: '10%' }}
                 > Category
-                </ReactTable.Column>
-                <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                </Column>
+                <Column<SystemCenter.Types.LocationDrawing>
                     Key={'Description'}
                     AllowSort={true}
                     Field={'Description'}
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
                 > Description
-                </ReactTable.Column>
+                </Column>
                 {props.Edit ?
-                <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                <Column<SystemCenter.Types.LocationDrawing>
                     Key={'EditDelete'}
                     AllowSort={false}
                     HeaderStyle={{ width: '10%' }}
@@ -171,9 +171,9 @@ const LocationDrawingsTable = (props: IProps) => {
                         </span>
                     }
                 > <p></p>
-                </ReactTable.Column>
+                </Column>
                 : null}
-            </ReactTable.Table>
+            </Table>
             <LoadingScreen Show={pageState == 'loading'} />
             <ServerErrorIcon Show={pageState == 'error'} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
             <div className="row">
