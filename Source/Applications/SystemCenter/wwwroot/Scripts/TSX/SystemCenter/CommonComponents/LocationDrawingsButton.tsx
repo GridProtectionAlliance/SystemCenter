@@ -118,16 +118,17 @@ const LocationDrawingsButton: React.FC<LocationDrawingsButtonProps> = (props) =>
             <button
                 className={locationOptions[0]?.Disabled ? "btn btn-primary disabled" : "btn btn-primary"}
                 onClick={() => locationOptions[0]?.Disabled ? null : handleClickDrawingsModal(props.Locations[0])}
+                data-tooltip={"DrawingsModal"}
                 onMouseEnter={() => setHover('drawings')}
                 onMouseLeave={() => setHover('none')}
                 >Open {props.Locations[0]?.Name} Drawings
             </button>
             <ToolTip
                 Show={locationOptions[0]?.Disabled && hover === 'drawings'}
-                Position={'bottom'}
+                Position={'left'}
                 Target={"DrawingsModal"}
                 Zindex={9999}
-                    ><p>{CrossMark} {locationOptions[0]?.ToolTipContent}</p>
+                    ><p>{locationOptions[0]?.ToolTipContent}</p>
             </ToolTip>
             </>
             : <BtnDropdown
