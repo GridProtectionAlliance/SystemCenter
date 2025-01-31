@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
+import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import BreakerAttributes from '../AssetAttribute/Breaker';
 import BusAttributes from '../AssetAttribute/Bus';
 import CapBankAttributes from '../AssetAttribute/CapBank';
@@ -39,8 +39,6 @@ import DERAttributes from '../AssetAttribute/DER';
 import AssetSelect from '../Asset/AssetSelect';
 import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { getAssetWithAdditionalFields } from '../../../TS/Services/Asset';
-import LocationDrawings from '../Meter/PropertyUI/LocationDrawings';
-import { GetNodeSize } from '@gpa-gemstone/helper-functions';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import GenerationAttributes from '../AssetAttribute/Generation';
 import StationAuxAttributes from '../AssetAttribute/StationAux';
@@ -92,6 +90,8 @@ export default function AssetPage(props: IProps) {
     const [asc, setAsc] = React.useState<boolean>(false);
 
     const [tab, setTab] = React.useState<string>('Default');
+
+    const locations = React.useMemo(() => [props.Location], [props.Location])
 
     const assetData = React.useMemo(() => {
         const u = _.cloneDeep(props.Assets);
@@ -469,11 +469,6 @@ export default function AssetPage(props: IProps) {
                     <li className="nav-item" style={{ width: '20%', paddingRight: 10 }}>
                         <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                             <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
-                            <form>
-                                <div className="form-group">
-                                    <LocationDrawings LocationID={props.Location.ID} />
-                                </div>
-                            </form>
                         </fieldset>
                     </li>
                 </AssetSelect>
