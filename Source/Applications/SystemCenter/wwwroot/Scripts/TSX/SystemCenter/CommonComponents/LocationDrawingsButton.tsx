@@ -124,7 +124,6 @@ const LocationDrawingsButton: React.FC<LocationDrawingsButtonProps> = (props) =>
             </button>
             <ToolTip
                 Show={locationOptions[0]?.Disabled && hover === 'drawings'}
-                Theme={'dark'}
                 Position={'bottom'}
                 Target={"DrawingsModal"}
                 Zindex={9999}
