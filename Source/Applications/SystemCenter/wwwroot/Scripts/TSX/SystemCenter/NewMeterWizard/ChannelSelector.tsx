@@ -79,7 +79,7 @@ export default function ChannelSelector(props: IProps) {
                                         ?.Label ?? "Unknown").split(' ')[0]} - ` : '') +
                                 channel.Name +
                                 (channel.Name !== channel.Description ? ` - ${channel.Description}` : '') +
-                                (props.ShowSeries && channel.Series.length > 0 ? ` - ${channel.Series[0].SeriesType}` : '')
+                                ((props.ShowSeries && channel.Series.length > 0 && channel.Series[0].SourceIndexes !== '') ? ` (${channel.Series[0].SourceIndexes})` : '')
                             }
                         </option>
                     );

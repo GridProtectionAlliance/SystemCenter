@@ -341,7 +341,7 @@ export default function AssetPage(props: IProps) {
                                         checked={showSeries}
                                     />
                                     <label className='form-check-label'>
-                                        Show Series Info
+                                        Show Series Identifier
                                     </label>
                                 </div>
                             </div>
@@ -351,7 +351,7 @@ export default function AssetPage(props: IProps) {
                                         {
                                             channel.Name +
                                             (channel.Name !== channel.Description ? ` - ${channel.Description}` : '') +
-                                            (showSeries && channel.Series.length > 0 ? ` - ${channel.Series[0].SeriesType}` : '')
+                                            ((showSeries && channel.Series.length > 0 && channel.Series[0].SourceIndexes !== '' ) ? ` (${channel.Series[0].SourceIndexes})` : '')
                                         }
                                     </li>
                                 )
