@@ -29,41 +29,63 @@ declare var homePath: string;
 
 interface IProps {
     Channels: OpenXDA.Types.Channel[],
-    UpdateChannels: (channels: OpenXDA.Types.Channel[]) => void
-    SelectedChannels: OpenXDA.Types.Channel[],
-    Label: string;
+    UpdateChannels: (channels: OpenXDA.Types.Channel[]) => void,
+    CurrentConnectionPriority: number,
+    ConnectionPriorityTranslation: { Id: string, Label: string }[],
+    ShowSeries: boolean,
+    Label: string,
+    Asset: string
 }
 
 export default function ChannelSelector(props: IProps) {
-    
     const [searchTerm, setSearchTerm] = React.useState<string>('');
-    const visibleChannels = React.useMemo(() => {
-        const r = props.Channels.filter(channel => channel.Name.toLowerCase().includes(searchTerm.toLowerCase()) || channel.Description.toLowerCase().includes(searchTerm.toLowerCase()));
-        return _.uniqBy(r.concat(props.SelectedChannels), (c) => c?.ID);
-}, [props.Channels, props.SelectedChannels, searchTerm])
+
+    const searchedChannels = React.useMemo(() =>
+        props.Channels.filter(channel => channel.Name.toLowerCase().includes(searchTerm.toLowerCase()) || channel.Description.toLowerCase().includes(searchTerm.toLowerCase()))
+    , [props.Channels, props.CurrentConnectionPriority, searchTerm, props.Asset]);
 
     return (
-            <>
+        <>
             <label>{props.Label}</label>
-                <input
-                    type="text"
-                    placeholder="Search Channels..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    style={{ width: '100%', marginBottom: '10px' }}
-                />
-            <select multiple style={{ flex: 1, width: '100%', overflowX: 'auto' }} onChange={(evt) => {
-                props.UpdateChannels(($(evt.target).val() as Array<string>).map(a => props.Channels.find(ch => ch.ID == parseInt(a))))
-            }}
-                value={props.SelectedChannels.map(a => a.ID.toString())}>
-                {visibleChannels.map((channel, index) => (
-                    <option key={channel.ID} value={channel.ID}>
-                            {channel.Name + ' - ' + channel.Description}
-                    </option>
-                    ))}
-                </select>
-            </>         
-                       
-        );
+            <input
+                type="text"
+                placeholder="Search Channels..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{ width: '100%', marginBottom: '10px' }}
+            />
+            <select multiple style={{ flex: 1, width: '100%', overflowX: 'auto' }}
+                onChange={(evt) =>
+                    props.UpdateChannels(
+                        ($(evt.target).val() as Array<string>)
+                            .map(a =>
+                                ({ ...props.Channels.find(ch => ch.ID == parseInt(a)), Asset: props.Asset, ConnectionPriority: props.CurrentConnectionPriority })
+                            )
+                    )
+                }
+                value={
+                    searchedChannels.filter(ch => ch.ConnectionPriority === props.CurrentConnectionPriority && ch.Asset === props.Asset).map(a => a.ID.toString())
+                }
+            >
+                {searchedChannels.map((channel, index) => {
+                    const mismatchPrio = channel.Asset === props.Asset && channel.ConnectionPriority !== props.CurrentConnectionPriority;
 
+                    return (
+                        <option key={channel.ID} value={channel.ID} style={{ textDecoration: mismatchPrio ? 'line-through' : undefined }}>
+                            {
+                                (mismatchPrio ?
+                                    `${(props.ConnectionPriorityTranslation
+                                        .find(translation => translation.Id === channel.ConnectionPriority.toString())
+                                        ?.Label ?? "Unknown").split(' ')[0]} - ` : '') +
+                                channel.Name +
+                                (channel.Name !== channel.Description ? ` - ${channel.Description}` : '') +
+                                ((props.ShowSeries && channel.Series.length > 0 && channel.Series[0].SourceIndexes !== '') ? ` (${channel.Series[0].SourceIndexes})` : '')
+                            }
+                        </option>
+                    );
+                    }
+                )}
+            </select>
+        </>                  
+    );
 }
