@@ -112,12 +112,12 @@ function MeterConfigurationHistoryWindow(props: { Meter: OpenXDA.Types.Meter }) 
                             > Files Processed
                             </Column>
                             <Column<MeterConfiguration>
-                        Key={'LastProcessedTime'}
-                        AllowSort={false}
-                        Field={'LastProcessedTime'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                        Content={({ item }) => moment(item.LastProcessedTime).isValid() ? moment(item.LastProcessedTime).format('MM/DD/YYYY HH:mm:ss') : 'N/A'}
+                                Key={'LastProcessedTime'}
+                                AllowSort={false}
+                                Field={'LastProcessedTime'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                                Content={({ item }) => moment(item.LastProcessedTime).isValid() ? moment(item.LastProcessedTime).format('MM/DD/YYYY HH:mm:ss') : 'N/A'}
                             > Last Processed Time
                             </Column>
                         </Table>

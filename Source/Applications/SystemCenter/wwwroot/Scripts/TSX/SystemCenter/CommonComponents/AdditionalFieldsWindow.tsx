@@ -52,7 +52,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
     const [additionalFieldValuesWorking, setAdditionalFieldValuesWorking] = React.useState<Array<SystemCenter.Types.AdditionalFieldValue>>([]);
 
     const [sortKey, setSortKey] = React.useState<string>('FieldName');
-    const [ascending, setAscending] = React.useState<boolean>(false);
+    const [ascending, setAscending] = React.useState<boolean>(true);
 
     const [state, setState] = React.useState<'idle' | 'loading' | 'error'>('idle');
     const [hover, setHover] = React.useState<('None' | 'Save' | 'Clear')>('None');
@@ -279,7 +279,16 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                 Field={'FieldName'}
                 HeaderStyle={{ width: 'auto' }}
                 RowStyle={{ width: 'auto' }}
-            > Field Name
+            > Name
+            </Column>
+            <Column<SystemCenter.Types.AdditionalFieldView>
+                Key={'Type'}
+                AllowSort={true}
+                Field={'Type'}
+                HeaderStyle={{ width: 'auto' }}
+                RowStyle={{ width: 'auto' }}
+                Content={({ item }) => `${item.Type}${item.IsKey ? " (external key)" : ""}`}
+            > Type
             </Column>
             <Column<SystemCenter.Types.AdditionalFieldView>
                 Key={'ExternalDB'}
@@ -296,15 +305,6 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                 HeaderStyle={{ width: 'auto' }}
                 RowStyle={{ width: 'auto' }}
             > Ext Table
-            </Column>
-            <Column<SystemCenter.Types.AdditionalFieldView>
-                Key={'Type'}
-                AllowSort={true}
-                Field={'Type'}
-                HeaderStyle={{ width: 'auto' }}
-                RowStyle={{ width: 'auto' }}
-                Content={({ item }) => `${item.Type}${item.IsKey ? " (external key)" : ""}`}
-            > Type
             </Column>
             <Column<SystemCenter.Types.AdditionalFieldView>
                 Key={'Searchable'}

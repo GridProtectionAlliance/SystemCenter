@@ -205,9 +205,9 @@ const ChannelScalingForm = (props: IProps) => {
                     <Table<ChannelScalingWrapper>
                         TableClass="table table-hover"
                         Data={Wrappers}
-                        SortKey={''}
+                        SortKey={'Identity'}
                         Ascending={false}
-                    OnSort={(d) => { }}
+                        OnSort={(d) => { }}
                         TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         TbodyStyle={{ display: 'block', width: '100%', overflowY: 'auto', flex: 1 }}
@@ -215,14 +215,6 @@ const ChannelScalingForm = (props: IProps) => {
                         Selected={(item) => false}
                         KeySelector={(item) => item.Channel.ID.toString()}
                     >
-                        <Column<ChannelScalingWrapper>
-                            Key={'Descriptor'}
-                            AllowSort={false}
-                            Field={'Descriptor'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Description
-                        </Column>
                         <Column<ChannelScalingWrapper>
                             Key={'Identity'}
                             AllowSort={false}
@@ -270,6 +262,14 @@ const ChannelScalingForm = (props: IProps) => {
                             HeaderStyle={{ width: '10%' }}
                             RowStyle={{ width: '10%' }}
                         > If Adjusted
+                        </Column>
+                        <Column<ChannelScalingWrapper>
+                            Key={'Descriptor'}
+                            AllowSort={false}
+                            Field={'Descriptor'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Description
                         </Column>
                     </Table>
                 </div> 
