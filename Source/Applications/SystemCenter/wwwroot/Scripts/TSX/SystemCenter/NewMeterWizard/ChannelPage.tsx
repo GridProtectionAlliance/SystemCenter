@@ -478,168 +478,164 @@ export default function ChannelPage(props: IProps) {
                     For more information please contact your administrator.
                 </div></div>
             </div> : null}
-            <div className={'row'} style={{ flex: 1, overflow: 'hidden' }}>
-                <div className={'col-12'} style={{ height: '100%', overflow: 'hidden' }}>
-                    <ConfigurableTable<OpenXDA.Types.Channel>
-                        LocalStorageKey="ChannelPageConfigTable"
-                        TableClass="table table-hover"
-                        Data={currentChannels}
-                        SortKey={sortKey}
-                        Ascending={asc}
-                        TheadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
-                        TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
-                        RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        Selected={() => false}
-                        KeySelector={(item) => item.ID}
-                        OnSort={(d) => {
-                            if (d.colKey === sortKey)
-                                setAsc((x) => !x);
-                            else
-                                setAsc(false);
-                            setSortKey(d.colKey);
-                        }}
-                    >
-                        <Column<OpenXDA.Types.Channel>
-                            Key={'Name'}
-                            Adjustable={true}
-                            AllowSort={true}
-                            Field={'Name'}
-                            HeaderStyle={{width: 'auto'}}
-                            RowStyle={{width: 'auto'}}
-                            Content={({ item }) => <Input<OpenXDA.Types.Channel> Field={'Name'}
-                                Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />}
-                        > Label
-                        </Column>
-                        <ConfigurableColumn Key='Series' Label='Channel' Default={true}>
-                            <Column<OpenXDA.Types.Channel>
-                                Key={'Series'}
-                                Adjustable={true}
-                                AllowSort={true}
-                                HeaderStyle={{width: 'auto'}}
-                                RowStyle={{width: 'auto'}}
-                                Content={({ item }) => <Input<OpenXDA.Types.Series> Field={'SourceIndexes'}
-                                    Record={item.Series[0]} Setter={(series) => {
-                                        item.Series[0].SourceIndexes = series.SourceIndexes;
-                                        editChannel(item)
-                                    }} Label={''} Valid={() => true} />}
-                            > Identifier
-                            </Column>
-                        </ConfigurableColumn>
-                        <ConfigurableColumn Key='MeasurementType' Label='Type' Default={false}>
-                            <Column<OpenXDA.Types.Channel>
-                                Key={'MeasurementType'}
-                                Adjustable={true}
-                                HeaderStyle={{width: 'auto'}}
-                                RowStyle={{width: 'auto'}}
-                                Content={({ item }) => <Select<OpenXDA.Types.Channel> Field={'MeasurementType'}
-                                Record={item} Setter={(ch) => editChannel(ch)} Label={''}
-                                    Options={measurementTypes.map((t) => ({ Value: t.Name, Label: t.Name }))} />}>
-                            Type
-                            </Column>
-                        </ConfigurableColumn>
-                        <ConfigurableColumn Key='MeasurementCharacteristic' Label='Characteristic' Default={false}>
-                            <Column<OpenXDA.Types.Channel> Key={'MeasurementCharacteristic'}
-                                Adjustable={true}
-                                HeaderStyle={{width: 'auto'}}
-                                RowStyle={{width: 'auto'}}
-                                Content={({ item }) => <Select<OpenXDA.Types.Channel>
-                                    Field={'MeasurementCharacteristic'} Record={item}
-                                    Setter={(ch) => editChannel(ch)} Label={''}
-                                    Options={measurementCharateristics.map((t) => ({ Value: t.Name, Label: t.Name }))}/>}>
-                                Characteristic
-                            </Column>
-                        </ConfigurableColumn>
-                        <ConfigurableColumn Key='Phase' Label='Phase' Default={true}>
-                            <Column<OpenXDA.Types.Channel>
-                                Key={'Phase'}
-                                Adjustable={true}
-                                HeaderStyle={{width: 'auto'}}
-                                RowStyle={{width: 'auto'}}
-                                Content={({ item }) => <Select<OpenXDA.Types.Channel> Field={'Phase'}
-                                    Record={item} Setter={(ch) => editChannel(ch)} Label={''}
-                                    Options={phases.map((t) => ({ Value: t.Name, Label: t.Name }))} />}>
-                                    Phase
-                            </Column>
-                        </ConfigurableColumn>
-                        <ConfigurableColumn Key='SamplesPerHour' Label='Sampling Rate' Default={false}>
-                            <Column<OpenXDA.Types.Channel>
-                                Key={'SamplesPerHour'}
-                                Adjustable={true}
-                                HeaderStyle={{width: 'auto'}}
-                                RowStyle={{width: 'auto'}}
-                                Content={({ item }) => <Input<OpenXDA.Types.Channel>
-                                    Field={'SamplesPerHour'} Type={'number'} Record={item} Valid={() => true}
-                                    Setter={(ch) => editChannel(ch)} Label={''} />}>
-                                Sampling Rate (sph)
-                            </Column>
-                        </ConfigurableColumn>
-                        <ConfigurableColumn Key='PerUnitValue' Label='Per Unit' Default={false}>
-                            <Column<OpenXDA.Types.Channel>
-                                Key={'PerUnitValue'}
-                                Adjustable={true}
-                                HeaderStyle={{width: 'auto'}}
-                                RowStyle={{width: 'auto'}}
-                                Content={({ item }) => <Input<OpenXDA.Types.Channel> Field={'PerUnitValue'} Type={'number'} Record={item}
-                                    Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />}>
-                                Per Unit
-                            </Column>
-                        </ConfigurableColumn >
-                        <ConfigurableColumn Key='HarmonicGroup' Label='Harmonic' Default={false}>
-                            <Column<OpenXDA.Types.Channel>
-                                Key={'HarmonicGroup'}
-                                Adjustable={true}
-                                HeaderStyle={{width: 'auto'}}
-                                RowStyle={{width: 'auto'}}
-                                Content={({ item }) => <Input<OpenXDA.Types.Channel> Field={'HarmonicGroup'}
-                                    Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />}>
-                                Harmonic
-                            </Column>
-                        </ConfigurableColumn >
-                        <ConfigurableColumn Key='Adder' Label='Adder' Default={true}>
-                            <Column<OpenXDA.Types.Channel>
-                                Key={'Adder'}
-                                Adjustable={true}
-                                HeaderStyle={{width: 'auto'}}
-                                RowStyle={{width: 'auto'}}
-                                Content={({ item }) => <Input<OpenXDA.Types.Channel> Field={'Adder'} Type={'number'}
-                                    Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />}>
-                                Adder
-                            </Column>
-                        </ConfigurableColumn >
-                        <ConfigurableColumn Key='Multiplier' Label='Multiplier' Default={true}>
-                            <Column<OpenXDA.Types.Channel>
-                                Key={'Multiplier'}
-                                Adjustable={true}
-                                HeaderStyle={{width: 'auto'}}
-                                RowStyle={{width: 'auto'}}
-                                Content={({ item }) => <Input<OpenXDA.Types.Channel> Field={'Multiplier'}
-                                    Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />}>
-                                Multiplier
-                            </Column>
-                        </ConfigurableColumn>
-                        <ConfigurableColumn Key='Description' Label='Description' Default={true}>
-                            <Column<OpenXDA.Types.Channel>
-                                Key={'Description'}
-                                Adjustable={true}
-                                HeaderStyle={{width: 'auto'}}
-                                RowStyle={{width: 'auto'}}
-                                Content={({ item }) => <TextArea<OpenXDA.Types.Channel> Field={'Description'}
-                                    Rows={2} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />}>
-                                Description
-                            </Column>
-                        </ConfigurableColumn >
-                        <Column<OpenXDA.Types.Channel>
-                            Key={'DeleteButton'}
-                            AllowSort={false}
-                            Content={({ index }) => <button className="btn btn-sm"
-                                onClick={(e) => deleteChannel(index)}><span>{TrashCan}</span></button>}
-                            RowStyle={{ width: '62px', paddingTop: 36, paddingBottom: 36 }}
-                        >
-                            <p></p>
-                        </Column>
-                    </ConfigurableTable>
-            </div>
-        </div>
+            <ConfigurableTable<OpenXDA.Types.Channel>
+                LocalStorageKey="ChannelPageConfigTable"
+                TableClass="table table-hover"
+                Data={currentChannels}
+                SortKey={sortKey}
+                Ascending={asc}
+                TheadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
+                TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
+                RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                Selected={() => false}
+                KeySelector={(item) => item.ID}
+                OnSort={(d) => {
+                    if (d.colKey === sortKey)
+                        setAsc((x) => !x);
+                    else
+                        setAsc(false);
+                    setSortKey(d.colKey);
+                }}
+            >
+                <Column<OpenXDA.Types.Channel>
+                    Key={'Name'}
+                    Adjustable={true}
+                    AllowSort={true}
+                    Field={'Name'}
+                    HeaderStyle={{width: 'auto'}}
+                    RowStyle={{width: 'auto'}}
+                    Content={({ item }) => <Input<OpenXDA.Types.Channel> Field={'Name'}
+                        Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />}
+                > Label
+                </Column>
+                <ConfigurableColumn Key='Series' Label='Channel' Default={true}>
+                    <Column<OpenXDA.Types.Channel>
+                        Key={'Series'}
+                        Adjustable={true}
+                        AllowSort={true}
+                        HeaderStyle={{width: 'auto'}}
+                        RowStyle={{width: 'auto'}}
+                        Content={({ item }) => <Input<OpenXDA.Types.Series> Field={'SourceIndexes'}
+                            Record={item.Series[0]} Setter={(series) => {
+                                item.Series[0].SourceIndexes = series.SourceIndexes;
+                                editChannel(item)
+                            }} Label={''} Valid={() => true} />}
+                    > Identifier
+                    </Column>
+                </ConfigurableColumn>
+                <ConfigurableColumn Key='MeasurementType' Label='Type' Default={false}>
+                    <Column<OpenXDA.Types.Channel>
+                        Key={'MeasurementType'}
+                        Adjustable={true}
+                        HeaderStyle={{width: 'auto'}}
+                        RowStyle={{width: 'auto'}}
+                        Content={({ item }) => <Select<OpenXDA.Types.Channel> Field={'MeasurementType'}
+                        Record={item} Setter={(ch) => editChannel(ch)} Label={''}
+                            Options={measurementTypes.map((t) => ({ Value: t.Name, Label: t.Name }))} />}>
+                    Type
+                    </Column>
+                </ConfigurableColumn>
+                <ConfigurableColumn Key='MeasurementCharacteristic' Label='Characteristic' Default={false}>
+                    <Column<OpenXDA.Types.Channel> Key={'MeasurementCharacteristic'}
+                        Adjustable={true}
+                        HeaderStyle={{width: 'auto'}}
+                        RowStyle={{width: 'auto'}}
+                        Content={({ item }) => <Select<OpenXDA.Types.Channel>
+                            Field={'MeasurementCharacteristic'} Record={item}
+                            Setter={(ch) => editChannel(ch)} Label={''}
+                            Options={measurementCharateristics.map((t) => ({ Value: t.Name, Label: t.Name }))}/>}>
+                        Characteristic
+                    </Column>
+                </ConfigurableColumn>
+                <ConfigurableColumn Key='Phase' Label='Phase' Default={true}>
+                    <Column<OpenXDA.Types.Channel>
+                        Key={'Phase'}
+                        Adjustable={true}
+                        HeaderStyle={{width: 'auto'}}
+                        RowStyle={{width: 'auto'}}
+                        Content={({ item }) => <Select<OpenXDA.Types.Channel> Field={'Phase'}
+                            Record={item} Setter={(ch) => editChannel(ch)} Label={''}
+                            Options={phases.map((t) => ({ Value: t.Name, Label: t.Name }))} />}>
+                            Phase
+                    </Column>
+                </ConfigurableColumn>
+                <ConfigurableColumn Key='SamplesPerHour' Label='Sampling Rate' Default={false}>
+                    <Column<OpenXDA.Types.Channel>
+                        Key={'SamplesPerHour'}
+                        Adjustable={true}
+                        HeaderStyle={{width: 'auto'}}
+                        RowStyle={{width: 'auto'}}
+                        Content={({ item }) => <Input<OpenXDA.Types.Channel>
+                            Field={'SamplesPerHour'} Type={'number'} Record={item} Valid={() => true}
+                            Setter={(ch) => editChannel(ch)} Label={''} />}>
+                        Sampling Rate (sph)
+                    </Column>
+                </ConfigurableColumn>
+                <ConfigurableColumn Key='PerUnitValue' Label='Per Unit' Default={false}>
+                    <Column<OpenXDA.Types.Channel>
+                        Key={'PerUnitValue'}
+                        Adjustable={true}
+                        HeaderStyle={{width: 'auto'}}
+                        RowStyle={{width: 'auto'}}
+                        Content={({ item }) => <Input<OpenXDA.Types.Channel> Field={'PerUnitValue'} Type={'number'} Record={item}
+                            Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />}>
+                        Per Unit
+                    </Column>
+                </ConfigurableColumn >
+                <ConfigurableColumn Key='HarmonicGroup' Label='Harmonic' Default={false}>
+                    <Column<OpenXDA.Types.Channel>
+                        Key={'HarmonicGroup'}
+                        Adjustable={true}
+                        HeaderStyle={{width: 'auto'}}
+                        RowStyle={{width: 'auto'}}
+                        Content={({ item }) => <Input<OpenXDA.Types.Channel> Field={'HarmonicGroup'}
+                            Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />}>
+                        Harmonic
+                    </Column>
+                </ConfigurableColumn >
+                <ConfigurableColumn Key='Adder' Label='Adder' Default={true}>
+                    <Column<OpenXDA.Types.Channel>
+                        Key={'Adder'}
+                        Adjustable={true}
+                        HeaderStyle={{width: 'auto'}}
+                        RowStyle={{width: 'auto'}}
+                        Content={({ item }) => <Input<OpenXDA.Types.Channel> Field={'Adder'} Type={'number'}
+                            Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />}>
+                        Adder
+                    </Column>
+                </ConfigurableColumn >
+                <ConfigurableColumn Key='Multiplier' Label='Multiplier' Default={true}>
+                    <Column<OpenXDA.Types.Channel>
+                        Key={'Multiplier'}
+                        Adjustable={true}
+                        HeaderStyle={{width: 'auto'}}
+                        RowStyle={{width: 'auto'}}
+                        Content={({ item }) => <Input<OpenXDA.Types.Channel> Field={'Multiplier'}
+                            Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />}>
+                        Multiplier
+                    </Column>
+                </ConfigurableColumn>
+                <ConfigurableColumn Key='Description' Label='Description' Default={true}>
+                    <Column<OpenXDA.Types.Channel>
+                        Key={'Description'}
+                        Adjustable={true}
+                        HeaderStyle={{width: 'auto'}}
+                        RowStyle={{width: 'auto'}}
+                        Content={({ item }) => <TextArea<OpenXDA.Types.Channel> Field={'Description'}
+                            Rows={2} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />}>
+                        Description
+                    </Column>
+                </ConfigurableColumn >
+                <Column<OpenXDA.Types.Channel>
+                    Key={'DeleteButton'}
+                    AllowSort={false}
+                    Content={({ index }) => <button className="btn btn-sm"
+                        onClick={(e) => deleteChannel(index)}><span>{TrashCan}</span></button>}
+                    RowStyle={{ width: '62px', paddingTop: 36, paddingBottom: 36 }}
+                >
+                    <p></p>
+                </Column>
+            </ConfigurableTable>
             <Warning Show={showCFGError} Title={'Error Parsing File'} Message={`File type not supported. Please select a file of the following types: ${allTypes}. Note COMTRADE files for trending data are automatically ingested using the event channels and can not be uploaded in the wizard.`} CallBack={() => setShowCFGError(false)} />
             <Warning Show={showSpareWarning} Title={'Remove Spare Channels'} Message={`This will remove all Spare Channel(s). This will remove ${NSpare} Channel(s) from the configuration.`} CallBack={(conf) => { if (conf) clearSpareChannels(); setShowSpareWarning(false); }} />
             <Warning Show={showRemoveWarning} Title={'Remove All Channels'}
