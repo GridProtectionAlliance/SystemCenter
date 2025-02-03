@@ -194,7 +194,7 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
                                             TableClass="table table-hover"
                                             Data={filesProcessed}
                                             SortKey={'FilePath'}
-                                            Ascending={false}
+                                            Ascending={true}
                                             OnSort={(d) => { }}
                                             TableStyle={{ tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden', flex: 1 }} 
                                             TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
@@ -205,7 +205,7 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
                                         >
                                             <Column
                                                 Key={'FilePath'}
-                                                AllowSort={false}
+                                                AllowSort={true}
                                                 Field={'FilePath'}
                                                 HeaderStyle={{ width: 'auto' }}
                                                 RowStyle={{ width: 'auto' }}

@@ -158,6 +158,14 @@ const MeterAssetWindow = (props: IProps) => {
                             KeySelector={(item) => item.ID}
                         >
                             <Column<OpenXDA.Types.MeterAsset>
+                                Key={'AssetName'}
+                                AllowSort={true}
+                                Field={'AssetName'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Name
+                            </Column>
+                            <Column<OpenXDA.Types.MeterAsset>
                                 Key={'AssetKey'}
                                 AllowSort={true}
                                 Field={'AssetKey'}
@@ -170,12 +178,12 @@ const MeterAssetWindow = (props: IProps) => {
                             > Key
                             </Column>
                             <Column<OpenXDA.Types.MeterAsset>
-                                Key={'AssetName'}
+                                Key={'VoltageKV'}
                                 AllowSort={true}
-                                Field={'AssetName'}
+                                Field={'VoltageKV'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
-                            > Name
+                            > Voltage (kV)
                             </Column>
                             <Column<OpenXDA.Types.MeterAsset>
                                 Key={'AssetType'}
@@ -184,14 +192,6 @@ const MeterAssetWindow = (props: IProps) => {
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                             > Type
-                            </Column>
-                            <Column<OpenXDA.Types.MeterAsset>
-                                Key={'VoltageKV'}
-                                AllowSort={true}
-                                Field={'VoltageKV'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                            > Base kV
                             </Column>
                             <Column<OpenXDA.Types.MeterAsset>
                                 Key={'FaultDetectionLogic'}
