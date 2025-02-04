@@ -24,7 +24,7 @@
 import * as React from 'react';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { AssetAttributes } from '../AssetAttribute/Asset';
@@ -39,7 +39,7 @@ declare var homePath: string;
 
 const ByLocation: Application.Types.iByComponent = (props) => {
 
-    let history = useHistory();
+    let navigate = useNavigate();
     const dispatch = useAppDispatch();
     const data = useAppSelector(ByLocationSlice.SearchResults);
     const ascending = useAppSelector(ByLocationSlice.Ascending);
@@ -166,7 +166,7 @@ const ByLocation: Application.Types.iByComponent = (props) => {
     }
 
     function handleSelect(item) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Location&LocationID=' + item.row.ID })
+        navigate(`${homePath}index.cshtml?name=Location&LocationID=${item.row.ID}`);
     }
 
     function valid(field: keyof (SystemCenter.Types.DetailedLocation)): boolean {

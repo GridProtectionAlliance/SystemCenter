@@ -24,7 +24,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import { ByMeterSlice } from '../Store/Store';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
@@ -40,7 +40,7 @@ declare var homePath: string;
 
 function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
 
-    let history = useHistory();
+    let navigate = useNavigate();
     const dispatch = useAppDispatch();
     const [meterList, setMeterList] = React.useState<Array<SystemCenter.Types.DetailedMeter>>([]);
     const [sortField, setSortField] = React.useState<string>('Name');
@@ -200,7 +200,7 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
                         }}
                         OnClick={(data) => { 
                             if (data.colKey != 'Remove')
-                                history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + data.row.ID, state: {} })
+                                navigate(`${homePath}index.cshtml?name=Meter&MeterID=${data.row.ID}`);
                             }}
                         TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}

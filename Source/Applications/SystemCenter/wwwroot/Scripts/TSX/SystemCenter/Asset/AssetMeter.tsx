@@ -25,7 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import { Table, Column } from '@gpa-gemstone/react-table';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
 import { ByMeterSlice } from '../Store/Store';
 import { Search, ToolTip } from '@gpa-gemstone/react-interactive';
@@ -35,7 +35,7 @@ import { SelectRoles } from '../Store/UserSettings';
 declare var homePath: string;
 
 function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
-    let history = useHistory();
+    let navigate = useNavigate();
     const dispatch = useAppDispatch();
     const [meters, setMeters] = React.useState<Array<OpenXDA.Types.Meter>>([]);
     const [sortField, setSortField] = React.useState<keyof(OpenXDA.Types.Meter)>('AssetKey');
@@ -92,7 +92,7 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
     }
 
     function handleSelect(item) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + item.row.ID })
+        navigate(`${homePath}index.cshtml?name=Meter&MeterID=${item.row.ID}`);
     }
 
     function getEnum(setOptions, field) {

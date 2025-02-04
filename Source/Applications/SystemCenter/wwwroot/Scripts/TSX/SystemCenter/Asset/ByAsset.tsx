@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
@@ -63,7 +63,7 @@ const AssetController = new GenericController<SystemCenter.Types.DetailedAsset>(
 declare var homePath: string;
 
 const ByAsset: Application.Types.iByComponent = (props) => {
-    let history = useHistory();
+    let navigate = useNavigate();
     const dispatch = useAppDispatch();
 
     const assetType = useAppSelector(AssetTypeSlice.Data);
@@ -229,7 +229,7 @@ const ByAsset: Application.Types.iByComponent = (props) => {
 
 
     function handleSelect(ID: number) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + ID})
+        navigate(`${homePath}index.cshtml?name=Asset&AssetID=${ID}`);
     }
 
     function getEnum(setOptions, field) {

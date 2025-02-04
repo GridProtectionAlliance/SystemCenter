@@ -24,7 +24,7 @@ import * as React from 'react';
 import { LoadingScreen, ServerErrorIcon, TabSelector, Warning } from '@gpa-gemstone/react-interactive';
 import * as _ from 'lodash';
 import { useAppDispatch, useAppSelector } from '../../hooks';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { SecurityGroupSlice } from '../../Store/Store';
 import { ISecurityGroup } from '../Types';
 import GroupInfo from './Info';
@@ -36,7 +36,7 @@ declare type Tab = 'info' | 'users' | 'roles'
 interface IProps { GroupID: string,	Tab: Tab }
 
 function UserGroup(props: IProps) {
-	const history = useHistory();
+	const navigate = useNavigate();
 	const dispatch = useAppDispatch();
 	const group: ISecurityGroup = useAppSelector((state) => SecurityGroupSlice.Datum(state, props.GroupID) as ISecurityGroup);
 	const status = useAppSelector(SecurityGroupSlice.Status);
@@ -95,7 +95,7 @@ function UserGroup(props: IProps) {
 				setShowWarning(false);
 				if (c) {
 					dispatch(SecurityGroupSlice.DBAction({ verb: 'DELETE', record: group }));
-					history.push({ pathname: homePath + 'index.cshtml', search: '?name=Groups', state: {} });
+					navigate(`${homePath}index.cshtml?name=Groups`);
 				}
 			}} />
 		</div>

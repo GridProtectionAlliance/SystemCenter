@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import { SystemCenter } from '../global';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { OpenXDA, Application } from '@gpa-gemstone/application-typings';
 import { Modal } from '@gpa-gemstone/react-interactive';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
@@ -43,7 +43,7 @@ const MATLABAnalytics: Application.Types.iByComponent = (props) => {
     const [showNew, setShowNew] = React.useState<boolean>(false);
     const [errors, setErrors] = React.useState<string[]>([]);
 
-    let history = useHistory();
+    const navigate = useNavigate();
 
     const emptyRecord = { ID: 0, AssemblyName: '', MethodName: '', SettingSQL: '', LoadOrder: 0 };
     const [record, setRecord] = React.useState<OpenXDA.Types.MATLABAnalytic>(emptyRecord);
@@ -64,9 +64,8 @@ const MATLABAnalytics: Application.Types.iByComponent = (props) => {
     }, [record]);
 
     function handleSelect(item) {
-        if (props.Roles.indexOf('Administrator') != -1) {
-            history.push({ pathname: homePath + 'index.cshtml', search: '?name=MATLABAnalytic&AnalyticID=' + item.row.ID });
-        }
+        if (props.Roles.indexOf('Administrator') != -1)
+            navigate(`${homePath}index.cshtml?name=MATLABAnalytic&AnalyticID=${item.row.ID}`);
     }
 
     return (

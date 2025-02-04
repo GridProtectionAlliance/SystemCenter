@@ -27,7 +27,7 @@ import { SearchBar, Search, Modal, ServerErrorIcon, LoadingScreen } from '@gpa-g
 import { Application } from '@gpa-gemstone/application-typings';
 import * as _ from 'lodash';
 import { useAppDispatch, useAppSelector } from '../../hooks';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { SecurityGroupSlice } from '../../Store/Store';
 import { ISecurityGroup } from '../Types';
 import { useSelector } from 'react-redux';
@@ -43,7 +43,7 @@ const emptyGroup: ISecurityGroup = { Name: "", CreatedBy: "", CreatedOn: new Dat
 
 
 const ByUser: Application.Types.iByComponent = (props) => {
-    let history = useHistory();
+    let navigate = useNavigate();
     const dispatch = useAppDispatch();
 
     const search = useSelector(SecurityGroupSlice.SearchFilters);
@@ -115,7 +115,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
                         OnSort={(d) => {
                             dispatch(SecurityGroupSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                         }}
-                        OnClick={(d) => history.push({ pathname: homePath + 'index.cshtml', search: '?name=Group&GroupID=' + d.row.ID })}
+                        OnClick={(d) => navigate(`${homePath}index.cshtml?name=Group&GroupID=${d.row.ID}`)}
                         TableStyle={{
                             padding: 0, width: '100%', height: '100%',
                             tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'

@@ -26,7 +26,7 @@ import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { TabSelector } from '@gpa-gemstone/react-interactive';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
 import { ToolTip, ServerErrorIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
@@ -35,7 +35,7 @@ declare var homePath: string;
 declare var ace: any;
 
 function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: string }) {
-    const history = useHistory();
+    const navigate = useNavigate();
     const aceRef = React.useRef<HTMLDivElement>(null)
     const [meterConfiguration, setMeterConfiguration] = React.useState<OpenXDA.Types.MeterConfiguration>(null);
     const [tab, setTab] = React.useState<string>('configuration');
@@ -109,7 +109,9 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
             data: JSON.stringify(newRecord),
             cache: false,
             async: true
-        }).done((data: OpenXDA.Types.MeterConfiguration) => history.push({ pathname: `${homePath}index.cshtml`, search: `?name=ConfigurationHistory&MeterKey=${props.MeterKey}&MeterConfigurationID=${data.ID}` }));
+        }).done((data: OpenXDA.Types.MeterConfiguration) =>
+            navigate(`${homePath}index.cshtml?name=ConfigurationHistory&MeterKey=${props.MeterKey}&MeterConfigurationID=${data.ID}`)
+        );
     }
 
 
@@ -148,7 +150,9 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
                     <h2>{props.MeterKey} - Configuration Revision: {meterConfiguration.RevisionMajor + '.' + meterConfiguration.RevisionMinor}</h2>
                 </div>
                 <div className="col-4 align-self-center">
-                    <button className="btn btn-secondary pull-right" onClick={() => history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + meterConfiguration.MeterID, state: {} })}>Meter Details</button>
+                    <button className="btn btn-secondary pull-right" onClick={() =>
+                        navigate(`${homePath}index.cshtml?name=Meter&MeterID=${meterConfiguration.MeterID}`)
+                    }>Meter Details</button>
                 </div>
             </div>
 
