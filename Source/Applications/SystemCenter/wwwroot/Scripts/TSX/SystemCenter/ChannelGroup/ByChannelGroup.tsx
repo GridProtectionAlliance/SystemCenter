@@ -26,7 +26,7 @@ import { useAppDispatch } from '../hooks';
 import { ChannelGroupSlice } from '../Store/Store';
 import { SystemCenter as LocalSC } from '../global';
 import * as _ from 'lodash';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
 import { GenericController, Modal } from '@gpa-gemstone/react-interactive';
 import ChannelGroupForm from './ChannelGroupForm';
@@ -44,7 +44,7 @@ const controllerPath = `${homePath}api/ChannelGroup`;
 const ChannelController = new GenericController<SystemCenter.Types.ChannelGroup>(controllerPath, "ID", true);
 
 const ChannelGroups: Application.Types.iByComponent = () => {
-    let history = useHistory();
+    let navigate = useNavigate();
 
     const [showNew, setShowNew] = React.useState<boolean>(false);
     const [errors, setErrors] = React.useState<string[]>([]);
@@ -64,7 +64,7 @@ const ChannelGroups: Application.Types.iByComponent = () => {
     }, [record]);
 
     function handleSelect(item) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=ChannelGroup&GroupID=' + item.row.ID })
+        navigate(`${homePath}index.cshtml?name=ChannelGroup&GroupID=${item.row.ID}`);
     }
 
     return (

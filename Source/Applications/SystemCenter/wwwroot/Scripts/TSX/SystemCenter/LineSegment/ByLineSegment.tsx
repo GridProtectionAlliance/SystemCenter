@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 import { Search, Modal, LoadingIcon, ServerErrorIcon, GenericController, SearchBar } from '@gpa-gemstone/react-interactive';
@@ -35,7 +35,7 @@ const LineSegmentController = new GenericController<OpenXDA.Types.LineSegment>(`
 const PagingID = 'LineSegmentPage'; 
 
 const ByLineSegment: Application.Types.iByComponent = (props) => {
-    let history = useHistory();
+    let navigate = useNavigate();
 
     const [data, setData] = React.useState<OpenXDA.Types.LineSegment[]>([]);
     const [ascending, setAscending] = React.useState<boolean>(false);
@@ -100,7 +100,7 @@ const ByLineSegment: Application.Types.iByComponent = (props) => {
 
 
     const handleSelect = React.useCallback((ID: number) => {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=LineSegment&AssetID=' + ID })
+        navigate(`${homePath}index.cshtml?name=LineSegment&AssetID=${ID}`);
     }, []);
 
     const getEnum = React.useCallback((setOptions, field) => {

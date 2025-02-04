@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { GenericController, Modal } from '@gpa-gemstone/react-interactive';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
@@ -42,7 +42,7 @@ const emptyRecord = { ID: -1, TableName: '', ExtDBID: -1, Query: ''};
 const ExternalTableController = new GenericController<SystemCenter.Types.DetailedExtDBTables>(controllerPath, "ID", true);
 
 const ByExternalTable: Application.Types.iByComponent = (props) => {
-    let history = useHistory();
+    let navigate = useNavigate();
 
     const [showNew, setShowNew] = React.useState<boolean>(false);
     const [errors, setErrors] = React.useState<string[]>([]);
@@ -63,7 +63,7 @@ const ByExternalTable: Application.Types.iByComponent = (props) => {
     }, [record]);
 
     function handleSelect(item) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=ExternalTable&ID=' + item.row.ID })
+        navigate(`${homePath}index.cshtml?name=ExternalTable&ID=${item.row.ID}`);
     }
 
     return (

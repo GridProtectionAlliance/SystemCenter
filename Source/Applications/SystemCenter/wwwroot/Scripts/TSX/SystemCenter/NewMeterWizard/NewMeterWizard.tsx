@@ -28,7 +28,7 @@ import { LoadingScreen, ServerErrorIcon, ToolTip, Warning, Modal, ProgressBar } 
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { CrossMark, Warning as WarningSymbol } from '@gpa-gemstone/gpa-symbols';
 import { SelectMeterStatus, FetchMeter } from '../Store/MeterSlice';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { LocationSlice } from '../Store/Store';
 
 import MeterInfoPage from './MeterInfoPage';
@@ -75,7 +75,7 @@ export interface AssetLists {
 }
 
 export default function NewMeterWizard(props: {IsEngineer: boolean}) {
-    let history = useHistory();
+    let navigate = useNavigate();
     const dispatch = useAppDispatch();
 
     const mStatus = useAppSelector(SelectMeterStatus);
@@ -151,7 +151,7 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
     }, [assetConnections]);
 
     function returnToMeters() {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meters' });
+        navigate(`${homePath}index.cshtml?name=Meters`);
     }
 
     function getCurrentStep(): number {
