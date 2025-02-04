@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { BrowserRouter as Router, Route, NavLink, Switch } from 'react-router-dom';
+import { BrowserRouter as Router, Route, NavLink, Routes, Navigate } from 'react-router-dom';
 import queryString from "querystring";
 import { createBrowserHistory } from "history"
 import { Application, SystemCenter as SCTypes } from '@gpa-gemstone/application-typings';
@@ -31,7 +31,8 @@ import { Provider } from 'react-redux';
 import store, { SystemCenterSettingSlice } from './Store/Store';
 import { useAppDispatch, useAppSelector } from './hooks';
 import ApplicationCategory from './ApplicationCategory/ApplicationCategory';
-import { Fetch as UserSettingsFetch, SelectRoles} from './Store/UserSettings'
+import { Fetch as UserSettingsFetch, SelectRoles } from './Store/UserSettings';
+import Matcher from './Matcher';
 
 declare var homePath: string;
 declare var controllerViewPath: string;
@@ -39,95 +40,30 @@ declare var version: string;
 
 const SystemCenter: React.FunctionComponent = (props: {}) => {
     const dispatch = useAppDispatch();
-
     const history = createBrowserHistory();
-    const ByMeter = React.lazy(() => import(/*webpackChunkName: "ByMeter"*/'./Meter/ByMeter'));
-    const ByLocation = React.lazy(() => import(/* webpackChunkName: "ByLocation" */ './Location/ByLocation'));
-    const ByAsset = React.lazy(() => import(/* webpackChunkName: "ByAsset" */ './Asset/ByAsset'));
-    const ByLineSegment = React.lazy(() => import(/* webpackChunkName: "ByLineSegment" */ './LineSegment/ByLineSegment'));
-    const ByCustomer = React.lazy(() => import(/* webpackChunkName: "ByCustomer" */ './Customer/ByCustomer'));
-    const RemoteXDAInstanceMain = React.lazy(() => import(/* webpackChunkname: "RemoteXDA" */ './RemoteXDA/RemoteXDAInstanceMain'))
-    const RemoteXDAInstance = React.lazy(() => import(/* webpackChunkname: "RemoteXDA" */ './RemoteXDA/RemoteXDAInstance'))
-    const ByExternalDB = React.lazy(() => import(/* webpackChunkname: "ByExternalDB" */ './ExternalDB/ByExternalDB'));
-    const ByExternalTable = React.lazy(() => import(/* webpackChunkname: "ByExternalTable" */ './ExternalDB/ByExternalTable'));
-    const ExternalDB = React.lazy(() => import(/* webpackChunkname: "ExternalDB" */ './ExternalDB/ExternalDB'));
-    const ExternalDBTable = React.lazy(() => import(/* webpackChunkname: "ExternalDB" */ './ExternalDB/ExternalDBTable'));
-    const ByAdditionalField = React.lazy(() => import(/* webpackChunkname: "ByAdditionalField" */ './AdditionalFields/ByAdditionalField'));
-    const ByUser = React.lazy(() => import(/* webpackChunkName: "ByUser" */ './User/User/ByUser'));
-    const BySecuritytGroup = React.lazy(() => import(/* webpackChunkName: "ByUser" */ './User/UserGroup/ByUserGroup'));
-    const UserStatistics = React.lazy(() => import(/* webpackChunkName: "UserStatistics" */ './UserStatistics/UserStatistics'));
-    const Customer = React.lazy(() => import(/* webpackChunkName: "Customer" */ './Customer/Customer'));
-    const User = React.lazy(() => import(/* webpackChunkName: "User" */ './User/User/User'));
-    const UserGroup = React.lazy(() => import(/* webpackChunkName: "UserGroup" */ './User/UserGroup/UserGroup'));
-    const Asset = React.lazy(() => import(/* webpackChunkName: "Asset" */ './Asset/Asset'));
-    const NewMeterWizard = React.lazy(() => import( /* webpackChunkName: "NewMeterWizard" */ './NewMeterWizard/NewMeterWizard'));
-    const ConfigurationHistory = React.lazy(() => import(/* webpackChunkName: "ConfigurationHistory" */ './ConfigurationHistory/ConfigurationHistory'));
-    const Meter = React.lazy(() => import(/* webpackChunkName: "Meter" */ './Meter/Meter'));
-    const Location = React.lazy(() => import(/* webpackChunkName: "Location" */ './Location/Location'));
-    const ByAssetGroup = React.lazy(() => import(/* webpackChunkName: "ByAssetGroup" */ './AssetGroups/ByAssetGroup'));
-    const AssetGroup = React.lazy(() => import(/* webpackChunkName: "AssetGroup" */ './AssetGroups/AssetGroup'));
-    const ByEventType = React.lazy(() => import(/* webpackChunkName: "ByEventType" */ './EventType/ByEventType'));
-    const BySettings = React.lazy(() => import(/* webpackChunkName: "BySetting" */ './Settings/BySetting'));
-    const ByValueListGroup = React.lazy(() => import(/* webpackChunkName: "ByValueListGroup" */ './ValueListGroup/ByValueListGroup'));
-    const ValueListGroup = React.lazy(() => import(/* webpackChunkName: "ValueListGroup" */ './ValueListGroup/ValueListGroup'));
-    const ByChannelGroup = React.lazy(() => import(/* webpackChunkName: "ByChannelGroup" */ './ChannelGroup/ByChannelGroup'));
-    const ChannelGroup = React.lazy(() => import(/* webpackChunkName: "ChannelGroup" */ './ChannelGroup/ChannelGroup'));
-    const DownloadedFiles = React.lazy(() => import(/* webpackChunkName: "DownloadedFiles" */ './DeviceHealthReport/DownloadedFiles'));
-    const DeviceHealthReport = React.lazy(() => import(/* webpackChunkName: "DeviceHealthReport" */ './DeviceHealthReport/DeviceHealthReport'));
-    const DeviceContacts = React.lazy(() => import(/* webpackChunkName: "DeviceContacts" */ './DeviceHealthReport/DeviceContacts'));
-    const DeviceIssuesPage = React.lazy(() => import(/* webpackChunkName: "DeviceIssuesPage" */ './DeviceIssuesPage/DeviceIssuesPage'));
-    const DataOperations = React.lazy(() => import(/* webpackChunkName: "DataOperations" */ './Settings/DataOperations'));
-    const DataReaders = React.lazy(() => import(/* webpackChunkName: "DataReaders" */ './Settings/DataReaders'));
-    const ByApplicationNode = React.lazy(() => import(/* webpackChunkName: "DataReaders" */ './ApplicationManagment/ApplicationNode'));
-    const ByApplicationCategory = React.lazy(() => import(/* webpackChunkName: "ByApplicationCategory" */ './ApplicationCategory/ByApplicationCategory'));
-    const DBCleanup = React.lazy(() => import(/* webpackChunkName: "DBCleanup" */ './DB/DBCleanup'));
-    const DataFile = React.lazy(() => import(/* webpackChunkName: "DataFile" */ './ProcessedFile/ByFile'));
-    const AppHost = React.lazy(() => import(/* webpackChunkName: "AppHost" */ './AppHost/AppHost'));
-
-    const SEBrowserCategory = React.lazy(() => import(/* webpackChunkName: "DataFile" */ './SEBrowser/WidgetCategory'));
-    const BySEBrowserCategory = React.lazy(() => import(/* webpackChunkName: "DataFile" */ './SEBrowser/ByWidgetCategory'));
-    const BySEBrowserWidget = React.lazy(() => import(/* webpackChunkName: "DataFile" */ './SEBrowser/ByWidget'));
-    const ByMagDurCurve = React.lazy(() => import(/* webpackChunkName: "DataFile" */ './MagDurCurves/ByMagDurCurve'));
-    const APIAccessKey = React.lazy(() => import(/* webpackChunkName: "APIAccessKey" */ './APIAccessKeys/APIAccessKeys'));
-    const ByEventTag = React.lazy(() => import(/* webpackChunkName: "ByEventTag" */ './EventTag/ByEventTag'));
-    const ByMATLABAnalytic = React.lazy(() => import(/* webpackChunkName: "ByMATLABAnalytic" */ './MATLABAnalytics/ByMATLABAnalytic'));
-    const MATLABAnalytic = React.lazy(() => import(/* webpackChunkName: "MATLABAnalytic" */ './MATLABAnalytics/MATLABAnalytic'));
-
-    const [ignored, forceUpdate] = React.useReducer((x: number) => x + 1, 0); // integer state for resize renders
-
-    React.useEffect(() => {
-    
-        window.addEventListener('resize', (evt) => forceUpdate());
-
-        return function cleanup() {
-            window.removeEventListener('resize', (evt) => { });
-        }
-
-    }, []);
 
     const settings: SCTypes.Types.Setting[] = useAppSelector(SystemCenterSettingSlice.Data);
     const settingsStatus: Application.Types.Status = useAppSelector(SystemCenterSettingSlice.Status);
     const roles = useAppSelector(SelectRoles);
 
+    const [ignored, forceUpdate] = React.useReducer((x: number) => x + 1, 0); // integer state for resize renders
+
+    React.useEffect(() => {
+        window.addEventListener('resize', (evt) => forceUpdate());
+
+        return function cleanup() {
+            window.removeEventListener('resize', (evt) => { });
+        }
+    }, []);
+
     React.useEffect(() => {
         if (settingsStatus == 'unintiated' || settingsStatus == 'changed')
             dispatch(SystemCenterSettingSlice.Fetch());
-
-        return function () {
-        }
-
-    }, [dispatch, settingsStatus]);
-
-
+    }, [settingsStatus]);
 
     React.useEffect(() => {
         dispatch(UserSettingsFetch())
-
     }, []);
-
-
-    if (Object.keys(queryString.parse(history.location.search)).length == 0)
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meters' })
 
     return (
         <Router>
@@ -304,191 +240,10 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                         </div>
                     </nav>
                     <div className="col" style={{ width: '100%', height: 'inherit', padding: '0 0 0 0', overflow: 'hidden' }}>
-                        <React.Suspense fallback={<div>Loading...</div>}>
-                            <Switch>
-                            <Route children={({ match, ...rest }) => {
-                                let qs = queryString.parse(rest.location.search);
-                                if (qs['?name'] == "Meter")
-                                    return <Meter MeterID={parseInt(qs.MeterID as string)} Tab={qs.Tab as any} />
-                                else if (qs['?name'] == "NewMeterWizard")
-                                    return <NewMeterWizard IsEngineer={roles.indexOf('Administrator') >= 0 || roles.indexOf('Engineer') >= 0} />
-                                else if (qs['?name'] == "ConfigurationHistory")
-                                    return <ConfigurationHistory MeterConfigurationID={parseInt(qs.MeterConfigurationID as string)} MeterKey={qs.MeterKey as string} />
-                                else if (qs['?name'] == "Locations")
-                                    return <ByLocation Roles={roles} />
-                                else if (qs['?name'] == "Location")
-                                    return <Location LocationID={parseInt(qs.LocationID as string)} Tab={qs.Tab as any} />
-                                else if (qs['?name'] == "Assets")
-                                    return <ByAsset Roles={roles} />
-                                else if (qs['?name'] == "Asset" || qs['?name'] == "LineSegment")
-                                    return <Asset AssetID={parseInt(qs.AssetID as string)} Tab={qs.Tab as any} />
-                                else if (qs['?name'] == "AssetGroups")
-                                    return <ByAssetGroup Roles={roles} />
-                                else if (qs['?name'] == "AssetGroup")
-                                    return <AssetGroup AssetGroupID={parseInt(qs.AssetGroupID as string)} Tab={qs.Tab as any} />
-                                else if (qs['?name'] == "LineSegments")
-                                    return <ByLineSegment Roles={roles} />
-                                else if (qs['?name'] == "PQViewCustomers")
-                                    return <ByCustomer Roles={roles} />
-                                else if (qs['?name'] == "Customer")
-                                    return <Customer CustomerID={parseInt(qs.CustomerID as string)} Tab={qs.Tab as any} />
-                                else if (qs['?name'] == "DeviceHealthReport")
-                                    return <DeviceHealthReport Roles={roles} />
-                                else if (qs['?name'] == "DeviceIssuesPage")
-                                    return <DeviceIssuesPage MeterID={parseInt(qs.MeterID as string)} Tab={qs.Tab as any} OpenMICAcronym={qs.OpenMICAcronym as string} />
-                                else if (qs['?name'] == "DeviceContacts")
-                                    return <DeviceContacts ID={qs.ID as string} Name={qs.Name as string} Field={qs.Field as 'TSC' | 'Sector'} />
-                                else if (qs['?name'] == "DownloadedFiles")
-                                    return <DownloadedFiles MeterID={parseInt(qs.MeterID as string)} MeterName={qs.MeterName as string} />
-
-                                //TO DO: Add page to gemstone for Users who do not have permission to replace null return
-                                else if (qs['?name'] == "DataFiles") {
-                                    if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0) return null;
-                                    return <DataFile Roles={roles} />
-                                }
-                                else if (qs['?name'] == "DataOperations") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
-                                    return <DataOperations Roles={roles} />
-                                }
-                                else if (qs['?name'] == "DataReaders") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
-                                    return <DataReaders Roles={roles} />
-                                }
-                                else if (qs['?name'] == "DBCleanup") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
-                                    return <DBCleanup Roles={roles} />
-                                }
-                                else if (qs['?name'] == "MATLABAnalytics") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
-                                    return <ByMATLABAnalytic Roles={roles} />
-                                }
-                                else if (qs['?name'] == "MATLABAnalytic") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
-                                    return <MATLABAnalytic AnalyticID={parseInt(qs.AnalyticID as string)} Tab={qs.Tab as any} />
-                                }
-
-                                else if (qs['?name'] == "RemoteXDAInstanceMain") {
-                                    if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0) return null;
-                                    return <RemoteXDAInstanceMain Roles={roles} />
-                                }
-                                else if (qs['?name'] == "RemoteXDAInstance") {
-                                    if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0) return null;
-                                    return <RemoteXDAInstance ID={parseInt(qs.ID as string)} Roles={roles} Tab={qs.Tab as any} />
-                                }
-                                else if (qs['?name'] == "ByExternalDB") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
-                                    return <ByExternalDB Roles={roles} />
-                                }
-                                else if (qs['?name'] == "ExternalDB") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
-                                    return <ExternalDB ID={parseInt(qs.ID as string)} Tab={qs.Tab as any} />
-                                }
-                                else if (qs['?name'] == "ByExternalTable") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
-                                    return <ByExternalTable Roles={roles} />
-                                }
-                                else if (qs['?name'] == "ExternalTable") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
-                                    return <ExternalDBTable ID={parseInt(qs.ID as string)} Tab={qs.Tab as any} />
-                                }
-
-                                else if (qs['?name'] == "EventType") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
-                                    return <ByEventType Roles={roles} />
-                                }
-                                else if (qs['?name'] == "ValueListGroup") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
-                                    return <ValueListGroup GroupID={parseInt(qs.GroupID as string)} Tab={qs.Tab as any} />
-                                }
-                                else if (qs['?name'] == "ValueLists") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
-                                    return <ByValueListGroup Roles={roles} />
-                                }
-                                else if (qs['?name'] == "ChannelGroups") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
-                                    return <ByChannelGroup Roles={roles} />
-                                }
-                                else if (qs['?name'] == "ChannelGroup") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
-                                    return <ChannelGroup GroupID={parseInt(qs.GroupID as string)} Tab={qs.Tab as any} />
-                                }
-                                else if (qs['?name'] == "SEBrowserTabs") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
-                                    return <BySEBrowserCategory Roles={roles} />
-                                }
-                                else if (qs['?name'] == "SEBrowserTab") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
-                                    return <SEBrowserCategory TabID={parseInt(qs.TabID as string)} Tab={qs.Tab as any} />
-                                }
-                                else if (qs['?name'] == "SEBrowserWidget") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
-                                    return <BySEBrowserWidget Roles={roles} />
-                                }
-                                else if (qs['?name'] == "MagDurCurves") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
-                                    return <ByMagDurCurve Roles={roles} />
-                                }
-                                else if (qs['?name'] == "EventTags") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
-                                    return <ByEventTag Roles={roles} />
-                                }
-                                else if (qs['?name'] == "ByApplicationCategory") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
-                                    return <ByApplicationCategory Roles={roles} />
-                                }
-                                else if (qs['?name'] == "ApplicationCategory") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
-                                    return <ApplicationCategory ID={parseInt(qs.ID as string)} Tab={qs.Tab as any} />
-                                }
-
-                                else if (qs['?name'] == "AppHost") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
-                                    return <AppHost Roles={roles} />
-                                }
-                                else if (qs['?name'] == "Settings") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
-                                    return <BySettings Roles={roles} System={qs.System as 'SystemCenter' | 'OpenXDA' | 'MiMD' | 'OpenSEE'} />
-                                }
-                                else if (qs['?name'] == "ByAdditionalField") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
-                                    return <ByAdditionalField Roles={roles} />
-                                }
-
-                                else if (qs['?name'] == "UserStatistics") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
-                                    return <UserStatistics Roles={roles} />
-                                }
-                                else if (qs['?name'] == "ApplicationNodes") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
-                                    return <ByApplicationNode Roles={roles} />
-                                }
-                                else if (qs['?name'] == "APIAccessKey") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
-                                    return <APIAccessKey Roles={roles} />
-                                }
-                                else if (qs['?name'] == "Users") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
-                                    return <ByUser Roles={roles} />
-                                }
-                                else if (qs['?name'] == "User") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
-                                    return <User UserID={qs.UserAccountID as string} Tab={qs.Tab as any} />
-                                }
-                                else if (qs['?name'] == "Group") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
-                                    return <UserGroup GroupID={qs.GroupID as string} Tab={qs.Tab as any} />
-                                }
-                                else if (qs['?name'] == "Groups") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
-                                    return <BySecuritytGroup Roles={roles} />
-                                }
-                                
-                                else
-                                    return <ByMeter Roles={roles} />;
-                            }} />
-                            </Switch>
-
-                        </React.Suspense>
+                            <Routes>
+                                <Route index element={<Navigate to={`${homePath}index.cshtml?name=Meters`} />} />
+                                <Route path="/index.cshtml" element={<Matcher />} />
+                            </Routes>
                     </div>
 
                 </div>
