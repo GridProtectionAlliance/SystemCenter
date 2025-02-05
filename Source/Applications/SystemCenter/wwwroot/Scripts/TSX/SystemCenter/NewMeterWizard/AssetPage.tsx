@@ -38,7 +38,7 @@ import { SelectAssetStatus, FetchAsset, SelectAssets } from '../Store/AssetSlice
 import { Modal, Search, TabSelector } from '@gpa-gemstone/react-interactive';
 import DERAttributes from '../AssetAttribute/DER';
 import AssetSelect from '../Asset/AssetSelect';
-import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { CrossMark, Pencil, ReactIcons, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { getAssetWithAdditionalFields } from '../../../TS/Services/Asset';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import GenerationAttributes from '../AssetAttribute/Generation';
