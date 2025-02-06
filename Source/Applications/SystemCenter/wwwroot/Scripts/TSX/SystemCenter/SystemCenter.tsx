@@ -83,15 +83,16 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                         AllowSectionCollapse={true}
                     >
                         <Section Style={{ width: '100%' }}>
-                                <h4>System Center</h4>
+                            <h5 style={{ alignSelf: 'center'}}>System Center</h5>
                         </Section>
                         <Section Label={"MONITORS AND ASSETS"} Style={{ marginLeft: "10px" }}>
-                            <Page Name={"index.cshtml?name=Meters"} Label={"Meters"} OtherActivePages={["index.cshtml?name=Meter"]} />
+                            <Page Name={"index.cshtml?name=Meters"} Label={"Meters"}
+                                OtherActivePages={["index.cshtml?name=Meter", "index.cshtml?name=ConfigurationHistory", "index.cshtml?name=NewMeterWizard"]} />
                             <Page Name={"index.cshtml?name=Locations"} Label={"Substations"} OtherActivePages={["index.cshtml?name=Location"]} />
                             <Page Name={"index.cshtml?name=Assets"} Label={"Assets"} OtherActivePages={["index.cshtml?name=Asset&"]} />
-                            <Page Name={"index.cshtml?name=AssetsGroups"} Label={"Asset Groups"} OtherActivePages={["index.cshtml?name=AssetGroup"]} />
+                            <Page Name={"index.cshtml?name=AssetGroups"} Label={"Asset Groups"} OtherActivePages={["index.cshtml?name=AssetGroup"]} />
                             <Page Name={"index.cshtml?name=LineSegments"} Label={"Line Segments"} OtherActivePages={["index.cshtml?name=LineSegment"]} />
-                            <Page Name={"index.cshtml?name=Customers"} Label={"Customers"} OtherActivePages={["index.cshtml?name=Customer"]} />
+                            <Page Name={"index.cshtml?name=PQViewCustomers"} Label={"Customers"} OtherActivePages={["index.cshtml?name=Customer"]} />
                             <Page Name={"index.cshtml?name=DeviceHealthReport"} Label={"Device Health Report"} OtherActivePages={["index.cshtml?name=DeviceIssuesPage"]} />
                         </Section>
                         <Section Label={"FILE PROCESSING"} Style={{ marginLeft: "10px" }} RequiredRoles={["Administrator", "Engineer"]}>
@@ -108,13 +109,13 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                         </Section>
                         <Section Label={"UI CONFIGURATION"} Style={{ marginLeft: "10px" }} RequiredRoles={["Administrator"]}>
                             <Page Name={"index.cshtml?name=EventType"} Label={"Event Types"} />
-                            <Page Name={"index.cshtml?name=ValueList"} Label={"Value Lists"} />
+                            <Page Name={"index.cshtml?name=ValueLists"} Label={"Value Lists"} OtherActivePages={["index.cshtml?name=ValueListGroup"]} />
                             <Page Name={"index.cshtml?name=ChannelGroups"} Label={"Channel Groups"} OtherActivePages={["index.cshtml?name=ChannelGroup"]} />
                             <Page Name={"index.cshtml?name=SEBrowserTabs"} Label={"PQ Browser Tabs"} OtherActivePages={["index.cshtml?name=SEBrowserTab"]} />
                             <Page Name={"index.cshtml?name=SEBrowserWidget"} Label={"PQ Browser Widgets"} />
                             <Page Name={"index.cshtml?name=MagDurCurves"} Label={"MagDur Curves"} />
                             <Page Name={"index.cshtml?name=EventTags"} Label={"Event Tags"} />
-                            <Page Name={"index.cshtml?name=ByApplicationCategory"} Label={"Application Categories"} />
+                            <Page Name={"index.cshtml?name=ByApplicationCategory"} Label={"Application Categories"} OtherActivePages={["index.cshtml?name=ApplicationCategory"]} />
                         </Section>
                         <Section Label={"SYSTEM SETTINGS"} Style={{ marginLeft: "10px" }} RequiredRoles={["Administrator"]}>
                             <Page Name={"index.cshtml?name=AppHost"} Label={"Nodes"} />
@@ -127,8 +128,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                         <Section Label={"ACCESS"} Style={{ marginLeft: "10px" }} RequiredRoles={["Administrator"]}>
                             <Page Name={"index.cshtml?name=UserStatistics"} Label={"User Statistics"} />
                             <Page Name={"index.cshtml?name=ApplicationNodes"} Label={"SSO Applications"} />
-                            <Page Name={"index.cshtml?name=User"} Label={"Users"} OtherActivePages={["index.cshtml?name=User&"]} />
-                            <Page Name={"index.cshtml?name=Groups"} Label={"SSO Applications"} OtherActivePages={["index.cshtml?name=Group"]} />
+                            <Page Name={"index.cshtml?name=APIAccessKey"} Label={"API Keys"} />
+                            <Page Name={"index.cshtml?name=Users"} Label={"Users"} OtherActivePages={["index.cshtml?name=User&"]} />
+                            <Page Name={"index.cshtml?name=Groups"} Label={"User Groups"} OtherActivePages={["index.cshtml?name=Group"]} />
                         </Section>
                         <div className="col" style={{ width: '100%', height: 'inherit', padding: '0 0 0 0', overflow: 'hidden' }}>
                             <Routes>
