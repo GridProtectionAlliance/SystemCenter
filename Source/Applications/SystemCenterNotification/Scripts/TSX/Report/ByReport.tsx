@@ -32,6 +32,7 @@ import { Table, Column } from '@gpa-gemstone/react-table';
 import { IsCron } from '@gpa-gemstone/helper-functions';
 import ReportForm from './ReportForm';
 import { useNavigate } from 'react-router-dom';
+import TestEmailButton from '../CommonComponents/TestEmailButton';
 
 declare var homePath;
 declare var version;
@@ -126,9 +127,11 @@ const ByReport = (props: IProps) => {
                             <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                                 <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                                 <form>
-                                    <button className="btn btn-primary" onClick={(event) => { setNewEmail(emptyEmail); setShowModal(true); event.preventDefault() }}>
+                                    <button className="btn btn-primary" style={{ marginBottom: '5px' }} onClick={(event) => { setNewEmail(emptyEmail); setShowModal(true); event.preventDefault() }}>
                                         Add Report
                                     </button>
+                                    <br />
+                                    <TestEmailButton />
                                 </form>
                             </fieldset>
                         </li>
