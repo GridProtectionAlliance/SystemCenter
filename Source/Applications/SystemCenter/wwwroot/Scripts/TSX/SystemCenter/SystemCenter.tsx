@@ -74,13 +74,10 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                         HomePath={homePath}
                         DefaultPath={"index.cshtml"}
                         Logo={`${homePath}Images/SystemCenter-TopLeft.png`}
-                        LogoLink="https://www.gridprotectionalliance.org"
                         Version={version}
                         OnSignOut={() => { window.location.href = `/@GSF/Web/Security/Views/Login.cshtml?logout=yes`; }}
                         UseLegacyNavigation={true} // Note: if we move away from legacy nav, we will have to add roles to pages that need them. Right now, access control is done in the matcher
-                        UseSearchMatch={true}
                         UserRoles={roles}
-                        AllowSectionCollapse={true}
                     >
                         <Section Style={{ width: '100%' }}>
                             <h5 style={{ alignSelf: 'center'}}>System Center</h5>
