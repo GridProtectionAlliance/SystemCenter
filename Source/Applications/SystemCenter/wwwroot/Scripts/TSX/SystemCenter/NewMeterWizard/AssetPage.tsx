@@ -38,7 +38,7 @@ import { SelectAssetStatus, FetchAsset, SelectAssets } from '../Store/AssetSlice
 import { Modal, Search, TabSelector } from '@gpa-gemstone/react-interactive';
 import DERAttributes from '../AssetAttribute/DER';
 import AssetSelect from '../Asset/AssetSelect';
-import { CrossMark, Pencil, ReactIcons, TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { getAssetWithAdditionalFields } from '../../../TS/Services/Asset';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import GenerationAttributes from '../AssetAttribute/Generation';
@@ -104,7 +104,6 @@ export default function AssetPage(props: IProps) {
         channelsWorking.filter(ch => (ch.Asset === (newEdit === 'Edit' ? editAssetKey : tempKey)) || (ch.Asset === ""))
     , [channelsWorking, editAssetKey, newEdit]);
 
-    const locations = React.useMemo(() => [props.Location], [props.Location])
 
     const assetData = React.useMemo(() => {
         const u = _.cloneDeep(props.Assets);
@@ -329,9 +328,32 @@ export default function AssetPage(props: IProps) {
             <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
                 <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
                     <div className="d-none d-sm-block col-6 col-lg-4" style={{ overflow: 'hidden',height: '100%' }}>
-                        <ul style={{ width: '100%', height: '100%', overflowY: 'auto'}}>
+                        <ul style={{ width: '100%', height: '100%', overflowY: 'auto' }}>
+                            <div className="row" style={{ width: '100%', height: '2em'}}>
+                                <div className="form-check">
+                                    <input
+                                        type="checkbox"
+                                        className="form-check-input"
+                                        style={{ zIndex: 1 }}
+                                        onChange={() => setShowSeries(s => !s)}
+                                        value={showSeries ? 'on' : 'off'}
+                                        checked={showSeries}
+                                    />
+                                    <label className='form-check-label'>
+                                        Show Series Identifier
+                                    </label>
+                                </div>
+                            </div>
                             {
-                                props.Channels.map((channel) => <li style={{textDecoration: (channel.Asset.length > 0 ? 'line-through' : null)}} key={channel.ID}>{channel.Name + ' - ' + channel.Description}</li>)
+                                props.Channels.map((channel) =>
+                                    <li style={{ width: '100%', textDecoration: (channel.Asset.length > 0 ? 'line-through' : null) }} key={channel.ID}>
+                                        {
+                                            channel.Name +
+                                            (channel.Name !== channel.Description ? ` - ${channel.Description}` : '') +
+                                            ((showSeries && channel.Series.length > 0 && channel.Series[0].SourceIndexes !== '' ) ? ` (${channel.Series[0].SourceIndexes})` : '')
+                                        }
+                                    </li>
+                                )
                             }
                         </ul>
                     </div>
@@ -366,7 +388,7 @@ export default function AssetPage(props: IProps) {
                                         TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
                                         RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
                                         Selected={(item) => false}
-                                        KeySelector={(item) => item.ID}
+                                        KeySelector={(item) => item.AssetKey}
                                     >
                                         <Column<AssetType>
                                             Key={'Status'}
@@ -423,8 +445,16 @@ export default function AssetPage(props: IProps) {
                                             HeaderStyle={{ width: '10%' }}
                                             RowStyle={{ width: '10%' }}
                                             Content={({ index }) => <>
-                                                <button className="btn btn-sm" onClick={(e) => editAsset(index)}><span>{Pencil}</span></button>
-                                                <button className="btn btn-sm" onClick={(e) => { e.stopPropagation(); deleteAsset(index); }}><span>{TrashCan}</span></button>
+                                                <button className="btn btn-sm" onClick={(e) => editAsset(index)}>
+                                                    <span>
+                                                        <ReactIcons.Pencil />
+                                                    </span>
+                                                </button>
+                                                <button className="btn btn-sm" onClick={(e) => { e.stopPropagation(); deleteAsset(index); }}>
+                                                    <span>
+                                                        <ReactIcons.TrashCan />
+                                                    </span>
+                                                </button>
                                             </> }
                                         > <p></p>
                                         </Column>
@@ -440,8 +470,8 @@ export default function AssetPage(props: IProps) {
                         if (!confirm) return;
 
                         let list: Array<OpenXDA.Types.Asset> = [];
-                        let channels: Array<OpenXDA.Types.Channel> = _.clone(props.Channels);
-                        let assetConnections: Array<OpenXDA.Types.AssetConnection> = _.clone(props.AssetConnections);
+                        let channels: Array<OpenXDA.Types.Channel> = _.cloneDeep(props.Channels);
+                        let assetConnections: Array<OpenXDA.Types.AssetConnection> = _.cloneDeep(props.AssetConnections);
 
                         let removedAssets: Array<OpenXDA.Types.Asset> = props.Assets.filter((asset) =>  asset.ID > 0 && selected.findIndex((selectedAsset) => (asset.ID === selectedAsset.ID)) < 0);
 
@@ -460,7 +490,9 @@ export default function AssetPage(props: IProps) {
                         });
                         let promises = [];
                         $.each(selected, async (index, record) => {
-                            let assetRecord = getAssetWithAdditionalFields(record.ID, record.AssetType as OpenXDA.Types.AssetTypeName);
+                            const oldRecord = props.Assets.find(asset => asset.ID === record.ID);
+                            let assetRecord = getAssetWithAdditionalFields(record.ID, record.AssetType as OpenXDA.Types.AssetTypeName)
+                                .then(a => ({ ...a, Channels: oldRecord?.Channels ?? []}));
                             // Push promises into promises
                             promises.push(assetRecord);
                         });
@@ -489,69 +521,64 @@ export default function AssetPage(props: IProps) {
                     ConfirmBtnClass={'btn-success'}
                     ConfirmText={newEdit == 'Edit' ? 'Save' : 'Add'}
                     CancelBtnClass={'btn-danger'}
-                    CancelText={'Close'}
+                    ShowCancel={false}
+                    ShowX={true}
                     Size={'xlg'}
                     CallBack={(confirm) => {
+                        if (confirm) {
+                            const record: OpenXDA.Types.Asset = _.cloneDeep(newEditAsset);
+                            const list = _.cloneDeep(props.Assets);
+                            if (newEdit == 'New') {
+                                // We have to do this swap because the key isn't set in stone until now
+                                const channelsWithNewKey = channelsWorking
+                                    .map(chan => (chan.Asset === tempKey) ? ({ ...chan, Asset: record.AssetKey }) : chan);
+                                record.Channels = channelsWithNewKey
+                                    .filter(chan => chan.Asset === record.AssetKey);;
+                                list.push(record);
+                                props.UpdateChannels(channelsWithNewKey);
+                            }
+                            else if (newEdit == 'Edit') {
+                                const index = list.findIndex(a => a.AssetKey == editAssetKey);
+                                list[index] = record;
+                                props.UpdateChannels(channelsWorking);
+                            }
+                            props.UpdateAssets(list);
+                        }
+                        else setChannelsWorking(props.Channels);
+
                         setShowAssetModal(false);
-
-                        if (!confirm) {
-                            setNewEditAsset(AssetAttributes.getNewAsset('Line'));
-                            return;
-                        }
-
-                        let record: OpenXDA.Types.Asset = _.clone(newEditAsset);
-                        let list = _.clone(props.Assets);
-                        let channels: Array<OpenXDA.Types.Channel> = _.clone(props.Channels);
-
-                        $.each(channels, (index, channel) => {
-                            if (channel.Asset == record.AssetKey)
-                                channel.Asset = ''
-
-                            if (record.Channels.findIndex(c => c.ID == channel.ID) >= 0)
-                                channel.Asset = record.AssetKey
-                        });
-
-                        if (newEdit == 'New')
-                            list.push(record);
-                        if (newEdit == 'Edit') {
-                            const index = list.findIndex(a => a.AssetKey == editAssetKey);
-                            list[index] = record;
-                        }
-
-                        props.UpdateChannels(channels);
-                        props.UpdateAssets(list);
                         setNewEditAsset(AssetAttributes.getNewAsset('Line'));
                     }}
                     DisableConfirm={(AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType, allAssetKeys).length > 0) }
                     ConfirmShowToolTip={AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType, allAssetKeys).length > 0}
                     ConfirmToolTipContent={
-                        AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType, allAssetKeys).map((e, i) => <p key={i}>{CrossMark} {e}</p>)
+                        AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType, allAssetKeys).map((e, i) => <p key={i}><ReactIcons.CrossMark />{e}</p>)
                     }
                 >
                     <div className="row">
                         <div className="col-8">
-                        <div className="row" style={{ maxHeight: innerHeight - 300, overflow:'auto' }}>
-                            <div className="col-6">
-                                <AssetAttributes.AssetAttributeFields Asset={newEditAsset} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={assets}
-                                    AllowEdit={newEditAsset.ID === 0}
-                                    UpdateState={(record) => {
-                                        if (record.AssetType == newEditAsset.AssetType)
-                                            setNewEditAsset(record);
-                                        else {
-                                            let newRecord = AssetAttributes.getNewAsset(record.AssetType);
-                                            newRecord.AssetKey = record.AssetKey;
-                                            newRecord.AssetName = record.AssetName;
-                                            newRecord.VoltageKV = record.VoltageKV;
-                                            newRecord.Description = record.Description;
-                                            newRecord.Channels = record.Channels;
-                                            setNewEditAsset(newRecord);
-                                        }
-                                    }}
-                                    GetDifferentAsset={getDifferentAsset} HideAssetType={newEdit == 'Edit'} HideSelectAsset={true} />
-                            </div>
-                            <div className="col-6">
-                                {showAttributes()}
-                            </div>
+                            <div className="row" style={{ maxHeight: innerHeight - 300, overflow: 'auto' }}>
+                                <div className="col-6">
+                                    <AssetAttributes.AssetAttributeFields Asset={newEditAsset} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={assets}
+                                        AllowEdit={newEditAsset.ID === 0}
+                                        UpdateState={(record) => {
+                                            if (record.AssetType == newEditAsset.AssetType)
+                                                setNewEditAsset(record);
+                                            else {
+                                                let newRecord = AssetAttributes.getNewAsset(record.AssetType);
+                                                newRecord.AssetKey = record.AssetKey;
+                                                newRecord.AssetName = record.AssetName;
+                                                newRecord.VoltageKV = record.VoltageKV;
+                                                newRecord.Description = record.Description;
+                                                newRecord.Channels = record.Channels;
+                                                setNewEditAsset(newRecord);
+                                            }
+                                        }}
+                                        GetDifferentAsset={getDifferentAsset} HideAssetType={newEdit == 'Edit'} HideSelectAsset={true} />
+                                </div>
+                                <div className="col-6">
+                                    {showAttributes()}
+                                </div>
                             </div>
                         </div>
                         <div className="col-4">
