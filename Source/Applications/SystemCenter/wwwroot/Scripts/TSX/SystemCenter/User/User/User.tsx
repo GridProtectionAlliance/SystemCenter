@@ -30,14 +30,14 @@ import AdditionalField from '../AdditionalUserFieldsWindow'
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { CheckBox } from '@gpa-gemstone/react-forms';
 import { UserAccountSlice } from '../../Store/Store';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 declare type Tab = 'userInfo' | 'permissions' | 'additionalFields'
 
 interface IProps { UserID: string, Tab: Tab }
 
 function User(props: IProps) {
-	const history = useHistory();
+	const navigate = useNavigate();
 	const dispatch = useAppDispatch();
 	const user = useAppSelector((state) => UserAccountSlice.Datum(state, props.UserID));
 	const status: Application.Types.Status = useAppSelector(UserAccountSlice.Status);
@@ -110,7 +110,7 @@ function User(props: IProps) {
 				setShowWarning(false);
 				if (c) {
 					dispatch(UserAccountSlice.DBAction({ verb: 'DELETE', record: user }));
-					history.push({ pathname: homePath + 'index.cshtml', search: '?name=Users', state: {} });
+					navigate(`${homePath}index.cshtml?name=Users`);
 				}
 			}} />
 		</div>

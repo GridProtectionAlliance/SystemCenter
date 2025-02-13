@@ -26,7 +26,7 @@ import * as _ from 'lodash';
 import { Application } from '@gpa-gemstone/application-typings';
 import { SystemCenter as SC } from '../global';
 import { OpenXDA as LocalXDA } from '../global';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Modal, GenericController } from '@gpa-gemstone/react-interactive';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import CategoryForm from './CategoryForm';
@@ -41,7 +41,7 @@ const controllerPath = `${homePath}api/SystemCenter/WidgetCategory`;
 const categoryController = new GenericController<LocalXDA.IWidgetCategory>(controllerPath, 'OrderBy', false);
 
 const ByWidgetCategory: Application.Types.iByComponent = (props) => {
-    let history = useHistory();
+    let navigate = useNavigate();
 
     const [newCategory, setNewCategory] = React.useState<LocalXDA.IWidgetCategory>(emptyCategory);
     const [refreshCount, refreshData] = React.useState<number>(0);
@@ -49,7 +49,7 @@ const ByWidgetCategory: Application.Types.iByComponent = (props) => {
     const [errors, setErrors] = React.useState<string[]>([]);
 
     const handleSelect = React.useCallback((item: { row: LocalXDA.IWidgetCategory }) => {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=SEBrowserTab&TabID=' + item.row.ID })
+        navigate(`${homePath}index.cshtml?name=SEBrowserTab&TabID=${item.row.ID}`);
     }, []);
 
     return (

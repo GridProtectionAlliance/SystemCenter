@@ -25,7 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { Table, Column } from '@gpa-gemstone/react-table';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols'
 import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
@@ -34,7 +34,7 @@ import { ToolTip } from '@gpa-gemstone/react-interactive';
 declare var homePath: string;
 
 function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
-    let history = useHistory();
+    let navigate = useNavigate();
     const [locations, setLocations] = React.useState<Array<OpenXDA.Types.Location>>([]);
     const [sortField, setSortField] = React.useState<keyof (OpenXDA.Types.Location)>('LocationKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
@@ -120,7 +120,7 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
 
     function handleSelect(item, event) {
         if (event.target.localName == 'td')
-            history.push({ pathname: homePath + 'index.cshtml', search: '?name=Location&LocationID=' + item.row.ID})
+            navigate(`${homePath}index.cshtml?name=Location&LocationID=${item.row.ID}`);
     }
 
     function hasPermissions(): boolean {

@@ -26,12 +26,12 @@ import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ServerErrorIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 declare var homePath: string;
 
 function LocationMeterWindow(props: { Location: OpenXDA.Types.Location }): JSX.Element{
-    let history = useHistory();
+    let navigate = useNavigate();
     const [meters, setMeters] = React.useState<Array<OpenXDA.Types.Meter>>([]);
     const [sortField, setSortField] = React.useState<keyof(OpenXDA.Types.Meter)>('AssetKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
@@ -65,7 +65,7 @@ function LocationMeterWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
     }
 
     function handleSelect(item) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + item.row.ID })
+        navigate(`${homePath}index.cshtml?name=Meter&MeterID=${item.row.ID}`);
     }
 
     return (
