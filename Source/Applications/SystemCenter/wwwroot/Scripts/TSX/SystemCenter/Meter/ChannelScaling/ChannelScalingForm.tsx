@@ -205,9 +205,9 @@ const ChannelScalingForm = (props: IProps) => {
                     <Table<ChannelScalingWrapper>
                         TableClass="table table-hover"
                         Data={Wrappers}
-                        SortKey={''}
+                        SortKey={'Identity'}
                         Ascending={false}
-                    OnSort={(d) => { }}
+                        OnSort={(d) => { }}
                         TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         TbodyStyle={{ display: 'block', width: '100%', overflowY: 'auto', flex: 1 }}
