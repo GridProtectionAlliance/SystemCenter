@@ -216,6 +216,14 @@ const ChannelScalingForm = (props: IProps) => {
                         KeySelector={(item) => item.Channel.ID.toString()}
                     >
                         <Column<ChannelScalingWrapper>
+                            Key={'Descriptor'}
+                            AllowSort={false}
+                            Field={'Descriptor'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Description
+                        </Column>
+                        <Column<ChannelScalingWrapper>
                             Key={'Identity'}
                             AllowSort={false}
                             Field={'Identity'}
@@ -262,14 +270,6 @@ const ChannelScalingForm = (props: IProps) => {
                             HeaderStyle={{ width: '10%' }}
                             RowStyle={{ width: '10%' }}
                         > If Adjusted
-                        </Column>
-                        <Column<ChannelScalingWrapper>
-                            Key={'Descriptor'}
-                            AllowSort={false}
-                            Field={'Descriptor'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Description
                         </Column>
                     </Table>
                 </div> 

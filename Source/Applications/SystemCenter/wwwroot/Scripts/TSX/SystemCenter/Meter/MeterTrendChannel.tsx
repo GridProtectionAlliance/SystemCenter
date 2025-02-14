@@ -286,7 +286,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                     Disabled={!hasPermissions()}
                                 />
                             )}
-                        > Name
+                        > Label
                         </Column>
                         <ConfigurableColumn Key='MeasurementType' Label='Type' Default={true}>
                             <Column<OpenXDA.TrendChannel>
