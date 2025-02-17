@@ -205,7 +205,7 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
                                         >
                                             <Column
                                                 Key={'FilePath'}
-                                                AllowSort={true}
+                                                AllowSort={false}
                                                 Field={'FilePath'}
                                                 HeaderStyle={{ width: 'auto' }}
                                                 RowStyle={{ width: 'auto' }}

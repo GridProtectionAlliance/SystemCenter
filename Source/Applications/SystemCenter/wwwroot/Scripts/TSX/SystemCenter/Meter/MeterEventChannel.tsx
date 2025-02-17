@@ -264,6 +264,15 @@ const MeterEventChannelWindow = (props: IProps) => {
                                 dispatch(FetchChannels({ sortField: d.colField, ascending: true, meterId: props.Meter.ID }));
                         }}
                     >
+                        <Column<OpenXDA.EventChannel>
+                            Key={'Name'} Field={'Name'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={({ item }) => <Input<OpenXDA.EventChannel> Record={item} Field={'Name'}
+                                Label={''} Setter={(r) => createChange(r, 'Name')}
+                                Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()} />}
+                        >
+                            Label </Column>
                         <ConfigurableColumn Key='SourceIndices' Label='Channel' Default={true}>
                             <Column<OpenXDA.EventChannel>
                                 Key={'SourceIndices'} Field={'SourceIndices'}
@@ -274,27 +283,6 @@ const MeterEventChannelWindow = (props: IProps) => {
                                     Setter={(r) => createChange(r, 'SourceIndices')}
                                     Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()}/>}>
                                 Identifier</Column>
-                        </ConfigurableColumn >
-                        <Column<OpenXDA.EventChannel>
-                            Key={'Name'} Field={'Name'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                            Content={({ item }) => <Input<OpenXDA.EventChannel> Record={item} Field={'Name'}
-                                Label={''} Setter={(r) => createChange(r, 'Name')}
-                                Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()}/>}
-                        >
-                            Label </Column>
-
-                        <ConfigurableColumn Key='Description' Label='Description' Default={true}>
-                            <Column<OpenXDA.EventChannel>
-                                Key={'Description'} Field={'Description'} 
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                                Content={({ item }) => <Input<OpenXDA.EventChannel> Record={item}
-                                    Field={'Description'} Label={''}
-                                    Setter={(r) => createChange(r, 'Description')}
-                                    Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()}/>}>
-                            </Column>
                         </ConfigurableColumn >
                         <ConfigurableColumn Key='MeasurementType' Label='Type' Default={true}>
                             <Column<OpenXDA.EventChannel>
@@ -368,6 +356,17 @@ const MeterEventChannelWindow = (props: IProps) => {
                                     Setter={(r) => createChange(r, 'ConnectionPriority')}
                                     Disabled={(assets.find(d => d.ID == item.AssetID)?.AssetType != 'Transformer') || !hasPermissions()} />}>
                                 Conn Type
+                            </Column>
+                        </ConfigurableColumn >
+                        <ConfigurableColumn Key='Description' Label='Description' Default={true}>
+                            <Column<OpenXDA.EventChannel>
+                                Key={'Description'} Field={'Description'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                                Content={({ item }) => <Input<OpenXDA.EventChannel> Record={item}
+                                    Field={'Description'} Label={''}
+                                    Setter={(r) => createChange(r, 'Description')}
+                                    Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()} />}>
                             </Column>
                         </ConfigurableColumn >
                         <Column<OpenXDA.EventChannel>
