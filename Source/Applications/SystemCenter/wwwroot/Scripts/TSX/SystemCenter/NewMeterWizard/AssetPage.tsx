@@ -533,7 +533,7 @@ export default function AssetPage(props: IProps) {
                                 const channelsWithNewKey = channelsWorking
                                     .map(chan => (chan.Asset === tempKey) ? ({ ...chan, Asset: record.AssetKey }) : chan);
                                 record.Channels = channelsWithNewKey
-                                    .filter(chan => chan.Asset === record.AssetKey);;
+                                    .filter(chan => chan.Asset === record.AssetKey);
                                 list.push(record);
                                 props.UpdateChannels(channelsWithNewKey);
                             }

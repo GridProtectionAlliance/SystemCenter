@@ -67,6 +67,11 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
     const roles = useAppSelector(SelectRoles);
 
     React.useEffect(() => {
+        const handle = getAssetConnections();
+        return () => { if (handle != null && handle.abort != null) handle.abort(); }
+    }, [props.ID, trigger])
+
+    React.useEffect(() => {
         if (props.ID > 0) {
             let sqlString = `(SELECT AssetRelationshipTypeID FROM AssetRelationshipTypeAssetType LEFT JOIN Asset ON `
             sqlString = sqlString + `Asset.AssetTypeID <> ${props.TypeID} AND Asset.AssetTypeID = AssetRelationshipTypeAssetType.assetTypeID AND `
@@ -104,11 +109,6 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
         if (index == -1 && localAssets.length > 0)
             setSelectedAssetID(localAssets[0].ID)
     }, [localAssets])
-
-    React.useEffect(() => {
-        const handle = getAssetConnections();
-        return () => { if (handle != null && handle.abort != null) handle.abort(); }
-    }, [props.ID, trigger])
 
     React.useEffect(() => {
         setIsLoadingLocations(true);
