@@ -193,8 +193,8 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
                                         <Table<OpenXDA.Types.DataFile>
                                             TableClass="table table-hover"
                                             Data={filesProcessed}
-                                            SortKey={'FilePath'}
-                                            Ascending={true}
+                                            SortKey={'CreationTime'}
+                                            Ascending={false}
                                             OnSort={(d) => { }}
                                             TableStyle={{ tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden', flex: 1 }} 
                                             TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
