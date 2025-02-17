@@ -510,11 +510,6 @@ export default function AssetPage(props: IProps) {
                         props.UpdateChannels(channels);
                         props.UpdateAssetConnections(assetConnections);
                     }}>
-                    <li className="nav-item" style={{ width: '20%', paddingRight: 10 }}>
-                        <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                            <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
-                        </fieldset>
-                    </li>
                 </AssetSelect>
                 <Modal Show={showAssetModal}
                     Title={newEdit == 'New' ? 'Add New Asset to Meter' : 'Edit ' + (newEditAsset?.AssetName ?? 'Asset')}
