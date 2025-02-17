@@ -192,7 +192,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
                                                 if (inEnterprise) reprocessAll();
                                             }}>Reprocess All {data.length}</button>
                                     </div>
-                                    <ToolTip Show={hover === 'Bulk' && !inEnterprise} Position={'bottom'} Theme={'dark'} Target={"BulkReload"}>
+                                    <ToolTip Show={hover === 'Bulk' && !inEnterprise} Position={'bottom'} Target={"BulkReload"}>
                                         Bulk reprocessing only available in Enterprise Edition.
                                     </ToolTip>
                                 </form>
