@@ -196,10 +196,6 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
                                             SortKey={'CreationTime'}
                                             Ascending={false}
                                             OnSort={(d) => { }}
-                                            TableStyle={{ tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden', flex: 1 }} 
-                                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                            TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
-                                            RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
                                             Selected={(item) => false}
                                             KeySelector={(item) => item.ID}
                                         >
@@ -213,7 +209,7 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
                                             </Column>
                                             <Column
                                                 Key={'CreationTime'}
-                                                AllowSort={false}
+                                                AllowSort={true}
                                                 Field={'CreationTime'}
                                                 HeaderStyle={{ width: 'auto' }}
                                                 RowStyle={{ width: 'auto' }}
