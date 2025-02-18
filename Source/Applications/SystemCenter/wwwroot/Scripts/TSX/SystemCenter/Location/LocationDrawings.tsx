@@ -18,14 +18,10 @@
 //  ----------------------------------------------------------------------------------------------------
 //  06/17/2021 - Billy Ernest
 //       Generated original version of source code.
-//  09|25|2023 - Ariana Armstrong 
-//       Modified original source code; Incorporated 'Number' and 'Category' fields into 
-//       'Substation Drawings' table.
+//  09/25/2023 - Ariana Armstrong 
+//       Modified original source code; Incorporated Number and Category fields into 
+//       Substation Drawings table.
 //******************************************************************************************************
-
-
-
-
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
