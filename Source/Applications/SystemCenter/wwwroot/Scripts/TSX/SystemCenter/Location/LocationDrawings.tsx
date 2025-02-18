@@ -241,8 +241,11 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                 </div>
             </div>
             <div className="card-footer">
-                <button className={"btn btn-info pull-left" + (!hasPermissions() ? ' disabled' : '')} data-toggle={"modal" + (!hasPermissions() ? ' disabled' : '')} data-target="#exampleModal" data-tooltip='AddDrawing' onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')}
-                    onClick={() => { setRecord({ ...emptyRecord, LocationID: props.Location.ID }) }}>Add Drawing</button>
+                <button className={"btn btn-info pull-left" + (!hasPermissions() ? ' disabled' : '')}
+                data-tooltip='AddDrawing' onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')}
+                    onClick={() => { 
+                        if (!hasPermissions()) return;
+                        setRecord({ ...emptyRecord, LocationID: props.Location.ID }) }}>Add Drawing</button>
             </div>
             <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Target={"AddDrawing"}>
                 <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
