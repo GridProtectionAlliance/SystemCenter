@@ -224,7 +224,7 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                             RowStyle={{ width: 'auto' }}
                             Content={({ item }) =>
                                 <span>
-                                    <button title='Edit Link' className={"btn" + (!hasPermissions() ? ' disabled' : '')} data-toggle={"modal" + (!hasPermissions() ? ' disabled' : '')} data-target="#exampleModal" onClick={(e) => {setRecord(item) }}>{Pencil}</button>
+                                    <button title='Edit Link' className={"btn" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => { if (!hasPermissions()) return; setRecord(item) }}>{Pencil}</button>
                                     <button title='Delete Link' className={"btn" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => { if (hasPermissions()) handleDelete(item); }}>{TrashCan}</button>
                                 </span>
                             }
