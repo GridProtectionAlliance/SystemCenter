@@ -1,4 +1,4 @@
-﻿//******************************************************************************************************
+//******************************************************************************************************
 //  LocationMeter.tsx - Gbtc
 //
 //  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
@@ -31,6 +31,7 @@ import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { AssetConnectionTypeSlice } from '../Store/Store';
 import { SelectRoles } from '../Store/UserSettings';
+import LocationDrawingsButton from '../CommonComponents/LocationDrawingsButton';
 
 interface AssetConnection {
     AssetRelationShipTypeID: number,
@@ -40,8 +41,7 @@ interface AssetConnection {
     AssetName: string
 }
 
-function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number}): JSX.Element{
-
+function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number }): JSX.Element {
     let history = useHistory();
     let dispatch = useAppDispatch();
 
@@ -52,38 +52,41 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
     const [selectedTypeID, setSelectedtypeID] = React.useState<number>(0);
     const [localAssets, setLocalAssets] = React.useState<Array<OpenXDA.Types.Asset>>([]);
 
+    const [locations, setLocations] = React.useState<OpenXDA.Types.Location[]>([]);
+    const [isLoadingLocations, setIsLoadingLocations] = React.useState<boolean>(false);
+
     const [sortKey, setSortKey] = React.useState<string>('AssetKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [showModal, setShowModal] = React.useState<boolean>(false);
 
     const [status, setStatus] = React.useState<'idle' | 'loading' | 'error'>('idle');
-    const actStatus = useAppSelector(AssetConnectionTypeSlice.SearchStatus);
     const [trigger, setTrigger] = React.useState<number>(0);
+    const actStatus = useAppSelector(AssetConnectionTypeSlice.SearchStatus);
 
-    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
+    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None' | 'Drawings')>('None');
     const roles = useAppSelector(SelectRoles);
 
     React.useEffect(() => {
-        let handle = getAssetConnections();
-        return () => { if (handle != null || handle.abort != null) handle.abort();}
+        const handle = getAssetConnections();
+        return () => { if (handle != null && handle.abort != null) handle.abort(); }
     }, [props.ID, trigger])
 
     React.useEffect(() => {
         if (props.ID > 0) {
             let sqlString = `(SELECT AssetRelationshipTypeID FROM AssetRelationshipTypeAssetType LEFT JOIN Asset ON `
-            sqlString = sqlString +  `Asset.AssetTypeID <> ${props.TypeID} AND Asset.AssetTypeID = AssetRelationshipTypeAssetType.assetTypeID AND `
-            sqlString = sqlString +  `Asset.ID IN (SELECT AssetID FROM AssetLocation WHERE LocationID IN (Select LocationID FROM AssetLocation WHERE AssetID = ${props.ID})) `
-            sqlString = sqlString +  `GROUP BY AssetRelationshipTypeAssetType.AssetTypeID, AssetRelationshipTypeAssetType.AssetRelationshipTypeID `
-            sqlString = sqlString +  `HAVING COUNT(Asset.ID) > 0)`
+            sqlString = sqlString + `Asset.AssetTypeID <> ${props.TypeID} AND Asset.AssetTypeID = AssetRelationshipTypeAssetType.assetTypeID AND `
+            sqlString = sqlString + `Asset.ID IN (SELECT AssetID FROM AssetLocation WHERE LocationID IN (Select LocationID FROM AssetLocation WHERE AssetID = ${props.ID})) `
+            sqlString = sqlString + `GROUP BY AssetRelationshipTypeAssetType.AssetTypeID, AssetRelationshipTypeAssetType.AssetRelationshipTypeID `
+            sqlString = sqlString + `HAVING COUNT(Asset.ID) > 0)`
             const filter: Search.IFilter<OpenXDA.Types.AssetConnectionType>[] = [
                 { FieldName: 'ID', SearchText: `(SELECT AssetRelationshipTypeID FROM AssetRelationshipTypeAssetType WHERE AssetTypeID = ${props.TypeID})`, Operator: 'IN', Type: 'query', IsPivotColumn: false },
                 {
                     FieldName: 'ID', SearchText: sqlString, Operator: 'IN', Type: 'query', IsPivotColumn: false
                 }
-                ]
+            ]
             dispatch(AssetConnectionTypeSlice.DBSearch({ filter: filter }))
         }
-        }, [props.TypeID])
+    }, [props.TypeID])
 
     React.useEffect(() => {
         if (selectedTypeID == 0) {
@@ -97,7 +100,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
 
     React.useEffect(() => {
         let index = assetConnectionTypes.findIndex(t => t.ID == selectedTypeID);
-        if (index == -1 && assetConnectionTypes.length> 0)
+        if (index == -1 && assetConnectionTypes.length > 0)
             setSelectedtypeID(assetConnectionTypes[0].ID)
     }, [assetConnectionTypes])
 
@@ -106,7 +109,20 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
         if (index == -1 && localAssets.length > 0)
             setSelectedAssetID(localAssets[0].ID)
     }, [localAssets])
-   
+
+    React.useEffect(() => {
+        setIsLoadingLocations(true);
+        const h  = $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/Asset/${props.ID}/Locations`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        }).done(data => { setLocations(data); setIsLoadingLocations(false); });
+        return () => { if (h!= null && h.abort != null) h.abort(); }
+    }, [assetConnections])
+
     function getAssetConnections(): JQuery.jqXHR<OpenXDA.Types.AssetConnection> {
         setStatus('loading');
         return $.ajax({
@@ -171,7 +187,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
             url: `${homePath}api/OpenXDA/AssetConnection/Add`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify({ ID: 0, AssetRelationshipTypeID: selectedTypeID, ParentID: props.ID, ChildID: selectedAssetID}),
+            data: JSON.stringify({ ID: 0, AssetRelationshipTypeID: selectedTypeID, ParentID: props.ID, ChildID: selectedAssetID }),
             cache: false,
             async: true
         }).done(() => {
@@ -181,9 +197,8 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
         });
     }
 
-
     function handleSelect(item) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + item.row.AssetID})
+        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + item.row.AssetID })
     }
 
     function hasPermissions(): boolean {
@@ -210,7 +225,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
             </div>
         </div>
 
-    if (status == 'loading' || actStatus == 'loading' )
+    if (status == 'loading' || actStatus == 'loading')
         return <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
                 <div className="row">
@@ -232,9 +247,15 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
     return (
         <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="card-header">
-                <div className="row">
-                    <div className="col">
+                <div className="row justify-content-between">
+                    <div className="col-6">
                         <h4>Connections:</h4>
+                    </div>
+                    <div className="pr-4">
+                        <LocationDrawingsButton
+                            Locations={locations}
+                            IsLoadingLocations={isLoadingLocations}
+                        />
                     </div>
                 </div>
             </div>
@@ -304,7 +325,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                                     e.stopPropagation();
                                     if (hasPermissions()) deleteAssetConnection(item);
                                 }}><span>{TrashCan}</span></button>
-                            </> }
+                            </>}
                         > <p></p>
                         </Column>
                     </Table>
@@ -356,7 +377,6 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                     </div>}
             </Modal>
         </div>
-                
     );
 
 }

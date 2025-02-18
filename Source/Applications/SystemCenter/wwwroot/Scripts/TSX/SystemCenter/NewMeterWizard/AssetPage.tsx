@@ -40,8 +40,6 @@ import DERAttributes from '../AssetAttribute/DER';
 import AssetSelect from '../Asset/AssetSelect';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { getAssetWithAdditionalFields } from '../../../TS/Services/Asset';
-import LocationDrawings from '../Meter/PropertyUI/LocationDrawings';
-import { GetNodeSize } from '@gpa-gemstone/helper-functions';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import GenerationAttributes from '../AssetAttribute/Generation';
 import StationAuxAttributes from '../AssetAttribute/StationAux';
@@ -105,6 +103,7 @@ export default function AssetPage(props: IProps) {
     const filterChannels = React.useMemo(() =>
         channelsWorking.filter(ch => (ch.Asset === (newEdit === 'Edit' ? editAssetKey : tempKey)) || (ch.Asset === ""))
     , [channelsWorking, editAssetKey, newEdit]);
+
 
     const assetData = React.useMemo(() => {
         const u = _.cloneDeep(props.Assets);
@@ -355,7 +354,7 @@ export default function AssetPage(props: IProps) {
                                         }
                                     </li>
                                 )
-                                }
+                            }
                         </ul>
                     </div>
                     <div className="col-12 col-sm-6 col-lg-8" style={{ overflow: 'hidden', height: '100%' }}>
@@ -511,16 +510,6 @@ export default function AssetPage(props: IProps) {
                         props.UpdateChannels(channels);
                         props.UpdateAssetConnections(assetConnections);
                     }}>
-                    <li className="nav-item" style={{ width: '20%', paddingRight: 10 }}>
-                        <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                            <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
-                            <form>
-                                <div className="form-group">
-                                    <LocationDrawings LocationID={props.Location.ID} />
-                                </div>
-                            </form>
-                        </fieldset>
-                    </li>
                 </AssetSelect>
                 <Modal Show={showAssetModal}
                     Title={newEdit == 'New' ? 'Add New Asset to Meter' : 'Edit ' + (newEditAsset?.AssetName ?? 'Asset')}
@@ -539,7 +528,7 @@ export default function AssetPage(props: IProps) {
                                 const channelsWithNewKey = channelsWorking
                                     .map(chan => (chan.Asset === tempKey) ? ({ ...chan, Asset: record.AssetKey }) : chan);
                                 record.Channels = channelsWithNewKey
-                                    .filter(chan => chan.Asset === record.AssetKey);                                    ;
+                                    .filter(chan => chan.Asset === record.AssetKey);
                                 list.push(record);
                                 props.UpdateChannels(channelsWithNewKey);
                             }
@@ -563,7 +552,7 @@ export default function AssetPage(props: IProps) {
                 >
                     <div className="row">
                         <div className="col-8">
-                            <div className="row" style={{ maxHeight: innerHeight - 300, overflow:'auto' }}>
+                            <div className="row" style={{ maxHeight: innerHeight - 300, overflow: 'auto' }}>
                                 <div className="col-6">
                                     <AssetAttributes.AssetAttributeFields Asset={newEditAsset} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={assets}
                                         AllowEdit={newEditAsset.ID === 0}
