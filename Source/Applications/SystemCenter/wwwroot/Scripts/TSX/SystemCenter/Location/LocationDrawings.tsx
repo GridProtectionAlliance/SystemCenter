@@ -28,15 +28,13 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
-import { SystemCenter as SCGlobal } from '../global';
+import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
-import { useAppSelector, useAppDispatch } from '../hooks';
+import { useAppSelector } from '../hooks';
 import { Input, Select } from '@gpa-gemstone/react-forms';
 import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { SelectRoles } from '../Store/UserSettings';
-import { ToolTip, GenericController, LoadingScreen, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
-import { current } from '@reduxjs/toolkit';
+import { ToolTip, GenericController, LoadingScreen, ServerErrorIcon, Modal } from '@gpa-gemstone/react-interactive';
 
 
 const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => {
@@ -47,7 +45,7 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
     const [sortKey, setSortKey] = React.useState<keyof SystemCenter.Types.LocationDrawing>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const emptyRecord: SystemCenter.Types.LocationDrawing = { ID: 0, LocationID: 0, Name: '', Link: '', Description: '', Number: '', Category: '' };
-    const [record, setRecord] = React.useState<SystemCenter.Types.LocationDrawing>(emptyRecord);
+    const [record, setRecord] = React.useState<SystemCenter.Types.LocationDrawing|undefined>(undefined);
     const [category, setCategory] = React.useState<Array<SystemCenter.Types.ValueListItem>>([]);
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
     const roles = useAppSelector(SelectRoles);
@@ -123,9 +121,9 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
         return true;
     }
 
-    const handleSave = () => {
+    const handleSave = (r: SystemCenter.Types.LocationDrawing) => {
         setPageState('loading');
-        LocationDrawingController.DBAction('PATCH', record)
+        LocationDrawingController.DBAction('PATCH', r)
             .then(() => {
                 fetchDrawings(sortKey, ascending, page, props.Location.ID);
             })
@@ -249,30 +247,22 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
             <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Target={"AddDrawing"}>
                 <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
             </ToolTip>
-            <div className="modal" id="exampleModal" role="dialog">
-                <div className="modal-dialog" role="document">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h5 className="modal-title">Add New Drawing</h5>
-                            <button type="button" className="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div className="modal-body">
-                            <Input<SystemCenter.Types.LocationDrawing> Record={record} Field={'Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={valid} Setter={(r) => setRecord(r)} />
-                            <Input<SystemCenter.Types.LocationDrawing> Record={record} Field={'Link'} Feedback={'A Link is required.'} Valid={valid} Setter={(r) => setRecord(r)} />
-                            <Input<SystemCenter.Types.LocationDrawing> Record={record} Field={'Description'} Valid={valid} Setter={(r) => setRecord(r)} />
-                            <Select<SystemCenter.Types.LocationDrawing> Record={record} Field={'Category'} Options={category.map(item => { return { Value: item.Value, Label: item.AltValue ?? item.Value } })} Label={'Category'} Setter={(r) => setRecord(r)} />
-                            <Input<SystemCenter.Types.LocationDrawing> Record={record} Field={'Number'} Feedback={'Number must be less than 50 characters.'} Valid={valid} AllowNull={true} Setter={(r) => setRecord(r)} />
+            <Modal Show={record !== undefined} Size={'lg'}
+                Title={'Add New Drawing'}
+                ShowCancel={false}
+                ShowX={true}
+                ConfirmText={'Save Changes'}
+                CallBack={(c) => {
+                    if (c && record !== undefined) handleSave(record);
+                    setRecord(undefined);
+                }}>
+                    <Input<SystemCenter.Types.LocationDrawing> Record={record} Field={'Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={valid} Setter={(r) => setRecord(r)} />
+                    <Input<SystemCenter.Types.LocationDrawing> Record={record} Field={'Link'} Feedback={'A Link is required.'} Valid={valid} Setter={(r) => setRecord(r)} />
+                    <Input<SystemCenter.Types.LocationDrawing> Record={record} Field={'Description'} Valid={valid} Setter={(r) => setRecord(r)} />
+                    <Select<SystemCenter.Types.LocationDrawing> Record={record} Field={'Category'} Options={category.map(item => { return { Value: item.Value, Label: item.AltValue ?? item.Value } })} Label={'Category'} Setter={(r) => setRecord(r)} />
+                    <Input<SystemCenter.Types.LocationDrawing> Record={record} Field={'Number'} Feedback={'Number must be less than 50 characters.'} Valid={valid} AllowNull={true} Setter={(r) => setRecord(r)} />
 
-                            </div>
-                            <div className="modal-footer">
-                            <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={() => handleSave()}>Save changes</button>
-                                <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            </Modal>
         </div>
 
     );
