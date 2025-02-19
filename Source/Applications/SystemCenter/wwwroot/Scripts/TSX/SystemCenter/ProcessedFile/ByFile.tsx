@@ -28,11 +28,12 @@ import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { DefaultSearchField } from '../CommonComponents/SearchFields';
 import { SearchBar, Search, Modal, LoadingIcon, LoadingScreen, ToolTip } from '@gpa-gemstone/react-interactive';
 import { useAppSelector, useAppDispatch } from '../hooks';
-import { DataFileSlice, ConfigSlice } from '../Store/Store';
+import { DataFileSlice } from '../Store/Store';
 import { OpenXDA as GlobalXDA } from '../global';
 import moment from 'moment';
 import { Paging } from '@gpa-gemstone/react-table';
 import { CrossMark, ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import EditionToolTip from '../CommonComponents/EditionTooltip';
 
 const filterableList: Search.IField<OpenXDA.Types.DataFile>[] = [
     { isPivotField: false, key: 'FilePath', label: 'File Path', type: 'string' },
@@ -55,9 +56,7 @@ declare var homePath: string;
 const ByFile: Application.Types.iByComponent = (props) => {
     let dispatch = useAppDispatch();
 
-    const configStatus = useAppSelector(ConfigSlice.XDAConfigStatus);
-    const config = useAppSelector(ConfigSlice.XDAConfig);
-    const inEnterprise = React.useMemo(() => (config.EditionStatus['Enterprise'] ?? false), [config.EditionStatus]);
+    const [inEnterprise, setInEnterprise] = React.useState<boolean>(false);
 
     const cState = useAppSelector(DataFileSlice.PagedStatus);
     const data = useAppSelector(DataFileSlice.SearchResults);
@@ -93,11 +92,6 @@ const ByFile: Application.Types.iByComponent = (props) => {
     React.useEffect(() => {
         dispatch(DataFileSlice.PagedSearch({ sortField: sortKey, ascending, filter: search, page }))
     }, [search, ascending, sortKey, page, update]);
-
-    React.useEffect(() => {
-        if (configStatus == 'unintiated' || configStatus == 'changed')
-            dispatch(ConfigSlice.FetchXDAConfig());
-    }, [configStatus]);
 
     React.useEffect(() => {
         if (cState == 'unintiated' || cState == 'changed')
@@ -167,12 +161,12 @@ const ByFile: Application.Types.iByComponent = (props) => {
 
     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <LoadingScreen Show={showWarning == 'loading' || configStatus === 'loading'} />
+            <LoadingScreen Show={showWarning == 'loading'} />
             <div className="container-fluid d-flex h-100 flex-column">
                 <div className="row">
                     <SearchBar<OpenXDA.Types.DataFile> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={DefaultSearchField.DataFile as Search.IField<OpenXDA.Types.DataFile>} Width={'100%'} Label={'Search'} StorageID="DataFilesFilter"
-                        ShowLoading={cState === 'loading' || configStatus === 'loading'}
-                        ResultNote={(cState === 'error' || configStatus === 'error') ? 'Could not complete Search' : ('Displaying  Data File(s) ' + (totalRecords > 0? (50 * page + 1): 0 ) + ' - ' + (50 * page + data.length)) + ' out of ' + totalRecords}
+                        ShowLoading={cState === 'loading'}
+                        ResultNote={(cState === 'error') ? 'Could not complete Search' : ('Displaying  Data File(s) ' + (totalRecords > 0? (50 * page + 1): 0 ) + ' - ' + (50 * page + data.length)) + ' out of ' + totalRecords}
                         GetEnum={(setOptions, field) => {
                             if (field.enum != null)
                             setOptions(field.enum);
@@ -192,9 +186,13 @@ const ByFile: Application.Types.iByComponent = (props) => {
                                                 if (inEnterprise) reprocessAll();
                                             }}>Reprocess All {data.length}</button>
                                     </div>
-                                    <ToolTip Show={hover === 'Bulk' && !inEnterprise} Position={'bottom'} Target={"BulkReload"}>
-                                        Bulk reprocessing only available in Enterprise Edition.
-                                    </ToolTip>
+                                    <EditionToolTip
+                                        SetInEdition={setInEnterprise}
+                                        EditionRequirement={'Enterprise'}
+                                        FeatureName={'Bulk Reprocessing'}
+                                        Target={'BulkReload'}
+                                        Show={hover === 'Bulk'}
+                                    />
                                 </form>
                             </fieldset>
                         </li>
