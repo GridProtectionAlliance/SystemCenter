@@ -68,7 +68,7 @@ namespace SystemCenter.Notifications.Controllers
         }
 
         [HttpGet, Route("TestSMTPServer")]
-        public IHttpActionResult Test()
+        public IHttpActionResult TestSMTP()
         {
             if (!GetAuthCheck())
                 return Unauthorized();
