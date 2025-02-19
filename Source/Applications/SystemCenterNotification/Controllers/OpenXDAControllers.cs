@@ -21,19 +21,24 @@
 //
 //******************************************************************************************************
 
+using GSF.Configuration;
 using GSF.Data;
 using GSF.Data.Model;
 using GSF.Identity;
 using GSF.Security.Model;
 using GSF.Web.Model;
 using Newtonsoft.Json.Linq;
+using openXDA.APIAuthentication;
 using openXDA.Model;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
-using System.Linq;
+using System.Net.Http;
 using System.Web.Http;
 using SystemCenter.Model;
+using APIConfiguration = SystemCenter.Notifications.Model.APIConfiguration;
+using ConfigurationLoader = SystemCenter.Notifications.Model.ConfigurationLoader;
 
 namespace SystemCenter.Notifications.Controllers
 {
@@ -50,7 +55,67 @@ namespace SystemCenter.Notifications.Controllers
     public class AssetGroupController : ModelController<AssetGroupViewEmail> { }
 
     [RoutePrefix("api/Setting")]
-    public class SettingController : ModelController<openXDA.Model.Setting> { }
+    public class SettingController : ModelController<openXDA.Model.Setting>
+    {
+        private class Settings
+        {
+            public Settings(Action<object> configure) =>
+                configure(this);
+
+            [Category]
+            [SettingName("XDA")]
+            public APIConfiguration APISettings { get; } = new APIConfiguration();
+        }
+
+        [HttpGet, Route("TestSMTPServer")]
+        public IHttpActionResult TestSMTP()
+        {
+            if (!GetAuthCheck())
+                return Unauthorized();
+
+            try
+            {
+                Settings settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure);
+
+                APIQuery query = new APIQuery(settings.APISettings.Key, settings.APISettings.Token, settings.APISettings.Host.Split(';'));
+
+                void ConfigureRequest(HttpRequestMessage request)
+                {
+                    request.Method = HttpMethod.Get;
+                }
+
+                HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"api/email/TestSMTPServer", User).Result;
+                if (!responseMessage.IsSuccessStatusCode)
+                {
+                    string message;
+                    try
+                    {
+                        string content = responseMessage.Content.ReadAsStringAsync().Result;
+                        message = JObject.Parse(content)["Message"].ToString();
+                    }
+                    catch
+                    {
+                        message = responseMessage.ReasonPhrase;
+                    }
+                    return Ok($"XDA Server returned status code {responseMessage.StatusCode}: {message}");
+                }
+
+                return Ok(1);
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        private AdoDataConnection CreateDbConnection()
+        {
+            AdoDataConnection connection = new AdoDataConnection(Connection);
+            connection.DefaultTimeout = DataExtensions.DefaultTimeoutDuration;
+            return connection;
+        }
+    }
 
     [RoutePrefix("api/EventSubscription")]
     public class EventSubscriptionController : ModelController<openXDA.Model.SubscribeEmails> {
