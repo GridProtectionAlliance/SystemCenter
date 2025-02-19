@@ -29,7 +29,7 @@ export interface IMessage { Message: string, Type: number }
 export interface IProps {
     ConsoleURL: string,
     ApplicationName: string,
-    Close: () => void,
+    Close: () => void
 }
 
 interface IConsoleMessage {

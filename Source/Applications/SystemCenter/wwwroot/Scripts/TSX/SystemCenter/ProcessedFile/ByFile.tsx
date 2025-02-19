@@ -25,21 +25,38 @@ import * as React from 'react';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-
 import { DefaultSearchField } from '../CommonComponents/SearchFields';
-import { SearchBar, Search, Modal, LoadingIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
+import { SearchBar, Search, Modal, LoadingIcon, LoadingScreen, ToolTip } from '@gpa-gemstone/react-interactive';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { DataFileSlice } from '../Store/Store';
 import { OpenXDA as GlobalXDA } from '../global';
 import moment from 'moment';
 import { Paging } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import EditionToolTip from '../CommonComponents/EditionTooltip';
 
+const filterableList: Search.IField<OpenXDA.Types.DataFile>[] = [
+    { isPivotField: false, key: 'FilePath', label: 'File Path', type: 'string' },
+    { isPivotField: false, key: 'CreationTime', label: 'File Processed', type: 'datetime' },
+    { isPivotField: false, key: 'DataStartTime', label: 'Data Start', type: 'datetime' },
+    {
+        isPivotField: false, key: 'ProcessingState', label: 'Status', type: 'enum', enum: [
+            { Value: "0", Label: "Unknown" },
+            { Value: "1", Label: "Queued" },
+            { Value: "2", Label: "Processing" },
+            { Value: "3", Label: "Processed" },
+            { Value: "4", Label: "Failure" },
+            { Value: "5", Label: "Partial Failure" }
+        ]
+    }
+];
 
 declare var homePath: string;
 
 const ByFile: Application.Types.iByComponent = (props) => {
     let dispatch = useAppDispatch();
+
+    const [inEnterprise, setInEnterprise] = React.useState<boolean>(false);
 
     const cState = useAppSelector(DataFileSlice.PagedStatus);
     const data = useAppSelector(DataFileSlice.SearchResults);
@@ -54,22 +71,8 @@ const ByFile: Application.Types.iByComponent = (props) => {
     const [showWarning, setShowWarning] = React.useState<'hide' | 'complete' | 'error' | 'loading'>('hide');
 
     const [search, setSearch] = React.useState<Array<Search.IFilter<OpenXDA.Types.DataFile>>>([]);
-    const filterableList: Search.IField<OpenXDA.Types.DataFile>[] = [
-        { isPivotField: false, key: 'FilePath', label: 'File Path', type: 'string' },
-        { isPivotField: false, key: 'CreationTime', label: 'File Processed', type: 'datetime' },
-        { isPivotField: false, key: 'DataStartTime', label: 'Data Start', type: 'datetime' },
-        {
-            isPivotField: false, key: 'ProcessingState', label: 'Status', type: 'enum', enum: [
-                { Value: "0", Label: "Unknown" },
-                { Value: "1", Label: "Queued" },
-                { Value: "2", Label: "Processing" },
-                { Value: "3", Label: "Processed" },
-                { Value: "4", Label: "Failure" },
-                { Value: "5", Label: "Partial Failure" }
-            ]
-        }     
-    ]
 
+    const [hover, setHover] = React.useState<'None' | 'Bulk'>('None');
     const [sortKey, setSortKey] = React.useState<keyof OpenXDA.Types.DataFile>('DataStartTime');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [page, setPage] = React.useState<number>(currentPage);
@@ -162,8 +165,8 @@ const ByFile: Application.Types.iByComponent = (props) => {
             <div className="container-fluid d-flex h-100 flex-column">
                 <div className="row">
                     <SearchBar<OpenXDA.Types.DataFile> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={DefaultSearchField.DataFile as Search.IField<OpenXDA.Types.DataFile>} Width={'100%'} Label={'Search'} StorageID="DataFilesFilter"
-                        ShowLoading={cState == 'loading'}
-                        ResultNote={cState == 'error' ? 'Could not complete Search' : ('Displaying  Data File(s) ' + (totalRecords > 0? (50 * page + 1): 0 ) + ' - ' + (50 * page + data.length)) + ' out of ' + totalRecords}
+                        ShowLoading={cState === 'loading'}
+                        ResultNote={(cState === 'error') ? 'Could not complete Search' : ('Displaying  Data File(s) ' + (totalRecords > 0? (50 * page + 1): 0 ) + ' - ' + (50 * page + data.length)) + ' out of ' + totalRecords}
                         GetEnum={(setOptions, field) => {
                             if (field.enum != null)
                             setOptions(field.enum);
@@ -176,10 +179,20 @@ const ByFile: Application.Types.iByComponent = (props) => {
                                 <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                                 <form>
                                     <div className="form-group">
-                                        <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0}
-                                            onClick={(event) => { event.preventDefault(); reprocessAll(); }}>Reprocess All {data.length}</button>
+                                        <button className={`btn btn-primary${inEnterprise ? '' : ' disabled'}`} hidden={props.Roles.indexOf('Administrator') < 0}
+                                            onMouseEnter={() => setHover('Bulk')} onMouseLeave={() => setHover('None')} data-tooltip={"BulkReload"}
+                                            onClick={(event) => {
+                                                event.preventDefault();
+                                                if (inEnterprise) reprocessAll();
+                                            }}>Reprocess All {data.length}</button>
                                     </div>
-                                   
+                                    <EditionToolTip
+                                        SetInEdition={setInEnterprise}
+                                        EditionRequirement={'Enterprise'}
+                                        FeatureName={'Bulk Reprocessing'}
+                                        Target={'BulkReload'}
+                                        Show={hover === 'Bulk'}
+                                    />
                                 </form>
                             </fieldset>
                         </li>
