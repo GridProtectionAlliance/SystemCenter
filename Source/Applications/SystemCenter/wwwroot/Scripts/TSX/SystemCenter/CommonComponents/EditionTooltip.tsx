@@ -58,7 +58,7 @@ const EditionTooltip: React.FunctionComponent<IProps> = (props) => {
     const message: string = React.useMemo(() => {
         switch (configStatus) {
             case 'error': return "Unable to retrieve edition status.";
-            case 'idle': return `${props.FeatureName} is only available in Enterprise Edition.`;
+            case 'idle': return `${props.FeatureName} is only available in ${props.EditionRequirement ?? 'Enterprise'} Edition.`;
             default: return "Retrieving edition status..."
         }
     }, [configStatus]);
