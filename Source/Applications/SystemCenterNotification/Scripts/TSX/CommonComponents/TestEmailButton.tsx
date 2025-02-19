@@ -33,7 +33,7 @@ const TestEmailButton = (props: {}) => {
 
     return (
         <>
-            <button className="btn btn-primary" onClick={(event) => {
+            <button className="btn btn-info btn-block" onClick={(event) => {
                 setShowTest(true);
                 event.preventDefault();
             }}>

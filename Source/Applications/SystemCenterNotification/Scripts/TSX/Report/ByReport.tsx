@@ -126,13 +126,10 @@ const ByReport = (props: IProps) => {
                         <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
                             <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                                 <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
-                                <form>
-                                    <button className="btn btn-primary" style={{ marginBottom: '5px' }} onClick={(event) => { setNewEmail(emptyEmail); setShowModal(true); event.preventDefault() }}>
-                                        Add Report
-                                    </button>
-                                    <br />
-                                    <TestEmailButton />
-                                </form>
+                                <button className="btn btn-info btn-block" onClick={(event) => { setNewEmail(emptyEmail); setShowModal(true); event.preventDefault() }}>
+                                    Add Report
+                                </button>
+                                <TestEmailButton />
                             </fieldset>
                         </li>
                     </SearchBar>
