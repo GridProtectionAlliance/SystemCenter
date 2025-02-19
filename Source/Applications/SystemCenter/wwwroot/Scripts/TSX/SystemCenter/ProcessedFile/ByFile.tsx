@@ -32,7 +32,7 @@ import { DataFileSlice } from '../Store/Store';
 import { OpenXDA as GlobalXDA } from '../global';
 import moment from 'moment';
 import { Paging } from '@gpa-gemstone/react-table';
-import { CrossMark, ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import EditionToolTip from '../CommonComponents/EditionTooltip';
 
 const filterableList: Search.IField<OpenXDA.Types.DataFile>[] = [
