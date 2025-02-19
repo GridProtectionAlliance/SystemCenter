@@ -551,6 +551,7 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\AdditionalFieldsProperties.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ByExternalTable.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\GenericByPage.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\EditionTooltip.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\ExternalDBUpdate.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDBTable.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDBTableFields.tsx" />
