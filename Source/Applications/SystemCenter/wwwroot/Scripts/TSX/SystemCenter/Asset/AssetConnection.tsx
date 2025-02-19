@@ -24,7 +24,7 @@
 import * as React from 'react';
 import _ from 'lodash';
 import { Table, Column } from '@gpa-gemstone/react-table';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { LoadingIcon, Modal, Search, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
 import { TrashCan } from '@gpa-gemstone/gpa-symbols'
 import { OpenXDA } from '@gpa-gemstone/application-typings';
@@ -42,7 +42,7 @@ interface AssetConnection {
 
 function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number}): JSX.Element{
 
-    let history = useHistory();
+    let navigate = useNavigate();
     let dispatch = useAppDispatch();
 
     const [assetConnections, setAssetConnections] = React.useState<Array<AssetConnection>>([]);
@@ -183,7 +183,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
 
 
     function handleSelect(item) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + item.row.AssetID})
+        navigate(`${homePath}index.cshtml?name=Asset&AssetID=${item.row.AssetID}`);
     }
 
     function hasPermissions(): boolean {

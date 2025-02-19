@@ -28,7 +28,7 @@ import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
 import * as _ from 'lodash';
 import UserForm from './UserForm';
 import { useAppDispatch, useAppSelector } from '../../hooks';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { ValueListSlice, ValueListGroupSlice, UserAdditionalFieldSlice, UserAccountSlice } from '../../Store/Store';
 import { IUserAccount } from '../Types';
 import moment from 'moment';
@@ -62,7 +62,7 @@ const newAcct: IUserAccount = {
 }
 
 const ByUser: Application.Types.iByComponent = (props) => {
-    let history = useHistory();
+    let navigate = useNavigate();
     const dispatch = useAppDispatch();
 
     const search = useAppSelector(UserAccountSlice.SearchFilters);
@@ -181,7 +181,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
                      OnSort={(d) => {
                          dispatch(UserAccountSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                      }}
-                     OnClick={(d) => history.push({ pathname: homePath + 'index.cshtml', search: '?name=User&UserAccountID=' + d.row.ID })}
+                     OnClick={(d) => navigate(`${homePath}index.cshtml?name=User&UserAccountID=${d.row.ID}`)}
                      TableStyle={{
                          padding: 0, width: '100%', height: '100%',
                          tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column', marginBottom: 0

@@ -26,7 +26,7 @@ import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ServerErrorIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import moment from 'moment';
 declare var homePath: string;
 declare interface MeterConfiguration {
@@ -36,7 +36,7 @@ declare interface MeterConfiguration {
     LastProcessedTime: string
 }
 function MeterConfigurationHistoryWindow(props: { Meter: OpenXDA.Types.Meter }) {
-    const history = useHistory();
+    const navigate = useNavigate();
     const [meterConfigurations, setMeterConfigurations] = React.useState<Array<MeterConfiguration>>([]);
 
     const [page, setPage] = React.useState<number>(0);
@@ -68,7 +68,7 @@ function MeterConfigurationHistoryWindow(props: { Meter: OpenXDA.Types.Meter }) 
         }).fail(() => setPageState('error'));
     };
     function handleSelect(item: MeterConfiguration) {
-        history.push({ pathname: `${homePath}index.cshtml`, search: `?name=ConfigurationHistory&MeterKey=${props.Meter.AssetKey}&MeterConfigurationID=${item.ID}` })
+        navigate(`${homePath}index.cshtml?name=ConfigurationHistory&MeterKey=${props.Meter.AssetKey}&MeterConfigurationID=${item.ID}`);
     }
 
     return (

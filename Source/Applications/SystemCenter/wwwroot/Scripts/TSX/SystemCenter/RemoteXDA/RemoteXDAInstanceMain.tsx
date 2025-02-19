@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { GenericController, Modal } from '@gpa-gemstone/react-interactive';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
@@ -41,18 +41,14 @@ const fieldCols: SystemCenter.IByCol<OpenXDA.Types.RemoteXDAInstance>[] = [
 ]
 
 const RemoteXDAInstanceMain: Application.Types.iByComponent = (props) => {
-    let history = useHistory();
+    const navigate = useNavigate();
     const [showNew, setShowNew] = React.useState<boolean>(false);
     const [refreshCount, refreshData] = React.useState<number>(0);
     const [formInstance, setFormInstance] = React.useState<OpenXDA.Types.RemoteXDAInstance>(BlankRemoteXDAInstance);
     const [newInstErrors, setNewInstErrors] = React.useState<string[]>([]);
 
     function handleSelect(item) {
-        history.push({
-            pathname: homePath + 'index.cshtml',
-            search: '?name=RemoteXDAInstance&ID=' + item.row.ID,
-            state: {}
-        })
+        navigate(`${homePath}index.cshtml?name=RemoteXDAInstance&ID=${item.row.ID}`);
     }
 
     return <>
