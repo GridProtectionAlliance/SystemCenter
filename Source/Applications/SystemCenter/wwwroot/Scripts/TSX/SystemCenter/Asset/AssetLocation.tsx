@@ -36,7 +36,7 @@ declare var homePath: string;
 function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
     let navigate = useNavigate();
     const [locations, setLocations] = React.useState<Array<OpenXDA.Types.Location>>([]);
-    const [sortField, setSortField] = React.useState<keyof (OpenXDA.Types.Location)>('LocationKey');
+    const [sortField, setSortField] = React.useState<keyof (OpenXDA.Types.Location)>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [allLocations, setAllLocations] = React.useState<Array<OpenXDA.Types.Location>>([]);
     const [newLocation, setNewLocation] = React.useState<OpenXDA.Types.Location>();
@@ -138,83 +138,79 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
                     </div>
                 </div>
             </div>
-            <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
-                <div style={{ width: '100%', height: '100%', padding: 30, display: 'flex', flexDirection: 'column' }}>
-                    <Table<OpenXDA.Types.Location>
-                        TableClass="table table-hover"
-                        Data={locations}
-                        SortKey={sortField}
-                        Ascending={ascending}
-                        OnSort={(d) => {
-                            if (d.colKey == sortField) {
-                                setAscending(!ascending);
-                                const ordered = _.orderBy(locations, [d.colKey], [(!ascending ? "asc" : "desc")]);
-                                setLocations(ordered);
-                            }
-                            else {
-                                setAscending(true);
-                                setSortField(d.colField);
-                                const ordered = _.orderBy(locations, [d.colKey], ["asc"]);
-                                setLocations(ordered);
-                            }
-                        }}
-                        TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
-                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        TbodyStyle={{ display: 'block', width: '100%', overflowY: 'auto', flex: 1 }}
-                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        OnClick={handleSelect}
-                        Selected={(item) => false}
-                        KeySelector={(item) => item.ID}
-                    >
-                        <Column<OpenXDA.Types.Location>
-                            Key={'LocationKey'}
-                            AllowSort={true}
-                            Field={'LocationKey'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Key
-                        </Column>
-                        <Column<OpenXDA.Types.Location>
-                            Key={'Name'}
-                            AllowSort={true}
-                            Field={'Name'}
-                            HeaderStyle={{ width: '30%' }}
-                            RowStyle={{ width: '30%' }}
-                        > Name
-                        </Column>
-                        <Column<OpenXDA.Types.Location>
-                            Key={'Latitude'}
-                            AllowSort={true}
-                            Field={'Latitude'}
-                            HeaderStyle={{ width: '15%' }}
-                            RowStyle={{ width: '15%' }}
-                        > Latitude
-                        </Column>
-                        <Column<OpenXDA.Types.Location>
-                            Key={'Longitude'}
-                            AllowSort={true}
-                            Field={'Longitude'}
-                            HeaderStyle={{ width: '15%' }}
-                            RowStyle={{ width: '15%' }}
-                        > Longitude
-                        </Column>
-                        <Column<OpenXDA.Types.Location>
-                            Key={'Delete'}
-                            AllowSort={false}
-                            HeaderStyle={{ width: '10%' }}
-                            RowStyle={{ width: '10%' }}
-                            Content={({ item }) => <>
-                                <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => {
-                                    if (hasPermissions()) {
-                                        e.preventDefault();
-                                        deleteLocation(item);
-                                    }
-                                }}><span>{TrashCan}</span></button>
-                            </> }
-                        > <p></p>
-                        </Column>
-                    </Table>
-                </div>
+            <div className="card-body" style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                <Table<OpenXDA.Types.Location>
+                    TableClass="table table-hover"
+                    Data={locations}
+                    SortKey={sortField}
+                    Ascending={ascending}
+                    OnSort={(d) => {
+                        if (d.colKey == sortField) {
+                            setAscending(!ascending);
+                            const ordered = _.orderBy(locations, [d.colKey], [(!ascending ? "asc" : "desc")]);
+                            setLocations(ordered);
+                        }
+                        else {
+                            setAscending(true);
+                            setSortField(d.colField);
+                            const ordered = _.orderBy(locations, [d.colKey], ["asc"]);
+                            setLocations(ordered);
+                        }
+                    }}
+                    TheadStyle={{ fontSize: 'smaller' }}
+                    RowStyle={{ fontSize: 'smaller' }}
+                    OnClick={handleSelect}
+                    Selected={(item) => false}
+                    KeySelector={(item) => item.ID}
+                >
+                    <Column<OpenXDA.Types.Location>
+                        Key={'Name'}
+                        AllowSort={true}
+                        Field={'Name'}
+                        HeaderStyle={{ width: '30%' }}
+                        RowStyle={{ width: '30%' }}
+                    > Name
+                    </Column>
+                    <Column<OpenXDA.Types.Location>
+                        Key={'LocationKey'}
+                        AllowSort={true}
+                        Field={'LocationKey'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                    > Key
+                    </Column>
+                    <Column<OpenXDA.Types.Location>
+                        Key={'Latitude'}
+                        AllowSort={true}
+                        Field={'Latitude'}
+                        HeaderStyle={{ width: '15%' }}
+                        RowStyle={{ width: '15%' }}
+                    > Latitude
+                    </Column>
+                    <Column<OpenXDA.Types.Location>
+                        Key={'Longitude'}
+                        AllowSort={true}
+                        Field={'Longitude'}
+                        HeaderStyle={{ width: '15%' }}
+                        RowStyle={{ width: '15%' }}
+                    > Longitude
+                    </Column>
+                    <Column<OpenXDA.Types.Location>
+                        Key={'Delete'}
+                        AllowSort={false}
+                        HeaderStyle={{ width: '10%' }}
+                        RowStyle={{ width: '10%' }}
+                        Content={({ item }) => <>
+                            <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => {
+                                if (hasPermissions()) {
+                                    e.preventDefault();
+                                    deleteLocation(item);
+                                }
+                            }}><span>{TrashCan}</span></button>
+                        </> }
+                    > <p></p>
+                    </Column>
+                </Table>
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
