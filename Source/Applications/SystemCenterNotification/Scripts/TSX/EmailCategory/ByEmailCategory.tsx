@@ -31,6 +31,7 @@ import { EmailCategorySlice } from '../Store';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import EmailCategoryForm from './EmailCategoryForm';
 import { useNavigate } from 'react-router-dom';
+import TestEmailButton from '../CommonComponents/TestEmailButton';
 
 interface IProps {}
 
@@ -87,11 +88,10 @@ const ByEmailCategory = (props: IProps) => {
                         <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
                             <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                                 <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
-                                <form>
-                                    <button className="btn btn-primary" onClick={(event) => { setNewEmailCategory({ ID: -1, Name: '', SelfSubscribe: true }); setShowModal(true); event.preventDefault() }}>
-                                        Add Email Category
-                                    </button>
-                                </form>
+                                <button className="btn btn-info btn-block" onClick={(event) => { setNewEmailCategory({ ID: -1, Name: '', SelfSubscribe: true }); setShowModal(true); event.preventDefault() }}>
+                                    Add Email Category
+                                </button>
+                                <TestEmailButton />
                             </fieldset>
                         </li>
                     </SearchBar>
