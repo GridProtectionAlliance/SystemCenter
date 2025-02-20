@@ -69,7 +69,7 @@ export const EventChannelSlice = createSlice({
         Error: null,
         Data: [] as OpenXDA.EventChannel[],
         ActiveFetchID: [] as string[],
-        Asc: false as boolean,
+        Asc: true as boolean,
         Sort: 'Name' as keyof (OpenXDA.EventChannel),
         ParentID: null
     },

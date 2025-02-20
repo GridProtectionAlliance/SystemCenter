@@ -88,10 +88,8 @@ function MeterConfigurationHistoryWindow(props: { Meter: OpenXDA.Types.Meter }) 
                             Ascending={false}
                             OnSort={(d) => { }}
                             OnClick={(d) => handleSelect(d.row)}
-                            TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden', flex: 1 }}
-                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1, width: '100%' }}
-                            RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            TheadStyle={{ fontSize: 'smaller' }}
+                            RowStyle={{ fontSize: 'smaller' }}
                             Selected={(item) => false}
                             KeySelector={(item) => item.ID}
                         >
@@ -112,12 +110,12 @@ function MeterConfigurationHistoryWindow(props: { Meter: OpenXDA.Types.Meter }) 
                             > Files Processed
                             </Column>
                             <Column<MeterConfiguration>
-                        Key={'LastProcessedTime'}
-                        AllowSort={false}
-                        Field={'LastProcessedTime'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                        Content={({ item }) => moment(item.LastProcessedTime).isValid() ? moment(item.LastProcessedTime).format('MM/DD/YYYY HH:mm:ss') : 'N/A'}
+                                Key={'LastProcessedTime'}
+                                AllowSort={false}
+                                Field={'LastProcessedTime'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                                Content={({ item }) => moment(item.LastProcessedTime).isValid() ? moment(item.LastProcessedTime).format('MM/DD/YYYY HH:mm:ss') : 'N/A'}
                             > Last Processed Time
                             </Column>
                         </Table>
