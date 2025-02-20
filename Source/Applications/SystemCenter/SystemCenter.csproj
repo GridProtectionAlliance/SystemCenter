@@ -500,8 +500,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <Content Include="wwwroot\Scripts\d3\d3.v4.min.js" />
-    <Content Include="wwwroot\Scripts\react-router\react-router-dom.min.js" />
-    <Content Include="wwwroot\Scripts\react-router\react-router-dom.min.js.map" />
     <None Include="wwwroot\Scripts\Site.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -731,6 +729,7 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\Store.ts" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\ValueListGroup\ByValueListGroup.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Store\AdditionalUserFieldSlice.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\Matcher.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\User\AdditionalUserFieldsWindow.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\User\UserGroup\ByUserGroup.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\User\User\Permissions.tsx" />

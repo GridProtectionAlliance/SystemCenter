@@ -23,7 +23,6 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { useHistory } from "react-router-dom";
 import { LoadingScreen, TabSelector, Warning } from '@gpa-gemstone/react-interactive';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { RemoteXDAInstanceSlice } from '../Store/Store';

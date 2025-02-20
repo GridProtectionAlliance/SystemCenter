@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { ExternalDBTablesSlice } from '../Store/Store';
@@ -33,7 +33,7 @@ import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { Modal, Warning } from '@gpa-gemstone/react-interactive';
 
 export default function ExternalDBTables(props: { ID: number }) {
-    let history = useHistory();
+    let navigate = useNavigate();
     const dispatch = useAppDispatch();
 
     const data = useAppSelector(ExternalDBTablesSlice.Data);
@@ -73,7 +73,7 @@ export default function ExternalDBTables(props: { ID: number }) {
 
     function handleSelect(item) {
         if (item.colKey == 'btns') return;
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=ExternalTable&ID=' + item.row.ID })
+        navigate(`${homePath}index.cshtml?name=ExternalTable&ID=${item.row.ID}`);
     }
 
     return (

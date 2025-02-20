@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { Modal, GenericController } from '@gpa-gemstone/react-interactive';
 import CustomerForm from './CustomerForm';
@@ -49,7 +49,7 @@ const CustomerController = new GenericController<OpenXDA.Types.Customer>(`${home
 const emptyCustomer: OpenXDA.Types.Customer = { ID: 0, CustomerKey: '', Name: '', Phone: '', Description: '', LSCVS: false, PQIFacilityID: -1 };
 
 const ByCustomer: Application.Types.iByComponent = (props) => {
-    let history = useHistory();
+    let navigate = useNavigate();
     const extDbUpdateAll = React.useRef<() => (() => void)>(undefined);
 
     const [newCustomer, setNewCustomer] = React.useState<OpenXDA.Types.Customer>(emptyCustomer);
@@ -59,7 +59,7 @@ const ByCustomer: Application.Types.iByComponent = (props) => {
     const [showEXTModal, setShowExtModal] = React.useState<boolean>(false);
     const [refreshCount, refreshData] = React.useState<number>(0);
     function handleSelect(item) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Customer&CustomerID=' + item.row.ID })
+        navigate(`${homePath}index.cshtml?name=Customer&CustomerID=${item.row.ID}`);
     }
 
     return (

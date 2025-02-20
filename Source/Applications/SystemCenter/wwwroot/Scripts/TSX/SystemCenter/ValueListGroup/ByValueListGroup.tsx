@@ -22,7 +22,7 @@
 //******************************************************************************************************
 import * as React from 'react';
 import * as _ from 'lodash';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Application } from '@gpa-gemstone/application-typings';
 import { GenericController, Modal } from '@gpa-gemstone/react-interactive';
 import {SystemCenter as localSC } from '../global'
@@ -39,14 +39,14 @@ const fieldCols: localSC.IByCol<localSC.ValueListGroupView>[] = [
 const emptyRecord = { ID: 0, Name: '', Description: '', ItemCount: 0 };
 
 const ValueListGroups: Application.Types.iByComponent = () => {
-    let history = useHistory();
+    const navigate = useNavigate();
 
     const [refreshCount, refreshData] = React.useState<number>(0);
     const [showNew, setShowNew] = React.useState<boolean>(false);
     const [record, setRecord] = React.useState<localSC.ValueListGroupView>(emptyRecord);
 
     function handleSelect(item) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=ValueListGroup&GroupID=' + item.row.ID })
+        navigate(`${homePath}index.cshtml?name=ValueListGroup&GroupID=${item.row.ID}`);
     }
 
     return (
