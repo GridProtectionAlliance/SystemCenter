@@ -29,6 +29,7 @@ import { GenericController, Modal } from '@gpa-gemstone/react-interactive';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import { RemoteXDAInstanceForm, BlankRemoteXDAInstance } from './RemoteXDAInstanceForm';
 import GenericByPage from '../CommonComponents/GenericByPage';
+import EnterpriseEditionLockPage from '../CommonComponents/EnterpriseEditionLockPage';
 import { SystemCenter } from '../global';
 
 declare var homePath: string;
@@ -51,58 +52,60 @@ const RemoteXDAInstanceMain: Application.Types.iByComponent = (props) => {
         navigate(`${homePath}index.cshtml?name=RemoteXDAInstance&ID=${item.row.ID}`);
     }
 
-    return <>
-        <GenericByPage<OpenXDA.Types.RemoteXDAInstance>
-            ControllerPath={controllerPath}
-            RefreshData={refreshCount}
-            DefaultSortKey='Name'
-            PagingID='RemoteXDAInstanceMain'
-            OnClick={(item) => { handleSelect(item); }}
-            Columns={fieldCols}
-            DefaultSearchAscending={true}
-            DefaultSearchKey='Name'
-        >
-            <li className="nav-item" hidden={props.Roles.indexOf('Administrator') < 0} style={{ width: '15%', paddingRight: 10 }}>
-                <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                    <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
-                    <form>
-                        <button className="btn btn-primary" onClick={(event) => {
-                            if (props.Roles.indexOf('Administrator') > -1) {
-                                event.preventDefault();
-                                setShowNew(true);
-                            }
-                        }}>Add Remote Connection</button>
-                    </form>
-                </fieldset>
-            </li>
-            <Modal
-                Show={showNew}
-                Title={'New Remote openXDA Instance Connection'}
-                ShowCancel={true}
-                CallBack={(conf) => {
-                    if (conf)
-                        RemoteXDAInstanceController.DBAction("POST", formInstance).done(() => {
-                            refreshData(x => x + 1);
-                        });
-                    setShowNew(false);
-                }}
-                DisableConfirm={newInstErrors.length > 0}
-                ShowX={true}
-                ConfirmShowToolTip={newInstErrors.length > 0}
-                ConfirmToolTipContent={newInstErrors.map((t, i) =>
-                    <p key={i}> {CrossMark} {t} </p>
-                )}>
-                <RemoteXDAInstanceForm
-                    BaseInstance={BlankRemoteXDAInstance}
-                    SetInstance={setFormInstance}
-                    SetErrors={setNewInstErrors}
-                    RenderPortalId={'userModal'}
-                />
-            </Modal>
-            { /* Portal endpoint for inner modal for new remote instance connection */ }
-            <div id='userModal' />
-        </GenericByPage>
-    </>
+    return (
+        <EnterpriseEditionLockPage>
+            <GenericByPage<OpenXDA.Types.RemoteXDAInstance>
+                ControllerPath={controllerPath}
+                RefreshData={refreshCount}
+                DefaultSortKey='Name'
+                PagingID='RemoteXDAInstanceMain'
+                OnClick={(item) => { handleSelect(item); }}
+                Columns={fieldCols}
+                DefaultSearchAscending={true}
+                DefaultSearchKey='Name'
+            >
+                <li className="nav-item" hidden={props.Roles.indexOf('Administrator') < 0} style={{ width: '15%', paddingRight: 10 }}>
+                    <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                        <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
+                        <form>
+                            <button className="btn btn-primary" onClick={(event) => {
+                                if (props.Roles.indexOf('Administrator') > -1) {
+                                    event.preventDefault();
+                                    setShowNew(true);
+                                }
+                            }}>Add Remote Connection</button>
+                        </form>
+                    </fieldset>
+                </li>
+                <Modal
+                    Show={showNew}
+                    Title={'New Remote openXDA Instance Connection'}
+                    ShowCancel={true}
+                    CallBack={(conf) => {
+                        if (conf)
+                            RemoteXDAInstanceController.DBAction("POST", formInstance).done(() => {
+                                refreshData(x => x + 1);
+                            });
+                        setShowNew(false);
+                    }}
+                    DisableConfirm={newInstErrors.length > 0}
+                    ShowX={true}
+                    ConfirmShowToolTip={newInstErrors.length > 0}
+                    ConfirmToolTipContent={newInstErrors.map((t, i) =>
+                        <p key={i}> {CrossMark} {t} </p>
+                    )}>
+                    <RemoteXDAInstanceForm
+                        BaseInstance={BlankRemoteXDAInstance}
+                        SetInstance={setFormInstance}
+                        SetErrors={setNewInstErrors}
+                        RenderPortalId={'userModal'}
+                    />
+                </Modal>
+                { /* Portal endpoint for inner modal for new remote instance connection */}
+                <div id='userModal' />
+            </GenericByPage>
+        </EnterpriseEditionLockPage>
+    );
 }
 
 export default RemoteXDAInstanceMain;
