@@ -42,6 +42,14 @@ const EditionTooltip: React.FunctionComponent<IProps> = (props) => {
 
     const [inSpecifiedEdition, setInSpecifiedEdition] = React.useState<boolean>(false);
 
+    const message: string = React.useMemo(() => {
+        switch (configStatus) {
+            case 'error': return "Unable to retrieve edition status.";
+            case 'idle': return `${props.FeatureName} is only available in ${props.EditionRequirement ?? 'Enterprise'} Edition.`;
+            default: return "Retrieving edition status..."
+        }
+    }, [configStatus]);
+
     React.useEffect(() => {
         const result = config.EditionStatus[props.EditionRequirement ?? 'Enterprise'] ?? false;
         setInSpecifiedEdition(result);
@@ -54,14 +62,6 @@ const EditionTooltip: React.FunctionComponent<IProps> = (props) => {
     }, [configStatus]);
 
     if (inSpecifiedEdition) return null;
-
-    const message: string = React.useMemo(() => {
-        switch (configStatus) {
-            case 'error': return "Unable to retrieve edition status.";
-            case 'idle': return `${props.FeatureName} is only available in ${props.EditionRequirement ?? 'Enterprise'} Edition.`;
-            default: return "Retrieving edition status..."
-        }
-    }, [configStatus]);
 
     return (
         <ToolTip Show={props.Show} Position={'bottom'} Target={props.Target}>
