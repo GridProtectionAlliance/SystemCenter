@@ -28,20 +28,17 @@ using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Reflection;
 using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.Http.Results;
 using GSF.Configuration;
 using GSF.Data;
 using GSF.Data.Model;
 using GSF.Security.Model;
-using GSF.Web;
 using GSF.Web.Model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using openXDA.APIAuthentication;
+using openXDA.Configuration;
 using openXDA.Model;
 using PQView.Model;
 using SystemCenter.Model;
@@ -419,8 +416,8 @@ namespace SystemCenter.Controllers.OpenXDA
         #endregion
     }
 
-    [RoutePrefix("api/OpenXDA/Tiles")]
-    public class TileListController : ApiController
+    [RoutePrefix("api/OpenXDA")]
+    public class GeneralController : ApiController
     {
         #region [Properties]
         private string Connection { get; } = "systemSettings";
@@ -437,7 +434,7 @@ namespace SystemCenter.Controllers.OpenXDA
         #endregion
 
         #region [HttpMethods]
-        [HttpGet, Route("GetAll")]
+        [HttpGet, Route("Tiles/GetAll")]
         public IHttpActionResult GetAllTiles()
         {
             try
@@ -451,6 +448,19 @@ namespace SystemCenter.Controllers.OpenXDA
                 return InternalServerError(ex);
             }
         }
+
+        [HttpGet, Route("GetEditionComparitor")]
+        public IHttpActionResult GetEditionComparitor()
+        {
+            // Ensuring XDA is in lockstep with us
+            Task<string> responseTask = SendGetRequest($"/api/GetEdition");
+            EditionChecker.UpdateEdition();
+            // Build comparitor object for typescript
+            JObject editionComparitor = new JObject();
+            foreach (Edition edition in Enum.GetValues(typeof(Edition))) editionComparitor.Add(edition.ToString(), EditionChecker.CheckEdition(edition));
+            return Ok(editionComparitor);
+        }
+        #endregion
 
         //Todo: Think about moving this into API Auth Module
         public async Task<string> SendGetRequest(string requestURI)
@@ -477,7 +487,6 @@ namespace SystemCenter.Controllers.OpenXDA
             connection.DefaultTimeout = DataExtensions.DefaultTimeoutDuration;
             return connection;
         }
-        #endregion
     }
 
     [RoutePrefix("api/OpenXDA/RemoteXDAAsset")]

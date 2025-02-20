@@ -54,6 +54,7 @@ namespace SystemCenter.Controllers
         public IEnumerable<AppProperty> Properties { get; set; }
         public string PingURL { get; set; }
         public string ConsoleURL { get; set; }
+        public string StatsURL { get; set; }
         public string Name { get; set; }
     }
 
@@ -94,6 +95,7 @@ namespace SystemCenter.Controllers
                     {
                         PingURL = $"./api/SystemCenter/AppHost/xdaConsole/{host.ID}/Ping",
                         ConsoleURL = $"./api/SystemCenter/AppHost/xdaConsole/{host.ID}",
+                        StatsURL = $"./api/SystemCenter/AppHost/xdaStatistics/{host.ID}",
                         Name = "XDA - " + host.RegistrationKey,
                         Image = "../Images/NodeTiles/OpenXDA.png",
                         Properties = new AppProperty[]
@@ -111,6 +113,23 @@ namespace SystemCenter.Controllers
             }
 
             return Ok(hosts);
+        }
+
+        [Route("xdaStatistics/{id}"), HttpGet]
+        public IHttpActionResult XDAFetchStatistics(int id)
+        {
+            APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).XDAAPISettings;
+
+            APIQuery query = new APIQuery(settings.Key, settings.Token, GetXDABaseURL(id) + "/");
+
+            void ConfigureRequest(HttpRequestMessage request)
+            {
+                request.Method = HttpMethod.Get;
+            }
+
+            HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"api/SystemCenter/SystemHealth").Result;
+
+            return ResponseMessage(responseMessage);
         }
 
         [Route("xdaConsole/{id}/Send/{session}"), HttpPost]
@@ -182,9 +201,7 @@ namespace SystemCenter.Controllers
                 request.Method = HttpMethod.Get;
             }
 
-            // it's using a random endpoint that returns Hello.
-            // #ToDo switch this to a sepcific Ping endpoint when cleaning up the XDA
-            HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"api/AlarmLimits").Result;
+            HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"api/SystemCenter/Alive").Result;
 
             return ResponseMessage(responseMessage);
         }
