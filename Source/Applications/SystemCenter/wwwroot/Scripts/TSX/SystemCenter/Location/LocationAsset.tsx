@@ -51,7 +51,7 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
     let dispatch = useAppDispatch();
 
     const [data, setData] = React.useState<Array<OpenXDA.Types.Asset>>([]);
-    const [sortKey, setSortKey] = React.useState<string>('AssetKey');
+    const [sortKey, setSortKey] = React.useState<string>('AssetName');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [trigger, setTrigger] = React.useState<number>(0);
 
@@ -317,20 +317,20 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
                         KeySelector={(item) => item.ID}
                     >
                         <Column<OpenXDA.Types.Asset>
-                            Key={'AssetKey'}
-                            AllowSort={true}
-                            Field={'AssetKey'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Key
-                        </Column>
-                        <Column<OpenXDA.Types.Asset>
                             Key={'AssetName'}
                             AllowSort={true}
                             Field={'AssetName'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Name
+                        </Column>
+                        <Column<OpenXDA.Types.Asset>
+                            Key={'AssetKey'}
+                            AllowSort={true}
+                            Field={'AssetKey'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Key
                         </Column>
                         <Column<OpenXDA.Types.Asset>
                             Key={'AssetType'}

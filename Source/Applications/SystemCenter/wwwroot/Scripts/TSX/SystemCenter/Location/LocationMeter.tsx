@@ -33,7 +33,7 @@ declare var homePath: string;
 function LocationMeterWindow(props: { Location: OpenXDA.Types.Location }): JSX.Element{
     let navigate = useNavigate();
     const [meters, setMeters] = React.useState<Array<OpenXDA.Types.Meter>>([]);
-    const [sortField, setSortField] = React.useState<keyof(OpenXDA.Types.Meter)>('AssetKey');
+    const [sortField, setSortField] = React.useState<keyof(OpenXDA.Types.Meter)>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
 
     const [page, setPage] = React.useState<number>(0);
@@ -101,20 +101,20 @@ function LocationMeterWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
                         KeySelector={(item) => item.ID}
                     >
                         <Column<OpenXDA.Types.Meter>
-                            Key={'AssetKey'}
-                            AllowSort={true}
-                            Field={'AssetKey'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Key
-                        </Column>
-                        <Column<OpenXDA.Types.Meter>
                             Key={'Name'}
                             AllowSort={true}
                             Field={'Name'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Name
+                        </Column>
+                        <Column<OpenXDA.Types.Meter>
+                            Key={'AssetKey'}
+                            AllowSort={true}
+                            Field={'AssetKey'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Key
                         </Column>
                         <Column<OpenXDA.Types.Meter>
                             Key={'Make'}
