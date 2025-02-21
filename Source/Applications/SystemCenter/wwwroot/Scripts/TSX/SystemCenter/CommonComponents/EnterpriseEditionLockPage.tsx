@@ -54,6 +54,11 @@ const EnterpriseEditionLockPage: React.FunctionComponent<IProps> = (props) => {
                     <div className="row" style={{ justifyContent: "center", width: "100%", paddingBottom: "50px" }}>
                         <ServerErrorIcon Show={true} Label={`${props.EditionRequirement ?? 'Enterprise'} Edition is required to use this feature.`} Size={75} />
                                     </div>
+                    <div className="row" style={{ justifyContent: "center", width: "100%", fontSize: '2em' }}>
+                        <p style={{ width: "50%", whiteSpace: "preserve-spaces", textAlign: "center" }}>
+                            Click <a href="mailto:support@gridprotectionalliance.org">here</a> if you believe you are receiving this message in error or would like to inquire about openXDA {props.EditionRequirement ?? 'Enterprise'} Edition.
+                        </p>
+                    </div>
                                 </div>
                         }
         </div>
