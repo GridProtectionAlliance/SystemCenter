@@ -37,6 +37,10 @@ declare var ace: any;
 function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: string }) {
     const navigate = useNavigate();
     const aceRef = React.useRef<HTMLDivElement>(null)
+
+    const [sortField, setSortField] = React.useState<string>('CreationTime');
+    const [ascending, setAscending] = React.useState<boolean>(false);
+
     const [meterConfiguration, setMeterConfiguration] = React.useState<OpenXDA.Types.MeterConfiguration>(null);
     const [tab, setTab] = React.useState<string>('configuration');
     const [filesProcessed, setFilesProcessed] = React.useState<Array<OpenXDA.Types.DataFile>>([]);
@@ -59,6 +63,11 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
     React.useEffect(() => {
         getData();
     }, [props.MeterConfigurationID, tab, page])
+
+    React.useEffect(() => {
+        const ordered = _.orderBy(filesProcessed, [sortField], [(ascending ? "asc" : "desc")]);
+        setFilesProcessed(ordered);
+    }, [sortField, ascending])
 
     function getData() {
         getFilesProcessed();
@@ -90,7 +99,8 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
             async: true
         }).done((result) => {
             const records = JSON.parse(result.Records);
-            setFilesProcessed(records)
+            const orderedRecords = _.orderBy(records, [sortField], [(ascending ? "asc" : "desc")])
+            setFilesProcessed(orderedRecords)
             setPageInfo(result);
             setPageState('idle');
         }).fail(() => setPageState('error'));
@@ -193,19 +203,22 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
                                         <Table<OpenXDA.Types.DataFile>
                                             TableClass="table table-hover"
                                             Data={filesProcessed}
-                                            SortKey={'FilePath'}
-                                            Ascending={false}
-                                            OnSort={(d) => { }}
-                                            TableStyle={{ tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden', flex: 1 }} 
-                                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                            TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
-                                            RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                            SortKey={sortField}
+                                            Ascending={ascending}
+                                            OnSort={(d) => {
+                                                if (d.colKey == sortField)
+                                                    setAscending(!ascending)
+                                                else {
+                                                    setSortField(d.colKey);
+                                                    setAscending(true);
+                                                }
+                                            }}
                                             Selected={(item) => false}
                                             KeySelector={(item) => item.ID}
                                         >
                                             <Column
                                                 Key={'FilePath'}
-                                                AllowSort={false}
+                                                AllowSort={true}
                                                 Field={'FilePath'}
                                                 HeaderStyle={{ width: 'auto' }}
                                                 RowStyle={{ width: 'auto' }}
@@ -213,7 +226,7 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
                                             </Column>
                                             <Column
                                                 Key={'CreationTime'}
-                                                AllowSort={false}
+                                                AllowSort={true}
                                                 Field={'CreationTime'}
                                                 HeaderStyle={{ width: 'auto' }}
                                                 RowStyle={{ width: 'auto' }}

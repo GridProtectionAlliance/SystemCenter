@@ -286,25 +286,8 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                     Disabled={!hasPermissions()}
                                 />
                             )}
-                        >
-                            Label
+                        > Label
                         </Column>
-                        <ConfigurableColumn Key='Description' Label='Description' Default={true}>
-                            <Column<OpenXDA.TrendChannel>
-                                Key={'Description'} Field={'Description'} HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                                Content={({ item }) => (
-                                    <Input<OpenXDA.TrendChannel>
-                                        Record={item}
-                                        Field={'Description'}
-                                        Label={''}
-                                        Setter={(r) => createChange(item.ID, 'Description', r.Description)}
-                                        Valid={(f) => isValid(f, item)}
-                                        Disabled={!hasPermissions()}
-                                    />
-                                )}
-                            />
-                        </ConfigurableColumn>
                         <ConfigurableColumn Key='MeasurementType' Label='Type' Default={true}>
                             <Column<OpenXDA.TrendChannel>
                                 Key={'MeasurementType'}
@@ -321,8 +304,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                         Disabled={!hasPermissions()}
                                     />
                                 )}
-                            >
-                                Type
+                            > Type
                             </Column>
                         </ConfigurableColumn>
                         <ConfigurableColumn Key='MeasurementCharacteristic' Label='Characteristic' Default={true}>
@@ -341,8 +323,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                         Disabled={!hasPermissions()}
                                     />
                                 )}
-                            >
-                                Characteristic
+                            > Characteristic
                             </Column>
                         </ConfigurableColumn>
                         <ConfigurableColumn Key='Phase' Label='Phase' Default={true}>
@@ -379,8 +360,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                         Disabled={!hasPermissions()}
                                     />
                                 )}
-                            >
-                                Harmonic
+                            > Harmonic
                             </Column>
                         </ConfigurableColumn>
                         <ConfigurableColumn Key='Adder' Label='Adder' Default={true}>
@@ -437,8 +417,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                         Disabled={!hasPermissions()}
                                     />
                                 )}
-                            >
-                                Sampling Rate (sph)
+                            > Sampling Rate (sph)
                             </Column>
                         </ConfigurableColumn>
                         <ConfigurableColumn Key='PerUnitValue' Label='Per Unit' Default={false}>
@@ -457,8 +436,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                         Disabled={!hasPermissions()}
                                     />
                                 )}
-                            >
-                                Per Unit
+                            > Per Unit
                             </Column>
                         </ConfigurableColumn>
                         <ConfigurableColumn Key='Asset' Label='Asset' Default={true}>
@@ -496,9 +474,24 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                         Disabled={(assets.find(d => d.ID === item.AssetID)?.AssetType !== 'Transformer') || !hasPermissions()}
                                     />
                                 )}
-                            >
-                                Conn Type
+                            > Conn Type
                             </Column>
+                        </ConfigurableColumn>
+                        <ConfigurableColumn Key='Description' Label='Description' Default={true}>
+                            <Column<OpenXDA.TrendChannel>
+                                Key={'Description'} Field={'Description'} HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                                Content={({ item }) => (
+                                    <Input<OpenXDA.TrendChannel>
+                                        Record={item}
+                                        Field={'Description'}
+                                        Label={''}
+                                        Setter={(r) => createChange(item.ID, 'Description', r.Description)}
+                                        Valid={(f) => isValid(f, item)}
+                                        Disabled={!hasPermissions()}
+                                    />
+                                )}
+                            />
                         </ConfigurableColumn>
                         <Column<OpenXDA.TrendChannel>
                             Key={'Remove'}

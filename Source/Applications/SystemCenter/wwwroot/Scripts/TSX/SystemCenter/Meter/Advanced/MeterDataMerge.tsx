@@ -56,7 +56,7 @@ export default function DataMergeWindow(props: {
     const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
     const standardSearch: Search.IField<Meter> = { label: 'Name', key: 'Name', type: 'string', isPivotField: false };
 
-    const [sortKey, setSortKey] = React.useState<string>('AssetKey');
+    const [sortKey, setSortKey] = React.useState<string>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
 
     const [showMergeWarning, setShowMergeWarning] = React.useState<boolean>(false);

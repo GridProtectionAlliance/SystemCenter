@@ -201,17 +201,15 @@ const ChannelScalingForm = (props: IProps) => {
                             }} Valid={(f) => true} />
                     </div>
                 </div>
-            <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden'}}>
+                <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden'}}>
                     <Table<ChannelScalingWrapper>
                         TableClass="table table-hover"
                         Data={Wrappers}
                         SortKey={''}
                         Ascending={false}
-                    OnSort={(d) => { }}
-                        TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
-                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        TbodyStyle={{ display: 'block', width: '100%', overflowY: 'auto', flex: 1 }}
-                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        OnSort={(d) => { }}
+                        TheadStyle={{ fontSize: 'smaller' }}
+                        RowStyle={{ fontSize: 'smaller' }}
                         Selected={(item) => false}
                         KeySelector={(item) => item.Channel.ID.toString()}
                     >
