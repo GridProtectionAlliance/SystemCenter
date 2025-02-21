@@ -32,38 +32,30 @@ interface IProps {
 
 const EnterpriseEditionLockPage: React.FunctionComponent<IProps> = (props) => {
     let dispatch = useAppDispatch();
-
     const configStatus = useAppSelector(ConfigSlice.XDAConfigStatus);
     const config = useAppSelector(ConfigSlice.XDAConfig);
-    const inSpecifiedEdition = React.useMemo(() => (config.EditionStatus[props.EditionRequirement ?? 'Enterprise'] ?? false), [config.EditionStatus, props.EditionRequirement]);
 
     React.useEffect(() => {
         if (configStatus == 'unintiated' || configStatus == 'changed')
             dispatch(ConfigSlice.FetchXDAConfig());
     }, [configStatus]);
 
+    if (config.EditionStatus[props.EditionRequirement ?? 'Enterprise'] ?? false) return <>{props.children}</>;
+
     // Note: Using loading screen this way is intentional, we don't want the error screen to begin rendering before we check the edition
     return (
         <div className={"container-fluid d-flex h-100 flex-column"}>
-            {
-                configStatus === 'loading' ?
-                    <LoadingScreen Show={true} /> :
-                    <>
-                        {
-                            inSpecifiedEdition ?
-                                props.children :
+            { configStatus === 'loading' ? <LoadingScreen Show={true} /> :
                                 <div className="col" style={{ height: "100%", width: "100%" }}>
-                                    <div className="row" style={{ width: "100%", height: "50%", display: "grid", alignItems: "end" }}>
+                    <div className="row" style={{ width: "100%", height: "45%", minHeight: "200px", paddingBottom: "50px" }}>
                                         <img src={`${homePath}Images/GiantLogo.png`} className="contain"
-                                            style={{ width: "40%", paddingBottom: "50px", marginLeft: "auto", marginRight: "auto" }} />
+                            style={{ height: "100%", marginLeft: "auto", marginRight: "auto" }} />
                                     </div>
-                                    <div className="row" style={{ alignItems: "top", justifyContent: "center", width: "100%", height: `50%` }}>
-                                        <ServerErrorIcon Show={true} Label={'Enterprise Edition is Required to Use this Feature'} Size={100} />
+                    <div className="row" style={{ justifyContent: "center", width: "100%", paddingBottom: "50px" }}>
+                        <ServerErrorIcon Show={true} Label={`${props.EditionRequirement ?? 'Enterprise'} Edition is required to use this feature.`} Size={75} />
                                     </div>
                                 </div>
                         }
-                    </>
-            }
         </div>
     )
 }
