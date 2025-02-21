@@ -1,5 +1,5 @@
 //******************************************************************************************************
-//  EnterpriseEditionLockPage.tsx - Gbtc
+//  EditionLockPage.tsx - Gbtc
 //
 //  Copyright © 2025, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -30,7 +30,7 @@ interface IProps {
     EditionRequirement?: 'Enterprise' | 'Base'
 }
 
-const EnterpriseEditionLockPage: React.FunctionComponent<IProps> = (props) => {
+const EditionLockPage: React.FunctionComponent<IProps> = (props) => {
     let dispatch = useAppDispatch();
     const configStatus = useAppSelector(ConfigSlice.XDAConfigStatus);
     const config = useAppSelector(ConfigSlice.XDAConfig);
@@ -46,24 +46,24 @@ const EnterpriseEditionLockPage: React.FunctionComponent<IProps> = (props) => {
     return (
         <div className={"container-fluid d-flex h-100 flex-column"}>
             { configStatus === 'loading' ? <LoadingScreen Show={true} /> :
-                                <div className="col" style={{ height: "100%", width: "100%" }}>
+                <div className="col" style={{ height: "100%", width: "100%" }}>
                     <div className="row" style={{ width: "100%", height: "45%", minHeight: "200px", paddingBottom: "50px" }}>
-                                        <img src={`${homePath}Images/GiantLogo.png`} className="contain"
+                        <img src={`${homePath}Images/GiantLogo.png`} className="contain"
                             style={{ height: "100%", marginLeft: "auto", marginRight: "auto" }} />
-                                    </div>
+                    </div>
                     <div className="row" style={{ justifyContent: "center", width: "100%", paddingBottom: "50px" }}>
                         <ServerErrorIcon Show={true} Label={`${props.EditionRequirement ?? 'Enterprise'} Edition is required to use this feature.`} Size={75} />
-                                    </div>
+                    </div>
                     <div className="row" style={{ justifyContent: "center", width: "100%", fontSize: '2em' }}>
                         <p style={{ width: "50%", whiteSpace: "preserve-spaces", textAlign: "center" }}>
                             Click <a href="mailto:support@gridprotectionalliance.org">here</a> if you believe you are receiving this message in error or would like to inquire about openXDA {props.EditionRequirement ?? 'Enterprise'} Edition.
                         </p>
                     </div>
-                                </div>
-                        }
+                </div>
+            }
         </div>
     )
 }
 
-export default EnterpriseEditionLockPage;
+export default EditionLockPage;
 

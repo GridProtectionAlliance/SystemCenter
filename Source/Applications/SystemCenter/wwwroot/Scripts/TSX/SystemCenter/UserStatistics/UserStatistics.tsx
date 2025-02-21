@@ -30,7 +30,7 @@ import * as _ from 'lodash';
 import moment from 'moment';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { ApplicationNodeSlice } from '../Store/Store';
-import EnterpriseEditionLockPage from '../CommonComponents/EnterpriseEditionLockPage';
+import EditionLockPage from '../CommonComponents/EditionLockPage';
 
 interface Aggregate {
     Date: string,
@@ -172,7 +172,7 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
     }
 
     return (
-        <EnterpriseEditionLockPage>
+        <EditionLockPage>
             <LoadingScreen Show={tableStatus === 'loading' || plotStatus === 'loading' || applicationNodeStatus === 'loading'} />
             <div className="row">
                 <div className="col">
@@ -271,7 +271,7 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
                     </Table>
                 </div>
             </div>
-        </EnterpriseEditionLockPage>
+        </EditionLockPage>
     )
    
 }

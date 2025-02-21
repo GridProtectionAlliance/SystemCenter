@@ -29,7 +29,7 @@ import { GenericController, Modal } from '@gpa-gemstone/react-interactive';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import { RemoteXDAInstanceForm, BlankRemoteXDAInstance } from './RemoteXDAInstanceForm';
 import GenericByPage from '../CommonComponents/GenericByPage';
-import EnterpriseEditionLockPage from '../CommonComponents/EnterpriseEditionLockPage';
+import EditionLockPage from '../CommonComponents/EditionLockPage';
 import { SystemCenter } from '../global';
 
 declare var homePath: string;
@@ -53,7 +53,7 @@ const RemoteXDAInstanceMain: Application.Types.iByComponent = (props) => {
     }
 
     return (
-        <EnterpriseEditionLockPage>
+        <EditionLockPage>
             <GenericByPage<OpenXDA.Types.RemoteXDAInstance>
                 ControllerPath={controllerPath}
                 RefreshData={refreshCount}
@@ -104,7 +104,7 @@ const RemoteXDAInstanceMain: Application.Types.iByComponent = (props) => {
                 { /* Portal endpoint for inner modal for new remote instance connection */}
                 <div id='userModal' />
             </GenericByPage>
-        </EnterpriseEditionLockPage>
+        </EditionLockPage>
     );
 }
 
