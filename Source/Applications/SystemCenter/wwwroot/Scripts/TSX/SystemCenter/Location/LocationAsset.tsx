@@ -51,7 +51,7 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
     let dispatch = useAppDispatch();
 
     const [data, setData] = React.useState<Array<OpenXDA.Types.Asset>>([]);
-    const [sortKey, setSortKey] = React.useState<string>('AssetKey');
+    const [sortKey, setSortKey] = React.useState<string>('AssetName');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [trigger, setTrigger] = React.useState<number>(0);
 
@@ -309,21 +309,12 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
                             }
                         }}
                         OnClick={handleSelect}
-                        TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden', flex: 1 }}
-                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        TbodyStyle={{ display: 'block', width: '100%', overflowY: 'auto', flex: 1 }}
-                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TableStyle={{ height: '100%' }}
+                        TheadStyle={{ fontSize: 'smaller' }}
+                        RowStyle={{ fontSize: 'smaller' }}
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
                     >
-                        <Column<OpenXDA.Types.Asset>
-                            Key={'AssetKey'}
-                            AllowSort={true}
-                            Field={'AssetKey'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Key
-                        </Column>
                         <Column<OpenXDA.Types.Asset>
                             Key={'AssetName'}
                             AllowSort={true}
@@ -331,6 +322,14 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Name
+                        </Column>
+                        <Column<OpenXDA.Types.Asset>
+                            Key={'AssetKey'}
+                            AllowSort={true}
+                            Field={'AssetKey'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Key
                         </Column>
                         <Column<OpenXDA.Types.Asset>
                             Key={'AssetType'}
