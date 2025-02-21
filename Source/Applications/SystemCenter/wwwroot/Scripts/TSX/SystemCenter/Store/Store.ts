@@ -93,7 +93,7 @@ export const PQApplicationsSlice = new GenericSlice<PQApplications>("PQApplicati
 
 export const AssetGroupSlice = new GenericSlice<OpenXDA.Types.AssetGroup>("AssetGroup", `${homePath}api/OpenXDA/AssetGroup`, "Name", true);
 export const ByAssetSlice = new GenericSlice<SystemCenter.Types.DetailedAsset>("ByAsset", `${homePath}api/OpenXDA/ByAsset`, "AssetName", true);
-export const ByLocationSlice = new GenericSlice<SystemCenter.Types.DetailedLocation>("ByLocation", `${homePath}api/OpenXDA/ByLocation`, "LocationKey", true);
+export const ByLocationSlice = new GenericSlice<SystemCenter.Types.DetailedLocation>("ByLocation", `${homePath}api/OpenXDA/ByLocation`, "Name", true);
 export const ByMeterSlice = new GenericSlice<SystemCenter.Types.DetailedMeter>("ByMeter", `${homePath}api/OpenXDA/ByMeter`, "Name", true);
 
 export const RemoteXDAInstanceSlice = new GenericSlice<OpenXDA.Types.RemoteXDAInstance>("remoteXDAInstance", `${homePath}api/OpenXDA/remoteXDAInstance`, "Name", false);
