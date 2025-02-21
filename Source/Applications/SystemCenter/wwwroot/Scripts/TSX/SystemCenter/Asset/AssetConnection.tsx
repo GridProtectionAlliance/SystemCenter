@@ -260,10 +260,8 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                             setAssetConnections(ordered);
                         }
                     }}
-                    TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
-                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
-                    RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    TheadStyle={{ fontSize: 'smaller' }}
+                    RowStyle={{ fontSize: 'smaller' }}
                     OnClick={handleSelect}
                     Selected={(item) => false}
                     KeySelector={(item) => item.AssetID}
