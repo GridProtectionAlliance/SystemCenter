@@ -46,7 +46,7 @@ const EditionTooltip: React.FunctionComponent<IProps> = (props) => {
         switch (configStatus) {
             case 'error': return "Unable to retrieve edition status.";
             case 'idle': return `${props.FeatureName} is only available in ${props.EditionRequirement ?? 'Enterprise'} Edition.`;
-            default: return "Retrieving edition status..."
+            default: return "Validating License..."
         }
     }, [configStatus]);
 
