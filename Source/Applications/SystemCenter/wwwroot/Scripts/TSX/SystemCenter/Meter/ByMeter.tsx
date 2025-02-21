@@ -156,12 +156,9 @@ const ByMeter: Application.Types.iByComponent = (props) => {
                             }
                         }}
                         OnClick={handleSelect}
-                        TableStyle={{
-                            padding: 0, width: '100%', height: '100%',
-                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column', marginBottom: 0
-                        }}
-                        TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
-                        RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TableStyle={{ height: '100%'  }}
+                        TheadStyle={{ fontSize: 'smaller' }}
+                        RowStyle={{ fontSize: 'smaller' }}
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
                     >
