@@ -172,7 +172,7 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
     }
 
     return (
-        <EnterpriseEditionLockPage ClassName="container-fluid d-flex h-100 flex-column">
+        <EnterpriseEditionLockPage>
             <LoadingScreen Show={tableStatus === 'loading' || plotStatus === 'loading' || applicationNodeStatus === 'loading'} />
             <div className="row">
                 <div className="col">

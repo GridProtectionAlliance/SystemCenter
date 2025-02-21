@@ -27,8 +27,6 @@ import { ConfigSlice } from '../Store/Store';
 import { ServerErrorIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
 
 interface IProps {
-    Style?: React.CSSProperties,
-    ClassName?: string,
     EditionRequirement?: 'Enterprise' | 'Base'
 }
 
@@ -46,7 +44,7 @@ const EnterpriseEditionLockPage: React.FunctionComponent<IProps> = (props) => {
 
     // Note: Using loading screen this way is intentional, we don't want the error screen to begin rendering before we check the edition
     return (
-        <div style={props.Style} className={props.ClassName}>
+        <div className={"container-fluid d-flex h-100 flex-column"}>
             {
                 configStatus === 'loading' ?
                     <LoadingScreen Show={true} /> :
