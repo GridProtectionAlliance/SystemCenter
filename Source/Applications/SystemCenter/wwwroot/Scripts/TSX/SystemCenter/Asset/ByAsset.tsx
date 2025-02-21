@@ -70,7 +70,7 @@ const ByAsset: Application.Types.iByComponent = (props) => {
     const assetTypeStatus = useAppSelector(AssetTypeSlice.Status);
 
     const [data, setData] = React.useState<SystemCenter.Types.DetailedAsset[]>([]);
-    const [ascending, setAscending] = React.useState<boolean>(false);
+    const [ascending, setAscending] = React.useState<boolean>(true);
     const [sortKey, setSortKey] = React.useState<keyof SystemCenter.Types.DetailedAsset>('AssetName');
     const [filters, setFilters] = React.useState<Search.IFilter<SystemCenter.Types.DetailedAsset>[]>([]);
     const [page, setPage] = React.useState<number>(0);
@@ -304,13 +304,9 @@ const ByAsset: Application.Types.iByComponent = (props) => {
                                 if (d.colKey === sortKey) setAscending(a => !a);
                                 else setSortKey(d.colField);
                             }}
-                            TableStyle={{
-                                padding: 0, width: 'calc(100%)', height: '100%',
-                                tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column', marginBottom: 0
-                            }}
-                            TheadStyle={{ fontSize: 'auto', tableLayout: 'fixed', display: 'table', width: '100%' }}
-                            TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
-                            RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            TableStyle={{ height: '100%' }}
+                            TheadStyle={{ fontSize: 'smaller' }}
+                            RowStyle={{ fontSize: 'smaller' }}
                             OnClick={(item) => handleSelect(item.row.ID)}
                             Selected={(item) => false}
                             KeySelector={(item) => item.ID}
