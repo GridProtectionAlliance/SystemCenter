@@ -194,6 +194,7 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
                             setMeters(ordered);
                         }
                     }}
+                    TableStyle={{ height: '100%' }}
                     TheadStyle={{ fontSize: 'smaller' }}
                     RowStyle={{ fontSize: 'smaller' }}
                     OnClick={handleSelect}

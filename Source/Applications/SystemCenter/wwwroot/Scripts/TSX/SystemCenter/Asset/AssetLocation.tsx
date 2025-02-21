@@ -157,6 +157,7 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
                             setLocations(ordered);
                         }
                     }}
+                    TableStyle={{ height: '100%' }}
                     TheadStyle={{ fontSize: 'smaller' }}
                     RowStyle={{ fontSize: 'smaller' }}
                     OnClick={handleSelect}

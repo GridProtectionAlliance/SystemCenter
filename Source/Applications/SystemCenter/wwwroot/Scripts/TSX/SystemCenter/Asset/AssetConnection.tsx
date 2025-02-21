@@ -260,6 +260,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                             setAssetConnections(ordered);
                         }
                     }}
+                    TableStyle={{ height: '100%' }}
                     TheadStyle={{ fontSize: 'smaller' }}
                     RowStyle={{ fontSize: 'smaller' }}
                     OnClick={handleSelect}

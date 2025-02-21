@@ -304,8 +304,9 @@ const ByAsset: Application.Types.iByComponent = (props) => {
                                 if (d.colKey === sortKey) setAscending(a => !a);
                                 else setSortKey(d.colField);
                             }}
+                            TableStyle={{ height: '100%' }}
                             TheadStyle={{ fontSize: 'smaller' }}
-                            TbodyStyle={{ fontSize: 'smaller' }}
+                            RowStyle={{ fontSize: 'smaller' }}
                             OnClick={(item) => handleSelect(item.row.ID)}
                             Selected={(item) => false}
                             KeySelector={(item) => item.ID}
