@@ -30,6 +30,7 @@ import * as _ from 'lodash';
 import moment from 'moment';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { ApplicationNodeSlice } from '../Store/Store';
+import EditionLockPage from '../CommonComponents/EditionLockPage';
 
 interface Aggregate {
     Date: string,
@@ -171,7 +172,7 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
     }
 
     return (
-        <div className="container-fluid d-flex h-100 flex-column">
+        <EditionLockPage>
             <LoadingScreen Show={tableStatus === 'loading' || plotStatus === 'loading' || applicationNodeStatus === 'loading'} />
             <div className="row">
                 <div className="col">
@@ -269,9 +270,8 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
                         </Column>
                     </Table>
                 </div>
-                </div>
-            
-        </div>
+            </div>
+        </EditionLockPage>
     )
    
 }
