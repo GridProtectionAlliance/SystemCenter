@@ -29,20 +29,14 @@ using GSF.Security;
 using GSF.Security.Model;
 using GSF.Web.Model;
 using Microsoft.Graph;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Linq;
-using System.Net.Http;
-using System.Security;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
-using SystemCenter.Controllers;
 
 namespace SystemCenter.Model.Security
 {
@@ -284,7 +278,7 @@ namespace SystemCenter.Model.Security
         {
             UserAccount user = new UserAccount()
             {
-                Name = username,
+                Name = UserInfo.UserNameToSID(username),
                 Approved = true,
                 UseADAuthentication = true,
             };
@@ -317,7 +311,7 @@ namespace SystemCenter.Model.Security
             User user = request.GetAsync().Result.FirstOrDefault();
 
             return new UserAccount() {
-                Name = user.UserPrincipalName,
+                Name = username,
                 Approved = true,
                 UseADAuthentication = false,
                 FirstName = user.GivenName,
