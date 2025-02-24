@@ -172,20 +172,20 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                         KeySelector={(item) => item.ID}
                     >
                         <Column<SystemCenter.Types.DetailedAsset>
-                            Key={'AssetKey'}
-                            AllowSort={true}
-                            Field={'AssetKey'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Key
-                        </Column>
-                        <Column<SystemCenter.Types.DetailedAsset>
                             Key={'AssetName'}
                             AllowSort={true}
                             Field={'AssetName'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Name
+                        </Column>
+                        <Column<SystemCenter.Types.DetailedAsset>
+                            Key={'AssetKey'}
+                            AllowSort={true}
+                            Field={'AssetKey'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Key
                         </Column>
                         <Column<SystemCenter.Types.DetailedAsset>
                             Key={'AssetType'}
