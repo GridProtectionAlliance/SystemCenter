@@ -70,7 +70,7 @@ const ByCustomer: Application.Types.iByComponent = (props) => {
             PagingID='ByCustomer'
             OnClick={(item) => { handleSelect(item); }}
             Columns={fieldCols}
-            DefaultSearchAscending={false} DefaultSearchKey='Name'
+            DefaultSearchAscending={true} DefaultSearchKey='Name'
             QueryAdditionalFields={() => 
                 $.ajax({
                     type: "GET",

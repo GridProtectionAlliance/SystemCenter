@@ -266,10 +266,10 @@ const CustomerMeterWindow = (props: IProps) => {
             GetEnum={getEnum}
             GetAddlFields={getAdditionalMeterFields}
         >
-            <Column Key="AssetKey" Field="AssetKey" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
-            >Key</Column>
             <Column Key="Name" Field="Name" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
             >Name</Column>
+            <Column Key="AssetKey" Field="AssetKey" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+            >Key</Column>
             <Column Key="Location" Field="Location" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
             >Substation</Column>
             <Column Key="MappedAssets" Field="MappedAssets" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
