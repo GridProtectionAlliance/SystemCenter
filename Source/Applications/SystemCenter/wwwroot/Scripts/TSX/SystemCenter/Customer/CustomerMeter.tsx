@@ -207,20 +207,20 @@ const CustomerMeterWindow = (props: IProps) => {
                     KeySelector={(item) => item.ID}
                 >
                     <Column<LocalXDA.CustomerMeter>
-                        Key={'MeterKey'}
-                        AllowSort={true}
-                        Field={'MeterKey'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                    > Key
-                    </Column>
-                    <Column<LocalXDA.CustomerMeter>
                         Key={'MeterName'}
                         AllowSort={true}
                         Field={'MeterName'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                     > Name
+                    </Column>
+                    <Column<LocalXDA.CustomerMeter>
+                        Key={'MeterKey'}
+                        AllowSort={true}
+                        Field={'MeterKey'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                    > Key
                     </Column>
                     <Column<LocalXDA.CustomerMeter>
                         Key={'MeterLocation'}
