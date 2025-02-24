@@ -148,12 +148,12 @@ const CustomerAssetWindow = (props: IProps) => {
                     > Name
                     </Column>
                     <Column<LocalXDA.CustomerAsset>
-                        Key={'AssetName'}
+                        Key={'AssetKey'}
                         AllowSort={true}
-                        Field={'AssetName'}
+                        Field={'AssetKey'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
-                    > Name
+                    > Key
                     </Column>
                     <Column<LocalXDA.CustomerAsset>
                         Key={'AssetType'}
