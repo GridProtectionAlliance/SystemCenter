@@ -129,10 +129,10 @@ export default function AssetSelect(props: IProps) {
             GetEnum={getEnum}
             GetAddlFields={getAdditionalAssetFields}>
             {props.children}
-            <Column Key="AssetKey" Field="AssetKey" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
-            >Key</Column>
             <Column Key="AssetName" Field="AssetName" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
             >Name</Column>
+            <Column Key="AssetKey" Field="AssetKey" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+            >Key</Column>
             <Column Key="AssetType" Field="AssetType" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
             >Asset Type</Column>
             <Column Key="VoltageKV" Field="VoltageKV" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
