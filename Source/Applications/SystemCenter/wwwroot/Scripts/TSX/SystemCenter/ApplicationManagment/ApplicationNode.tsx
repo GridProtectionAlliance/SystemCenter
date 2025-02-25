@@ -129,7 +129,7 @@ const ByApplicationNode: Application.Types.iByComponent = (props) => {
                         </Column>
                         <Column<Application.Types.iApplicationNode>
                             Key={'ID'}
-                            AllowSort={true}
+                            AllowSort={false}
                             Field={'ID'}
                             HeaderStyle={{ width: '50%' }}
                             RowStyle={{ width: '50%' }}
