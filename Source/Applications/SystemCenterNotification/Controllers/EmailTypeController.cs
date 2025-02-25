@@ -20,6 +20,13 @@
 //       Generated original version of source code.
 //
 //******************************************************************************************************
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Net.Http;
+using System.Web.Http;
+using FaultData.DataWriters.Emails;
 using GSF.Configuration;
 using GSF.Data;
 using GSF.Web.Model;
@@ -27,14 +34,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using openXDA.APIAuthentication;
 using openXDA.Model;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Net.Http;
-using System.Web.Http;
 using SystemCenter.Notifications.Model;
-using static FaultData.DataWriters.Emails.EmailService;
 using ConfigurationLoader = SystemCenter.Notifications.Model.ConfigurationLoader;
 
 namespace SystemCenter.Notifications.Controllers
