@@ -60,6 +60,7 @@ export namespace SystemCenter {
         Field: keyof T,
         Type: Search.FieldType,
         Width?: string,
+        AllowSort?: boolean,
         Content?: (item: IColDatum<T>) => React.ReactNode;
     }
 }
