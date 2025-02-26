@@ -32,7 +32,7 @@ import GenericByPage from '../CommonComponents/GenericByPage';
 
 declare var homePath: string;
 const fieldCols: SC.IByCol<SystemCenter.Types.DetailedExtDBTables>[] = [
-    { Field: 'TableName', Label: 'Table Name', Type: 'string', Width: 'auto' },
+    { Field: 'TableName', Label: 'Name', Type: 'string', Width: 'auto' },
     { Field: 'ExternalDB', Label: 'External Database', Type: 'string', Width: 'auto' },
     { Field: 'MappedFields', Label: 'Number of Mapped Fields', Type: 'number', Width: 'auto' }
 ];
@@ -74,7 +74,7 @@ const ByExternalTable: Application.Types.iByComponent = (props) => {
             PagingID='ByExternalTable'
             OnClick={(item) => { handleSelect(item); }}
             Columns={fieldCols}
-            DefaultSearchAscending={false}
+            DefaultSearchAscending={true}
             DefaultSearchKey='TableName'
         >
             <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
