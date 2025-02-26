@@ -45,7 +45,7 @@ const filterableList: Search.IField<OpenXDA.Types.DataFile>[] = [
             { Value: "2", Label: "Processing" },
             { Value: "3", Label: "Processed" },
             { Value: "4", Label: "Failure" },
-            { Value: "5", Label: "Partial Failure" }
+            { Value: "5", Label: "Warning" }
         ]
     }
 ];
@@ -223,7 +223,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
                             Field={'FilePath'}
                             HeaderStyle={{ width: '60%' }}
                             RowStyle={{ width: '60%' }}
-                            Content={({ item }) => item.FilePath.length > 100 ? item.FilePath.substr(item.FilePath.length - 100, 100) : item.FilePath}
+                            Content={({ item }) => item.FilePath.length > 100 ? `...${item.FilePath.substr(item.FilePath.length - 100, 100)}` : item.FilePath}
                         > File Path
                         </Column>
                         <Column<OpenXDA.Types.DataFile>
@@ -250,7 +250,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
                             Field={'ProcessingState'}
                             HeaderStyle={{ width: '10%' }}
                             RowStyle={{ width: '10%' }}
-                            Content={({ item }) => <ProcessingStatus Status={item.ProcessingState} />}
+                            Content={({ item }) => <ProcessingStatus Status={item.ProcessingState} FileGroupID={item.FileGroupID} />}
                         > Status
                         </Column>
                     </Table>
@@ -344,7 +344,31 @@ const ByFile: Application.Types.iByComponent = (props) => {
     )
 }
 
-const ProcessingStatus = (props: { Status: number }) => {
+interface IStatusProps {
+    Status: number;
+    FileGroupID: number;
+}
+
+const ProcessingStatus = (props: IStatusProps) => {
+    const [message, setMessage] = React.useState<string | undefined>(undefined);
+    const [hover, setHover] = React.useState<boolean>(false);
+    const [guid, _setGuid] = React.useState<string>(CreateGuid());
+
+    React.useEffect(() => {
+        switch (props.Status) {
+            case 5:
+                setMessage("Click to see issues.");
+                break;
+            default:
+                setMessage(undefined);
+        }
+    }, [props.Status]);
+
+    const onClick = React.useCallback((event: React.MouseEvent<HTMLElement>) => {
+        event.stopPropagation();
+        if (props.Status === 5)
+            window.location.href = `${homePath}index.cshtml?name=DataOperationsFailures&FileGroupID=${props.FileGroupID}`;
+    }, [props.Status, props.FileGroupID]);
 
     const visual = React.useMemo(() => {
         if (props.Status == 0) //Added - Unknown
@@ -374,7 +398,7 @@ const ProcessingStatus = (props: { Status: number }) => {
         if (props.Status == 4) // Error
             return "Failure";
         if (props.Status == 5) // Partial Success
-            return "Partial Failure";
+            return "Warning";
         return "Unknwown";
     }, [props.Status]);
 
@@ -389,12 +413,30 @@ const ProcessingStatus = (props: { Status: number }) => {
             return <ReactIcons.CircleCheck Size={15} />
         if (props.Status == 4) // Error
             return <ReactIcons.CircledX Size={15} />;
-        if (props.Status == 5) //Added - Unknown
+        if (props.Status == 5) // Partial Success
             return <ReactIcons.Alert Size={15} />;
         return <ReactIcons.Warning Size={15} />;
     }, [props.Status]);
 
-    return <span className={`"badge badge-pill ${visual}`} > {Symbol}  {text} </span>
+    return (
+        <>
+            <span
+                className={`"badge badge-pill ${visual}`}
+                data-tooltip={guid}
+                onMouseEnter={() => setHover(true)}
+                onMouseLeave={() => setHover(false)}
+                onClick={onClick}
+            >
+                {Symbol}  {text}
+            </span>
+            {
+                message === undefined ? null :
+                    <ToolTip Show={hover} Target={guid} Position={'top'}>
+                        {message}
+                    </ToolTip>
+            }
+        </>
+    );
 }
 
 export default ByFile;
