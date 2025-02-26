@@ -25,43 +25,64 @@ import * as React from 'react';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { ConfigSlice } from '../Store/Store';
 import { ToolTip } from '@gpa-gemstone/react-interactive';
+import { SelectRoles } from '../Store/UserSettings';
+import { Application } from '@gpa-gemstone/application-typings';
 
 interface IProps {
+    // Edition Requirement Defaults to Allow Any Edition
     EditionRequirement?: 'Enterprise' | 'Base',
-    SetInEdition: (status: boolean) => void,
+    // Role Requirement Defaults to Allow to All Roles
+    RolesRequirement?: Application.Types.SecurityRoleName[]
+    SetMeetsRequirements: (status: boolean) => void,
     FeatureName: string,
     Target: string,
     Show: boolean
 }
 
-const EditionTooltip: React.FunctionComponent<IProps> = (props) => {
+const RestrictionTooltip: React.FunctionComponent<IProps> = (props) => {
     let dispatch = useAppDispatch();
 
     const configStatus = useAppSelector(ConfigSlice.XDAConfigStatus);
     const config = useAppSelector(ConfigSlice.XDAConfig);
 
+    const roles = useAppSelector(SelectRoles);
+
     const [inSpecifiedEdition, setInSpecifiedEdition] = React.useState<boolean>(false);
+    const [inSpecifiedRoles, setInSpecifiedRoles] = React.useState<boolean>(false);
 
     const message: string = React.useMemo(() => {
-        switch (configStatus) {
-            case 'error': return "Unable to retrieve edition status.";
-            case 'idle': return `${props.FeatureName} is only available in ${props.EditionRequirement ?? 'Enterprise'} Edition.`;
-            default: return "Validating License..."
+        if (!inSpecifiedEdition) {
+            switch (configStatus) {
+                case 'error': return "Unable to retrieve edition status.";
+                case 'idle': return `${props.FeatureName} is only available in ${props.EditionRequirement ?? 'Enterprise'} Edition.`;
+                default: return "Validating License..."
+            }
         }
-    }, [configStatus]);
+        if (!inSpecifiedRoles) return `${props.FeatureName} is unavailable in your role(s).`;
+
+        return undefined;
+    }, [configStatus, inSpecifiedEdition, inSpecifiedRoles]);
 
     React.useEffect(() => {
-        const result = config.EditionStatus[props.EditionRequirement ?? 'Enterprise'] ?? false;
-        setInSpecifiedEdition(result);
-        props.SetInEdition(result);
-    }, [config.EditionStatus, props.EditionRequirement]);
+        const editionResult = props.EditionRequirement != null ?
+            (config.EditionStatus[props.EditionRequirement] ?? false) :
+            true;
+        setInSpecifiedEdition(editionResult);
+
+        const roleResult = props.RolesRequirement != null ?
+            props.RolesRequirement.some(role => roles.indexOf(role) >= 0) :
+            true;
+        setInSpecifiedRoles(roleResult);
+
+        props.SetMeetsRequirements(editionResult && roleResult);
+    }, [config.EditionStatus, props.EditionRequirement, props.RolesRequirement, roles]);
 
     React.useEffect(() => {
         if (configStatus == 'unintiated' || configStatus == 'changed')
             dispatch(ConfigSlice.FetchXDAConfig());
     }, [configStatus]);
 
-    if (inSpecifiedEdition) return null;
+    if (inSpecifiedEdition && inSpecifiedRoles) return null;
 
     return (
         <ToolTip Show={props.Show} Position={'bottom'} Target={props.Target}>
@@ -70,5 +91,5 @@ const EditionTooltip: React.FunctionComponent<IProps> = (props) => {
     );
 }
 
-export default EditionTooltip;
+export default RestrictionTooltip;
 
