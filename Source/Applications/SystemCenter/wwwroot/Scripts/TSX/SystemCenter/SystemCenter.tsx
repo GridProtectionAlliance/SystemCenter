@@ -93,7 +93,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                             <Page Name={"index.cshtml?name=DeviceHealthReport"} Label={"Device Health Report"} OtherActivePages={["index.cshtml?name=DeviceIssuesPage"]} />
                         </Section>
                         <Section Label={"FILE PROCESSING"} Style={{ marginLeft: "10px" }} RequiredRoles={["Administrator", "Engineer"]}>
-                            <Page Name={"index.cshtml?name=DataFiles"} Label={"Data Files"} />
+                            <Page Name={"index.cshtml?name=DataFiles"} Label={"Data Files"} OtherActivePages={["index.cshtml?name=DataOperationsFailures"]} />
                             <Page Name={"index.cshtml?name=DataOperations&System=OpenXDA"} Label={"Data Operations"} />
                             <Page Name={"index.cshtml?name=DataReaders&System=OpenXDA"} Label={"Data Readers"} />
                             <Page Name={"index.cshtml?name=MATLABAnalytics"} Label={"MATLAB Analytics"} />
@@ -129,7 +129,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                             <Page Name={"index.cshtml?name=Users"} Label={"Users"} OtherActivePages={["index.cshtml?name=User&"]} />
                             <Page Name={"index.cshtml?name=Groups"} Label={"User Groups"} OtherActivePages={["index.cshtml?name=Group"]} />
                         </Section>
-                        <div className="col" style={{ width: '100%', height: 'inherit', padding: '0 0 0 0', overflow: 'hidden' }}>
+                        <div className="col" style={{ width: '100%', height: '100%', padding: '0 0 0 0', overflow: 'hidden' }}>
                             <Routes>
                                 <Route index element={<Navigate to={`${homePath}index.cshtml?name=Meters`} />} />
                                 <Route path="/index.cshtml" element={<Matcher />} />
