@@ -34,7 +34,7 @@ import GenericByPage from '../CommonComponents/GenericByPage';
 declare var homePath: string;
 const controllerPath = `${homePath}api/SystemCenter/ExternalDatabases`
 const fieldCols: SC.IByCol<SystemCenter.Types.DetailedExternalDatabases>[] = [
-    { Field: 'Name', Label: 'Database Name', Type: 'string', Width: 'auto' },
+    { Field: 'Name', Label: 'Name', Type: 'string', Width: 'auto' },
     { Field: 'MappedTables', Label: 'Number of Mapped Tables', Type: 'number', Width: 'auto' },
     { Field: 'MappedFields', Label: 'Number of Mapped Fields', Type: 'number', Width: 'auto' },
     { Field: 'LastDataUpdate', Label: 'Date of Last Data Update', Type: 'datetime', Width: 'auto' }
@@ -76,7 +76,7 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
             PagingID='ByExternalDB'
             OnClick={handleSelect}
             Columns={fieldCols}
-            DefaultSearchAscending={false}
+            DefaultSearchAscending={true}
             DefaultSearchKey='Name'
         >
             <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>

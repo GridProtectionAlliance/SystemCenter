@@ -61,7 +61,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
     const [fieldsInTable, setFieldsInTable] = React.useState<SystemCenter.Types.AdditionalFieldView[]>([]);
     const parentID = React.useRef<number>(-1);
     const [tableStatus, setTableStatus] = React.useState<Application.Types.Status>('unintiated');
-    const [asc, setAsc] = React.useState<boolean>(false);
+    const [asc, setAsc] = React.useState<boolean>(true);
     const [sortKey, setSortKey] = React.useState<string>('FieldName');
 
     const [record, setRecord] = React.useState<SystemCenter.Types.AdditionalFieldView>(emptyRecord);
@@ -168,10 +168,8 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                                                 if (d.colKey === sortKey) setAsc(prev => !prev);
                                                 else setSortKey(d.colKey);
                                             }}
-                                            TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
-                                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                            TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
-                                            RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                            TheadStyle={{ fontSize: 'smaller' }}
+                                            RowStyle={{ fontSize: 'smaller' }}
                                             Selected={(item) => false}
                                             KeySelector={(item) => item.ID}
                                         >
@@ -274,7 +272,13 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                 </div>
             </div>
 
-            <Modal Title={'Remove ' + record?.FieldName ?? 'Field'} Show={showRemove} CallBack={() => setShowRemove(false)} ShowCancel={false} ConfirmText={'Close'} >
+            <Modal
+                Title={'Remove ' + (record?.FieldName ?? 'Field')}
+                Show={showRemove}
+                CallBack={() => setShowRemove(false)}
+                ShowCancel={false}
+                ConfirmText={'Close'}
+            >
                 <button className="btn btn-danger btn-block" onClick={() => { setTableStatus('changed'); DisassociateField(record); setShowRemove(false); }}>Remove Field From Table</button>
                 <button className="btn btn-danger btn-block" onClick={() => { setTableStatus('changed'); Delete(); setShowRemove(false); }}>Delete Field Permanently</button>
             </Modal>
@@ -287,7 +291,11 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                 setOverWriteFields([]);
             }} Message={`Associating the selected ${overWriteFields.length} field(s) with ${props.TableName ?? 'this table'} will overwrite an existing connection in ${overWriteFields.filter(f => f.ExternalDBTableID != null).length} field(s). This cannot be undone.`} />
 
-            <Modal Title={record.ID == 0 ? 'Add New Field' : 'Edit ' + (record?.FieldName ?? 'Field')} Show={showNew} ShowCancel={false} ConfirmText={record.ID == 0 ? 'Add' : 'Save'}
+            <Modal
+                Title={record.ID == 0 ? 'Add New Field' : 'Edit ' + (record?.FieldName ?? 'Field')}
+                Show={showNew}
+                ShowCancel={false}
+                ConfirmText={record.ID == 0 ? 'Add' : 'Save'}
                 ConfirmShowToolTip={errors.length > 0 || warnings.length > 0}
                 ConfirmToolTipContent={
                     <>
@@ -296,7 +304,8 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                     </>
                 }
                 DisableConfirm={errors.length > 0}
-                ShowX={true} CallBack={(conf) => {
+                ShowX={true}
+                CallBack={(conf) => {
                     setShowNew(false);
                     if (conf) {
                         setTableStatus('changed');
