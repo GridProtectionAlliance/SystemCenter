@@ -21,19 +21,18 @@
 //
 //******************************************************************************************************
 
-import * as React from 'react';
-import { Table, Column } from '@gpa-gemstone/react-table';
-import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-import { DefaultSearchField } from '../CommonComponents/SearchFields';
-import { SearchBar, Search, Modal, LoadingIcon, LoadingScreen, ToolTip } from '@gpa-gemstone/react-interactive';
-import { useAppSelector, useAppDispatch } from '../hooks';
-import { DataFileSlice } from '../Store/Store';
-import { OpenXDA as GlobalXDA } from '../global';
-import moment from 'moment';
-import { Paging } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import EditionToolTip from '../CommonComponents/EditionTooltip';
+import { CreateGuid } from '@gpa-gemstone/helper-functions';
+import { LoadingIcon, LoadingScreen, Modal, Search, SearchBar, ToolTip } from '@gpa-gemstone/react-interactive';
+import { Column, Paging, Table } from '@gpa-gemstone/react-table';
+import moment from 'moment';
+import * as React from 'react';
+import RestrictionTooltip from '../CommonComponents/RestrictionTooltip';
+import { DefaultSearchField } from '../CommonComponents/SearchFields';
+import { OpenXDA as GlobalXDA } from '../global';
+import { useAppDispatch, useAppSelector } from '../hooks';
+import { DataFileSlice } from '../Store/Store';
 
 const filterableList: Search.IField<OpenXDA.Types.DataFile>[] = [
     { isPivotField: false, key: 'FilePath', label: 'File Path', type: 'string' },
@@ -186,8 +185,8 @@ const ByFile: Application.Types.iByComponent = (props) => {
                                                 if (inEnterprise) reprocessAll();
                                             }}>Reprocess All {data.length}</button>
                                     </div>
-                                    <EditionToolTip
-                                        SetInEdition={setInEnterprise}
+                                    <RestrictionTooltip
+                                        SetMeetsRequirements={setInEnterprise}
                                         EditionRequirement={'Enterprise'}
                                         FeatureName={'Bulk Reprocessing'}
                                         Target={'BulkReload'}
