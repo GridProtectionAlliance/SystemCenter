@@ -52,7 +52,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
     const [selectedTypeID, setSelectedtypeID] = React.useState<number>(0);
     const [localAssets, setLocalAssets] = React.useState<Array<OpenXDA.Types.Asset>>([]);
 
-    const [sortKey, setSortKey] = React.useState<string>('AssetKey');
+    const [sortKey, setSortKey] = React.useState<string>('AssetName');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [showModal, setShowModal] = React.useState<boolean>(false);
 
