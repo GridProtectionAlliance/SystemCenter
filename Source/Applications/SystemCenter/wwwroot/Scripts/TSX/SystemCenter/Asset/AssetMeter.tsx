@@ -38,7 +38,7 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
     let navigate = useNavigate();
     const dispatch = useAppDispatch();
     const [meters, setMeters] = React.useState<Array<OpenXDA.Types.Meter>>([]);
-    const [sortField, setSortField] = React.useState<keyof(OpenXDA.Types.Meter)>('AssetKey');
+    const [sortField, setSortField] = React.useState<keyof(OpenXDA.Types.Meter)>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [showAdd, setShowAdd] = React.useState<boolean>(false);
     const allMeters = useAppSelector(ByMeterSlice.Data);
@@ -175,68 +175,65 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
                     </div>
                 </div>
             </div>
-            <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
-                <div style={{ width: '100%', height: '100%', padding: 30, display: 'flex', flexDirection: 'column' }}>
-                    <Table<OpenXDA.Types.Meter>
-                        TableClass="table table-hover"
-                        Data={meters}
-                        SortKey={sortField}
-                        Ascending={ascending}
-                        OnSort={(d) => {
-                            if (d.colKey == sortField) {
-                                setAscending(!ascending);
-                                const ordered = _.orderBy(meters, [d.colKey], [(!ascending ? "asc" : "desc")]);
-                                setMeters(ordered);
-                            }
-                            else {
-                                setAscending(true);
-                                setSortField(d.colField);
-                                const ordered = _.orderBy(meters, [d.colKey], ["asc"]);
-                                setMeters(ordered);
-                            }
-                        }}
-                        TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
-                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        TbodyStyle={{ display: 'block', width: '100%', overflowY: 'auto', flex: 1 }}
-                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        OnClick={handleSelect}
-                        Selected={(item) => false}
-                        KeySelector={(item) => item.ID}
-                    >
-                        <Column<OpenXDA.Types.Meter>
-                            Key={'AssetKey'}
-                            AllowSort={true}
-                            Field={'AssetKey'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Key
-                        </Column>
-                        <Column<OpenXDA.Types.Meter>
-                            Key={'Name'}
-                            AllowSort={true}
-                            Field={'Name'}
-                            HeaderStyle={{ width: '30%' }}
-                            RowStyle={{ width: '30%' }}
-                        > Name
-                        </Column>
-                        <Column<OpenXDA.Types.Meter>
-                            Key={'Make'}
-                            AllowSort={true}
-                            Field={'Make'}
-                            HeaderStyle={{ width: '20%' }}
-                            RowStyle={{ width: '20%' }}
-                        > Make
-                        </Column>
-                        <Column<OpenXDA.Types.Meter>
-                            Key={'Model'}
-                            AllowSort={true}
-                            Field={'Model'}
-                            HeaderStyle={{ width: '20%' }}
-                            RowStyle={{ width: '20%' }}
-                        > Model
-                        </Column>
-                    </Table>
-                </div>
+            <div className="card-body" style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                <Table<OpenXDA.Types.Meter>
+                    TableClass="table table-hover"
+                    Data={meters}
+                    SortKey={sortField}
+                    Ascending={ascending}
+                    OnSort={(d) => {
+                        if (d.colKey == sortField) {
+                            setAscending(!ascending);
+                            const ordered = _.orderBy(meters, [d.colKey], [(!ascending ? "asc" : "desc")]);
+                            setMeters(ordered);
+                        }
+                        else {
+                            setAscending(true);
+                            setSortField(d.colField);
+                            const ordered = _.orderBy(meters, [d.colKey], ["asc"]);
+                            setMeters(ordered);
+                        }
+                    }}
+                    TableStyle={{ height: '100%' }}
+                    TheadStyle={{ fontSize: 'smaller' }}
+                    RowStyle={{ fontSize: 'smaller' }}
+                    OnClick={handleSelect}
+                    Selected={(item) => false}
+                    KeySelector={(item) => item.ID}
+                >
+                    <Column<OpenXDA.Types.Meter>
+                        Key={'Name'}
+                        AllowSort={true}
+                        Field={'Name'}
+                        HeaderStyle={{ width: '30%' }}
+                        RowStyle={{ width: '30%' }}
+                    > Name
+                    </Column>
+                    <Column<OpenXDA.Types.Meter>
+                        Key={'AssetKey'}
+                        AllowSort={true}
+                        Field={'AssetKey'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                    > Key
+                    </Column>
+                    <Column<OpenXDA.Types.Meter>
+                        Key={'Make'}
+                        AllowSort={true}
+                        Field={'Make'}
+                        HeaderStyle={{ width: '20%' }}
+                        RowStyle={{ width: '20%' }}
+                    > Make
+                    </Column>
+                    <Column<OpenXDA.Types.Meter>
+                        Key={'Model'}
+                        AllowSort={true}
+                        Field={'Model'}
+                        HeaderStyle={{ width: '20%' }}
+                        RowStyle={{ width: '20%' }}
+                    > Model
+                    </Column>
+                </Table>
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">

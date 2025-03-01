@@ -52,7 +52,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
     const [selectedTypeID, setSelectedtypeID] = React.useState<number>(0);
     const [localAssets, setLocalAssets] = React.useState<Array<OpenXDA.Types.Asset>>([]);
 
-    const [sortKey, setSortKey] = React.useState<string>('AssetKey');
+    const [sortKey, setSortKey] = React.useState<string>('AssetName');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [showModal, setShowModal] = React.useState<boolean>(false);
 
@@ -239,76 +239,73 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                 </div>
             </div>
             <div className="card-body" style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-                <div style={{ width: '100%', padding: 30, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-                    <Table<AssetConnection>
-                        TableClass="table table-hover"
-                        Data={assetConnections}
-                        SortKey={sortKey}
-                        Ascending={ascending}
-                        OnSort={(d) => {
-                            if (d.colKey === "DeleteButton")
-                                return;
+                <Table<AssetConnection>
+                    TableClass="table table-hover"
+                    Data={assetConnections}
+                    SortKey={sortKey}
+                    Ascending={ascending}
+                    OnSort={(d) => {
+                        if (d.colKey === "DeleteButton")
+                            return;
 
-                            if (d.colKey === sortKey) {
-                                setAscending(!ascending);
-                                const ordered = _.orderBy(assetConnections, [d.colKey], [(!ascending ? "asc" : "desc")]);
-                                setAssetConnections(ordered);
-                            }
-                            else {
-                                setAscending(true);
-                                setSortKey(d.colKey);
-                                const ordered = _.orderBy(assetConnections, [d.colKey], ["asc"]);
-                                setAssetConnections(ordered);
-                            }
-                        }}
-                        TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
-                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
-                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        OnClick={handleSelect}
-                        Selected={(item) => false}
-                        KeySelector={(item) => item.AssetID}
-                    >
-                        <Column<AssetConnection>
-                            Key={'AssetName'}
-                            AllowSort={true}
-                            Field={'AssetName'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Asset Name
-                        </Column>
-                        <Column<AssetConnection>
-                            Key={'AssetKey'}
-                            AllowSort={true}
-                            Field={'AssetKey'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Asset Key
-                        </Column>
-                        <Column<AssetConnection>
-                            Key={'Name'}
-                            AllowSort={true}
-                            Field={'Name'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Relationship
-                        </Column>
-                        <Column<AssetConnection>
-                            Key={'DeleteButton'}
-                            AllowSort={false}
-                            HeaderStyle={{ width: '6%' }}
-                            RowStyle={{ width: '6%' }}
-                            Content={({ item }) => <>
-                                <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    if (hasPermissions()) deleteAssetConnection(item);
-                                }}><span>{TrashCan}</span></button>
-                            </> }
-                        > <p></p>
-                        </Column>
-                    </Table>
-                </div>
+                        if (d.colKey === sortKey) {
+                            setAscending(!ascending);
+                            const ordered = _.orderBy(assetConnections, [d.colKey], [(!ascending ? "asc" : "desc")]);
+                            setAssetConnections(ordered);
+                        }
+                        else {
+                            setAscending(true);
+                            setSortKey(d.colKey);
+                            const ordered = _.orderBy(assetConnections, [d.colKey], ["asc"]);
+                            setAssetConnections(ordered);
+                        }
+                    }}
+                    TableStyle={{ height: '100%' }}
+                    TheadStyle={{ fontSize: 'smaller' }}
+                    RowStyle={{ fontSize: 'smaller' }}
+                    OnClick={handleSelect}
+                    Selected={(item) => false}
+                    KeySelector={(item) => item.AssetID}
+                >
+                    <Column<AssetConnection>
+                        Key={'AssetName'}
+                        AllowSort={true}
+                        Field={'AssetName'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                    > Asset Name
+                    </Column>
+                    <Column<AssetConnection>
+                        Key={'AssetKey'}
+                        AllowSort={true}
+                        Field={'AssetKey'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                    > Asset Key
+                    </Column>
+                    <Column<AssetConnection>
+                        Key={'Name'}
+                        AllowSort={true}
+                        Field={'Name'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                    > Relationship
+                    </Column>
+                    <Column<AssetConnection>
+                        Key={'DeleteButton'}
+                        AllowSort={false}
+                        HeaderStyle={{ width: '6%' }}
+                        RowStyle={{ width: '6%' }}
+                        Content={({ item }) => <>
+                            <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if (hasPermissions()) deleteAssetConnection(item);
+                            }}><span>{TrashCan}</span></button>
+                        </> }
+                    > <p></p>
+                    </Column>
+                </Table>
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
