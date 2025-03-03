@@ -199,21 +199,11 @@ const CustomerMeterWindow = (props: IProps) => {
                             return;
                         dispatch(CustomerMeterSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                         }}
-                    TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
-                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    TbodyStyle={{ display: 'block', width: '100%', overflowY: 'auto', flex: 1 }}
-                    RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    TheadStyle={{ fontSize: 'smaller' }}
+                    RowStyle={{ fontSize: 'smaller' }}
                     Selected={(item) => false}
                     KeySelector={(item) => item.ID}
                 >
-                    <Column<LocalXDA.CustomerMeter>
-                        Key={'MeterKey'}
-                        AllowSort={true}
-                        Field={'MeterKey'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                    > Key
-                    </Column>
                     <Column<LocalXDA.CustomerMeter>
                         Key={'MeterName'}
                         AllowSort={true}
@@ -221,6 +211,14 @@ const CustomerMeterWindow = (props: IProps) => {
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                     > Name
+                    </Column>
+                    <Column<LocalXDA.CustomerMeter>
+                        Key={'MeterKey'}
+                        AllowSort={true}
+                        Field={'MeterKey'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                    > Key
                     </Column>
                     <Column<LocalXDA.CustomerMeter>
                         Key={'MeterLocation'}
@@ -268,10 +266,10 @@ const CustomerMeterWindow = (props: IProps) => {
             GetEnum={getEnum}
             GetAddlFields={getAdditionalMeterFields}
         >
-            <Column Key="AssetKey" Field="AssetKey" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
-            >Key</Column>
             <Column Key="Name" Field="Name" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
             >Name</Column>
+            <Column Key="AssetKey" Field="AssetKey" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+            >Key</Column>
             <Column Key="Location" Field="Location" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
             >Substation</Column>
             <Column Key="MappedAssets" Field="MappedAssets" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}

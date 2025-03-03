@@ -36,7 +36,7 @@ declare var homePath: string;
 
 const fieldCols: SC.IByCol<OpenXDA.Types.Customer>[] = [
     { Field: 'Name', Label: 'Name', Type: 'string', Width: '15%' },
-    { Field: 'CustomerKey', Label: 'Customer Key', Type: 'string', Width: '15%' },
+    { Field: 'CustomerKey', Label: 'Key', Type: 'string', Width: '15%' },
     { Field: 'Phone', Label: 'Phone', Type: 'string', Width: '10%' },
     { Field: 'Description', Label: 'Description', Type: 'string', Width: 'auto' },
     { Field: 'LSCVS', Label: 'LSCVS', Type: 'boolean', Width: 'auto' }
@@ -70,7 +70,7 @@ const ByCustomer: Application.Types.iByComponent = (props) => {
             PagingID='ByCustomer'
             OnClick={(item) => { handleSelect(item); }}
             Columns={fieldCols}
-            DefaultSearchAscending={false} DefaultSearchKey='Name'
+            DefaultSearchAscending={true} DefaultSearchKey='Name'
             QueryAdditionalFields={() => 
                 $.ajax({
                     type: "GET",
