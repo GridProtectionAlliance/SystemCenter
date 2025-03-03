@@ -23,12 +23,23 @@
 
 import * as React from 'react';
 
-const Reason = (props: { ID: number, Text: string }) => {
+const Reason = React.memo((props: { ID: number, Text: string, Disabled?: boolean, OnHover?: (ID: string|undefined) => void }) => {
     if (props.Text == '') return <>N/A</>;
 
+    const handleMouse = React.useCallback((id: string|undefined) => {
+        if (props.OnHover == null) return;
+        props.OnHover(id);
+    }, [props.OnHover]);
+    console.log(props.Disabled)
+
     return (
-        <div>
-            <button className='btn' data-toggle='modal' data-target={`#modal${props.ID}`}>...</button>
+        <div onMouseEnter={() => handleMouse(props.ID.toString())} onMouseLeave={() => handleMouse(undefined)}>
+            <button className='btn'
+                data-toggle={(props.Disabled ?? false) ? undefined : 'modal'}
+                data-target={(props.Disabled ?? false) ? undefined : `#modal${props.ID}`}
+                disabled={props.Disabled}
+                data-tooltip={(props.OnHover == null) ? undefined : props.ID.toString()}
+            >...</button>
 
             <div id={`modal${props.ID}`} className="modal" role="dialog">
                 <div className="modal-dialog" role="document">
@@ -49,6 +60,6 @@ const Reason = (props: { ID: number, Text: string }) => {
             </div>
         </div>
     );
-}
+});
 
 export default Reason;

@@ -56,6 +56,8 @@ namespace SystemCenter.Controllers.OpenXDA
 
     [RoutePrefix("api/OpenXDA/DataOperation")]
     public class DataOperationController : ModelController<DataOperation> { }
+    [RoutePrefix("api/OpenXDA/DataOperationFailure")]
+    public class DataOperationFailureController : ModelController<DataOperationFailureDetails> { }
     [RoutePrefix("api/OpenXDA/DataReader")]
     public class DataReaderController : ModelController<DataReader> { }
 
