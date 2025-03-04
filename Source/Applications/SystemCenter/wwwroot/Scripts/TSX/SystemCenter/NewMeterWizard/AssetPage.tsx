@@ -400,20 +400,20 @@ export default function AssetPage(props: IProps) {
                                         > Status
                                         </Column>
                                         <Column<AssetType>
-                                            Key={'AssetKey'}
-                                            AllowSort={true}
-                                            Field={'AssetKey'}
-                                            HeaderStyle={{ width: '20%' }}
-                                            RowStyle={{ width: '20%' }}
-                                        > Key
-                                        </Column>
-                                        <Column<AssetType>
                                             Key={'AssetName'}
                                             AllowSort={true}
                                             Field={'AssetName'}
                                             HeaderStyle={{ width: '30%' }}
                                             RowStyle={{ width: '30%' }}
                                         > Name
+                                        </Column>
+                                        <Column<AssetType>
+                                            Key={'AssetKey'}
+                                            AllowSort={true}
+                                            Field={'AssetKey'}
+                                            HeaderStyle={{ width: '20%' }}
+                                            RowStyle={{ width: '20%' }}
+                                        > Key
                                         </Column>
                                         <Column<AssetType>
                                             Key={'AssetType'}
