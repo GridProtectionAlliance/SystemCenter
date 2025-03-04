@@ -66,7 +66,7 @@ export default function ChannelPage(props: IProps) {
     const [listStatus, setListStatus] = React.useState<Application.Types.Status>('idle');
 
     const [sortKey, setSortKey] = React.useState<string>('Series');
-    const [asc, setAsc] = React.useState<boolean>(false);
+    const [asc, setAsc] = React.useState<boolean>(true);
 
     const phases = useAppSelector(PhaseSlice.Data);
     const measurementCharateristics = useAppSelector(MeasurementCharacteristicSlice.Data);
@@ -484,9 +484,7 @@ export default function ChannelPage(props: IProps) {
                 Data={currentChannels}
                 SortKey={sortKey}
                 Ascending={asc}
-                TheadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
-                TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
-                RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                TheadStyle={{ fontSize: 'smaller' }}
                 Selected={() => false}
                 KeySelector={(item) => item.ID}
                 OnSort={(d) => {
@@ -497,6 +495,21 @@ export default function ChannelPage(props: IProps) {
                     setSortKey(d.colKey);
                 }}
             >
+                <ConfigurableColumn Key='Series' Label='Channel' Default={true}>
+                    <Column<OpenXDA.Types.Channel>
+                        Key={'Series'}
+                        Adjustable={true}
+                        AllowSort={true}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                        Content={({ item }) => <Input<OpenXDA.Types.Series> Field={'SourceIndexes'}
+                            Record={item.Series[0]} Setter={(series) => {
+                                item.Series[0].SourceIndexes = series.SourceIndexes;
+                                editChannel(item)
+                            }} Label={''} Valid={() => true} />}
+                    > Identifier
+                    </Column>
+                </ConfigurableColumn>
                 <Column<OpenXDA.Types.Channel>
                     Key={'Name'}
                     Adjustable={true}
@@ -508,21 +521,6 @@ export default function ChannelPage(props: IProps) {
                         Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />}
                 > Label
                 </Column>
-                <ConfigurableColumn Key='Series' Label='Channel' Default={true}>
-                    <Column<OpenXDA.Types.Channel>
-                        Key={'Series'}
-                        Adjustable={true}
-                        AllowSort={true}
-                        HeaderStyle={{width: 'auto'}}
-                        RowStyle={{width: 'auto'}}
-                        Content={({ item }) => <Input<OpenXDA.Types.Series> Field={'SourceIndexes'}
-                            Record={item.Series[0]} Setter={(series) => {
-                                item.Series[0].SourceIndexes = series.SourceIndexes;
-                                editChannel(item)
-                            }} Label={''} Valid={() => true} />}
-                    > Identifier
-                    </Column>
-                </ConfigurableColumn>
                 <ConfigurableColumn Key='MeasurementType' Label='Type' Default={false}>
                     <Column<OpenXDA.Types.Channel>
                         Key={'MeasurementType'}
