@@ -119,10 +119,8 @@ const RemoteAssetTab = (props: IProps) => {
                         setSortKey(d.colField);
                     }
                 }}
-                TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
-                TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                TbodyStyle={{ display: 'block', width: '100%', overflowY: 'auto', flex: 1 }}
-                RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                TheadStyle={{ fontSize: 'smaller' }}
+                RowStyle={{ fontSize: 'smaller' }}
                 Selected={(item) => false}
                 KeySelector={(item) => item.ID}
             >
@@ -132,7 +130,7 @@ const RemoteAssetTab = (props: IProps) => {
                     Field={'LocalAssetName'}
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
-                > Local Asset Name
+                > Local Name
                 </Column>
                 <Column<OpenXDA.Types.RemoteXDAAsset>
                     Key={'LocalAssetKey'}
@@ -140,7 +138,7 @@ const RemoteAssetTab = (props: IProps) => {
                     Field={'LocalAssetKey'}
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
-                > Local Asset Key
+                > Local Key
                 </Column>
                 <Column<OpenXDA.Types.RemoteXDAAsset>
                     Key={'RemoteAssetName'}
@@ -148,7 +146,7 @@ const RemoteAssetTab = (props: IProps) => {
                     Field={'RemoteAssetName'}
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
-                > Remote Asset Name
+                > Remote Name
                 </Column>
                 <Column<OpenXDA.Types.RemoteXDAAsset>
                     Key={'RemoteAssetKey'}
@@ -156,7 +154,7 @@ const RemoteAssetTab = (props: IProps) => {
                     Field={'RemoteAssetKey'}
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
-                > Remote Asset Key
+                > Remote Key
                 </Column>
                 <Column<OpenXDA.Types.RemoteXDAAsset>
                     Key={'Obsfucate'}
