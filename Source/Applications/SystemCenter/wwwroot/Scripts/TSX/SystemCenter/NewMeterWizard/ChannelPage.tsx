@@ -146,12 +146,7 @@ export default function ChannelPage(props: IProps) {
 
     React.useEffect(() => {
         setCurrentChannels((d) => {
-            if (sortKey == 'Series') {
-                const u = _.cloneDeep(d);
-                u.sort((a, b) => (asc ? 1 : -1) * (a.Series[0].SourceIndexes > b.Series[0].SourceIndexes ? 1 : -1));
-                return u;
-            }
-            return _.orderBy(d, [sortKey], [(!asc ? "asc" : "desc")]);
+            return sortChannels(d)
         })
     }, [sortKey, asc])
 
@@ -162,6 +157,15 @@ export default function ChannelPage(props: IProps) {
             e.push('No event channels are configured.');
         props.SetWarning(e);
     }, [currentChannels]);
+
+    const sortChannels = (channels: OpenXDA.Types.Channel[]) => {
+        if (sortKey == 'Series') {
+            const c = _.cloneDeep(channels);
+            c.sort((a, b) => (asc ? 1 : -1) * (a.Series[0].SourceIndexes > b.Series[0].SourceIndexes ? 1 : -1));
+            return c;
+        }
+        return _.orderBy(channels, [sortKey], [(!asc ? "asc" : "desc")]);
+    }
 
     const ParseFile = React.useCallback((content: ArrayBuffer, fileName: string) => {
         let extension = fileName.toLowerCase().substring(fileName.lastIndexOf('.') + 1, fileName.length);
@@ -193,7 +197,8 @@ export default function ChannelPage(props: IProps) {
                 cache: false,
                 async: true
             }).done((data: OpenXDA.Types.Channel[]) => {
-                handleParsedChannels(data);
+                const channels = sortChannels(data);
+                handleParsedChannels(channels);
                 // Need to fetch these after since the server parser will add new things to these if it spots them
                 dispatch(PhaseSlice.SetChanged());
                 dispatch(MeasurementCharacteristicSlice.SetChanged());
@@ -493,6 +498,7 @@ export default function ChannelPage(props: IProps) {
                     else
                         setAsc(false);
                     setSortKey(d.colKey);
+                    console.log(sortKey)
                 }}
             >
                 <ConfigurableColumn Key='Series' Label='Channel' Default={true}>
