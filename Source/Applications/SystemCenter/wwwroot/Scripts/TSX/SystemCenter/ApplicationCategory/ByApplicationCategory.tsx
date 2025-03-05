@@ -92,7 +92,7 @@ const ByApplicationCategory: Application.Types.iByComponent = () => {
         <GenericByPage<ApplicationCategory>
             ControllerPath={controllerPath}
             RefreshData={refreshCount}
-            DefaultSortKey='Name'
+            DefaultSortKey='SortOrder'
             PagingID='ApplicationCategory'
             OnClick={(item) => { handleSelect(item); }}
             Columns={fieldCols}
