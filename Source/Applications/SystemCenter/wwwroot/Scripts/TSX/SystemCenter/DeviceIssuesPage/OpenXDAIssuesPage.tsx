@@ -36,8 +36,8 @@ const OpenXDADailyStatisticController = new GenericController<SC.OpenXDADailySta
 
 function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
     const [data, setData] = React.useState<SC.OpenXDADailyStatistic[]>([]);
-    const [sortField, setSortField] = React.useState<keyof SC.OpenXDADailyStatistic>('LastSuccessfulFileProcessed');
-    const [ascending, setAscending] = React.useState<boolean>(false);
+    const [sortField, setSortField] = React.useState<keyof SC.OpenXDADailyStatistic>('Date');
+    const [ascending, setAscending] = React.useState<boolean>(true);
 
     const order = React.useCallback((data: SC.OpenXDADailyStatistic[]) => {
         return _.orderBy(data, [sortField], [ascending ? 'asc' : 'desc'])
