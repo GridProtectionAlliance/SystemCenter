@@ -74,7 +74,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
 
     const [hover, setHover] = React.useState<'None' | 'Bulk'>('None');
     const [sortKey, setSortKey] = React.useState<keyof OpenXDA.Types.DataFile>('DataStartTime');
-    const [ascending, setAscending] = React.useState<boolean>(true);
+    const [ascending, setAscending] = React.useState<boolean>(false);
     const [page, setPage] = React.useState<number>(currentPage);
     const totalRecords = useAppSelector(DataFileSlice.TotalRecords);
     const [update, setUpdate] = React.useState<boolean>(false);
@@ -214,13 +214,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
                             }
                         }}
                         OnClick={(item) => setSelectetID(item.row)}
-                        TableStyle={{
-                            padding: 0, width: 'calc(100%)', height: '100%',
-                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column', marginBottom: 0
-                        }}
-                        TheadStyle={{ fontSize: 'auto', tableLayout: 'fixed', display: 'table', width: '100%' }}
-                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
-                        RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TheadStyle={{ fontSize: 'smaller' }}
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
                     >
