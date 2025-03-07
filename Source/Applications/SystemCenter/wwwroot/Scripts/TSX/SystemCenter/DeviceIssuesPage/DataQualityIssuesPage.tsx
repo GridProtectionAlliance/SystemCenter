@@ -21,10 +21,6 @@
 //
 //******************************************************************************************************
 
-
-
-
-
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { SystemCenter as SC } from '../global';
 import * as React from 'react';
@@ -38,7 +34,7 @@ const MeterDataQualitySummaryController = new GenericController<SC.MeterDataQual
 function DataQualityIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
     const [data, setData] = React.useState<SC.MeterDataQualitySummary[]>([]);
     const [sortField, setSortField] = React.useState<keyof SC.MeterDataQualitySummary>('Date');
-    const [ascending, setAscending] = React.useState<boolean>(false);
+    const [ascending, setAscending] = React.useState<boolean>(true);
 
     const order = React.useCallback((data: SC.MeterDataQualitySummary[]) => {
         return _.orderBy(data, [sortField], [ascending ? 'asc' : 'desc'])

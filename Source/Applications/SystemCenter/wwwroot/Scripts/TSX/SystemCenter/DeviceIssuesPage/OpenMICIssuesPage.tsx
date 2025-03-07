@@ -39,8 +39,8 @@ const OpenMICDailyStatisticController = new GenericController<SC.OpenMICDailySta
 
 function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: string }) {
     const [data, setData] = React.useState<SC.OpenMICDailyStatistic[]>([]);
-    const [sortField, setSortField] = React.useState<keyof SC.OpenMICDailyStatistic>('LastSuccessfulConnection');
-    const [ascending, setAscending] = React.useState<boolean>(false);
+    const [sortField, setSortField] = React.useState<keyof SC.OpenMICDailyStatistic>('Date');
+    const [ascending, setAscending] = React.useState<boolean>(true);
 
     const order = React.useCallback((data: SC.OpenMICDailyStatistic[]) => {
         return _.orderBy(data, [sortField], [ascending ? 'asc' : 'desc'])

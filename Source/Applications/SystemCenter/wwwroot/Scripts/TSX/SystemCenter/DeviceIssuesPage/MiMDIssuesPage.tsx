@@ -40,8 +40,8 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
     let dispatch = useAppDispatch();
 
     const [data, setData] = React.useState<SC.MiMDDailyStatistic[]>([]);
-    const [sortField, setSortField] = React.useState<keyof SC.MiMDDailyStatistic>('LastSuccessfulFileProcessed');
-    const [ascending, setAscending] = React.useState<boolean>(false);
+    const [sortField, setSortField] = React.useState<keyof SC.MiMDDailyStatistic>('Date');
+    const [ascending, setAscending] = React.useState<boolean>(true);
     const settings = useAppSelector(SystemCenterSettingSlice.Data);
     const settingStatus = useAppSelector(SystemCenterSettingSlice.Status);
 
