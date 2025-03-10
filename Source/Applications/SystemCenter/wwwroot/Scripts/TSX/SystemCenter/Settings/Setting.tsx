@@ -21,18 +21,14 @@
 // ******************************************************************************************************
 
 import * as React from 'react';
-import { Input, TextArea } from '@gpa-gemstone/react-forms';
 import { Table, Column } from '@gpa-gemstone/react-table';
-import { CrossMark } from '@gpa-gemstone/gpa-symbols';
-import { SearchBar, Search, Modal, Warning, LoadingScreen, ServerErrorIcon, GenericSlice } from '@gpa-gemstone/react-interactive';
+import { SearchBar, Search, Warning, LoadingScreen, ServerErrorIcon, GenericSlice } from '@gpa-gemstone/react-interactive';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { useAppDispatch, useAppSelector } from '../hooks';
 
 interface IProps {
     SettingsSlice: GenericSlice<SystemCenter.Types.Setting>
 }
-
-
 
 function Setting(props: IProps) {
     const dispatch = useAppDispatch();
@@ -59,7 +55,6 @@ function Setting(props: IProps) {
     React.useEffect(() => {
         if (status === 'unintiated' || status === 'changed')
             dispatch(props.SettingsSlice.Fetch());
-        
     }, [status]);
 
     React.useEffect(() => {
@@ -162,40 +157,6 @@ function Setting(props: IProps) {
                     </Table>
                 </div>
             </div>
-            <Modal Title={editNew === 'Edit' ? 'Edit ' + (editnewSetting?.Name ?? 'Setting') : 'Add New Setting'}
-                Show={showModal} ShowX={true} Size={'lg'} ShowCancel={editNew === 'Edit'} ConfirmText={'Save'} CancelText={'Delete'}
-                CallBack={(conf, isBtn) => {
-                    if (conf && editNew === 'New')
-                        dispatch(props.SettingsSlice.DBAction({ verb: 'POST', record: editnewSetting }))
-                    if (conf && editNew === 'Edit')
-                        dispatch(props.SettingsSlice.DBAction({ verb: 'PATCH', record: editnewSetting }))
-                    if (!conf && isBtn)
-                        setShowWarning(true);
-                    setShowModal(false);
-                }}
-                DisableConfirm={(editNew === 'Edit' && !hasChanged) || errors.length > 0}
-                ConfirmShowToolTip={errors.length > 0}
-                ConfirmToolTipContent={
-                    errors.map((t, i) => <p key={i}>{CrossMark} {t} </p>)
-                }
-            >
-                <div className="row">
-                    <div className="col">
-                        <Input<SystemCenter.Types.Setting> Record={editnewSetting} Field={'Name'} Label='Setting Name' Feedback={'A unique Setting Name is required.'}
-                            Valid={field => editnewSetting.Name != null && editnewSetting.Name.length > 0 && allSettings.findIndex(s => s.Name === editnewSetting.Name && s.ID !== editnewSetting.ID) < 0}
-                            Setter={(record) => { setEditNewSetting(record); setHasChanged(true); }}
-                        />
-                        <TextArea<SystemCenter.Types.Setting> Record={editnewSetting} Field={'Value'} Label='Current Value' Valid={field => true}
-                            Setter={(record) => { setEditNewSetting(record); setHasChanged(true); }}
-                            Rows={1}
-                        />
-                        <TextArea<SystemCenter.Types.Setting> Record={editnewSetting} Field={'DefaultValue'} Label='Default Value' Valid={field => true}
-                            Setter={(record) => { setEditNewSetting(record); setHasChanged(true); }}
-                            Rows={1}
-                        />
-                    </div>
-                </div>
-            </Modal>
             <Warning Title={'Delete ' + (editnewSetting?.Name ?? 'Setting')} Message={'This will delete this Setting from the system. This can have unintended consequences and cause the system to crash. Are you sure you want to continue?'}
                 Show={showWarning} CallBack={(conf) => { if (conf) dispatch(props.SettingsSlice.DBAction({ verb: 'DELETE', record: editnewSetting })); setShowWarning(false); }} />
         </>)
