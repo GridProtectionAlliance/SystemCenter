@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  ByMagDurCurve.tsx - Gbtc
 //
-//  Copyright © 2023, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright ï¿½ 2023, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -149,9 +149,8 @@ const ByAPIAccessKeys: Application.Types.iByComponent = (props) => {
                             padding: 0, width: 'calc(100%)', height: '100%',
                             tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column', marginBottom: 0
                         }}
-                        TheadStyle={{ fontSize: 'auto', tableLayout: 'fixed', display: 'table', width: '100%' }}
-                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
-                        RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TheadStyle={{ fontSize: 'smaller' }}
+                        RowStyle={{ fontSize: 'smaller' }}
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
                     >
@@ -162,14 +161,6 @@ const ByAPIAccessKeys: Application.Types.iByComponent = (props) => {
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                         > Registration Key
-                        </Column>
-                        <Column<IAPIAccessKey>
-                            Key={'APIToken'}
-                            AllowSort={false}
-                            Field={'APIToken'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > API Token
                         </Column>
                         <Column<IAPIAccessKey>
                             Key={'Expires'}
