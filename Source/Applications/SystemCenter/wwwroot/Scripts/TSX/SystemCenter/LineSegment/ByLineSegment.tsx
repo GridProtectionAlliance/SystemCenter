@@ -38,7 +38,7 @@ const ByLineSegment: Application.Types.iByComponent = (props) => {
     let navigate = useNavigate();
 
     const [data, setData] = React.useState<OpenXDA.Types.LineSegment[]>([]);
-    const [ascending, setAscending] = React.useState<boolean>(false);
+    const [ascending, setAscending] = React.useState<boolean>(true);
     const [sortKey, setSortKey] = React.useState<keyof OpenXDA.Types.LineSegment>('AssetName');
     const [filters, setFilters] = React.useState<Search.IFilter<OpenXDA.Types.LineSegment>[]>([]);
     const [pageInfo, setPageInfo] = React.useState<{ RecordsPerPage: number, NumberOfPages: number, TotalRecords: number }>({RecordsPerPage: 0, NumberOfPages: 0, TotalRecords: 0});
@@ -163,13 +163,7 @@ const ByLineSegment: Application.Types.iByComponent = (props) => {
                                 if (d.colKey === sortKey) setAscending(a => !a);
                                 else setSortKey(d.colField);
                             }}
-                            TableStyle={{
-                                padding: 0, width: 'calc(100%)', height: '100%',
-                                tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column', marginBottom: 0
-                            }}
-                            TheadStyle={{ fontSize: 'auto', tableLayout: 'fixed', display: 'table', width: '100%' }}
-                            TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
-                            RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            TheadStyle={{ fontSize: 'smaller' }}
                             OnClick={(item) => handleSelect(item.row.ID)}
                             Selected={(item) => false}
                             KeySelector={(item) => item.ID}
