@@ -129,9 +129,9 @@ function Setting(props: IProps) {
                             }
                         }}
                         OnClick={(item) => { setEditNewSetting(item.row); setShowModal(true); setEditNew('Edit'); }}
-                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TheadStyle={{ fontSize: 'smaller' }}
                         TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        RowStyle={{ fontSize: 'smaller' }}
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
                     >
@@ -141,7 +141,7 @@ function Setting(props: IProps) {
                             Field={'Name'}
                             HeaderStyle={{ width: '24%' }}
                             RowStyle={{ width: '24%' }}
-                        > Setting Name
+                        > Setting
                         </Column>
                         <Column<SystemCenter.Types.Setting>
                             Key={'Value'}
