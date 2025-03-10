@@ -176,9 +176,8 @@ function GenericByPage<T extends U>(props: React.PropsWithChildren<IProps<T>>) {
                         padding: 0, width: '100%', height: '100%',
                         tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column', marginBottom: 0
                     }}
-                    TheadStyle={{ fontSize: 'auto', tableLayout: 'fixed', display: 'table', width: '100%' }}
-                    TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
-                    RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    TheadStyle={{ fontSize: 'smaller' }}
+                    RowStyle={{ fontSize: 'smaller' }}
                     OnClick={props.OnClick}
                     Selected={(item) => false}
                     KeySelector={(item) => item.ID}
