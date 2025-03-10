@@ -164,6 +164,7 @@ const ByLineSegment: Application.Types.iByComponent = (props) => {
                                 else setSortKey(d.colField);
                             }}
                             TheadStyle={{ fontSize: 'smaller' }}
+                            RowStyle={{ fontSize: 'smaller' }}
                             OnClick={(item) => handleSelect(item.row.ID)}
                             Selected={(item) => false}
                             KeySelector={(item) => item.ID}
