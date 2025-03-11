@@ -29,6 +29,7 @@ import BreakerAttributes from '../AssetAttribute/Breaker';
 import CapBankAttributes from '../AssetAttribute/CapBank';
 import LineAttributes from '../AssetAttribute/Line';
 import TransformerAttributes from '../AssetAttribute/Transformer';
+import { useNavigate } from 'react-router-dom';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { getAssetTypes, getAssetWithAdditionalFields } from '../../../TS/Services/Asset';
 import { DBActionAsset, DBMeterAction, SelectAssetStatus } from '../Store/AssetSlice'
@@ -48,6 +49,8 @@ declare var homePath: string;
 interface IProps { Meter: OpenXDA.Types.Meter }
 
 const MeterAssetWindow = (props: IProps) => {
+    const navigate = useNavigate();
+
     const MeterAssetController = new GenericController<OpenXDA.Types.MeterAsset>(`${homePath}api/OpenXDA/DetailedMeterAsset/${props.Meter.ID}`, "AssetName", true);
     const PagingID = 'MeterAssetPage'
 
@@ -150,10 +153,9 @@ const MeterAssetWindow = (props: IProps) => {
                                     setSortKey(d.colKey as keyof OpenXDA.Types.Asset);
                                 }
                             }}
-                            TableStyle={{ tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden', flex: 1 }}
-                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            TbodyStyle={{ display: 'block', width: '100%', overflowY: 'auto', flex: 1 }}
-                            RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            OnClick={ (c) => navigate(`${homePath}index.cshtml?name=Asset&AssetID=${c.row.ID}`) }
+                            TheadStyle={{ fontSize: 'smaller' }}
+                            RowStyle={{ fontSize: 'smaller' }}
                             Selected={(item) => false}
                             KeySelector={(item) => item.ID}
                         >
@@ -171,10 +173,6 @@ const MeterAssetWindow = (props: IProps) => {
                                 Field={'AssetKey'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
-                                Content={({ item, field }) =>
-                                <a href={`${homePath}index.cshtml?name=Asset&AssetID=${item.ID}`} target='_blank'>
-                                    {item[field]}
-                                </a>}
                             > Key
                             </Column>
                             <Column<OpenXDA.Types.MeterAsset>
