@@ -88,7 +88,7 @@ export default class AdditionalUserFieldSlice {
                 Values: [],
                 ParentID: '',
                 SortField: 'FieldName',
-                Ascending: false
+                Ascending: true
             } as iState,
 
             reducers: {
