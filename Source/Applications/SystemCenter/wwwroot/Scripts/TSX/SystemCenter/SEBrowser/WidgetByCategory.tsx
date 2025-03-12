@@ -30,8 +30,6 @@ import { CrossMark, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { LoadingIcon, Modal, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
 import { EventWidget } from '../../../../../EventWidgets/TSX/global';
 import { Select } from '@gpa-gemstone/react-forms';
-import { cross } from 'd3';
-declare var homePath: string;
 
 interface IProps { CategoryID: number }
 
@@ -124,10 +122,8 @@ const WidgetByCategory = (props: IProps) => {
 
                         dispatch(SEBrowserWidgetViewSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                         }}
-                    TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
-                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1, width: '100%' }}
-                    RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    TheadStyle={{ fontSize: 'smaller' }}
+                    RowStyle={{ fontSize: 'smaller' }}
                     Selected={(item) => false}
                     KeySelector={(item) => item.ID}
                 >
@@ -137,7 +133,7 @@ const WidgetByCategory = (props: IProps) => {
                         Field={'Name'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
-                    > Widget Name
+                    > Name
                     </Column>
                     <Column<EventWidget.IWidgetView>
                         Key={'Type'}
@@ -145,7 +141,7 @@ const WidgetByCategory = (props: IProps) => {
                         Field={'Type'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
-                    > Widget Type
+                    > Type
                     </Column>
                     <Column<EventWidget.IWidgetView>
                         Key={'Remove'}
