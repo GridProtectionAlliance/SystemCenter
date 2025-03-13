@@ -89,7 +89,7 @@ export const ApplicationNodeSlice = new GenericSlice<Application.Types.iApplicat
 export const LSCVSAccountSlice = new GenericSlice<SystemCenter.Types.LSCVSAccount>("LSCVSAccount", `${homePath}api/LSCVSAccount`, "AccountID", false);
 export const DBCleanupSlice = new GenericSlice<DBCleanup>("DBCleanup", `${homePath}api/OpenXDA/DBCleanup`, "ID", true);
 export const ApplicationCategorySlice = new GenericSlice<ApplicationCategory>("PQApplicationCategory", `${homePath}api/OpenXDA/ApplicationCategory`, "Name", true);
-export const PQApplicationsSlice = new GenericSlice<PQApplications>("PQApplications", `${homePath}api/OpenXDA/PQApplications`, "Name", true);
+export const PQApplicationsSlice = new GenericSlice<PQApplications>("PQApplications", `${homePath}api/OpenXDA/PQApplications`, "SortOrder", true);
 
 export const AssetGroupSlice = new GenericSlice<OpenXDA.Types.AssetGroup>("AssetGroup", `${homePath}api/OpenXDA/AssetGroup`, "Name", true);
 export const ByAssetSlice = new GenericSlice<SystemCenter.Types.DetailedAsset>("ByAsset", `${homePath}api/OpenXDA/ByAsset`, "AssetName", true);
