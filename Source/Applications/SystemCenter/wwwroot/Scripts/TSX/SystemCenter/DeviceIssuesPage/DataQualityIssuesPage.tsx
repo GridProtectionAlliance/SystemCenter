@@ -21,10 +21,6 @@
 //
 //******************************************************************************************************
 
-
-
-
-
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { SystemCenter as SC } from '../global';
 import * as React from 'react';

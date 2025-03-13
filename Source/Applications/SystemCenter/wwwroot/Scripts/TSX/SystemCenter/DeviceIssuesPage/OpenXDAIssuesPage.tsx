@@ -36,7 +36,7 @@ const OpenXDADailyStatisticController = new GenericController<SC.OpenXDADailySta
 
 function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
     const [data, setData] = React.useState<SC.OpenXDADailyStatistic[]>([]);
-    const [sortField, setSortField] = React.useState<keyof SC.OpenXDADailyStatistic>('LastSuccessfulFileProcessed');
+    const [sortField, setSortField] = React.useState<keyof SC.OpenXDADailyStatistic>('Date');
     const [ascending, setAscending] = React.useState<boolean>(false);
 
     const order = React.useCallback((data: SC.OpenXDADailyStatistic[]) => {
@@ -205,55 +205,54 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                     >
                         Avg Proc Start Lat
                     </Column>
-                    <ConfigurableColumn Key='AverageProcessingEndLatency' Label='Avg Proc End Lat' Default={true}>
-                        <Column<SC.OpenXDADailyStatistic>
-                            Key={'AverageProcessingEndLatency'}
-                            AllowSort={true}
-                            Field={'AverageProcessingEndLatency'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                            Content={({ item, field }) => item[field] != undefined ? (item[field] as number).toFixed(2) : ''}
-                        >
-                            Avg Proc End Lat
-                        </Column>
-                    </ConfigurableColumn>
-                    <ConfigurableColumn Key='AverageEmailLatency' Label='Avg Email Lat' Default={true}>
-                        <Column<SC.OpenXDADailyStatistic>
-                            Key={'AverageEmailLatency'}
-                            AllowSort={true}
-                            Field={'AverageEmailLatency'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                            Content={({ item, field }) => item[field] != undefined ? (item[field] as number).toFixed(2) : ''}
-                        >
-                            Avg Email Lat
-                        </Column>
-                    </ConfigurableColumn>
-                    <ConfigurableColumn Key='AverageTotalProcessingLatency' Label='Avg Tot Proc Lat' Default={true}>
-                        <Column<SC.OpenXDADailyStatistic>
-                            Key={'AverageTotalProcessingLatency'}
-                            AllowSort={true}
-                            Field={'AverageTotalProcessingLatency'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                            Content={({ item, field }) => item[field] != undefined ? (item[field] as number).toFixed(2) : ''}
-                        >
-                            Avg Tot Proc Lat
-                        </Column>
-                        <ConfigurableColumn Key='AverageTotalEmailLatency' Label='Avg Tot Email Lat' Default={true}>
-                            <Column<SC.OpenXDADailyStatistic>
-                                Key={'AverageTotalEmailLatency'}
-                                AllowSort={true}
-                                Field={'AverageTotalEmailLatency'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                                Content={({ item, field }) => item[field] != undefined ? (item[field] as number).toFixed(2) : ''}
-                            >
-                                Avg Tot Email Lat
-                            </Column>
-                        </ConfigurableColumn>
-
-                    </ConfigurableColumn>
+                </ConfigurableColumn>
+                <ConfigurableColumn Key='AverageProcessingEndLatency' Label='Avg Proc End Lat' Default={true}>
+                    <Column<SC.OpenXDADailyStatistic>
+                        Key={'AverageProcessingEndLatency'}
+                        AllowSort={true}
+                        Field={'AverageProcessingEndLatency'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                        Content={({ item, field }) => item[field] != undefined ? (item[field] as number).toFixed(2) : ''}
+                    >
+                        Avg Proc End Lat
+                    </Column>
+                </ConfigurableColumn>
+                <ConfigurableColumn Key='AverageEmailLatency' Label='Avg Email Lat' Default={true}>
+                    <Column<SC.OpenXDADailyStatistic>
+                        Key={'AverageEmailLatency'}
+                        AllowSort={true}
+                        Field={'AverageEmailLatency'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                        Content={({ item, field }) => item[field] != undefined ? (item[field] as number).toFixed(2) : ''}
+                    >
+                        Avg Email Lat
+                    </Column>
+                </ConfigurableColumn>
+                <ConfigurableColumn Key='AverageTotalProcessingLatency' Label='Avg Tot Proc Lat' Default={true}>
+                    <Column<SC.OpenXDADailyStatistic>
+                        Key={'AverageTotalProcessingLatency'}
+                        AllowSort={true}
+                        Field={'AverageTotalProcessingLatency'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                        Content={({ item, field }) => item[field] != undefined ? (item[field] as number).toFixed(2) : ''}
+                    >
+                        Avg Tot Proc Lat
+                    </Column>
+                </ConfigurableColumn>
+                <ConfigurableColumn Key='AverageTotalEmailLatency' Label='Avg Tot Email Lat' Default={true}>
+                    <Column<SC.OpenXDADailyStatistic>
+                        Key={'AverageTotalEmailLatency'}
+                        AllowSort={true}
+                        Field={'AverageTotalEmailLatency'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                        Content={({ item, field }) => item[field] != undefined ? (item[field] as number).toFixed(2) : ''}
+                    >
+                        Avg Tot Email Lat
+                    </Column>
                 </ConfigurableColumn>
             </ConfigurableTable>
         </div>
