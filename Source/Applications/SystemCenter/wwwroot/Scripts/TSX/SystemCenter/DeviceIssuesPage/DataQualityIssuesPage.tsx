@@ -34,7 +34,7 @@ const MeterDataQualitySummaryController = new GenericController<SC.MeterDataQual
 function DataQualityIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
     const [data, setData] = React.useState<SC.MeterDataQualitySummary[]>([]);
     const [sortField, setSortField] = React.useState<keyof SC.MeterDataQualitySummary>('Date');
-    const [ascending, setAscending] = React.useState<boolean>(true);
+    const [ascending, setAscending] = React.useState<boolean>(false);
 
     const order = React.useCallback((data: SC.MeterDataQualitySummary[]) => {
         return _.orderBy(data, [sortField], [ascending ? 'asc' : 'desc'])
