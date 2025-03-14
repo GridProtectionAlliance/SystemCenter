@@ -47,6 +47,7 @@ export default function ResultDisplay(props: IProps) {
     const [page, setPage] = React.useState<number>(0);
     const [filters, setFilters] = React.useState<Search.IFilter<any>[]>([]);
     const [cols, setCols] = React.useState<string[]>([]);
+    const [configurableColumns, setConfigurableColumns] = React.useState<React.JSX.Element[]>([]);
 
     React.useEffect(() => {
         setCountStatus('loading');
@@ -83,10 +84,24 @@ export default function ResultDisplay(props: IProps) {
         const updatedCols = Object.keys(externalData[0]);
         if (!_.isEqual(updatedCols, cols))
             setCols(updatedCols);
-    }, [externalData])
+    }, [externalData]);
+
+    React.useEffect(() => {
+        setConfigurableColumns(
+            cols.map(col =>
+                <ConfigurableColumn Key={col} Default={true} Label={col}>
+                    <Column<any>
+                        Key={col} Field={col}
+                        AllowSort={true} Adjustable={true}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                    >{col}
+                    </Column>
+                </ConfigurableColumn>)
+    )}, [cols]);
 
     return <>
-        <ServerErrorIcon Show={countstatus === 'error' || datastatus === 'error'} Size = { 40}
+        <ServerErrorIcon Show={countstatus === 'error' || datastatus === 'error'} Size = {40}
             Label = { 'Could not query external database table. Please contact your administrator.'}
             />
         <LoadingScreen Show={countstatus === 'loading' || datastatus === 'loading'} />
@@ -94,11 +109,19 @@ export default function ResultDisplay(props: IProps) {
             <div className="col" style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
                 {countstatus !== 'error' && datastatus !== 'error' ?
                     <ConfigurableTable<any>
-                        SetFilters={setFilters}
+                        LocalStorageKey={'TestTableResultColumns'}
                         TableClass="table table-hover"
                         Data={externalData}
+                        TheadStyle={{ fontSize: 'smaller' }}
+                        RowStyle={{ fontSize: 'smaller' }}
+                        Selected={(item) => props.Selected === undefined ? false : props.Selected!(item) ?? false}
+                        KeySelector={item => item.__tempXdaKey__}
                         SortKey={sortExt}
                         Ascending={ascExt}
+                        SetFilters={setFilters}
+                        OnClick={(d) => {
+                            if (props.OnSelection !== undefined) props.OnSelection!(d.row);
+                        }}
                         OnSort={(d) => {
                             if (d.colKey === sortExt)
                                 setAscExt(!ascExt);
@@ -107,27 +130,8 @@ export default function ResultDisplay(props: IProps) {
                                 setSortExt(d.colKey);
                             }
                         }}
-                        OnClick={(d) => {
-                            if (props.OnSelection !== undefined) props.OnSelection!(d.row);
-                        }}
-                        TheadStyle={{ fontSize: 'smaller' }}
-                        RowStyle={{ fontSize: 'smaller' }}
-                        Selected={(item) => props.Selected === undefined ? false : props.Selected!(item) ?? false}
-                        KeySelector={item => item.__tempXdaKey__}
-                        LocalStorageKey={'TestTableResultColumns'}
                     >
-                        {
-                            cols.map(col =>
-                                <ConfigurableColumn Key={col} Default={true} Label={col}>
-                                    <Column<any>
-                                        Key={col} Field={col}
-                                        AllowSort={true} Adjustable={true}
-                                        HeaderStyle={{ width: 'auto' }}
-                                        RowStyle={{ width: 'auto' }}
-                                    >{col}
-                                    </Column>
-                                </ConfigurableColumn>)
-                        }
+                        {configurableColumns}
                     </ConfigurableTable> : null}
             </div>
         </div>
