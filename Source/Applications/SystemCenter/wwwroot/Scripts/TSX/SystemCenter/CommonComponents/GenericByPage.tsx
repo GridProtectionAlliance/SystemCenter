@@ -187,7 +187,7 @@ function GenericByPage<T extends U>(props: React.PropsWithChildren<IProps<T>>) {
                         ...props.Columns.map(col => (
                             <Column<T>
                                 Key={col.Field.toString()}
-                                AllowSort={true}
+                                AllowSort={col.AllowSort}
                                 Field={col.Field}
                                 HeaderStyle={{ width: col?.Width ?? 'auto' }}
                                 RowStyle={{ width: col?.Width ?? 'auto' }}
