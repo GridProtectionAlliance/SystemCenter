@@ -281,11 +281,11 @@ const ByAsset: Application.Types.iByComponent = (props) => {
                         <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                         <form>
                             <div className="form-group">
-                                <button className="btn btn-primary" 
+                                <button className="btn btn-primary btn-block" 
                                     onClick={(event) => { event.preventDefault(); setShowNewModal(true); }}>Add Asset</button>
                             </div>
                             <div className="form-group">
-                                <button className="btn btn-primary" 
+                                <button className="btn btn-primary btn-block" 
                                     onClick={(event) => { event.preventDefault(); setShowExtModal(true); }}>External Database</button>
                             </div>
                         </form>
