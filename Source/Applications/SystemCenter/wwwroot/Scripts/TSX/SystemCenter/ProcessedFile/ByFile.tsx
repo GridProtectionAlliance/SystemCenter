@@ -178,7 +178,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
                                 <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                                 <form>
                                     <div className="form-group">
-                                        <button className={`btn btn-primary${inEnterprise ? '' : ' disabled'}`} hidden={props.Roles.indexOf('Administrator') < 0}
+                                        <button className={`btn btn-primary btn-block${inEnterprise ? '' : ' disabled'}`} hidden={props.Roles.indexOf('Administrator') < 0}
                                             onMouseEnter={() => setHover('Bulk')} onMouseLeave={() => setHover('None')} data-tooltip={"BulkReload"}
                                             onClick={(event) => {
                                                 event.preventDefault();
