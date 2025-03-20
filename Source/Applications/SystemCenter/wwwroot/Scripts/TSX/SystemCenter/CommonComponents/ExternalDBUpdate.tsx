@@ -42,7 +42,7 @@ const ExternalDBUpdate = React.memo((props: {
     const [status, setStatus] = React.useState<Application.Types.Status>('unintiated');
     const [reload, reloadExternals] = React.useState<number>(0);
     // Table Controls
-    const [asc, setAsc] = React.useState<boolean>(false);
+    const [asc, setAsc] = React.useState<boolean>(true);
     const [sort, setSort] = React.useState<keyof SystemCenter.Types.DetailedExternalDatabases>('Name');
 
     const updateMap = React.useCallback((id: number, status: Application.Types.Status) => {
@@ -159,7 +159,7 @@ const ExternalDBUpdate = React.memo((props: {
                         Field={'Name'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
-                    > Database Name
+                    > Name
                     </Column>
                     <Column<SystemCenter.Types.DetailedExternalDatabases>
                         Key={'LastDataUpdate'}
