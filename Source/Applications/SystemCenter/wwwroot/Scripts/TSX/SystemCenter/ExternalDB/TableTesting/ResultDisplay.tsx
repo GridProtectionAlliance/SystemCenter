@@ -47,7 +47,6 @@ export default function ResultDisplay(props: IProps) {
     const [page, setPage] = React.useState<number>(0);
     const [filters, setFilters] = React.useState<Search.IFilter<any>[]>([]);
     const [cols, setCols] = React.useState<string[]>([]);
-    const [configurableColumns, setConfigurableColumns] = React.useState<React.JSX.Element[]>([]);
 
     React.useEffect(() => {
         setCountStatus('loading');
@@ -86,20 +85,6 @@ export default function ResultDisplay(props: IProps) {
             setCols(updatedCols);
     }, [externalData]);
 
-    React.useEffect(() => {
-        setConfigurableColumns(
-            cols.map(col =>
-                <ConfigurableColumn Key={col} Default={true} Label={col}>
-                    <Column<any>
-                        Key={col} Field={col}
-                        AllowSort={true} Adjustable={true}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                    >{col}
-                    </Column>
-                </ConfigurableColumn>)
-    )}, [cols]);
-
     return <>
         <ServerErrorIcon Show={countstatus === 'error' || datastatus === 'error'} Size = {40}
             Label = { 'Could not query external database table. Please contact your administrator.'}
@@ -131,7 +116,16 @@ export default function ResultDisplay(props: IProps) {
                             }
                         }}
                     >
-                        {configurableColumns}
+                        {cols.map(col =>
+                        <ConfigurableColumn Key={col} Default={true} Label={col} key={col}>
+                            <Column<any> key={col}
+                                Key={col} Field={col}
+                                AllowSort={true} Adjustable={true}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            >{col}
+                            </Column>
+                        </ConfigurableColumn>)}
                     </ConfigurableTable> : null}
             </div>
         </div>
