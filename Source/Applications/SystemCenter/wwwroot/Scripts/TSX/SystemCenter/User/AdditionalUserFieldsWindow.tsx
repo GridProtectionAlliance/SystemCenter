@@ -31,19 +31,6 @@ import { UserAdditionalFieldSlice, ValueListSlice, ValueListGroupSlice } from '.
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { IsInteger, IsNumber } from '@gpa-gemstone/helper-functions';
 
-interface IField {
-	FieldName: string,
-	Type: string,
-	IsSecure: boolean
-}
-
-interface IValue {
-	Value: string | number,
-	UserAccountID: string,
-	ID: number
-	AdditionalUserValueFieldID: number
-}
-
 interface IProps {
 	Id: string | number,
 	EmptyField: Application.Types.iAdditionalUserField
