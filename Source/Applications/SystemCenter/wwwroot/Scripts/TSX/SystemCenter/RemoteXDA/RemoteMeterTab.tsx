@@ -154,10 +154,8 @@ const RemoteMeterTab = (props: IProps) => {
                         setSortKey(d.colField);
                     }
                 }}
-                TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
-                TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                TbodyStyle={{ display: 'block', width: '100%', overflowY: 'auto', flex: 1 }}
-                RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                TheadStyle={{ fontSize: 'smaller' }}
+                RowStyle={{ fontSize: 'smaller' }}
                 Selected={(item) => false}
                 KeySelector={(item) => item.ID}
             >
@@ -167,7 +165,7 @@ const RemoteMeterTab = (props: IProps) => {
                     Field={'LocalMeterName'}
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
-                > Local Meter Name
+                > Local Name
                 </Column>
                 <Column<OpenXDA.Types.RemoteXDAMeter>
                     Key={'LocalAssetKey'}
@@ -175,7 +173,7 @@ const RemoteMeterTab = (props: IProps) => {
                     Field={'LocalAssetKey'}
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
-                > Local Meter Key
+                > Local Key
                 </Column>
                 <Column<OpenXDA.Types.RemoteXDAMeter>
                     Key={'LocalAlias'}
@@ -183,7 +181,7 @@ const RemoteMeterTab = (props: IProps) => {
                     Field={'LocalAlias'}
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
-                > Local Meter Alias
+                > Local Alias
                 </Column>
                 <Column<OpenXDA.Types.RemoteXDAMeter>
                     Key={'RemoteXDAName'}
@@ -192,7 +190,7 @@ const RemoteMeterTab = (props: IProps) => {
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
                     Content={({ item }) => item.Obsfucate ? item.RemoteXDAName : item.LocalMeterName}
-                > Remote Meter Name
+                > Remote Name
                 </Column>
                 <Column<OpenXDA.Types.RemoteXDAMeter>
                     Key={'RemoteXDAAssetKey'}
@@ -200,7 +198,7 @@ const RemoteMeterTab = (props: IProps) => {
                     Field={'RemoteXDAAssetKey'}
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
-                > Remote Meter Key
+                > Remote Key
                 </Column>
                 <Column<OpenXDA.Types.RemoteXDAMeter>
                     Key={'RemoteAlias'}
@@ -208,7 +206,7 @@ const RemoteMeterTab = (props: IProps) => {
                     Field={'RemoteAlias'}
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
-                > Remote Meter Alias
+                > Remote Alias
                 </Column>
                 <Column<OpenXDA.Types.RemoteXDAMeter>
                     Key={'Obsfucate'}
