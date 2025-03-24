@@ -97,7 +97,7 @@ const ByApplicationNode: Application.Types.iByComponent = (props) => {
                         <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                             <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                             <form>
-                                <button className="btn btn-primary btn-block" onClick={(event) => { setEditNewNode({ ID: CreateGuid(), Name: '' }); setEditNew('New'); setShowModal(true); event.preventDefault() }}>Add New Application</button>
+                                <button className="btn btn-primary" onClick={(event) => { setEditNewNode({ ID: CreateGuid(), Name: '' }); setEditNew('New'); setShowModal(true); event.preventDefault() }}>Add New Application</button>
                             </form>
                         </fieldset>
                     </li>

@@ -123,7 +123,7 @@ const ByAPIAccessKeys: Application.Types.iByComponent = (props) => {
                             <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                                 <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                                 <form>
-                                    <button className="btn btn-info btn-block" onClick={(event) => { setAPIKey(emptyKey); setNewEdit('New'); setShowModal(true); event.preventDefault() }}>Add API Key</button>
+                                    <button className="btn btn-info" onClick={(event) => { setAPIKey(emptyKey); setNewEdit('New'); setShowModal(true); event.preventDefault() }}>Add API Key</button>
                                 </form>
                             </fieldset>
                         </li>

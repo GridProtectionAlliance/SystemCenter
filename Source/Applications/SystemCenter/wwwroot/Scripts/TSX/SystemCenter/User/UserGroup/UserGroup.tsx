@@ -74,8 +74,8 @@ function UserGroup(props: IProps) {
 	];
 
 	return (
-		<div style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column'}}>
-			<div className="row p-2">
+        <div style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+			<div className="row">
 				<div className="col">
 					<h2>{group != null ? `${group.DisplayName} (${group.Type})` : 'Groups'}</h2>
 				</div>

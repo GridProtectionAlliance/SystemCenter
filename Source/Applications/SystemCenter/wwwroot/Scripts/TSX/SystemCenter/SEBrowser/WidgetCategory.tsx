@@ -83,7 +83,7 @@ export default function WidgetCategory(props: IProps) {
 
     return (
         <div style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-            <div className="row p-2">
+            <div className="row">
                 <div className="col">
                     <h2>{category != null ? category.Name : ''}</h2>
                 </div>

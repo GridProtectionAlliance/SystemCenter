@@ -83,7 +83,7 @@ const ChannelGroups: Application.Types.iByComponent = () => {
                     <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                     <form>
                         <button
-                            className="btn btn-primary btn-block"
+                            className="btn btn-primary"
                             onClick={(evt) => {
                                 evt.preventDefault();
                                 setRecord({ ...emptyRecord })

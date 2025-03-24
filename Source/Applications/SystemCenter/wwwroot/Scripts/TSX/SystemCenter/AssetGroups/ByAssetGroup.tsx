@@ -246,7 +246,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
                                 <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                                 <form>
                                     <div className="form-group">
-                                    <button className="btn btn-primary btn-block" 
+                                    <button className="btn btn-primary" 
                                         onClick={(event) => { event.preventDefault(); setShowNewGroup(true); }}>Add New Asset Group</button>
                                     </div>
                                 </form>

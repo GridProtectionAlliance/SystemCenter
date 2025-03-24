@@ -105,7 +105,7 @@ function Setting(props: IProps) {
                         <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                             <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                             <form>
-                                <button className="btn btn-primary btn-block" onClick={(event) => { setEditNewSetting(emptySetting); setEditNew('New'); setShowModal(true); event.preventDefault() }}>Add Setting</button>
+                                <button className="btn btn-primary" onClick={(event) => { setEditNewSetting(emptySetting); setEditNew('New'); setShowModal(true); event.preventDefault() }}>Add Setting</button>
                             </form>
                         </fieldset>
                     </li>

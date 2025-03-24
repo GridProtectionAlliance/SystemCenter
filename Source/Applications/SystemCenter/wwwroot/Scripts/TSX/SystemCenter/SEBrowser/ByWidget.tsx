@@ -63,7 +63,7 @@ const ByWidget: Application.Types.iByComponent = () => {
                 <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                     <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                     <form>
-                        <button className="btn btn-primary btn-block" 
+                        <button className="btn btn-primary" 
                             onClick={(event) => { event.preventDefault(); setShowModal(true); }}>Add PQ Browser Widget</button>
                     </form>
                 </fieldset>
