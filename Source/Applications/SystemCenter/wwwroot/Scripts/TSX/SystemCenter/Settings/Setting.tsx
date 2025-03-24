@@ -21,18 +21,16 @@
 // ******************************************************************************************************
 
 import * as React from 'react';
-import { Input, TextArea } from '@gpa-gemstone/react-forms';
 import { Table, Column } from '@gpa-gemstone/react-table';
-import { CrossMark } from '@gpa-gemstone/gpa-symbols';
-import { SearchBar, Search, Modal, Warning, LoadingScreen, ServerErrorIcon, GenericSlice } from '@gpa-gemstone/react-interactive';
+import { SearchBar, Search, Warning, LoadingScreen, ServerErrorIcon, GenericSlice, Modal } from '@gpa-gemstone/react-interactive';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { useAppDispatch, useAppSelector } from '../hooks';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { Input, TextArea } from '@gpa-gemstone/react-forms';
 
 interface IProps {
     SettingsSlice: GenericSlice<SystemCenter.Types.Setting>
 }
-
-
 
 function Setting(props: IProps) {
     const dispatch = useAppDispatch();
@@ -59,7 +57,6 @@ function Setting(props: IProps) {
     React.useEffect(() => {
         if (status === 'unintiated' || status === 'changed')
             dispatch(props.SettingsSlice.Fetch());
-        
     }, [status]);
 
     React.useEffect(() => {
@@ -129,9 +126,9 @@ function Setting(props: IProps) {
                             }
                         }}
                         OnClick={(item) => { setEditNewSetting(item.row); setShowModal(true); setEditNew('Edit'); }}
-                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TheadStyle={{ fontSize: 'smaller' }}
                         TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        RowStyle={{ fontSize: 'smaller' }}
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
                     >
@@ -141,7 +138,7 @@ function Setting(props: IProps) {
                             Field={'Name'}
                             HeaderStyle={{ width: '24%' }}
                             RowStyle={{ width: '24%' }}
-                        > Setting Name
+                        > Setting
                         </Column>
                         <Column<SystemCenter.Types.Setting>
                             Key={'Value'}
@@ -162,6 +159,7 @@ function Setting(props: IProps) {
                     </Table>
                 </div>
             </div>
+
             <Modal Title={editNew === 'Edit' ? 'Edit ' + (editnewSetting?.Name ?? 'Setting') : 'Add New Setting'}
                 Show={showModal} ShowX={true} Size={'lg'} ShowCancel={editNew === 'Edit'} ConfirmText={'Save'} CancelText={'Delete'}
                 CallBack={(conf, isBtn) => {
@@ -176,7 +174,7 @@ function Setting(props: IProps) {
                 DisableConfirm={(editNew === 'Edit' && !hasChanged) || errors.length > 0}
                 ConfirmShowToolTip={errors.length > 0}
                 ConfirmToolTipContent={
-                    errors.map((t, i) => <p key={i}>{CrossMark} {t} </p>)
+                    errors.map((t, i) => <p key={i}>{ReactIcons.CrossMark} {t} </p>)
                 }
             >
                 <div className="row">
