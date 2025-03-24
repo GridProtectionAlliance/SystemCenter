@@ -117,6 +117,9 @@ const MainPage = (props: {}) => {
         if (acknowledge)
             sessionStorage.setItem('Notifications.Ack', JSON.stringify(moment().format("YYYY-MM-DD")));
     }, [acknowledge])
+
+    const isAdmin = roles.includes('Administrator');
+
     return (
         <>
         <App
@@ -135,42 +138,42 @@ const MainPage = (props: {}) => {
                         <NewReportSubscription />
                 </Page>
             </Section>
-            <Section Label='My Subscriptions'>
-                <Page Name='MyEventSubscriptions' Label='Event Notifications' Icon={SVGIcons.AlertPerson} >
+            <Section Label='Subscriptions'>
+                <Page Name='MyEventSubscriptions' Label=' My Subscriptions' Icon={SVGIcons.AlertPerson} >
                     <BySubscription/>
                 </Page>
-                <Page Name='ContactInfo' Label={'Contact Info'} Icon={PhoneSettings}>
-                    <ByUserInformation />
-                </Page>
-            </Section>
-            <Section Label='All Subscriptions'>
-                <Page Name='AllEventSubscriptions' Label='Event Notifications' Icon={SVGIcons.AlertPeople} RequiredRoles={['Administrator']} >
+                <Page Name='AllEventSubscriptions' Label=' All Subscriptions' Icon={SVGIcons.AlertPeople} RequiredRoles={['Administrator']} >
                     <ByAllSubscription />
                 </Page>
-            </Section>
-            <Section Label='System Settings'>
-                <Page Name='Categories' Label='Email Categories' Icon={SVGIcons.Folder} RequiredRoles={['Administrator', 'Engineer']} OtherActivePages={['Category']} >
-                    <ByEmailCategory />
+                <Page Name='ContactInfo' Label={' My Contact Info'} Icon={PhoneSettings}>
+                    <ByUserInformation />
                 </Page>
-                <Page Name='Category/:id' RequiredRoles={['Administrator', 'Engineer']}>
-                    <EmailCategoryPage useParams={{ id: '1' }} />
-                </Page>
-                <Page Name='EventEmails' Label='Event Notifications' Icon={SVGIcons.Alert} RequiredRoles={['Administrator', 'Engineer']} OtherActivePages={['EventEmail']} >
-                    <ByEmailType />
-                </Page>
-                <Page Name='EventEmail/:id' RequiredRoles={['Administrator', 'Engineer']}>
-                    <EmailPage useParams={{ id: '1' }} />
-                </Page>
-                <Page Name='ReportEmails' Label='Reports' Icon={SVGIcons.Document} RequiredRoles={['Administrator', 'Engineer']}>
-                    <ByReport />
-                </Page>
-                <Page Name='ReportEmail/:id' RequiredRoles={['Administrator', 'Engineer']}>
-                    <ReportPage useParams={{ id: '1' }} />
-                </Page>
-                <Page Name='Carrier' Label={'Cell Carrier'} Icon={Phone} RequiredRoles={['Administrator', 'Engineer']}>
-                    <ByCellCarrier />
-                </Page>
-            </Section>
+                </Section>
+            {isAdmin && (
+                <Section Label='System Settings'>
+                    <Page Name='Categories' Label='Email Categories' Icon={SVGIcons.Folder} RequiredRoles={['Administrator', 'Engineer']} OtherActivePages={['Category']} >
+                        <ByEmailCategory />
+                    </Page>
+                    <Page Name='Category/:id' RequiredRoles={['Administrator', 'Engineer']}>
+                        <EmailCategoryPage useParams={{ id: '1' }} />
+                    </Page>
+                    <Page Name='EventEmails' Label='Event Notifications' Icon={SVGIcons.Alert} RequiredRoles={['Administrator', 'Engineer']} OtherActivePages={['EventEmail']} >
+                        <ByEmailType />
+                    </Page>
+                    <Page Name='EventEmail/:id' RequiredRoles={['Administrator', 'Engineer']}>
+                        <EmailPage useParams={{ id: '1' }} />
+                    </Page>
+                    <Page Name='ReportEmails' Label='Reports' Icon={SVGIcons.Document} RequiredRoles={['Administrator', 'Engineer']}>
+                        <ByReport />
+                    </Page>
+                    <Page Name='ReportEmail/:id' RequiredRoles={['Administrator', 'Engineer']}>
+                        <ReportPage useParams={{ id: '1' }} />
+                    </Page>
+                    <Page Name='Carrier' Label={'Cell Carrier'} Icon={Phone} RequiredRoles={['Administrator', 'Engineer']}>
+                        <ByCellCarrier />
+                    </Page>
+                </Section>
+            )}
                 <Page Name='ConfirmEmail/:code' >
                     <EmailConfirmed useParams={{ code: '0000' }} />
                 </Page>
