@@ -74,7 +74,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
 
     React.useEffect(() => {
         if (searchStatus == 'unintiated' || searchStatus == 'changed')
-            dispatch(SecurityGroupSlice.DBSearch({ filter: search }))
+            dispatch(SecurityGroupSlice.DBSearch({ sortField, ascending, filter: search }))
     }, [searchStatus])
 
     if (pageStatus === 'error')
