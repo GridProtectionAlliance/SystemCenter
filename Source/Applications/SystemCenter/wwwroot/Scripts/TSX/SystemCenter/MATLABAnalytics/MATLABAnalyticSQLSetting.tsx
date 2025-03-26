@@ -60,7 +60,7 @@ const MATLABAnalyticSQLSetting = (props: { Record: OpenXDA.Types.MATLABAnalytic 
                         onMouseEnter={() => setHover('update')} onMouseLeave={() => setHover('none')}>Update</button>
                 </div>
                 <div className="btn-group mr-2">
-                    <button className="btn btn-default" onClick={() => setRecord(props.Record)} disabled={record == props.Record}>Reset</button>
+                    <button className="btn btn-warning" onClick={() => setRecord(props.Record)} disabled={record == props.Record}>Clear Changes</button>
                 </div>
                 <ToolTip Show={hover == 'update' && record == props.Record} Position={'top'} Target={"Update-SQL"}>
                     <p>No changes made.</p>
