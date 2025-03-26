@@ -94,7 +94,7 @@ export default function ResultDisplay(props: IProps) {
             <div className="col" style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
                 {countstatus !== 'error' && datastatus !== 'error' ?
                     <ConfigurableTable<any>
-                        //LocalStorageKey={'TestTableResultColumns'}
+                        LocalStorageKey={'TestTableResultColumns'}
                         TableClass="table table-hover"
                         Data={externalData}
                         TheadStyle={{ fontSize: 'smaller' }}
