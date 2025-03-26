@@ -208,9 +208,12 @@ const ByAPIAccessKeys: Application.Types.iByComponent = (props) => {
                 ConfirmText={newEdit == 'Edit' ? 'Save' : 'Generate New Key'}
                 ConfirmShowToolTip={errors.length > 0}
                 ConfirmToolTipContent={errors.map((t, i) => <p key={i}> {CrossMark} {t}</p>)} >
-                <Alert Show={showKeyWarning} AlertColor={'alert-info'} SetShow={(c) => setShowKeyWarning(c)}>
-                    <p>You will only be able to view this API Key once. If it is lost, you will need to generate a new one.</p>
-                </Alert>
+                {showKeyWarning
+                    ? <Alert Color={'alert-info'} ShowX={false}>
+                        <p>You will only be able to view this API Key once. If it is lost, you will need to generate a new one.</p>
+                     </Alert>
+                    : null
+                }
                 <div className="row">
                     <APIKeyForm Key={APIKey} formDisabled={formDisabled} stateSetter={setAPIKey} setErrors={setErrors} />
                 </div>
