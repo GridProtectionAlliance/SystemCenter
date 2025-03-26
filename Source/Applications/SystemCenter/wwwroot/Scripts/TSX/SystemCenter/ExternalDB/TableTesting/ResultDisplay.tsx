@@ -94,7 +94,7 @@ export default function ResultDisplay(props: IProps) {
             <div className="col" style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
                 {countstatus !== 'error' && datastatus !== 'error' ?
                     <ConfigurableTable<any>
-                        LocalStorageKey={'TestTableResultColumns'}
+                        //LocalStorageKey={'TestTableResultColumns'}
                         TableClass="table table-hover"
                         Data={externalData}
                         TheadStyle={{ fontSize: 'smaller' }}
@@ -120,12 +120,13 @@ export default function ResultDisplay(props: IProps) {
                         <ConfigurableColumn Key={col} Default={true} Label={col} key={col}>
                             <Column<any> key={col}
                                 Key={col} Field={col}
-                                AllowSort={true} Adjustable={true}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
+                                AllowSort={true} Adjustable={false}
+                                HeaderStyle={{ width: 'auto', minWidth: '20%' }}
+                                RowStyle={{ width: 'auto', minWidth: '20%' }}
                             >{col}
                             </Column>
-                        </ConfigurableColumn>)}
+                        </ConfigurableColumn>
+                        )}
                     </ConfigurableTable> : null}
             </div>
         </div>
