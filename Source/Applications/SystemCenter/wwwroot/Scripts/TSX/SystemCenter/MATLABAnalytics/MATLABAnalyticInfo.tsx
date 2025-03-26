@@ -93,13 +93,13 @@ const MATLABAnalyticInfo = (props: { Record: OpenXDA.Types.MATLABAnalytic, ETRec
                         onMouseEnter={() => setHover('update')} onMouseLeave={() => setHover('none')}>Update</button>
                 </div>
                 <div className="btn-group mr-2">
-                    <button className="btn btn-default"
+                    <button className="btn btn-warning"
                         onClick={() => {
                             setRecord(props.Record);
                             setEventTypeRecord(props.ETRecords);
                             setAssetTypeRecord(props.ATRecords);
                         }}
-                        disabled={record == props.Record && eventTypeRecord == props.ETRecords && assetTypeRecord == props.ATRecords}>Reset</button>
+                        disabled={record == props.Record && eventTypeRecord == props.ETRecords && assetTypeRecord == props.ATRecords}>Clear Changes</button>
                 </div>
                 <ToolTip Position={'top'} Target={"Update-Info"}
                     Show={hover == 'update' && (errors.length > 0 || (record == props.Record && eventTypeRecord == props.ETRecords && assetTypeRecord == props.ATRecords))}>
