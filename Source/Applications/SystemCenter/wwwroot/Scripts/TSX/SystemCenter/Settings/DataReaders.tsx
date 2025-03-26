@@ -85,7 +85,7 @@ const DataReaders: Application.Types.iByComponent = (props) => {
                     <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                     <form>
                         <button
-                            className="btn btn-primary btn-block"
+                            className="btn btn-info btn-block"
                             onClick={(event) => {
                                 setEditNewSetting(emptySetting);
                                 setEditNew('New');
