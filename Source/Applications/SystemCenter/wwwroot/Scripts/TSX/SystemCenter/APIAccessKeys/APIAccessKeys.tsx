@@ -28,7 +28,7 @@ import { Application } from '@gpa-gemstone/application-typings';
 import { SearchBar, Search, Modal, Warning, Alert } from '@gpa-gemstone/react-interactive';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { APIAccessKeySlice } from '../Store/Store';
-import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import APIKeyForm from './APIKeyForm';
 import moment from 'moment';
 import { CreateGuid } from '@gpa-gemstone/helper-functions'
@@ -177,7 +177,7 @@ const ByAPIAccessKeys: Application.Types.iByComponent = (props) => {
                             Field={'AllowImpersonation'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                            Content={({ item }) => item.AllowImpersonation ? HeavyCheckMark : CrossMark}
+                            Content={({ item }) => item.AllowImpersonation ? ReactIcons.CheckMark : ReactIcons.CrossMark}
                         > Allow Impersonation
                         </Column>
                     </Table>
@@ -207,7 +207,7 @@ const ByAPIAccessKeys: Application.Types.iByComponent = (props) => {
                 DisableConfirm={errors.length > 0 || formDisabled}
                 ConfirmText={newEdit == 'Edit' ? 'Save' : 'Generate New Key'}
                 ConfirmShowToolTip={errors.length > 0}
-                ConfirmToolTipContent={errors.map((t, i) => <p key={i}> {CrossMark} {t}</p>)} >
+                ConfirmToolTipContent={errors.map((t, i) => <p key={i}> {ReactIcons.CrossMark} {t}</p>)} >
                 {showKeyWarning
                     ? <Alert Color={'alert-info'} ShowX={false}>
                         <p>You will only be able to view this API Key once. If it is lost, you will need to generate a new one.</p>
