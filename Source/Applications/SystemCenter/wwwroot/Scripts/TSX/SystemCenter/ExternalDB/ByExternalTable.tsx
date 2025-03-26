@@ -81,7 +81,7 @@ const ByExternalTable: Application.Types.iByComponent = (props) => {
                 <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                     <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                     <form>
-                        <button className="btn btn-primary btn-block" onClick={(event) => {
+                        <button className="btn btn-info btn-block" onClick={(event) => {
                             event.preventDefault()
                             setRecord({ ...emptyRecord });
                             setShowNew(true);

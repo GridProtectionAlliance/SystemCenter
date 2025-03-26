@@ -78,11 +78,11 @@ export default function ExternalDBInfo(props: { Record: SystemCenter.Types.Detai
                                 onMouseEnter={() => setHover('update')} onMouseLeave={() => setHover('none')}>Update</button>
                         </div>
                         <div className="btn-group mr-2">
-                            <button className="btn btn-default"
+                            <button className="btn btn-warning"
                                 onClick={() => {
                                     setRecord(origRecord);
                                 }}
-                                disabled={record == origRecord}>Reset</button>
+                                disabled={record == origRecord}>Clear Changes</button>
                         </div>
                     </div>
                 </div>

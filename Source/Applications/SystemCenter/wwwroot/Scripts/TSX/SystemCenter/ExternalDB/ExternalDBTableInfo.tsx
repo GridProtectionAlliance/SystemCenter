@@ -91,7 +91,7 @@ export default function ExternalDBInfo(props: { Record: SystemCenter.Types.Detai
                                 onClick={() => {
                                     setRecord(props.Record);
                                 }}
-                                disabled={isChanged}>Reset</button>
+                                disabled={isChanged}>Clear Changes</button>
                         </div>
                     </div>
                 </div>
