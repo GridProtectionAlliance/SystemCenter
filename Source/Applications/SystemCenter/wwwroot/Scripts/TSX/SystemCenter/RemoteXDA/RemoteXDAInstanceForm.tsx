@@ -202,9 +202,9 @@ export default function RemoteXDAInstanceForm(props: IProps) {
                             {
                                 formInstance.ID > 0 ?
                                     <>
-                                        <button type="button" className={"btn btn-primary btn-block" + (hasPermissions() ? '' : ' disabled')} data-tooltip='TestConnection' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}
+                                        <button type="button" className={"btn btn-info btn-block" + (hasPermissions() ? '' : ' disabled')} data-tooltip='TestConnection' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}
                                             onClick={() => { if (hasPermissions()) testConnection() }}> Test Remote Connection </button>
-                                        <button type="button" className={"btn btn-primary btn-block" + (hasPermissions() ? '' : ' disabled')} data-tooltip='PushRemote' onMouseEnter={() => setHover('reset')} onMouseLeave={() => setHover('none')}
+                                        <button type="button" className={"btn btn-info btn-block" + (hasPermissions() ? '' : ' disabled')} data-tooltip='PushRemote' onMouseEnter={() => setHover('reset')} onMouseLeave={() => setHover('none')}
                                             onClick={() => { if (hasPermissions()) pushRemoteConfig() }}> Initiate Data Push </button>
                                     </> :
                                     null
