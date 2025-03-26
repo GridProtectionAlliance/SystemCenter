@@ -148,7 +148,7 @@ const ByLineSegment: Application.Types.iByComponent = (props) => {
                         <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                         <form>
                             <div className="form-group">
-                                <button className="btn btn-primary btn-block" 
+                                <button className="btn btn-info btn-block" 
                                     onClick={(event) => { event.preventDefault(); setShowExtModal(true); }}>External Database</button>
                             </div>
                         </form>
