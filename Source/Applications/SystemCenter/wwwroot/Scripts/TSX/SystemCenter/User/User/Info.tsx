@@ -90,8 +90,8 @@ const UserInfo = (props: { AccountId: string }) => {
                     <button className="btn btn-primary" onClick={() => updateUser()} disabled={warnings.length === 0}>Update</button>
                 </div>
                 <div className="btn-group mr-2">
-                    <button className="btn btn-default" onClick={() => setUser(currentUser)} disabled={warnings.length === 0} data-tooltip={'Clr'}
-                        onMouseEnter={() => setHover('Clear')} onMouseLeave={() => setHover('None')}>Reset</button>
+                    <button className="btn btn-warning" onClick={() => setUser(currentUser)} disabled={warnings.length === 0} data-tooltip={'Clr'}
+                        onMouseEnter={() => setHover('Clear')} onMouseLeave={() => setHover('None')}>Clear Changes</button>
                 </div>
                 <ToolTip Show={hover === 'Clear' && (warnings.length > 0)} Position={'top'} Target={"Clr"}>
                     {warnings.map((t, i) => <p key={i}>{Warning} {t}</p>)}
