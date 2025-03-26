@@ -22,9 +22,9 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
+import { Application } from '@gpa-gemstone/application-typings';
 import { ServerErrorIcon, Search, LoadingScreen } from '@gpa-gemstone/react-interactive';
-import { Paging, Table, Column } from '@gpa-gemstone/react-table';
+import { Paging, ConfigurableTable, ConfigurableColumn, Column } from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 
 interface IProps {
@@ -60,8 +60,8 @@ export default function ResultDisplay(props: IProps) {
     }, [filters, props.ForceReload]);
 
     React.useEffect(() => { setExternalData([]); setSortExt(''); }, [props.ForceReload])
-    React.useEffect(() => {
 
+    React.useEffect(() => {
         setDataStatus('loading');
         const dataHandle = props.GetTable(page * RowsPerPage + 1, (page + 1) * RowsPerPage, filters, sortExt, ascExt);
 
@@ -83,22 +83,30 @@ export default function ResultDisplay(props: IProps) {
         const updatedCols = Object.keys(externalData[0]);
         if (!_.isEqual(updatedCols, cols))
             setCols(updatedCols);
-    }, [externalData])
+    }, [externalData]);
 
     return <>
-        <ServerErrorIcon Show={countstatus === 'error' || datastatus === 'error'} Size = { 40}
+        <ServerErrorIcon Show={countstatus === 'error' || datastatus === 'error'} Size = {40}
             Label = { 'Could not query external database table. Please contact your administrator.'}
             />
         <LoadingScreen Show={countstatus === 'loading' || datastatus === 'loading'} />
         <div className="row" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="col" style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
                 {countstatus !== 'error' && datastatus !== 'error' ?
-                    <Table<any>
-                        SetFilters={setFilters}
+                    <ConfigurableTable<any>
+                        LocalStorageKey={'TestTableResultColumns'}
                         TableClass="table table-hover"
                         Data={externalData}
+                        TheadStyle={{ fontSize: 'smaller' }}
+                        RowStyle={{ fontSize: 'smaller' }}
+                        Selected={(item) => props.Selected === undefined ? false : props.Selected!(item) ?? false}
+                        KeySelector={item => item.__tempXdaKey__}
                         SortKey={sortExt}
                         Ascending={ascExt}
+                        SetFilters={setFilters}
+                        OnClick={(d) => {
+                            if (props.OnSelection !== undefined) props.OnSelection!(d.row);
+                        }}
                         OnSort={(d) => {
                             if (d.colKey === sortExt)
                                 setAscExt(!ascExt);
@@ -107,26 +115,19 @@ export default function ResultDisplay(props: IProps) {
                                 setSortExt(d.colKey);
                             }
                         }}
-                        OnClick={(d) => {
-                            if (props.OnSelection !== undefined) props.OnSelection!(d.row);
-                        }}
-                        TableStyle={{ padding: 0, width: '100%', height: '100%', tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
-                        TheadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
-                        TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
-                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', overflowX: 'scroll' }}
-                        Selected={(item) => props.Selected === undefined ? false : props.Selected!(item) ?? false}
-                        KeySelector={item => item.__tempXdaKey__}
-                    > 
-                        {
-                            cols.map(col =>
-                                <Column<any>
-                                    Key={col} Field={col}
-                                    AllowSort={true} Adjustable={true}
-                                    HeaderStyle={{ width: 'auto' }}
-                                    RowStyle={{ width: 'auto' }}
-                                >{col}</Column>)
-                        }
-                    </Table> : null}
+                    >
+                        {cols.map(col =>
+                        <ConfigurableColumn Key={col} Default={true} Label={col} key={col}>
+                            <Column<any> key={col}
+                                Key={col} Field={col}
+                                AllowSort={true} Adjustable={false}
+                                HeaderStyle={{ width: 'auto', minWidth: '20%' }}
+                                RowStyle={{ width: 'auto', minWidth: '20%' }}
+                            >{col}
+                            </Column>
+                        </ConfigurableColumn>
+                        )}
+                    </ConfigurableTable> : null}
             </div>
         </div>
         <div className="row">
@@ -136,6 +137,4 @@ export default function ResultDisplay(props: IProps) {
             </div>
         </div>
     </>
-
-
 }
