@@ -145,7 +145,7 @@ export default function ExternalDBTables(props: { ID: number }) {
                     </div>
                     <div className="card-footer">
                         <div className="btn-group mr-2">
-                            <button className="btn btn-primary pull-right"
+                            <button className="btn btn-info pull-right"
                                 onClick={() => { setRecord({ ...emptyRecord, ExtDBID: props.ID }); setShowModal(true); }}
                             >Add Table</button>
                         </div>
