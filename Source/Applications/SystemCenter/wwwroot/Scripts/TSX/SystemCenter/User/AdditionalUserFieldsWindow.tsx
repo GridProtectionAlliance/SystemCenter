@@ -249,7 +249,7 @@ function AdditionalField(props: IProps) {
 			</div>
 			<div className="card-footer">
 				<div className="btn-group mr-2">
-					<button className={"btn btn-primary" + (mode === 'View' ? ' disabled' : '')} onMouseEnter={() => setHover('New')} onMouseLeave={() => setHover('None')}
+					<button className={"btn btn-info" + (mode === 'View' ? ' disabled' : '')} onMouseEnter={() => setHover('New')} onMouseLeave={() => setHover('None')}
 						onClick={() => { if (mode === 'Edit') { setShowEdit(true); setNewField(props.EmptyField) } }} data-tooltip={'New'} >Add Field</button>
 				</div>
 				<ToolTip Show={hover === 'New' && mode === 'View'} Position={'top'} Target={"New"}>
@@ -265,13 +265,13 @@ function AdditionalField(props: IProps) {
 					{changedFields.length > 0 && errorFields.length > 0 ? errorFields.map((t, i) => <p key={i}> {CrossMark} {t}.</p>) : null}
 				</ToolTip>
 				<div className="btn-group mr-2">
-					<button className={"btn btn-default" + (changedFields.length === 0 || mode === 'View' ? ' disabled' : '')}
+					<button className={"btn btn-warning" + (changedFields.length === 0 || mode === 'View' ? ' disabled' : '')}
 						onClick={() => {
 							if (changedFields.length > 0 && mode === 'Edit')
 								setEditValues(values);
 						}}
 						onMouseEnter={() => setHover('Clear')}
-						onMouseLeave={() => setHover('None')} data-tooltip={'Reset'}>Reset</button>
+						onMouseLeave={() => setHover('None')} data-tooltip={'Reset'}>Clear Changes</button>
 				</div>
 				<ToolTip Show={hover === 'Clear' && (mode === 'View' || changedFields.length > 0)} Position={'top'} Target={'Reset'}>
 					{mode === 'View' ? <p> To change any Fields, switch to Edit mode by clicking on the Edit button on the upper right corner.</p> : null}
