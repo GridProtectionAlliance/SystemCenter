@@ -272,8 +272,8 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
 
                             </div>
                             <div className="modal-footer">
-                            <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={() => handleSave()}>Save changes</button>
-                                <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={() => handleSave()}>Save</button>
+                                <button type="button" className="btn btn-danger" data-dismiss="modal">Cancel</button>
                             </div>
                         </div>
                     </div>
