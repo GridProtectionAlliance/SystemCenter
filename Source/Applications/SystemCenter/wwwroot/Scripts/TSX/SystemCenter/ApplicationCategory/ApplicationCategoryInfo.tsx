@@ -75,7 +75,7 @@ export default function ApplicationCategoryInfo(props: IProps) {
                     }
                     } disabled={warnings.length == 0}
                         onMouseEnter={() => setHover('Clear')} onMouseLeave={() => setHover('None')} data-tooltip={"Clr"}
-                        >Reset</button>
+                        >Clear Changes</button>
                 </div>
                 <ToolTip Show={hover == 'Clear' && (warnings.length > 0)} Position={'top'} Target={"Clr"}>
                     {warnings.map((t, i) => <p key={i}>{Warning} {t}</p>)}
