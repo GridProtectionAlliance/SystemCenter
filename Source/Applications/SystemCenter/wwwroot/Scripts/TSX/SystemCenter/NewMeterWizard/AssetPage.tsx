@@ -363,8 +363,8 @@ export default function AssetPage(props: IProps) {
                             <div className="row">
                                 <div className="col">
                                     <div className="col pull-right btn-toolbar justify-content-end">
-                                        <button className="btn btn-primary mr-4" onClick={() => { setNewEdit('New'); setShowAssetModal(true); }}>Add New</button>
-                                        <button className="btn btn-primary mr-4" onClick={() => { setShowAssetSelect(true); }}>Add Existing</button>
+                                        <button className="btn btn-info mr-4" onClick={() => { setNewEdit('New'); setShowAssetModal(true); }}>Add New</button>
+                                        <button className="btn btn-info mr-4" onClick={() => { setShowAssetSelect(true); }}>Add Existing</button>
                                     </div>
                                 </div>
                             </div>
