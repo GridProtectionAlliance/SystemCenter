@@ -134,7 +134,7 @@ const MeterLocationProperties = (props: IProps) => {
                         <button
                             type="button"
                             style={{ marginRight: 10 }}
-                            className={"btn btn-primary" + (hasPermissions() ? '' : 'disabled')} data-tooltip='SelectLocation' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}
+                            className={"btn btn-info" + (hasPermissions() ? '' : 'disabled')} data-tooltip='SelectLocation' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}
                             onClick={() => { if (hasPermissions()) setShowStationSelector(true) }}>Select Substation</button>
                         <button type="button" className={"btn btn-secondary" + (hasPermissions() || isEmpty() ? '' : 'disabled')} data-tooltip='ClearLocation' onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')}
                             onClick={() => { if (hasPermissions()) props.UpdateMeter({ ...props.Meter, LocationID: null }) }}>Clear</button>
