@@ -322,7 +322,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
                 </div>
             </div>
             <Modal Size='xlg' Show={showNewGroup} Title={'Add New Asset Group'} ShowX={true}
-                ShowCancel={false} ConfirmBtnClass={'btn-primary'} ConfirmText={'Add'}
+                ShowCancel={false} ConfirmBtnClass={'btn-primary'} ConfirmText={'Save'}
                 CallBack={(conf) => { if (conf) addNewAssetGroup(); else setNewAssetGroup(_.cloneDeep(emptyAssetGroup)); setShowNewGroup(false) }}
                 DisableConfirm={assetGrpErrors.length > 0}
                 ConfirmShowToolTip={assetGrpErrors.length > 0}
@@ -337,7 +337,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
                     </div>
                     <div className="col">
                         <Input<extendedAssetGroup> Record={newAssetGroup} Field={'Assets'} Label={'Num. of Transmission Assets'} Valid={() => true} Setter={setNewAssetGroup} Disabled={true} />
-                        <button type="button" className="btn btn-info btn-block" onClick={() => { setFilter('Asset'); }}> Add Transmission Assets </button>
+                        <button type="button" className="btn btn-info btn-block" onClick={() => { setFilter('Asset'); }}> Add Assets </button>
                        
                         <Input<extendedAssetGroup> Record={newAssetGroup} Field={'Meters'} Label={'Num. of Meters'} Valid={() => true} Setter={setNewAssetGroup} Disabled={true} />
                         <button type="button" className="btn btn-info btn-block" onClick={() => { setFilter('Meter'); }}> Add Meters </button>
