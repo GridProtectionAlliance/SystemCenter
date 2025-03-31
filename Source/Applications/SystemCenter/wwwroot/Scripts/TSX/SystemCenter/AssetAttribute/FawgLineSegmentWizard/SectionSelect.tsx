@@ -184,7 +184,7 @@ function SectionSelect(props: IProps): JSX.Element {
             <div className="row">
                 <div className="col">
                     <button type="button"
-                        className={'btn-primary btn'}
+                        className={'btn-info btn'}
                         onClick={() => props.AddSection()}
                     >Add Section</button>
                 </div>

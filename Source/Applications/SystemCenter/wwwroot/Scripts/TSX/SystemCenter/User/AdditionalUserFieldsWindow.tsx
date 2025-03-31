@@ -169,8 +169,8 @@ function AdditionalField(props: IProps) {
 					</div>
 					<div className="col">
 						{(mode === 'Edit') ?
-							<button className="btn btn-default pull-right" data-tooltip='View' onClick={() => { setMode('View'); setEditValues(values) }} onMouseEnter={() => setHover('View')} onMouseLeave={() => setHover('None')}>View</button> :
-							<button className="btn btn-primary pull-right" onClick={() => setMode('Edit')}>Edit</button>}
+							<button className="btn btn-warning pull-right" data-tooltip='View' onClick={() => { setMode('View'); setEditValues(values) }} onMouseEnter={() => setHover('View')} onMouseLeave={() => setHover('None')}>View</button> :
+							<button className="btn btn-info pull-right" onClick={() => setMode('Edit')}>Edit</button>}
 						<ToolTip Show={hover === 'View' && changedFields.length > 0} Position={'left'} Target={"View"}>
 							{changedFields.map((fld, i) => <p key={i}>{Warning} Changes to '{fld}' will be lost. </p>)}
 						</ToolTip>

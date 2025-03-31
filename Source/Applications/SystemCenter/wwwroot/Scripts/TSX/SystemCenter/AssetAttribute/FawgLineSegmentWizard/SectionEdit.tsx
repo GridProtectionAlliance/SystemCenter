@@ -397,7 +397,7 @@ function SectionEdit(props: IProps): JSX.Element {
             </div>
             <div className="row">
                 <div className="col">
-                    <button className="btn btn-primary" onClick={() => addSegment()}>Add Segment</button>
+                    <button className="btn btn-info" onClick={() => addSegment()}>Add Segment</button>
                 </div>
             </div>
         </>
