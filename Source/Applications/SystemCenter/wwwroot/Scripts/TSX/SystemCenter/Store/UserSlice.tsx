@@ -120,7 +120,7 @@ export default class UserAccountSlice {
                 SearchStatus: 'unintiated',
                 Data: [],
                 SortField: 'Name',
-                Ascending: false,
+                Ascending: true,
                 ParentID: null,
                 SearchResults: [],
                 Filters: [],
