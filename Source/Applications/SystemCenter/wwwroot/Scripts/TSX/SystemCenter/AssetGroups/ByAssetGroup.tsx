@@ -247,7 +247,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
                                 <form>
                                     <div className="form-group">
                                     <button className="btn btn-info btn-block" 
-                                        onClick={(event) => { event.preventDefault(); setShowNewGroup(true); }}>Add New Asset Group</button>
+                                        onClick={(event) => { event.preventDefault(); setShowNewGroup(true); }}>Add Asset Group</button>
                                     </div>
                                 </form>
                             </fieldset>

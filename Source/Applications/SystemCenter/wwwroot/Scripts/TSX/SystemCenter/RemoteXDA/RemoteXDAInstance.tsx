@@ -89,7 +89,7 @@ function RemoteXDAInstance(props: IProps) {
                     <h2>{connection.Name}</h2>
                 </div>
                 <div className="col">
-                    <button className="btn btn-danger pull-right" disabled={!props.Roles.includes('Administrator')} onClick={() => setShowDelete(true)}>Delete Remote openXDA Instance Connection</button>
+                    <button className="btn btn-danger pull-right" disabled={!props.Roles.includes('Administrator')} onClick={() => setShowDelete(true)}>Delete Remote Connection</button>
                 </div>
             </div>
             <hr />

@@ -77,7 +77,7 @@ export default function ValueListGroup(props: IProps) {
                 </div>
                 <div className="col">
                     <button className="btn btn-danger pull-right" hidden={record == null}
-                        onClick={() => setShowRemove(true)}>Delete Value List Group</button>
+                        onClick={() => setShowRemove(true)}>Delete Value List</button>
                 </div>
             </div>
             <hr />

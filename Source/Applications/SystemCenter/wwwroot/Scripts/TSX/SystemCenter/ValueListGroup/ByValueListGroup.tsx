@@ -65,7 +65,7 @@ const ValueListGroups: Application.Types.iByComponent = () => {
                     <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                     <form>
                         <button className="btn btn-info btn-block"
-                            onClick={(evt) => { evt.preventDefault(); setRecord({ ...emptyRecord }); setShowNew(true); }}>Add Group</button>
+                            onClick={(evt) => { evt.preventDefault(); setRecord({ ...emptyRecord }); setShowNew(true); }}>Add Value List</button>
                     </form>
                 </fieldset>
             </li>
