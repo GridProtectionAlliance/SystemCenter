@@ -79,7 +79,7 @@ const GroupInfo = (props: {Group: ISecurityGroup}) => {
                         onClick={() => dispatch(SecurityGroupSlice.DBAction({ verb: 'PATCH', record: { ...group, Name: group.DisplayName } }))}
                         onMouseEnter={() => setHover('Save')} onMouseLeave={() => setHover('None')}
                         data-tooltip={'Save'}
-                        disabled={warnings.length === 0 || errors.length > 0 || group.Type !== 'Database'}>Update</button>
+                        disabled={warnings.length === 0 || errors.length > 0 || group.Type !== 'Database'}>Save Changes</button>
                 </div>
                 <div className="btn-group mr-2">
                     <button className="btn btn-warning" onClick={() => setGroup(props.Group)} disabled={warnings.length === 0 || group.Type !== 'Database'}

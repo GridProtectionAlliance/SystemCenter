@@ -48,7 +48,7 @@ const ValueListInfoWindow = (props: { Record: SystemCenter.Types.ValueListGroup 
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className="btn btn-primary" onClick={() => dispatch(ValueListGroupSlice.DBAction({ verb: 'PATCH', record }))} hidden={record.ID == 0} disabled={record == props.Record}>Update</button>
+                    <button className="btn btn-primary" onClick={() => dispatch(ValueListGroupSlice.DBAction({ verb: 'PATCH', record }))} hidden={record.ID == 0} disabled={record == props.Record}>Save Changes</button>
                 </div>
                 <div className="btn-group mr-2">
                     <button className="btn btn-warning" onClick={() => setRecord(props.Record)} disabled={record == props.Record}>Clear Changes</button>

@@ -94,7 +94,7 @@ export default function CustomerInfo(props: IProps) {
                         }
                     }}
                         onMouseEnter={() => setHover('Submit')} onMouseLeave={() => setHover('None')} data-tooltip={"Update"}
-                    >Update</button>
+                    >Save Changes</button>
                 </div>
                 <ToolTip Show={hover == 'Submit' && (errors.length > 0 || addlFieldError.length > 0)} Position={'top'} Target={"Update"}>
                     {errors.map((t, i) => <p key={i}>{CrossMark} {t}</p>)}

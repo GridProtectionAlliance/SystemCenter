@@ -84,7 +84,7 @@ export default function ExternalDBInfo(props: { Record: SystemCenter.Types.Detai
                                     }
                                 }}
                                 hidden={record.ID == 0} data-tooltip={'Update-Info-Table'}
-                                onMouseEnter={() => setHover('update')} onMouseLeave={() => setHover('none')}>Update</button>
+                                onMouseEnter={() => setHover('update')} onMouseLeave={() => setHover('none')}>Save Changes</button>
                         </div>
                         <div className="btn-group mr-2">
                             <button className="btn btn-warning"

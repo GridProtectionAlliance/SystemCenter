@@ -71,7 +71,7 @@ export default function CategoryInfo(props: IProps) {
                             props.stateSetter(tab)
                     }}
                         onMouseEnter={() => setHover('Submit')} onMouseLeave={() => setHover('None')} data-tooltip={"Update"}
-                    >Update</button>
+                    >Save Changes</button>
                 </div>
                 <ToolTip Show={hover == 'Submit' && (errors.length > 0)} Position={'top'} Target={"Update"}>
                     {errors.map((t, i) => <p key={i}>{CrossMark} {t}</p>)}
