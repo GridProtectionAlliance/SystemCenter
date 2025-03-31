@@ -85,8 +85,7 @@ const LocationImagesWindow = (props: { Location: OpenXDA.Types.Location }) => {
                 </LayoutGrid>
             </div>
             <Modal
-                ConfirmBtnClass={'btn-primary'}
-                Show={image.length > 0} ShowCancel={false} ShowX={true} ConfirmText={'Close'} Title={image}
+                Show={image.length > 0} ShowCancel={false} ShowX={true} ShowConfirm={false} Title={image}
                 CallBack={() => setImage('') }>
                 <img style={{ height: '75%', display: 'block', margin: 'auto' }}
                     src={`${homePath}api/OpenXDA/Location/${props.Location.ID}/Images/${image}`} />

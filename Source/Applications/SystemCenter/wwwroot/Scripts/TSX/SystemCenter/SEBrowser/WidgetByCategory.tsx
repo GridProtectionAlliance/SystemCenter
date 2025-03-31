@@ -186,7 +186,7 @@ const WidgetByCategory = (props: IProps) => {
             ConfirmToolTipContent={<p>{CrossMark} This widget is already in this Category</p>}
             ShowX={true}
             ShowCancel={false}
-            ConfirmText={'Add Widget'}
+            ConfirmText={'Save'}
         >
             {record != null ?
                 <Select<EventWidget.IWidgetView> Record={record} Field={'ID'}

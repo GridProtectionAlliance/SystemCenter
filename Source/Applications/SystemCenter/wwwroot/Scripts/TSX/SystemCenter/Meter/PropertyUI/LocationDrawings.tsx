@@ -63,7 +63,7 @@ const LocationDrawings = (props: IProps) => {
                         setShowDrawings(true);
                 }}>Open Drawing(s)</button>
 
-            <Modal Show={showDrawings} Title={'Drawings'} ShowX={true} Size={'lg'} CallBack={() => setShowDrawings(false)} ShowCancel={false} ConfirmText={'Done'}>
+            <Modal Show={showDrawings} Title={'Drawings'} ShowX={true} Size={'lg'} CallBack={() => setShowDrawings(false)} ShowCancel={false} ShowConfirm={false}>
                 <div className="row">
                     <div className="col" style={{ width: '100%' }}>
                         <Table<SystemCenter.Types.LocationDrawing>

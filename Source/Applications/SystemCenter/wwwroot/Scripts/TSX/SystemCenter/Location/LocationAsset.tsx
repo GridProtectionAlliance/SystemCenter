@@ -395,11 +395,10 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
 
             <Modal Show={showModal}
                 Title={newEdit == 'New' ? 'Add New Asset to ' + (props.Location?.Name ?? 'Substation') : 'Edit ' + (newEditAsset?.AssetName ?? 'Asset')}
-                ConfirmBtnClass={'btn-success'}
-                ConfirmText={newEdit == 'Edit' ? 'Save' : 'Add'}
-                CancelBtnClass={'btn-danger'}
-                CancelText={'Close'}
+                ConfirmText={'Save'}
                 Size={'xlg'}
+                ShowCancel={false}
+                ShowX={true}
                 CallBack={(confirm) => {
                     setShowModal(false);
 

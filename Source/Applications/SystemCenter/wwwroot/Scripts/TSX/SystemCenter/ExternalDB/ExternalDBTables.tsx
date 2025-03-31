@@ -154,7 +154,7 @@ export default function ExternalDBTables(props: { ID: number }) {
                         Message={'This will permanently delete this External Database Table and ALL associated Fields. This cannot be undone.'}
                         Show={showWarning} Title={'Delete ' + (record?.TableName ?? 'External DB Table')}
                         CallBack={(conf) => { if (conf) Delete(); setShowWarning(false); }} />
-                    <Modal Title={record.ID == 0 ? 'Add New Table' : 'Edit ' + (record?.TableName ?? 'Table')} Show={showModal} ShowCancel={false} ConfirmText={record.ID == 0 ? 'Add' : 'Save'}
+                    <Modal Title={record.ID == 0 ? 'Add New Table' : 'Edit ' + (record?.TableName ?? 'Table')} Show={showModal} ShowCancel={false} ConfirmText={'Save'}
                         ConfirmShowToolTip={errors.length > 0}
                         ConfirmToolTipContent={errors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}
                         DisableConfirm={errors.length > 0}

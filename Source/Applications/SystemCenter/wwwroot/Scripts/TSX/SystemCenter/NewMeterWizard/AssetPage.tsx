@@ -524,9 +524,8 @@ export default function AssetPage(props: IProps) {
                 </AssetSelect>
                 <Modal Show={showAssetModal}
                     Title={newEdit == 'New' ? 'Add New Asset to Meter' : 'Edit ' + (newEditAsset?.AssetName ?? 'Asset')}
-                    ConfirmBtnClass={'btn-success'}
-                    ConfirmText={newEdit == 'Edit' ? 'Save' : 'Add'}
-                    CancelBtnClass={'btn-danger'}
+                    ConfirmBtnClass={'btn-primary'}
+                    ConfirmText={'Save'}
                     ShowCancel={false}
                     ShowX={true}
                     Size={'xlg'}

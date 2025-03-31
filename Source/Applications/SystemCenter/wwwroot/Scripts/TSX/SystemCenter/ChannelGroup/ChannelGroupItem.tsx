@@ -177,7 +177,7 @@ export default function ChannelGroupDetails(props: IProps) {
                 Message={'This will permanently delete this Channel Group Item and cannot be undone.'}
                 Show={showWarning} Title={'Delete ' + (record?.DisplayName ?? 'Channel Item')}
                 CallBack={(conf) => { if (conf) Delete(); setShowWarning(false); }} />
-            <Modal Title={record.ID == 0 ? 'Add New Channel Group Item' : 'Edit ' + (record?.DisplayName ?? 'Channel Item')} Show={showModal} ShowCancel={false} ConfirmText={record.ID == 0 ? 'Add' : 'Save'}
+            <Modal Title={record.ID == 0 ? 'Add New Channel Group Item' : 'Edit ' + (record?.DisplayName ?? 'Channel Item')} Show={showModal} ShowCancel={false} ConfirmText={'Save'}
                 ConfirmShowToolTip={errors.length > 0}
                 ConfirmToolTipContent={errors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}
                 DisableConfirm={errors.length > 0}

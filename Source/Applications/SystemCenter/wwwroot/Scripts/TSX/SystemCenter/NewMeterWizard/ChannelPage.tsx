@@ -651,7 +651,7 @@ export default function ChannelPage(props: IProps) {
                     }
                     setShowRemoveWarning(false);
                 }} />
-            <Modal Title="Scale Channels" ShowX={true} ShowCancel={false} Show={showScaling} ConfirmText="Close Scaling Window" CallBack={() => setShowScaling(false)} Size='xlg'>
+            <Modal Title="Scale Channels" ShowX={true} ShowCancel={false} Show={showScaling} ShowConfirm={false} CallBack={() => setShowScaling(false)} Size='xlg'>
                 <ChannelScalingForm Channels={currentChannels} UpdateChannels={editChannels} ChannelStatus={channelStatus} Key={props.MeterKey} />
             </Modal>
             <Modal Title={"Add All Channels"} ShowX={true} ShowCancel={true} Show={showDialog} CancelText={"Only " + (props.TrendChannels ? "Trend" : "Event")} ConfirmText="Add All" Size='sm' CallBack={(all) => {

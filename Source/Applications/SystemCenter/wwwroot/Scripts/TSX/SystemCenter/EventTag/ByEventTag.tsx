@@ -91,7 +91,7 @@ const EventTags: Application.Types.iByComponent = (props) => {
                 }}
                 ShowX={true}
                 ConfirmBtnClass={'btn-primary'}
-                ConfirmText={mode === 'Add' ? 'Add Tag' : 'Save'}
+                ConfirmText={'Save'}
                 ConfirmShowToolTip={errors.length > 0}
                 ConfirmToolTipContent={errors.map((e, i) => <p key={i}><ReactIcons.CrossMark Color="red" /> {e}</p>)}
                 DisableConfirm={errors.length > 0}
