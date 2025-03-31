@@ -122,9 +122,12 @@ export const APIAccessKeySlice = new GenericSlice<IAPIAccessKey>('APIAccessKey',
 
 
 export const EventTagSlice = new GenericSlice<OpenXDA.Types.EventTag>("EventTag", `${homePath}api/OpenXDA/EventTag`, 'Name');
+
+// The following use endpoints that are locked down by enterprise edition
 export const MATLABAnalyticSlice = new GenericSlice<OpenXDA.Types.MATLABAnalytic>("MATLABAnalytic", `${homePath}api/OpenXDA/MATLABAnalytic`, 'LoadOrder');
 export const MATLABAnalyticEventTypeSlice = new GenericSlice<OpenXDA.Types.MATLABAnalyticEventType>("MATLABAnalyticEventType", `${homePath}api/OpenXDA/MATLABAnalyticEventType`, 'ID');
 export const MATLABAnalyticAssetTypeSlice = new GenericSlice<OpenXDA.Types.MATLABAnalyticAssetType>("MATLABAnalyticAssetType", `${homePath}api/OpenXDA/MATLABAnalyticAssetType`, 'ID');
+
 export const TrendChannelSlice = new GenericSlice<LocalXDA.TrendChannel>('TrendChannels', `${homePath}api/OpenXDA/TrendChannel`, 'Name');
 
 export const ChannelTemplateSlice = new GenericSlice<LocalSystemCenter.ChannelTemplateFile>('ChannelTemplate', `${homePath}api/SystemCenter/ChannelTemplateFile`, 'ID', true);
