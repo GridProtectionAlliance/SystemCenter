@@ -116,6 +116,7 @@ const ByCustomer: Application.Types.iByComponent = (props) => {
                 ShowCancel={false}
                 ShowX={true}
                 ConfirmText={'Update All'}
+                ConfirmBtnClass={'btn-info'}
                 CallBack={(c) => {
                     if (c && extDbUpdateAll.current !== undefined) extDbUpdateAll.current();
                     if (!c) setShowExtModal(false);

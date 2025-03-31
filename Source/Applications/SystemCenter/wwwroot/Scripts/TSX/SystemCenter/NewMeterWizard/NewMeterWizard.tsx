@@ -422,7 +422,7 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
             return (
                 <div>
                     <button
-                        className="btn btn-primary pull-right"
+                        className="btn btn-secondary pull-right"
                         onClick={openMeterDetails}
                     >
                         Meter Details
@@ -521,7 +521,7 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
                         />
                     </div>
                 <div className="col-4 col-xl-2 align-self-center">
-                        <button className="btn btn-block btn-primary pull-right" onClick={clearData} >{(currentStep > saveStep) ? "Save and Close" : "Reset Wizard"}</button>
+                        <button className="btn btn-block btn-warning pull-right" onClick={clearData} >{(currentStep > saveStep) ? "Save and Close" : "Reset Wizard"}</button>
                     </div>
                 </div>
             <div className="row" style={{flex: 1, overflow: 'hidden'}}>
