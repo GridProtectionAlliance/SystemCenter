@@ -103,7 +103,7 @@ const ChannelGroups: Application.Types.iByComponent = () => {
                 ShowCancel={false}
                 ShowX={true}
                 ConfirmBtnClass={'btn-primary'}
-                ConfirmText={'Add Group'}
+                ConfirmText={'Save'}
                 ConfirmShowToolTip={errors.length > 0}
                 ConfirmToolTipContent={errors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}
                 DisableConfirm={errors.length > 0}

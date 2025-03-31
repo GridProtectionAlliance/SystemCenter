@@ -322,7 +322,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                     if (conf)
                         addConnection();
                     setShowModal(false);
-                }} ConfirmText={'Add'} DisableConfirm={!connectionsAvailable}>
+                }} ConfirmText={'Save'} DisableConfirm={!connectionsAvailable}>
                 {connectionsAvailable ?
                     <>
                         <div className="alert alert-info" role="alert">

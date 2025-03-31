@@ -145,7 +145,7 @@ export default function ExternalDBXdaFields(props: { ID: number }) {
                             setShowRemove(false);
                         }}
                     />
-                    <Modal Title={record.ID === -1 ? 'Link New Field' : 'Edit ' + (record?.FieldName ?? 'Field')} Show={showEdit} ShowCancel={true} ConfirmText={record.ID === -1 ? 'Link' : 'Save'}
+                    <Modal Title={record.ID === -1 ? 'Link New Field' : 'Edit ' + (record?.FieldName ?? 'Field')} Show={showEdit} ShowCancel={false} ConfirmText={'Save'}
                         ConfirmShowToolTip={errors.length > 0} DisableConfirm={errors.length > 0} ShowX={true}
                         ConfirmToolTipContent={
                             <>

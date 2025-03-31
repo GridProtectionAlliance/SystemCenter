@@ -195,7 +195,7 @@ function Meter(props: IProps) {
             {tab === 'dataDelete' ? dataDeleteWindow : null}
             {tab === 'maintenance' ? <MeterMaintenanceWindow Meter={meter} /> : null}
 
-            <Modal Title={'Advanced Options'} Show={showAdvanced} CallBack={() => setShowAdvanced(false)} ShowCancel={false} ConfirmText={'Close'}>
+            <Modal Title={'Advanced Options'} Show={showAdvanced} CallBack={() => setShowAdvanced(false)} ShowCancel={false} ShowConfirm={false} ShowX={true}>
                 <button className="btn btn-info btn-block" onClick={showDataRescueWindow}>Data Rescue</button>
                 <button className="btn btn-info btn-block" onClick={showDataMergeWindow}>Merge Data</button>
                 <button className="btn btn-danger btn-block" onClick={showDataDeleteWindow}>Delete Data</button>

@@ -67,7 +67,7 @@ const ByEventType: Application.Types.iByComponent = (props) => {
             <Modal
                 Show={showModal}
                 Title={'Edit ' + (record?.Name ?? 'Event Type')}
-                ShowCancel={true}
+                ShowCancel={false}
                 CallBack={(conf) => {
                     if (conf)
                         EventTypeController.DBAction('PATCH', record).done(() => refreshData(x => x + 1));
