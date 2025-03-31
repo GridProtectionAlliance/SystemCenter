@@ -87,7 +87,7 @@ const UserInfo = (props: { AccountId: string }) => {
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className="btn btn-primary" onClick={() => updateUser()} disabled={warnings.length === 0}>Update</button>
+                    <button className="btn btn-primary" onClick={() => updateUser()} disabled={warnings.length === 0}>Save Changes</button>
                 </div>
                 <div className="btn-group mr-2">
                     <button className="btn btn-warning" onClick={() => setUser(currentUser)} disabled={warnings.length === 0} data-tooltip={'Clr'}

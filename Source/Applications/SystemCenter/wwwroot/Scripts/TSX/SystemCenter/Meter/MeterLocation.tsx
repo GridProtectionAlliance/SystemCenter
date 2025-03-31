@@ -180,7 +180,7 @@ const LocationWindow = (props: IProps) => {
             <div className="card-footer">
                 <div className="btn-group mr-2">
                     <button className={"btn btn-primary" + (!(isValidLocation && hasChanged) ? ' disabled' : '')} onClick={postLocation}
-                        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} data-tooltip={'NewLocation'}>{location.ID > 0 ? "Update" : "Add New"}</button>
+                        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} data-tooltip={'NewLocation'}>Save Changes</button>
                     <ToolTip Show={hover == 'Update' && (!hasChanged || !isValidLocation)} Position={'top'} Target={"NewLocation"}>
                         {(!hasChanged || location.ID < 1) && hasPermissions() ? <p> No changes have been made. </p> : null}
                         {!hasPermissions() ? <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p> : null}
