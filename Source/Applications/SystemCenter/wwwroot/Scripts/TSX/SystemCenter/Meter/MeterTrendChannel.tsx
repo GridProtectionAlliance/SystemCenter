@@ -564,7 +564,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                 </div>
                 <div className="btn-group mr-2">
                     <button className={"btn btn-warning" + (recordChanges.size == 0 ? ' disabled' : '')} onClick={() => { if (recordChanges.size > 0 && hasPermissions()) setRecordChanges(new Map<number, Partial<OpenXDA.TrendChannel>>()); }}
-                        onMouseEnter={() => setHover('Reset')} onMouseLeave={() => setHover('None')} data-tooltip={"Clea    "}>Clear Changes</button>
+                        onMouseEnter={() => setHover('Reset')} onMouseLeave={() => setHover('None')} data-tooltip={"Clear"}>Clear Changes</button>
                     <ToolTip Show={hover == 'Reset' && (recordChanges.size > 0)} Position={'top'} Target={"Clear"}>
                         <p> There are {recordChanges.size} channels with changes that will be lost. </p>
                     </ToolTip>
