@@ -209,7 +209,7 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
             <div className="card-footer">
                 <div className="btn-group mr-2">
                         <button className={"btn btn-info pull-right" + (hasPermissions() ? ' disabled' : '')} data-tooltip='AddAsset'
-                            onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (!hasPermissions()) setShowAdd(true) }}>Add Transmission Assets</button>
+                            onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (!hasPermissions()) setShowAdd(true) }}>Add Assets</button>
                 </div>
                     <ToolTip Show={hover == 'Update' && hasPermissions()} Position={'top'} Target={"AddAsset"}>
                         <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>

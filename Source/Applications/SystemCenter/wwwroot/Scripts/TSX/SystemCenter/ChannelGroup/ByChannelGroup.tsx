@@ -89,7 +89,7 @@ const ChannelGroups: Application.Types.iByComponent = () => {
                                 setRecord({ ...emptyRecord })
                                 setShowNew(true);
                             }}
-                        >Add Group
+                        >Add Channel Group
                         </button>
                     </form>
                 </fieldset>
