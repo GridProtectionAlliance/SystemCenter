@@ -20,7 +20,7 @@
 //       Generated original version of source code.
 // record fields for asset JObject Post records
 //  Asset: { ID: number, VoltageKV: number, AssetKey: string, Description: string, AssetName: string, AssetType: 'Line' | 'LineSegment' | 'Breaker' | 'Bus' | 'CapacitorBank' | 'Transformer', Channels: Array<OpenXDA.Channel>
-// interface Breaker extends Asset { ThermalRating: number, Speed: number, TripTime: number, PickupTime: number, TripCoilCondition: number,EDNAPoint?:string }
+// interface Breaker extends Asset { ThermalRating: number, Speed: number, TripTime: number, PickupTime: number, TripCoilCondition: number, SCADAPoint?:string }
 // interface Bus extends Asset { }
 // interface CapBank extends Asset { NumberOfBanks: number, CansPerBank: number, CapacitancePerBank: number }
 // interface Line extends Asset { MaxFaultDistance: number, MinFaultDistance: number, Segment: LineSegment }
