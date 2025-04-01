@@ -177,8 +177,8 @@ function AssetInfoWindow(props: IProps) {
                 result.push('Pickup Time Limit')
             if ((asset as OpenXDA.Types.Breaker).TripCoilCondition != (editAsset as OpenXDA.Types.Breaker).TripCoilCondition)
                 result.push('Trip Coil Condition Limit')
-            if ((asset as OpenXDA.Types.Breaker).EDNAPoint != (editAsset as OpenXDA.Types.Breaker).EDNAPoint)
-                result.push('eDNA Point')
+            if ((asset as OpenXDA.Types.Breaker).SCADAPoint != (editAsset as OpenXDA.Types.Breaker).SCADAPoint)
+                result.push('SCADA Point')
             if ((asset as OpenXDA.Types.Breaker).Spare != (editAsset as OpenXDA.Types.Breaker).Spare)
                 result.push('Spare Condition')
 
