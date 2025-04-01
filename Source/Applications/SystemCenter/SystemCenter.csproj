@@ -714,7 +714,7 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\Advanced\MeterDataDelete.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\Advanced\MeterDataMerge.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\DB\DBCleanup.tsx" />
-    <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceIssuesPage\Reason.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\Reason.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\ProcessedFile\ByFile.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\SEBrowser\ByWidgetCategory.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\SEBrowser\WidgetCategory.tsx" />

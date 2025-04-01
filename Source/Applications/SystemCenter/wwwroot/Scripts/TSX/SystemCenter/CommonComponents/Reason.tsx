@@ -20,44 +20,41 @@
 //       Generated original version of source code.
 //
 //******************************************************************************************************
-
 import * as React from 'react';
+import { Modal } from '@gpa-gemstone/react-interactive';
 
-const Reason = React.memo((props: { ID: number, Text: string, Disabled?: boolean, OnHover?: (ID: string|undefined) => void }) => {
-    if (props.Text == '') return <>N/A</>;
+const Reason = React.memo((props: { ID: number, Text: string, Disabled?: boolean, OnHover?: (ID: string | undefined) => void }) => {
+    const [show, setShow] = React.useState<boolean>(false);
 
     const handleMouse = React.useCallback((id: string|undefined) => {
         if (props.OnHover == null) return;
         props.OnHover(id);
     }, [props.OnHover]);
-    console.log(props.Disabled)
+
+    if (props.Text == '') return <>N/A</>;
 
     return (
         <div onMouseEnter={() => handleMouse(props.ID.toString())} onMouseLeave={() => handleMouse(undefined)}>
             <button className='btn'
-                data-toggle={(props.Disabled ?? false) ? undefined : 'modal'}
-                data-target={(props.Disabled ?? false) ? undefined : `#modal${props.ID}`}
+                onClick={evt => {
+                    evt.preventDefault();
+                    evt.stopPropagation();
+                    if (!props.Disabled) setShow(true);
+                }}
                 disabled={props.Disabled}
                 data-tooltip={(props.OnHover == null) ? undefined : props.ID.toString()}
             >...</button>
-
-            <div id={`modal${props.ID}`} className="modal" role="dialog">
-                <div className="modal-dialog" role="document">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <button type="button" className="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div className="modal-body">
-                            <p>{props.Text}</p>
-                        </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <Modal
+                Title={''}
+                Show={show}
+                ShowCancel={false}
+                ShowConfirm={false}
+                ShowX={true}
+                Size='lg'
+                CallBack={() => setShow(false)}
+            >
+                <p>{props.Text}</p>
+            </Modal>
         </div>
     );
 });

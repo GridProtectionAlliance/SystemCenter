@@ -29,7 +29,7 @@ import _ from 'lodash';
 import * as React from 'react';
 import { GenericController } from '@gpa-gemstone/react-interactive';
 import { ConfigurableTable, ConfigurableColumn, Column } from '@gpa-gemstone/react-table';
-import Reason from './Reason';
+import Reason from '../CommonComponents/Reason';
 import moment from 'moment';
 
 const OpenXDADailyStatisticController = new GenericController<SC.OpenXDADailyStatistic>(`${homePath}api/SystemCenter/Statistics/OpenXDA`, "LastSuccessfulFileProcessed", false);

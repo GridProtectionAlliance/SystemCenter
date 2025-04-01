@@ -27,7 +27,7 @@ import { Column, FilterableColumn, Paging, Table } from '@gpa-gemstone/react-tab
 import moment from 'moment';
 import * as React from 'react';
 import RestrictionTooltip from '../CommonComponents/RestrictionTooltip';
-import Reason from '../DeviceIssuesPage/Reason';
+import Reason from '../CommonComponents/Reason';
 
 const DataOperationFailureController = new GenericController<OpenXDA.Types.DataOperationFailure>(`${homePath}api/OpenXDA/DataOperationFailure`, "ID", true);
 const storageID = "ByDataOperationsFailure";
