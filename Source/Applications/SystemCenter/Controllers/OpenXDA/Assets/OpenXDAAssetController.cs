@@ -416,14 +416,14 @@ namespace SystemCenter.Controllers.OpenXDA
                     new TableOperations<Breaker>(connection).AddNewRecord(breaker);
                     breaker.ID = connection.ExecuteScalar<int>("SELECT ID FROM Asset WHERE AssetKey = {0}", breaker.AssetKey);
 
-                    if (asset["EDNAPoint"] != null)
+                    if (asset["SCADAPoint"] != null)
                     {
-                        EDNAPoint eDNAPoint = new EDNAPoint()
+                        SCADAPoint point = new SCADAPoint()
                         {
                             BreakerID = breaker.ID,
-                            Point = asset["EDNAPoint"].ToString()
+                            Point = asset["SCADAPoint"].ToString()
                         };
-                        new TableOperations<EDNAPoint>(connection).AddNewRecord(eDNAPoint);
+                        new TableOperations<SCADAPoint>(connection).AddNewRecord(point);
                     }
 
                     if (asset["SpareBreakerID"] != null)
@@ -659,23 +659,23 @@ namespace SystemCenter.Controllers.OpenXDA
                         CreateBreakerFromJToken(breaker, asset);
                         new TableOperations<Breaker>(connection).UpdateRecord(breaker);
 
-                        EDNAPoint eDNAPoint = new TableOperations<EDNAPoint>(connection).QueryRecordWhere("BreakerID = {0}", breaker.ID);
-                        if (eDNAPoint == null && asset["EDNAPoint"] != null)
+                        SCADAPoint point = new TableOperations<SCADAPoint>(connection).QueryRecordWhere("BreakerID = {0}", breaker.ID);
+                        if (point == null && asset["SCADAPoint"] != null)
                         {
-                            eDNAPoint = new EDNAPoint()
+                            point = new SCADAPoint()
                             {
                                 BreakerID = breaker.ID,
-                                Point = asset["EDNAPoint"].ToString()
+                                Point = asset["SCADAPoint"].ToString()
                             };
-                            new TableOperations<EDNAPoint>(connection).AddNewRecord(eDNAPoint);
+                            new TableOperations<SCADAPoint>(connection).AddNewRecord(point);
                         }
-                        else if (eDNAPoint != null && asset["EDNAPoint"] == null)
-                            new TableOperations<EDNAPoint>(connection).DeleteRecord(eDNAPoint);
-                        else if (eDNAPoint != null && asset["EDNAPoint"] != null) {
-                            if(eDNAPoint.Point != asset["EDNAPoint"].ToString())
+                        else if (point != null && asset["SCADAPoint"] == null)
+                            new TableOperations<SCADAPoint>(connection).DeleteRecord(point);
+                        else if (point != null && asset["SCADAPoint"] != null) {
+                            if(point.Point != asset["SCADAPoint"].ToString())
                             {
-                                eDNAPoint.Point = asset["EDNAPoint"].ToString();
-                                new TableOperations<EDNAPoint>(connection).UpdateRecord(eDNAPoint);
+                                point.Point = asset["SCADAPoint"].ToString();
+                                new TableOperations<SCADAPoint>(connection).UpdateRecord(point);
                             }
                         }
 
