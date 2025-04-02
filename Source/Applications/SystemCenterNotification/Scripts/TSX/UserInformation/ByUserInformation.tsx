@@ -30,6 +30,7 @@ import { IsInteger } from '@gpa-gemstone/helper-functions';
 import EmailConfirm from '../Subscriptions/ConfirmEmail';
 import { ICellCarrier } from '../global';
 import { Select } from '@gpa-gemstone/react-forms';
+import { Input } from '@gpa-gemstone/react-forms';
 
 
 declare var homePath;
@@ -41,7 +42,7 @@ interface IProps {}
 
 const ByUserInformation = (props: IProps) => {
     const dispatch = useAppDispatch();
-    const [phone, setPhone] = React.useState<string>('');
+    const [phone, setPhone] = React.useState<{ phone: string }>({phone: ''});
     const [carrier, setCarrier] = React.useState<ICellCarrier>(emptyCarrier);
     const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
 
@@ -62,7 +63,7 @@ const ByUserInformation = (props: IProps) => {
 
     React.useEffect(() => {
         if (userPhone != null && userPhone.length > 0)
-            setPhone(userPhone);
+            setPhone({phone:userPhone});
     }, [userPhone]);
 
     React.useEffect(() => {
@@ -71,8 +72,8 @@ const ByUserInformation = (props: IProps) => {
     }, [userCarrier, carriers]);
 
     React.useEffect(() => {
-        let r = phone != null && phone.length >= 10 && phone.length <= 200;
-        r = r && IsInteger(phone.replace('-', ''));
+        let r = phone.phone != null && phone.phone.length >= 10 && phone.phone.length <= 200;
+        r = r && IsInteger(phone.phone.replace('-', ''));
         setValidPhone(r);
     }, [phone]);
 
@@ -91,24 +92,20 @@ const ByUserInformation = (props: IProps) => {
                         <div className="row">
                             <div className="col">
                                 <div className="form-group">
-                                    <label>Cell Phone</label>
-                                    <input
-                                        className={"form-control" + (validPhone? '' : ' is-invalid')}
-                                        type="tel"
-                                        pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}"
-                                        onChange={(evt) => {
-                                            setPhone(evt.target.value);
-                                        }}
-                                        value={phone}
+                                    <Input
+                                        Record={phone}
+                                        Field={'phone'}
+                                        Label={'Cell Phone'}
+                                        Help={'Enter your cellular number as numbers only. Do not include any special characters.'}
+                                        Feedback={'A valid Cell Phone is required.'}
+                                        Valid={(r) => validPhone}
+                                        Setter={(evt) => {setPhone(evt);}}
                                     />
-                                    <div className="invalid-feedback">
-                                        A valid Cell Phone is required.
-                                    </div>
                                 </div>
                             </div>
                             <div className="col">
                                 <div className="form-group">
-                                    <Select<ICellCarrier> Record={carrier} Field={'ID'} Label='Cell Carrier' Setter={(record) => setCarrier({ ...record, ID: typeof record.ID == 'string' ? parseInt(record.ID) : record.ID })}
+                                    <Select<ICellCarrier> Record={carrier} Field={'ID'} Label='Cell Carrier' Help={'An incorrect selection will result in texts being undeliverable. If you do not see your Carrier, contact your administrator.'} Setter={(record) => setCarrier({ ...record, ID: typeof record.ID == 'string' ? parseInt(record.ID) : record.ID })}
                                         Options={carriers.map((e) => { return { Label: e.Name, Value: e.ID.toString() } })} />
                                 </div>
                             </div>
@@ -117,19 +114,19 @@ const ByUserInformation = (props: IProps) => {
                     </div>
                     <div className="card-footer">
                         <div className="btn-group mr-2">
-                            <button className={"btn btn-primary" + (validPhone && (phone != userPhone || carrier.ID != userCarrier) ? '' : ' disabled')} type="submit"
+                            <button className={"btn btn-primary" + (validPhone && (phone.phone != userPhone || carrier.ID != userCarrier) ? '' : ' disabled')} type="submit"
                                 onClick={() => {
-                                    if (validPhone && phone != userPhone)
-                                        dispatch(UserInfoSlice.UpdatePhone(phone));
+                                    if (validPhone && phone.phone != userPhone)
+                                        dispatch(UserInfoSlice.UpdatePhone(phone.phone));
                                     if (carrier.ID != userCarrier)
                                         dispatch(UserInfoSlice.UpdateCarrier(carrier.ID));
                                 }}
                                 data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
                         </div>
                         <div className="btn-group mr-2">
-                            <button className={"btn btn-default" + (phone != userPhone || carrier.ID != userCarrier ? '' : ' disabled')} data-tooltip="clear"
+                            <button className={"btn btn-default" + (phone.phone != userPhone || carrier.ID != userCarrier ? '' : ' disabled')} data-tooltip="clear"
                                 onClick={() => {
-                                    setPhone(userPhone);
+                                    setPhone(phone);
                                     setCarrier(carriers.find((c) => c.ID == userCarrier));
                                 }}
                                 onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')} >Clear Changes</button>
@@ -137,13 +134,13 @@ const ByUserInformation = (props: IProps) => {
                     </div>
                 </div>
             </div>
-            <ToolTip Show={(!validPhone || (phone == userPhone && carrier.ID == userCarrier)) && hover == 'submit'} Position={'top'} Target={"submit"}>
+            <ToolTip Show={(!validPhone || (phone.phone == userPhone && carrier.ID == userCarrier)) && hover == 'submit'} Position={'top'} Target={"submit"}>
                 {!validPhone ? <p> {CrossMark} A valid Cell Phone is required.</p> : null}
-                {(phone == userPhone && carrier.ID == userCarrier) ? <p> No Changes were made.</p> : null}
+                {(phone.phone == userPhone && carrier.ID == userCarrier) ? <p> No Changes were made.</p> : null}
             </ToolTip>
             <ToolTip Show={hover == 'clear'} Position={'top'} Target={"clear"}>
-                {(phone == userPhone && carrier.ID == userCarrier) ? <p> No Changes were made.</p> : null}
-                {(phone != userPhone) ? <p> {Warning} Changes to Cell Phone will be lost.</p> : null}
+                {(phone.phone == userPhone && carrier.ID == userCarrier) ? <p> No Changes were made.</p> : null}
+                {(phone.phone != userPhone) ? <p> {Warning} Changes to Cell Phone will be lost.</p> : null}
                 {(carrier.ID != userCarrier) ? <p> {Warning} Changes to Cell Carrier will be lost.</p> : null}
             </ToolTip>
         </div>)
