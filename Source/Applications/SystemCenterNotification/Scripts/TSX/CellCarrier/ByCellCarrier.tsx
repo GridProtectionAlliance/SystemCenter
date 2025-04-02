@@ -165,7 +165,7 @@ const ByCellCarrier = (props: IProps) => {
                             && (carrier.Name.length <= 200)
                         }
                         Setter={(record) => setCarrier(record)} />
-                    <Input<ICellCarrier> Record={carrier} Field={'Transform'} Label={'Transform'} Help={'\'{0}\' will be replaced with the users Phone number.'}
+                    <Input<ICellCarrier> Record={carrier} Field={'Transform'} Label={'Transform'} Help={"The Gateway Domain of the specified carrier to send email as SMS or MMS. {0} is substituted with the user's phone number."}
                         Valid={() => carrier.Transform != null && carrier.Transform.length > 0}
                     Setter={(record) => setCarrier(record)} />
                 </form>
