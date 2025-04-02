@@ -67,13 +67,13 @@ const ReportForm = (props: IProps) => {
                     Options={categories.map(c => ({ Value: c.ID.toString(), Label: c.Name }))}
                     Setter={(record) => { record.EmailCategoryID = parseInt(record.EmailCategoryID.toString()); props.setRecord(record) }} />
                 <Input<ScheduledEmailType> Record={props.record} Field={'Schedule'} Label={'Schedule'} Valid={Valid} Setter={(record) => props.setRecord(record)}
-                    Feedback={'Schedule needs to be a valid Cron Syntax'} Help={'Schedule is the frequency and time when the report is sent. This field uses cron syntax. Examples are: daily = "59 23 * * *", weekly = "59 23 * * 5", monthly = "0 0 1 * *"'}
+                    Feedback={'Schedule needs to be a valid Cron Syntax'} Help={'Cron-formatted schedule indicating report frequency. Syntax is minutes, hours, day of the month, month, and weekday. A schedule of 11:59pm each Sunday would be 59 23 * * 0.'}
                 />
             </div>
             <div className="col">
                 <Input<ScheduledEmailType> Record={props.record} Field={'FilePath'}
                     Label={'File Path'}
-                    Help={'If the path is empty the system will not save the report to a file. Otherwise the system will save the notification to the specified path with the subject as the filename.'}
+                    Help={'Specify the path to save this Report as a file. The subject will be used for the file name. If File Path is left empty, no file will be saved.'}
                     Valid={Valid} Setter={(record) => props.setRecord(record)} />
                 <CheckBox<ScheduledEmailType> Record={props.record} Field={'ShowSubscription'} Label={'Allow Self Subscription'} Setter={(record) => props.setRecord(record)} />
                 <CheckBox<ScheduledEmailType> Record={props.record} Field={'RequireApproval'} Label={'Requires Approval'} Setter={(record) => props.setRecord(record)} />
