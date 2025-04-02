@@ -84,6 +84,7 @@ const Matcher: React.FunctionComponent = (props: {}) => {
     const ByApplicationCategory = React.lazy(() => import(/* webpackChunkName: "ByApplicationCategory" */ './ApplicationCategory/ByApplicationCategory'));
     const DBCleanup = React.lazy(() => import(/* webpackChunkName: "DBCleanup" */ './DB/DBCleanup'));
     const DataFile = React.lazy(() => import(/* webpackChunkName: "DataFile" */ './ProcessedFile/ByFile'));
+    const ByDataOperationsFailure = React.lazy(() => import(/* webpackChunkName: "ByDataOperationsFailure" */ './ProcessedFile/ByDataOperationsFailure'));
     const AppHost = React.lazy(() => import(/* webpackChunkName: "AppHost" */ './AppHost/AppHost'));
 
     const SEBrowserCategory = React.lazy(() => import(/* webpackChunkName: "DataFile" */ './SEBrowser/WidgetCategory'));
@@ -102,7 +103,6 @@ const Matcher: React.FunctionComponent = (props: {}) => {
     const params = queryString.parse(location.search.replace("?", ""), "&", "=");
 
     const routedComponent = React.useMemo(() => {
-        console.log("param shift")
         if (params['name'] == "Meter")
             return <Meter MeterID={parseInt(params.MeterID as string)} Tab={params.Tab as any} />
         else if (params['name'] == "NewMeterWizard")
@@ -140,6 +140,10 @@ const Matcher: React.FunctionComponent = (props: {}) => {
             if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <DataFile Roles={roles} />
+        }
+        else if (params['name'] == "DataOperationsFailures") {
+            if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0) return null;
+            return <ByDataOperationsFailure FileGroupID={parseInt(params.FileGroupID as string)} />
         }
         else if (params['name'] == "DataOperations") {
             if (roles.indexOf('Administrator') < 0)

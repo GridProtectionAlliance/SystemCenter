@@ -20,35 +20,43 @@
 //       Generated original version of source code.
 //
 //******************************************************************************************************
-
 import * as React from 'react';
+import { Modal } from '@gpa-gemstone/react-interactive';
 
-const Reason = (props: { ID: number, Text: string }) => {
+const Reason = React.memo((props: { ID: number, Text: string, Disabled?: boolean, OnHover?: (ID: string | undefined) => void }) => {
+    const [show, setShow] = React.useState<boolean>(false);
+
+    const handleMouse = React.useCallback((id: string|undefined) => {
+        if (props.OnHover == null) return;
+        props.OnHover(id);
+    }, [props.OnHover]);
+
     if (props.Text == '') return <>N/A</>;
 
     return (
-        <div>
-            <button className='btn' data-toggle='modal' data-target={`#modal${props.ID}`}>...</button>
-
-            <div id={`modal${props.ID}`} className="modal" role="dialog">
-                <div className="modal-dialog" role="document">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <button type="button" className="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div className="modal-body">
-                            <p>{props.Text}</p>
-                        </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div onMouseEnter={() => handleMouse(props.ID.toString())} onMouseLeave={() => handleMouse(undefined)}>
+            <button className='btn'
+                onClick={evt => {
+                    evt.preventDefault();
+                    evt.stopPropagation();
+                    if (!props.Disabled) setShow(true);
+                }}
+                disabled={props.Disabled}
+                data-tooltip={(props.OnHover == null) ? undefined : props.ID.toString()}
+            >...</button>
+            <Modal
+                Title={''}
+                Show={show}
+                ShowCancel={false}
+                ShowConfirm={false}
+                ShowX={true}
+                Size='lg'
+                CallBack={() => setShow(false)}
+            >
+                <p>{props.Text}</p>
+            </Modal>
         </div>
     );
-}
+});
 
 export default Reason;

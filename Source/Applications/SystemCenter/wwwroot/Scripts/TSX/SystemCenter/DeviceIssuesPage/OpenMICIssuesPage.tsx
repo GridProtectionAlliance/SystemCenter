@@ -30,7 +30,7 @@ import _ from 'lodash';
 import * as React from 'react';
 import { GenericController, ToolTip } from '@gpa-gemstone/react-interactive';
 import { ConfigurableTable, ConfigurableColumn, Column } from '@gpa-gemstone/react-table';
-import Reason from './Reason';
+import Reason from '../CommonComponents/Reason';
 import moment from 'moment';
 import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
