@@ -132,7 +132,7 @@ const AssetGroupSelection = (props: IProps) => {
             <div className="col">
                 <div className="row">
                     <div className="col">
-                        <Select<OpenXDA.Types.AssetGroup> Record={selectedParent} Field={'ID'} Label='Asset Group' Setter={setSelectedParent}
+                    <Select<OpenXDA.Types.AssetGroup> Record={selectedParent} Field={'ID'} Label='Asset Group' Help={'Choose a parent Asset Group or "Other" from the dropdown to see all parent Groups, then select a Subgroup from the table below. Only Asset Groups marked "Show in Email Subscription" in System Center will appear here.'} Setter={setSelectedParent}
                             Options={[{ Label: 'Other', Value: '-1' }].concat(parentGroups.map((p) => {
                                 return { Label: p.Name, Value: p.ID.toString() }
                             }))} />
