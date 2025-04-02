@@ -70,7 +70,7 @@ const Template = (props: IProps) => {
                     <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
                         <div className="row">
                             <div className="col-12">
-                                <TextArea<EmailType> Record={email} Setter={setEmail} Field={'Template'} Rows={12} Label='' Valid={(r) => email.Template != null && email.Template.length > 0} />
+                                <TextArea<EmailType> Record={email} Setter={setEmail} Field={'Template'} Help={'XML-formatted template to specify the layout of the notification.'} Rows={12} Label='' Valid={(r) => email.Template != null && email.Template.length > 0} />
                             </div>
                         </div>
                     </div>

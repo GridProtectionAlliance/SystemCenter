@@ -75,12 +75,12 @@ const EmailForm = (props: IProps) => {
                     <CheckBox<EmailType> Record={props.record} Field={'RequireApproval'} Label={'Requires Approval'} Setter={(record) => props.setRecord(record)} />
                 </div>
                 <div className="col">
-                    <Input<EmailType> Type={'number'} Record={props.record} Field={'MinDelay'} Label={'Minimum Delay'} Feedback={"Minimum Delay is required"} Valid={Valid} Setter={(record) => props.setRecord(record)} />
-                    <Input<EmailType> Type={'number'} Record={props.record} Field={'MaxDelay'} Label={'Maximum Delay'} Feedback={"Maximum Delay is required"} Valid={Valid} Setter={(record) => props.setRecord(record)} />
+                    <Input<EmailType> Type={'number'} Record={props.record} Field={'MinDelay'} Label={'Minimum Delay'} Help={'The amount of time in seconds to delay sending the notification. Used to allow for additional analytics to be run prior to sending the notification.'} Feedback={"Minimum Delay is required"} Valid={Valid} Setter={(record) => props.setRecord(record)} />
+                    <Input<EmailType> Type={'number'} Record={props.record} Field={'MaxDelay'} Label={'Maximum Delay'} Help={'The amount of time in seconds to delay sending the notification. Used to allow for additional analytics to be run prior to sending the notification.'} Feedback={"Maximum Delay is required"} Valid={Valid} Setter={(record) => props.setRecord(record)} />
                     <CheckBox<EmailType> Record={props.record} Field={'SMS'} Label={'Send as a Text'} Setter={(record) => props.setRecord(record)} />
                     <Input<EmailType> Record={props.record} Field={'FilePath'}
                         Label={'File Path'}
-                        Help={'If the path is empty the system will not save the notification to a file. Otherwhise the system will save the notification to the specified path with the subject as filename.'}
+                        Help={'Specify the path to save this Notification as a file. The subject will be used for the file name. If File Path is left empty, no file will be saved.'}
                         Valid={Valid} Setter={(record) => props.setRecord(record)} />
                 </div>
             </div>
