@@ -94,6 +94,10 @@ const Matcher: React.FunctionComponent = (props: {}) => {
     const ByEventTag = React.lazy(() => import(/* webpackChunkName: "ByEventTag" */ './EventTag/ByEventTag'));
     const ByMATLABAnalytic = React.lazy(() => import(/* webpackChunkName: "ByMATLABAnalytic" */ './MATLABAnalytics/ByMATLABAnalytic'));
     const MATLABAnalytic = React.lazy(() => import(/* webpackChunkName: "MATLABAnalytic" */ './MATLABAnalytics/MATLABAnalytic'));
+    const RoleAccessErrorPage = React.lazy(() =>
+        import(/* webpackChunkName: "RoleAccessErrorPage" */ '@gpa-gemstone/common-pages')
+        .then(module => ({ default: module.RoleAccessErrorPage }))
+);
 
     const params = queryString.parse(location.search.replace("?", ""), "&", "=");
 
@@ -132,145 +136,178 @@ const Matcher: React.FunctionComponent = (props: {}) => {
         else if (params['name'] == "DownloadedFiles")
             return <DownloadedFiles MeterID={parseInt(params.MeterID as string)} MeterName={params.MeterName as string} />
 
-        //TO DO: Add page to gemstone for Users who do not have permission to replace null return
         else if (params['name'] == "DataFiles") {
-            if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0) return null;
+            if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0)
+                return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <DataFile Roles={roles} />
         }
         else if (params['name'] == "DataOperations") {
-            if (roles.indexOf('Administrator') < 0) return null;
+            if (roles.indexOf('Administrator') < 0)
+                return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <DataOperations Roles={roles} />
         }
         else if (params['name'] == "DataReaders") {
-            if (roles.indexOf('Administrator') < 0) return null;
+            if (roles.indexOf('Administrator') < 0)
+                return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <DataReaders Roles={roles} />
         }
         else if (params['name'] == "DBCleanup") {
-            if (roles.indexOf('Administrator') < 0) return null;
+            if (roles.indexOf('Administrator') < 0)
+                return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <DBCleanup Roles={roles} />
         }
         else if (params['name'] == "MATLABAnalytics") {
-            if (roles.indexOf('Administrator') < 0) return null;
+            if (roles.indexOf('Administrator') < 0)
+                return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ByMATLABAnalytic Roles={roles} />
         }
         else if (params['name'] == "MATLABAnalytic") {
-            if (roles.indexOf('Administrator') < 0) return null;
+            if (roles.indexOf('Administrator') < 0)
+                return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <MATLABAnalytic AnalyticID={parseInt(params.AnalyticID as string)} Tab={params.Tab as any} />
         }
 
         else if (params['name'] == "RemoteXDAInstanceMain") {
-            if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0) return null;
+            if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0)
+                return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <RemoteXDAInstanceMain Roles={roles} />
         }
         else if (params['name'] == "RemoteXDAInstance") {
-            if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0) return null;
+            if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0)
+                return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <RemoteXDAInstance ID={parseInt(params.ID as string)} Roles={roles} Tab={params.Tab as any} />
         }
         else if (params['name'] == "ByExternalDB") {
-            if (roles.indexOf('Administrator') < 0) return null;
+            if (roles.indexOf('Administrator') < 0)
+                return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ByExternalDB Roles={roles} />
         }
         else if (params['name'] == "ExternalDB") {
-            if (roles.indexOf('Administrator') < 0) return null;
+            if (roles.indexOf('Administrator') < 0)
+                return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ExternalDB ID={parseInt(params.ID as string)} Tab={params.Tab as any} />
         }
         else if (params['name'] == "ByExternalTable") {
-            if (roles.indexOf('Administrator') < 0) return null;
+            if (roles.indexOf('Administrator') < 0)
+                return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ByExternalTable Roles={roles} />
         }
         else if (params['name'] == "ExternalTable") {
-            if (roles.indexOf('Administrator') < 0) return null;
+            if (roles.indexOf('Administrator') < 0)
+                return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ExternalDBTable ID={parseInt(params.ID as string)} Tab={params.Tab as any} />
         }
 
         else if (params['name'] == "EventType") {
-            if (roles.indexOf('Administrator') < 0) return null;
+            if (roles.indexOf('Administrator') < 0)
+                return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ByEventType Roles={roles} />
         }
         else if (params['name'] == "ValueListGroup") {
-            if (roles.indexOf('Administrator') < 0) return null;
+            if (roles.indexOf('Administrator') < 0)
+                return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ValueListGroup GroupID={parseInt(params.GroupID as string)} Tab={params.Tab as any} />
         }
         else if (params['name'] == "ValueLists") {
-            if (roles.indexOf('Administrator') < 0) return null;
+            if (roles.indexOf('Administrator') < 0)
+                return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ByValueListGroup Roles={roles} />
         }
         else if (params['name'] == "ChannelGroups") {
-            if (roles.indexOf('Administrator') < 0) return null;
+            if (roles.indexOf('Administrator') < 0)
+                return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ByChannelGroup Roles={roles} />
         }
         else if (params['name'] == "ChannelGroup") {
-            if (roles.indexOf('Administrator') < 0) return null;
+            if (roles.indexOf('Administrator') < 0)
+                return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ChannelGroup GroupID={parseInt(params.GroupID as string)} Tab={params.Tab as any} />
         }
         else if (params['name'] == "SEBrowserTabs") {
-            if (roles.indexOf('Administrator') < 0) return null;
+            if (roles.indexOf('Administrator') < 0)
+                return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <BySEBrowserCategory Roles={roles} />
         }
         else if (params['name'] == "SEBrowserTab") {
-            if (roles.indexOf('Administrator') < 0) return null;
+            if (roles.indexOf('Administrator') < 0)
+                return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <SEBrowserCategory TabID={parseInt(params.TabID as string)} Tab={params.Tab as any} />
         }
         else if (params['name'] == "SEBrowserWidget") {
-            if (roles.indexOf('Administrator') < 0) return null;
+            if (roles.indexOf('Administrator') < 0)
+                return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <BySEBrowserWidget Roles={roles} />
         }
         else if (params['name'] == "MagDurCurves") {
-            if (roles.indexOf('Administrator') < 0) return null;
+            if (roles.indexOf('Administrator') < 0)
+                return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ByMagDurCurve Roles={roles} />
         }
         else if (params['name'] == "EventTags") {
-            if (roles.indexOf('Administrator') < 0) return null;
+            if (roles.indexOf('Administrator') < 0)
+                return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ByEventTag Roles={roles} />
         }
         else if (params['name'] == "ByApplicationCategory") {
-            if (roles.indexOf('Administrator') < 0) return null;
+            if (roles.indexOf('Administrator') < 0)
+                return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ByApplicationCategory Roles={roles} />
         }
         else if (params['name'] == "ApplicationCategory") {
-            if (roles.indexOf('Administrator') < 0) return null;
+            if (roles.indexOf('Administrator') < 0)
+                return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ApplicationCategory ID={parseInt(params.ID as string)} Tab={params.Tab as any} />
         }
 
         else if (params['name'] == "AppHost") {
-            if (roles.indexOf('Administrator') < 0) return null;
+            if (roles.indexOf('Administrator') < 0)
+                return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <AppHost Roles={roles} />
         }
         else if (params['name'] == "Settings") {
-            if (roles.indexOf('Administrator') < 0) return null;
+            if (roles.indexOf('Administrator') < 0)
+                return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <BySettings Roles={roles} System={params.System as 'SystemCenter' | 'OpenXDA' | 'MiMD' | 'OpenSEE'} />
         }
         else if (params['name'] == "ByAdditionalField") {
-            if (roles.indexOf('Administrator') < 0) return null;
+            if (roles.indexOf('Administrator') < 0)
+                return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ByAdditionalField Roles={roles} />
         }
 
         else if (params['name'] == "UserStatistics") {
-            if (roles.indexOf('Administrator') < 0) return null;
+            if (roles.indexOf('Administrator') < 0)
+                return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <UserStatistics Roles={roles} />
         }
         else if (params['name'] == "ApplicationNodes") {
-            if (roles.indexOf('Administrator') < 0) return null;
+            if (roles.indexOf('Administrator') < 0)
+                return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ByApplicationNode Roles={roles} />
         }
         else if (params['name'] == "APIAccessKey") {
-            if (roles.indexOf('Administrator') < 0) return null;
+            if (roles.indexOf('Administrator') < 0)
+                return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <APIAccessKey Roles={roles} />
         }
         else if (params['name'] == "Users") {
-            if (roles.indexOf('Administrator') < 0) return null;
+            if (roles.indexOf('Administrator') < 0)
+                return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ByUser Roles={roles} />
         }
         else if (params['name'] == "User") {
-            if (roles.indexOf('Administrator') < 0) return null;
+            if (roles.indexOf('Administrator') < 0)
+                return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <User UserID={params.UserAccountID as string} Tab={params.Tab as any} />
         }
         else if (params['name'] == "Group") {
-            if (roles.indexOf('Administrator') < 0) return null;
+            if (roles.indexOf('Administrator') < 0)
+                return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <UserGroup GroupID={params.GroupID as string} Tab={params.Tab as any} />
         }
         else if (params['name'] == "Groups") {
-            if (roles.indexOf('Administrator') < 0) return null;
+            if (roles.indexOf('Administrator') < 0)
+                return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <BySecuritytGroup Roles={roles} />
         }
         else
