@@ -121,7 +121,7 @@ const DataSourceModal = (props: IProps) => {
         return <div className="row">
                 <div className="col">
                 {record != null ? <Select<IDataSourceTriggeredEmailType> Record={record} Field={'TriggeredEmailDataSourceID'} Options={types.map(t => ({ Value: t.ID.toString(), Label: t.Name }))}
-                    Setter={(r) => setRecord({ ...r, TriggeredEmailDataSourceID: parseInt(r.TriggeredEmailDataSourceID.toString()) })} Label={'Type'} /> : null}
+                    Setter={(r) => setRecord({ ...r, TriggeredEmailDataSourceID: parseInt(r.TriggeredEmailDataSourceID.toString()) })} Label={'Type'} Help={'The type of database to query. Contact GPA to inquire about additional types.'} /> : null}
                 </div>
             </div>
     }
