@@ -57,7 +57,7 @@ const AssetGroupSelection = (props: IProps) => {
     const assetGrpStatus = useAppSelector(AssetGroupSlice.Status);
     const assetGrps = useAppSelector(AssetGroupSlice.SearchResults);
 
-    const [asc, setAsc] = React.useState<boolean>(false);
+    const [asc, setAsc] = React.useState<boolean>(true);
     const [sort, setSort] = React.useState<keyof OpenXDA.Types.AssetGroup>('Name');
 
     const [showWarning, setShowWarning] = React.useState<boolean>(false);

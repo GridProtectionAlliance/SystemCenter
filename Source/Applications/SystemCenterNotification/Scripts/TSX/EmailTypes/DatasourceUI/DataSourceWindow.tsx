@@ -92,31 +92,35 @@ const DataSourceWindow = (props: IProps) => {
                                             Key={'TriggeredEmailDataSourceName'}
                                             AllowSort={false}
                                             Field={'TriggeredEmailDataSourceName'}
-                                            HeaderStyle={{ width: '100%' }}
-                                            RowStyle={{ width: '100%' }}
+                                            HeaderStyle={{ width: '80%' }}
+                                            RowStyle={{ width: '80%' }}
                                         > Data Source
                                         </Column>
                                         <Column<IDataSourceTriggeredEmailType>
-                                            Key={'Remove'}
-                                            AllowSort={true}
+                                            Key={''}
+                                            AllowSort={false}
                                             HeaderStyle={{ width: '20%' }}
                                             RowStyle={{ width: '20%' }}
                                             Content={({ item }) => <>
-                                                <button className="btn btn-sm mr-1"
-                                                    onClick={(e) => {
-                                                        e.preventDefault();
-                                                        setDataSource(item);
-                                                        setShowRemoveWarning(true);
-                                                    }
-                                                }><span><ReactIcons.TrashCan /></span>
-                                                </button>
-                                                <button className="btn btn-sm"
+                                                <button
+                                                    className="btn btn-sm"
                                                     onClick={(e) => {
                                                         e.preventDefault();
                                                         setDataSource(item);
                                                         setShowDataSourceModal(true);
                                                     }
-                                                }><span><ReactIcons.Pencil /></span>
+                                                }>
+                                                    <span><ReactIcons.Pencil /></span>
+                                                </button>
+                                                <button
+                                                    className="btn btn-sm mr-1"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        setDataSource(item);
+                                                        setShowRemoveWarning(true);
+                                                    }
+                                                }>
+                                                    <span><ReactIcons.TrashCan /></span>
                                                 </button>
                                             </>}
                                         >

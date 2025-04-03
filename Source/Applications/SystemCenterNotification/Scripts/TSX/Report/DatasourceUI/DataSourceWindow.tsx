@@ -28,6 +28,8 @@ import { ScheduledEmailDataSourceSlice } from '../../Store';
 import DataSourceModal from './DataSourceModal';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import DataSourceTesting from './DataSourceTesting';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { Warning } from '@gpa-gemstone/react-interactive';
 
 
 declare var homePath;
@@ -43,6 +45,8 @@ const DataSourceWindow = (props: IProps) => {
     const emailID = useAppSelector(ScheduledEmailDataSourceSlice.ParentID);
     const [dataSource, setDataSource] = React.useState<null | IDataSourceScheduledEmailType>(null);
     const [showTest, setShowTest] = React.useState<boolean>(false);
+    const [showRemoveWarning, setShowRemoveWarning] = React.useState<boolean>(false);
+    const [showDataSourceModal, setShowDataSourceModal] = React.useState<boolean>(false);
 
     React.useEffect(() => {
         if (status == 'unintiated' || status == 'changed' || emailID !== props.Record.ID)
@@ -88,9 +92,38 @@ const DataSourceWindow = (props: IProps) => {
                                             Key={'ScheduledEmailDataSourceName'}
                                             AllowSort={false}
                                             Field={'ScheduledEmailDataSourceName'}
-                                            HeaderStyle={{ width: '100%' }}
-                                            RowStyle={{ width: '100%' }}
+                                            HeaderStyle={{ width: '80%' }}
+                                            RowStyle={{ width: '80%' }}
                                         > Data Source
+                                        </Column>
+                                        <Column<IDataSourceScheduledEmailType>
+                                            Key={''}
+                                            AllowSort={false}
+                                            HeaderStyle={{ width: '20%' }}
+                                            RowStyle={{ width: '20%' }}
+                                            Content={({ item }) => <>
+                                                <button
+                                                    className="btn btn-sm"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        setDataSource(item);
+                                                        setShowDataSourceModal(true);
+                                                    }
+                                                }>
+                                                    <span><ReactIcons.Pencil /></span>
+                                                </button>
+                                                <button
+                                                    className="btn btn-sm mr-1"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        setDataSource(item);
+                                                        setShowRemoveWarning(true);
+                                                    }
+                                                }>
+                                                    <span><ReactIcons.TrashCan /></span>
+                                                </button>
+                                            </>}
+                                        >
                                         </Column>
                                     </Table>
                                 </div>
@@ -106,7 +139,17 @@ const DataSourceWindow = (props: IProps) => {
                     </div>
                 </div>
             </div>
-            <DataSourceModal Record={dataSource} OnClose={() => setDataSource(null)} />
+            <Warning Show={showRemoveWarning} Title={'Remove Source'} Message={`Are you sure you want to remove this data source?`}
+                CallBack={(c) => {
+                    if (c)
+                        dispatch(ScheduledEmailDataSourceSlice.DBAction({
+                            verb: 'DELETE', record: dataSource
+                        }));
+                    setShowRemoveWarning(false);
+
+                }}
+            ></Warning>
+            <DataSourceModal Show={showDataSourceModal} Record={dataSource} OnClose={() => {setDataSource(null); setShowDataSourceModal(false)}} />
             <DataSourceTesting Record={props.Record} OnClose={() => setShowTest(false)} Show={showTest}/>
         </div>
         )
