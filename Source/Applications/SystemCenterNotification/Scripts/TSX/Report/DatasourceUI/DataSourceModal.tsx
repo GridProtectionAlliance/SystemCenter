@@ -169,7 +169,7 @@ const DataSourceModal = (props: IProps) => {
     }
 
     return (
-        <Modal Show={props.Show} Title={'Data Source'} ShowCancel={true} ShowX={false} CancelText={'Close'} ConfirmText={'Save'} Size={'lg'}
+        <Modal Show={props.Show} Title={'Data Source'} ShowCancel={false} ShowX={true} ConfirmText={'Save'} Size={'lg'}
             CallBack={(c) => {
                 if (c && record.ID < 0) {
                     dispatch(ScheduledEmailDataSourceSlice.DBAction({ verb: 'POST', record: { ...record, Settings: currentSettings.filter(s => s.Value != null) } }))
