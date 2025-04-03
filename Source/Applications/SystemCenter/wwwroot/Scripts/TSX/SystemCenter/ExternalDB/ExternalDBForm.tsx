@@ -78,7 +78,7 @@ export default function ExternalDBForm(props: {
             {(props.Record.Encrypt) ? null :
                 <TextArea<SystemCenter.Types.ExternalDatabases> Rows={3} Record={props.Record} Field={'DataProviderString'} Label={'Data Provider String'} Valid={Valid} Setter={props.Setter} />
             }
-            <button className="btn btn-primary pull-left" hidden={!(props.ShowTestButton ?? false)}
+            <button className="btn btn-info pull-left" hidden={!(props.ShowTestButton ?? false)}
                 onClick={TestExternal}>Test DB Connection</button>
             <Modal Title="Connection Test Results" Show={requestStatus === 'error' || requestStatus === 'idle'}
                 ConfirmBtnClass={requestStatus === 'idle' ? 'btn-success' : 'btn-danger'} ConfirmText={'Close'}

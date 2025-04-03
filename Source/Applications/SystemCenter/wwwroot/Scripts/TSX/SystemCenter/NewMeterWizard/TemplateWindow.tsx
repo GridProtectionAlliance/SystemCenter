@@ -138,7 +138,7 @@ export default function TemplateWindow(props: IProps) {
                 {template.Name != null && templates.find(t => t.Name == template.Name) != undefined ? <p> {CrossMark} A Template with this Name already exists.</p> : null}
                 {template.FileBlob == null ? <p> {CrossMark} A File needs to be uploaded.</p> : null}
             </>}
-            ConfirmText={'Add Template'}
+            ConfirmText={'Save'}
         >
             <div className="row">
                 <div className="col">

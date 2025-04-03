@@ -242,7 +242,6 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
                         </div>
                         <div className="modal-footer">
                             <button type="button" className="btn btn-primary" data-dismiss="modal" hidden={allLocations.length == 0} onClick={addLocation}>Save</button>
-                            <button type="button" className="btn btn-danger" data-dismiss="modal">Close</button>
                         </div>
 
                     </div>

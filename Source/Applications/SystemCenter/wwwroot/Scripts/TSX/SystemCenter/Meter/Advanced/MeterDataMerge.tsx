@@ -298,7 +298,7 @@ export default function DataMergeWindow(props: {
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className="btn btn-danger pull-right" onClick={confirmMerge} disabled={mergeMeter === undefined}>Merge Data</button>
+                    <button className="btn btn-info pull-right" onClick={confirmMerge} disabled={mergeMeter === undefined}>Merge Data</button>
                 </div>
             </div>
         </div>

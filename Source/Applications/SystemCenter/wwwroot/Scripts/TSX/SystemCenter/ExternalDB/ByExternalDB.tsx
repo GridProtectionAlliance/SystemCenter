@@ -83,7 +83,7 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
                 <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                     <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                     <form>
-                        <button className="btn btn-primary" onClick={(event) => {
+                        <button className="btn btn-info btn-block" onClick={(event) => {
                             event.preventDefault()
                             setRecord({ ...emptyRecord });
                             setShowNew(true);
@@ -103,7 +103,7 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
                 ShowCancel={false}
                 ShowX={true}
                 ConfirmBtnClass={'btn-primary'}
-                ConfirmText={'Add ExternalDB'}
+                ConfirmText={'Save'}
                 ConfirmShowToolTip={errors.length > 0}
                 ConfirmToolTipContent={errors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}
                 DisableConfirm={errors.length > 0} >

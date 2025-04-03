@@ -76,7 +76,7 @@ const EventTags: Application.Types.iByComponent = (props) => {
                 <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                     <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                     <form>
-                        <button className="btn btn-info"
+                        <button className="btn btn-info btn-block"
                             onClick={(evt) => { evt.preventDefault(); setRecord({ ...emptyRecord }); setMode('Add'); }}>Add Tag</button>
                     </form>
                 </fieldset>
@@ -91,7 +91,7 @@ const EventTags: Application.Types.iByComponent = (props) => {
                 }}
                 ShowX={true}
                 ConfirmBtnClass={'btn-primary'}
-                ConfirmText={mode === 'Add' ? 'Add Tag' : 'Save'}
+                ConfirmText={'Save'}
                 ConfirmShowToolTip={errors.length > 0}
                 ConfirmToolTipContent={errors.map((e, i) => <p key={i}><ReactIcons.CrossMark Color="red" /> {e}</p>)}
                 DisableConfirm={errors.length > 0}

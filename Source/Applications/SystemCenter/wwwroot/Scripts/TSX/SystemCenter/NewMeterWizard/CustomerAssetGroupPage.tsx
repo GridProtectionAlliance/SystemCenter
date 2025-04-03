@@ -275,7 +275,7 @@ export default function CustomerAssetGroupPage(props: IProps) {
                                     </h4>
                                 </div>
                                 <div className='col-6'>
-                                    <button className="btn btn-primary pull-right"
+                                    <button className="btn btn-info pull-right"
                                         onClick={() => { setShowCustomer(true); }}>
                                         Assign
                                     </button>
@@ -348,7 +348,7 @@ export default function CustomerAssetGroupPage(props: IProps) {
                                     </h4>
                                 </div>
                                 <div className='col-6'>
-                                    <button className="btn btn-primary pull-right"
+                                    <button className="btn btn-info pull-right"
                                         onClick={() => { setShowGroup(true); }}>
                                         Assign
                                     </button>

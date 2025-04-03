@@ -131,7 +131,7 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
                             <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                                 <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                                 <form>
-                                    <button className="btn btn-primary" onClick={(event) => {
+                                    <button className="btn btn-info btn-block" onClick={(event) => {
                                         event.preventDefault()
                                         setRecord({ ...emptyRecord });
                                         setMode('Add');
@@ -256,7 +256,7 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
                 }}
                 ShowX={true}
                 ConfirmBtnClass={'btn-primary'}
-                ConfirmText={mode === 'Add' ? 'Add Field' : 'Save'}
+                ConfirmText={'Save'}
                 ConfirmShowToolTip={errors.length + warnings.length > 0}
                 ConfirmToolTipContent={
                     <>

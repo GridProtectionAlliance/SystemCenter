@@ -369,13 +369,13 @@ function DataRescueFooter(props: {
             : null;
 
         return <>
-            <button className="btn btn-primary pull-right" onClick={props.OnRescue} disabled={!props.IsFormValid}>Rescue</button>
-            <button className="btn btn-default pull-right" onClick={props.OnCancel}>Cancel</button>
+            <button className="btn btn-info pull-right" onClick={props.OnRescue} disabled={!props.IsFormValid}>Rescue</button>
+            <button className="btn btn-danger pull-right mr-2" onClick={props.OnCancel}>Cancel</button>
             {deleteButton}
         </>;
     }
 
-    return <button className="btn btn-primary pull-right" onClick={props.OnStartNew}>Start New Rescue</button>;
+    return <button className="btn btn-info pull-right" onClick={props.OnStartNew}>Start New Rescue</button>;
 }
 
 function DataRescueTable(props: {

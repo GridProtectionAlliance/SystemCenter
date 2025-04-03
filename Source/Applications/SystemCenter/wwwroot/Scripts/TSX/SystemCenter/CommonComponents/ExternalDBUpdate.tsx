@@ -183,7 +183,7 @@ const ExternalDBUpdate = React.memo((props: {
                             if (statusMap.get(item.ID) === 'loading') return <LoadingIcon Show={true} Label={`Performing update for ${props.Type}s on connected to ${item.Name}...`} />
                             if (statusMap.get(item.ID) === 'error') return <ServerErrorIcon Show={true} Label="Could not complete update. Please contact an administartor..." />
                             return (
-                                <button className="btn btn-primary pull-right" data-tooltip={item.ID} onClick={() => {
+                                <button className="btn btn-info pull-right" data-tooltip={item.ID} onClick={() => {
                                     const handle = updateExternalDB(item);
                                     handle.then(() => { reloadExternals(n => n + 1); });
                                     return () => {

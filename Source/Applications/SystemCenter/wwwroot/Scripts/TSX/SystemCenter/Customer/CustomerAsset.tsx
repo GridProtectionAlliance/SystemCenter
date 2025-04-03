@@ -179,16 +179,16 @@ const CustomerAssetWindow = (props: IProps) => {
                     <button className={"btn btn-info pull-right" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='AssignedAssets'
                         onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (hasPermissions())
                         setShowAdd(true);
-                }}>Add Asset</button>
+                }}>Add Assets</button>
             </div>
                 <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Target={"AssignedAssets"}>
                     <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                 </ToolTip>
         </div>
         </div>
-        <Warning Message={'This will permanently remove the Asset from this Customer and can affect PQ Digest, PQI results and LSCVS logic.'} Show={removeRecord != null} Title={'Remove ' + (removeRecord?.AssetName ?? 'Asset') + ' from ' + (props.Customer?.Name ?? 'Customer')} CallBack={(c) => { if (c) dispatch(CustomerAssetSlice.DBAction({ record: removeRecord, verb: 'DELETE' })); setRemoveRecord(null); }} />
+        <Warning Message={'This will permanently remove the Asset from this Customer and can affect PQ Digest, PQI results, and LSCVS logic.'} Show={removeRecord != null} Title={'Remove ' + (removeRecord?.AssetName ?? 'Asset') + ' from ' + (props.Customer?.Name ?? 'Customer')} CallBack={(c) => { if (c) dispatch(CustomerAssetSlice.DBAction({ record: removeRecord, verb: 'DELETE' })); setRemoveRecord(null); }} />
         <AssetSelect Type='multiple' StorageID='CustomerAsset' ShowModal={showAdd} SelectedAssets={[]}
-            Title={"Add Transmission Assets to Customer"}
+            Title={"Add Assets to Customer"}
             OnCloseFunction={(selected, conf) => {
                 setShowAdd(false)
                 if (!conf) return
