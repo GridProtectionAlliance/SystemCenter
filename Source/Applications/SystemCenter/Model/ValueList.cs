@@ -21,23 +21,15 @@
 //
 //******************************************************************************************************
 
-using GSF.ComponentModel.DataAnnotations;
-using GSF.Data;
+using System.Collections.Generic;
+using System.Web.Http;
 using GSF.Data.Model;
 using GSF.Web.Model;
-using GSF.Web.Security;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Web;
-using System.Web.Http;
-using SystemCenter.Controllers;
 
 namespace SystemCenter.Model
 {
 
-   public class RestrictedValueList 
+    public class RestrictedValueList 
    {
         public string Name { get; set; }
         public string CountSQL { get; set;  }
