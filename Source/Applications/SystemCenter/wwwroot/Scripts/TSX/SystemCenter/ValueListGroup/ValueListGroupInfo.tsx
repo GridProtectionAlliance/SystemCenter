@@ -33,6 +33,10 @@ const ValueListInfoWindow = (props: { Record: SystemCenter.Types.ValueListGroup 
     const [record, setRecord] = React.useState<SystemCenter.Types.ValueListGroup>(props.Record);
     const dispatch = useAppDispatch();
 
+    React.useEffect(() => {
+        setRecord(props.Record);
+    }, [props.Record]);
+
     if (record == null) return;
     return (
         <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
