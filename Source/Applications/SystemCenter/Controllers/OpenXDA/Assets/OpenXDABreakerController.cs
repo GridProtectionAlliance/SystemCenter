@@ -37,14 +37,14 @@ using SystemCenter.Model;
 [RoutePrefix("api/OpenXDA/Breaker")]
 public class OpenXDABreakerController : ModelController<Breaker>
 {
-    [HttpGet, Route("{breakerID:int}/EDNAPoint")]
-    public IHttpActionResult GetEDNAPoinsForBreaker(int breakerID)
+    [HttpGet, Route("{breakerID:int}/SCADAPoint")]
+    public IHttpActionResult GetSCADAPointsForBreaker(int breakerID)
     {
         if (GetRoles == string.Empty || User.IsInRole(GetRoles))
         {
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
-                EDNAPoint record = new TableOperations<EDNAPoint>(connection).QueryRecordWhere("BreakerID = {0}", breakerID);
+                SCADAPoint record = new TableOperations<SCADAPoint>(connection).QueryRecordWhere("BreakerID = {0}", breakerID);
                 return Ok(record);
             }
         }
@@ -145,14 +145,14 @@ public class OpenXDABreakerController : ModelController<Breaker>
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
                 breakerRecord = (new TableOperations<Breaker>(connection)).QueryRecordWhere("AssetKey = {0}", breakerRecord.AssetKey);
-                if (record["EDNAPoint"] != null)
+                if (record["SCADAPoint"] != null)
                 {
-                    EDNAPoint eDNAPoint = new EDNAPoint()
+                    SCADAPoint point = new SCADAPoint()
                     {
                         BreakerID = breakerRecord.ID,
-                        Point = record["EDNAPoint"].ToString()
+                        Point = record["SCADAPoint"].ToString()
                     };
-                    new TableOperations<EDNAPoint>(connection).AddNewRecord(eDNAPoint);
+                    new TableOperations<SCADAPoint>(connection).AddNewRecord(point);
                 }
 
                 if (record["SpareBreakerID"] != null)

@@ -46,7 +46,7 @@ function BreakerAttributes(props: { NewEdit: Application.Types.NewEdit, Asset: O
             return props.Asset.PickupTime != null && AssetAttributes.isInteger(props.Asset.PickupTime);
         else if (field == 'TripCoilCondition')
             return props.Asset.TripCoilCondition != null && AssetAttributes.isRealNumber(props.Asset.TripCoilCondition);
-        else if (field == 'EDNAPoint') return true;
+        else if (field == 'SCADAPoint') return true;
         else if (field == 'Spare') return true;
         else if (field == 'SpareBreakerID') return true;
         else if (field == 'AirGapResistor') return true;
@@ -87,7 +87,7 @@ function BreakerAttributes(props: { NewEdit: Application.Types.NewEdit, Asset: O
             <div className="col-4">
                 <Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'TripCoilCondition'} Label={'Trip Coil Condition Limit'} Feedback={'A numeric Trip Coil Condition Limit value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={disable} />
             </div>
-            <div className="col-6"><Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'EDNAPoint'} Label={'eDNA Point'} Valid={valid} Setter={props.UpdateState} Disabled={disable} />
+            <div className="col-6"><Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'SCADAPoint'} Label={'SCADA Point'} Valid={valid} Setter={props.UpdateState} Disabled={disable} />
                 <CheckBox<OpenXDA.Types.Breaker> Record={props.Asset} Field={'AirGapResistor'} Label={'Air Gap Resistor'} Setter={props.UpdateState} Disabled={disable} />
             </div>
             {props.ShowSpare ? <>
