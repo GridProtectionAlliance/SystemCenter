@@ -147,12 +147,14 @@ namespace SystemCenter.Model
             {
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
+                    // Wrapping is needed here, since C# tries to use the wrong method signature otherwise
+                    object[] parameters = [newRecord.Name, oldRecord.Name];
                     // Update Additional Fields
                     connection.ExecuteScalar(@"UPDATE 
-                        AdditionalField AF
+                        AdditionalField
                         SET [Type] = {0} 
                         WHERE
-                        [Type] = {1}", newRecord.Name, oldRecord.Name);
+                        [Type] = {1}", parameters);
                 }
             }
             return base.Patch(newRecord);
@@ -168,12 +170,14 @@ namespace SystemCenter.Model
 
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
+                // Wrapping is needed here, since C# tries to use the wrong method signature otherwise
+                object[] parameters = [record.Name];
                 // Update Additional Fields
                 connection.ExecuteScalar(@"UPDATE 
-                    AdditionalField AF
+                    AdditionalField
                     SET [Type] = 'string' 
                     WHERE
-                    [Type] = {0}", record.Name);
+                    [Type] = {0}", parameters);
             }
             return base.Delete(record);
         }
