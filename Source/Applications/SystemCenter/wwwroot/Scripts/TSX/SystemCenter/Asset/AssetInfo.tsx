@@ -59,12 +59,12 @@ function AssetInfoWindow(props: IProps) {
     const [editAsset, setEditAsset] = React.useState<OpenXDA.Types.Asset>(props.Asset);
     const [hasChanged, setHasChanged] = React.useState<boolean>(false);
 
-    const saveAddlAsset = React.useRef<() => JQuery.jqXHR<void>>(undefined);
+    const saveAddlAsset = React.useRef<() => Promise<void>>(undefined);
     const resetAddlAsset = React.useRef<() => void>(undefined);
     const [addlFieldChangedAsset, setAddlFieldChangedAsset] = React.useState<string[]>([]);
     const [addlFieldErrorAsset, setAddlFieldErrorAsset] = React.useState<string[]>([]);
 
-    const saveAddlType = React.useRef<() => JQuery.jqXHR<void>>(undefined);
+    const saveAddlType = React.useRef<() => Promise<void>>(undefined);
     const resetAddlType = React.useRef<() => void>(undefined);
     const [addlFieldChangedType, setAddlFieldChangedType] = React.useState<string[]>([]);
     const [addlFieldErrorType, setAddlFieldErrorType] = React.useState<string[]>([]);
@@ -363,23 +363,17 @@ function AssetInfoWindow(props: IProps) {
 
         // If addls do not exist, do only main
         let addlHandleAsset;
-        if (saveAddlAsset.current !== undefined) {
+        if (saveAddlAsset.current != null) {
             addlHandleAsset = saveAddlAsset.current();
             allHandles.push(addlHandleAsset);
         }
         let addlHandleType;
-        if (saveAddlType.current !== undefined) {
+        if (saveAddlType.current != null) {
             addlHandleType = saveAddlType.current();
             allHandles.push(addlHandleType);
         }
 
         Promise.all(allHandles).then(() => { setState('idle'); }, () => { setState('error'); });
-
-        return () => {
-            if (addlHandleAsset != null && addlHandleAsset.abort != null) addlHandleAsset.abort();
-            if (addlHandleType != null && addlHandleType.abort != null) addlHandleType.abort();
-        }
-
     }
 
     return <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
