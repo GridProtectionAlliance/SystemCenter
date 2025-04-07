@@ -547,6 +547,7 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ChannelGroup\ChannelGroupForm.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ChannelGroup\ChannelGroupInfo.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ChannelGroup\ChannelGroupItem.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\AdditionalFieldsTable.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\AdditionalFieldsWindow.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\AppHost\AppHost.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\AdditionalFieldsProperties.tsx" />
