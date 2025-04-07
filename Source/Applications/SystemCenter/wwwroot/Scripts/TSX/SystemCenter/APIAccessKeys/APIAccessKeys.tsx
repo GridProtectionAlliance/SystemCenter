@@ -209,7 +209,7 @@ const ByAPIAccessKeys: Application.Types.iByComponent = (props) => {
                 ConfirmShowToolTip={errors.length > 0}
                 ConfirmToolTipContent={errors.map((t, i) => <p key={i}> {ReactIcons.CrossMark} {t}</p>)} >
                 {showKeyWarning
-                    ? <Alert Color={'alert-info'} ShowX={false}>
+                    ? <Alert Class={'alert-info'} ShowX={false}>
                         <p>You will only be able to view this API Key once. If it is lost, you will need to generate a new one.</p>
                      </Alert>
                     : null
