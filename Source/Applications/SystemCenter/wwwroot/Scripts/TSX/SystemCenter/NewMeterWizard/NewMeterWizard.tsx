@@ -37,7 +37,7 @@ import ChannelPage from './ChannelPage';
 import AssetPage from './AssetPage';
 import ConnectionPage from './ConnectionPage';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
-import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
+import AdditionalFieldsTable from '../CommonComponents/AdditionalFieldsTable';
 import MultipleAssetsPage from './MultipleAssetsPage';
 import CustomerAssetGroupPage from './CustomerAssetGroupPage';
 import LineSegmentWindow from '../AssetAttribute/LineSegmentWindow';
@@ -97,6 +97,9 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
     const [hover, setHover] = React.useState<'None' | 'Next' | 'Prev'>('None');
     const [showSubmit, setShowSubmit] = React.useState<boolean>(false);
     const [status, setStatus] = React.useState<Application.Types.Status>('unintiated');
+
+    // Callback for saving additional fields
+    const nextStepCallback = React.useRef<{ cleanup: () => void, getHandle: () => Promise<void> }>(undefined);
 
     React.useEffect(() => {
         if (mStatus === 'unintiated' || mStatus === 'changed')
@@ -289,18 +292,28 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
     function next() {
         if (disableNext())
             return;
-        setError([]);
-        setWarning([]);
-        // Make sure currentStep is set to something reasonable
-        if (isSubmitStep())
-            setCurrentStep(saveStep + 1);
-        else if (currentStep >= finalStep)
-           setCurrentStep(finalStep);
-        else
-            setCurrentStep(currentStep + 1);
 
-        if (isFinalStep())
-            clearData();
+        const restOfnext = () => {
+            setError([]);
+            setWarning([]);
+            // Make sure currentStep is set to something reasonable
+            if (isSubmitStep())
+                setCurrentStep(saveStep + 1);
+            else if (currentStep >= finalStep)
+                setCurrentStep(finalStep);
+            else
+                setCurrentStep(currentStep + 1);
+
+            if (isFinalStep())
+                clearData();
+        }
+
+        // Handle Additional Fields
+        if (currentStep === additionalFieldAssetStep || currentStep === additionalFieldMeterStep) {
+            const handle = nextStepCallback.current.getHandle();
+            handle.then(restOfnext);
+        }
+        else restOfnext();
     }
 
     function prev() {
@@ -418,7 +431,7 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
             );
         }
         return null;
-    }, [currentStep, channels ]);
+    }, [currentStep, channels]);
 
     function getPage() {
         if (status === 'error')
@@ -445,15 +458,23 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
                 return <MultipleAssetsPage SkipExisting={false} Assets={assets.filter(asset => asset.AssetType != 'LineSegment')} 
                     GetInnerComponent={(currentAsset) => <ConnectionPage AllAssets={assets} CurrentAsset={currentAsset} AssetConnections={assetConnections} UpdateAssetConnections={setAssetConnections} />} />
             case additionalFieldMeterStep:
-                return <AdditionalFieldsWindow ID={meterID} Type='Meter' HideExternal={true} InnerOnly={true} />
+                return <AdditionalFieldsTable
+                    ID={meterID} Type='Meter' HideExternal={true}
+                    SaveFieldsCallback={nextStepCallback}
+                    SetInvalidMessageList={setError} />
             case externalFieldStep:
                 return <ExternalDBUpdate ID={meterID} Type='Meter'/>
             case lineSegmentStep:
                 return <MultipleAssetsPage Assets={lines} SkipExisting={false} GetInnerComponent={(currentAsset) => <LineSegmentWindow ID={currentAsset.ID} 
                     LineKey={currentAsset.AssetKey} LineName={currentAsset.AssetName} InnerOnly={true} />} />
             case additionalFieldAssetStep:
-                return <MultipleAssetsPage Assets={assets} SkipExisting={true} GetInnerComponent={(currentAsset) => <AdditionalFieldsWindow ID={currentAsset.ID} 
-                    Type={currentAsset.AssetType} InnerOnly={true} HideExternal={true} />}/>
+                return <MultipleAssetsPage Assets={assets} SkipExisting={true}
+                    GetInnerComponent={(currentAsset) =>
+                        <AdditionalFieldsTable
+                            ID={currentAsset.ID} Type={currentAsset.AssetType} HideExternal={true}
+                            SaveFieldsCallback={nextStepCallback}
+                            SetInvalidMessageList={setError} />
+                    }/>
             case customerAssetGroupMeterStep:
                 return <CustomerAssetGroupPage ID={meterID} Type={'Meter'} Name={meterInfo.AssetKey} SetWarning={setWarning} />
             case customerAssetGroupAssetStep:
@@ -516,7 +537,7 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
                             </div>
                         </div>
                     </div>
-                    <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
+                    <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
                             {getPage()}
                     </div>
                     <div className="card-footer">
