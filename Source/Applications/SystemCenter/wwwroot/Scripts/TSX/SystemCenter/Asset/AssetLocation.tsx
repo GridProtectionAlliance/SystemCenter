@@ -29,7 +29,7 @@ import { useNavigate } from "react-router-dom";
 import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols'
 import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
-import { ToolTip } from '@gpa-gemstone/react-interactive';
+import { ToolTip, Modal } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
 
@@ -41,6 +41,7 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
     const [allLocations, setAllLocations] = React.useState<Array<OpenXDA.Types.Location>>([]);
     const [newLocation, setNewLocation] = React.useState<OpenXDA.Types.Location>();
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
+    const [showModal, setShowModal] = React.useState<boolean>(false);
     const roles = useAppSelector(SelectRoles);
 
     React.useEffect(() => {
@@ -216,37 +217,31 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
             <div className="card-footer">
                 <div className="btn-group mr-2">
                     <button className={"btn btn-info pull-right" + (!hasPermissions() ? ' disabled' : '')} data-toggle={"modal" + (!hasPermissions() ? ' disabled' : '')} data-target='#locationModal' data-tooltip='AddSubst'
-                        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')}>Add Substation</button>
+                        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={(evt) => { setShowModal(true); }}>Add Substation</button>
                 </div>
                 <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Target={"AddSubst"}>
                     <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                 </ToolTip>
             </div>
 
-            <div className="modal" id="locationModal">
-                <div className="modal-dialog">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h4 className="modal-title">Add Substation to Asset</h4>
-                            <button type="button" className="close" data-dismiss="modal">&times;</button>
+            <Modal Show={showModal} Title={'Add Substation to Asset'} ShowCancel={false} ShowX={true}
+                CallBack={(conf) => {
+                    if (conf) {
+                        addLocation();
+                    }
+                    setShowModal(false)
+                }}
+                ConfirmText={'Save'} DisableConfirm={allLocations.length === 0}>
+                    
+                        <div className="form-group">
+                            <label>Substation</label>
+                            <select className="form-control" value={newLocation != null ? newLocation.ID : '0'} onChange={(evt) => {
+                                setNewLocation(allLocations.find(l => l.ID.toString() == evt.target.value));
+                            }}>
+                                {allLocations.map(als => <option value={als.ID} key={als.ID}>{als.Name} ({als.LocationKey})</option>)}
+                            </select>
                         </div>
-                        <div className="modal-body">
-                            <div className="form-group">
-                                <label>Substation</label>
-                                <select className="form-control" value={newLocation != null ? newLocation.ID : '0'} onChange={(evt) => {
-                                    setNewLocation(allLocations.find(l => l.ID.toString() == evt.target.value));
-                                }}>
-                                    {allLocations.map(als => <option value={als.ID} key={als.ID}>{als.Name} ({als.LocationKey})</option>)}
-                                </select>
-                            </div>
-                        </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-primary" data-dismiss="modal" hidden={allLocations.length == 0} onClick={addLocation}>Save</button>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
+            </Modal>
 
         </div>
                 
