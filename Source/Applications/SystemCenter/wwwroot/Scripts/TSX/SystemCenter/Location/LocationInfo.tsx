@@ -46,7 +46,7 @@ const LocationInfo = (props: IProps) => {
     const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
     const roles = useAppSelector(SelectRoles);
 
-    const saveAddl = React.useRef<() => JQuery.jqXHR<void>>(undefined);
+    const saveAddl = React.useRef<() => Promise<void>>(undefined);
     const resetAddl = React.useRef<() => void>(undefined);
     const [addlFieldChanged, setAddlFieldChanged] = React.useState<string[]>([]);
     const [addlFieldError, setAddlFieldError] = React.useState<string[]>([]);
@@ -98,7 +98,7 @@ const LocationInfo = (props: IProps) => {
         }
     }, [location]);
 
-    function updateLocation(): () => void {
+    function updateLocation() {
         let newLoc = _.clone(location);
         setState('loading');
         const mainHandle = $.ajax({
@@ -114,7 +114,7 @@ const LocationInfo = (props: IProps) => {
         });
 
         // If addl does not exist, do only main
-        let addlHandle;
+        let addlHandle: Promise<void>;
         let allHandles;
         if (saveAddl.current !== undefined) {
             addlHandle = saveAddl.current();
@@ -122,11 +122,6 @@ const LocationInfo = (props: IProps) => {
         } else allHandles = mainHandle;
 
         allHandles.then(() => { setState('idle'); }, () => { setState('error'); });
-
-        return () => {
-            if (mainHandle != null && mainHandle.abort != null) mainHandle.abort();
-            if (addlHandle != null && addlHandle.abort != null) addlHandle.abort();
-        }
     }
 
     function valid(field: keyof (OpenXDA.Types.Location)): boolean {
@@ -241,7 +236,8 @@ const LocationInfo = (props: IProps) => {
                 <div className="btn-group mr-2">
                     <button className={"btn btn-primary" + (locationErrors.length == 0 && addlFieldError.length === 0 && hasChanged ? '' : ' disabled')}
                         type="submit" onClick={() => {
-                            if (locationErrors.length == 0 && addlFieldError.length === 0 && hasChanged) return updateLocation()
+                            if (locationErrors.length == 0 && addlFieldError.length === 0 && hasChanged)
+                                updateLocation();
                         }} data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
                 </div>
                 <ToolTip Show={(locationErrors.length > 0 || addlFieldError.length > 0 || !hasChanged) && hover == 'submit'} Position={'top'} Target={"submit"}>

@@ -40,7 +40,7 @@ export default function CustomerInfo(props: IProps) {
     const [hover, setHover] = React.useState<('None' | 'Clear' | 'Submit')>('None');
     const roles = useAppSelector(SelectRoles);
 
-    const saveAddl = React.useRef<() => JQuery.jqXHR<void>>(undefined);
+    const saveAddl = React.useRef<() => Promise<void>>(undefined);
     const resetAddl = React.useRef<() => void>(undefined);
     const [addlFieldChanged, setAddlFieldChanged] = React.useState<string[]>([]);
     const [addlFieldError, setAddlFieldError] = React.useState<string[]>([]);
@@ -90,12 +90,7 @@ export default function CustomerInfo(props: IProps) {
                     <button className={"btn btn-primary" + (((warnings.length == 0 && addlFieldChanged.length === 0) || errors.length > 0 || addlFieldError.length > 0) ? ' disabled' : '')} onClick={() => {
                         if ((warnings.length > 0 || addlFieldChanged.length > 0) && errors.length == 0 && addlFieldError.length === 0) {
                             props.stateSetter(customer);
-                            if (saveAddl.current !== undefined) {
-                                const addlHandle = saveAddl.current();
-                                return () => {
-                                    if (addlHandle != null && addlHandle.abort != null) addlHandle.abort();
-                                }
-                            }
+                            if (saveAddl.current != null) saveAddl.current();
                         }
                     }}
                         onMouseEnter={() => setHover('Submit')} onMouseLeave={() => setHover('None')} data-tooltip={"Update"}

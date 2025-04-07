@@ -45,7 +45,7 @@ const MeterInforWindow = (props: IProps) => {
     const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
     const roles = useAppSelector(SelectRoles);
 
-    const saveAddl = React.useRef<() => JQuery.jqXHR<void>>(undefined);
+    const saveAddl = React.useRef<() => Promise<void>>(undefined);
     const resetAddl = React.useRef<() => void>(undefined);
     const [addlFieldChanged, setAddlFieldChanged] = React.useState<string[]>([]);
     const [addlFieldError, setAddlFieldError] = React.useState<string[]>([]);
@@ -63,7 +63,7 @@ const MeterInforWindow = (props: IProps) => {
 
     }, [assetKey]);
 
-    function updateMeter(): () => void {
+    function updateMeter() {
         setLoading(true);
         const updatedMeter: OpenXDA.Types.Meter = _.clone(meter);
         const mainHandle = $.ajax({
@@ -81,17 +81,12 @@ const MeterInforWindow = (props: IProps) => {
         // If addl does not exist, do only main
         let addlHandle;
         let allHandles;
-        if (saveAddl.current !== undefined) {
+        if (saveAddl.current != null) {
             addlHandle = saveAddl.current();
             allHandles = Promise.all([mainHandle, addlHandle]);
         } else allHandles = mainHandle;
 
         allHandles.then(() => { setLoading(false); }, () => { setLoading(false); });
-
-        return () => {
-            if (mainHandle != null && mainHandle.abort != null) mainHandle.abort();
-            if (addlHandle != null && addlHandle.abort != null) addlHandle.abort();
-        }
     }
 
     function validateAssetKey(): JQuery.jqXHR<string> {
@@ -184,7 +179,8 @@ const MeterInforWindow = (props: IProps) => {
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-primary" + (validMeter() && hasChanged() ? '' : ' disabled')} type="submit" onClick={() => { if (validMeter() && hasChanged()) return updateMeter(); }} data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
+                    <button className={"btn btn-primary" + (validMeter() && hasChanged() ? '' : ' disabled')} type="submit"
+                        onClick={() => { if (validMeter() && hasChanged()) updateMeter(); }} data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
                 </div>
                 <ToolTip Show={(!validMeter() || !hasChanged()) && hover == 'submit'} Position={'top'} Target={"submit"}>
                     {!hasChanged() && hasPermissions()? <p> No changes made.</p> : null}

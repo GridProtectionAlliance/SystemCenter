@@ -25,18 +25,16 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
 import { AssetAttributes } from '../AssetAttribute/Asset';
-import { LoadingIcon, Search, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { LoadingIcon, LoadingScreen, Search, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import AdditionalFieldsKeyModal from './AdditionalFieldsKeyModal';
 import AdditionalFieldsValueField from './AdditionalFieldsValueField';
 import { OpenXDA } from '../global';
-
-declare var homePath: string;
 
 interface IProps {
     ID: number,
     ParentTable: OpenXDA.AdditionalFieldType,
     SingleColumn?: boolean,
-    AddlFieldSaveRef: React.MutableRefObject<() => JQuery.jqXHR<void>>,
+    AddlFieldSaveRef: React.MutableRefObject<() => Promise<void>>,
     ResetAddlFieldRef: React.MutableRefObject<() => void>,
     SetErrorList?: (errorText: string[]) => void,
     SetChangedList?: (changedText: string[]) => void
@@ -67,7 +65,7 @@ function AdditionalFieldsProperties(props: IProps): JSX.Element {
             Type: "boolean",
             IsPivotColumn: false
         }];
-        let handle = $.ajax({
+        return $.ajax({
             type: "POST",
             url: `${homePath}api/SystemCenter/AdditionalFieldView/SearchableList`,
             contentType: "application/json; charset=utf-8",
@@ -75,10 +73,8 @@ function AdditionalFieldsProperties(props: IProps): JSX.Element {
             data: JSON.stringify({ Searches: filt, OrderBy: 'FieldName', Ascending: true }),
             cache: true,
             async: true
-        })
-        handle.done((data: string) => { setAdditionalFields(JSON.parse(data)); });
-        return handle;
-    }, [setAdditionalFields, props.ParentTable, homePath]);
+        }).done((data: string) => { setAdditionalFields(JSON.parse(data)); });
+    }, [props.ParentTable]);
 
     const getFieldValues = React.useCallback(() => {
         let handle = $.ajax({
@@ -92,9 +88,43 @@ function AdditionalFieldsProperties(props: IProps): JSX.Element {
 
         handle.done((data: SystemCenter.Types.AdditionalFieldValue[]) => { setAdditionalFieldVaules(data); });
         return handle;
-    }, [setAdditionalFieldVaules, props.ID, homePath]);
+    }, [props.ID]);
 
-    const getData = React.useCallback(() => {
+    const ResetCallback = React.useCallback(() => {
+        setAdditionalFieldValuesWorking(_.cloneDeep(additionalFieldValues));
+    }, [additionalFieldValues]);
+
+    React.useEffect(ResetCallback, [additionalFieldValues]);
+    React.useEffect(() => { props.ResetAddlFieldRef.current = ResetCallback }, [ResetCallback]);
+
+    React.useEffect(() => {
+        props.AddlFieldSaveRef.current = () => {
+            setStatus('loading');
+            return new Promise<void>((resolve, reject) => {
+                $.ajax({
+                    type: "PATCH",
+                    url: `${homePath}api/SystemCenter/AdditionalFieldValue/Array`,
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(additionalFieldValuesWorking),
+                    dataType: 'json',
+                    cache: true,
+                    async: true
+                }).then(resolve, reject);
+            }).then(() => {
+                const fieldHandle = getFields();
+                const fieldValueHandle = getFieldValues();
+                return Promise.all([fieldHandle, fieldValueHandle]);
+            }).then(() => {
+                setStatus('idle');
+                props.SetChangedList([]);
+                changedList.current = [];
+            }).catch(() => {
+                setStatus('error');
+            });
+        };
+    }, [additionalFieldValuesWorking, getFields, getFieldValues]);
+
+    React.useEffect(() => {
         setStatus('loading');
         const fieldHandle = getFields();
         const fieldValueHandle = getFieldValues();
@@ -102,46 +132,13 @@ function AdditionalFieldsProperties(props: IProps): JSX.Element {
             .then(() => { setStatus('idle') }, () => { setStatus('error') });
 
         return () => {
-            if (fieldHandle.abort != undefined) fieldHandle.abort();
-            if (fieldValueHandle.abort != undefined) fieldValueHandle.abort();
+            if (fieldHandle.abort != null) fieldHandle.abort();
+            if (fieldValueHandle.abort != null) fieldValueHandle.abort();
         }
-    }, [getFields, getFieldValues, setStatus]);
-
-    const addOrUpdateValues = React.useCallback(() => {
-        setStatus('loading');
-        return $.ajax({
-            type: "PATCH",
-            url: `${homePath}api/SystemCenter/AdditionalFieldValue/Array`,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(additionalFieldValuesWorking),
-            dataType: 'json',
-            cache: true,
-            async: true
-        }).done(() => {
-            const fieldHandle = getFields();
-            const fieldValueHandle = getFieldValues();
-            return Promise.all([fieldHandle, fieldValueHandle]);
-        }).done(() => {
-            setStatus('idle');
-            props.SetChangedList([]);
-            changedList.current = [];
-        }).fail(() => { setStatus('error') })
-    }, [additionalFieldValuesWorking, getFields, getFieldValues, setStatus, homePath]);
-
-    const ResetCallback = React.useCallback(() => {
-        setAdditionalFieldValuesWorking(_.cloneDeep(additionalFieldValues));
-    }, [additionalFieldValues, setAdditionalFieldValuesWorking]);
-
-    React.useEffect(ResetCallback, [additionalFieldValues]);
-    React.useEffect(() => { props.ResetAddlFieldRef.current = ResetCallback }, [ResetCallback, props.ResetAddlFieldRef]);
-    React.useEffect(() => { props.AddlFieldSaveRef.current = addOrUpdateValues; }, [addOrUpdateValues, props.AddlFieldSaveRef]);
-
-    React.useEffect(() => {
-        return getData();
     }, [props.ID, props.ParentTable]);
 
     React.useEffect(() => {
-        if (props.SetErrorList === undefined) return;
+        if (props.SetErrorList == null) return;
         let result: string[] = [];
         additionalFieldValuesWorking.forEach((item, index) => {
             let i = additionalFields.findIndex(fld => fld.ID == item.AdditionalFieldID);
@@ -157,7 +154,7 @@ function AdditionalFieldsProperties(props: IProps): JSX.Element {
     }, [additionalFieldValuesWorking]);
 
     React.useEffect(() => {
-        if (props.SetChangedList === undefined) return;
+        if (props.SetChangedList == null) return;
         let result: string[] = [];
         additionalFieldValuesWorking.forEach((item) => {
             let iFld = additionalFields.findIndex(fld => fld.ID == item.AdditionalFieldID);
@@ -180,36 +177,53 @@ function AdditionalFieldsProperties(props: IProps): JSX.Element {
         }
     }, [additionalFieldValuesWorking]);
 
-    let columnBody;
-    if (props.SingleColumn ?? false) columnBody = (
-        <div className="col">
-            {additionalFields.map((item,i) =>
-                <AdditionalFieldsValueField key={i} Field={item} ParentTableID={props.ID} Values={additionalFieldValuesWorking} IncludeLabel={true}
-                    Setter={setAdditionalFieldValuesWorking} />
-            )}
+    if (status === 'error') return (
+        <div className="row">
+            <ServerErrorIcon Show={status === 'error'} Size={40}
+                Label={'A Server Error Occurred. Could Not Load Additional Fields for this Record. Please Reload the Application.'} />
         </div>);
-    else columnBody = (
-        <>
-            <div className="col">
-                {additionalFields.slice(0, additionalFields.length / 2 + 0.5).map((item, i) =>
-                    <AdditionalFieldsValueField key={`l_${i}`} Field={item} ParentTableID={props.ID} Values={additionalFieldValuesWorking} IncludeLabel={true}
-                        Setter={setAdditionalFieldValuesWorking} />
-                )}
-            </div>
-            <div className="col">
-                {additionalFields.slice(additionalFields.length / 2 + 0.5, additionalFields.length + 0.5).map((item, i) =>
-                    <AdditionalFieldsValueField key={`r_${i}`} Field={item} ParentTableID={props.ID} Values={additionalFieldValuesWorking} IncludeLabel={true}
-                        Setter={setAdditionalFieldValuesWorking} />
-                )}
-            </div>
-        </>);
-
 
     return (
         <div className="row">
-            <LoadingIcon Show={status === 'loading'} />
-            <ServerErrorIcon Show={status === 'error'} Size={40} Label={'A Server Error Occurred. Could Not Load Additional Fields for this Record. Please Reload the Application.'} />
-            {status === 'idle' ? columnBody : null}
+            <LoadingScreen Show={status === 'loading'} />
+            {(props.SingleColumn ?? false) ? 
+                <div className="col">
+                    {additionalFields.map((item, i) =>
+                        <AdditionalFieldsValueField
+                            key={i}
+                            Field={item}
+                            ParentTableID={props.ID}
+                            Values={additionalFieldValuesWorking}
+                            IncludeLabel={true}
+                            Setter={setAdditionalFieldValuesWorking} />
+                    )}
+                </div>
+                : 
+                <>
+                    <div className="col">
+                        {additionalFields.slice(0, additionalFields.length / 2 + 0.5).map((item, i) =>
+                            <AdditionalFieldsValueField
+                                key={`l_${i}`}
+                                Field={item}
+                                ParentTableID={props.ID}
+                                Values={additionalFieldValuesWorking}
+                                IncludeLabel={true}
+                                Setter={setAdditionalFieldValuesWorking} />
+                        )}
+                    </div>
+                    <div className="col">
+                        {additionalFields.slice(additionalFields.length / 2 + 0.5, additionalFields.length + 0.5).map((item, i) =>
+                            <AdditionalFieldsValueField
+                                key={`r_${i}`}
+                                Field={item}
+                                ParentTableID={props.ID}
+                                Values={additionalFieldValuesWorking}
+                                IncludeLabel={true}
+                                Setter={setAdditionalFieldValuesWorking} />
+                        )}
+                    </div>
+                </>
+            }
         </div>);
 }
 

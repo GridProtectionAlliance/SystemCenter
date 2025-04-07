@@ -56,7 +56,7 @@ const AdditionalFieldsValueField = (props: IValueFieldProps) => {
         if (valueIndex >= 0) updated[valueIndex] = record;
         else updated.push(record);
         props.Setter(updated);
-    }, [props.Values, props.Setter]);
+    }, [props.Values, props.Setter, valueIndex]);
 
     React.useEffect(() => {
         setValueIndex(props.Values.findIndex(value => value.AdditionalFieldID == props.Field.ID));
