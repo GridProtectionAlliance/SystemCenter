@@ -33,6 +33,7 @@ import { ToolTip, ServerErrorIcon, LoadingScreen } from '@gpa-gemstone/react-int
 
 declare var homePath: string;
 declare var ace: any;
+const PagingID = 'ConfigHistPage'
 
 function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: string }) {
     const navigate = useNavigate();
@@ -53,6 +54,16 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
     const [pageState, setPageState] = React.useState<'error' | 'idle' | 'loading'>('idle');
 
     const [height, setHeight] = React.useState<number>(0);
+
+        React.useEffect(() => {
+        let storedInfo = JSON.parse(localStorage.getItem(PagingID) as string);
+        if (storedInfo == null || storedInfo == 0) return; // page 0 means it's on a real page
+        if (storedInfo + 1 > pageInfo.NumberOfPages) {
+            storedInfo = Math.max(0, pageInfo.NumberOfPages - 1);
+            localStorage.setItem(PagingID, `${storedInfo}`);
+        }
+        setPage(storedInfo);
+    }, [pageInfo.TotalRecords]); // Make sure user is still on a real page when data is deleted or filtered out
 
     React.useLayoutEffect(() => {
         if (aceRef.current == null)

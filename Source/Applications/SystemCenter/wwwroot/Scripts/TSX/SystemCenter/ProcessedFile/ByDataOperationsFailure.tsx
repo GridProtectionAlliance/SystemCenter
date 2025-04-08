@@ -31,6 +31,7 @@ import Reason from '../CommonComponents/Reason';
 
 const DataOperationFailureController = new GenericController<OpenXDA.Types.DataOperationFailure>(`${homePath}api/OpenXDA/DataOperationFailure`, "ID", true);
 const storageID = "ByDataOperationsFailure";
+const PagingID = 'ByDataOperationsFailurePage';
 
 interface IProps { FileGroupID: number }
 
@@ -48,6 +49,16 @@ function ByDataOperationsFailure(props: IProps) {
 
     const [hover, setHover] = React.useState<string|undefined>(undefined);
     const [allowStackTrace, setAllowStackTrace] = React.useState<boolean>(true);
+
+    React.useEffect(() => {
+            let storedInfo = JSON.parse(localStorage.getItem(PagingID) as string);
+            if (storedInfo == null || storedInfo == 0) return; // page 0 means it's on a real page
+            if (storedInfo + 1 > pageInfo.NumberOfPages) {
+                storedInfo = Math.max(0, pageInfo.NumberOfPages - 1);
+                localStorage.setItem(PagingID, `${storedInfo}`);
+            }
+            setPage(storedInfo);
+    }, [pageInfo.TotalRecords]); // Make sure user is still on a real page when data is deleted or filtered out
 
     // Handling filter storage between sessions (this will load/save filters for all filepaths as the same, this is by design)
     React.useEffect(() => {

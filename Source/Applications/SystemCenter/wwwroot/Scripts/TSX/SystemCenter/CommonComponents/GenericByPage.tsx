@@ -72,10 +72,14 @@ function GenericByPage<T extends U>(props: React.PropsWithChildren<IProps<T>>) {
     ), [addlFieldCols, props.Columns]);
 
     React.useEffect(() => {
-        const storedInfo = JSON.parse(localStorage.getItem(`${props.PagingID}/Page`) as string);
-        if (storedInfo == null) return;
+        let storedInfo = JSON.parse(localStorage.getItem(props.PagingID) as string);
+        if (storedInfo == null || storedInfo == 0) return; // page 0 means it's on a real page
+        if (storedInfo + 1 > pageInfo.NumberOfPages) {
+            storedInfo = Math.max(0, pageInfo.NumberOfPages - 1);
+            localStorage.setItem(props.PagingID, `${storedInfo}`);
+        }
         setPage(storedInfo);
-    }, []);
+    }, [pageInfo.TotalRecords]); // Make sure user is still on a real page when data is deleted or filtered out
 
     React.useEffect(() => {
         localStorage.setItem(`${props.PagingID}/Page`, JSON.stringify(page));
