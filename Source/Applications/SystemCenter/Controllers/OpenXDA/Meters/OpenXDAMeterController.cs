@@ -119,8 +119,8 @@ namespace SystemCenter.Controllers.OpenXDA
                                 else if (assetType == "Breaker")
                                 {
                                     (new TableOperations<Breaker>(connection)).AddNewRecord(asset.ToObject<Breaker>());
-                                    if (asset["EDNAPoint"] != null)
-                                        connection.ExecuteNonQuery($"INSERT INTO EDNAPoint (BreakerID, Point) VALUES ((SELECT ID FROM Asset WHERE AssetKey = '{asset["AssetKey"].ToString()}'),'{asset["EDNAPoint"].ToString()}')");
+                                    if (asset["SCADAPoint"] != null)
+                                        connection.ExecuteNonQuery($"INSERT INTO SCADAPoint (BreakerID, Point) VALUES ((SELECT ID FROM Asset WHERE AssetKey = '{asset["AssetKey"].ToString()}'),'{asset["SCADAPoint"].ToString()}')");
                                 }
                                 else if (assetType == "Bus")
                                     (new TableOperations<Bus>(connection)).AddNewRecord(asset.ToObject<Bus>());

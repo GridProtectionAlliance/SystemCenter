@@ -111,11 +111,11 @@ export async function getAssetWithAdditionalFields(assetID: number, assetType: O
     asset.Channels = [];
 
     if (assetType == 'Breaker') {
-        const eDNAPoint = await getEDNAPoint(asset as OpenXDA.Types.Breaker)
-        if (eDNAPoint != null)
-            asset['EDNAPoint'] = eDNAPoint.Point;
+        const SCADAPoint = await getSCADAPoint(asset as OpenXDA.Types.Breaker)
+        if (SCADAPoint != null)
+            asset['SCADAPoint'] = SCADAPoint.Point;
         else
-            asset['EDNAPoint'] = null;
+            asset['SCADAPoint'] = null;
 
         const spareBreaker = await await getSpareBreaker(asset as OpenXDA.Types.Breaker)
         if (spareBreaker != null)
@@ -129,11 +129,11 @@ export async function getAssetWithAdditionalFields(assetID: number, assetType: O
     return asset;
 }
 
-function getEDNAPoint(breaker: OpenXDA.Types.Breaker): Promise<OpenXDA.Types.EDNAPoint> {
+function getSCADAPoint(breaker: OpenXDA.Types.Breaker): Promise<OpenXDA.Types.SCADAPoint> {
     return new Promise((res, rej) => {
         $.ajax({
             type: "GET",
-            url: `${homePath}api/OpenXDA/Breaker/${breaker.ID}/EDNAPoint`,
+            url: `${homePath}api/OpenXDA/Breaker/${breaker.ID}/SCADAPoint`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,

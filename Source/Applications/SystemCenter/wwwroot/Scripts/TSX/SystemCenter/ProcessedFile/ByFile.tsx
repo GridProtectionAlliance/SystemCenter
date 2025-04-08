@@ -410,7 +410,7 @@ const ProcessingStatus = (props: IStatusProps) => {
         if (props.Status == 2) // Processing
             return <ReactIcons.SpiningIcon Size={15} />;
         if (props.Status == 3) // Processed
-            return <ReactIcons.CircleCheck Size={15} />
+            return <ReactIcons.CircleCheckMark Size={15} />
         if (props.Status == 4) // Error
             return <ReactIcons.CircledX Size={15} />;
         if (props.Status == 5) // Partial Success

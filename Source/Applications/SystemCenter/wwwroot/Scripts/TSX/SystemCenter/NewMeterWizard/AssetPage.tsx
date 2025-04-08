@@ -195,11 +195,11 @@ export default function AssetPage(props: IProps) {
 
     React.useEffect(() => {
         if (newEditAsset.AssetType == 'Breaker') {
-            let handle = getEDNAPoint(newEditAsset.ID);
-            handle.done((ednaPoint: OpenXDA.Types.EDNAPoint) => {
+            let handle = getSCADAPoint(newEditAsset.ID);
+            handle.done((point: OpenXDA.Types.SCADAPoint) => {
                 let record = { ...newEditAsset as OpenXDA.Types.Breaker };
-                if (ednaPoint != undefined) {
-                    record.EDNAPoint = ednaPoint.Point
+                if (point != undefined) {
+                    record.SCADAPoint = point.Point
                     setNewEditAsset(record);
                 }
             });
@@ -291,10 +291,10 @@ export default function AssetPage(props: IProps) {
         });
     }
 
-    function getEDNAPoint(breakerID: number): JQuery.jqXHR<OpenXDA.Types.EDNAPoint> {
+    function getSCADAPoint(breakerID: number): JQuery.jqXHR<OpenXDA.Types.SCADAPoint> {
         return $.ajax({
             type: "GET",
-            url: `${homePath}api/OpenXDA/Breaker/${breakerID}/EDNAPoint`,
+            url: `${homePath}api/OpenXDA/Breaker/${breakerID}/SCADAPoint`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
