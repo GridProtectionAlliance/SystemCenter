@@ -198,7 +198,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
                     </SearchBar>
                 </div>
 
-                <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="row" style={{ flex: 1, overflow: 'auto' }}>
                     <Table<OpenXDA.Types.DataFile>
                         TableClass="table table-hover"
                         Data={data}
