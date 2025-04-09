@@ -29,6 +29,7 @@ import { ServerErrorIcon, LoadingScreen } from '@gpa-gemstone/react-interactive'
 import { useNavigate } from "react-router-dom";
 
 declare var homePath: string;
+const PagingID = 'LocationMeterPage';
 
 function LocationMeterWindow(props: { Location: OpenXDA.Types.Location }): JSX.Element{
     let navigate = useNavigate();
@@ -44,6 +45,16 @@ function LocationMeterWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
         setPageState('loading');
         getMeters();
     }, [props.Location.ID, page, sortField, ascending]);
+
+    React.useEffect(() => {
+        let storedInfo = JSON.parse(localStorage.getItem(PagingID) as string);
+        if (storedInfo == null || storedInfo == 0) return; // page 0 means it's on a real page
+        if (storedInfo + 1 > pageInfo.NumberOfPages) {
+            storedInfo = Math.max(0, pageInfo.NumberOfPages - 1);
+            localStorage.setItem(PagingID, `${storedInfo}`);
+        }
+        setPage(storedInfo);
+    }, [pageInfo.TotalRecords]); // Make sure user is still on a real page when data is deleted or filtered out
 
     function getMeters(): void {
         $.ajax({

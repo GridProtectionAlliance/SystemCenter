@@ -88,10 +88,14 @@ const MeterAssetWindow = (props: IProps) => {
     }, []);
 
     React.useEffect(() => {
-        const storedInfo = JSON.parse(localStorage.getItem(PagingID) as string);
-        if (storedInfo == null) return;
-        setPage(storedInfo);
-    }, []);
+            let storedInfo = JSON.parse(localStorage.getItem(PagingID) as string);
+            if (storedInfo == null || storedInfo == 0) return; // page 0 means it's on a real page
+            if (storedInfo + 1 > pageInfo.NumberOfPages) {
+                storedInfo = Math.max(0, pageInfo.NumberOfPages - 1);
+                localStorage.setItem(PagingID, `${storedInfo}`);
+            }
+            setPage(storedInfo);
+        }, [pageInfo.TotalRecords]); // Make sure user is still on a real page when data is deleted or filtered out
 
     React.useEffect(() => {
         localStorage.setItem(PagingID, JSON.stringify(page));

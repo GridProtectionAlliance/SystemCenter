@@ -44,7 +44,7 @@ import StationBatteryAttributes from '../AssetAttribute/StationBattery';
 import { SelectRoles } from '../Store/UserSettings';
 
 declare var homePath: string;
-
+const PagingID = 'LocationAssetPage';
 
 function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.Element{
     let navigate = useNavigate();
@@ -104,6 +104,16 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
     }, [newEditAsset]);
 
     React.useEffect(() => { setNewEditAsset(editAsset) }, [editAsset]);
+
+    React.useEffect(() => {
+        let storedInfo = JSON.parse(localStorage.getItem(PagingID) as string);
+        if (storedInfo == null || storedInfo == 0) return; // page 0 means it's on a real page
+        if (storedInfo + 1 > pageInfo.NumberOfPages) {
+            storedInfo = Math.max(0, pageInfo.NumberOfPages - 1);
+            localStorage.setItem(PagingID, `${storedInfo}`);
+        }
+        setPage(storedInfo);
+    }, [pageInfo.TotalRecords]); // Make sure user is still on a real page when data is deleted or filtered out
 
     function getAssets(): JQuery.jqXHR<OpenXDA.Types.Asset[]> {
         setLStatus('loading');

@@ -29,6 +29,7 @@ import { ServerErrorIcon, LoadingScreen } from '@gpa-gemstone/react-interactive'
 import { useNavigate } from "react-router-dom";
 import moment from 'moment';
 declare var homePath: string;
+const PagingID = 'MeterConfigHistPage';
 declare interface MeterConfiguration {
     ID: number,
     Revision: string,
@@ -43,6 +44,15 @@ function MeterConfigurationHistoryWindow(props: { Meter: OpenXDA.Types.Meter }) 
     const [pageInfo, setPageInfo] = React.useState<{ RecordsPerPage: number, NumberOfPages: number, TotalRecords: number }>({ RecordsPerPage: 0, NumberOfPages: 0, TotalRecords: 0 });
     const [pageState, setPageState] = React.useState<'error' | 'idle' | 'loading'>('idle');
 
+    React.useEffect(() => {
+        let storedInfo = JSON.parse(localStorage.getItem(PagingID) as string);
+        if (storedInfo == null || storedInfo == 0) return; // page 0 means it's on a real page
+        if (storedInfo + 1 > pageInfo.NumberOfPages) {
+            storedInfo = Math.max(0, pageInfo.NumberOfPages - 1);
+            localStorage.setItem(PagingID, `${storedInfo}`);
+        }
+        setPage(storedInfo);
+    }, [pageInfo.TotalRecords]); // Make sure user is still on a real page when data is deleted or filtered out
     React.useEffect(() => {
         getData();
     }, [props.Meter, page]);
