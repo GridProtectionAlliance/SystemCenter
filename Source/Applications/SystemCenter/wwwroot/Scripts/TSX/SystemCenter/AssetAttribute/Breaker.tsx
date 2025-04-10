@@ -54,11 +54,13 @@ function BreakerAttributes(props: { NewEdit: Application.Types.NewEdit, Asset: O
     }
     const [spares, setSpares] = React.useState<Array<OpenXDA.Types.Breaker>>([]);
 
-    function hasPermissions(): boolean {
-        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0)
-            return false;
-        return true;
-    }
+    const disable = React.useMemo(() => {
+        return (
+            (props.NewEdit == 'New' && props.Asset.ID != 0) ||
+            (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0) ||
+            (props.Disabled ?? false)
+        );
+    }, [props.NewEdit, props.Asset.ID, roles, props.Disabled]);
 
     React.useEffect(() => {
         getSpareBreakersForSubstation(props.Asset).then(sps => {
@@ -67,7 +69,6 @@ function BreakerAttributes(props: { NewEdit: Application.Types.NewEdit, Asset: O
     }, [props.Asset]);
 
     if (props.Asset == null) return null;
-    const disable = (props.NewEdit == 'New' && props.Asset.ID != 0) || !hasPermissions() || (props.Disabled ?? false)
 
     return (
         <>
