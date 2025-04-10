@@ -56,14 +56,14 @@ const LocationDrawings = (props: IProps) => {
         <div>
             <button
                 type="button"
-                className={"btn btn-primary" + ((props.LocationID == null || props.LocationID == 0 || drawingData.length == 0) ? ' disabled' : '')}
+                className={"btn btn-info" + ((props.LocationID == null || props.LocationID == 0 || drawingData.length == 0) ? ' disabled' : '')}
                 data-tooltip={guid.current} onMouseEnter={() => setHover('drawings')} onMouseLeave={() => setHover('none')}
                 onClick={() => {
                     if (props.LocationID != null && props.LocationID != 0 && drawingData.length != 0)
                         setShowDrawings(true);
                 }}>Open Drawing(s)</button>
 
-            <Modal Show={showDrawings} Title={'Drawings'} ShowX={true} Size={'lg'} CallBack={() => setShowDrawings(false)} ShowCancel={false} ConfirmText={'Done'}>
+            <Modal Show={showDrawings} Title={'Drawings'} ShowX={true} Size={'lg'} CallBack={() => setShowDrawings(false)} ShowCancel={false} ShowConfirm={false}>
                 <div className="row">
                     <div className="col" style={{ width: '100%' }}>
                         <Table<SystemCenter.Types.LocationDrawing>

@@ -176,7 +176,7 @@ function Meter(props: IProps) {
                 </div>
                 <div className="col" style={{ maxHeight: 50 }} hidden={roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0}>
                     <button className="btn btn-danger pull-right" onClick={() => setShowDelete(true)}>Delete Meter</button>
-                    <button className="btn btn-light pull-right" onClick={() => setShowAdvanced(true)}>Advanced</button>
+                    <button className="btn btn-info pull-right mr-2" onClick={() => setShowAdvanced(true)}>Advanced</button>
                 </div>
             </div>
             <hr />
@@ -195,9 +195,9 @@ function Meter(props: IProps) {
             {tab === 'dataDelete' ? dataDeleteWindow : null}
             {tab === 'maintenance' ? <MeterMaintenanceWindow Meter={meter} /> : null}
 
-            <Modal Title={'Advanced Options'} Show={showAdvanced} CallBack={() => setShowAdvanced(false)} ShowCancel={false} ConfirmText={'Close'}>
-                <button className="btn btn-dark btn-block" onClick={showDataRescueWindow}>Data Rescue</button>
-                <button className="btn btn-dark btn-block" onClick={showDataMergeWindow}>Merge Data</button>
+            <Modal Title={'Advanced Options'} Show={showAdvanced} CallBack={() => setShowAdvanced(false)} ShowCancel={false} ShowConfirm={false} ShowX={true}>
+                <button className="btn btn-info btn-block" onClick={showDataRescueWindow}>Data Rescue</button>
+                <button className="btn btn-info btn-block" onClick={showDataMergeWindow}>Merge Data</button>
                 <button className="btn btn-danger btn-block" onClick={showDataDeleteWindow}>Delete Data</button>
             </Modal>
 

@@ -71,19 +71,19 @@ export default function CategoryInfo(props: IProps) {
                             props.stateSetter(tab)
                     }}
                         onMouseEnter={() => setHover('Submit')} onMouseLeave={() => setHover('None')} data-tooltip={"Update"}
-                    >Update</button>
+                    >Save Changes</button>
                 </div>
                 <ToolTip Show={hover == 'Submit' && (errors.length > 0)} Position={'top'} Target={"Update"}>
                     {errors.map((t, i) => <p key={i}>{CrossMark} {t}</p>)}
                 </ToolTip>
                 <div className="btn-group mr-2">
-                    <button className="btn btn-default" onClick={() => {
+                    <button className="btn btn-warning" onClick={() => {
                         if (warnings.length > 0)
                             setTab(props.Tab)
                     }
                     } disabled={warnings.length == 0}
                         onMouseEnter={() => setHover('Clear')} onMouseLeave={() => setHover('None')} data-tooltip={"Clr"}
-                    >Reset</button>
+                    >Clear Changes</button>
                 </div>
                 <ToolTip Show={hover == 'Clear' && (warnings.length > 0)} Position={'top'} Target={"Clr"}>
                     {warnings.map((t, i) => <p key={i}>{Warning} {t}</p>)}

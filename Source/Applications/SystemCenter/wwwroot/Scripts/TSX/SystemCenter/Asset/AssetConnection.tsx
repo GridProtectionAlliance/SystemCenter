@@ -26,7 +26,7 @@ import _ from 'lodash';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import { useNavigate } from "react-router-dom";
 import { LoadingIcon, Modal, Search, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
-import { TrashCan } from '@gpa-gemstone/gpa-symbols'
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols'
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { AssetConnectionTypeSlice } from '../Store/Store';
@@ -301,7 +301,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                                 e.preventDefault();
                                 e.stopPropagation();
                                 if (hasPermissions()) deleteAssetConnection(item);
-                            }}><span>{TrashCan}</span></button>
+                            }}><ReactIcons.TrashCan /></button>
                         </> }
                     > <p></p>
                     </Column>
@@ -322,7 +322,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                     if (conf)
                         addConnection();
                     setShowModal(false);
-                }} ConfirmText={'Add'} DisableConfirm={!connectionsAvailable}>
+                }} ConfirmText={'Save'} DisableConfirm={!connectionsAvailable}>
                 {connectionsAvailable ?
                     <>
                         <div className="alert alert-info" role="alert">

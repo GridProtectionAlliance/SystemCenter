@@ -108,10 +108,10 @@ function Permission(props: IProps) {
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className="btn btn-primary" onClick={() => SaveRoles()} disabled={_.isEqual(originalRoles, roles)}>Update</button>
+                    <button className="btn btn-primary" onClick={() => SaveRoles()} disabled={_.isEqual(originalRoles, roles)}>Save Changes</button>
                 </div>
                 <div className="btn-group mr-2">
-                    <button className="btn btn-default" onClick={() => setRoles(originalRoles)} disabled={_.isEqual(originalRoles, roles)}>Reset</button>
+                    <button className="btn btn-warning" onClick={() => setRoles(originalRoles)} disabled={_.isEqual(originalRoles, roles)}>Clear Changes</button>
                 </div>
             </div>
         </div>

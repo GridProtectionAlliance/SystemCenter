@@ -126,7 +126,7 @@ function TapSelect(props: IProps): JSX.Element {
             </div>
             <div className="row">
                 <div className="col">
-                    <button className="btn btn-primary" onClick={() => {
+                    <button className="btn btn-info" onClick={() => {
                         let bus = 'Bus'
                         let i = 1;
                         while (props.Taps.find(t => t.Bus == bus) != null) {

@@ -164,7 +164,7 @@ const WidgetByCategory = (props: IProps) => {
         </div>
         <div className="card-footer">
             <div className="btn-group mr-2">
-                    <button className="btn btn-primary pull-right" onClick={() => {
+                    <button className="btn btn-info pull-right" onClick={() => {
                         setShowAdd(true);
                         //setRecord({ Enabled: false, ID: 0, Name: '', CategoryID: props.CategoryID });
                 }}>Add Widget</button>
@@ -186,7 +186,7 @@ const WidgetByCategory = (props: IProps) => {
             ConfirmToolTipContent={<p>{CrossMark} This widget is already in this Category</p>}
             ShowX={true}
             ShowCancel={false}
-            ConfirmText={'Add Widget'}
+            ConfirmText={'Save'}
         >
             {record != null ?
                 <Select<EventWidget.IWidgetView> Record={record} Field={'ID'}
