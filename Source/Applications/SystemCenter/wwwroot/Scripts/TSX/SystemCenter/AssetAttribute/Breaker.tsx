@@ -26,9 +26,42 @@ import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { AssetAttributes } from './Asset';
 import { getSpareBreakersForSubstation } from '../../../TS/Services/Asset';
-import { CheckBox, Input } from '@gpa-gemstone/react-forms';
+import { CheckBox, Input, SearchableSelect } from '@gpa-gemstone/react-forms';
 import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
+
+interface IOption { Value: string | number; Label: string }
+
+function searchSCADAPoint(search: string): [Promise<IOption[]>, () => void] {
+    let searchHandle: JQuery.jqXHR<IOption[]>;
+    const searchPromise = new Promise<IOption[]>((resolve, reject) => {
+        console.log("search")
+        searchHandle = $.ajax({
+            type: 'POST',
+            url: `${homePath}api/OpenXDA/SCADAPoint/SCADAPointSearch`,
+            data: { TagSearch: search, Take: 25 },
+            dataType: 'json',
+            cache: false,
+            async: true
+        }).done((dataString: string) => {
+            const data: string[] = JSON.parse(dataString);
+            resolve(
+                data.map(datum => ({ Label: datum, Value: datum }))
+            )
+        }).fail((_, msg) => {
+            console.error(msg);
+            reject(msg);
+        });
+    });
+
+    const cleanup = () => {
+        if (searchHandle != null && searchHandle.abort != null) searchHandle.abort();
+    }
+    return [
+        searchPromise,
+        cleanup
+    ];
+}
 
 function BreakerAttributes(props: { NewEdit: Application.Types.NewEdit, Asset: OpenXDA.Types.Breaker,
      UpdateState: (newEditAsset: OpenXDA.Types.Breaker) => void, ShowSpare?: boolean,  Disabled?: boolean }): JSX.Element {
@@ -46,7 +79,6 @@ function BreakerAttributes(props: { NewEdit: Application.Types.NewEdit, Asset: O
             return props.Asset.PickupTime != null && AssetAttributes.isInteger(props.Asset.PickupTime);
         else if (field == 'TripCoilCondition')
             return props.Asset.TripCoilCondition != null && AssetAttributes.isRealNumber(props.Asset.TripCoilCondition);
-        else if (field == 'SCADAPoint') return true;
         else if (field == 'Spare') return true;
         else if (field == 'SpareBreakerID') return true;
         else if (field == 'AirGapResistor') return true;
@@ -72,54 +104,63 @@ function BreakerAttributes(props: { NewEdit: Application.Types.NewEdit, Asset: O
 
     return (
         <>
-        <div className="row">
-            <div className="col-6">
-                <Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'ThermalRating'} Label={'Thermal Rating'} Feedback={'A numeric Thermal Rating value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={disable} />
-            </div>
-            <div className="col-6">
-                <Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'Speed'} Feedback={'A numeric Speed value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={disable} />
-            </div>
-            <div className="col-4">
-                <Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'TripTime'} Label={'Trip Time Limit'} Feedback={'An integer Trip Time Limit value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={disable} />
-            </div>
-            <div className="col-4">
-                <Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'PickupTime'} Label={'Pickup Time Limit'} Feedback={'An integer Pickup Time Limit value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={disable} />
-            </div>
-            <div className="col-4">
-                <Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'TripCoilCondition'} Label={'Trip Coil Condition Limit'} Feedback={'A numeric Trip Coil Condition Limit value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={disable} />
-            </div>
-            <div className="col-6"><Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'SCADAPoint'} Label={'SCADA Point'} Valid={valid} Setter={props.UpdateState} Disabled={disable} />
-                <CheckBox<OpenXDA.Types.Breaker> Record={props.Asset} Field={'AirGapResistor'} Label={'Air Gap Resistor'} Setter={props.UpdateState} Disabled={disable} />
-            </div>
-            {props.ShowSpare ? <>
+            <div className="row">
                 <div className="col-6">
-                    <CheckBox<OpenXDA.Types.Breaker> Record={props.Asset} Field={'Spare'} Label={'Use Spare Instead'} Setter={props.UpdateState} Disabled={disable} />
+                    <Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'ThermalRating'} Label={'Thermal Rating'} Feedback={'A numeric Thermal Rating value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={disable} />
                 </div>
-                <div className="col-12">
-                    <div className="alert alert-info" role="alert">
-                        <p>Spare Breakers must be assigned to the same Substation as the original Breaker.</p>
-                        <p>If a Breaker does not show up in the list below, it is not assigned to the same Substation.</p>
+                <div className="col-6">
+                    <Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'Speed'} Feedback={'A numeric Speed value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={disable} />
+                </div>
+                <div className="col-4">
+                    <Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'TripTime'} Label={'Trip Time Limit'} Feedback={'An integer Trip Time Limit value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={disable} />
+                </div>
+                <div className="col-4">
+                    <Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'PickupTime'} Label={'Pickup Time Limit'} Feedback={'An integer Pickup Time Limit value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={disable} />
+                </div>
+                <div className="col-4">
+                    <Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'TripCoilCondition'} Label={'Trip Coil Condition Limit'} Feedback={'A numeric Trip Coil Condition Limit value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={disable} />
+                </div>
+                <div className="col-6">
+                    <SearchableSelect<OpenXDA.Types.Breaker>
+                        Record={props.Asset}
+                        Field={'SCADAPoint'}
+                        Label={'SCADA Point'}
+                        Setter={props.UpdateState}
+                        Disabled={disable}
+                        AllowCustom={true}
+                        Search={searchSCADAPoint}
+                    />
+                    <CheckBox<OpenXDA.Types.Breaker> Record={props.Asset} Field={'AirGapResistor'} Label={'Air Gap Resistor'} Setter={props.UpdateState} Disabled={disable} />
+                </div>
+                {props.ShowSpare ? <>
+                    <div className="col-6">
+                        <CheckBox<OpenXDA.Types.Breaker> Record={props.Asset} Field={'Spare'} Label={'Use Spare Instead'} Setter={props.UpdateState} Disabled={disable} />
                     </div>
-                    <div className="form-group" hidden={!props.Asset.Spare}>
-                <label>Spare Breaker</label>
-                <select className="form-control" value={props.Asset.SpareBreakerID == null ? 0 : props.Asset.SpareBreakerID} onChange={(evt) => {
-                    let record: OpenXDA.Types.Breaker = _.clone(props.Asset);
-                    if (evt.target.value == '0')
-                        record.SpareBreakerID = null;
-                    else
-                        record.SpareBreakerID = parseInt(evt.target.value as string);
-                    props.UpdateState(record)
-                }} disabled={disable}>
-                    <option value={0} key={0} >None</option>
-                    {
-                        spares.map(spare => <option value={spare.ID} key={spare.ID} >{spare.AssetKey}</option>)
-                    }
+                    <div className="col-12">
+                        <div className="alert alert-info" role="alert">
+                            <p>Spare Breakers must be assigned to the same Substation as the original Breaker.</p>
+                            <p>If a Breaker does not show up in the list below, it is not assigned to the same Substation.</p>
+                        </div>
+                        <div className="form-group" hidden={!props.Asset.Spare}>
+                            <label>Spare Breaker</label>
+                            <select className="form-control" value={props.Asset.SpareBreakerID == null ? 0 : props.Asset.SpareBreakerID} onChange={(evt) => {
+                                let record: OpenXDA.Types.Breaker = _.clone(props.Asset);
+                                if (evt.target.value == '0')
+                                    record.SpareBreakerID = null;
+                                else
+                                    record.SpareBreakerID = parseInt(evt.target.value as string);
+                                props.UpdateState(record)
+                            }} disabled={disable}>
+                                <option value={0} key={0} >None</option>
+                                {
+                                    spares.map(spare => <option value={spare.ID} key={spare.ID} >{spare.AssetKey}</option>)
+                                }
 
-                </select>
+                            </select>
+                        </div>
+                    </div>
+                </> : null}
             </div>
-             </div>
-               </> : null}
-        </div>
         </>
     );
 
