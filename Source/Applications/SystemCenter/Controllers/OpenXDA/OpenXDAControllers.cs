@@ -28,6 +28,8 @@ using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
 using GSF.Configuration;
@@ -41,6 +43,7 @@ using openXDA.APIAuthentication;
 using openXDA.Configuration;
 using openXDA.Model;
 using PQView.Model;
+using SEBrowser.Controllers.OpenXDA;
 using SystemCenter.Model;
 using ConfigurationLoader = SystemCenter.Model.ConfigurationLoader;
 
@@ -422,6 +425,7 @@ namespace SystemCenter.Controllers.OpenXDA
     public class GeneralController : ApiController
     {
         #region [Properties]
+        SystemCenterXDAAPIHelper helper = new SystemCenterXDAAPIHelper();
         private string Connection { get; } = "systemSettings";
         private class Settings
         {
@@ -461,6 +465,28 @@ namespace SystemCenter.Controllers.OpenXDA
             JObject editionComparitor = new JObject();
             foreach (Edition edition in Enum.GetValues(typeof(Edition))) editionComparitor.Add(edition.ToString(), EditionChecker.CheckEdition(edition));
             return Ok(editionComparitor);
+        }
+
+        //Note: if we make a SCADA point model controller, we may want move this to that
+        [Route("SCADAPoint/SCADAPointSearch"), HttpPost]
+        public async Task<IHttpActionResult> QuerySCADADataPoints([FromBody] JObject query, CancellationToken token)
+        {
+            try
+            {
+                SystemCenterXDAAPIHelper.RefreshSettings();
+                using (HttpResponseMessage response = helper
+                    .GetResponseTask($"api/SystemCenter/SCADAPoint/SCADAPointSearch", new StringContent(query.ToString(), Encoding.UTF8, "application/json"))
+                    .Result)
+                {
+                    response.EnsureSuccessStatusCode();
+                    string result = await response.Content.ReadAsStringAsync();
+                    return Ok(result);
+                };
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
         }
         #endregion
 
