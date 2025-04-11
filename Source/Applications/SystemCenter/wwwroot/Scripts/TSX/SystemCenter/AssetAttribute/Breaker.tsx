@@ -32,33 +32,25 @@ import { SelectRoles } from '../Store/UserSettings';
 
 interface IOption { Value: string | number; Label: string }
 
-function searchSCADAPoint(search: string): [Promise<IOption[]>, () => void] {
-    let searchHandle: JQuery.jqXHR<IOption[]>;
-    const searchPromise = new Promise<IOption[]>((resolve, reject) => {
-        console.log("search")
-        searchHandle = $.ajax({
-            type: 'POST',
-            url: `${homePath}api/OpenXDA/SCADAPoint/SCADAPointSearch`,
-            data: { TagSearch: search, Take: 25 },
-            dataType: 'json',
-            cache: false,
-            async: true
-        }).done((dataString: string) => {
-            const data: string[] = JSON.parse(dataString);
-            resolve(
-                data.map(datum => ({ Label: datum, Value: datum }))
-            )
-        }).fail((_, msg) => {
-            console.error(msg);
-            reject(msg);
-        });
+function searchSCADAPoint(search: string): [PromiseLike<IOption[]>, () => void] {
+    let searchHandle: JQuery.jqXHR<IOption[]> = $.ajax({
+        type: 'POST',
+        url: `${homePath}api/OpenXDA/SCADAPoint/SCADAPointSearch`,
+        data: { TagSearch: search, Take: 25 },
+        dataType: 'json',
+        cache: false,
+        async: true
+    }).done((dataString: string) => {
+        const data: string[] = JSON.parse(dataString);
+        return data.map(datum => ({ Label: datum, Value: datum }));
     });
 
     const cleanup = () => {
         if (searchHandle != null && searchHandle.abort != null) searchHandle.abort();
     }
+
     return [
-        searchPromise,
+        searchHandle,
         cleanup
     ];
 }
