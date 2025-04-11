@@ -28,6 +28,8 @@ using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
 using GSF.Configuration;
@@ -41,6 +43,7 @@ using openXDA.APIAuthentication;
 using openXDA.Configuration;
 using openXDA.Model;
 using PQView.Model;
+using SEBrowser.Controllers.OpenXDA;
 using SystemCenter.Model;
 using ConfigurationLoader = SystemCenter.Model.ConfigurationLoader;
 
@@ -421,27 +424,14 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA")]
     public class GeneralController : ApiController
     {
-        #region [Properties]
-        private string Connection { get; } = "systemSettings";
-        private class Settings
-        {
-            public Settings(Action<object> configure) =>
-                configure(this);
+        OpenXDAApi api = new OpenXDAApi();
 
-            [Category]
-            [SettingName("XDA")]
-            public APIConfiguration APISettings { get; } = new APIConfiguration();
-        }
-
-        #endregion
-
-        #region [HttpMethods]
         [HttpGet, Route("Tiles/GetAll")]
         public IHttpActionResult GetAllTiles()
         {
             try
             {
-                Task<string> responseTask = SendGetRequest($"/api/TileList/GetAll");
+                Task<string> responseTask = api.GetAsync($"/api/TileList/GetAll");
                 object json_obj = JsonConvert.DeserializeObject(responseTask.Result);
                 return Json(json_obj);
             }
@@ -455,39 +445,27 @@ namespace SystemCenter.Controllers.OpenXDA
         public IHttpActionResult GetEditionComparitor()
         {
             // Ensuring XDA is in lockstep with us
-            Task<string> responseTask = SendGetRequest($"/api/GetEdition");
+            Task<string> responseTask = api.GetAsync($"/api/GetEdition");
             EditionChecker.UpdateEdition();
             // Build comparitor object for typescript
             JObject editionComparitor = new JObject();
             foreach (Edition edition in Enum.GetValues(typeof(Edition))) editionComparitor.Add(edition.ToString(), EditionChecker.CheckEdition(edition));
             return Ok(editionComparitor);
         }
-        #endregion
 
-        //Todo: Think about moving this into API Auth Module
-        public async Task<string> SendGetRequest(string requestURI)
+        //Note: if we make a SCADA point model controller, we may want move this to that
+        [Route("SCADAPoint/SCADAPointSearch"), HttpPost]
+        public async Task<IHttpActionResult> QuerySCADADataPoints([FromBody] JObject query, CancellationToken token)
         {
-            APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).APISettings;
-
-            APIQuery query = new APIQuery(settings.Key, settings.Token, settings.Host.Split(';'));
-            void ConfigureRequest(HttpRequestMessage request)
+            OpenXDAApi.RefreshSettings();
+            using (HttpResponseMessage response = api
+                .GetResponseTask($"api/SystemCenter/SCADAPoint/SCADAPointSearch", new StringContent(query.ToString(), Encoding.UTF8, "application/json"))
+                .Result)
             {
-                request.Method = HttpMethod.Get;
-            }
-            HttpResponseMessage responseMessage = await query.SendWebRequestAsync(ConfigureRequest, requestURI).ConfigureAwait(false);
-            if (!responseMessage.IsSuccessStatusCode)
-            {
-                throw new Exception("Status code " + responseMessage.StatusCode + ": " + responseMessage.ReasonPhrase);
-            }
-
-            return await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
-
-        }
-        private AdoDataConnection CreateDbConnection()
-        {
-            AdoDataConnection connection = new AdoDataConnection(Connection);
-            connection.DefaultTimeout = DataExtensions.DefaultTimeoutDuration;
-            return connection;
+                response.EnsureSuccessStatusCode();
+                string result = await response.Content.ReadAsStringAsync();
+                return Ok(result);
+            };
         }
     }
 
