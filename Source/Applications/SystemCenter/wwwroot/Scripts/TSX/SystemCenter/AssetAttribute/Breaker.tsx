@@ -114,6 +114,7 @@ function BreakerAttributes(props: { NewEdit: Application.Types.NewEdit, Asset: O
                 </div>
                 <div className="col-6">
                     <SearchableSelect<OpenXDA.Types.Breaker>
+                        Help={"Only top 25 results are shown. Be sure when entering a custom value that the value exists in SCADA."}
                         Record={props.Asset}
                         Field={'SCADAPoint'}
                         Label={'SCADA Point'}
