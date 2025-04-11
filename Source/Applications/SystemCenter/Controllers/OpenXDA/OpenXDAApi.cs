@@ -1,5 +1,5 @@
 //******************************************************************************************************
-//  SystemCenterXDAAPIHelper.cs - Gbtc
+//  OpenXDAApi.cs - Gbtc
 //
 //  Copyright © 2023, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -33,7 +33,7 @@ namespace SEBrowser.Controllers.OpenXDA
     /// <summary>
     /// Helper class that provides openXDA API Calls
     /// </summary>
-    public class SystemCenterXDAAPIHelper : XDAAPIHelper
+    public class OpenXDAApi : XDAAPIHelper
     {
         private static string Connection { get; } = "systemSettings";
         private static APIConfiguration config;
@@ -47,7 +47,7 @@ namespace SEBrowser.Controllers.OpenXDA
             public APIConfiguration APISettings { get; } = new APIConfiguration();
         }
 
-        static SystemCenterXDAAPIHelper()
+        static OpenXDAApi()
         {
             RefreshSettings();
         }

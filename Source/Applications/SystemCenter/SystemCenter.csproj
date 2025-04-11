@@ -280,7 +280,7 @@
     <Compile Include="Controllers\OpenXDA\AssetGroups\OpenXDAAssetGroupsController.cs" />
     <Compile Include="Controllers\OpenXDA\Meters\OpenXDADataRescueController.cs" />
     <Compile Include="Controllers\OpenXDA\Meters\OpenXDAMeterDataController.cs" />
-    <Compile Include="Controllers\OpenXDA\SystemCenterXDAAPIHelper.cs" />
+    <Compile Include="Controllers\OpenXDA\OpenXDAApi.cs" />
     <Compile Include="Controllers\SystemCenter\AccessLogController.cs" />
     <Compile Include="Controllers\SystemCenter\AppHostController.cs" />
     <Compile Include="Controllers\SystemCenter\PQIController.cs" />

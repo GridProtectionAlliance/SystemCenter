@@ -424,28 +424,14 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA")]
     public class GeneralController : ApiController
     {
-        #region [Properties]
-        SystemCenterXDAAPIHelper helper = new SystemCenterXDAAPIHelper();
-        private string Connection { get; } = "systemSettings";
-        private class Settings
-        {
-            public Settings(Action<object> configure) =>
-                configure(this);
+        OpenXDAApi api = new OpenXDAApi();
 
-            [Category]
-            [SettingName("XDA")]
-            public APIConfiguration APISettings { get; } = new APIConfiguration();
-        }
-
-        #endregion
-
-        #region [HttpMethods]
         [HttpGet, Route("Tiles/GetAll")]
         public IHttpActionResult GetAllTiles()
         {
             try
             {
-                Task<string> responseTask = SendGetRequest($"/api/TileList/GetAll");
+                Task<string> responseTask = api.GetAsync($"/api/TileList/GetAll");
                 object json_obj = JsonConvert.DeserializeObject(responseTask.Result);
                 return Json(json_obj);
             }
@@ -459,7 +445,7 @@ namespace SystemCenter.Controllers.OpenXDA
         public IHttpActionResult GetEditionComparitor()
         {
             // Ensuring XDA is in lockstep with us
-            Task<string> responseTask = SendGetRequest($"/api/GetEdition");
+            Task<string> responseTask = api.GetAsync($"/api/GetEdition");
             EditionChecker.UpdateEdition();
             // Build comparitor object for typescript
             JObject editionComparitor = new JObject();
@@ -471,49 +457,15 @@ namespace SystemCenter.Controllers.OpenXDA
         [Route("SCADAPoint/SCADAPointSearch"), HttpPost]
         public async Task<IHttpActionResult> QuerySCADADataPoints([FromBody] JObject query, CancellationToken token)
         {
-            try
+            OpenXDAApi.RefreshSettings();
+            using (HttpResponseMessage response = api
+                .GetResponseTask($"api/SystemCenter/SCADAPoint/SCADAPointSearch", new StringContent(query.ToString(), Encoding.UTF8, "application/json"))
+                .Result)
             {
-                SystemCenterXDAAPIHelper.RefreshSettings();
-                using (HttpResponseMessage response = helper
-                    .GetResponseTask($"api/SystemCenter/SCADAPoint/SCADAPointSearch", new StringContent(query.ToString(), Encoding.UTF8, "application/json"))
-                    .Result)
-                {
-                    response.EnsureSuccessStatusCode();
-                    string result = await response.Content.ReadAsStringAsync();
-                    return Ok(result);
-                };
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
-        }
-        #endregion
-
-        //Todo: Think about moving this into API Auth Module
-        public async Task<string> SendGetRequest(string requestURI)
-        {
-            APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).APISettings;
-
-            APIQuery query = new APIQuery(settings.Key, settings.Token, settings.Host.Split(';'));
-            void ConfigureRequest(HttpRequestMessage request)
-            {
-                request.Method = HttpMethod.Get;
-            }
-            HttpResponseMessage responseMessage = await query.SendWebRequestAsync(ConfigureRequest, requestURI).ConfigureAwait(false);
-            if (!responseMessage.IsSuccessStatusCode)
-            {
-                throw new Exception("Status code " + responseMessage.StatusCode + ": " + responseMessage.ReasonPhrase);
-            }
-
-            return await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
-
-        }
-        private AdoDataConnection CreateDbConnection()
-        {
-            AdoDataConnection connection = new AdoDataConnection(Connection);
-            connection.DefaultTimeout = DataExtensions.DefaultTimeoutDuration;
-            return connection;
+                response.EnsureSuccessStatusCode();
+                string result = await response.Content.ReadAsStringAsync();
+                return Ok(result);
+            };
         }
     }
 
