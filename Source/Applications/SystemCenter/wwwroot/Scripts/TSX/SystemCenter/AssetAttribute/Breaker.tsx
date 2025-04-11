@@ -33,16 +33,13 @@ import { SelectRoles } from '../Store/UserSettings';
 interface IOption { Value: string | number; Label: string }
 
 function searchSCADAPoint(search: string): [PromiseLike<IOption[]>, () => void] {
-    let searchHandle: JQuery.jqXHR<IOption[]> = $.ajax({
+    const searchHandle: JQuery.jqXHR<string> = $.ajax({
         type: 'POST',
         url: `${homePath}api/OpenXDA/SCADAPoint/SCADAPointSearch`,
         data: { TagSearch: search, Take: 25 },
         dataType: 'json',
         cache: false,
         async: true
-    }).done((dataString: string) => {
-        const data: string[] = JSON.parse(dataString);
-        return data.map(datum => ({ Label: datum, Value: datum }));
     });
 
     const cleanup = () => {
@@ -50,7 +47,10 @@ function searchSCADAPoint(search: string): [PromiseLike<IOption[]>, () => void] 
     }
 
     return [
-        searchHandle,
+        searchHandle.then((dataString: string) => {
+            const data: string[] = JSON.parse(dataString);
+            return data.map(datum => ({ Label: datum, Value: datum }));
+        }),
         cleanup
     ];
 }
