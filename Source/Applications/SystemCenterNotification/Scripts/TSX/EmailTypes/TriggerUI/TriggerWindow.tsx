@@ -29,6 +29,7 @@ import { EmailType } from '../../global';
 import { EmailTypeSlice } from '../../Store';
 import EventSelect from './EventSelect';
 import EventDetails from './EventDetails';
+import { TextArea } from '@gpa-gemstone/react-forms';
 
 declare var homePath;
 declare var version;
@@ -163,35 +164,25 @@ interface IEditProps {
 const EditSection = (props: IEditProps) => {
 
     return <>
-        <div className="form-group">
-        <label>Trigger SQL</label>
-        <textarea
-            rows={3}
-            className={props.ValidTrigger ? 'form-control' : 'form-control is-invalid'}
-            onChange={(evt) => {
-                if (evt.target.value !== '') props.SetTriggerSQL(evt.target.value);
-                else props.SetTriggerSQL(null)
-            }}
-            value={props.TriggerSQL == null ? '' : props.TriggerSQL}
-        />
-        <div className="invalid-feedback">
-            Trigger SQL needs to be a valid SQL statement returning 1 or 0. {'{0}'} is substituted with the event ID.
-        </div>
-    </div>
-        <div className="form-group">
-            <label>Suppression SQL</label>
-            <textarea
-                rows={3}
-                className={props.ValidCombine ? 'form-control' : 'form-control is-invalid'}
-                onChange={(evt) => {
-                    if (evt.target.value !== '') props.SetCombineSQL(evt.target.value);
-                    else props.SetCombineSQL(null)
-                }}
-                value={props.CombineSQL == null ? '' : props.CombineSQL}
-            />
-            <div className="invalid-feedback">
-                Suppression SQL needs to be a valid SQL statement returning a set of event IDs that are suppressed to avoid notification flooding. {'{0}'} is substituted with the Event ID.
-            </div>
-        </div>
+        <TextArea <IEditProps>
+            Record={props}
+            Setter={(evt) => {if (evt.TriggerSQL !== '') props.SetTriggerSQL(evt.TriggerSQL);else props.SetTriggerSQL(null)}}
+            Field={'TriggerSQL'}
+            Help={'SQL query that returns 1 or 0 to indicate whether an email should be sent. {0} is substituted with the Event ID.'}
+            Rows={3}
+            Label={'Trigger SQL'}
+            Feedback={'Trigger SQL needs to be a valid SQL statement returning 1 or 0.'}
+            Valid={(r) => props.ValidTrigger} />
+
+        <TextArea <IEditProps>
+            Record={props}
+            Setter={(evt) => {if (evt.CombineSQL !== '') props.SetCombineSQL(evt.CombineSQL);else props.SetCombineSQL(null)}}
+            Field={'CombineSQL'}
+            Help={'SQL query that returns a set of Event IDs that should not trigger the notification to prevent notification flooding. {0} is substituted with the Event ID.'}
+            Rows={3}
+            Label={'Suppression SQL'}
+            Feedback={'Suppression SQL needs to be a valid SQL statement returning a set of event IDs that are suppressed to avoid notification flooding.'}
+            Valid={(r) => props.ValidCombine} />
+      
     </>;
 }
