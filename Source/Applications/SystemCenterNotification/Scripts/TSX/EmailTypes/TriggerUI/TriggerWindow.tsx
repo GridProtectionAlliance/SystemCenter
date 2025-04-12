@@ -171,17 +171,17 @@ const EditSection = (props: IEditProps) => {
             Help={'SQL query that returns 1 or 0 to indicate whether an email should be sent. {0} is substituted with the Event ID.'}
             Rows={3}
             Label={'Trigger SQL'}
-            Feedback={'Trigger SQL needs to be a valid SQL statement returning 1 or 0. \'{0}\' is substituted with the event ID.'}
+            Feedback={'Trigger SQL needs to be a valid SQL statement returning 1 or 0.'}
             Valid={(r) => props.ValidTrigger} />
 
         <TextArea <IEditProps>
             Record={props}
             Setter={(evt) => {if (evt.CombineSQL !== '') props.SetCombineSQL(evt.CombineSQL);else props.SetCombineSQL(null)}}
             Field={'CombineSQL'}
-            Help={'SQL query that returns a set of Event IDs that should not trigger the notification to prevent notification flooding.'}
+            Help={'SQL query that returns a set of Event IDs that should not trigger the notification to prevent notification flooding. {0} is substituted with the Event ID.'}
             Rows={3}
             Label={'Suppression SQL'}
-            Feedback={'Suppression SQL needs to be a valid SQL statement returning a set of event IDs that are suppressed to avoid notification flooding. \'{0}\' is substituted with the Event ID.'}
+            Feedback={'Suppression SQL needs to be a valid SQL statement returning a set of event IDs that are suppressed to avoid notification flooding.'}
             Valid={(r) => props.ValidCombine} />
       
     </>;

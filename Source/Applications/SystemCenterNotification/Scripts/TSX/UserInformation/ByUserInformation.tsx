@@ -95,9 +95,9 @@ const ByUserInformation = (props: IProps) => {
                                     <Input
                                         Record={phone}
                                         Field={'phone'}
-                                        Label={'Cell Phone'}
+                                        Label={'Cellular Number'}
                                         Help={'Enter your cellular number as numbers only. Do not include any special characters.'}
-                                        Feedback={'A valid Cell Phone is required.'}
+                                        Feedback={'A valid cellular number is required.'}
                                         Valid={(r) => validPhone}
                                         Setter={(evt) => {setPhone(evt);}}
                                     />
