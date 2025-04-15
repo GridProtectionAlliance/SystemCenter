@@ -56,8 +56,6 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/ValueList")]
     public class ValueListController : ModelController<ValueList>
     {
-       
-
         [HttpGet, Route("Group/{groupName}")]
         public IHttpActionResult GetValueListForGroup(string groupName)
         {
@@ -100,7 +98,7 @@ namespace SystemCenter.Controllers
             return Ok(records);
         }
 
-         public override IHttpActionResult Patch([FromBody] SystemCenter.Model.ValueList newRecord)
+         public override IHttpActionResult Patch([FromBody] ValueList newRecord)
          {
              if (!PatchAuthCheck())
             {
@@ -109,11 +107,11 @@ namespace SystemCenter.Controllers
 
             // Check if Value changed
             bool changeVal = false;
-            SystemCenter.Model.ValueList oldRecord;
+            ValueList oldRecord;
 
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
-                oldRecord = new TableOperations<SystemCenter.Model.ValueList>(connection).QueryRecordWhere("ID = {0}", newRecord.ID);
+                oldRecord = new TableOperations<ValueList>(connection).QueryRecordWhere("ID = {0}", newRecord.ID);
                 changeVal = !(newRecord.Value == oldRecord.Value);
             }
 
@@ -123,13 +121,19 @@ namespace SystemCenter.Controllers
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
                     group = new TableOperations<ValueListGroup>(connection).QueryRecordWhere("ID = {0}", newRecord.GroupID);
+                    // Wrapping is needed here, since C# tries to use the wrong method signature otherwise
+                    object[] parameters = [newRecord.Value, oldRecord.Value, group.Name];
                     // Update Additional Fields
                     connection.ExecuteScalar(@"UPDATE 
-                        AdditionalFieldValue AFV
+                        AdditionalFieldValue
                         SET [Value] = {0} 
                         WHERE
                         [Value] = {1} AND
-                        (SELECT TOP 1 Type FROM AdditionalField AF WHERE AF.ID = AFV.AdditionalFieldID ) = {2}", newRecord.Value, oldRecord.Value, group.Name);
+                        (
+                            SELECT TOP 1 Type
+                            FROM AdditionalField 
+                            WHERE AdditionalField.ID = AdditionalFieldValue.AdditionalFieldID
+                        ) = {2}", parameters);
 
                     RestrictedValueList restriction = RestrictedValueList.List.Find((g) => g.Name == group.Name);
                     if (!(restriction?.UpdateSQL is null))
@@ -142,7 +146,7 @@ namespace SystemCenter.Controllers
 
          }
 
-        public override IHttpActionResult Delete(SystemCenter.Model.ValueList record)
+        public override IHttpActionResult Delete(ValueList record)
         {
             if (!DeleteAuthCheck())
             {
