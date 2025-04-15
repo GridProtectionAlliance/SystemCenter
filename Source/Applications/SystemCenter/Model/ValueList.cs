@@ -21,8 +21,10 @@
 //
 //******************************************************************************************************
 
+using System;
 using System.Collections.Generic;
 using System.Web.Http;
+using GSF.Data;
 using GSF.Data.Model;
 using GSF.Web.Model;
 
@@ -32,9 +34,15 @@ namespace SystemCenter.Model
     public class RestrictedValueList 
    {
         public string Name { get; set; }
-        public string CountSQL { get; set;  }
+        public string CountSQL { get; set; }
         public string UpdateSQL { get; set;  }
-        public string[] DefaultItems { get; set; }
+
+        /// <summary>
+        /// Default items in a <see cref="RestrictedValueList"/>.
+        /// Objects may be either <see langword="string"/> or <see cref="Tuple"/> of two <see langword="string"/>,
+        /// where the <see cref="Tuple"/> represents &lt;<see cref="ValueList.Value"/>, <see cref="ValueList.AltValue"/>&gt;
+        /// </summary>
+        public object[] DefaultItems { get; set; }
 
         public static List<RestrictedValueList> List = new List<RestrictedValueList>(){
             new RestrictedValueList() {
@@ -46,7 +54,7 @@ namespace SystemCenter.Model
                             SET [TimeZone] = {0} 
                         WHERE
                             [TimeZone] = {1}",
-                DefaultItems = new string[] {"UTC"}
+                DefaultItems = ["UTC"]
             },
              new RestrictedValueList() {
                 Name = "Make",
@@ -58,7 +66,7 @@ namespace SystemCenter.Model
                         SET [Make] = {0} 
                         WHERE
                         [Make] = {1}",
-                DefaultItems = new string[] {"GPA"}
+                DefaultItems = ["GPA"]
             },
              new RestrictedValueList() {
                 Name = "Model",
@@ -70,7 +78,7 @@ namespace SystemCenter.Model
                         SET [Model] = {0} 
                         WHERE
                         [Model] = {1}",
-                DefaultItems = new string[] {"PQMeter"}
+                DefaultItems =["PQMeter"]
             },
              new RestrictedValueList() {
                 Name = "Unit",
@@ -83,7 +91,7 @@ namespace SystemCenter.Model
                         SET [Unit] = {0} 
                         WHERE
                         [Unit] = {1}",
-                DefaultItems = new string[] {"Unknown"}
+                DefaultItems = ["Unknown"]
             },
              new RestrictedValueList() {
                 Name = "Category",
@@ -96,11 +104,11 @@ namespace SystemCenter.Model
                         SET [Category] = {0} 
                         WHERE
                         [Category] = {1}",
-                DefaultItems = new string[] {"Oneline"}
+                DefaultItems = ["Oneline"]
             },
              new RestrictedValueList() {
                 Name = "SpareChannel",
-                DefaultItems = new string[] {"Spare Channel"}
+                DefaultItems = ["Spare Channel"]
             }
         };       
    }
