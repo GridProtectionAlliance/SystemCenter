@@ -78,16 +78,30 @@ namespace SystemCenter.Controllers
                     groupIds.Add(connection.ExecuteScalar<int>("SELECT @@IDENTITY"));
 
                     int sortOrder = 1;
-                    foreach (string item in restriction.DefaultItems)
+                    foreach (object item in restriction.DefaultItems)
                     {
-                    valueTable.AddNewRecord(
-                        new ValueList()
+                        string value;
+                        string altValue;
+                        if (item.GetType() == typeof(Tuple<string, string>))
                         {
-                            GroupID = groupIds[0],
-                            Value = item,
-                            AltValue = item,
-                            SortOrder = sortOrder
-                        });
+                            value = ((Tuple<string, string>)item).Item1;
+                            altValue = ((Tuple<string, string>)item).Item1;
+                        }
+                        else if (item.GetType() == typeof(string))
+                        {
+                            value = (string)item;
+                            altValue = (string)item;
+                        }
+                        else 
+                            throw new InvalidCastException($"Could not convert object in DefaultItems of value list {restriction.Name} to either tuple or string.");
+                        valueTable.AddNewRecord(
+                            new ValueList()
+                            {
+                                GroupID = groupIds[0],
+                                Value = value,
+                                AltValue = altValue,
+                                SortOrder = sortOrder
+                            });
                         sortOrder++;
                     }
                 }
@@ -100,7 +114,7 @@ namespace SystemCenter.Controllers
 
          public override IHttpActionResult Patch([FromBody] ValueList newRecord)
          {
-             if (!PatchAuthCheck())
+            if (!PatchAuthCheck())
             {
                 return Unauthorized();
             }
