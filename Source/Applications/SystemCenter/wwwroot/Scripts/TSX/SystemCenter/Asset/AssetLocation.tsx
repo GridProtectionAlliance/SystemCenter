@@ -26,10 +26,11 @@ import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import { useNavigate } from "react-router-dom";
-import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols'
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols'
 import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
-import { ToolTip, Modal } from '@gpa-gemstone/react-interactive';
+import { Modal } from '@gpa-gemstone/react-interactive';
+import { ToolTip } from '@gpa-gemstone/react-forms';
 
 declare var homePath: string;
 
@@ -208,7 +209,12 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
                                     e.preventDefault();
                                     deleteLocation(item);
                                 }
-                            }}><span>{TrashCan}</span></button>
+                                }}
+                            >
+                                <span>
+                                    <ReactIcons.TrashCan />
+                                </span>
+                            </button>
                         </> }
                     > <p></p>
                     </Column>
