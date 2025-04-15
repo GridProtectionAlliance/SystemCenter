@@ -109,6 +109,35 @@ namespace SystemCenter.Model
              new RestrictedValueList() {
                 Name = "SpareChannel",
                 DefaultItems = ["Spare Channel"]
+            },
+             new RestrictedValueList() {
+                Name = "TrendLabelDefaults",
+                DefaultItems = [
+                    new Tuple<string, string>("MeterName", "Meter Name"),
+                    new Tuple<string, string>("AssetKey", "Asset Key"),
+                    new Tuple<string, string>("Name", "Channel Label"),
+                    new Tuple<string, string>("ChannelGroup", "Channel Group Name"),
+                    new Tuple<string, string>("MinMaxAvg_Special", "Channel Series")
+                    ]
+            },
+             new RestrictedValueList() {
+                Name = "TrendLabelOptions",
+                DefaultItems = [
+                    new Tuple<string, string>("MeterName", "Meter Name"),
+                    new Tuple<string, string>("MeterShortName", "Meter Short Name"),
+                    new Tuple<string, string>("MeterKey", "Meter Asset Key"),
+                    new Tuple<string, string>("AssetName", "Asset Name"),
+                    new Tuple<string, string>("AssetKey", "Asset Key"),
+                    new Tuple<string, string>("Phase", "Phase Name"),
+                    new Tuple<string, string>("Name", "Channel Label"),
+                    new Tuple<string, string>("Description", "Channel Description"),
+                    new Tuple<string, string>("ChannelGroup", "Channel Group Name"),
+                    new Tuple<string, string>("ChannelGroupType", "Channel Group Type"),
+                    // This is not a field, special case: represents min max or avg/values out of HIDS
+                    new Tuple<string, string>("MinMaxAvg_Special", "Channel Series"),
+                    new Tuple<string, string>("Unit", "Unit"),
+
+                    ]
             }
         };       
    }
