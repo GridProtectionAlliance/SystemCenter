@@ -145,7 +145,7 @@ export default function AdditionalFieldForm(props: IProps) {
 
     return (
         <form>
-            <Input<SystemCenter.Types.AdditionalField> Record={props.Record} Field={'FieldName'} Label={'Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={Valid} Setter={props.Setter} Help={'The Field Name must match the alias in the table query.'} />
+            <Input<SystemCenter.Types.AdditionalField> Record={props.Record} Field={'FieldName'} Label={'Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={Valid} Setter={props.Setter} Help={'The Field Name must match the alias in the table query. The Field Name may not contain special characters such as []$&+,:;=?@#|\'<>.^*()%!{}`~'} />
             <Select<SystemCenter.Types.AdditionalField> Record={props.Record} Field={'ParentTable'} Label={'Parent Type'} Setter={props.Setter}
                 Options={[{ Value: 'Meter', Label: 'Meter' }, { Value: 'Location', Label: 'Substation' }, { Value: 'Customer', Label: 'Customer' }, { Value: 'Bus', Label: 'Bus' },
                     { Value: 'Line', Label: 'Line' }, { Value: 'LineSegment', Label: 'Line Segment' }, { Value: 'Breaker', Label: 'Breaker' }, { Value: 'CapBank', Label: 'Capacitor Bank' }, { Value: 'Transformer', Label: 'Transformer' }, { Value: 'CapBankRelay', Label: 'Capacitor Bank Relay' }, { Value: 'DER', Label: 'DER' },
