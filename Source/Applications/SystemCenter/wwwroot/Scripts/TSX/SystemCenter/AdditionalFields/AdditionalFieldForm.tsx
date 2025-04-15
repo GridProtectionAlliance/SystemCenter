@@ -113,7 +113,7 @@ export default function AdditionalFieldForm(props: IProps) {
         let e = [];
         if (!Valid('FieldName'))
             e.push('A Field Name under 200 characters is required.');
-        else if (props.Record.FieldName.match(/[$&+,:;=?@#|'<>.^*()%!{}`~]/) !== null)
+        else if (props.Record.FieldName.match(/[\[$&+,:;=?@#|'<>.^*()%!{}`~\]]/) !== null)
             e.push('Special Characters are not Allowed in Field Names');
         if (!Valid('ExternalDBTableID'))
             e.push('If an External Database is selected, then an External Database Table is required.');
