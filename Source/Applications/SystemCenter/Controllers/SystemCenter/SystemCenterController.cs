@@ -720,6 +720,22 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/SystemCenter/AdditionalFieldValue")]
     public class AdditionalFieldValueController : ModelController<AdditionalFieldValue>
     {
+        private class Settings
+        {
+            public Settings(Action<object> configure) =>
+                configure(this);
+
+            [Setting]
+            [DefaultValue(false)]
+            [SettingName("TrackAdditionalFields")]
+            public bool TrackAdditionalFields { get; } = false;
+        }
+
+        public static void RefreshSettings()
+        {
+            config = new Settings(new ConfigurationLoader(CreateDbConnection).Configure);
+        }
+
 
         [HttpPatch, Route("Array")]
         public IHttpActionResult PatchValues([FromBody] IEnumerable<AdditionalFieldValue> values)
@@ -729,11 +745,13 @@ namespace SystemCenter.Controllers
                 if (User.IsInRole(PatchRoles))
                 {
 
+                    
                     using (AdoDataConnection connection = new AdoDataConnection(Connection))
                     {
                         foreach (AdditionalFieldValue value in values)
                         {
                             new TableOperations<AdditionalFieldValue>(connection).AddNewOrUpdateRecord(value);
+                            AddNote(value, connection);
                         }
                         return Ok("Patched values without exception.");
                     }
@@ -751,6 +769,26 @@ namespace SystemCenter.Controllers
             }
         }
 
+    private void AddNote(AdditionalFieldValue newValue, AdoDataConnection connection)
+    {
+        Settings config = new Settings(new ConfigurationLoader(CreateDbConnection).Configure);
+
+        if (!config.TrackAdditionalFields)
+            return;
+        AdditionalField field = new TableOperations<AdditionalField>(connection).QueryRecordWhere("ID = {0}", newValue.AdditionalFieldID);
+        if (!string.IsWhitespace(field.ExternalDB) && string.IsWhitespace(field.ExternalDBTableKey))
+            return;
+
+        
+        AdditionalFieldValue oldValue = new TableOperations<AdditionalFieldValue>(connection).QueryRecordWhere("ID = {0}", newValue.ID);
+
+        string note = $"Field {field.FieldName} was changed from \"{oldValue?.Value ?? ""}\" to \"{newValue.Value}\""
+        new TableOperations<Notes>(connection).AddNewRecord(new Notes() {
+            UserAccount = User.Identity.Name,
+            Note = note
+        });
+
+    }
 
     }
 
