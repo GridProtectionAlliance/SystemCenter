@@ -285,11 +285,11 @@ const ByAsset: Application.Types.iByComponent = (props) => {
                         <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                         <form>
                             <div className="form-group">
-                                <button className="btn btn-primary" 
+                                <button className="btn btn-info btn-block" 
                                     onClick={(event) => { event.preventDefault(); setShowNewModal(true); }}>Add Asset</button>
                             </div>
                             <div className="form-group">
-                                <button className="btn btn-primary" 
+                                <button className="btn btn-info btn-block" 
                                     onClick={(event) => { event.preventDefault(); setShowExtModal(true); }}>External Database</button>
                             </div>
                         </form>
@@ -376,6 +376,8 @@ const ByAsset: Application.Types.iByComponent = (props) => {
                 </div>
             </div>
             <Modal Show={showNewModal} Size={'xlg'} Title={'Add New Asset'}
+                ShowX={true}
+                ShowCancel={false}
                 ConfirmText={'Save'}
                 DisableConfirm={assetErrors.length > 0}
                 ConfirmShowToolTip={assetErrors.length > 0}
@@ -406,8 +408,8 @@ const ByAsset: Application.Types.iByComponent = (props) => {
                 </div>
             </Modal>
            
-            <Modal Show={showEXTModal} Size={'xlg'} Title={'Update Asset External Fields'}
-                ShowCancel={true} ConfirmText={'Update All'} CancelText={'Close'} CallBack={(c) => {
+            <Modal Show={showEXTModal} Size={'xlg'} Title={'Update Asset External Fields'} ShowX={true}
+                ShowCancel={false} ConfirmText={'Update All'} ConfirmBtnClass={'btn-info'} CallBack={(c) => {
                     if (c && extDbUpdateAll.current !== undefined) extDbUpdateAll.current();
                     if (!c) setShowExtModal(false);
                 }}>

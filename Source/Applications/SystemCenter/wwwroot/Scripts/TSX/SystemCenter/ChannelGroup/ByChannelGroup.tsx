@@ -83,13 +83,13 @@ const ChannelGroups: Application.Types.iByComponent = () => {
                     <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                     <form>
                         <button
-                            className="btn btn-primary"
+                            className="btn btn-info btn-block"
                             onClick={(evt) => {
                                 evt.preventDefault();
                                 setRecord({ ...emptyRecord })
                                 setShowNew(true);
                             }}
-                        >Add Group
+                        >Add Channel Group
                         </button>
                     </form>
                 </fieldset>
@@ -103,7 +103,7 @@ const ChannelGroups: Application.Types.iByComponent = () => {
                 ShowCancel={false}
                 ShowX={true}
                 ConfirmBtnClass={'btn-primary'}
-                ConfirmText={'Add Group'}
+                ConfirmText={'Save'}
                 ConfirmShowToolTip={errors.length > 0}
                 ConfirmToolTipContent={errors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}
                 DisableConfirm={errors.length > 0}

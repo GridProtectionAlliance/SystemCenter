@@ -148,7 +148,7 @@ const ByLineSegment: Application.Types.iByComponent = (props) => {
                         <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                         <form>
                             <div className="form-group">
-                                <button className="btn btn-primary" 
+                                <button className="btn btn-info btn-block" 
                                     onClick={(event) => { event.preventDefault(); setShowExtModal(true); }}>External Database</button>
                             </div>
                         </form>
@@ -232,7 +232,7 @@ const ByLineSegment: Application.Types.iByComponent = (props) => {
                 <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p - 1)} />
             </div>
             <Modal Show={showEXTModal} Size={'xlg'} Title={'Update Line Segment External Fields'}
-                ShowCancel={true} ConfirmText={'Update All'} CancelText={'Close'} CallBack={(c) => {
+                ShowX={true} ShowCancel={false} ConfirmText={'Update All'} ConfirmBtnClass={'btn-info'} CallBack={(c) => {
                     if (c && extDbUpdateAll.current !== undefined) extDbUpdateAll.current();
                     if (!c) setShowExtModal(false);
                 }}>

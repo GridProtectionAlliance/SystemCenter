@@ -84,14 +84,14 @@ const ByCustomer: Application.Types.iByComponent = (props) => {
                 <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                     <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                     <div className="form-group">
-                        <button className="btn btn-primary" onClick={(event) => {
+                        <button className="btn btn-info btn-block" onClick={(event) => {
                             event.preventDefault();
                             setNewCustomer(emptyCustomer);
                             setShowModal(true);
                         }}>Add Customer</button>
                     </div>
                     <div className="form-group">
-                        <button className="btn btn-primary"
+                        <button className="btn btn-info btn-block"
                             onClick={(event) => { event.preventDefault(); setShowExtModal(true); }}>External Database</button>
                     </div>
                 </fieldset>
@@ -116,6 +116,7 @@ const ByCustomer: Application.Types.iByComponent = (props) => {
                 ShowCancel={false}
                 ShowX={true}
                 ConfirmText={'Update All'}
+                ConfirmBtnClass={'btn-info'}
                 CallBack={(c) => {
                     if (c && extDbUpdateAll.current !== undefined) extDbUpdateAll.current();
                     if (!c) setShowExtModal(false);

@@ -68,10 +68,10 @@ const ChannelGroupInfoWindow = (props: { Record: SystemCenter.Types.ChannelGroup
                         if (errors.length == 0)
                             dispatch(ChannelGroupSlice.DBAction({ verb: 'PATCH', record }));
                     }} hidden={record.ID == 0} data-tooltip={'Update'}
-                        onMouseEnter={() => setHover('update')} onMouseLeave={() => setHover('none')}>Update</button>
+                        onMouseEnter={() => setHover('update')} onMouseLeave={() => setHover('none')}>Save Changes</button>
                 </div>
                 <div className="btn-group mr-2">
-                    <button className="btn btn-warning" onClick={() => setRecord(props.Record)} disabled={record == props.Record}>Reset</button>
+                    <button className="btn btn-warning" onClick={() => setRecord(props.Record)} disabled={record == props.Record}>Clear Changes</button>
                 </div>
                 <ToolTip Show={hover == 'update' && (errors.length > 0 || record == props.Record)} Position={'top'} Target={"Update"}>
                     {record == props.Record ? <p>No changes made.</p> : null}

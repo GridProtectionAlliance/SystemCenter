@@ -193,7 +193,7 @@ export default function VirtualChannelModal(props: IProps) {
             CallBack={(conf, isButton) => {
                 handleVCModalConfirmCallback(conf, isButton);
             }}
-            ConfirmText={'Add'}
+            ConfirmText={'Save'}
             ConfirmBtnClass={'btn-primary'}
             DisableConfirm={errors?.length > 0 || virtualChannels.length == 0}
             ShowCancel={false}

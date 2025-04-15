@@ -109,7 +109,7 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
                 <div className="col-6 align-self-center">
                     <button className="btn btn-danger pull-right" hidden={record == null}
                         onClick={() => setShowRemove(true)}>Delete External DB</button>
-                    <button className="btn btn-light pull-right" hidden={record == null}
+                    <button className="btn btn-info pull-right mr-2" hidden={record == null}
                         onClick={RequestUpdate}>Update Fields</button>
                 </div>
             </div>
@@ -131,7 +131,7 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
                 Message={'This will permanently delete this External Database and cannot be undone.'}
                 Show={showRemove} Title={'Delete ' + (record?.Name ?? 'External Database')}
                 CallBack={(conf) => { if (conf) Delete(); setShowRemove(false); }} />
-            <Modal Title="Update Results" Show={requestStatus === 'idle' || requestStatus === 'error'} ConfirmBtnClass={'btn-secondary'} ConfirmText={'Close'}
+            <Modal Title="Update Results" Show={requestStatus === 'idle' || requestStatus === 'error'} ConfirmBtnClass={requestStatus === 'idle' ? 'btn-success' : 'btn-danger'} ConfirmText={'Close'}
                 ShowX={true} ShowCancel={false} Size={'sm'} CallBack={ClosePopup}>
                 <p>{requestStatus === 'idle' ? "Unscheduled update successful." : "Unscheduled Update Failure."}</p>
             </Modal>

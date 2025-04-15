@@ -75,14 +75,14 @@ export default function ExternalDBInfo(props: { Record: SystemCenter.Types.Detai
                                     }
                                 }}
                                 hidden={record.ID == 0} data-tooltip={'Update-Info'}
-                                onMouseEnter={() => setHover('update')} onMouseLeave={() => setHover('none')}>Update</button>
+                                onMouseEnter={() => setHover('update')} onMouseLeave={() => setHover('none')}>Save Changes</button>
                         </div>
                         <div className="btn-group mr-2">
-                            <button className="btn btn-default"
+                            <button className="btn btn-warning"
                                 onClick={() => {
                                     setRecord(origRecord);
                                 }}
-                                disabled={record == origRecord}>Reset</button>
+                                disabled={record == origRecord}>Clear Changes</button>
                         </div>
                     </div>
                 </div>

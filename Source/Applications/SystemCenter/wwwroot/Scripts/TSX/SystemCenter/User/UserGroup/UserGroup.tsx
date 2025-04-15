@@ -74,13 +74,13 @@ function UserGroup(props: IProps) {
 	];
 
 	return (
-        <div style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-			<div className="row">
+		<div style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column'}}>
+			<div className="row p-2">
 				<div className="col">
 					<h2>{group != null ? `${group.DisplayName} (${group.Type})` : 'Groups'}</h2>
 				</div>
 				<div className="col">
-					<button className="btn btn-danger pull-right" hidden={group == null} onClick={() => setShowWarning(true)}>Delete Group</button>
+					<button className="btn btn-danger pull-right" hidden={group == null} onClick={() => setShowWarning(true)}>Delete User Group</button>
 				</div>
 			</div>
 			<LoadingScreen Show={status === 'loading'} />

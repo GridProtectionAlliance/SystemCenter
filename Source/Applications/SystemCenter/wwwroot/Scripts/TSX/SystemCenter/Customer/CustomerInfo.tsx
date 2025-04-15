@@ -94,7 +94,7 @@ export default function CustomerInfo(props: IProps) {
                         }
                     }}
                         onMouseEnter={() => setHover('Submit')} onMouseLeave={() => setHover('None')} data-tooltip={"Update"}
-                    >Update</button>
+                    >Save Changes</button>
                 </div>
                 <ToolTip Show={hover == 'Submit' && (errors.length > 0 || addlFieldError.length > 0)} Position={'top'} Target={"Update"}>
                     {errors.map((t, i) => <p key={i}>{CrossMark} {t}</p>)}
@@ -104,13 +104,13 @@ export default function CustomerInfo(props: IProps) {
                     <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                 </ToolTip>
                 <div className="btn-group mr-2">
-                    <button className="btn btn-default" onClick={() => {
+                    <button className="btn btn-warning" onClick={() => {
                         if (warnings.length > 0) setCustomer(props.Customer);
                         if (resetAddl.current !== undefined) resetAddl.current();
                     }
                     } disabled={warnings.length == 0 && addlFieldChanged.length === 0}
                         onMouseEnter={() => setHover('Clear')} onMouseLeave={() => setHover('None')} data-tooltip={"Clr"}
-                    >Reset</button>
+                    >Clear Changes</button>
                 </div>
                 <ToolTip Show={hover == 'Clear' && (warnings.length > 0 || addlFieldChanged.length > 0)} Position={'top'} Target={"Clr"}>
                     {warnings.map((t, i) => <p key={i}>{Warning} {t}</p>)}

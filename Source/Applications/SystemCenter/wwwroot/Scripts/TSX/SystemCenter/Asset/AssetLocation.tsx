@@ -26,10 +26,11 @@ import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import { useNavigate } from "react-router-dom";
-import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols'
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols'
 import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
-import { ToolTip } from '@gpa-gemstone/react-interactive';
+import { Modal } from '@gpa-gemstone/react-interactive';
+import { ToolTip } from '@gpa-gemstone/react-forms';
 
 declare var homePath: string;
 
@@ -40,8 +41,15 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [allLocations, setAllLocations] = React.useState<Array<OpenXDA.Types.Location>>([]);
     const [newLocation, setNewLocation] = React.useState<OpenXDA.Types.Location>();
-    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
+    const [hover, setHover] = React.useState<string|undefined>(undefined);
+    const [showModal, setShowModal] = React.useState<boolean>(false);
     const roles = useAppSelector(SelectRoles);
+
+    const hasPermissions: boolean = React.useMemo(() => {
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0)
+            return false;
+        return true;
+    }, [roles]);
 
     React.useEffect(() => {
         getData();
@@ -123,12 +131,6 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
             navigate(`${homePath}index.cshtml?name=Location&LocationID=${item.row.ID}`);
     }
 
-    function hasPermissions(): boolean {
-        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0)
-            return false;
-        return true;
-    }
-
     return (
         <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="card-header">
@@ -202,12 +204,20 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
                         HeaderStyle={{ width: '10%' }}
                         RowStyle={{ width: '10%' }}
                         Content={({ item }) => <>
-                            <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => {
-                                if (hasPermissions()) {
-                                    e.preventDefault();
-                                    deleteLocation(item);
-                                }
-                            }}><span>{TrashCan}</span></button>
+                            <button className={"btn btn-sm" + (!hasPermissions ? ' disabled' : '')}
+                                onClick={(e) => {
+                                    if (hasPermissions) {
+                                        e.preventDefault();
+                                        deleteLocation(item);
+                                    }
+                                }}
+                                data-tooltip={item.ID.toString()}
+                                onMouseEnter={() => setHover(item.ID.toString())} onMouseLeave={() => setHover(undefined)}
+                            >
+                                <span>
+                                    <ReactIcons.TrashCan />
+                                </span>
+                            </button>
                         </> }
                     > <p></p>
                     </Column>
@@ -215,39 +225,32 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-info pull-right" + (!hasPermissions() ? ' disabled' : '')} data-toggle={"modal" + (!hasPermissions() ? ' disabled' : '')} data-target='#locationModal' data-tooltip='AddSubst'
-                        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')}>Add Substation</button>
+                    <button className={"btn btn-info pull-right" + (!hasPermissions ? ' disabled' : '')} data-tooltip='Update'
+                        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover(undefined)} onClick={(evt) => { if (hasPermissions) setShowModal(true); }}>Add Substation</button>
                 </div>
-                <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Target={"AddSubst"}>
+                <ToolTip Show={hover != null && !hasPermissions} Position={hover === 'Update' ? "top" : "left"} Target={hover}>
                     <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                 </ToolTip>
             </div>
 
-            <div className="modal" id="locationModal">
-                <div className="modal-dialog">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h4 className="modal-title">Add Substation to Asset</h4>
-                            <button type="button" className="close" data-dismiss="modal">&times;</button>
+            <Modal Show={showModal} Title={'Add Substation to Asset'} ShowCancel={false} ShowX={true}
+                CallBack={(conf) => {
+                    if (conf) {
+                        addLocation();
+                    }
+                    setShowModal(false)
+                }}
+                ConfirmText={'Save'} DisableConfirm={allLocations.length === 0}>
+                    
+                        <div className="form-group">
+                            <label>Substation</label>
+                            <select className="form-control" value={newLocation != null ? newLocation.ID : '0'} onChange={(evt) => {
+                                setNewLocation(allLocations.find(l => l.ID.toString() == evt.target.value));
+                            }}>
+                                {allLocations.map(als => <option value={als.ID} key={als.ID}>{als.Name} ({als.LocationKey})</option>)}
+                            </select>
                         </div>
-                        <div className="modal-body">
-                            <div className="form-group">
-                                <label>Substation</label>
-                                <select className="form-control" value={newLocation != null ? newLocation.ID : '0'} onChange={(evt) => {
-                                    setNewLocation(allLocations.find(l => l.ID.toString() == evt.target.value));
-                                }}>
-                                    {allLocations.map(als => <option value={als.ID} key={als.ID}>{als.Name} ({als.LocationKey})</option>)}
-                                </select>
-                            </div>
-                        </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-primary" data-dismiss="modal" hidden={allLocations.length == 0} onClick={addLocation}>Save</button>
-                            <button type="button" className="btn btn-danger" data-dismiss="modal">Close</button>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
+            </Modal>
 
         </div>
                 

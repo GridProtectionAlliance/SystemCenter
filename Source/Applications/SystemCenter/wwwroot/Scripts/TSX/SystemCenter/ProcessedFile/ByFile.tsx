@@ -178,7 +178,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
                                 <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                                 <form>
                                     <div className="form-group">
-                                        <button className={`btn btn-primary${inEnterprise ? '' : ' disabled'}`} hidden={props.Roles.indexOf('Administrator') < 0}
+                                        <button className={`btn btn-info btn-block${inEnterprise ? '' : ' disabled'}`} hidden={props.Roles.indexOf('Administrator') < 0}
                                             onMouseEnter={() => setHover('Bulk')} onMouseLeave={() => setHover('None')} data-tooltip={"BulkReload"}
                                             onClick={(event) => {
                                                 event.preventDefault();
@@ -266,7 +266,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
                 if (c)
                     reprocess(selectedID);
                 setSelectetID(null);
-            }} ShowCancel={false} ShowX={true} ConfirmText={'Reprocess File'} >
+            }} ShowCancel={false} ShowX={true} ConfirmText={'Reprocess File'} ConfirmBtnClass={'btn-info'} >
                 <div className="alert alert-primary" >
                     System Center only tracks files that have already been processed by openXDA. The information below is based on configuration when the file was processed 
                     and may not correspond to the file as currently stored in the Watch Directory.
@@ -337,7 +337,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
             <Modal Show={showWarning == 'complete'} Size={'sm'} Title={'Started Reprocessing'} CallBack={(c) => setShowWarning('hide')} ShowCancel={false} ShowX={true} ConfirmText={'Close'}>
                 openXDA has begun to reprocess the selected file(s). Note that this may take several minutes.
             </Modal>
-            <Modal Show={showWarning == 'error'} Size={'sm'} Title={'Error Reprocessing'} CallBack={(c) => setShowWarning('hide')} ShowCancel={false} ShowX={true} ConfirmText={'Close'}>
+            <Modal Show={showWarning == 'error'} Size={'sm'} Title={'Error Reprocessing'} CallBack={(c) => setShowWarning('hide')} ShowCancel={false} ShowX={true} ConfirmText={'Close'} ConfirmBtnClass={'btn-danger'}>
                 openXDA was unable to reprocess the selected file(s). If this error continues to occur please contact your system administrator.
             </Modal>
         </div>

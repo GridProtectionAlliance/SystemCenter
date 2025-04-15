@@ -168,7 +168,7 @@ const GroupUser = (props: {Group: ISecurityGroup}) => {
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className="btn btn-primary"
+                    <button className="btn btn-info"
                         onClick={() => setShowSelect(true)}
                         disabled={props.Group.Type !== 'Database'}>Add Users</button>
                 </div>

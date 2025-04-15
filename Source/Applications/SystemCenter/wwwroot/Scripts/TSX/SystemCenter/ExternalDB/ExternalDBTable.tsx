@@ -86,7 +86,7 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
                 <div className="col-6 align-self-center">
                     <button className="btn btn-danger pull-right" hidden={record == null}
                         onClick={() => setShowRemove(true)}>Delete Table</button>
-                    <button className="btn btn-light pull-right" hidden={record?.ExtDBID == null}
+                    <button className="btn btn-secondary pull-right mr-2" hidden={record?.ExtDBID == null}
                         onClick={GoToExternalDB}>Database Details</button>
                 </div>
             </div>

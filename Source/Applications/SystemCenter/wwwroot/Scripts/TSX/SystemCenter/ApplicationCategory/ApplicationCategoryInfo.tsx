@@ -63,7 +63,7 @@ export default function ApplicationCategoryInfo(props: IProps) {
                     <button className={"btn btn-primary" + (errors.length > 0 ? ' disabled' : '')} onClick={() => { if (errors.length == 0) props.stateSetter(applicationCategory) }}
                         hidden={props.ApplicationCat.ID == 0}
                         data-tooltip={"Update"}
-                        onMouseEnter={() => setHover('Submit')} onMouseLeave={() => setHover('None')}>Update</button>
+                        onMouseEnter={() => setHover('Submit')} onMouseLeave={() => setHover('None')}>Save Changes</button>
                 </div>
                 <ToolTip Show={hover == 'Submit' && (errors.length > 0)} Position={'top'} Target={"Update"}>
                     {errors.map((t, i) => <p key={i}>{CrossMark} {t}</p>)}
@@ -75,7 +75,7 @@ export default function ApplicationCategoryInfo(props: IProps) {
                     }
                     } disabled={warnings.length == 0}
                         onMouseEnter={() => setHover('Clear')} onMouseLeave={() => setHover('None')} data-tooltip={"Clr"}
-                        >Reset</button>
+                        >Clear Changes</button>
                 </div>
                 <ToolTip Show={hover == 'Clear' && (warnings.length > 0)} Position={'top'} Target={"Clr"}>
                     {warnings.map((t, i) => <p key={i}>{Warning} {t}</p>)}

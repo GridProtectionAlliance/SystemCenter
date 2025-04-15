@@ -283,6 +283,7 @@ const ByLocation: Application.Types.iByComponent = (props) => {
                     </p>)
                 }
                 DisableConfirm={newLocationErrors.length > 0}
+                ShowCancel={false}
             >
                 <div className="row">
                     <div className="col">
@@ -298,8 +299,8 @@ const ByLocation: Application.Types.iByComponent = (props) => {
                     </div>
                 </div>
             </Modal>
-            <Modal Show={showEXTModal} Size={'xlg'} Title={'Substation External Database Fields'}
-                ShowCancel={true} ConfirmText={'Update All'} CancelText={'Close'} CallBack={(c) => {
+            <Modal Show={showEXTModal} Size={'xlg'} Title={'Substation External Database Fields'} ShowX={true}
+                ShowCancel={false} ConfirmText={'Update All'} ConfirmBtnClass={'btn-info'} CallBack={(c) => {
                     if (c && extDbUpdateAll.current !== undefined) extDbUpdateAll.current();
                     if (!c) setShowExtModal(false);
                 }}>

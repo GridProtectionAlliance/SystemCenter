@@ -222,7 +222,7 @@ export default function ConnectionPage(props: IProps) {
                 <h4>Assets Connected</h4>
             </div>
             <div className="col-6 col-lg-4">
-                <button className="btn btn-primary pull-right" onClick={() => setShowAssetConnection(true)}
+                <button className="btn btn-info pull-right" onClick={() => setShowAssetConnection(true)}
                     disabled={props.AllAssets.length <= 1}>Add Connection
                 </button>
             </div>
