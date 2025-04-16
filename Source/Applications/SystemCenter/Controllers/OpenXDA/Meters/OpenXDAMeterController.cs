@@ -181,6 +181,7 @@ namespace SystemCenter.Controllers.OpenXDA
                             double multiplier = channel["Multiplier"].ToObject<double>();
                             string description = channel["Description"].ToString() == string.Empty ? "NULL" : "'" + channel["Description"].ToString() + "'";
                             int conPriority = channel["ConnectionPriority"].ToObject<int>();
+                            int trend = channel["Trend"].ToObject<bool>() ? 1 : 0;
 
                             JToken Series = channel["Series"];
                             string sourceIndex = Series[0]["SourceIndexes"].ToString();
@@ -207,14 +208,15 @@ namespace SystemCenter.Controllers.OpenXDA
                                     HarmonicGroup,
                                     Description,
                                     Enabled,
-                                    ConnectionPriority
+                                    ConnectionPriority,
+                                    Trend
                                 ) VALUES 
                             ((SELECT ID FROM Asset WHERE AssetKey = '{assetKey}'),
                             (SELECT ID FROM MeasurementType WHERE Name = '{measurementType}'),
                             {meter.ID},
                             (SELECT ID FROM MeasurementCharacteristic WHERE Name = '{measurementcharacteristic}'),
                             (SELECT ID FROM Phase WHERE Name = '{phase}'),
-                            '{name}', {adder}, {multiplier}, 0,0,{description}, 1,{conPriority} )");
+                            '{name}', {adder}, {multiplier}, 0,0,{description}, 1,{conPriority}, {trend} )");
 
                             connection.ExecuteNonQuery($@"INSERT INTO Series (ChannelID, SeriesTypeID, SourceIndexes) VALUES 
                                 ((SELECT @@Identity), (SELECT ID FROM SeriesType WHERE Name = 'Values'), '{sourceIndex}') ");
@@ -274,6 +276,7 @@ namespace SystemCenter.Controllers.OpenXDA
                         channel.HarmonicGroup = channelToken["HarmonicGroup"].ToObject<int>();
                         channel.Enabled = channelToken["Enabled"].ToObject<bool>();
                         channel.ConnectionPriority = channelToken["ConnectionPriority"].ToObject<int>();
+                        channel.Trend = channelToken["Trend"].ToObject<bool>();
                         if (channel.AssetID == 0)
                             continue;
 
@@ -357,7 +360,8 @@ namespace SystemCenter.Controllers.OpenXDA
             "    Channel.HarmonicGroup, " +
             "    Channel.Description, " +
             "    Channel.Enabled, " +
-            "    Channel.ConnectionPriority " +
+            "    Channel.ConnectionPriority, " +
+            "    Channel.Trend " +
             "FROM " +
             "    Channel JOIN " +
             "    Asset ON Channel.AssetID = Asset.ID JOIN " +
