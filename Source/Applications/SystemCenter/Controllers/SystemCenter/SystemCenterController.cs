@@ -23,6 +23,7 @@
 
 using FaultData.DataReaders;
 using FaultData.DataSets;
+using GSF;
 using GSF.Configuration;
 using GSF.Data;
 using GSF.Data.Model;
@@ -32,9 +33,12 @@ using GSF.SELEventParser;
 using GSF.Web.Model;
 using Newtonsoft.Json.Linq;
 using openXDA.Configuration;
+using openXDA.Model;
 using SEBrowser.Model;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Configuration;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -42,6 +46,10 @@ using System.Text.RegularExpressions;
 using System.Web.Http;
 using SystemCenter.Model;
 using SystemCenter.ScheduledProcesses;
+using ConfigurationLoader = SystemCenter.Model.ConfigurationLoader;
+using Customer = SystemCenter.Model.Customer;
+using Phase = GSF.PQDIF.Logical.Phase;
+using Setting = SystemCenter.Model.Setting;
 
 namespace SystemCenter.Controllers
 {
@@ -731,12 +739,6 @@ namespace SystemCenter.Controllers
             public bool TrackAdditionalFields { get; } = false;
         }
 
-        public static void RefreshSettings()
-        {
-            config = new Settings(new ConfigurationLoader(CreateDbConnection).Configure);
-        }
-
-
         [HttpPatch, Route("Array")]
         public IHttpActionResult PatchValues([FromBody] IEnumerable<AdditionalFieldValue> values)
         {
@@ -769,26 +771,33 @@ namespace SystemCenter.Controllers
             }
         }
 
-    private void AddNote(AdditionalFieldValue newValue, AdoDataConnection connection)
-    {
-        Settings config = new Settings(new ConfigurationLoader(CreateDbConnection).Configure);
+        private void AddNote(AdditionalFieldValue newValue, AdoDataConnection connection)
+        {
+            Settings config = new Settings(new ConfigurationLoader(() => connection).Configure);
 
-        if (!config.TrackAdditionalFields)
-            return;
-        AdditionalField field = new TableOperations<AdditionalField>(connection).QueryRecordWhere("ID = {0}", newValue.AdditionalFieldID);
-        if (!string.IsWhitespace(field.ExternalDB) && string.IsWhitespace(field.ExternalDBTableKey))
-            return;
+            if (!config.TrackAdditionalFields)
+                return;
+            AdditionalField field = new TableOperations<AdditionalField>(connection).QueryRecordWhere("ID = {0}", newValue.AdditionalFieldID);
+            if (!(field.ExternalDBTableID is null) && !field.IsKey)
+                return;
 
-        
-        AdditionalFieldValue oldValue = new TableOperations<AdditionalFieldValue>(connection).QueryRecordWhere("ID = {0}", newValue.ID);
+            AdditionalFieldValue oldValue = new TableOperations<AdditionalFieldValue>(connection).QueryRecordWhere("ID = {0}", newValue.ID);
+            
+            NoteApplication noteApplication = new TableOperations<NoteApplication>(connection).QueryRecordWhere("Name = {0}", "SystemCenter");
+            NoteTag noteTag = new TableOperations<NoteTag>(connection).QueryRecordWhere("Name = {0}", "Configuration");
+            NoteType noteType = new TableOperations<NoteType>(connection).QueryRecordWhere("ReferenceTableName = {0}", field.ParentTable);
 
-        string note = $"Field {field.FieldName} was changed from \"{oldValue?.Value ?? ""}\" to \"{newValue.Value}\""
-        new TableOperations<Notes>(connection).AddNewRecord(new Notes() {
-            UserAccount = User.Identity.Name,
-            Note = note
-        });
+            string note = $"Field {field.FieldName} was changed from \"{oldValue?.Value ?? ""}\" to \"{newValue.Value}\"";
+            new TableOperations<Notes>(connection).AddNewRecord(new Notes() {
+                UserAccount = User.Identity.Name,
+                Note = note,
+                ReferenceTableID = newValue.ParentTableID,
+                NoteApplicationID = noteApplication.ID,
+                NoteTagID = noteTag.ID,
+                NoteTypeID = noteType.ID
+            });
 
-    }
+        }
 
     }
 
