@@ -1612,7 +1612,12 @@ namespace SystemCenter.Controllers
             ExternalDatabases extDB = record.ToObject<ExternalDatabases>();
             using (AdoDataConnection extConn = ScheduledExtDBTask.GetExternalConnection(extDB))
             {
-                return Ok(0);
+                string query;
+                if (extConn.IsOracle)
+                    query = "SELECT 0 FROM dual;";
+                else
+                    query = "SELECT 0;";
+                return Ok(extConn.ExecuteScalar<int>(query));
             }
         }
 
