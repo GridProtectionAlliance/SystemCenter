@@ -122,7 +122,24 @@ const ByMeter: Application.Types.iByComponent = (props) => {
             <LoadingScreen Show={cState === 'loading'} />
             <div className="container-fluid d-flex h-100 flex-column">
                 <div className="row">
-                    <DefaultSearch.Meter Slice={ByMeterSlice} GetEnum={getEnum} GetAddlFields={getAdditionalFields} StorageID="MetersFilter">
+                    <DefaultSearch.Meter
+                        PageInfo={{
+                            RecordsPerPage: data.length,
+                            NumberOfPages: 1,
+                            TotalRecords: data.length
+                        }}
+                        Status={cState}
+                        SetFilter={(filters) => {
+                            ByMeterSlice.DBSearch({
+                                filter: [...filters],
+                                sortField: sortKey,
+                                ascending: ascending
+                            })
+                        }}
+                        GetEnum={getEnum}
+                        GetAddlFields={getAdditionalFields}
+                        StorageID="MetersFilter"
+                    >
                         <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
                             <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                                 <legend className="w-auto" style={{ fontSize: 'large' }}>Wizards:</legend>

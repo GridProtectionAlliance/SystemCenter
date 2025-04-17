@@ -240,7 +240,17 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
     return (
         <>
             <div className="container-fluid d-flex h-100 flex-column">
-                <DefaultSearch.AssetGroup Slice={AssetGroupSlice} GetEnum={getEnum} StorageID="AssetGroupsFilter" GetAddlFields={() => { return () => {}}} >
+                <DefaultSearch.AssetGroup
+                    SetFilter={(f) => AssetGroupSlice.DBSearch({ filter: f, sortField: sortKey, ascending: ascending })}
+                    PageInfo={{
+                        RecordsPerPage: data.length,
+                        TotalRecords: data.length,
+                        NumberOfPages: 1
+                    }}
+                    GetEnum={getEnum}
+                    StorageID="AssetGroupsFilter"
+                    GetAddlFields={() => { return () => {}}}
+                >
                     <li className="nav-item" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Engineer') < 0} style={{ width: '15%', paddingRight: 10 }}>
                         <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                                 <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
