@@ -22,7 +22,28 @@
 //******************************************************************************************************
 
 using GSF.Data.Model;
+using System.Collections.Generic;
 using SystemCenter.Model;
 
 [RootQueryRestriction("AssetType <> {0}", "LineSegment")]
-public class RestrictedDetailedAsset : DetailedAsset { }
+public class RestrictedDetailedAsset : DetailedAsset
+{
+    [SQLSearchModifier()]
+    public static string TransformSQL(SQLSearchFilter filter, List<object> parameters)
+    {
+        if (filter.FieldName == "Meter")
+        {
+            parameters.Add(filter.SearchText);
+            return "(SELECT Count(*) FROM Meter LEFT JOIN MeterAsset ON Meter.ID = MeterAsset.MeterID " +
+                $"WHERE Meter.AssetKey {{{parameters.Count - 1}}} AND MeterAsset.AssetID = FullTbl.ID) > 0";
+        }
+        if (filter.FieldName == "Location")
+        {
+            parameters.Add(filter.SearchText);
+            return "(SELECT Count(*) FROM Location LEFT JOIN AssetLocation ON AssetLocation.LocationID = Location.ID " +
+                $"WHERE Location.LocationKey {{{parameters.Count - 1}}} AND AssetLocation.AssetID = FullTbl.ID) > 0";
+        }
+
+        return filter.GenerateConditional(parameters);
+    }
+}
