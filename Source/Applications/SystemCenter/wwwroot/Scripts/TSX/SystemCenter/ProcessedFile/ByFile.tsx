@@ -197,64 +197,61 @@ const ByFile: Application.Types.iByComponent = (props) => {
                         </li>
                     </SearchBar>
                 </div>
-
-                <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                    <Table<OpenXDA.Types.DataFile>
-                        TableClass="table table-hover"
-                        Data={data}
-                        SortKey={sortKey}
-                        Ascending={ascending}
-                        OnSort={(d) => {
-                            if (d.colKey === sortKey)
-                                setAscending(!ascending);
-                            else {
-                                setAscending(true);
-                                setSortKey(d.colField);
-                            }
-                        }}
-                        OnClick={(item) => setSelectetID(item.row)}
-                        TheadStyle={{ fontSize: 'smaller' }}
-                        Selected={(item) => false}
-                        KeySelector={(item) => item.ID}
-                    >
-                        <Column<OpenXDA.Types.DataFile>
-                            Key={'FilePath'}
-                            AllowSort={true}
-                            Field={'FilePath'}
-                            HeaderStyle={{ width: '60%' }}
-                            RowStyle={{ width: '60%' }}
-                            Content={({ item }) => item.FilePath.length > 100 ? `...${item.FilePath.substr(item.FilePath.length - 100, 100)}` : item.FilePath}
-                        > File Path
-                        </Column>
-                        <Column<OpenXDA.Types.DataFile>
-                            Key={'CreationTime'}
-                            AllowSort={true}
-                            Field={'CreationTime'}
-                            HeaderStyle={{ width: '15%' }}
-                            RowStyle={{ width: '15%' }}
-                            Content={({ item }) => moment(item.CreationTime).format('MM/DD/YYYY HH:mm.ss.SSS')}
-                        > File Processed
-                        </Column>
-                        <Column<OpenXDA.Types.DataFile>
-                            Key={'DataStartTime'}
-                            AllowSort={true}
-                            Field={'DataStartTime'}
-                            HeaderStyle={{ width: '15%' }}
-                            RowStyle={{ width: '15%' }}
-                            Content={({ item }) => ((moment(item.DataStartTime).isValid()) ? moment(item.DataStartTime).format('MM/DD/YYYY HH:mm.ss.SSS') : 'N/A')}
-                        > Data Start
-                        </Column>
-                        <Column<OpenXDA.Types.DataFile>
-                            Key={'ProcessingState'}
-                            AllowSort={true}
-                            Field={'ProcessingState'}
-                            HeaderStyle={{ width: '10%' }}
-                            RowStyle={{ width: '10%' }}
-                            Content={({ item }) => <ProcessingStatus Status={item.ProcessingState} FileGroupID={item.FileGroupID} />}
-                        > Status
-                        </Column>
-                    </Table>
-                </div>
+                <Table<OpenXDA.Types.DataFile>
+                    TableClass="table table-hover"
+                    Data={data}
+                    SortKey={sortKey}
+                    Ascending={ascending}
+                    OnSort={(d) => {
+                        if (d.colKey === sortKey)
+                            setAscending(!ascending);
+                        else {
+                            setAscending(true);
+                            setSortKey(d.colField);
+                        }
+                    }}
+                    OnClick={(item) => setSelectetID(item.row)}
+                    TheadStyle={{ fontSize: 'smaller' }}
+                    Selected={(item) => false}
+                    KeySelector={(item) => item.ID}
+                >
+                    <Column<OpenXDA.Types.DataFile>
+                        Key={'FilePath'}
+                        AllowSort={true}
+                        Field={'FilePath'}
+                        HeaderStyle={{ width: '60%' }}
+                        RowStyle={{ width: '60%' }}
+                        Content={({ item }) => item.FilePath.length > 100 ? `...${item.FilePath.substr(item.FilePath.length - 100, 100)}` : item.FilePath}
+                    > File Path
+                    </Column>
+                    <Column<OpenXDA.Types.DataFile>
+                        Key={'CreationTime'}
+                        AllowSort={true}
+                        Field={'CreationTime'}
+                        HeaderStyle={{ width: '15%' }}
+                        RowStyle={{ width: '15%' }}
+                        Content={({ item }) => moment(item.CreationTime).format('MM/DD/YYYY HH:mm.ss.SSS')}
+                    > File Processed
+                    </Column>
+                    <Column<OpenXDA.Types.DataFile>
+                        Key={'DataStartTime'}
+                        AllowSort={true}
+                        Field={'DataStartTime'}
+                        HeaderStyle={{ width: '15%' }}
+                        RowStyle={{ width: '15%' }}
+                        Content={({ item }) => ((moment(item.DataStartTime).isValid()) ? moment(item.DataStartTime).format('MM/DD/YYYY HH:mm.ss.SSS') : 'N/A')}
+                    > Data Start
+                    </Column>
+                    <Column<OpenXDA.Types.DataFile>
+                        Key={'ProcessingState'}
+                        AllowSort={true}
+                        Field={'ProcessingState'}
+                        HeaderStyle={{ width: '10%' }}
+                        RowStyle={{ width: '10%' }}
+                        Content={({ item }) => <ProcessingStatus Status={item.ProcessingState} FileGroupID={item.FileGroupID} />}
+                    > Status
+                    </Column>
+                </Table>
                 <div className="row">
                     <div className="col">
                         <Paging Current={page + 1} Total={allPages} SetPage={(p) => setPage(p - 1)} />
