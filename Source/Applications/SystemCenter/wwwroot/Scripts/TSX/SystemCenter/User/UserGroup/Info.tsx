@@ -22,7 +22,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { ToolTip } from '@gpa-gemstone/react-interactive';
+import { ToolTip } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { SecurityGroupSlice } from '../../Store/Store';
 import { useAppDispatch } from '../../hooks';

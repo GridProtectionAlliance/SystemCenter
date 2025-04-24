@@ -23,7 +23,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import UserForm from './UserForm';
-import { ToolTip } from '@gpa-gemstone/react-interactive';
+import { ToolTip } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { UserAccountSlice } from '../../Store/Store';
 import { useAppDispatch, useAppSelector } from '../../hooks';
