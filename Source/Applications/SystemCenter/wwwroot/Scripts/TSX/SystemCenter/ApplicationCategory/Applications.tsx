@@ -22,9 +22,8 @@
 //******************************************************************************************************
 
 import { Application, SystemCenter } from "@gpa-gemstone/application-typings";
-import { Pencil, TrashCan } from "@gpa-gemstone/gpa-symbols";
 import { Input, Select } from "@gpa-gemstone/react-forms";
-import { Modal, Search, ToolTip, Warning } from "@gpa-gemstone/react-interactive";
+import { Modal, Warning } from "@gpa-gemstone/react-interactive";
 import { Table, Column } from "@gpa-gemstone/react-table";
 import React from "react";
 import { useAppDispatch, useAppSelector } from "../hooks";
