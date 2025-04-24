@@ -30,7 +30,7 @@ import LineSegmentWizard from './FawgLineSegmentWizard/LineSegmentWizard';
 import moment from 'moment';
 import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
-import { ToolTip } from '@gpa-gemstone/react-interactive';
+import { ToolTip } from '@gpa-gemstone/react-forms';
 
 interface IProps { ID: number, InnerOnly?: boolean, OnChange?: () => void; LineKey: string; LineName: string; }
 function LineSegmentWindow(props: IProps): JSX.Element {

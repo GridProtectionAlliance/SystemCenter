@@ -26,14 +26,14 @@ import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { AssetAttributes } from './Asset';
 import LineSegmentAttributes from './LineSegment';
-import { LoadingScreen, Modal, Warning, Search, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
+import { LoadingScreen, Modal, Warning, Search, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import moment from 'moment';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { LocationSlice, SourceImpedanceSlice } from '../Store/Store';
 import { IsInteger, IsNumber } from '@gpa-gemstone/helper-functions';
-import { Input, Select } from '@gpa-gemstone/react-forms';
+import { Input, Select, ToolTip } from '@gpa-gemstone/react-forms';
 import { SelectRoles } from '../Store/UserSettings';
 
 const newImpedance: OpenXDA.Types.SourceImpedance = { RSrc: 0, XSrc: 0, AssetLocationID: null, ID: 0 }
