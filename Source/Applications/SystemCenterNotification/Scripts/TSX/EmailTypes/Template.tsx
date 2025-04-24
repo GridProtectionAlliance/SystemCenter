@@ -87,10 +87,10 @@ const Template = (props: IProps) => {
                         </div>
                         <ToolTip Show={(email.Template == null || email.Template.length == 0 || !hasChanged) && hover == 'submit'} Position={'top'} Target={"submit"}>
                             {!hasChanged ? <p> No changes made.</p> : null}
-                            {email.Template == null || email.Template.length == 0 ? <p> <ReactIcons.CrossMark /> A valid Template is required.</p> : null}
+                            {email.Template == null || email.Template.length == 0 ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> A valid Template is required.</p> : null}
                         </ToolTip>
                         <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Target={"clear"}>
-                            <p><ReactIcons.Warning/> Changes to Template will be discarded.</p>
+                            <p><ReactIcons.Warning Color="var(--warning)" /> Changes to Template will be discarded.</p>
                         </ToolTip>
                     </div>
                 </div>
