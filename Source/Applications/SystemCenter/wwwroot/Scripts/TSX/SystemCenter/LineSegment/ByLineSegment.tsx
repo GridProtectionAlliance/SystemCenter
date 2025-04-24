@@ -155,7 +155,6 @@ const ByLineSegment: Application.Types.iByComponent = (props) => {
                     </fieldset>
                 </li>
             </SearchBar>
-            <div className="row" style={{ flex: 1, overflow: 'auto' }}>
                 {
                     pageStatus === 'idle' ?
                         <Table<OpenXDA.Types.LineSegment>
@@ -227,7 +226,6 @@ const ByLineSegment: Application.Types.iByComponent = (props) => {
                             <ServerErrorIcon Show={pageStatus === 'error'} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
                         </>
                 }
-            </div>
             <div style={{width: '100%'}}>
                 <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p - 1)} />
             </div>
