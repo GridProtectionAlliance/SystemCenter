@@ -24,7 +24,8 @@
 
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { LoadingIcon, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
+import { LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { ToolTip } from '@gpa-gemstone/react-forms';
 import _ from 'lodash';
 import * as React from 'react';
 import { editExistingAsset, getAllAssets, getAssetTypes, getAssetWithAdditionalFields } from '../../../TS/Services/Asset';
