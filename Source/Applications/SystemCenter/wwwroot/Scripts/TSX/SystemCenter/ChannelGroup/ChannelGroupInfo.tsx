@@ -28,7 +28,7 @@ import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { useAppDispatch } from '../hooks';
 import { ChannelGroupSlice } from '../Store/Store';
 import ChannelGroupForm from './ChannelGroupForm';
-import { ToolTip } from '@gpa-gemstone/react-interactive';
+import { ToolTip } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 
 const ChannelGroupInfoWindow = (props: { Record: SystemCenter.Types.ChannelGroup }) => {
