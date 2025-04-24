@@ -24,7 +24,7 @@
 import * as React from 'react';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { ConfigSlice } from '../Store/Store';
-import { ToolTip } from '@gpa-gemstone/react-interactive';
+import { ToolTip } from '@gpa-gemstone/react-forms';
 import { SelectRoles } from '../Store/UserSettings';
 import { Application } from '@gpa-gemstone/application-typings';
 
