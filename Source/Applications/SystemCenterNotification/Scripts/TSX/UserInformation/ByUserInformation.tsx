@@ -22,16 +22,13 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import {  ToolTip } from '@gpa-gemstone/react-interactive'
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { CellCarrierSlice, UserInfoSlice } from '../Store';
 import { IsInteger } from '@gpa-gemstone/helper-functions';
 import EmailConfirm from '../Subscriptions/ConfirmEmail';
 import { ICellCarrier } from '../global';
-import { Select } from '@gpa-gemstone/react-forms';
-import { Input } from '@gpa-gemstone/react-forms';
-
+import { Select, Input, ToolTip } from '@gpa-gemstone/react-forms';
 
 declare var homePath;
 declare var version;
