@@ -24,7 +24,7 @@
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import * as React from 'react';
 import { LoadingScreen, SearchBar, Warning } from '@gpa-gemstone/react-interactive'
-import { CrossMark, HeavyCheckMark, TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import { ActiveSubscriptionSlice } from '../../Store';
@@ -221,11 +221,11 @@ const ByAllSubscription = (props: IProps) => {
                             Field={'Approved'}
                             HeaderStyle={{ width: '10%' }}
                             RowStyle={{ width: '10%' }}
-                            Content={({ item }) => item.RequireApproval ? (item.Approved ? HeavyCheckMark :
+                            Content={({ item }) => item.RequireApproval ? (item.Approved ? <ReactIcons.CheckMark Color="var(--success)" /> :
                                 <button className="btn btn-sm" onClick={(e) => {
                                     e.preventDefault();
                                     approve(item.UserAccountEmailID);
-                                }}><span>{CrossMark}</span></button>) : 'N/A'
+                                }}><span><ReactIcons.CrossMark Color="var(--danger)" /></span></button>) : 'N/A'
                             }
                         > Approved
                         </Column>
@@ -239,7 +239,7 @@ const ByAllSubscription = (props: IProps) => {
                                     e.preventDefault();
                                     setRecord(item);
                                     setShowRemoveWarning(true);
-                                }}><span>{TrashCan}</span></button>
+                                }}><span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span></button>
                             }
                         > <p></p>
                         </Column>
