@@ -32,10 +32,10 @@ import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-ty
 import { SystemCenter as SCGlobal } from '../global';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { useAppSelector, useAppDispatch } from '../hooks';
-import { Input, Select } from '@gpa-gemstone/react-forms';
+import { Input, Select, ToolTip } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { SelectRoles } from '../Store/UserSettings';
-import { ToolTip, GenericController, LoadingScreen, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { GenericController, LoadingScreen, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { current } from '@reduxjs/toolkit';
 
 
