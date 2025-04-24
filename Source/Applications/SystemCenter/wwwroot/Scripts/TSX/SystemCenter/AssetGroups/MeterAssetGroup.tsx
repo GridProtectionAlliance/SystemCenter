@@ -30,7 +30,7 @@ import { ByMeterSlice } from '../Store/Store';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { Search, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
-import { TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { SelectRoles } from '../Store/UserSettings';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { AssetGroupSlice } from '../Store/Store';
@@ -228,7 +228,12 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
                             AllowSort={false}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                            Content={({ item }) => <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => { if (hasPermissions()) setRemoveMeter(item.ID) }}><span>{TrashCan}</span></button> }
+                            Content={({ item }) =>
+                                <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
+                                    onClick={(e) => { if (hasPermissions()) setRemoveMeter(item.ID) }}>
+                                    <span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span>
+                                </button>
+                            }
                         > <p></p>
                         </Column>
                     </Table>
