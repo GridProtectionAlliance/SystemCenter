@@ -184,12 +184,12 @@ const LocationWindow = (props: IProps) => {
                     <ToolTip Show={hover == 'Update' && (!hasChanged || !isValidLocation)} Position={'top'} Target={"NewLocation"}>
                         {(!hasChanged || location.ID < 1) && hasPermissions() ? <p> No changes have been made. </p> : null}
                         {!hasPermissions() ? <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p> : null}
-                        {!validKey ? <p> <ReactIcons.CrossMark /> Key must be unique.  </p> : null}
-                        {!valid('LocationKey') && validKey ? <p> <ReactIcons.CrossMark /> A Key of less than 50 characters is required. </p> : null}
-                        {!valid('Name') ? <p> <ReactIcons.CrossMark /> A Name of less than 200 characters is required. </p> : null}
-                        {!valid('ShortName') ? <p> <ReactIcons.CrossMark /> Short Name must be less than 50 characters. </p> : null}
-                        {!valid('Latitude')  ? <p> <ReactIcons.CrossMark /> Latitude is required. </p> : null}
-                        {!valid('Longitude') ? <p> <ReactIcons.CrossMark /> Longtitude is required. </p> : null}
+                        {!validKey ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> Key must be unique.  </p> : null}
+                        {!valid('LocationKey') && validKey ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> A Key of less than 50 characters is required. </p> : null}
+                        {!valid('Name') ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> A Name of less than 200 characters is required. </p> : null}
+                        {!valid('ShortName') ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> Short Name must be less than 50 characters. </p> : null}
+                        {!valid('Latitude') ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> Latitude is required. </p> : null}
+                        {!valid('Longitude') ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> Longtitude is required. </p> : null}
                     </ToolTip>
                 </div>
                 <div className="btn-group mr-2">
