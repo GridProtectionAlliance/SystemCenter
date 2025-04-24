@@ -66,7 +66,7 @@ const TestEmail = (props: IProps) => {
                 ConfirmShowToolTip={eventID == -1}
                 DisableConfirm={eventID == -1}
                 Size={'lg'} Title={'Select an Event for Testing'}
-                ConfirmToolTipContent={<p> <ReactIcons.CrossMark Color="var(--danger)" /> An Event has to be selected </p>}
+                ConfirmToolTipContent={<p> <ReactIcons.CrossMark Color="var(--danger)" /> An Event must be selected. </p>}
                 CallBack={(c) => { if (c) setShowWarning(true); else props.OnClose(); }}
                 ConfirmText={'Send'}
             >

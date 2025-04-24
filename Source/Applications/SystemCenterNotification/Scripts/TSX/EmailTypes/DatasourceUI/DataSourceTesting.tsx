@@ -92,7 +92,7 @@ const DataSourceTesting = (props: IProps) => {
             DisableConfirm={step ==1 && eventID == -1}
             Size={'xlg'} Title={step == 1? 'Select an Event for Testing' : 'Notification Data'}
             ConfirmToolTipContent={<>
-                {step == 1 ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> An Event has to be selected </p> : null}
+                {step == 1 ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> An Event must be selected. </p> : null}
             </>}
             CallBack={(c) => {
                 if (c && step == 1)
@@ -158,10 +158,10 @@ const DataSourceTesting = (props: IProps) => {
                                         />
                                     </div> :
                                         <div className="alert alert-danger">
-                                            An error occured processing this datasource: {selectedSource.Exception?.Message}
+                                            An error occured processing this data source: {selectedSource.Exception?.Message}
                                         </div>) :
                                         <div className="alert alert-info">
-                                        Select a DataSource on the left to see it's return
+                                        Select a data source on the left to see its return values.
                                     </div> }
                                 </div>
                             </div>
