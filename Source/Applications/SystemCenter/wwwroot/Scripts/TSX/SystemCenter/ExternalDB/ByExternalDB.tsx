@@ -25,7 +25,7 @@ import * as React from 'react';
 import { useNavigate } from "react-router-dom";
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { GenericController, Modal } from '@gpa-gemstone/react-interactive';
-import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { IsCron } from '@gpa-gemstone/helper-functions';
 import ExternalDBForm from './ExternalDBForm';
 import { SystemCenter as SC } from '../global';
@@ -105,7 +105,7 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
                 ConfirmBtnClass={'btn-primary'}
                 ConfirmText={'Save'}
                 ConfirmShowToolTip={errors.length > 0}
-                ConfirmToolTipContent={errors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}
+                ConfirmToolTipContent={errors.map((e, i) => <p key={i}><ReactIcons.CrossMark Color="var(--danger)" /> {e}</p>)}
                 DisableConfirm={errors.length > 0} >
                 <ExternalDBForm Record={record} Setter={setRecord} setErrors={setErrors} />
             </Modal>
