@@ -25,7 +25,7 @@
 
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { SystemCenter as SC } from '../global';
-import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import _ from 'lodash';
 import * as React from 'react';
 import { GenericController, ToolTip } from '@gpa-gemstone/react-interactive';
@@ -216,8 +216,8 @@ const Test = (props: { Meter: OpenXDA.Types.Meter }) => {
     }
 
     function Flag() {
-        if (flag) return HeavyCheckMark;
-        else if (flag != null) return CrossMark;
+        if (flag) return <ReactIcons.CheckMark Color="var(--success)" />;
+        else if (flag != null) return <ReactIcons.CrossMark Color="var(--danger)" />;
         else return null;
     }
 
