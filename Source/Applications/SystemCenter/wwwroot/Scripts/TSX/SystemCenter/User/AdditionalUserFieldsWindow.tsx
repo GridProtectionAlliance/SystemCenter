@@ -23,10 +23,10 @@
 import * as React from 'react';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { Modal, ToolTip, ServerErrorIcon, Warning as WarningModal } from '@gpa-gemstone/react-interactive';
+import { Modal, ServerErrorIcon, Warning as WarningModal } from '@gpa-gemstone/react-interactive';
 import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
 import * as _ from 'lodash';
-import { CheckBox, Input, Select } from '@gpa-gemstone/react-forms';
+import { CheckBox, Input, Select, ToolTip } from '@gpa-gemstone/react-forms';
 import { UserAdditionalFieldSlice, ValueListSlice, ValueListGroupSlice } from '../Store/Store';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { IsInteger, IsNumber } from '@gpa-gemstone/helper-functions';
