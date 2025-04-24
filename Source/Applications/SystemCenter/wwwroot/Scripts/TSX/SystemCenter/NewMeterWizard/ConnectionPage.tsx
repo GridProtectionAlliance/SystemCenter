@@ -28,7 +28,7 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 import { AssetConnectionTypeSlice } from '../Store/Store';
 import { LoadingIcon, Modal, Search, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
 import { Table, Column } from '@gpa-gemstone/react-table';
-import { CrossMark, TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { cross } from 'd3';
 
 interface AssetConnectionByID {
@@ -304,7 +304,7 @@ export default function ConnectionPage(props: IProps) {
             ShowX={true}
             ShowCancel={false}
             ConfirmShowToolTip={currentConnections.findIndex(c => c.Asset?.AssetKey == selectedAssetKey && c.Connection.AssetRelationshipTypeID == selectedTypeID) >= 0}
-            ConfirmToolTipContent={<p> {CrossMark} This connection already exists.</p>}
+            ConfirmToolTipContent={<p> <ReactIcons.CrossMark Color="var(--danger)" /> This connection already exists.</p>}
             CallBack={(confirmed) => {
                 setShowAssetConnection(false);
                 if (!confirmed)
@@ -372,7 +372,7 @@ const StatefulButton: React.FC<IButtonProps> = ({ TargetID, OnClick }) => {
                 data-tooltip={`button-${TargetID}`}
                 onClick={OnClick}
             >
-                {TrashCan}
+                <ReactIcons.TrashCan Color="var(--danger)" Size={20} />
             </button>
             <ToolTip
                 Show={showToolTip}

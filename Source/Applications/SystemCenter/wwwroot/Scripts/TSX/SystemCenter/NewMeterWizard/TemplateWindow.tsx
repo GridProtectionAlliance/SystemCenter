@@ -28,7 +28,7 @@ import CFGParser from '../../../TS/CFGParser';
 import { CheckBox, Input, Select, TextArea } from '@gpa-gemstone/react-forms';
 import { Modal, ToolTip, Warning, ServerErrorIcon, LoadingIcon } from '@gpa-gemstone/react-interactive';
 import PARParser from '../../../TS/PARParser';
-import { TrashCan, CrossMark } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import ChannelScalingForm from '../Meter/ChannelScaling/ChannelScalingForm';
 import { MeasurementCharacteristicSlice, MeasurmentTypeSlice, PhaseSlice, ChannelTemplateSlice } from '../Store/Store';
 import { useAppDispatch, useAppSelector } from '../hooks';
@@ -134,9 +134,9 @@ export default function TemplateWindow(props: IProps) {
                 setTemplate({ ...emptyTemplate });
             }}
             ConfirmToolTipContent={<>
-                {template.Name == null || template.Name.length == 0 ? <p> {CrossMark} A Name is required.</p> : null}
-                {template.Name != null && templates.find(t => t.Name == template.Name) != undefined ? <p> {CrossMark} A Template with this Name already exists.</p> : null}
-                {template.FileBlob == null ? <p> {CrossMark} A File needs to be uploaded.</p> : null}
+                {template.Name == null || template.Name.length == 0 ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> A Name is required.</p> : null}
+                {template.Name != null && templates.find(t => t.Name == template.Name) != undefined ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> A Template with this Name already exists.</p> : null}
+                {template.FileBlob == null ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> A File needs to be uploaded.</p> : null}
             </>}
             ConfirmText={'Save'}
         >
@@ -213,7 +213,7 @@ export default function TemplateWindow(props: IProps) {
                                     onClick={(e) => {
                                         e.preventDefault();
                                         dispatch(ChannelTemplateSlice.DBAction({ verb: 'DELETE', record: item }))
-                                    }}><span>{TrashCan}</span></button>
+                                    }}><span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span></button>
                             </> }
                         > <p></p>
                         </Column>
