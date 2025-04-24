@@ -24,7 +24,7 @@
 import { useAppDispatch } from '../../hooks';
 import * as React from 'react';
 import { ToolTip } from '@gpa-gemstone/react-interactive'
-import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { EmailType } from '../../global';
 import { EmailTypeSlice } from '../../Store';
 import EventSelect from './EventSelect';
@@ -139,12 +139,12 @@ const TriggerWindow = (props: IProps) => {
                 </div>
             </div>
             <ToolTip Show={(triggerStatus == 'invalid' || aggregateStatus == 'invalid') && hover == 'submit'} Position={'top'} Target={"submit"}>
-                {triggerStatus == 'invalid' ? <p> {CrossMark} Trigger SQL is invalid.</p> : null}
-                {aggregateStatus == 'invalid' ? <p> {CrossMark} Suppression SQL is invalid.</p> : null}
+                {triggerStatus == 'invalid' ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> Trigger SQL is invalid.</p> : null}
+                {aggregateStatus == 'invalid' ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> Suppression SQL is invalid.</p> : null}
             </ToolTip>
             <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Target={"clear"}>
-                {props.Record.TriggerEmailSQL != email.TriggerEmailSQL ? <p> {Warning} Changes to Trigger SQL will be discarded.</p> : null}
-                {props.Record.CombineEventsSQL != email.CombineEventsSQL ? <p> {Warning} Changes to Suppression SQL will be discarded.</p> : null}
+                {props.Record.TriggerEmailSQL != email.TriggerEmailSQL ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to Trigger SQL will be discarded.</p> : null}
+                {props.Record.CombineEventsSQL != email.CombineEventsSQL ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to Suppression SQL will be discarded.</p> : null}
             </ToolTip>
         </div>
         )
