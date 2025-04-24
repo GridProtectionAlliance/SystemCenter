@@ -203,7 +203,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                                                 Field={'Searchable'}
                                                 HeaderStyle={{ width: 'auto' }}
                                                 RowStyle={{ width: 'auto' }}
-                                                Content={({ item }) => item.Searchable ? <ReactIcons.CheckMark/> : <ReactIcons.CrossMark/> }
+                                                Content={({ item }) => item.Searchable ? <ReactIcons.CheckMark Color="var(--success)" /> : <ReactIcons.CrossMark Color="var(--danger)" /> }
                                             > Searchable
                                             </Column>
                                             <Column<SystemCenter.Types.AdditionalFieldView>
@@ -212,7 +212,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                                                 Field={'IsSecure'}
                                                 HeaderStyle={{ width: 'auto' }}
                                                 RowStyle={{ width: 'auto' }}
-                                                Content={({ item }) => item.IsSecure ? <ReactIcons.CheckMark/> : <ReactIcons.CrossMark/> }
+                                                Content={({ item }) => item.IsSecure ? <ReactIcons.CheckMark Color="var(--success)" /> : <ReactIcons.CrossMark Color="var(--danger)" /> }
                                             > Secure
                                             </Column>
                                             <Column<SystemCenter.Types.AdditionalFieldView>
@@ -221,7 +221,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                                                 Field={'IsInfo'}
                                                 HeaderStyle={{ width: 'auto' }}
                                                 RowStyle={{ width: 'auto' }}
-                                                Content={({ item }) => item.IsInfo ? <ReactIcons.CheckMark/> : <ReactIcons.CrossMark/> }
+                                                Content={({ item }) => item.IsInfo ? <ReactIcons.CheckMark Color="var(--success)" /> : <ReactIcons.CrossMark Color="var(--danger)" /> }
                                             > Info
                                             </Column>
                                             <Column<SystemCenter.Types.AdditionalFieldView>
@@ -230,7 +230,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                                                 Field={'IsKey'}
                                                 HeaderStyle={{ width: 'auto' }}
                                                 RowStyle={{ width: 'auto' }}
-                                                Content={({ item }) => item.IsKey ? <ReactIcons.CheckMark/> : <ReactIcons.CrossMark/> }
+                                                Content={({ item }) => item.IsKey ? <ReactIcons.CheckMark Color="var(--success)" /> : <ReactIcons.CrossMark Color="var(--danger)" /> }
                                             > Key
                                             </Column>
                                             <Column<SystemCenter.Types.AdditionalFieldView>
@@ -243,12 +243,12 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                                                         e.preventDefault();
                                                         setRecord(item);
                                                         setShowNew(true);
-                                                    }}><ReactIcons.Pencil/></button>
+                                                    }}><ReactIcons.Pencil Color="var(--warning)" Size={20} /></button>
                                                     <button className="btn btn-sm" onClick={(e) => {
                                                         e.preventDefault();
                                                         setRecord(item);
                                                         setShowRemove(true);
-                                                    }}><ReactIcons.TrashCan/></button>
+                                                    }}><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></button>
                                                 </>}
                                             > <p></p>
                                             </Column>
@@ -299,8 +299,8 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                 ConfirmShowToolTip={errors.length > 0 || warnings.length > 0}
                 ConfirmToolTipContent={
                     <>
-                        {warnings.map((w, i) => <p key={i}><ReactIcons.Warning/> {w}</p>)}
-                        {errors.map((e, i) => <p key={i}><ReactIcons.CrossMark/> {e}</p>)}
+                        {warnings.map((w, i) => <p key={i}><ReactIcons.Warning Color="var(--warning)" /> {w}</p>)}
+                        {errors.map((e, i) => <p key={i}><ReactIcons.CrossMark Color="var(--danger)" /> {e}</p>)}
                     </>
                 }
                 DisableConfirm={errors.length > 0}
@@ -368,16 +368,16 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                     <Column Key="ExternalTable" Field="ExternalTable" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
                     >External Table</Column>
                     <Column Key="Searchable" Field="Searchable" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
-                        Content={row => row.item ? <ReactIcons.CheckMark/> : <ReactIcons.CrossMark/>}
+                        Content={row => row.item ? <ReactIcons.CheckMark Color="var(--success)" /> : <ReactIcons.CrossMark Color="var(--danger)" />}
                     >Searchable</Column>
                     <Column Key="IsSecure" Field="IsSecure" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
-                        Content={row => row.item ? <ReactIcons.CheckMark /> : <ReactIcons.CrossMark />}
+                        Content={row => row.item ? <ReactIcons.CheckMark Color="var(--success)" /> : <ReactIcons.CrossMark Color="var(--danger)" />}
                     >Secure</Column>
                     <Column Key="IsInfo" Field="IsInfo" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
-                        Content={row => row.item ? <ReactIcons.CheckMark /> : <ReactIcons.CrossMark />}
+                        Content={row => row.item ? <ReactIcons.CheckMark Color="var(--success)" /> : <ReactIcons.CrossMark Color="var(--danger)" />}
                     >Info</Column>
                     <Column Key="IsKey" Field="IsKey" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
-                        Content={row => row.item ? <ReactIcons.CheckMark /> : <ReactIcons.CrossMark />}
+                        Content={row => row.item ? <ReactIcons.CheckMark Color="var(--success)" /> : <ReactIcons.CrossMark Color="var(--danger)" />}
                     >Key</Column>
                 </SearchBar>
                 }
