@@ -26,8 +26,8 @@ import * as _ from 'lodash';
 import { Application, OpenXDA as GemstoneOpenXDA} from '@gpa-gemstone/application-typings';
 import { PhaseSlice, MeasurmentTypeSlice } from '../Store/Store'
 import { useAppSelector, useAppDispatch } from '../hooks';
-import { LoadingIcon, ServerErrorIcon, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
-import { Input, Select } from '@gpa-gemstone/react-forms';
+import { LoadingIcon, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
+import { Input, Select, ToolTip } from '@gpa-gemstone/react-forms';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { OpenXDA } from '../global';

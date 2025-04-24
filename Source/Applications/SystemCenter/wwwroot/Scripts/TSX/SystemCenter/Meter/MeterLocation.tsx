@@ -26,7 +26,7 @@ import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { cloneDeep } from 'lodash';
-import { ToolTip } from '@gpa-gemstone/react-interactive';
+import { ToolTip } from '@gpa-gemstone/react-forms';
 import MeterLocationProperties from './PropertyUI/MeterLocationProperties';
 import { LocationSlice, ByMeterSlice } from '../Store/Store';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';

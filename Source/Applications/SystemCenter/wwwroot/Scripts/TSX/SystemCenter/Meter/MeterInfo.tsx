@@ -25,8 +25,8 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA, Application } from '@gpa-gemstone/application-typings';
-import { Input, Select, TextArea } from '@gpa-gemstone/react-forms';
-import { LoadingScreen, Search, ToolTip } from '@gpa-gemstone/react-interactive';
+import { Input, Select, TextArea, ToolTip } from '@gpa-gemstone/react-forms';
+import { LoadingScreen, Search } from '@gpa-gemstone/react-interactive';
 import MeterProperties from './PropertyUI/MeterProperties';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { useAppSelector } from '../hooks';
