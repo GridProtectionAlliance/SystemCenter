@@ -23,7 +23,7 @@
 
 import { useAppDispatch } from '../hooks';
 import * as React from 'react';
-import { ToolTip } from '@gpa-gemstone/react-interactive'
+import { ToolTip } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { ScheduledEmailType } from '../global';
 import { ScheduledEmailTypeSlice } from '../Store';
