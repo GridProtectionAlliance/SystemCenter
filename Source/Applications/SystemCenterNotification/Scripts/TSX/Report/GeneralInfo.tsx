@@ -24,7 +24,7 @@
 import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
 import {ToolTip } from '@gpa-gemstone/react-interactive'
-import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { ScheduledEmailType } from '../global';
 import { ScheduledEmailTypeSlice } from '../Store';
 import { IsCron } from '@gpa-gemstone/helper-functions';
@@ -114,15 +114,15 @@ const GeneralInfo = (props: IProps) => {
             <ToolTip Show={(errors.length > 0 || !hasChanged) && hover == 'submit'} Position={'top'} Target={"submit"}>
                 {!hasChanged ? <p> No changes made.</p> : null}
                 {errors.map((t, i) => <p key={i}>
-                    {CrossMark} {t}
+                    <ReactIcons.CrossMark Color="var(--danger)" /> {t}
                 </p>)}
             </ToolTip>
             <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Target={"clear"}>
-                {props.Record.Name != email.Name ? <p> {Warning} Changes to Name will be discarded.</p> : null}
-                {props.Record.EmailCategoryID != email.EmailCategoryID ? <p> {Warning} Changes to Category will be discarded.</p> : null}
-                {props.Record.SMS != email.SMS ? <p> {Warning} Changes to delivery type will be discarded.</p> : null}
-                {props.Record.Schedule != email.Schedule ? <p> {Warning} Changes to schedule will be discarded.</p> : null}
-                {props.Record.FilePath != email.FilePath ? <p> {Warning} Changes to the file path will be discarded.</p> : null}
+                {props.Record.Name != email.Name ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to Name will be discarded.</p> : null}
+                {props.Record.EmailCategoryID != email.EmailCategoryID ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to Category will be discarded.</p> : null}
+                {props.Record.SMS != email.SMS ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to delivery type will be discarded.</p> : null}
+                {props.Record.Schedule != email.Schedule ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to schedule will be discarded.</p> : null}
+                {props.Record.FilePath != email.FilePath ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to the file path will be discarded.</p> : null}
             </ToolTip>
         </div>
         )
