@@ -301,7 +301,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                                 e.preventDefault();
                                 e.stopPropagation();
                                 if (hasPermissions()) deleteAssetConnection(item);
-                            }}><ReactIcons.TrashCan /></button>
+                            }}><span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span></button>
                         </> }
                     > <p></p>
                     </Column>
