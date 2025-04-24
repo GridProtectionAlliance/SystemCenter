@@ -27,7 +27,7 @@ import { UserAccountSlice } from '../../Store/Store';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { IUserAccount } from '../Types';
 import * as CryptoJS from 'crypto-js';
-import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import moment from 'moment';
 
 interface IProps {
@@ -155,9 +155,9 @@ function UserForm(props: IProps) {
                         <div className="row" style={{ position: 'absolute', top: 0, left: 130 }} hidden={props.UserAccount.Type == 'Database'}>
                             <span id="resolvingAccount" hidden={valid !== 'resolving'}><i style={{ height: 10, width: 10, color: 'grey' }}
                                 className="fa fa fa-spin fa-refresh"></i>&nbsp;<em className="small">Resolving account details...</em></span>
-                            <span id="accountValid" hidden={valid !== 'valid'}>{HeavyCheckMark} &nbsp;<em className="small">Resolved account name.</em></span>
-                            <span id="accountInvalid" hidden={valid !== 'invalid'}>{CrossMark} &nbsp;<em className="small">Cannot resolve account name.</em></span>
-                            <span id="accountUnknown" hidden={valid !== 'unknown'}>{CrossMark} &nbsp;<em className="small">Valid account name is not a User, or Active Directory access is limited.</em></span>
+                            <span id="accountValid" hidden={valid !== 'valid'}><ReactIcons.CheckMark Color="var(--success)" Size={15} /> &nbsp;<em className="small">Resolved account name.</em></span>
+                            <span id="accountInvalid" hidden={valid !== 'invalid'}><ReactIcons.CrossMark Color="var(--danger)" Size={15} /> &nbsp;<em className="small">Cannot resolve account name.</em></span>
+                            <span id="accountUnknown" hidden={valid !== 'unknown'}><ReactIcons.CrossMark Color="var(--danger)" Size={15} /> &nbsp;<em className="small">Valid account name is not a User, or Active Directory access is limited.</em></span>
                         </div>                     
                         <div className="card">
                             <div className="card-header">

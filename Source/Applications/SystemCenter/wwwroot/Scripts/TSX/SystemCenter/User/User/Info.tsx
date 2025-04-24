@@ -24,7 +24,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import UserForm from './UserForm';
 import { ToolTip } from '@gpa-gemstone/react-interactive';
-import { Warning } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { UserAccountSlice } from '../../Store/Store';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { IUserAccount } from '../Types';
@@ -94,7 +94,7 @@ const UserInfo = (props: { AccountId: string }) => {
                         onMouseEnter={() => setHover('Clear')} onMouseLeave={() => setHover('None')}>Clear Changes</button>
                 </div>
                 <ToolTip Show={hover === 'Clear' && (warnings.length > 0)} Position={'top'} Target={"Clr"}>
-                    {warnings.map((t, i) => <p key={i}>{Warning} {t}</p>)}
+                    {warnings.map((t, i) => <p key={i}><ReactIcons.Warning Color="var(--warning)" /> {t}</p>)}
                 </ToolTip>
             </div>
 
