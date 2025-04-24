@@ -35,7 +35,8 @@ import { getAssetTypes, getAssetWithAdditionalFields } from '../../../TS/Service
 import { DBActionAsset, DBMeterAction, SelectAssetStatus } from '../Store/AssetSlice'
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { Warning, Modal, LoadingScreen, ToolTip, GenericController, Search, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { Warning, Modal, LoadingScreen, GenericController, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { ToolTip } from '@gpa-gemstone/react-forms';
 import DERAttributes from '../AssetAttribute/DER';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import AssetSelect from '../Asset/AssetSelect';
