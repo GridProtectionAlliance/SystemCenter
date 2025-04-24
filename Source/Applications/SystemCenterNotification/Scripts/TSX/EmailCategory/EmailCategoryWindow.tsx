@@ -24,7 +24,7 @@
 import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
 import { ToolTip, Warning } from '@gpa-gemstone/react-interactive'
-import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { EmailCategory } from '../global';
 import { EmailCategorySlice } from '../Store';
 import EmailCategoryForm from './EmailCategoryForm';
@@ -91,7 +91,7 @@ const EmailCategoryWindow = (props: IProps) => {
             <ToolTip Show={(errors.length > 0 || !hasChanged) && hover == 'submit'} Position={'top'} Target={"submit"}>
                 {!hasChanged ? <p> No changes made.</p> : null}
                 {errors.map((t, i) => <p key={i}>
-                    {CrossMark} {t}
+                    <ReactIcons.CrossMark Color="var(--danger)" /> {t}
                 </p>)}
             </ToolTip>
             <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Target={"clear"}>
