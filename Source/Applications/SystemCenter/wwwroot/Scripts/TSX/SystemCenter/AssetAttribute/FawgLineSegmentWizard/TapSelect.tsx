@@ -72,7 +72,9 @@ function TapSelect(props: IProps): JSX.Element {
                             TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                             TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 600, width: '100%' }}
                             RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            Selected={(item) => item.StationID != null}
+                            //Since the default "Selected" row color is "warning" and the Warning ReactIcon is also set to "warning", the icon disappears when the row is highlighted
+                            //TO DO: Add an optional prop to specify "Selected" color/styling
+                            //Selected={(item) => item.StationID != null}
                             KeySelector={(item) => item.ID ?? `${item.Bus}-${item.StationID}`}
                         >
                             <Column<ITap>
