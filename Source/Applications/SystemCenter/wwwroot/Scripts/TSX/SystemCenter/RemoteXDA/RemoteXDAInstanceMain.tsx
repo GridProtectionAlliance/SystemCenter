@@ -26,7 +26,7 @@ import * as _ from 'lodash';
 import { useNavigate } from "react-router-dom";
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { GenericController, Modal } from '@gpa-gemstone/react-interactive';
-import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { RemoteXDAInstanceForm, BlankRemoteXDAInstance } from './RemoteXDAInstanceForm';
 import GenericByPage from '../CommonComponents/GenericByPage';
 import EditionLockPage from '../CommonComponents/EditionLockPage';
@@ -92,7 +92,7 @@ const RemoteXDAInstanceMain: Application.Types.iByComponent = (props) => {
                     ShowX={true}
                     ConfirmShowToolTip={newInstErrors.length > 0}
                     ConfirmToolTipContent={newInstErrors.map((t, i) =>
-                        <p key={i}> {CrossMark} {t} </p>
+                        <p key={i}> <ReactIcons.CrossMark Color="var(--danger)" /> {t} </p>
                     )}>
                     <RemoteXDAInstanceForm
                         BaseInstance={BlankRemoteXDAInstance}
