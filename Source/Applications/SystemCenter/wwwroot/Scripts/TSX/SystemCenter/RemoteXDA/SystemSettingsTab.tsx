@@ -27,7 +27,7 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { RemoteXDAInstanceSlice } from '../Store/Store';
 import { LoadingScreen, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
-import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { RemoteXDAInstanceForm} from './RemoteXDAInstanceForm';
 
 interface IProps { ID: number }
@@ -100,7 +100,7 @@ const SystemSettingsTab = (props: IProps) => {
                     Position={'top'}
                     Target={"submit"}>
                     {newInstErrors.map((t, i) =>
-                        <p key={i}> {CrossMark} {t} </p>
+                        <p key={i}> <ReactIcons.CrossMark Color="var(--danger)" /> {t} </p>
                     )}
                 </ToolTip>
                 <div className="btn-group mr-2">
@@ -119,9 +119,9 @@ const SystemSettingsTab = (props: IProps) => {
                     Position={'top'}
                     Target={"clear"}>
 
-                    {baseInstance.Name != formInstance.Name ? <p> {Warning} Changes to Name will be discarded.</p> : null}
-                    {baseInstance.Address != formInstance.Address ? <p> {Warning} Changes to Address will be discarded.</p> : null}
-                    {baseInstance.Frequency != formInstance.Frequency ? <p> {Warning} Changes to Frequency will be discarded.</p> : null}
+                    {baseInstance.Name != formInstance.Name ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to Name will be discarded.</p> : null}
+                    {baseInstance.Address != formInstance.Address ? <p> <ReactIcons.Warning Color= "var(--warning)" /> Changes to Address will be discarded.</p> : null}
+                    {baseInstance.Frequency != formInstance.Frequency ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to Frequency will be discarded.</p> : null}
                 </ToolTip>
             </div>
 
