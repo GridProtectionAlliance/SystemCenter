@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Input } from '@gpa-gemstone/react-forms';
 import { ISection, ISegment } from './Types';
 import { ConfigurableTable, ConfigurableColumn, Column } from '@gpa-gemstone/react-table';
@@ -387,7 +387,11 @@ function SectionEdit(props: IProps): JSX.Element {
                             <Column<ISegment>
                                 Key={'btns'}
                                 AllowSort={false}
-                                Content={({ index }) => <button className="btn btn-sm" onClick={(e) => RemoveSegment(index)}><span>{TrashCan}</span></button>}
+                                Content={({ index }) =>
+                                    <button className="btn btn-sm"
+                                        onClick={(e) => RemoveSegment(index)}>
+                                        <span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span>
+                                    </button>}
                             >
                                 <p></p>
                             </Column>

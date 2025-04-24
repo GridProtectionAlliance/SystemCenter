@@ -25,7 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { Table, Column } from '@gpa-gemstone/react-table';
-import { TrashCan, Warning } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Select } from '@gpa-gemstone/react-forms';
 import { ISection, ITap } from './Types';
 import { WarningWTooltip } from './Common';
@@ -173,7 +173,9 @@ function SectionSelect(props: IProps): JSX.Element {
                                 RowStyle={{ width: 40, paddingLeft: 0, paddingRight: 5 }}
                                 Content={({ item }) => <>
                                     <button className="btn btn-sm"
-                                        onClick={(e) => props.RemoveSections(item.ID)}><span>{TrashCan}</span></button>
+                                        onClick={(e) => props.RemoveSections(item.ID)}>
+                                        <span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span>
+                                    </button>
                                 </> }
                             > <p></p>
                             </Column>

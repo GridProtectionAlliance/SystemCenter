@@ -25,7 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { Table, Column } from '@gpa-gemstone/react-table';
-import { Pencil, TrashCan, Warning } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Select, Input } from '@gpa-gemstone/react-forms';
 import { ITap } from './Types';
 import { release } from 'os';
@@ -116,7 +116,9 @@ function TapSelect(props: IProps): JSX.Element {
                                 RowStyle={{ width: 40, paddingLeft: 0, paddingRight: 5 }}
                                 Content={({ item, key, field, index }) => <>
                                     <button className="btn btn-sm" disabled={props.Taps.length < 2}
-                                        onClick={(e) => props.RemoveTap(index)}><span>{TrashCan}</span></button>
+                                        onClick={(e) => props.RemoveTap(index)}>
+                                        <span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span>
+                                    </button>
                                 </> }
                             > <p></p>
                             </Column>
