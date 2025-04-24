@@ -23,7 +23,7 @@
 import * as React from 'react';
 import { CreateGuid } from '@gpa-gemstone/helper-functions'
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { ToolTip } from '@gpa-gemstone/react-interactive';
+import { ToolTip } from '@gpa-gemstone/react-forms';
 
 interface IWarningProps {
     Errors: string[],
