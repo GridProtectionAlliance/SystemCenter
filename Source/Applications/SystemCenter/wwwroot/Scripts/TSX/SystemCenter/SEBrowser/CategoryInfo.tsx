@@ -22,15 +22,14 @@
 //******************************************************************************************************
 import * as React from 'react';
 import * as _ from 'lodash';
-declare var homePath: string;
-
-import { ToolTip } from '@gpa-gemstone/react-interactive';
+import { ToolTip } from '@gpa-gemstone/react-forms';
 import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
 import { OpenXDA as LocalXDA } from '../global';
 import CategoryForm from './CategoryForm';
 
-interface IProps { Tab: LocalXDA.IWidgetCategory, stateSetter: (tab: LocalXDA.IWidgetCategory) => void }
+declare var homePath: string;
 
+interface IProps { Tab: LocalXDA.IWidgetCategory, stateSetter: (tab: LocalXDA.IWidgetCategory) => void }
 
 export default function CategoryInfo(props: IProps) {
     const [tab, setTab] = React.useState<LocalXDA.IWidgetCategory>(props.Tab);
