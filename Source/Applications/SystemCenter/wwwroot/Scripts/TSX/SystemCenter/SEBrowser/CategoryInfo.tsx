@@ -23,7 +23,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { ToolTip } from '@gpa-gemstone/react-forms';
-import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { OpenXDA as LocalXDA } from '../global';
 import CategoryForm from './CategoryForm';
 
@@ -73,7 +73,7 @@ export default function CategoryInfo(props: IProps) {
                     >Save Changes</button>
                 </div>
                 <ToolTip Show={hover == 'Submit' && (errors.length > 0)} Position={'top'} Target={"Update"}>
-                    {errors.map((t, i) => <p key={i}>{CrossMark} {t}</p>)}
+                    {errors.map((t, i) => <p key={i}><ReactIcons.CrossMark Color="var(--danger)" /> {t}</p>)}
                 </ToolTip>
                 <div className="btn-group mr-2">
                     <button className="btn btn-warning" onClick={() => {
@@ -85,7 +85,7 @@ export default function CategoryInfo(props: IProps) {
                     >Clear Changes</button>
                 </div>
                 <ToolTip Show={hover == 'Clear' && (warnings.length > 0)} Position={'top'} Target={"Clr"}>
-                    {warnings.map((t, i) => <p key={i}>{Warning} {t}</p>)}
+                    {warnings.map((t, i) => <p key={i}><ReactIcons.Warning Color="var(--warning)" /> {t}</p>)}
                 </ToolTip>
             </div>
 
