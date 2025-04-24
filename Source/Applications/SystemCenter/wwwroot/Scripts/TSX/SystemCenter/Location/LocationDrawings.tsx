@@ -33,7 +33,7 @@ import { SystemCenter as SCGlobal } from '../global';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { Input, Select } from '@gpa-gemstone/react-forms';
-import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { SelectRoles } from '../Store/UserSettings';
 import { ToolTip, GenericController, LoadingScreen, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { current } from '@reduxjs/toolkit';
@@ -231,8 +231,18 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                             RowStyle={{ width: 'auto' }}
                             Content={({ item }) =>
                                 <span>
-                                    <button title='Edit Link' className={"btn" + (!hasPermissions() ? ' disabled' : '')} data-toggle={"modal" + (!hasPermissions() ? ' disabled' : '')} data-target="#exampleModal" onClick={(e) => {setRecord(item) }}>{Pencil}</button>
-                                    <button title='Delete Link' className={"btn" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => { if (hasPermissions()) handleDelete(item); }}>{TrashCan}</button>
+                                    <button title='Edit Link'
+                                        className={"btn" + (!hasPermissions() ? ' disabled' : '')}
+                                        data-toggle={"modal" + (!hasPermissions() ? ' disabled' : '')}
+                                        data-target="#exampleModal"
+                                        onClick={(e) => { setRecord(item) }}>
+                                        <ReactIcons.Pencil Color="var(--warning)" Size={20} />
+                                    </button>
+                                    <button title='Delete Link'
+                                        className={"btn" + (!hasPermissions() ? ' disabled' : '')}
+                                        onClick={(e) => { if (hasPermissions()) handleDelete(item); }}>
+                                        <ReactIcons.TrashCan Color="var(--danger)" Size={20} />
+                                    </button>
                                 </span>
                             }
                         > <p></p>

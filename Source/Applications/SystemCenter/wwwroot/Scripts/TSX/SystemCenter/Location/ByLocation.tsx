@@ -25,7 +25,7 @@ import * as React from 'react';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
 import { useNavigate } from "react-router-dom";
-import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
@@ -283,7 +283,7 @@ const ByLocation: Application.Types.iByComponent = (props) => {
                 ConfirmShowToolTip={newLocationErrors.length > 0}
                 ConfirmToolTipContent={
                     newLocationErrors.map((t, i) => <p key={i}>
-                        {CrossMark} {t}
+                        <ReactIcons.CrossMark Color="var(--danger)" /> {t}
                     </p>)
                 }
                 DisableConfirm={newLocationErrors.length > 0}
