@@ -26,7 +26,7 @@ import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { LoadingIcon, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
 import { Input, TextArea } from '@gpa-gemstone/react-forms';
-import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import AdditionalFieldsProperties from '../CommonComponents/AdditionalFieldsProperties';
 import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
@@ -244,10 +244,10 @@ const LocationInfo = (props: IProps) => {
                     {!hasChanged && hasPermissions()? <p> No changes made.</p> : null}
                     {!hasPermissions() ? <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p> : null}
                     {locationErrors.map((t, i) => <p key={i}>
-                        {CrossMark} {t}
+                        <ReactIcons.CrossMark Color="var(--danger)" /> {t}
                     </p>)}
                     {addlFieldError.map((t, i) => <p key={`a_${i}`}>
-                        {CrossMark} {t}
+                        <ReactIcons.CrossMark Color="var(--danger)" /> {t}
                     </p>)}
                 </ToolTip>
                 <div className="btn-group mr-2">
@@ -257,15 +257,15 @@ const LocationInfo = (props: IProps) => {
                     }} onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')} >Clear Changes</button>
                 </div>
                 <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Target={"clear"}>
-                    {props.Location.LocationKey != location.LocationKey ? <p> {Warning} Changes to Key will be discarded.</p> : null}
-                    {props.Location.Name != location.Name ? <p> {Warning} Changes to Name will be discarded.</p> : null}
-                    {props.Location.ShortName != location.ShortName ? <p> {Warning} Changes to Short Name will be discarded.</p> : null}
-                    {props.Location.Alias != location.Alias ? <p> {Warning} Changes to Alias will be discarded.</p> : null}
-                    {props.Location.Latitude != location.Latitude ? <p> {Warning} Changes to Latitude will be discarded.</p> : null}
-                    {props.Location.Longitude != location.Longitude ? <p> {Warning} Changes to Longitude will be discarded.</p> : null}
-                    {props.Location.Description != location.Description ? <p> {Warning} Changes to Description will be discarded.</p> : null}
+                    {props.Location.LocationKey != location.LocationKey ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to Key will be discarded.</p> : null}
+                    {props.Location.Name != location.Name ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to Name will be discarded.</p> : null}
+                    {props.Location.ShortName != location.ShortName ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to Short Name will be discarded.</p> : null}
+                    {props.Location.Alias != location.Alias ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to Alias will be discarded.</p> : null}
+                    {props.Location.Latitude != location.Latitude ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to Latitude will be discarded.</p> : null}
+                    {props.Location.Longitude != location.Longitude ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to Longitude will be discarded.</p> : null}
+                    {props.Location.Description != location.Description ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to Description will be discarded.</p> : null}
                     {addlFieldChanged.map((t, i) => <p key={i}>
-                        {Warning} {t}
+                        <ReactIcons.Warning Color="var(--warning)" /> {t}
                     </p>)}
                 </ToolTip>
             </div>
