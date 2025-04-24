@@ -24,7 +24,7 @@
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import * as React from 'react';
 import { LoadingScreen, Warning } from '@gpa-gemstone/react-interactive'
-import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import { ActiveSubscriptionSlice } from '../../Store';
@@ -110,7 +110,7 @@ const BySubscription = (props: IProps) => {
                             Field={'Approved'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                            Content={({ item }) => item.RequireApproval ? (item.Approved ? HeavyCheckMark : CrossMark) : 'N/A'}
+                            Content={({ item }) => item.RequireApproval ? (item.Approved ? <ReactIcons.CheckMark Color="var(--success)" /> : <ReactIcons.CrossMark Color="var(--danger)" />) : 'N/A'}
                         > Approved
                         </Column>
                         <Column<ActiveSubscription>
