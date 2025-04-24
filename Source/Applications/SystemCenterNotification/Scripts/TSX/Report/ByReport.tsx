@@ -24,7 +24,7 @@
 import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
 import { LoadingScreen, Modal, Search, SearchBar } from '@gpa-gemstone/react-interactive'
-import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
 import { ScheduledEmailType } from '../global';
 import { EmailCategorySlice, ScheduledEmailTypeSlice } from '../Store';
@@ -179,7 +179,7 @@ const ByReport = (props: IProps) => {
                             Field={'SMS'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                            Content={({ item }) => item.SMS ? HeavyCheckMark : CrossMark }
+                            Content={({ item }) => item.SMS ? <ReactIcons.CheckMark Color="var(--success)" /> : <ReactIcons.CrossMark Color="var(--danger)" />}
                         > Text Message
                         </Column>
                         <Column<ScheduledEmailType>
@@ -188,7 +188,7 @@ const ByReport = (props: IProps) => {
                             Field={'ShowSubscription'}
                             HeaderStyle={{ width: '15%' }}
                             RowStyle={{ width: '15%' }}
-                            Content={({ item }) => item.ShowSubscription ? HeavyCheckMark : CrossMark }
+                            Content={({ item }) => item.ShowSubscription ? <ReactIcons.CheckMark Color="var(--success)" /> : <ReactIcons.CrossMark Color="var(--danger)" />}
                         > Self Subscription
                         </Column>
                         <Column<ScheduledEmailType>
@@ -197,7 +197,7 @@ const ByReport = (props: IProps) => {
                             Field={'RequireApproval'}
                             HeaderStyle={{ width: '10%' }}
                             RowStyle={{ width: '10%' }}
-                            Content={({ item }) => item.RequireApproval ? HeavyCheckMark : CrossMark }
+                            Content={({ item }) => item.RequireApproval ? <ReactIcons.CheckMark Color="var(--success)" /> : <ReactIcons.CrossMark Color="var(--danger)" />}
                         > Requires Approval
                         </Column>
                     </Table>
@@ -213,7 +213,7 @@ const ByReport = (props: IProps) => {
                 DisableConfirm={errors.length > 0}
                 ConfirmShowToolTip={errors.length > 0}
                 ConfirmToolTipContent={
-                    errors.map((t, i) => <p key={i}>{CrossMark} {t} </p>)
+                    errors.map((t, i) => <p key={i}><ReactIcons.CrossMark Color="var(--danger)" /> {t} </p>)
                 }
             >
                 <ReportForm record={newEmail} setRecord={setNewEmail} />
