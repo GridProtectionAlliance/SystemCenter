@@ -83,11 +83,11 @@ const TriggerWindow = (props: IProps) => {
                             <div className={'col-12'}>
                                 {triggerStatus == 'valid' && triggers ?
                                     <div className="alert alert-success">
-                                        Based on this SQL Trigger, this Report will be sent out.
+                                        Based on this SQL Trigger, this Report will be sent.
                                     </div> : null}
                                 {triggerStatus == 'valid' && triggers ?
                                     <div className="alert alert-danger">
-                                        Based on this SQL Trigger, this Report will not be send out.
+                                        Based on this SQL Trigger, this Report will not be sent.
                                     </div> : null}
                             </div>
                         </div>
@@ -105,7 +105,7 @@ const TriggerWindow = (props: IProps) => {
                                         value={triggerSQL == null ? '' : triggerSQL}
                                     />
                                     <div className="invalid-feedback">
-                                        Trigger SQL needs to be a valid SQL statement returning 1 or 0.
+                                        Trigger SQL must be a valid SQL statement returning 1 or 0.
                                     </div>
                                 </div>
                             </div>
