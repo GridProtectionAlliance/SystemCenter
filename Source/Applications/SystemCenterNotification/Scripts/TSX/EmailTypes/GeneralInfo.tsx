@@ -123,18 +123,18 @@ const GeneralInfo = (props: IProps) => {
             <ToolTip Show={(errors.length > 0 || !hasChanged) && hover == 'submit'} Position={'top'} Target={"submit"}>
                 {!hasChanged ? <p> No changes made.</p> : null}
                 {errors.map((t, i) => <p key={i}>
-                    <ReactIcons.CrossMark/> {t}
+                    <ReactIcons.CrossMark Color="var(--danger)" /> {t}
                 </p>)}
             </ToolTip>
             <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Target={"clear"}>
-                {props.Record.Name != email.Name ? <p> <ReactIcons.Warning/> Changes to Name will be discarded.</p> : null}
-                {props.Record.EmailCategoryID != email.EmailCategoryID ? <p> <ReactIcons.Warning /> Changes to Category will be discarded.</p> : null}
-                {props.Record.MaxDelay != email.MaxDelay ? <p> <ReactIcons.Warning /> Changes to maximum delay will be discarded.</p> : null}
-                {props.Record.MinDelay != email.MinDelay ? <p> <ReactIcons.Warning /> Changes to minimum delay will be discarded.</p> : null}
-                {props.Record.SMS != email.SMS ? <p> <ReactIcons.Warning /> Changes to notification type will be discarded.</p> : null}
-                {props.Record.ShowSubscription != email.ShowSubscription ? <p> <ReactIcons.Warning /> Changes to self subscription will be discarded.</p> : null}
-                {props.Record.RequireApproval != email.RequireApproval ? <p> <ReactIcons.Warning /> Changes to approval requirement will be discarded.</p> : null}
-                {props.Record.FilePath != email.FilePath ? <p> <ReactIcons.Warning /> Changes to the file path will be discarded.</p> : null}
+                {props.Record.Name != email.Name ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to Name will be discarded.</p> : null}
+                {props.Record.EmailCategoryID != email.EmailCategoryID ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to Category will be discarded.</p> : null}
+                {props.Record.MaxDelay != email.MaxDelay ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to maximum delay will be discarded.</p> : null}
+                {props.Record.MinDelay != email.MinDelay ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to minimum delay will be discarded.</p> : null}
+                {props.Record.SMS != email.SMS ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to notification type will be discarded.</p> : null}
+                {props.Record.ShowSubscription != email.ShowSubscription ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to self subscription will be discarded.</p> : null}
+                {props.Record.RequireApproval != email.RequireApproval ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to approval requirement will be discarded.</p> : null}
+                {props.Record.FilePath != email.FilePath ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to the file path will be discarded.</p> : null}
             </ToolTip>
         </div>
         )
