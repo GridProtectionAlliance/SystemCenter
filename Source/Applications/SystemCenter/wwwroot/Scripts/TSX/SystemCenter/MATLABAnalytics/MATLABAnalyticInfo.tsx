@@ -26,7 +26,7 @@ import * as React from 'react';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { useAppDispatch } from '../hooks';
 import { MATLABAnalyticSlice, MATLABAnalyticEventTypeSlice, MATLABAnalyticAssetTypeSlice } from '../Store/Store';
-import { ToolTip } from '@gpa-gemstone/react-interactive';
+import { ToolTip } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import MATLABAnalyticForm from './MATLABAnalyticForm';
 
