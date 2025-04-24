@@ -24,7 +24,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import CustomerForm from './CustomerForm';
 import { ToolTip } from '@gpa-gemstone/react-interactive';
-import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { OpenXDA } from '@gpa-gemstone/application-typings'
 import AdditionalFieldsProperties from '../CommonComponents/AdditionalFieldsProperties';
 import { useAppSelector } from '../hooks';
@@ -97,8 +97,8 @@ export default function CustomerInfo(props: IProps) {
                     >Save Changes</button>
                 </div>
                 <ToolTip Show={hover == 'Submit' && (errors.length > 0 || addlFieldError.length > 0)} Position={'top'} Target={"Update"}>
-                    {errors.map((t, i) => <p key={i}>{CrossMark} {t}</p>)}
-                    {addlFieldError.map((t, i) => <p key={`a_${i}`}>{CrossMark} {t}</p>)}
+                    {errors.map((t, i) => <p key={i}><ReactIcons.CrossMark Color="var(--danger)" /> {t}</p>)}
+                    {addlFieldError.map((t, i) => <p key={`a_${i}`}><ReactIcons.CrossMark Color="var(--danger)" /> {t}</p>)}
                 </ToolTip>
                 <ToolTip Show={hover == 'Submit' && !hasPermissions()} Position={'top'} Target={"Update"}>
                     <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
@@ -113,8 +113,8 @@ export default function CustomerInfo(props: IProps) {
                     >Clear Changes</button>
                 </div>
                 <ToolTip Show={hover == 'Clear' && (warnings.length > 0 || addlFieldChanged.length > 0)} Position={'top'} Target={"Clr"}>
-                    {warnings.map((t, i) => <p key={i}>{Warning} {t}</p>)}
-                    {addlFieldChanged.map((t, i) => <p key={`a_${i}`}>{Warning} {t}</p>)}
+                    {warnings.map((t, i) => <p key={i}><ReactIcons.Warning Color="var(--warning)" /> {t}</p>)}
+                    {addlFieldChanged.map((t, i) => <p key={`a_${i}`}><ReactIcons.Warning Color="var(--warning)" /> {t}</p>)}
                 </ToolTip>
             </div>
 
