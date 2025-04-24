@@ -25,7 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { SystemCenter } from '../global';
 import { Table, Column } from '@gpa-gemstone/react-table';
-import { HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
 import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
@@ -110,7 +110,7 @@ function DeviceContacts(props: {ID: string, Name: string, Field: 'TSC' | 'Sector
                     AllowSort={true}
                     HeaderStyle={{ width: '5%' }}
                     RowStyle={{ width: '5%' }}
-                    Content={({ item }) => item.Selected ? <span>{HeavyCheckMark}</span> : ''}
+                    Content={({ item }) => item.Selected ? <span><ReactIcons.CircleCheckMark /></span> : ''}
                 > <p></p>
                 </Column>
                 <Column<UserAccount>
