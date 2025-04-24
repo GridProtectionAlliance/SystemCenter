@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import { LoadingScreen, Modal, Search, SearchBar } from '@gpa-gemstone/react-interactive'
-import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import moment from 'moment';
@@ -139,11 +139,11 @@ const ByCellCarrier = (props: IProps) => {
                 DisableConfirm={carrier.Name == null || carrier.Transform == null || carrier.Name.length == 0 || carrier.Transform.length == 0 || carrier.Name.length > 200 || carrier.Transform.length > 200 || allData.findIndex(c => c.Name == carrier.Name && c.ID != carrier.ID) > -1}
                 ConfirmShowToolTip={carrier.Name == null || carrier.Transform == null || carrier.Name.length == 0 || carrier.Transform.length == 0 || carrier.Name.length > 200 || carrier.Transform.length > 200 || allData.findIndex(c => c.Name == carrier.Name && c.ID != carrier.ID) > -1}
                 ConfirmToolTipContent={<>
-                    {carrier.Name == null || carrier.Name.length == 0  ? <p> {CrossMark} A Name is required. </p> : null}
-                    {carrier.Name !== null && carrier.Name.length > 200 ? <p>{CrossMark} Name must not exceed 200 characters.</p> : null}
-                    {carrier.Transform == null || carrier.Transform.length == 0  ? <p> {CrossMark} A Transform is required. </p> : null}
-                    {carrier.Transform !== null && carrier.Transform.length > 200 ? <p>{CrossMark} Transform must not exceed 200 characters.</p> : null}
-                    {allData.findIndex(c => c.Name == carrier.Name && c.ID != carrier.ID) > -1 ? <p> {CrossMark} The Name has to be unique. </p> : null}
+                    {carrier.Name == null || carrier.Name.length == 0 ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> A Name is required. </p> : null}
+                    {carrier.Name !== null && carrier.Name.length > 200 ? <p><ReactIcons.CrossMark Color="var(--danger)" /> Name must not exceed 200 characters.</p> : null}
+                    {carrier.Transform == null || carrier.Transform.length == 0 ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> A Transform is required. </p> : null}
+                    {carrier.Transform !== null && carrier.Transform.length > 200 ? <p><ReactIcons.CrossMark Color="var(--danger)" /> Transform must not exceed 200 characters.</p> : null}
+                    {allData.findIndex(c => c.Name == carrier.Name && c.ID != carrier.ID) > -1 ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> The Name has to be unique. </p> : null}
                 </>}
                 ConfirmBtnClass={'btn-success'} CallBack={(c, b) => {
                     if (showModal == 'New' && c)
