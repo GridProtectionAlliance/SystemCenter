@@ -81,8 +81,8 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                                 Position={'top'}
                                 Target={"SaveValues"}
                             >
-                                {invalidChanges.map((change, index) => <p key={index}> <ReactIcons.CrossMark /> {change}</p>)}
-                                {invalidChanges.length === 0 ? <p> <ReactIcons.CheckMark /> Save all changes made.</p> : <></>}
+                                {invalidChanges.map((change, index) => <p key={index}> <ReactIcons.CrossMark Color="var(--danger)" /> {change}</p>)}
+                                {invalidChanges.length === 0 ? <p> <ReactIcons.CheckMark Color="var(--success)" /> Save all changes made.</p> : <></>}
                             </ToolTip>
                         </div>
                         <div className="btn-group mr-2">
@@ -96,7 +96,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                                 Show={hover == 'Clear' && changes.length > 0}
                                 Position={'top'}
                                 Target={"Clear"}>
-                                {changes.map((change, index) => <p key={index}> <ReactIcons.Warning /> {change}</p>)}
+                                {changes.map((change, index) => <p key={index}> <ReactIcons.Warning Color="var(--warning)" /> {change}</p>)}
                             </ToolTip>
                         </div>
                     </> :

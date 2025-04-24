@@ -147,7 +147,7 @@ function GenericByPage<T extends U>(props: React.PropsWithChildren<IProps<T>>) {
 
     const getContent = React.useCallback((datum: SC.IColDatum<T>, col: SC.IByCol<T>) => {
         if (col?.Content != null) return col.Content(datum);
-        else if (col.Type === 'boolean') return datum.item[datum.field] ? <ReactIcons.CheckMark Color="var(--green)" /> : <></>
+        else if (col.Type === 'boolean') return datum.item[datum.field] ? <ReactIcons.CheckMark Color="var(--success)" /> : <></>
         else return datum.item[datum.field] ?? <></>
     }, []);
 
