@@ -26,10 +26,9 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { isEqual } from 'lodash';
-import { Input, CheckBox } from '@gpa-gemstone/react-forms';
+import { Input, CheckBox, ToolTip } from '@gpa-gemstone/react-forms';
 import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
-import { ToolTip } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
 
