@@ -29,7 +29,7 @@ import { useAppSelector, useAppDispatch } from '../hooks';
 import { ExternalDBTablesSlice } from '../Store/Store';
 import ExternalDBTableForm from './ExternalDBTableForm';
 import { Table, Column } from '@gpa-gemstone/react-table';
-import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Modal, Warning } from '@gpa-gemstone/react-interactive';
 
 export default function ExternalDBTables(props: { ID: number }) {
@@ -134,7 +134,7 @@ export default function ExternalDBTables(props: { ID: number }) {
                                                     e.preventDefault();
                                                     setRecord(item);
                                                     setShowWarning(true);
-                                                }}>{TrashCan}</button>
+                                                }}><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></button>
                                             </>}
                                         > <p></p>
                                         </Column>
@@ -156,7 +156,7 @@ export default function ExternalDBTables(props: { ID: number }) {
                         CallBack={(conf) => { if (conf) Delete(); setShowWarning(false); }} />
                     <Modal Title={record.ID == 0 ? 'Add New Table' : 'Edit ' + (record?.TableName ?? 'Table')} Show={showModal} ShowCancel={false} ConfirmText={'Save'}
                         ConfirmShowToolTip={errors.length > 0}
-                        ConfirmToolTipContent={errors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}
+                        ConfirmToolTipContent={errors.map((e, i) => <p key={i}><ReactIcons.CrossMark Color="var(--danger)" />{e}</p>)}
                         DisableConfirm={errors.length > 0}
                         ShowX={true} CallBack={(conf) => {
                             setShowModal(false);
