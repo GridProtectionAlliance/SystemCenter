@@ -54,7 +54,7 @@ const GeneralInfo = (props: IProps) => {
         if (allEmails.findIndex(s => s.Name === email.Name && s.ID !== email.ID) >= 0)
             e.push('An Email with this Name already exists');
         if (email.EmailCategoryID < 0)
-            e.push('A Category has to be selected.');
+            e.push('A Category must be selected.');
         if (email.Schedule == null || !IsCron(email.Schedule))
             e.push('A valid schedule is required.');
         setErrors(e);

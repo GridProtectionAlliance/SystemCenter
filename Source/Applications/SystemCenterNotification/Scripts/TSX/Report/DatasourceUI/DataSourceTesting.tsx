@@ -143,10 +143,10 @@ const DataSourceTesting = (props: IProps) => {
                                 />
                             </div> :
                                 <div className="alert alert-danger">
-                                    An error occured processing this datasource: {selectedSource.Exception?.Message}
+                                    An error occured processing this data source: {selectedSource.Exception?.Message}
                                 </div>) :
                                 <div className="alert alert-info">
-                                Select a DataSource on the left to see it's return
+                                Select a data source on the left to see its return values.
                             </div> }
                         </div>
                     </div>
