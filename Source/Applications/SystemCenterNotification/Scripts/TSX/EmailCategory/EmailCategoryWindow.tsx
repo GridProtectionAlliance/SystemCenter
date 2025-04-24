@@ -23,7 +23,8 @@
 
 import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
-import { ToolTip, Warning } from '@gpa-gemstone/react-interactive'
+import { Warning } from '@gpa-gemstone/react-interactive';
+import { ToolTip } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { EmailCategory } from '../global';
 import { EmailCategorySlice } from '../Store';
