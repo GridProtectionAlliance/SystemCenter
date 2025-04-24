@@ -24,7 +24,8 @@
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { CreateGuid } from '@gpa-gemstone/helper-functions';
-import { LoadingIcon, LoadingScreen, Modal, Search, SearchBar, ToolTip } from '@gpa-gemstone/react-interactive';
+import { LoadingIcon, LoadingScreen, Modal, Search, SearchBar } from '@gpa-gemstone/react-interactive';
+import { ToolTip } from '@gpa-gemstone/react-forms';
 import { Column, Paging, Table } from '@gpa-gemstone/react-table';
 import moment from 'moment';
 import * as React from 'react';
