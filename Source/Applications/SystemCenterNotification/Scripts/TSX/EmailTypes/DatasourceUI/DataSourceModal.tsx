@@ -23,7 +23,7 @@
 
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import * as React from 'react';
-import { Modal, ToolTip } from '@gpa-gemstone/react-interactive'
+import { Modal } from '@gpa-gemstone/react-interactive'
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { IDataSourceTriggeredEmailType, IEvent, ITriggeredEmailDataSourceSetting } from '../../global';
 import { TriggeredDataSourceSettingSlice, TriggeredDataSourceSlice, TriggeredEmailDataSourceSlice } from '../../Store';
