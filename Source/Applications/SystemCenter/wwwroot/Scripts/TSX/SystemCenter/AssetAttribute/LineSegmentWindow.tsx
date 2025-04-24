@@ -25,7 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { Table, Column } from '@gpa-gemstone/react-table';
-import { HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import LineSegmentWizard from './FawgLineSegmentWizard/LineSegmentWizard';
 import moment from 'moment';
 import { useAppSelector } from '../hooks';
@@ -177,7 +177,7 @@ function LineSegmentWindow(props: IProps): JSX.Element {
                     Field={'IsEnd'}
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
-                    Content={({ item }) => item.IsEnd ? HeavyCheckMark : null }
+                    Content={({ item }) => item.IsEnd ? <ReactIcons.CheckMark Color="var(--success)" /> : null }
                 > End?
                 </Column>
             </Table>
