@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { ApplicationCategory } from './ByApplicationCategory';
-import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { ToolTip } from '@gpa-gemstone/react-interactive';
 import ApplicationCategoryForm from './ApplicationCategoryForm';
 
@@ -66,7 +66,7 @@ export default function ApplicationCategoryInfo(props: IProps) {
                         onMouseEnter={() => setHover('Submit')} onMouseLeave={() => setHover('None')}>Save Changes</button>
                 </div>
                 <ToolTip Show={hover == 'Submit' && (errors.length > 0)} Position={'top'} Target={"Update"}>
-                    {errors.map((t, i) => <p key={i}>{CrossMark} {t}</p>)}
+                    {errors.map((t, i) => <p key={i}><ReactIcons.CrossMark Color="var(--danger)" /> {t}</p>)}
                 </ToolTip>
                 <div className="btn-group mr-2">
                     <button className="btn btn-warning" onClick={() => {
@@ -78,7 +78,7 @@ export default function ApplicationCategoryInfo(props: IProps) {
                         >Clear Changes</button>
                 </div>
                 <ToolTip Show={hover == 'Clear' && (warnings.length > 0)} Position={'top'} Target={"Clr"}>
-                    {warnings.map((t, i) => <p key={i}>{Warning} {t}</p>)}
+                    {warnings.map((t, i) => <p key={i}><ReactIcons.Warning Color="var(--warning)" /> {t}</p>)}
                 </ToolTip>
             </div>
         </div> 
