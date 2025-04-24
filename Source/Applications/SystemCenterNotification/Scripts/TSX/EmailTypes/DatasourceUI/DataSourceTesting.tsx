@@ -24,7 +24,7 @@
 import { useAppDispatch } from '../../hooks';
 import * as React from 'react';
 import { LoadingIcon, Modal, ServerErrorIcon } from '@gpa-gemstone/react-interactive'
-import { CrossMark, SVGIcons } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { EmailType, ITriggeredDataSource } from '../../global';
 import EventSelect from '../TriggerUI/EventSelect';
 import * as $ from 'jquery';
@@ -92,7 +92,7 @@ const DataSourceTesting = (props: IProps) => {
             DisableConfirm={step ==1 && eventID == -1}
             Size={'xlg'} Title={step == 1? 'Select an Event for Testing' : 'Notification Data'}
             ConfirmToolTipContent={<>
-                {step == 1 ? <p> {CrossMark} An Event has to be selected </p> : null}
+                {step == 1 ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> An Event has to be selected </p> : null}
             </>}
             CallBack={(c) => {
                 if (c && step == 1)
@@ -133,7 +133,7 @@ const DataSourceTesting = (props: IProps) => {
                                             Field={'Success'}
                                             HeaderStyle={{ width: 'auto' }}
                                             RowStyle={{ width: 'auto' }}
-                                            Content={({ item }) => (item.Created && item.Success) ? SVGIcons.CircleCheck : SVGIcons.CircledX }
+                                        Content={({ item }) => (item.Created && item.Success) ? <ReactIcons.CircleCheckMark Color="var(--success)" /> : <ReactIcons.CircledX Color="var(--danger)" />}
                                         > Data Source
                                         </Column>
                                         <Column<IResults>

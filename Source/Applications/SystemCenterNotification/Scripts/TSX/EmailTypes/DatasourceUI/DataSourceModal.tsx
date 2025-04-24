@@ -24,7 +24,7 @@
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import * as React from 'react';
 import { Modal, ToolTip } from '@gpa-gemstone/react-interactive'
-import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { IDataSourceTriggeredEmailType, IEvent, ITriggeredEmailDataSourceSetting } from '../../global';
 import { TriggeredDataSourceSettingSlice, TriggeredDataSourceSlice, TriggeredEmailDataSourceSlice } from '../../Store';
 import { Select } from '@gpa-gemstone/react-forms';
@@ -156,13 +156,13 @@ const DataSourceModal = (props: IProps) => {
             DisableConfirm={(props.Record == null || record == null) || (props.Record.TriggeredEmailDataSourceID == record.TriggeredEmailDataSourceID && changes.length == 0) || errors.length > 0}
             CancelShowToolTip={props.Record != null && record != null && (props.Record.TriggeredEmailDataSourceID != record.TriggeredEmailDataSourceID || changes.length > 0)}
             CancelToolTipContent={<>
-                {(props.Record != null && record != null && props.Record.TriggeredEmailDataSourceID != record.TriggeredEmailDataSourceID) ? <>{Warning}<p> Changes to Type will be lost. </p></> : null}
-                {changes.map((s, i) => <p key={i}> {Warning} {s} </p>)}
+                {(props.Record != null && record != null && props.Record.TriggeredEmailDataSourceID != record.TriggeredEmailDataSourceID) ? <><ReactIcons.Warning Color="var(--warning)" /><p> Changes to Type will be lost. </p></> : null}
+                {changes.map((s, i) => <p key={i}> <ReactIcons.Warning Color="var(--warning)" /> {s} </p>)}
             </>}
             ConfirmShowToolTip={(props.Record !== null && record != null && props.Record.TriggeredEmailDataSourceID == record.TriggeredEmailDataSourceID && changes.length == 0) || errors.length > 0}
             ConfirmToolTipContent={<>
                 {(props.Record !== null && record != null && props.Record.TriggeredEmailDataSourceID == record.TriggeredEmailDataSourceID && changes.length == 0) ? <p> No Changes have been made</p> : null}
-                {errors.map((e, i) => <p key={i}> {CrossMark} {e} </p>)}
+                {errors.map((e, i) => <p key={i}> <ReactIcons.CrossMark Color="var(--danger)" /> {e} </p>)}
             </>}
         >
             {record == null ? null : <dataSourceUI.UI

@@ -21,7 +21,7 @@
 //
 //******************************************************************************************************
 import * as React from 'react';
-import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import * as $ from 'jquery';
 import moment from 'moment';
 import { Table, Column } from '@gpa-gemstone/react-table';
@@ -164,7 +164,7 @@ const EventSelect = (props: IProps) => {
                                             Field={'Triggered'}
                                             HeaderStyle={{ width: '20%' }}
                                             RowStyle={{ width: '20%' }}
-                                            Content={({ item }) => item.Triggered ? HeavyCheckMark : CrossMark }
+                                            Content={({ item }) => item.Triggered ? <ReactIcons.CheckMark Color="var(--success)" /> : <ReactIcons.CrossMark Color="var(--danger)" />}
                                         > Notified
                                         </Column>
                                     </Table>

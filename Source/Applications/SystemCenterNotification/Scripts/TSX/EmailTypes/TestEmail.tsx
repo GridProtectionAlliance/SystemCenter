@@ -27,7 +27,7 @@ import { Warning, Modal } from '@gpa-gemstone/react-interactive'
 import { Application } from '@gpa-gemstone/application-typings';
 import { UserInfoSlice } from '../Store';
 import { EmailType } from '../global';
-import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import EventSelect from './TriggerUI/EventSelect';
 import * as $ from 'jquery';
 
@@ -66,7 +66,7 @@ const TestEmail = (props: IProps) => {
                 ConfirmShowToolTip={eventID == -1}
                 DisableConfirm={eventID == -1}
                 Size={'lg'} Title={'Select an Event for Testing'}
-                ConfirmToolTipContent={<p> {CrossMark} An Event has to be selected </p>}
+                ConfirmToolTipContent={<p> <ReactIcons.CrossMark Color="var(--danger)" /> An Event has to be selected </p>}
                 CallBack={(c) => { if (c) setShowWarning(true); else props.OnClose(); }}
                 ConfirmText={'Send'}
             >
