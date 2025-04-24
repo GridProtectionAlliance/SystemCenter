@@ -29,7 +29,8 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 import { ByMeterSlice, CustomerMeterSlice } from '../Store/Store'
 import { Table, Column } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { LoadingIcon, Search, ServerErrorIcon, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
+import { LoadingIcon, Search, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
+import { ToolTip } from '@gpa-gemstone/react-forms';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
 import { SelectRoles } from '../Store/UserSettings';
 declare var homePath: string;
