@@ -26,7 +26,8 @@ import * as _ from 'lodash';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { RemoteXDAInstanceSlice } from '../Store/Store';
-import { LoadingScreen, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
+import { LoadingScreen, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { ToolTip } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { RemoteXDAInstanceForm} from './RemoteXDAInstanceForm';
 
