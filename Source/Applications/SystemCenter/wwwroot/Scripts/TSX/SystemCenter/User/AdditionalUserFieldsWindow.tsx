@@ -22,7 +22,7 @@
 
 import * as React from 'react';
 import { Table, Column } from '@gpa-gemstone/react-table';
-import { CrossMark, HeavyCheckMark, Pencil, Warning, TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Modal, ToolTip, ServerErrorIcon, Warning as WarningModal } from '@gpa-gemstone/react-interactive';
 import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
 import * as _ from 'lodash';
@@ -172,7 +172,7 @@ function AdditionalField(props: IProps) {
 							<button className="btn btn-warning pull-right" data-tooltip='View' onClick={() => { setMode('View'); setEditValues(values) }} onMouseEnter={() => setHover('View')} onMouseLeave={() => setHover('None')}>View</button> :
 							<button className="btn btn-info pull-right" onClick={() => setMode('Edit')}>Edit</button>}
 						<ToolTip Show={hover === 'View' && changedFields.length > 0} Position={'left'} Target={"View"}>
-							{changedFields.map((fld, i) => <p key={i}>{Warning} Changes to '{fld}' will be lost. </p>)}
+							{changedFields.map((fld, i) => <p key={i}><ReactIcons.Warning Color="var(--warning)" /> Changes to '{fld}' will be lost. </p>)}
 						</ToolTip>
 					</div>
 				</div>
@@ -234,7 +234,12 @@ function AdditionalField(props: IProps) {
 						AllowSort={false}
 						HeaderStyle={{ width: 40, paddingRight: 0, paddingLeft: 10 }}
 						RowStyle={{ width: 40, paddingRight: 0, paddingLeft: 10, paddingTop: 36 }}
-						Content={({ item }) => (mode === 'Edit' ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowEdit(true); setEditNew('Edit'); }}><span>{Pencil}</span></button> : '')}
+						Content={({ item }) => (mode === 'Edit' ?
+							<button className="btn btn-sm"
+								onClick={() => { setNewField(item); setShowEdit(true); setEditNew('Edit'); }}>
+								<span><ReactIcons.Pencil Color="var(--warning)" Size={20} /></span>
+							</button> : '')
+						}
 					> <p></p>
 					</Column>
 					<Column<Application.Types.iAdditionalUserField>
@@ -242,7 +247,12 @@ function AdditionalField(props: IProps) {
 						AllowSort={false}
 						HeaderStyle={{ width: 40, paddingRight: 0, paddingLeft: 10 }}
 						RowStyle={{ width: 40, paddingRight: 0, paddingLeft: 10, paddingTop: 36 }}
-						Content={({ item }) => (mode === 'Edit' ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowWarning(true); }}><span>{TrashCan}</span></button> : '')}
+						Content={({ item }) => (mode === 'Edit' ?
+							<button className="btn btn-sm"
+								onClick={() => { setNewField(item); setShowWarning(true); }}>
+								<span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span>
+							</button> : '')
+						}
 					> <p></p>
 					</Column>
 				</Table>
@@ -261,8 +271,8 @@ function AdditionalField(props: IProps) {
 				</div>
 				<ToolTip Show={hover === 'Save' && (mode === 'View' || changedFields.length > 0)} Position={'top'} Target={"SaveValues"}>
 					{mode === 'View' ? <p> To change any Fields, switch to Edit mode by clicking on the Edit button on the upper right corner.</p> : null}
-					{changedFields.length > 0 && errorFields.length === 0 ? changedFields.map((fld, i) => <p key={i}> {HeavyCheckMark} Changes to '{fld}' are valid.</p>) : null}
-					{changedFields.length > 0 && errorFields.length > 0 ? errorFields.map((t, i) => <p key={i}> {CrossMark} {t}.</p>) : null}
+					{changedFields.length > 0 && errorFields.length === 0 ? changedFields.map((fld, i) => <p key={i}> <ReactIcons.CheckMark Color="var(--success)" /> Changes to '{fld}' are valid.</p>) : null}
+					{changedFields.length > 0 && errorFields.length > 0 ? errorFields.map((t, i) => <p key={i}> <ReactIcons.CrossMark Color="var(--danger)" /> {t}.</p>) : null}
 				</ToolTip>
 				<div className="btn-group mr-2">
 					<button className={"btn btn-warning" + (changedFields.length === 0 || mode === 'View' ? ' disabled' : '')}
@@ -275,7 +285,7 @@ function AdditionalField(props: IProps) {
 				</div>
 				<ToolTip Show={hover === 'Clear' && (mode === 'View' || changedFields.length > 0)} Position={'top'} Target={'Reset'}>
 					{mode === 'View' ? <p> To change any Fields, switch to Edit mode by clicking on the Edit button on the upper right corner.</p> : null}
-					{changedFields.length > 0 ? changedFields.map((fld, i) => <p key={i}>{Warning} Changes to '{fld}' will be lost. </p>) : null}
+					{changedFields.length > 0 ? changedFields.map((fld, i) => <p key={i}><ReactIcons.Warning Color="var(--warning)" /> Changes to '{fld}' will be lost. </p>) : null}
 				</ToolTip>
 			</div>
 			<WarningModal Show={showWarning} Title={'Delete ' + (newField?.FieldName ?? 'Additional Field')}
@@ -297,7 +307,7 @@ function AdditionalField(props: IProps) {
 					setShowEdit(false);
 				}}
 				ConfirmShowToolTip={fieldErrors.length > 0}
-				ConfirmToolTipContent={fieldErrors.map((t, i) => <p key={i}>{CrossMark} {t} </p>)}
+				ConfirmToolTipContent={fieldErrors.map((t, i) => <p key={i}><ReactIcons.CrossMark Color="var(--danger)" /> {t} </p>)}
 			>
 				<Input<Application.Types.iAdditionalUserField> Record={newField} Field='FieldName' Valid={(field) =>
 					newField.FieldName != null && newField.FieldName.length > 0
