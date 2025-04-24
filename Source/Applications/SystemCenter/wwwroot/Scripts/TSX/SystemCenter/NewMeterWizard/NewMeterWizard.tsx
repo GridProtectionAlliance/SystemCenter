@@ -24,7 +24,8 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-import { LoadingScreen, ServerErrorIcon, ToolTip, Warning, Modal, ProgressBar } from '@gpa-gemstone/react-interactive';
+import { LoadingScreen, ServerErrorIcon, Warning, Modal, ProgressBar } from '@gpa-gemstone/react-interactive';
+import { ToolTip } from '@gpa-gemstone/react-forms';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { SelectMeterStatus, FetchMeter } from '../Store/MeterSlice';

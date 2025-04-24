@@ -26,7 +26,7 @@ import * as _ from 'lodash';
 import { OpenXDA, Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import CFGParser from '../../../TS/CFGParser';
 import { Input, Select, TextArea } from '@gpa-gemstone/react-forms';
-import { Modal, ToolTip, Warning, ServerErrorIcon, BtnDropdown } from '@gpa-gemstone/react-interactive';
+import { Modal, Warning, ServerErrorIcon, BtnDropdown } from '@gpa-gemstone/react-interactive';
 import PARParser from '../../../TS/PARParser';
 import { ConfigurableTable, ConfigurableColumn, Column } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
