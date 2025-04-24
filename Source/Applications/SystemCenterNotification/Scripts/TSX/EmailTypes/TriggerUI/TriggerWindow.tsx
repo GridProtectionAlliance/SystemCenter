@@ -23,13 +23,12 @@
 
 import { useAppDispatch } from '../../hooks';
 import * as React from 'react';
-import { ToolTip } from '@gpa-gemstone/react-interactive'
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { EmailType } from '../../global';
 import { EmailTypeSlice } from '../../Store';
 import EventSelect from './EventSelect';
 import EventDetails from './EventDetails';
-import { TextArea } from '@gpa-gemstone/react-forms';
+import { TextArea, ToolTip } from '@gpa-gemstone/react-forms';
 
 declare var homePath;
 declare var version;
