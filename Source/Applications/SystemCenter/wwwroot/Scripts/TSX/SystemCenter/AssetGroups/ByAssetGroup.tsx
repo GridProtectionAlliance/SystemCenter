@@ -28,7 +28,7 @@ import { useNavigate } from "react-router-dom";
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
 import { Search, Modal } from '@gpa-gemstone/react-interactive';
 import { CheckBox, Input } from '@gpa-gemstone/react-forms';
-import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { AssetGroupSlice, ByAssetSlice, ByMeterSlice, AssetTypeSlice } from '../Store/Store';
 import { DefaultSearch, DefaultSelects } from '@gpa-gemstone/common-pages';
 import { useAppDispatch, useAppSelector } from '../hooks';
@@ -315,7 +315,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
                             Field={'DisplayDashboard'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                            Content={({ item }) => item.DisplayDashboard ? HeavyCheckMark : null }
+                            Content={({ item }) => item.DisplayDashboard ? <ReactIcons.CheckMark Color="var(--success)" /> : null }
                         > Show in PQ Dashboard
                         </Column>
                     </Table>
@@ -326,7 +326,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
                 CallBack={(conf) => { if (conf) addNewAssetGroup(); else setNewAssetGroup(_.cloneDeep(emptyAssetGroup)); setShowNewGroup(false) }}
                 DisableConfirm={assetGrpErrors.length > 0}
                 ConfirmShowToolTip={assetGrpErrors.length > 0}
-                ConfirmToolTipContent={assetGrpErrors.map((t, i) => <p key={i}> {CrossMark} {t} </p>)}
+                ConfirmToolTipContent={assetGrpErrors.map((t, i) => <p key={i}> <ReactIcons.CrossMark Color="var(--danger)" /> {t} </p>)}
             >
                 <div className="row">
                     <div className="col">
