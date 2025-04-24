@@ -25,7 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { ApplicationCategory } from './ByApplicationCategory';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { ToolTip } from '@gpa-gemstone/react-interactive';
+import { ToolTip } from '@gpa-gemstone/react-forms';
 import ApplicationCategoryForm from './ApplicationCategoryForm';
 
 interface IProps { ApplicationCat: ApplicationCategory, stateSetter: (appcat: ApplicationCategory) => void }
