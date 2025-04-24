@@ -23,8 +23,8 @@
 
 import { Application, OpenXDA, SystemCenter } from "@gpa-gemstone/application-typings";
 import { ReactIcons } from "@gpa-gemstone/gpa-symbols";
-import { Input } from "@gpa-gemstone/react-forms";
-import { Modal, Search, ToolTip } from "@gpa-gemstone/react-interactive";
+import { Input, ToolTip } from "@gpa-gemstone/react-forms";
+import { Modal, Search } from "@gpa-gemstone/react-interactive";
 import { Table, Column } from "@gpa-gemstone/react-table";
 import React from "react";
 import { useAppDispatch, useAppSelector } from "../hooks";

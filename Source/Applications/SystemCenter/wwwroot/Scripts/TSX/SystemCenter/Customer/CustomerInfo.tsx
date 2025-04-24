@@ -23,7 +23,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import CustomerForm from './CustomerForm';
-import { ToolTip } from '@gpa-gemstone/react-interactive';
+import { ToolTip } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { OpenXDA } from '@gpa-gemstone/application-typings'
 import AdditionalFieldsProperties from '../CommonComponents/AdditionalFieldsProperties';
