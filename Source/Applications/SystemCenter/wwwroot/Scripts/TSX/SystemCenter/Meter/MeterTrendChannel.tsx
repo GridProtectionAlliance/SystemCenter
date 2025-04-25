@@ -431,6 +431,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                         Field={'PerUnitValue'}
                                         Type={'number'}
                                         Label={''}
+                                        AllowNull={true}
                                         Setter={(r) => createChange(item.ID, 'PerUnitValue', r.PerUnitValue)}
                                         Valid={(f) => isValid(f, item)}
                                         Disabled={!hasPermissions()}

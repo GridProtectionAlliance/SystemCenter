@@ -582,7 +582,7 @@ export default function ChannelPage(props: IProps) {
                         HeaderStyle={{width: 'auto'}}
                         RowStyle={{width: 'auto'}}
                         Content={({ item }) => <Input<OpenXDA.Types.Channel> Field={'PerUnitValue'} Type={'number'} Record={item}
-                            Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />}>
+                            AllowNull={true}  Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />}>
                         Per Unit
                     </Column>
                 </ConfigurableColumn >
