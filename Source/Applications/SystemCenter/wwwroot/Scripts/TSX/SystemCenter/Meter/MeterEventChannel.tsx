@@ -332,6 +332,26 @@ const MeterEventChannelWindow = (props: IProps) => {
                                     Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()}/>}>
                             </Column>
                         </ConfigurableColumn >
+                        <ConfigurableColumn Key='PerUnitValue' Label='Per Unit' Default={false}>
+                            <Column<OpenXDA.EventChannel>
+                                Key={'PerUnitValue'}
+                                HeaderStyle={{ width: '7%' }}
+                                RowStyle={{ width: '7%' }}
+                                Content={({ item }) => (
+                                    <Input<OpenXDA.EventChannel>
+                                        Record={item}
+                                        Field={'PerUnitValue'}
+                                        Type={'number'}
+                                        Label={''}
+                                        AllowNull={true}
+                                        Setter={(r) => createChange(r, 'PerUnitValue')}
+                                        Valid={(f) => isValid(f, item)}
+                                        Disabled={!hasPermissions()}
+                                    />
+                                )}
+                            > Per Unit
+                            </Column>
+                        </ConfigurableColumn>
                         <ConfigurableColumn Key='Asset' Label='Asset' Default={true}>
                             <Column<OpenXDA.EventChannel>
                                 Key={'Asset'} Field={'Asset'}
