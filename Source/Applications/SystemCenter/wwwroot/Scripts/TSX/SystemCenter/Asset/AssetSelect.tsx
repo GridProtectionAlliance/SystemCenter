@@ -41,7 +41,6 @@ interface IProps {
     Type?: 'single' | 'multiple',
     StorageID?: string,
     Title?: string,
-    LocationKey?: string,
     children?: React.ReactNode
 }
 
@@ -50,26 +49,14 @@ export default function AssetSelect(props: IProps) {
     const assetTypeStatus = useAppSelector(AssetTypeSlice.Status);
     const dispatch = useAppDispatch();
 
-    const lineSegmentFilter: Search.IFilter<SystemCenter.Types.DetailedAsset> = {
+    const lineSegmentFilter: Search.IFilter<SystemCenter.Types.DetailedAsset> =
+    {
         FieldName: 'AssetType',
         SearchText: 'LineSegment',
         Operator: '<>',
         Type: 'string',
         IsPivotColumn: false
     };
-
-    const locationFilter: Search.IFilter<SystemCenter.Types.DetailedAsset> = {
-        FieldName: "Location",
-        SearchText: `${props.LocationKey}`,
-        Operator: "LIKE",
-        Type: "string",
-        IsPivotColumn: false
-    }
-
-    React.useEffect(() => {
-        if (props.LocationKey != undefined && props.StorageID != undefined)
-            localStorage.setItem(`${props.StorageID}.Filters`, JSON.stringify([locationFilter]));
-    }, [props.LocationKey])
 
     React.useEffect(() => {
         if (assetTypeStatus == 'changed' || assetTypeStatus == 'unintiated')
