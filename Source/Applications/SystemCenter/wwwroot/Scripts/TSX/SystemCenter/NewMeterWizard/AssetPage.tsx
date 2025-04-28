@@ -513,7 +513,7 @@ export default function AssetPage(props: IProps) {
                     }}>
                     <li className="nav-item" style={{ width: '20%', paddingRight: 10 }}>
                         <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                            <legend className="w-auto" style={{ fontSize: 'large', height: '100%' }}>Actions:</legend>
+                            <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                             <form>
                                 <div className="form-group">
                                     <LocationDrawings LocationID={props.Location.ID} />
