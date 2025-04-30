@@ -23,11 +23,12 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '@gpa-gemstone/application-typings';
+import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { LocationSlice } from '../Store/Store';
 import MeterLocationProperties from '../Meter/PropertyUI/MeterLocationProperties';
+import { Search } from '@gpa-gemstone/react-interactive';
 
 interface IProps {
     LocationInfo: OpenXDA.Types.Location,
@@ -72,18 +73,32 @@ export default function LocationPage(props: IProps) {
         props.SetError(error);
     }, [props.LocationInfo]);
 
-
-
     function getDifferentMeterLocation(meterLocationID: number): void {
         props.UpdateLocationInfo(locations.find((value, index, object) => value.ID == meterLocationID));
     }
 
+    function setLocationFilter(meterLocationID: number) {
+        const location = locations.find((value) => value.ID == meterLocationID);
+        const locationFilter = {
+            FieldName: "Location",
+            SearchText: `${location.LocationKey}`,
+            Operator: "LIKE",
+            Type: "string",
+            IsPivotColumn: false
+        }
+        const localFilters: Search.IFilter<SystemCenter.Types.DetailedAsset>[] =
+            JSON.parse(localStorage.getItem(`NewMeterWizard.AssetPage.Filters`) ?? '[]');
+
+        localStorage.setItem(`NewMeterWizard.AssetPage.Filters`, JSON.stringify([locationFilter, ...localFilters.filter(f => f.FieldName != "Location")]));
+    }
 
     return (
         <MeterLocationProperties Meter={{ LocationID: props.LocationInfo.ID == null ? '0' : props.LocationInfo.ID } as OpenXDA.Types.Meter} Location={props.LocationInfo} SetLocation={props.UpdateLocationInfo}
             UpdateMeter={(m) => {
-                if (m.LocationID != 0 && m.LocationID != null)
-                    getDifferentMeterLocation(m.LocationID)
+                if (m.LocationID != 0 && m.LocationID != null) {
+                    getDifferentMeterLocation(m.LocationID);
+                    setLocationFilter(m.LocationID);
+                }
                 else
                     props.UpdateLocationInfo({
                         ID: 0,

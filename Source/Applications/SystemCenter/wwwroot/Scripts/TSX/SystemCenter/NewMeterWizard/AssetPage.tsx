@@ -142,29 +142,6 @@ export default function AssetPage(props: IProps) {
         }
     }, [newEditAsset.AssetType]);
 
-    const locationFilter: Search.IFilter<SystemCenter.Types.DetailedAsset> = {
-        FieldName: "Location",
-        SearchText: `${props.Location.LocationKey}`,
-        Operator: "LIKE",
-        Type: "string",
-        IsPivotColumn: false
-    };
-
-    React.useEffect(() => {
-        if (props.PageID != undefined) {
-            const localFilters: Search.IFilter<SystemCenter.Types.DetailedAsset>[] =
-                JSON.parse(localStorage.getItem(`${props.PageID}.Filters`) ?? '[]');
-
-            // If locationFilter is an object, stringify it for comparison.
-            const locationFilterString = JSON.stringify(locationFilter);
-
-            // Ensure localFilters is an array (in case it's null or undefined).
-            if (localFilters.some(filter => JSON.stringify(filter) === locationFilterString)) return; // Skip if locationFilter is already there.
-
-            localStorage.setItem(`${props.PageID}.Filters`, JSON.stringify([locationFilter, ...localFilters]));
-        }
-    }, [props.Location, showAssetSelect]);
-
     React.useEffect(() => {
         if (props.PageID !== undefined && !localStorage.hasOwnProperty(props.PageID))
             localStorage.setItem(props.PageID, JSON.stringify([defaultFilt]));
