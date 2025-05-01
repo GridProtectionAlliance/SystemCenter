@@ -196,7 +196,11 @@ const ByAllSubscription = (props: IProps) => {
                             Field={'LastSent'}
                             HeaderStyle={{ width: '10%' }}
                             RowStyle={{ width: '10%' }}
-                            Content={({ item }) => (item.Approved && item.LastSent != null) ? moment(item.LastSent).format("dd/MM/yy hh:mm") : "N/A" }
+                            Content={({ item }) =>
+                                item.RequireApproval ?
+                                    (item.Approved && item.LastSent != null) ? moment(item.LastSent).format("DD/MM/yy hh:mm") : "N/A"
+                                : item.LastSent != null ? moment(item.LastSent).format("DD/MM/yy hh:mm") : "N/A"
+                            }
                         > Last Sent
                         </Column>
                         <Column<ActiveSubscription>
