@@ -47,7 +47,7 @@ export const AssetGroupSlice = new GenericSlice<OpenXDA.Types.AssetGroup>("Asset
 export const SettingSlice = new GenericSlice<SystemCenter.Types.Setting>('Setting', `${homePath}api/Setting`, 'Name');
 export const EventSubscriptionSlice = new GenericSlice<SubscribeEmails>('EventSubscription', `${homePath}api/EventSubscription`, 'FirstName');
 export const ReportSubscriptionSlice = new GenericSlice<SubscribeReports>('ReportSubscription', `${homePath}api/ReportSubscription`, 'FirstName');
-export const ActiveSubscriptionSlice = new GenericSlice<ActiveSubscription>('ActiveSubscription', `${homePath}api/ActiveSubscription`, 'Email');
+export const ActiveSubscriptionSlice = new GenericSlice<ActiveSubscription>('ActiveSubscription', `${homePath}api/ActiveSubscription`, 'LastSent');
 export const ActiveReportSubscriptionSlice = new GenericSlice<ActiveReportSubscription>('ActiveReportSubscription', `${homePath}api/ActiveScheduleSubscription`, 'Email');
 
 export const UserInfoSlice = new UserInfoSliceClass('UserInfo', `${homePath}api/UserInfo`);
