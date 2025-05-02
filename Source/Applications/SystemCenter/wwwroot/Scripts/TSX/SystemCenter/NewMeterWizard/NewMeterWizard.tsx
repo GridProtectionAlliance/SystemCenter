@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
+import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import { LoadingScreen, ServerErrorIcon, Warning, Modal, ProgressBar } from '@gpa-gemstone/react-interactive';
 import { ToolTip } from '@gpa-gemstone/react-forms';
 import { useAppDispatch, useAppSelector } from '../hooks';
@@ -42,7 +42,7 @@ import MultipleAssetsPage from './MultipleAssetsPage';
 import CustomerAssetGroupPage from './CustomerAssetGroupPage';
 import LineSegmentWindow from '../AssetAttribute/LineSegmentWindow';
 import LocationDrawings from '../Meter/PropertyUI/LocationDrawings';
-
+import AdditionalFieldsPage from './AdditionalFieldsPage'
 // Define Step Numbers
 const generalStep: number = 1;
 const locationStep: number = generalStep + 1;
@@ -81,6 +81,9 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
     const mStatus = useAppSelector(SelectMeterStatus);
     const lStatus = useAppSelector(LocationSlice.Status);
 
+    const nextStepCallback = React.useRef<{ OnExit: () => PromiseLike<void>, OnEnter: () => PromiseLike<void> } | undefined>(undefined);
+
+
     // Meter Info
     const [currentStep, setCurrentStep] = React.useState<number>(getCurrentStep());
     const [meterID, setMeterID] = React.useState<number>(getMeterID()); // This in particular indicates a post submission state, we want to seperate this out to ensure we don't use old data
@@ -98,9 +101,9 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
     const [showSubmit, setShowSubmit] = React.useState<boolean>(false);
     const [status, setStatus] = React.useState<Application.Types.Status>('unintiated');
 
-    // Callback for saving additional fields
-    const nextStepCallback = React.useRef<{ cleanup: () => void, getHandle: () => Promise<void> }>(undefined);
+    const [addlFldValues, setAddlFldValues] = React.useState<SystemCenter.Types.AdditionalFieldValue[]>([]);
 
+    // Callback for saving additional fields
     React.useEffect(() => {
         if (mStatus === 'unintiated' || mStatus === 'changed')
             dispatch(FetchMeter());
@@ -293,27 +296,28 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
         if (disableNext())
             return;
 
-        const restOfnext = () => {
-            setError([]);
-            setWarning([]);
-            // Make sure currentStep is set to something reasonable
-            if (isSubmitStep())
-                setCurrentStep(saveStep + 1);
-            else if (currentStep >= finalStep)
-                setCurrentStep(finalStep);
-            else
-                setCurrentStep(currentStep + 1);
-
-            if (isFinalStep())
-                clearData();
-        }
-
         // Handle Additional Fields
         if (currentStep === additionalFieldAssetStep || currentStep === additionalFieldMeterStep) {
-            const handle = nextStepCallback.current.getHandle();
-            handle.then(restOfnext);
+            
+            const handle = nextStepCallback.current?.OnExit().then(() => { setCurrentStep(currentStep + 1);});
+            setError([]);
+            setWarning([]);
+            return;
         }
-        else restOfnext();
+       
+        setError([]);
+        setWarning([]);
+        
+        // Make sure currentStep is set to something reasonable
+        if (isSubmitStep())
+            setCurrentStep(saveStep + 1);
+        else if (currentStep >= finalStep)
+            setCurrentStep(finalStep);
+        else
+            setCurrentStep(currentStep + 1);
+
+        if (isFinalStep())
+            clearData();
     }
 
     function prev() {
@@ -460,10 +464,11 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
                 return <MultipleAssetsPage SkipExisting={false} Assets={assets.filter(asset => asset.AssetType != 'LineSegment')} 
                     GetInnerComponent={(currentAsset) => <ConnectionPage AllAssets={assets} CurrentAsset={currentAsset} AssetConnections={assetConnections} UpdateAssetConnections={setAssetConnections} />} />
             case additionalFieldMeterStep:
-                return <AdditionalFieldsTable
-                    ID={meterID} Type='Meter' HideExternal={true}
-                    SaveFieldsCallback={nextStepCallback}
-                    SetInvalidMessageList={setError} />
+                return <AdditionalFieldsPage
+                    ID={meterID} Type='Meter' 
+                    AddlFieldValues={addlFldValues}
+                    SetAddlFieldValues={setAddlFldValues}
+                    SetError={setError} />
             case externalFieldStep:
                 return <ExternalDBUpdate ID={meterID} Type='Meter'/>
             case lineSegmentStep:
@@ -472,10 +477,13 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
             case additionalFieldAssetStep:
                 return <MultipleAssetsPage Assets={assets} SkipExisting={true}
                     GetInnerComponent={(currentAsset) =>
-                        <AdditionalFieldsTable
-                            ID={currentAsset.ID} Type={currentAsset.AssetType} HideExternal={true}
-                            SaveFieldsCallback={nextStepCallback}
-                            SetInvalidMessageList={setError} />
+                        <AdditionalFieldsPage
+                            ref={nextStepCallback}
+                            ID={currentAsset.ID}
+                            Type={currentAsset.AssetType} 
+                            AddlFieldValues={addlFldValues}
+                            SetAddlFieldValues={setAddlFldValues}
+                            SetError={setError} />
                     }/>
             case customerAssetGroupMeterStep:
                 return <CustomerAssetGroupPage ID={meterID} Type={'Meter'} Name={meterInfo.AssetKey} SetWarning={setWarning} />
