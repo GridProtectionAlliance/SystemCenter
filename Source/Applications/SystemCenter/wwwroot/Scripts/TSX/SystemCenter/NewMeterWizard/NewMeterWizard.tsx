@@ -465,6 +465,7 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
                     GetInnerComponent={(currentAsset) => <ConnectionPage AllAssets={assets} CurrentAsset={currentAsset} AssetConnections={assetConnections} UpdateAssetConnections={setAssetConnections} />} />
             case additionalFieldMeterStep:
                 return <AdditionalFieldsPage
+                    ref={nextStepCallback}
                     ID={meterID} Type='Meter' 
                     AddlFieldValues={addlFldValues}
                     SetAddlFieldValues={setAddlFldValues}
