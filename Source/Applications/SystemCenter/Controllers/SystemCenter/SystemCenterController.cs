@@ -736,7 +736,7 @@ namespace SystemCenter.Controllers
             [Setting]
             [DefaultValue(false)]
             [SettingName("TrackAdditionalFields")]
-            public bool TrackAdditionalFields { get; } = false;
+            public bool TrackAdditionalFields { get; set; }
         }
 
         [HttpPatch, Route("Array")]
@@ -752,8 +752,9 @@ namespace SystemCenter.Controllers
                     {
                         foreach (AdditionalFieldValue value in values)
                         {
-                            new TableOperations<AdditionalFieldValue>(connection).AddNewOrUpdateRecord(value);
                             AddNote(value, connection);
+                            new TableOperations<AdditionalFieldValue>(connection).AddNewOrUpdateRecord(value);
+
                         }
                         return Ok("Patched values without exception.");
                     }
@@ -773,11 +774,11 @@ namespace SystemCenter.Controllers
 
         private void AddNote(AdditionalFieldValue newValue, AdoDataConnection connection)
         {
-            Settings config = new Settings(new ConfigurationLoader(() => connection).Configure);
+            Settings config = new Settings(new ConfigurationLoader(() => new AdoDataConnection(Connection)).Configure);
 
             if (!config.TrackAdditionalFields)
                 return;
-            AdditionalField field = new TableOperations<AdditionalField>(connection).QueryRecordWhere("ID = {0}", newValue.AdditionalFieldID);
+            AdditionalField field = new TableOperations<AdditionalField>(connection).QueryRecordsWhere("ID = {0}", newValue.AdditionalFieldID).FirstOrDefault();
             if (!(field.ExternalDBTableID is null) && !field.IsKey)
                 return;
 
@@ -788,13 +789,15 @@ namespace SystemCenter.Controllers
             NoteType noteType = new TableOperations<NoteType>(connection).QueryRecordWhere("ReferenceTableName = {0}", field.ParentTable);
 
             string note = $"Field {field.FieldName} was changed from \"{oldValue?.Value ?? ""}\" to \"{newValue.Value}\"";
-            new TableOperations<Notes>(connection).AddNewRecord(new Notes() {
+            new TableOperations<Notes>(connection).AddNewRecord(new Notes()
+            {
                 UserAccount = User.Identity.Name,
                 Note = note,
                 ReferenceTableID = newValue.ParentTableID,
                 NoteApplicationID = noteApplication.ID,
                 NoteTagID = noteTag.ID,
-                NoteTypeID = noteType.ID
+                NoteTypeID = noteType.ID,
+                Timestamp = DateTime.UtcNow
             });
 
         }
