@@ -102,7 +102,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                         else if (iCurrent >= 0 && values[iCurrent].Value != value.Value)
                             setChanges((c) => { const u = _.cloneDeep(c); u.push(value); return u })
                         else if (iCurrent < 0)
-                            setChanges((c) => { const u = _.cloneDeep(c); u.splice(i); return u })
+                            setChanges((c) => { const u = _.cloneDeep(c); u.push(value); return u })
 
                         const iInvalid = invalidChanges.findIndex(item => item.FieldID == field.ID);
                         const iChange = validChanges.findIndex(item => item.FieldID == field.ID);
