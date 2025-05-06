@@ -368,7 +368,9 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
         if (localStorage.hasOwnProperty('NewMeterWizard.MeterID'))
             localStorage.removeItem('NewMeterWizard.MeterID')
         if (localStorage.hasOwnProperty(assetPageID))
-            localStorage.removeItem(assetPageID)
+            localStorage.removeItem(assetPageID);
+        if (localStorage.hasOwnProperty('NewMeterWizard.AssetPage.Filters'))
+            localStorage.removeItem('NewMeterWizard.AssetPage.Filters');
     }
 
     const header = React.useMemo(() => {
