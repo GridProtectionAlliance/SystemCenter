@@ -25,10 +25,10 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA, Application } from '@gpa-gemstone/application-typings';
-import { Input, Select, TextArea } from '@gpa-gemstone/react-forms';
-import { LoadingScreen, Search, ToolTip } from '@gpa-gemstone/react-interactive';
+import { Input, Select, TextArea, ToolTip } from '@gpa-gemstone/react-forms';
+import { LoadingScreen, Search } from '@gpa-gemstone/react-interactive';
 import MeterProperties from './PropertyUI/MeterProperties';
-import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
 import AdditionalFieldsProperties from '../CommonComponents/AdditionalFieldsProperties';
@@ -185,13 +185,13 @@ const MeterInforWindow = (props: IProps) => {
                 <ToolTip Show={(!validMeter() || !hasChanged()) && hover == 'submit'} Position={'top'} Target={"submit"}>
                     {!hasChanged() && hasPermissions()? <p> No changes made.</p> : null}
                     {!hasPermissions() ? <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p> : null}
-                    {!valid('AssetKey') ? <p> {CrossMark} A unique Key of less than 50 characters is required.</p> : null}
-                    {!valid('Name') ? <p> {CrossMark} A Name of less than 200 characters is required.</p> : null}
-                    {!valid('ShortName') ? <p> {CrossMark} Short Name must be less than 50 characters.</p> : null}
-                    {!valid('Alias') ? <p> {CrossMark} Alias must be less than 200 characters.</p> : null}
-                    {!valid('Make') ? <p> {CrossMark} Make is required.</p> : null}
-                    {!valid('Model') ? <p> {CrossMark} Model is required.</p> : null}
-                    {addlFieldError.map((message,i) => <p key={i}> {CrossMark} {message}</p>)}
+                    {!valid('AssetKey') ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> A unique Key of less than 50 characters is required.</p> : null}
+                    {!valid('Name') ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> A Name of less than 200 characters is required.</p> : null}
+                    {!valid('ShortName') ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> Short Name must be less than 50 characters.</p> : null}
+                    {!valid('Alias') ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> Alias must be less than 200 characters.</p> : null}
+                    {!valid('Make') ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> Make is required.</p> : null}
+                    {!valid('Model') ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> Model is required.</p> : null}
+                    {addlFieldError.map((message, i) => <p key={i}> <ReactIcons.CrossMark Color="var(--danger)" /> {message}</p>)}
                 </ToolTip>
                 <div className="btn-group mr-2">
                     <button className={"btn btn-warning" + (hasChanged() ? '' : ' disabled')} data-tooltip="clear" onClick={() => {
@@ -200,15 +200,15 @@ const MeterInforWindow = (props: IProps) => {
                     }} onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')} >Clear Changes</button>
                 </div>
                 <ToolTip Show={hasChanged() && hover == 'clear'} Position={'top'} Target={"clear"}>
-                    {props.Meter.AssetKey != meter.AssetKey ? <p> {Warning} Changes to Key will be discarded.</p> : null}
-                    {props.Meter.Name != meter.Name ? <p> {Warning} Changes to Name will be discarded.</p> : null}
-                    {props.Meter.ShortName != meter.ShortName ? <p> {Warning} Changes to Short Name will be discarded.</p> : null}
-                    {props.Meter.Alias != meter.Alias ? <p> {Warning} Changes to Alias will be discarded.</p> : null}
-                    {props.Meter.Make != meter.Make ? <p> {Warning} Changes to Make will be discarded.</p> : null}
-                    {props.Meter.Model != meter.Model ? <p> {Warning} Changes to Model will be discarded.</p> : null}
-                    {props.Meter.TimeZone != meter.TimeZone ? <p> {Warning} Changes to Time Zone will be discarded.</p> : null}
-                    {props.Meter.Description != meter.Description ? <p> {Warning} Changes to Description will be discarded.</p> : null}
-                    {addlFieldChanged.map((message, i) => <p key={i}> {Warning} {message}</p>)}
+                    {props.Meter.AssetKey != meter.AssetKey ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to Key will be discarded.</p> : null}
+                    {props.Meter.Name != meter.Name ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to Name will be discarded.</p> : null}
+                    {props.Meter.ShortName != meter.ShortName ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to Short Name will be discarded.</p> : null}
+                    {props.Meter.Alias != meter.Alias ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to Alias will be discarded.</p> : null}
+                    {props.Meter.Make != meter.Make ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to Make will be discarded.</p> : null}
+                    {props.Meter.Model != meter.Model ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to Model will be discarded.</p> : null}
+                    {props.Meter.TimeZone != meter.TimeZone ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to Time Zone will be discarded.</p> : null}
+                    {props.Meter.Description != meter.Description ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to Description will be discarded.</p> : null}
+                    {addlFieldChanged.map((message, i) => <p key={i}> <ReactIcons.Warning Color="var(--warning)" /> {message}</p>)}
                 </ToolTip>
             </div>
 

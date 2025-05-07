@@ -24,13 +24,13 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-import { LoadingScreen, ServerErrorIcon, ToolTip, Warning, Modal, ProgressBar } from '@gpa-gemstone/react-interactive';
+import { LoadingScreen, ServerErrorIcon, Warning, Modal, ProgressBar } from '@gpa-gemstone/react-interactive';
+import { ToolTip } from '@gpa-gemstone/react-forms';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import { CrossMark, Warning as WarningSymbol } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { SelectMeterStatus, FetchMeter } from '../Store/MeterSlice';
 import { useNavigate } from "react-router-dom";
 import { LocationSlice } from '../Store/Store';
-
 import MeterInfoPage from './MeterInfoPage';
 import LocationPage from './LocationPage';
 import ChannelPage from './ChannelPage';
@@ -550,11 +550,11 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
                     </div>
                 </div>
                 <ToolTip Show={hover == 'Next' && (warning.length > 0 || error.length > 0)} Position={'top'} Target={"Next"}>
-                    {error.map((item, index) => <p key={index}> {CrossMark} {item} </p>)}
-                    {warning.map((item, index) => <p key={index + 'w'}> {WarningSymbol} {item} </p>)}
+                    {error.map((item, index) => <p key={index}> <ReactIcons.CrossMark Color="var(--danger)" /> {item} </p>)}
+                    {warning.map((item, index) => <p key={index + 'w'}> <ReactIcons.Warning Color="var(--warning)" /> {item} </p>)}
                 </ToolTip>
                 <ToolTip Show={hover == 'Prev' && currentStep === saveStep + 1} Position={'top'} Target={"Prev"}>
-                    <p> {CrossMark} Cannot return to steps prior to submission. </p>
+                    <p> <ReactIcons.CrossMark Color="var(--danger)" /> Cannot return to steps prior to submission. </p>
                 </ToolTip>
                 <Warning Title="Create Meter" Message="Save Meter configuration to openXDA? Meter creation is required for additional configuration." Show={showSubmit} CallBack={(confirmed) => {
                     setShowSubmit(false);

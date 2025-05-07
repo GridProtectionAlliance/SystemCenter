@@ -27,8 +27,9 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import { RemoteXDAAssetSlice, ByAssetSlice } from '../Store/Store';
-import { LoadingScreen, Modal, Search, ServerErrorIcon, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
-import { CrossMark, HeavyCheckMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { LoadingScreen, Modal, Search, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
+import { ToolTip } from '@gpa-gemstone/react-forms';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { BlankRemoteXDAAsset, RemoteAssetForm } from './RemoteAssetForm';
 import AssetSelect from '../Asset/AssetSelect';
 import { SelectRoles } from '../Store/UserSettings';
@@ -162,7 +163,7 @@ const RemoteAssetTab = (props: IProps) => {
                     Field={'Obsfucate'}
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
-                    Content={({ item }) => item.Obsfucate ? HeavyCheckMark : null }
+                    Content={({ item }) => item.Obsfucate ? <ReactIcons.CheckMark Color="var(--success)" /> : null }
                 > Obfuscated
                 </Column>
                 <Column<OpenXDA.Types.RemoteXDAAsset>
@@ -171,7 +172,7 @@ const RemoteAssetTab = (props: IProps) => {
                     Field={'Synced'}
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
-                    Content={({ item }) => item.Synced ? HeavyCheckMark : null}
+                    Content={({ item }) => item.Synced ? <ReactIcons.CheckMark Color="var(--success)" /> : null}
                 > Synced
                 </Column>
                 <Column<OpenXDA.Types.RemoteXDAAsset>
@@ -191,7 +192,7 @@ const RemoteAssetTab = (props: IProps) => {
                                     }
                                 }
                             }}>
-                            <span>{Pencil}</span>
+                            <span><ReactIcons.Pencil Color="var(--warning)" Size={20} /></span>
                         </button> : null)
                     }
                 > <p></p>
@@ -213,7 +214,7 @@ const RemoteAssetTab = (props: IProps) => {
                                     }
                                 }
                             }}>
-                            <span>{TrashCan}</span>
+                            <span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span>
                         </button> : null)
                     }
                 > <p></p>
@@ -267,7 +268,7 @@ const RemoteAssetTab = (props: IProps) => {
                 Size={"lg"}
                 ConfirmShowToolTip={newInstErrors.length > 0}
                 ConfirmToolTipContent={
-                    newInstErrors.map((t, i) => <p key={i}> {CrossMark} {t} </p>)
+                    newInstErrors.map((t, i) => <p key={i}> <ReactIcons.CrossMark Color="var(--danger)" /> {t} </p>)
                 }>
                 <RemoteAssetForm OriginalAsset={selectedAsset} SetRemoteAsset={setRemoteAsset} SetErrors={setNewInstErrors} />
             </Modal>

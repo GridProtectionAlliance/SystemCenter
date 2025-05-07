@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import { Modal } from '@gpa-gemstone/react-interactive'
-import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import EmailSelect from './EmailSelect';
 import AssetGroupSelection from '../AssetGroupSelection';
 import UserSelect from '../UserSelect';
@@ -100,7 +100,7 @@ const AddAllSubscription = (props: IProps) => {
                 DisableCancel={step == 'User'}
                 DisableConfirm={error.length > 0}
                 ConfirmShowToolTip={error.length > 0}
-                ConfirmToolTipContent={<> {error.map((s, i) => <p key={i}> {CrossMark} {s} </p>)}</>}
+                ConfirmToolTipContent={<> {error.map((s, i) => <p key={i}> <ReactIcons.CrossMark Color="var(--danger)" /> {s} </p>)}</>}
                 ConfirmBtnClass={'success-btn'}
                 CallBack={(c,b) => {
                     if (!b)

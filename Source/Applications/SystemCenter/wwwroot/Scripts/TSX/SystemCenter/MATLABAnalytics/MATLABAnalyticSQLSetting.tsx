@@ -26,8 +26,7 @@ import * as React from 'react';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { useAppDispatch } from '../hooks';
 import { MATLABAnalyticSlice } from '../Store/Store';
-import { TextArea } from '@gpa-gemstone/react-forms';
-import { ToolTip } from '@gpa-gemstone/react-interactive';
+import { TextArea, ToolTip } from '@gpa-gemstone/react-forms';
 
 const MATLABAnalyticSQLSetting = (props: { Record: OpenXDA.Types.MATLABAnalytic }) => {
     const [record, setRecord] = React.useState<OpenXDA.Types.MATLABAnalytic>(props.Record);

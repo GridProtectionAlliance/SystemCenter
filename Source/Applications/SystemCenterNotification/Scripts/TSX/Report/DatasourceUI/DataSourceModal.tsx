@@ -23,8 +23,8 @@
 
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import * as React from 'react';
-import { Modal, ToolTip } from '@gpa-gemstone/react-interactive'
-import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
+import { Modal } from '@gpa-gemstone/react-interactive';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { IDataSourceScheduledEmailType, IScheduledDataSource, IScheduledEmailDataSourceSetting } from '../../global';
 import { ScheduledDataSourceSettingSlice, ScheduledDataSourceSlice, ScheduledEmailDataSourceSlice } from '../../Store';
 import { Select } from '@gpa-gemstone/react-forms';
@@ -185,13 +185,13 @@ const DataSourceModal = (props: IProps) => {
             DisableConfirm={(props.Record == null || record == null) || (props.Record.ScheduledEmailDataSourceID == record.ScheduledEmailDataSourceID && changes.length == 0) || errors.length > 0}
             CancelShowToolTip={props.Record != null && record != null && (props.Record.ScheduledEmailDataSourceID != record.ScheduledEmailDataSourceID || changes.length > 0)}
             CancelToolTipContent={<>
-                {(props.Record != null && record != null && props.Record.ScheduledEmailDataSourceID != record.ScheduledEmailDataSourceID) ? <>{Warning}<p> Changes to Type will be lost. </p></> : null}
-                {changes.map((s, i) => <p key={i}> {Warning} {s} </p>)}
+                {(props.Record != null && record != null && props.Record.ScheduledEmailDataSourceID != record.ScheduledEmailDataSourceID) ? <><ReactIcons.Warning Color="var(--warning)" /><p> Changes to Type will be lost. </p></> : null}
+                {changes.map((s, i) => <p key={i}> <ReactIcons.Warning Color="var(--warning)" /> {s} </p>)}
             </>}
             ConfirmShowToolTip={(props.Record !== null && record != null && props.Record.ScheduledEmailDataSourceID == record.ScheduledEmailDataSourceID && changes.length == 0) || errors.length > 0}
             ConfirmToolTipContent={<>
                 {(props.Record !== null && record != null && props.Record.ScheduledEmailDataSourceID == record.ScheduledEmailDataSourceID && changes.length == 0) ? <p> No Changes have been made</p> : null}
-                {errors.map((e, i) => <p key={i}> {CrossMark} {e} </p>)}
+                {errors.map((e, i) => <p key={i}> <ReactIcons.CrossMark Color="var(--danger)" /> {e} </p>)}
             </>}
         >
             <div className="row">

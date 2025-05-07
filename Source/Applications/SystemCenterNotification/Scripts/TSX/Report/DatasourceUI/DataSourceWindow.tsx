@@ -110,7 +110,7 @@ const DataSourceWindow = (props: IProps) => {
                                                         setShowDataSourceModal(true);
                                                     }
                                                 }>
-                                                    <span><ReactIcons.Pencil /></span>
+                                                    <span><ReactIcons.Pencil Color="var(--warning)" Size={20} /></span>
                                                 </button>
                                                 <button
                                                     className="btn btn-sm mr-1"
@@ -120,7 +120,7 @@ const DataSourceWindow = (props: IProps) => {
                                                         setShowRemoveWarning(true);
                                                     }
                                                 }>
-                                                    <span><ReactIcons.TrashCan /></span>
+                                                    <span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span>
                                                 </button>
                                             </>}
                                         >

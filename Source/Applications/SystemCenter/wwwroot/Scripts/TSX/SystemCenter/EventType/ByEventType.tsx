@@ -25,7 +25,7 @@ import * as _ from 'lodash';
 import { Modal, GenericController } from '@gpa-gemstone/react-interactive';
 import * as React from 'react';
 import EventTypeForm from './EventTypeForm';
-import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import GenericByPage from '../CommonComponents/GenericByPage';
 import { SystemCenter } from '../global'
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
@@ -77,7 +77,7 @@ const ByEventType: Application.Types.iByComponent = (props) => {
                 ShowX={true}
                 ConfirmShowToolTip={errors.length > 0}
                 ConfirmToolTipContent={
-                    errors.map((t, i) => <p key={i}> {CrossMark} {t} </p>)
+                    errors.map((t, i) => <p key={i}> <ReactIcons.CrossMark Color="var(--danger)" />{t} </p>)
                 }>
                     <EventTypeForm
                         Record={record}

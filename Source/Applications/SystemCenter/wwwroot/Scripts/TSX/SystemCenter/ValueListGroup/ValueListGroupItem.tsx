@@ -24,12 +24,11 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
-
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { ValueListSlice } from '../Store/Store';
 import ValueListForm from './ValueListForm';
 import { Table, Column } from '@gpa-gemstone/react-table';
-import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Modal, Warning } from '@gpa-gemstone/react-interactive';
 import { ValueListItemDelete } from './ValueListGroupDelete';
 
@@ -122,12 +121,12 @@ export default function ValueListGroupItems(props: IProps) {
                                     e.preventDefault();
                                     setRecord(item);
                                     setShowModal(true);
-                                }}>{Pencil}</button>
+                                }}><ReactIcons.Pencil Color="var(--warning)" Size={20} /></button>
                                 <button className="btn btn-sm" onClick={(e) => {
                                     e.preventDefault();
                                     setRecord(item);
                                     setShowWarning(true)
-                                }}>{TrashCan}</button>
+                                }}><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></button>
                             </> }
                         > <p></p>
                         </Column>
@@ -150,7 +149,7 @@ export default function ValueListGroupItems(props: IProps) {
                 />
             <Modal Title={record.ID == 0 ? 'Add New Value List Item' : 'Edit ' + (record.AltValue ?? record.Value)} Show={showModal} ShowCancel={false} ConfirmText={'Save'}
                 ConfirmShowToolTip={errors.length > 0}
-                CancelToolTipContent={<> {errors.map(e => <p>{CrossMark} {e}</p>)}</>}
+                CancelToolTipContent={<> {errors.map(e => <p><ReactIcons.CrossMark Color="var(--danger)" /> {e}</p>)}</>}
                 DisableConfirm={errors.length > 0}
                 ShowX={true} CallBack={(conf) => {
                     setShowModal(false);

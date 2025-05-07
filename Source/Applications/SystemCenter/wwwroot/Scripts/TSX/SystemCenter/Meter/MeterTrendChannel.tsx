@@ -25,9 +25,9 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '../global';
 import { Application, OpenXDA as GemstoneOpenXDA } from '@gpa-gemstone/application-typings';
-import { LoadingIcon, ServerErrorIcon, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
-import { Input, Select } from '@gpa-gemstone/react-forms';
-import { CrossMark, TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { LoadingIcon, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
+import { Input, Select, ToolTip } from '@gpa-gemstone/react-forms';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { IsNumber } from '@gpa-gemstone/helper-functions';
 import { TrendChannelSlice, PhaseSlice, MeasurmentTypeSlice, MeasurementCharacteristicSlice } from '../Store/Store';
 import { AssetAttributes } from '../AssetAttribute/Asset';
@@ -431,6 +431,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                         Field={'PerUnitValue'}
                                         Type={'number'}
                                         Label={''}
+                                        AllowNull={true}
                                         Setter={(r) => createChange(item.ID, 'PerUnitValue', r.PerUnitValue)}
                                         Valid={(f) => isValid(f, item)}
                                         Disabled={!hasPermissions()}
@@ -503,7 +504,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                     className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
                                     onClick={() => { if (hasPermissions()) setRemoveRecord(item); }}
                                 >
-                                    <span>{TrashCan}</span>
+                                    <span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span>
                                 </button>
                             )}
                         >&nbsp;
@@ -559,7 +560,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                     <ToolTip Show={hover == 'Update' && (errors.length > 0 || recordChanges.size == 0)} Position={'top'} Target={"Save"}>
                         {recordChanges.size == 0 && hasPermissions() ? <p> No changes have been made. </p> : null}
                         {!hasPermissions() ? <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p> : null}
-                        {errors.length > 0 ? errors.map((e, i) => <> {CrossMark} <p key={i}> {e} </p> </>) : null}
+                        {errors.length > 0 ? errors.map((e, i) => <> <ReactIcons.CrossMark Color="var(--danger)" /> <p key={i}> {e} </p> </>) : null}
                     </ToolTip>
                 </div>
                 <div className="btn-group mr-2">

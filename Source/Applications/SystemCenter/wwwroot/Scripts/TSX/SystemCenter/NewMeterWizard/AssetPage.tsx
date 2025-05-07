@@ -448,12 +448,12 @@ export default function AssetPage(props: IProps) {
                                             Content={({ index }) => <>
                                                 <button className="btn btn-sm" onClick={(e) => editAsset(index)}>
                                                     <span>
-                                                        <ReactIcons.Pencil />
+                                                        <ReactIcons.Pencil Color="var(--warning)" Size={20} />
                                                     </span>
                                                 </button>
                                                 <button className="btn btn-sm" onClick={(e) => { e.stopPropagation(); deleteAsset(index); }}>
                                                     <span>
-                                                        <ReactIcons.TrashCan />
+                                                        <ReactIcons.TrashCan Color="var(--danger)" Size={20} />
                                                     </span>
                                                 </button>
                                             </> }
@@ -557,7 +557,7 @@ export default function AssetPage(props: IProps) {
                     DisableConfirm={(AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType, allAssetKeys).length > 0) }
                     ConfirmShowToolTip={AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType, allAssetKeys).length > 0}
                     ConfirmToolTipContent={
-                        AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType, allAssetKeys).map((e, i) => <p key={i}><ReactIcons.CrossMark />{e}</p>)
+                        AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType, allAssetKeys).map((e, i) => <p key={i}><ReactIcons.CrossMark Color="var(--danger)" />{e}</p>)
                     }
                 >
                     <div className="row">

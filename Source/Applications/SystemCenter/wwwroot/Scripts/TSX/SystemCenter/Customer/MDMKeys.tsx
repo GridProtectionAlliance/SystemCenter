@@ -22,9 +22,9 @@
 //******************************************************************************************************
 
 import { Application, OpenXDA, SystemCenter } from "@gpa-gemstone/application-typings";
-import { CrossMark } from "@gpa-gemstone/gpa-symbols";
-import { Input } from "@gpa-gemstone/react-forms";
-import { Modal, Search, ToolTip } from "@gpa-gemstone/react-interactive";
+import { ReactIcons } from "@gpa-gemstone/gpa-symbols";
+import { Input, ToolTip } from "@gpa-gemstone/react-forms";
+import { Modal, Search } from "@gpa-gemstone/react-interactive";
 import { Table, Column } from "@gpa-gemstone/react-table";
 import React from "react";
 import { useAppDispatch, useAppSelector } from "../hooks";
@@ -146,7 +146,7 @@ function MDMKeys(props: IProps) {
                     DisableConfirm={errors.length > 0}
                     ConfirmShowToolTip={errors.length > 0}
                     ConfirmToolTipContent={
-                        errors.map((t, i) => <p key={i}>{CrossMark} {t} </p>)
+                        errors.map((t, i) => <p key={i}><ReactIcons.CrossMark Color="var(--danger)" /> {t} </p>)
                     }
                 >
                     <form>

@@ -26,10 +26,10 @@ import * as _ from 'lodash';
 import { OpenXDA, Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import CFGParser from '../../../TS/CFGParser';
 import { Input, Select, TextArea } from '@gpa-gemstone/react-forms';
-import { Modal, ToolTip, Warning, ServerErrorIcon, BtnDropdown } from '@gpa-gemstone/react-interactive';
+import { Modal, Warning, ServerErrorIcon, BtnDropdown } from '@gpa-gemstone/react-interactive';
 import PARParser from '../../../TS/PARParser';
 import { ConfigurableTable, ConfigurableColumn, Column } from '@gpa-gemstone/react-table';
-import { TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import ChannelScalingForm from '../Meter/ChannelScaling/ChannelScalingForm';
 import { MeasurementCharacteristicSlice, MeasurmentTypeSlice, PhaseSlice } from '../Store/Store';
 import { useAppDispatch, useAppSelector } from '../hooks';
@@ -582,7 +582,7 @@ export default function ChannelPage(props: IProps) {
                         HeaderStyle={{width: 'auto'}}
                         RowStyle={{width: 'auto'}}
                         Content={({ item }) => <Input<OpenXDA.Types.Channel> Field={'PerUnitValue'} Type={'number'} Record={item}
-                            Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />}>
+                            AllowNull={true}  Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />}>
                         Per Unit
                     </Column>
                 </ConfigurableColumn >
@@ -634,7 +634,7 @@ export default function ChannelPage(props: IProps) {
                     Key={'DeleteButton'}
                     AllowSort={false}
                     Content={({ index }) => <button className="btn btn-sm"
-                        onClick={(e) => deleteChannel(index)}><span>{TrashCan}</span></button>}
+                        onClick={(e) => deleteChannel(index)}><span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span></button>}
                     RowStyle={{ width: '62px', paddingTop: 36, paddingBottom: 36 }}
                 >
                     <p></p>

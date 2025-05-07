@@ -29,7 +29,8 @@ import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { useNavigate } from 'react-router-dom';
 import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
-import { ToolTip, ServerErrorIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
+import { ServerErrorIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
+import { ToolTip } from '@gpa-gemstone/react-forms';
 
 declare var homePath: string;
 declare var ace: any;

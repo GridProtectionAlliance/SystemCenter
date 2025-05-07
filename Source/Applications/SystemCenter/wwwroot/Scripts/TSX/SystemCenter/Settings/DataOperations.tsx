@@ -28,7 +28,7 @@ import * as React from 'react';
 import { DataOperationSlice } from '../Store/Store';
 import GenericByPage from '../CommonComponents/GenericByPage';
 import { Input } from '@gpa-gemstone/react-forms';
-import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 
 const controllerPath = `${homePath}api/OpenXDA/DataOperation`;
 const DataOperationController = new GenericController<OpenXDA.Types.DataOperation>(controllerPath, "ID", true);
@@ -116,7 +116,7 @@ const DataOperations: Application.Types.iByComponent = (props) => {
                 DisableConfirm={(editNew === 'Edit' && !hasChanged) || errors.length > 0}
                 ConfirmShowToolTip={errors.length > 0}
                 ConfirmToolTipContent={
-                    errors.map((t, i) => <p key={i}>{CrossMark} {t} </p>)
+                    errors.map((t, i) => <p key={i}><ReactIcons.CrossMark Color="var(--danger)" /> {t} </p>)
                 }
             >
                 <div className="row">

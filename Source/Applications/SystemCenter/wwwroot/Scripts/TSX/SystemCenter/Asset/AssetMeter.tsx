@@ -28,7 +28,8 @@ import { Table, Column } from '@gpa-gemstone/react-table';
 import { useNavigate } from "react-router-dom";
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
 import { ByMeterSlice } from '../Store/Store';
-import { Search, ToolTip } from '@gpa-gemstone/react-interactive';
+import { Search } from '@gpa-gemstone/react-interactive';
+import { ToolTip } from '@gpa-gemstone/react-forms';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
 

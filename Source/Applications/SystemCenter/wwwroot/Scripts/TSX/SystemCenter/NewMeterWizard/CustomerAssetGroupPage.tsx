@@ -30,7 +30,7 @@ import { LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
 import { CustomerSlice, AssetGroupSlice } from '../Store/Store';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import { TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 
 declare var homePath: string;
 
@@ -330,7 +330,12 @@ export default function CustomerAssetGroupPage(props: IProps) {
                                             AllowSort={false}
                                             HeaderStyle={{ width: 'auto' }}
                                             RowStyle={{ width: 'auto' }}
-                                            Content={({ item }) => <button className="btn btn-sm" onClick={(e) => deleteCustomer(item)}>{TrashCan}</button> }
+                                            Content={({ item }) =>
+                                                <button className="btn btn-sm"
+                                                    onClick={(e) => deleteCustomer(item)}>
+                                                    <ReactIcons.TrashCan Color="var(--danger)" Size={20} />
+                                                </button>
+                                            }
                                         > <p></p>
                                         </Column>
                                     </Table>
@@ -403,7 +408,12 @@ export default function CustomerAssetGroupPage(props: IProps) {
                                             AllowSort={false}
                                             HeaderStyle={{ width: 'auto' }}
                                             RowStyle={{ width: 'auto' }}
-                                            Content={({ item }) => <button className="btn btn-sm" onClick={(e) => deleteGroup(item)}>{TrashCan}</button> }
+                                            Content={({ item }) =>
+                                                <button className="btn btn-sm"
+                                                    onClick={(e) => deleteGroup(item)}>
+                                                    <ReactIcons.TrashCan Color="var(--danger)" Size={20} />
+                                                </button>
+                                            }
                                         > <p></p>
                                         </Column>
                                     </Table>

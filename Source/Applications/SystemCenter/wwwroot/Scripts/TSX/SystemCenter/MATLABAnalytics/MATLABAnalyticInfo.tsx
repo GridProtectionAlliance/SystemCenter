@@ -26,8 +26,8 @@ import * as React from 'react';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { useAppDispatch } from '../hooks';
 import { MATLABAnalyticSlice, MATLABAnalyticEventTypeSlice, MATLABAnalyticAssetTypeSlice } from '../Store/Store';
-import { ToolTip } from '@gpa-gemstone/react-interactive';
-import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import { ToolTip } from '@gpa-gemstone/react-forms';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import MATLABAnalyticForm from './MATLABAnalyticForm';
 
 
@@ -104,7 +104,7 @@ const MATLABAnalyticInfo = (props: { Record: OpenXDA.Types.MATLABAnalytic, ETRec
                 <ToolTip Position={'top'} Target={"Update-Info"}
                     Show={hover == 'update' && (errors.length > 0 || (record == props.Record && eventTypeRecord == props.ETRecords && assetTypeRecord == props.ATRecords))}>
                         {(record == props.Record) ? <p>No changes made.</p> : null}
-                        {errors.map((t, i) => <p key={i}>{CrossMark} {t}</p>)}
+                    {errors.map((t, i) => <p key={i}><ReactIcons.CrossMark Color="var(--danger)" /> {t}</p>)}
                 </ToolTip>
             </div>
         </div>

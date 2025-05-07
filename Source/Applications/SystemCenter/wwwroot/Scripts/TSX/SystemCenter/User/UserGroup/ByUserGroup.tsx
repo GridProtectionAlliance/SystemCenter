@@ -22,7 +22,7 @@
 
 import * as React from 'react';
 import { Table, Column } from '@gpa-gemstone/react-table';
-import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { SearchBar, Search, Modal, ServerErrorIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
 import { Application } from '@gpa-gemstone/application-typings';
 import * as _ from 'lodash';
@@ -180,7 +180,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
                 }}
                 ConfirmShowToolTip={groupError.length > 0}
                 ConfirmToolTipContent={<>
-                    {groupError.map((t, i) => <p key={i}>{CrossMark} {t}</p>)}
+                    {groupError.map((t, i) => <p key={i}><ReactIcons.CrossMark Color="var(--danger)" /> {t}</p>)}
                 </>}
                 DisableConfirm={groupError.length > 0}
             >

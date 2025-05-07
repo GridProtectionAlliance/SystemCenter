@@ -23,13 +23,13 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { CheckBox, Input } from '@gpa-gemstone/react-forms';
+import { Input, ToolTip } from '@gpa-gemstone/react-forms';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
 import { useAppSelector } from '../hooks';
 import { createPortal } from "react-dom";
 import { IsCron } from '@gpa-gemstone/helper-functions';
-import { Modal, ToolTip } from '@gpa-gemstone/react-interactive';
+import { Modal } from '@gpa-gemstone/react-interactive';
 import { LoadingScreen } from '@gpa-gemstone/react-interactive';
 import { SelectRoles } from '../Store/UserSettings';
 

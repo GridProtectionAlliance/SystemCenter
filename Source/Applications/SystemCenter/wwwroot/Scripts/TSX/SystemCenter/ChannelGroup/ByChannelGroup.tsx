@@ -30,7 +30,7 @@ import { useNavigate } from "react-router-dom";
 import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
 import { GenericController, Modal } from '@gpa-gemstone/react-interactive';
 import ChannelGroupForm from './ChannelGroupForm';
-import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import GenericByPage from '../CommonComponents/GenericByPage';
 
 const fieldCols: LocalSC.IByCol<LocalSC.ChannelGroupView>[] = [
@@ -105,7 +105,7 @@ const ChannelGroups: Application.Types.iByComponent = () => {
                 ConfirmBtnClass={'btn-primary'}
                 ConfirmText={'Save'}
                 ConfirmShowToolTip={errors.length > 0}
-                ConfirmToolTipContent={errors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}
+                ConfirmToolTipContent={errors.map((e, i) => <p key={i}><ReactIcons.CrossMark Color="var(--danger)" /> {e}</p>)}
                 DisableConfirm={errors.length > 0}
                 Show={showNew} >
                 <ChannelGroupForm Record={record} Setter={setRecord} />

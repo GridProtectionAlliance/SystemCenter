@@ -266,7 +266,7 @@ function AdditionalFieldsTable(props: IProps): JSX.Element {
                     Field={'Searchable'}
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
-                    Content={({ item }) => item.Searchable ? <ReactIcons.CheckMark /> : ''}
+                    Content={({ item }) => item.Searchable ? <ReactIcons.CheckMark Color="var(--success)" /> : ''}
                 > Searchable
                 </Column>
                 <Column<SystemCenter.Types.AdditionalFieldView>
@@ -297,7 +297,7 @@ function AdditionalFieldsTable(props: IProps): JSX.Element {
                                         e.preventDefault();
                                         setShowExt(true);
                                         setKeyField(item);
-                                    }}><ReactIcons.Pencil /></button>
+                                    }}><ReactIcons.Pencil Color="var(--danger)" Size={20} /></button>
                                 <button
                                     data-tooltip={`${item.ID}_delete`}
                                     onMouseEnter={() => setHover(`${item.ID}_delete`)}
@@ -305,7 +305,7 @@ function AdditionalFieldsTable(props: IProps): JSX.Element {
                                     className="btn btn-sm pull-right" onClick={(e) => {
                                         e.preventDefault();
                                         keyModalCallback(null);
-                                    }}><ReactIcons.CrossMark /></button>
+                                    }}><ReactIcons.CrossMark Color="var(--danger)" Size={20} /></button>
                             </> : null}
                 > <p></p>
                 </Column>

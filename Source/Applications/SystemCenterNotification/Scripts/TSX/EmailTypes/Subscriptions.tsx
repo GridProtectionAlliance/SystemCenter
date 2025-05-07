@@ -24,7 +24,7 @@
 import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
 import { LoadingScreen } from '@gpa-gemstone/react-interactive'
-import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { EmailType, SubscribeEmails } from '../global';
 import { EventSubscriptionSlice } from '../Store';
 import { Table, Column } from '@gpa-gemstone/react-table';
@@ -167,7 +167,7 @@ const Subscriptions = (props: IProps) => {
                                                 Field={'Approved'}
                                                 HeaderStyle={{ width: '20%' }}
                                                 RowStyle={{ width: '20%' }}
-                                                Content={({ item }) => item.Approved ? HeavyCheckMark :
+                                                Content={({ item }) => item.Approved ? <ReactIcons.CheckMark Color="var(--success)" /> :
                                                     <button type="button" className="btn btn-primary btn-sm" onClick={() => approve(item)}>Approve</button> }
                                             > Approved
                                             </Column>

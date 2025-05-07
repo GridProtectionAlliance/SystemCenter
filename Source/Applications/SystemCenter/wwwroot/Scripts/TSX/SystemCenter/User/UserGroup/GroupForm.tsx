@@ -26,7 +26,7 @@ import * as _ from 'lodash';
 import { SecurityGroupSlice } from '../../Store/Store';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { ISecurityGroup } from '../Types';
-import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 
 interface IProps {
     Group: ISecurityGroup,
@@ -120,9 +120,9 @@ function GroupForm(props: IProps) {
                         <div className="row" style={{ position: 'absolute', top: 0, left: 100 }} hidden={props.Group.Type == 'Database'}>
                             <span id="resolvingAccount" hidden={valid != 'resolving'}><i style={{ height: 10, width: 10, color: 'grey' }}
                                 className="fa fa fa-spin fa-refresh"></i>&nbsp;<em className="small">Resolving group details...</em></span>
-                            <span id="accountValid" hidden={valid != 'valid'}>{HeavyCheckMark} &nbsp;<em className="small">Resolved group name.</em></span>
-                            <span id="accountInvalid" hidden={valid != 'invalid'}>{CrossMark} &nbsp;<em className="small">Cannot resolve group name.</em></span>
-                            <span id="accountUnknown" hidden={valid != 'unknown'}>{CrossMark} &nbsp;<em className="small">Valid group name is not in Active Directory access is limited.</em></span>
+                            <span id="accountValid" hidden={valid != 'valid'}><ReactIcons.CheckMark Color="var(--success)" Size={15} /> &nbsp;<em className="small">Resolved group name.</em></span>
+                            <span id="accountInvalid" hidden={valid != 'invalid'}><ReactIcons.CrossMark Color="var(--danger)" Size={15} /> &nbsp;<em className="small">Cannot resolve group name.</em></span>
+                            <span id="accountUnknown" hidden={valid != 'unknown'}><ReactIcons.CrossMark Color="var(--danger)" Size={15} /> &nbsp;<em className="small">Valid group name is not in Active Directory access is limited.</em></span>
                         </div>
                         <div className="row">
                             <div className="col">

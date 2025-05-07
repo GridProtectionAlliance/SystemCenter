@@ -22,16 +22,13 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import {  ToolTip } from '@gpa-gemstone/react-interactive'
-import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { CellCarrierSlice, UserInfoSlice } from '../Store';
 import { IsInteger } from '@gpa-gemstone/helper-functions';
 import EmailConfirm from '../Subscriptions/ConfirmEmail';
 import { ICellCarrier } from '../global';
-import { Select } from '@gpa-gemstone/react-forms';
-import { Input } from '@gpa-gemstone/react-forms';
-
+import { Select, Input, ToolTip } from '@gpa-gemstone/react-forms';
 
 declare var homePath;
 declare var version;
@@ -135,13 +132,13 @@ const ByUserInformation = (props: IProps) => {
                 </div>
             </div>
             <ToolTip Show={(!validPhone || (phone.phone == userPhone && carrier.ID == userCarrier)) && hover == 'submit'} Position={'top'} Target={"submit"}>
-                {!validPhone ? <p> {CrossMark} A valid Cell Phone is required.</p> : null}
+                {!validPhone ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> A valid Cell Phone is required.</p> : null}
                 {(phone.phone == userPhone && carrier.ID == userCarrier) ? <p> No Changes were made.</p> : null}
             </ToolTip>
             <ToolTip Show={hover == 'clear'} Position={'top'} Target={"clear"}>
                 {(phone.phone == userPhone && carrier.ID == userCarrier) ? <p> No Changes were made.</p> : null}
-                {(phone.phone != userPhone) ? <p> {Warning} Changes to Cell Phone will be lost.</p> : null}
-                {(carrier.ID != userCarrier) ? <p> {Warning} Changes to Cell Carrier will be lost.</p> : null}
+                {(phone.phone != userPhone) ? <p> <ReactIcons.Warning Color="var(--warning" /> Changes to Cell Phone will be lost.</p> : null}
+                {(carrier.ID != userCarrier) ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to Cell Carrier will be lost.</p> : null}
             </ToolTip>
         </div>)
 }

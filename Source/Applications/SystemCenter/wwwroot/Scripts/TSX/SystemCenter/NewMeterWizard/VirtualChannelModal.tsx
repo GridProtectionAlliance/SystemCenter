@@ -201,8 +201,8 @@ export default function VirtualChannelModal(props: IProps) {
             Size={'xlg'}
             ConfirmShowToolTip={warnings?.length > 0 || errors?.length > 0}
             ConfirmToolTipContent={<>
-                {errors?.map((e) => <p><ReactIcons.CrossMark Size={10}/> {e}</p>)}
-                {warnings?.map((w) => <p><ReactIcons.Warning Size={10}/> {w}</p>)}
+                {errors?.map((e) => <p><ReactIcons.CrossMark Color="var(--danger)" Size={10}/> {e}</p>)}
+                {warnings?.map((w) => <p><ReactIcons.Warning Color="var(--warning)" Size={10}/> {w}</p>)}
             </>}
         >
             <div style={{height: 'calc(-250px + 100vh)'}}>
@@ -363,7 +363,7 @@ export default function VirtualChannelModal(props: IProps) {
                                         </div>
                                     </div>
                                     <button className='col-4 mt-2 btn btn-sm' onClick={() => removeVC(channel)}>
-                                        <ReactIcons.TrashCan />
+                                        <ReactIcons.TrashCan Color="var(--danger)" Size={20} />
                                     </button>
                                 </div>
                                 {(channel.Series === null || channel.Series == '') ?

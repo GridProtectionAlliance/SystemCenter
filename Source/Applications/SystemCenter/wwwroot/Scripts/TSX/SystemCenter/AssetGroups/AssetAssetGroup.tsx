@@ -28,8 +28,9 @@ import { useNavigate } from 'react-router-dom';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import { AssetGroupSlice, AssetTypeSlice } from '../Store/Store';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
-import { ToolTip, Warning } from '@gpa-gemstone/react-interactive';
-import { TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { Warning } from '@gpa-gemstone/react-interactive';
+import { ToolTip } from '@gpa-gemstone/react-forms';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import AssetSelect from '../Asset/AssetSelect';
 import { SelectRoles } from '../Store/UserSettings';
@@ -199,7 +200,10 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                             Content={({ item }) => <>
-                                <button className={"btn btn-sm" + (hasPermissions() ? ' disabled' : '')} onClick={(e) => { if (!hasPermissions()) setRemoveAsset(item.ID) }}><span>{TrashCan}</span></button>
+                                <button className={"btn btn-sm" + (hasPermissions() ? ' disabled' : '')}
+                                    onClick={(e) => { if (!hasPermissions()) setRemoveAsset(item.ID) }}>
+                                    <span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span>
+                                </button>
                             </> }
                         > <p></p>
                         </Column>

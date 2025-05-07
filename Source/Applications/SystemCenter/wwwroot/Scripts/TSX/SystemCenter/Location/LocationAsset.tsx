@@ -36,7 +36,8 @@ import { useAppSelector, useAppDispatch } from '../hooks';
 import { FetchAsset, SelectAssets, SelectAssetStatus } from '../Store/AssetSlice';
 import { AssetTypeSlice } from '../Store/Store';
 import { getAssetWithAdditionalFields, editExistingAsset } from '../../../TS/Services/Asset';
-import { LoadingIcon, Modal, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
+import { LoadingIcon, Modal, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { ToolTip } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import GenerationAttributes from '../AssetAttribute/Generation';
 import StationAuxAttributes from '../AssetAttribute/StationAux';
@@ -364,13 +365,13 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
                                             setNewEdit('Edit');
                                             setShowModal(true)
                                     }
-                                }}><ReactIcons.Pencil/></button>
+                                }}><ReactIcons.Pencil Color="var(--warning)" Size={20} /></button>
                                     <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => {
                                         if (hasPermissions()) {
                                             e.preventDefault();
                                             deleteAsset(item);
                                     }
-                                }}><ReactIcons.TrashCan/></button></>
+                                }}><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></button></>
                             }
                         > <p></p>
                         </Column>
@@ -418,7 +419,7 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
                 DisableConfirm={(assetErrors.length > 0) || (newEdit == 'Edit' && !assetChanged)}
                 ConfirmShowToolTip={(assetErrors.length > 0)}
                 ConfirmToolTipContent={
-                    assetErrors.map((e, i) => <p key={i}><ReactIcons.CrossMark/> {e}</p>)
+                    assetErrors.map((e, i) => <p key={i}><ReactIcons.CrossMark Color="var(--danger)" /> {e}</p>)
                 }
             >
                 <div className="row" style={{ maxHeight: innerHeight - 300, overflow: 'auto' }}>

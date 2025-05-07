@@ -24,7 +24,7 @@
 import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
 import { LoadingScreen, Modal, Search, SearchBar } from '@gpa-gemstone/react-interactive'
-import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
 import { EmailCategory } from '../global';
 import { EmailCategorySlice } from '../Store';
@@ -134,7 +134,7 @@ const ByEmailCategory = (props: IProps) => {
                             Field={'SelfSubscribe'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                            Content={({ item }) => item.SelfSubscribe ? HeavyCheckMark : CrossMark }
+                            Content={({ item }) => item.SelfSubscribe ? <ReactIcons.CheckMark Color="var(--success)" /> : <ReactIcons.CrossMark Color="var(--danger)" />}
                         > Self Subscription
                         </Column>
                     </Table>
@@ -151,7 +151,7 @@ const ByEmailCategory = (props: IProps) => {
                 DisableConfirm={errors.length > 0}
                 ConfirmShowToolTip={errors.length > 0}
                 ConfirmToolTipContent={
-                    errors.map((t, i) => <p key={i}>{CrossMark} {t} </p>)
+                    errors.map((t, i) => <p key={i}><ReactIcons.CrossMark Color="var(--danger)" /> {t} </p>)
                 }
             >
                 <EmailCategoryForm record={newEmailCategory} setRecord={setNewEmailCategory} />

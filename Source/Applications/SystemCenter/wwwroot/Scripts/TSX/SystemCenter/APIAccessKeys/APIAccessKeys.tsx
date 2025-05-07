@@ -177,7 +177,7 @@ const ByAPIAccessKeys: Application.Types.iByComponent = (props) => {
                             Field={'AllowImpersonation'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                            Content={({ item }) => item.AllowImpersonation ? ReactIcons.CheckMark : ReactIcons.CrossMark}
+                            Content={({ item }) => item.AllowImpersonation ? <ReactIcons.CheckMark Color="var(--success)" /> : <ReactIcons.CrossMark Color="var(--danger)" />}
                         > Allow Impersonation
                         </Column>
                     </Table>
@@ -207,7 +207,7 @@ const ByAPIAccessKeys: Application.Types.iByComponent = (props) => {
                 DisableConfirm={errors.length > 0 || formDisabled}
                 ConfirmText={newEdit == 'Edit' ? 'Save' : 'Generate New Key'}
                 ConfirmShowToolTip={errors.length > 0}
-                ConfirmToolTipContent={errors.map((t, i) => <p key={i}> {ReactIcons.CrossMark} {t}</p>)} >
+                ConfirmToolTipContent={errors.map((t, i) => <p key={i}><ReactIcons.CrossMark Color="var(--danger)" /> {t}</p>)} >
                 {showKeyWarning
                     ? <Alert Class={'alert-info'} ShowX={false}>
                         <p>You will only be able to view this API Key once. If it is lost, you will need to generate a new one.</p>

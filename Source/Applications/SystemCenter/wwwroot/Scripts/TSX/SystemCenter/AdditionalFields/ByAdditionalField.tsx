@@ -25,7 +25,7 @@ import * as React from 'react';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { Modal, Search, SearchBar } from '@gpa-gemstone/react-interactive';
-import { CrossMark, HeavyCheckMark, Warning as WarningIcon } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import AdditionalFieldForm from './AdditionalFieldForm';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { AdditionalFieldsSlice, ValueListGroupSlice } from '../Store/Store';
@@ -212,7 +212,7 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
                             Field={'Searchable'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                            Content={({ item }) => item.Searchable ? HeavyCheckMark : CrossMark }
+                            Content={({ item }) => item.Searchable ? <ReactIcons.CheckMark Color="var(--success)" /> : <ReactIcons.CrossMark Color="var(--danger)" /> }
                         > Searchable
                         </Column>
                         <Column<SystemCenter.Types.AdditionalFieldView>
@@ -221,7 +221,7 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
                             Field={'IsSecure'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                            Content={({ item }) => item.IsSecure ? HeavyCheckMark : CrossMark }
+                            Content={({ item }) => item.IsSecure ? <ReactIcons.CheckMark Color="var(--success)" /> : <ReactIcons.CrossMark  Color="var(--danger)" /> }
                         > Secure
                         </Column>
                         <Column<SystemCenter.Types.AdditionalFieldView>
@@ -230,7 +230,7 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
                             Field={'IsInfo'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                            Content={({ item }) => item.IsInfo ? HeavyCheckMark : CrossMark }
+                            Content={({ item }) => item.IsInfo ? <ReactIcons.CheckMark Color="var(--success)" /> : <ReactIcons.CrossMark Color="var(--danger)" /> }
                         > Info
                         </Column>
                         <Column<SystemCenter.Types.AdditionalFieldView>
@@ -239,7 +239,7 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
                             Field={'IsKey'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                            Content={({ item }) => item.IsKey ? HeavyCheckMark : CrossMark }
+                            Content={({ item }) => item.IsKey ? <ReactIcons.CheckMark Color="var(--success)" /> : <ReactIcons.CrossMark Color="var(--danger)" /> }
                         > Key
                         </Column>
                     </Table>
@@ -260,8 +260,8 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
                 ConfirmShowToolTip={errors.length + warnings.length > 0}
                 ConfirmToolTipContent={
                     <>
-                        {warnings.map((w, i) => <p key={i}>{WarningIcon} {w}</p>)}
-                        {errors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}
+                        {warnings.map((w, i) => <p key={i}><ReactIcons.Warning Color="var(--warning)" /> {w}</p>)}
+                        {errors.map((e, i) => <p key={i}><ReactIcons.CrossMark Color="var(--danger)" /> {e}</p>)}
                     </>
                 }
                 DisableConfirm={errors.length > 0}

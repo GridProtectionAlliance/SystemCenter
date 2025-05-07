@@ -26,7 +26,7 @@ import { SystemCenter } from '../global';
 import { useNavigate } from "react-router-dom";
 import { OpenXDA, Application } from '@gpa-gemstone/application-typings';
 import { Modal } from '@gpa-gemstone/react-interactive';
-import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 
 import MATLABAnalyticForm from './MATLABAnalyticForm';
 import GenericByPage from '../CommonComponents/GenericByPage';
@@ -118,7 +118,7 @@ const MATLABAnalytics: Application.Types.iByComponent = (props) => {
                 ConfirmBtnClass={'btn-primary'}
                 ConfirmText={'Save'}
                 ConfirmShowToolTip={errors.length > 0}
-                ConfirmToolTipContent={errors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}
+                ConfirmToolTipContent={errors.map((e, i) => <p key={i}><ReactIcons.CrossMark Color="var(--danger)" /> {e}</p>)}
                 DisableConfirm={errors.length > 0}
                 Show={showNew} >
                 <MATLABAnalyticForm

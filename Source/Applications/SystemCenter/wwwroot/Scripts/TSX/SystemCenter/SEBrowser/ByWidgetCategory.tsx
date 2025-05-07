@@ -72,7 +72,7 @@ const ByWidgetCategory: Application.Types.iByComponent = (props) => {
                 setNewCategory(emptyCategory);
             }} ShowCancel={false} ShowX={true} DisableConfirm={errors.length > 0}
                 ConfirmShowToolTip={errors.length > 0}
-                ConfirmToolTipContent={errors.map((t, i) => <p key={i}> <ReactIcons.CrossMark Color='red'/> {t}</p>)} >
+                ConfirmToolTipContent={errors.map((t, i) => <p key={i}> <ReactIcons.CrossMark Color='var(--danger)'/> {t}</p>)} >
                 <div className="row">
                     <CategoryForm Category={newCategory} stateSetter={setNewCategory} setErrors={setErrors} />
                 </div>

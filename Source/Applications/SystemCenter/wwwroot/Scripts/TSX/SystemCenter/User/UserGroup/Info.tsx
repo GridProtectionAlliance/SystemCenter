@@ -22,8 +22,8 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { ToolTip } from '@gpa-gemstone/react-interactive';
-import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
+import { ToolTip } from '@gpa-gemstone/react-forms';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { SecurityGroupSlice } from '../../Store/Store';
 import { useAppDispatch } from '../../hooks';
 import { ISecurityGroup } from '../Types';
@@ -87,10 +87,10 @@ const GroupInfo = (props: {Group: ISecurityGroup}) => {
                         onMouseEnter={() => setHover('Clear')} onMouseLeave={() => setHover('None')}>Clear Changes</button>
                 </div>
                 <ToolTip Show={hover === 'Clear' && (warnings.length > 0)} Position={'top'} Target={"Clr"}>
-                    {warnings.map((t, i) => <p key={i}>{Warning} {t}</p>)}
+                    {warnings.map((t, i) => <p key={i}><ReactIcons.Warning Color="var(--warning)" /> {t}</p>)}
                 </ToolTip>
                 <ToolTip Show={hover === 'Save' && (errors.length > 0)} Position={'top'} Target={"Save"}>
-                    {errors.map((t, i) => <p key={i}>{CrossMark} {t}</p>)}
+                    {errors.map((t, i) => <p key={i}><ReactIcons.CrossMark Color="var(--danger)" /> {t}</p>)}
                 </ToolTip>
             </div>
 

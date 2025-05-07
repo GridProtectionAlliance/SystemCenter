@@ -26,14 +26,14 @@ import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { AssetAttributes } from './Asset';
 import LineSegmentAttributes from './LineSegment';
-import { LoadingScreen, Modal, Warning, Search, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
+import { LoadingScreen, Modal, Warning, Search, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { Table, Column } from '@gpa-gemstone/react-table';
-import { CrossMark, HeavyCheckMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import moment from 'moment';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { LocationSlice, SourceImpedanceSlice } from '../Store/Store';
 import { IsInteger, IsNumber } from '@gpa-gemstone/helper-functions';
-import { Input, Select } from '@gpa-gemstone/react-forms';
+import { Input, Select, ToolTip } from '@gpa-gemstone/react-forms';
 import { SelectRoles } from '../Store/UserSettings';
 
 const newImpedance: OpenXDA.Types.SourceImpedance = { RSrc: 0, XSrc: 0, AssetLocationID: null, ID: 0 }
@@ -235,14 +235,14 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
                                         setNewEditImpedance(item);
                                         setNewEdit('Edit');
                                     }
-                                }}><span>{Pencil}</span></button>
+                                }}><span><ReactIcons.Pencil Color="var(--warning)" Size={20} /></span></button>
                             <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
                                 onClick={(e) => {
                                         if (hasPermissions()) {
                                             setNewEditImpedance(item);
                                             setshowWarning(true);
                                         }
-                                }}><span>{TrashCan}</span></button>
+                                }}><span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span></button>
                         </> }
                     > <p></p>
                     </Column>
@@ -273,7 +273,7 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
                 ConfirmText={'Save'}
                 DisableConfirm={validImpedance(newEditImpedance).length > 0}
                 ConfirmShowToolTip={validImpedance(newEditImpedance).length > 0}
-                ConfirmToolTipContent={validImpedance(newEditImpedance).map((t, i) => <p key={i}> {CrossMark} {t}</p>)}
+                ConfirmToolTipContent={validImpedance(newEditImpedance).map((t, i) => <p key={i}> <ReactIcons.CrossMark Color="var(--danger)" /> {t}</p>)}
             >
             <div className="row">
                     <div className="col">

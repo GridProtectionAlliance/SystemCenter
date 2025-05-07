@@ -27,7 +27,7 @@ import { ExternalXDAFieldsSlice } from '../../Store/Store';
 import ExternalDBXdaFieldsForm from './ExternalDBXdaFieldsForm';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { Table, Column } from '@gpa-gemstone/react-table';
-import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Modal, Warning } from '@gpa-gemstone/react-interactive';
 
 const emptyRecord: SystemCenter.Types.ExternalOpenXDAField = {
@@ -113,12 +113,12 @@ export default function ExternalDBXdaFields(props: { ID: number }) {
                                                     e.preventDefault();
                                                     setRecord(item);
                                                     setShowEdit(true);
-                                                }}>{Pencil}</button>
+                                                }}><ReactIcons.Pencil Color="var(--warning)" Size={20} /></button>
                                                 <button className="btn btn-sm" onClick={(e) => {
                                                     e.preventDefault();
                                                     setRecord(item);
                                                     setShowRemove(true);
-                                                }}>{TrashCan}</button>
+                                                }}><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></button>
                                             </>}
                                         > <p></p>
                                         </Column>
@@ -149,7 +149,7 @@ export default function ExternalDBXdaFields(props: { ID: number }) {
                         ConfirmShowToolTip={errors.length > 0} DisableConfirm={errors.length > 0} ShowX={true}
                         ConfirmToolTipContent={
                             <>
-                                { errors.map((e, i) => <p key={i}>{CrossMark} {e}</p>) }
+                                {errors.map((e, i) => <p key={i}><ReactIcons.CrossMark Color="var(--danger)" /> {e}</p>) }
                             </>
                         }
                         CallBack={(conf) => {
