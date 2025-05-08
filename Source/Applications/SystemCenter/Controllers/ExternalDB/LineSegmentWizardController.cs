@@ -546,27 +546,31 @@ public class LineSegmentWizardController : ApiController
 
         foreach (Section section in configuration.Sections)
         {
-            if (taps.FindIndex((t) => t.Name == section.Segments.First().FromBus) >= 0)
-                taps.Find((t) => t.Name == section.Segments.First().FromBus).SegmentID.Add(section.Segments.First().ID);
-            else
-                taps.Add(new TmpTap()
-                {
-                    SegmentID = new List<int>() { section.Segments.First().ID },
-                    StationID = new List<int>() { },
-                    Name = section.Segments.First().FromBus
-                });
-            if (taps.FindIndex((t) => t.Name == section.Segments.Last().ToBus) >= 0)
-                taps.Find((t) => t.Name == section.Segments.First().ToBus).SegmentID.Add(section.Segments.First().ID);
-            else
-                taps.Add(new TmpTap()
-                {
-                    SegmentID = new List<int>() { section.Segments.Last().ID },
-                    StationID = new List<int>() { },
-                    Name = section.Segments.Last().ToBus
-                });
+            string[] allBuses = section.Segments.SelectMany(s => new string[2] { s.FromBus, s.ToBus }).ToArray();
+            string[] endBuses = allBuses.Where(b => allBuses.Where(item => item == b).Count() == 1).ToArray();
+            foreach (string bus in endBuses)
+            {
+                if (taps.FindIndex((t) => t.Name == bus) >= 0)
+                    taps.Find((t) => t.Name == bus).SegmentID.Add(section.Segments.Find(item => item.FromBus == bus || item.ToBus == bus).ID);
+                else
+                    taps.Add(new TmpTap()
+                    {
+                        SegmentID = new List<int>() { section.Segments.Find(item => item.FromBus == bus || item.ToBus == bus).ID },
+                        StationID = new List<int>() { },
+                        Name = bus
+                    });
+            }
 
-            section.StartBus = section.Segments.First().FromBus;
-            section.EndBus = section.Segments.Last().ToBus;
+            //checks are on the off chance we have a circular line
+            if (endBuses.Length > 0)
+                section.StartBus = endBuses[0];
+            else
+                section.StartBus = section.Segments.First().FromBus;
+
+            if (endBuses.Length > 1)
+                section.EndBus = endBuses[1];
+            else
+                section.EndBus = section.Segments.Last().ToBus;
         }
 
         // Check if any Taps have single Segement that is end...
@@ -715,27 +719,34 @@ public class LineSegmentWizardController : ApiController
 
             foreach (Section section in configuration.Sections)
             {
-                if (taps.FindIndex((t) => t.Name == section.Segments.First().FromBus) >= 0)
-                    taps.Find((t) => t.Name == section.Segments.First().FromBus).SegmentID.Add(section.Segments.First().ID);
-                else
-                    taps.Add(new TmpTap()
-                    {
-                        SegmentID = new List<int>() { section.Segments.First().ID },
-                        StationID = new List<int>() { },
-                        Name = section.Segments.First().FromBus
-                    });
-                if (taps.FindIndex((t) => t.Name == section.Segments.Last().ToBus) >= 0)
-                    taps.Find((t) => t.Name == section.Segments.First().ToBus).SegmentID.Add(section.Segments.First().ID);
-                else
-                    taps.Add(new TmpTap()
-                    {
-                        SegmentID = new List<int>() { section.Segments.Last().ID },
-                        StationID = new List<int>() { },
-                        Name = section.Segments.Last().ToBus
-                    });
+                // Add Logic to find correct From and To Bus
+                // This is important because FAWG likes to invert Lines (A->B and C->B) so the segments go A->B C->B instead of expected A->B B-> C
 
-                section.StartBus = section.Segments.First().FromBus;
-                section.EndBus = section.Segments.Last().ToBus;
+                string[] allBuses = section.Segments.SelectMany(s => new string[2] { s.FromBus, s.ToBus }).ToArray();
+                string[] endBuses = allBuses.Where(b => allBuses.Where(item => item == b).Count() == 1).ToArray();
+                foreach (string bus in endBuses)
+                {
+                    if (taps.FindIndex((t) => t.Name == bus) >= 0)
+                        taps.Find((t) => t.Name == bus).SegmentID.Add(section.Segments.Find(item => item.FromBus == bus || item.ToBus == bus).ID);
+                    else
+                        taps.Add(new TmpTap()
+                        {
+                            SegmentID = new List<int>() { section.Segments.Find(item => item.FromBus == bus || item.ToBus == bus).ID },
+                            StationID = new List<int>() { },
+                            Name = bus
+                        });
+                }
+
+                //checks are on the off chance we have a circular line
+                if (endBuses.Length > 0)
+                    section.StartBus = endBuses[0];
+                else
+                    section.StartBus = section.Segments.First().FromBus;
+
+                if (endBuses.Length > 1)
+                    section.EndBus = endBuses[1];
+                else
+                    section.EndBus = section.Segments.Last().ToBus;
             }
 
             
