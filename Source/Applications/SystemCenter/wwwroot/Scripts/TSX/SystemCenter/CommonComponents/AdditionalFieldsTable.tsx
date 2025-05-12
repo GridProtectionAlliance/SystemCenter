@@ -40,177 +40,60 @@ declare var homePath: string;
 interface IProps {
     ID: number,
     Type: LocalXDA.AdditionalFieldType,
-    SaveFieldsCallback: React.MutableRefObject<{ cleanup: () => void, getHandle: () => Promise<void>}>,
-    ResetFieldsCallback?: React.MutableRefObject<() => void>,
-    SetChangedMessageList?: (messages: string[]) => void,
-    SetInvalidMessageList: (messages: string[]) => void,
-    SetHasEditPermissions?: (state: boolean) => void,
-    HideExternal: boolean
+    FieldValues: SystemCenter.Types.AdditionalFieldValue[],
+    SetValues: (value: SystemCenter.Types.AdditionalFieldValue, field: SystemCenter.Types.AdditionalField) => void
+    HideExternal: boolean,
+    LoadState: Application.Types.Status
 }
 
 function AdditionalFieldsTable(props: IProps): JSX.Element {
     const [additionalFields, setAdditionalFields] = React.useState<Array<SystemCenter.Types.AdditionalFieldView>>([]);
-    const [additionalFieldValues, setAdditionalFieldVaules] = React.useState<Array<SystemCenter.Types.AdditionalFieldValue>>([]);
-
-    const [additionalFieldValuesWorking, setAdditionalFieldValuesWorking] = React.useState<Array<SystemCenter.Types.AdditionalFieldValue>>([]);
 
     const [sortKey, setSortKey] = React.useState<string>('FieldName');
     const [ascending, setAscending] = React.useState<boolean>(true);
 
-    const [hasInvalid, setHasInvalid] = React.useState<boolean>(false);
-    const [state, setState] = React.useState<Application.Types.Status>('idle');
-    const [hover, setHover] = React.useState<(string)>('None');
-
-    // Note: There only ever should be one key field, but this is so we do not have to rely on that
+    const [hover, setHover] = React.useState<string>('None');
+    const [fieldState, setFieldState] = React.useState < Application.Types.Status>('idle')
     const [keyField, setKeyField] = React.useState<SystemCenter.Types.AdditionalFieldView>(undefined);
-    const [showExt, setShowExt] = React.useState<boolean>(false);
 
-    // View perms are different than write
-    const roles = useAppSelector(SelectRoles);
-    const hasPermissions = React.useMemo(() => (roles.indexOf('Administrator') >= 0 || roles.indexOf('Engineer') >= 0), [roles]);
 
-    const getFields = React.useCallback(() => {
-        return $.ajax({
+    const keyModalCallback = React.useCallback((newValue: string) => {
+        const val = props.FieldValues.find(field => field.AdditionalFieldID == keyField.ID);
+        val.Value = newValue;
+        props.SetValues(val, keyField);
+        setKeyField(null);
+    }, [props.SetValues, props.FieldValues, keyField]);
+
+    React.useEffect(() => {
+        setFieldState('loading')
+
+        const fieldHandle = $.ajax({
             type: "GET",
             url: `${homePath}api/SystemCenter/AdditionalFieldView/ParentTable/${props.Type}/${sortKey}/${(ascending ? '1' : '0')}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
             async: true
-        }).done((data: Array<SystemCenter.Types.AdditionalFieldView>) => {
+        });
+
+        fieldHandle.done((data: Array<SystemCenter.Types.AdditionalFieldView>) => {
+            setFieldState('idle')
             if (props.HideExternal ?? false)
                 setAdditionalFields(data.filter(item => item.ExternalDB == null || item.ExternalDB == '' || item.IsKey));
             else
                 setAdditionalFields(data);
-        });
-    }, [props.HideExternal, props.Type, sortKey, ascending]);
-
-    const getFieldValues = React.useCallback(() => {
-        return $.ajax({
-            type: "GET",
-            url: `${homePath}api/SystemCenter/AdditionalFieldValue/${props.ID}`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: true,
-            async: true
-        }).done(setAdditionalFieldVaules);
-    }, [props.ID]);
-
-    const keyModalCallback = React.useCallback((newValue: string) => {
-        const newFields = _.cloneDeep(additionalFieldValuesWorking);
-        const alteredID = newFields.findIndex(field => field.AdditionalFieldID == keyField.ID);
-        if (alteredID < 0) {
-            newFields.push({ ID: 0, AdditionalFieldID: keyField.ID, ParentTableID: props.ID, Value: newValue })
-        } else {
-            newFields[alteredID].Value = newValue;
-        }
-        setAdditionalFieldValuesWorking(newFields);
-    }, [additionalFieldValuesWorking, setAdditionalFieldValuesWorking, keyField]);
-
-    React.useEffect(() => { setAdditionalFieldValuesWorking(_.cloneDeep(additionalFieldValues)) }, [additionalFieldValues]);
-
-    React.useEffect(() => {
-        if (props.SetChangedMessageList == null) return;
-
-        let result: string[] = [];
-        additionalFieldValuesWorking.forEach((item, index) => {
-            let iFld = additionalFields.findIndex(fld => fld.ID == item.AdditionalFieldID);
-            let iWVal = additionalFieldValues.findIndex(val => val.AdditionalFieldID == item.AdditionalFieldID)
-
-            if (iFld === -1 || (iWVal === -1 && item.Value == null))
-                return;
-            if (iWVal === -1) {
-                result.push(`Changes to \'${additionalFields[iFld].FieldName}\' will be lost.`);
-                return;
-            }
-            if (item.Value == additionalFieldValues[iWVal].Value)
-                return;
-
-            result.push(`Changes to \'${additionalFields[iFld].FieldName}\' will be lost.`);
-        });
-
-        props.SetChangedMessageList(result);
-    }, [additionalFieldValuesWorking]);
-
-    React.useEffect(() => {
-        let result = [];
-        additionalFieldValuesWorking.forEach((item, index) => {
-            let i = additionalFields.findIndex(fld => fld.ID == item.AdditionalFieldID);
-            if (i == -1)
-                return;
-            if (additionalFields[i].Type == 'integer' && !(item.Value == null || AssetAttributes.isInteger(item.Value)))
-                result.push(`Value for \'${additionalFields[i].FieldName}\' must be an integer.`)
-        });
-        setHasInvalid(result.length > 0);
-        props.SetInvalidMessageList(result);
-    }, [additionalFieldValuesWorking]);
-
-    React.useEffect(() => {
-        if (props.SetHasEditPermissions != null)
-            props.SetHasEditPermissions(hasPermissions);
-    }, [hasPermissions]);
-
-    React.useEffect(() => {
-        let fieldHandle = getFields();
+        }).fail(() => setFieldState('error'));
 
         return () => { if (fieldHandle != null && fieldHandle.abort != null) fieldHandle.abort(); }
-    }, [sortKey, ascending]);
-
-    React.useEffect(() => {
-        let valueHandle = getFieldValues();
-
-        return () => { if (valueHandle != null && valueHandle.abort != null) valueHandle.abort(); }
-    }, []);
-
-    React.useEffect(() => {
-        let fieldValueHandle: JQuery.jqXHR;
-        let fieldHandle: JQuery.jqXHR;
-
-        const getHandle = () => {
-            if (!hasPermissions || hasInvalid) return;
-            setState('loading');
-            return new Promise<void>((resolve, reject) => {
-                $.ajax({
-                    type: "PATCH",
-                    url: `${homePath}api/SystemCenter/AdditionalFieldValue/Array`,
-                    contentType: "application/json; charset=utf-8",
-                    data: JSON.stringify(additionalFieldValuesWorking),
-                    dataType: 'json',
-                    cache: true,
-                    async: true
-                }).then(resolve, reject);
-            }).then(() => {
-                fieldHandle = getFields();
-                fieldValueHandle = getFieldValues();
-                return Promise.all([fieldHandle, fieldValueHandle]);
-            }).then(() => {
-                setState('idle');
-            }).catch((err) => {
-                console.error(err);
-                setState('error');
-            });;
-        }
-        const cleanup = () => {
-            // Reason we don't cleanup the whole promise chain is because we want the first part to resolve no matter what
-            if (fieldHandle != null && fieldHandle.abort != null) fieldHandle.abort();
-            if (fieldValueHandle != null && fieldValueHandle.abort != undefined) fieldValueHandle.abort();
-        }
-
-        props.SaveFieldsCallback.current = {cleanup: cleanup, getHandle};
-    }, [additionalFieldValuesWorking, getFields, getFieldValues, hasPermissions, hasInvalid]);
-
-    React.useEffect(() => {
-        if (props.ResetFieldsCallback != null)
-            props.ResetFieldsCallback.current = () => setAdditionalFieldValuesWorking(_.cloneDeep(additionalFieldValues));
-    }, [additionalFieldValues]);
+    }, [sortKey, ascending, props.Type, props.HideExternal]);
 
 
-    if (state === 'error')
+    if (props.LoadState === 'error' || fieldState === 'error')
         return <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />;
 
     return (
         <>
-            <LoadingScreen Show={state === 'loading'} />
+            <LoadingScreen Show={props.LoadState === 'loading' || fieldState === 'loading'} />
             <Table<SystemCenter.Types.AdditionalFieldView>
                 TableClass="table table-hover"
                 Data={additionalFields}
@@ -224,7 +107,7 @@ function AdditionalFieldsTable(props: IProps): JSX.Element {
                         setSortKey(d.colKey);
                     }
                 }}
-                Selected={(item) => false}
+                Selected={() => false}
                 KeySelector={(item) => item.ID}
             >
                 <Column<SystemCenter.Types.AdditionalFieldView>
@@ -275,8 +158,8 @@ function AdditionalFieldsTable(props: IProps): JSX.Element {
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
                     Content={({ item }) => <>
-                        <AdditionalFieldsValueField Field={item} ParentTableID={props.ID} Values={additionalFieldValuesWorking}
-                            Setter={(val: SystemCenter.Types.AdditionalFieldValue[]) => { setAdditionalFieldValuesWorking(val) }} />
+                        <AdditionalFieldsValueField Field={item} ParentTableID={props.ID} Values={props.FieldValues}
+                            Setter={(v) => props.SetValues(v.find(x => x.AdditionalFieldID == item.ID), item)} />
                     </>}
                 > Value
                 </Column>
@@ -295,7 +178,6 @@ function AdditionalFieldsTable(props: IProps): JSX.Element {
                                     onMouseLeave={() => setHover('None')}
                                     className="btn btn-sm pull-left" onClick={(e) => {
                                         e.preventDefault();
-                                        setShowExt(true);
                                         setKeyField(item);
                                     }}><ReactIcons.Pencil Color="var(--danger)" Size={20} /></button>
                                 <button
@@ -310,7 +192,7 @@ function AdditionalFieldsTable(props: IProps): JSX.Element {
                 > <p></p>
                 </Column>
             </Table>
-            <AdditionalFieldsKeyModal KeyField={keyField} SetKeyFieldValue={keyModalCallback} Show={showExt} SetShow={setShowExt} />
+            <AdditionalFieldsKeyModal KeyField={keyField} SetKeyFieldValue={keyModalCallback} Show={keyField != null} SetShow={() => setKeyField(null)} />
             <ToolTip Show={hover.match(/_edit$/) != null} Position={'left'} Target={hover}>
                 Select Key Field Value
             </ToolTip>
