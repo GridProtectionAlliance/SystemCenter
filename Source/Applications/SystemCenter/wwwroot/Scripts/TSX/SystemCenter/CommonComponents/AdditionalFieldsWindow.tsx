@@ -29,10 +29,11 @@ import { OpenXDA as LocalXDA } from '../global';
 import AdditionalFieldsTable from './AdditionalFieldsTable';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { SelectRoles } from '../Store/UserSettings';
-import { useAppSelector } from '../hooks';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import _ from 'lodash';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { IsInteger } from '@gpa-gemstone/helper-functions';
+import { AssetNoteSlice, CompanyNoteSlice, CustomerNoteSlice, LocationNoteSlice, MeterNoteSlice } from '../Store/Store';
 
 declare var homePath: string;
 
@@ -49,6 +50,7 @@ interface IValidated {
 
 function AdditionalFieldsWindow(props: IProps): JSX.Element {
     // View perms are different than write
+    const dispatch = useAppDispatch();
     const roles = useAppSelector(SelectRoles);
     const hasPermissions = React.useMemo(() => (roles.indexOf('Administrator') >= 0 || roles.indexOf('Engineer') >= 0), [roles]);
 
@@ -73,7 +75,22 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                 dataType: 'json',
                 cache: true,
                 async: true
-            }).then((d) => { setValues(d); setState('idle'); }, () => setState('error'));
+            }).then((d) => {
+                setValues(d);
+                setState('idle');
+                if (props.Type == 'Meter')
+                    dispatch(MeterNoteSlice.SetChanged());
+                else if (props.Type == 'Location')
+                    dispatch(LocationNoteSlice.SetChanged());
+                else if (props.Type == 'Customer')
+                    dispatch(CustomerNoteSlice.SetChanged());
+                else if (props.Type == 'Company')
+                    dispatch(CompanyNoteSlice.SetChanged());
+                else
+                    dispatch(AssetNoteSlice.SetChanged());
+            }, () => {
+                setState('error');
+            });
         }
     }, [state])
 
@@ -170,7 +187,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                                 Show={hover == 'Clear' && changes.length > 0}
                                 Position={'top'}
                                 Target={"Clear"}>
-                                {changes.map((change, index) => <p key={index}> <ReactIcons.Warning Color="var(--warning)/> {change}</p>)}
+                                {changes.map((change, index) => <p key={index}> <ReactIcons.Warning Color="var(--warning)"/> {change}</p>)}
                             </ToolTip>
                         </div>
                     </> : null                 

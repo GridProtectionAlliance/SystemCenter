@@ -21,7 +21,7 @@
 //
 //******************************************************************************************************
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings'
-import { ActionCreatorWithPayload, ActionReducerMapBuilder, AsyncThunk, createAsyncThunk, createSlice, Draft, PayloadAction, Slice } from '@reduxjs/toolkit';
+import { ActionCreator, ActionCreatorWithPayload, ActionReducerMapBuilder, AsyncThunk, createAsyncThunk, createSlice, Draft, PayloadAction, Slice } from '@reduxjs/toolkit';
 import _ from 'lodash';
 
 declare var homePath: string;
@@ -47,6 +47,7 @@ export default class NoteSlice {
     Fetch: (AsyncThunk<any, void | number, {}>);
     DBAction: (AsyncThunk<any, { verb: 'POST' | 'DELETE' | 'PATCH', record: OpenXDA.Types.Note }, {}>);
     Sort: ActionCreatorWithPayload<{ SortField: keyof OpenXDA.Types.Note, Ascending: boolean }, string>;
+    SetChanged: ActionCreatorWithPayload<void,string>;
     Reducer: any;
 
 
@@ -88,6 +89,9 @@ export default class NoteSlice {
                         state.SortField = action.payload.SortField as Draft<keyof OpenXDA.Types.Note>;
 
                     state.Data = _.orderBy(state.Data, [state.SortField], [state.Ascending ? "asc" : "desc"])
+                },
+                SetChanged: (state: any, action: PayloadAction<void>) => {
+                    state.Status = 'changed'
                 }
             },
             extraReducers: (builder) => {
@@ -121,8 +125,9 @@ export default class NoteSlice {
         this.Fetch = fetch;
         this.DBAction = dBAction;
         this.Slice = slice;
-        const { Sort } = slice.actions
+        const { Sort, SetChanged } = slice.actions
         this.Sort = Sort;
+        this.SetChanged = SetChanged;
         this.Reducer = slice.reducer;
     }
 

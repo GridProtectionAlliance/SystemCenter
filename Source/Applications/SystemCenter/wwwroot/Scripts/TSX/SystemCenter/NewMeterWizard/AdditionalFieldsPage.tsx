@@ -26,6 +26,8 @@ import * as _ from 'lodash';
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import AdditionalFieldsTable from '../CommonComponents/AdditionalFieldsTable';
 import { IsInteger } from '@gpa-gemstone/helper-functions';
+import { useAppDispatch } from '../hooks';
+import { AssetNoteSlice, CompanyNoteSlice, CustomerNoteSlice, LocationNoteSlice, MeterNoteSlice } from '../Store/Store';
 
 declare var homePath: string;
 
@@ -47,8 +49,8 @@ interface IRef {
     OnExit: () => PromiseLike<void>;
 }
 
-const AdditionalFieldsPage: React.ForwardRefRenderFunction<IRef,IProps> = (props: IProps, ref: React.ForwardedRef<IRef>) => {
-
+const AdditionalFieldsPage: React.ForwardRefRenderFunction<IRef, IProps> = (props: IProps, ref: React.ForwardedRef<IRef>) => {
+    const dispatch = useAppDispatch();
     const [changes, setChanges] = React.useState<SystemCenter.Types.AdditionalFieldValue[]>([]);
     const [values, setValues] = React.useState<SystemCenter.Types.AdditionalFieldValue[]>([]);
     const [state, setState] = React.useState<Application.Types.Status>('unintiated')
@@ -80,7 +82,20 @@ const AdditionalFieldsPage: React.ForwardRefRenderFunction<IRef,IProps> = (props
                     dataType: 'json',
                     cache: true,
                     async: true
-                }).then((d) => { setValues(d); setState('idle'); }, () => setState('error'));
+                }).then((d) => {
+                    setValues(d);
+                    setState('idle');
+                    if (props.Type == 'Meter')
+                        dispatch(MeterNoteSlice.SetChanged());
+                    else if (props.Type == 'Location')
+                        dispatch(LocationNoteSlice.SetChanged());
+                    else if (props.Type == 'Customer')
+                        dispatch(CustomerNoteSlice.SetChanged());
+                    else if (props.Type == 'Company')
+                        dispatch(CompanyNoteSlice.SetChanged());
+                    else
+                        dispatch(AssetNoteSlice.SetChanged());
+                }, () => setState('error'));
             
         }, [props.ID, props.Type])
 
