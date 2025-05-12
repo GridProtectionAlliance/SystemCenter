@@ -87,12 +87,6 @@ const AdditionalFieldsPage: React.ForwardRefRenderFunction<IRef, IProps> = (prop
                     setState('idle');
                     if (props.Type == 'Meter')
                         dispatch(MeterNoteSlice.SetChanged());
-                    else if (props.Type == 'Location')
-                        dispatch(LocationNoteSlice.SetChanged());
-                    else if (props.Type == 'Customer')
-                        dispatch(CustomerNoteSlice.SetChanged());
-                    else if (props.Type == 'Company')
-                        dispatch(CompanyNoteSlice.SetChanged());
                     else
                         dispatch(AssetNoteSlice.SetChanged());
                 }, () => setState('error'));
