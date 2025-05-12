@@ -28,8 +28,8 @@ import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { useAppDispatch } from '../hooks';
 import { ChannelGroupSlice } from '../Store/Store';
 import ChannelGroupForm from './ChannelGroupForm';
-import { ToolTip } from '@gpa-gemstone/react-interactive';
-import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import { ToolTip } from '@gpa-gemstone/react-forms';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 
 const ChannelGroupInfoWindow = (props: { Record: SystemCenter.Types.ChannelGroup }) => {
     const [record, setRecord] = React.useState<SystemCenter.Types.ChannelGroup>(props.Record);
@@ -75,7 +75,7 @@ const ChannelGroupInfoWindow = (props: { Record: SystemCenter.Types.ChannelGroup
                 </div>
                 <ToolTip Show={hover == 'update' && (errors.length > 0 || record == props.Record)} Position={'top'} Target={"Update"}>
                     {record == props.Record ? <p>No changes made.</p> : null}
-                    {errors.map((t, i) => <p key={i}>{CrossMark} {t}</p>)}
+                    {errors.map((t, i) => <p key={i}><ReactIcons.CrossMark Color="var(--danger)" /> {t}</p>)}
                 </ToolTip>
             </div>
 

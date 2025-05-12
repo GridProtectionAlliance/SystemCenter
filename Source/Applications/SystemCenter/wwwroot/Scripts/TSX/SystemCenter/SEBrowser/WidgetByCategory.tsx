@@ -26,7 +26,7 @@ import * as _ from 'lodash';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { SEBrowserWidgetSlice, SEBrowserWidgetViewSlice } from '../Store/Store'
 import { Table, Column } from '@gpa-gemstone/react-table';
-import { CrossMark, TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { LoadingIcon, Modal, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
 import { EventWidget } from '../../../../../EventWidgets/TSX/global';
 import { Select } from '@gpa-gemstone/react-forms';
@@ -154,7 +154,7 @@ const WidgetByCategory = (props: IProps) => {
                                     setRecord(item);
                                     setShowRemove(true);
                                 }}>
-                                <span>{TrashCan}</span>
+                                <span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span>
                             </button>
                         </>}
                     > <p></p>
@@ -183,7 +183,7 @@ const WidgetByCategory = (props: IProps) => {
             }}
             DisableConfirm={data.find(d => d.ID == (record?.ID ?? 0)) != null}
             ConfirmShowToolTip={data.find(d => d.ID == (record?.ID ?? 0)) != null}
-            ConfirmToolTipContent={<p>{CrossMark} This widget is already in this Category</p>}
+            ConfirmToolTipContent={<p><ReactIcons.CrossMark Color="var(--danger)" /> This widget is already in this tab.</p>}
             ShowX={true}
             ShowCancel={false}
             ConfirmText={'Save'}

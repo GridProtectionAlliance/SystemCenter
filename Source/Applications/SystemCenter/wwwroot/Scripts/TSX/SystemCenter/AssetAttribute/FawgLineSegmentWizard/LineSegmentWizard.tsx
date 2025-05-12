@@ -28,7 +28,7 @@ import { LoadingScreen, Modal, ProgressBar, Section, Warning } from '@gpa-gemsto
 import SectionSelect from './SectionSelect';
 import SectionEdit from './SectionEdit';
 import { ISection, ITap } from './Types';
-import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import TapSelect from './TapSelect';
 import { IsNumber } from '@gpa-gemstone/helper-functions';
 
@@ -304,7 +304,7 @@ function LineSegmentWizard(props: IProps): JSX.Element {
                 }}
                 DisableCancel={errors.length > 0}
                 CancelShowToolTip={errors.length > 0}
-                CancelToolTipContent={errors.map((t, i) => <p key={i}>{CrossMark} {t} </p>)}
+                CancelToolTipContent={errors.map((t, i) => <p key={i}><ReactIcons.CrossMark Color="var(--danger)" /> {t} </p>)}
             >
                 <div className="row">
                     <div className="d-none col-12 d-md-block">

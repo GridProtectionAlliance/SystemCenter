@@ -25,14 +25,13 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings'
-import { Input, TextArea } from '@gpa-gemstone/react-forms';
+import { Input, TextArea, ToolTip } from '@gpa-gemstone/react-forms';
 import { AssetAttributes } from '../../AssetAttribute/Asset';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
 import { ByLocationSlice } from '../../Store/Store';
 import LocationDrawings from './LocationDrawings';
 import { useAppSelector } from '../../hooks';
 import { SelectRoles } from '../../Store/UserSettings';
-import { ToolTip } from '@gpa-gemstone/react-interactive';
 import { Column } from '@gpa-gemstone/react-table';
 
 declare var homePath: string;

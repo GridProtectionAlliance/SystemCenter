@@ -34,8 +34,9 @@ import { AssetAttributes } from '../AssetAttribute/Asset';
 import { getAssetTypes, getAssetWithAdditionalFields } from '../../../TS/Services/Asset';
 import { DBActionAsset, DBMeterAction, SelectAssetStatus } from '../Store/AssetSlice'
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
-import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
-import { Warning, Modal, LoadingScreen, ToolTip, GenericController, Search, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { Warning, Modal, LoadingScreen, GenericController, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { ToolTip } from '@gpa-gemstone/react-forms';
 import DERAttributes from '../AssetAttribute/DER';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import AssetSelect from '../Asset/AssetSelect';
@@ -214,8 +215,8 @@ const MeterAssetWindow = (props: IProps) => {
                             <Column<OpenXDA.Types.MeterAsset>
                                 Key={'EditDelete'}
                                 AllowSort={false}
-                                HeaderStyle={{ width: 80, paddingLeft: 0, paddingRight: 5 }}
-                                RowStyle={{ width: 80, paddingLeft: 0, paddingRight: 5 }}
+                                HeaderStyle={{ width: 80 }}
+                                RowStyle={{ width: 80 }}
                                 Content={({ item }) => <>
                                     <button className={"btn btn-sm" + (hasPermissions() ? '' : ' disabled')}
                                         onClick={(e) => {
@@ -224,7 +225,7 @@ const MeterAssetWindow = (props: IProps) => {
                                                 setActiveAsset(item.ID, item.AssetType);
                                                 setShoweditNew(true);
                                             }
-                                        }}><span>{Pencil}</span></button>
+                                        }}><span><ReactIcons.Pencil Color="var(--warning)" Size={20} /></span></button>
                                     <button className={"btn btn-sm" + (hasPermissions() ? '' : ' disabled')}
                                         onClick={(e) => {
                                             if (hasPermissions()) {
@@ -232,7 +233,7 @@ const MeterAssetWindow = (props: IProps) => {
                                                 setActiveAsset(item.ID, item.AssetType);
                                                 setShowDeleteWarning(true)
                                             }
-                                        }}><span>{TrashCan}</span></button>
+                                        }}><span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span></button>
                                 </>}
                             > <p></p>
                             </Column>
@@ -261,7 +262,7 @@ const MeterAssetWindow = (props: IProps) => {
                             ConfirmShowToolTip={AssetAttributes.AttributeError(activeAsset).length > 0}
                             DisableConfirm={AssetAttributes.AttributeError(activeAsset).length > 0}
                             ConfirmToolTipContent={
-                                AssetAttributes.AttributeError(activeAsset).map((e, i) => <p key={i}>{CrossMark} {e}</p>)
+                                AssetAttributes.AttributeError(activeAsset).map((e, i) => <p key={i}><ReactIcons.CrossMark Color="var(--danger)" /> {e}</p>)
                             }
                         >
                             <div className="row">

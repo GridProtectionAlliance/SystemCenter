@@ -24,7 +24,7 @@
 import * as React from 'react';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { Modal, GenericController} from '@gpa-gemstone/react-interactive';
-import { CrossMark } from '@gpa-gemstone/gpa-symbols'
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols'
 import { SystemCenter as LocalSC } from '../global';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { ApplicationCategorySlice } from '../Store/Store';
@@ -126,7 +126,7 @@ const ByApplicationCategory: Application.Types.iByComponent = () => {
                 DisableConfirm={errors.length > 0}
                 ConfirmShowToolTip={errors.length > 0}
                 ConfirmToolTipContent={
-                    errors.map((t, i) => <p key={i}>{CrossMark} {t} </p>)
+                    errors.map((t, i) => <p key={i}><ReactIcons.CrossMark Color="var(--danger)" /> {t} </p>)
                 }
             >
                 <div className="row">

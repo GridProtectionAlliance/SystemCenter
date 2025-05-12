@@ -231,7 +231,7 @@ const AssetChannelWindow = (props: IProps) => {
                         Field={'AssetID'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
-                        Content={row => row.item.AssetID !== props.ID ? <ReactIcons.CheckMark Color="green" /> : <></>}
+                        Content={row => row.item.AssetID !== props.ID ? <ReactIcons.CheckMark Color="var(--success)" /> : <></>}
                     > Shared Via Asset Connection
                     </Column>
                     <Column<ChannelDetail>

@@ -22,8 +22,8 @@
 //******************************************************************************************************
 import * as React from 'react';
 import { CreateGuid } from '@gpa-gemstone/helper-functions'
-import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
-import { ToolTip } from '@gpa-gemstone/react-interactive';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { ToolTip } from '@gpa-gemstone/react-forms';
 
 interface IWarningProps {
     Errors: string[],
@@ -38,10 +38,10 @@ export const WarningWTooltip = (props: IWarningProps) => {
             data-tooltip={guid}
             onMouseEnter={() => setHover(true)}
             onMouseLeave={() => setHover(false)}
-        > {Warning} </div>
+        > <ReactIcons.Warning Color="var(--warning)" /> </div>
         <ToolTip Show={hover} Position={'bottom'} Target={guid} Zindex={9999}>
-            {props.Warnings.map((w, i) => <>{Warning} <p key={`w-${i}`}> {w} </p></>)}
-            {props.Errors.map((e, i) => <> {CrossMark} <p key={`i-${i}`}> {e}</p></>)}
+            {props.Warnings.map((w, i) => <><ReactIcons.Warning Color="var(--warning)" /> <p key={`w-${i}`}> {w} </p></>)}
+            {props.Errors.map((e, i) => <> <ReactIcons.CrossMark Color="var(--danger)" /> <p key={`i-${i}`}> {e}</p></>)}
         </ToolTip>
     </>
 }

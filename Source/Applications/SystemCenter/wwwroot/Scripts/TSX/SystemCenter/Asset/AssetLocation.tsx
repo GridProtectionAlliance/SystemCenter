@@ -215,7 +215,7 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
                                 onMouseEnter={() => setHover(item.ID.toString())} onMouseLeave={() => setHover(undefined)}
                             >
                                 <span>
-                                    <ReactIcons.TrashCan />
+                                    <ReactIcons.TrashCan Color="var(--danger)" Size={20} />
                                 </span>
                             </button>
                         </> }

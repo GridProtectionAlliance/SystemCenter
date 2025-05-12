@@ -28,7 +28,7 @@ import * as $ from 'jquery';
 import { Application } from '@gpa-gemstone/application-typings';
 import { pd } from 'pretty-data';
 import { Table, Column } from '@gpa-gemstone/react-table';
-import { SVGIcons } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 
 declare var homePath;
 declare var version;
@@ -118,7 +118,7 @@ const DataSourceTesting = (props: IProps) => {
                                     Field={'Success'}
                                     HeaderStyle={{ width: 'auto' }}
                                     RowStyle={{ width: 'auto' }}
-                                    Content={({ item }) => (item.Created && item.Success) ? SVGIcons.CircleCheck : SVGIcons.CircledX}
+                                    Content={({ item }) => (item.Created && item.Success) ? <ReactIcons.CircleCheckMark Color="var(--success)" /> : <ReactIcons.CircledX Color="var(--danger)" />}
                                 > Data Source
                                 </Column>
                                 <Column<IResults>
@@ -143,10 +143,10 @@ const DataSourceTesting = (props: IProps) => {
                                 />
                             </div> :
                                 <div className="alert alert-danger">
-                                    An error occured processing this datasource: {selectedSource.Exception?.Message}
+                                    An error occured processing this data source: {selectedSource.Exception?.Message}
                                 </div>) :
                                 <div className="alert alert-info">
-                                Select a DataSource on the left to see it's return
+                                Select a data source on the left to see its return values.
                             </div> }
                         </div>
                     </div>

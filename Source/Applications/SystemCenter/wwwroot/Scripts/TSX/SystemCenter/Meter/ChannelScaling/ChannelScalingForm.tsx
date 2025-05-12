@@ -28,10 +28,10 @@ import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { useAppSelector, useAppDispatch } from '../../hooks';
 import { MeasurementCharacteristicSlice, MeasurmentTypeSlice, PhaseSlice } from '../../Store/Store';
-import { LoadingIcon, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
+import { LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import { ChannelScalingWrapper, ChannelScalingType, IMultiplier } from './ChannelScalingWrapper';
-import { Input } from '@gpa-gemstone/react-forms';
+import { Input, ToolTip } from '@gpa-gemstone/react-forms';
 import { SelectRoles } from '../../Store/UserSettings';
 
 declare let homePath: string;

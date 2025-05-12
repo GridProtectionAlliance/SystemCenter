@@ -26,8 +26,8 @@ import * as React from 'react';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { useAppDispatch } from '../hooks';
 import { ExternalDatabasesSlice } from '../Store/Store';
-import { ToolTip } from '@gpa-gemstone/react-interactive';
-import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import { ToolTip } from '@gpa-gemstone/react-forms';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import ExternalDBForm from './ExternalDBForm';
 
 
@@ -90,7 +90,7 @@ export default function ExternalDBInfo(props: { Record: SystemCenter.Types.Detai
             <ToolTip Position={'top'} Target={"Update-Info"}
                 Show={hover == 'update' && (errors.length > 0 || (record == origRecord))}>
                 {(record == origRecord) ? <p>No changes made.</p> : null}
-                {errors.map((t, i) => <p key={i}>{CrossMark} {t}</p>)}
+                {errors.map((t, i) => <p key={i}><ReactIcons.CrossMark Color="var(--danger)" /> {t}</p>)}
             </ToolTip>
         </div>
     );

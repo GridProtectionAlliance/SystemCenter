@@ -26,10 +26,10 @@ import * as _ from 'lodash';
 import { Application, OpenXDA as GemstoneOpenXDA} from '@gpa-gemstone/application-typings';
 import { PhaseSlice, MeasurmentTypeSlice } from '../Store/Store'
 import { useAppSelector, useAppDispatch } from '../hooks';
-import { LoadingIcon, ServerErrorIcon, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
-import { Input, Select } from '@gpa-gemstone/react-forms';
+import { LoadingIcon, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
+import { Input, Select, ToolTip } from '@gpa-gemstone/react-forms';
 import { AssetAttributes } from '../AssetAttribute/Asset';
-import { CrossMark, TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { OpenXDA } from '../global';
 import { SelectAscending, SelectSortKey, SelectEventChannels, SelectEventChannelStatus, SelectMeterID, dBAction } from '../Store/EventChannelSlice';
 import { FetchChannels } from '../Store/EventChannelSlice';
@@ -332,6 +332,26 @@ const MeterEventChannelWindow = (props: IProps) => {
                                     Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()}/>}>
                             </Column>
                         </ConfigurableColumn >
+                        <ConfigurableColumn Key='PerUnitValue' Label='Per Unit' Default={false}>
+                            <Column<OpenXDA.EventChannel>
+                                Key={'PerUnitValue'}
+                                HeaderStyle={{ width: '7%' }}
+                                RowStyle={{ width: '7%' }}
+                                Content={({ item }) => (
+                                    <Input<OpenXDA.EventChannel>
+                                        Record={item}
+                                        Field={'PerUnitValue'}
+                                        Type={'number'}
+                                        Label={''}
+                                        AllowNull={true}
+                                        Setter={(r) => createChange(r, 'PerUnitValue')}
+                                        Valid={(f) => isValid(f, item)}
+                                        Disabled={!hasPermissions()}
+                                    />
+                                )}
+                            > Per Unit
+                            </Column>
+                        </ConfigurableColumn>
                         <ConfigurableColumn Key='Asset' Label='Asset' Default={true}>
                             <Column<OpenXDA.EventChannel>
                                 Key={'Asset'} Field={'Asset'}
@@ -374,8 +394,11 @@ const MeterEventChannelWindow = (props: IProps) => {
                             AllowSort={false}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                            Content={({ item }) => <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
-                                onClick={(e) => { if (hasPermissions()) setRemoveRecord(item) }}><span>{TrashCan}</span></button>}>
+                            Content={({ item }) =>
+                                <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
+                                    onClick={(e) => { if (hasPermissions()) setRemoveRecord(item) }}>
+                                    <span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span>
+                                </button>}>
                             <p></p>
                         </Column>
                     </ConfigurableTable>
@@ -429,7 +452,7 @@ const MeterEventChannelWindow = (props: IProps) => {
                     <ToolTip Show={hover == 'Update' && (errors.length > 0 || recordChanges.size == 0)} Position={'top'} Target={"save"}>
                         {recordChanges.size == 0 && hasPermissions()? <p> No changes have been made. </p> : null}
                         {!hasPermissions() ? <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p> : null}
-                        {errors.length > 0 ? errors.map((e, i) => <> {CrossMark} <p key={i}> {e} </p> </>) : null}
+                        {errors.length > 0 ? errors.map((e, i) => <> <ReactIcons.CrossMark Color="var(--danger)" /> <p key={i}> {e} </p> </>) : null}
                     </ToolTip>
                 </div>
                 <div className="btn-group mr-2">

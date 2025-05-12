@@ -27,7 +27,7 @@ import { SEBrowserWidgetSlice } from '../Store/Store';
 import { Input } from '@gpa-gemstone/react-forms';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import { Circle, Line, Plot } from '@gpa-gemstone/react-graph';
-import { DownArrow, TrashCan, UpArrow } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { ColorPicker } from '@gpa-gemstone/react-forms'
 import { OpenXDA } from '@gpa-gemstone/application-typings'
 
@@ -209,7 +209,7 @@ export default function CurveForm(props: IProps) {
                                     }}
                                     disabled={curve.length < 4}
                                 >
-                                    <span>{TrashCan}</span>
+                                    <span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span>
                                 </button>
                                 <button className="btn btn-sm"
                                     onClick={(e) => {
@@ -222,7 +222,7 @@ export default function CurveForm(props: IProps) {
                                     }}
                                     disabled={index == 0}
                                 >
-                                    <span>{UpArrow}</span>
+                                    <span><ReactIcons.ChevronUp Size={20} /></span>
                                 </button>
                                 <button className="btn btn-sm"
                                     onClick={(e) => {
@@ -235,7 +235,7 @@ export default function CurveForm(props: IProps) {
                                     }}
                                     disabled={index + 1 == curve.length}
                                 >
-                                    <span>{DownArrow}</span>
+                                    <span><ReactIcons.ChevronDown Size={20} /></span>
                                 </button>
                             </>}
                         > <p></p>

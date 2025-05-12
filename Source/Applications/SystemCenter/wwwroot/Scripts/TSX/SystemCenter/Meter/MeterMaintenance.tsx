@@ -25,10 +25,9 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
-import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
-import { Warning, Modal, LoadingScreen, ServerErrorIcon, ToolTip, GenericController } from '@gpa-gemstone/react-interactive';
-import { Warning as WarningIcon } from '@gpa-gemstone/gpa-symbols';
-import { DatePicker, Select } from '@gpa-gemstone/react-forms';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { Warning, Modal, LoadingScreen, ServerErrorIcon, GenericController } from '@gpa-gemstone/react-interactive';
+import { DatePicker, Select, ToolTip } from '@gpa-gemstone/react-forms';
 import moment from 'moment';
 import { SelectRoles } from '../Store/UserSettings';
 import { useAppSelector } from '../hooks';
@@ -187,13 +186,13 @@ const MeterMaintenanceWindow = (props: IProps) => {
                                         e.preventDefault();
                                         setActiveWindow(item);
                                         setShowEditNew(true);
-                                    }}><span>{Pencil}</span></button>
+                                    }}><span><ReactIcons.Pencil Color="var(--warning)" Size={20} /></span></button>
                                 <button className="btn btn-sm"
                                     onClick={(e) => {
                                         e.preventDefault();
                                         setActiveWindow(item);
                                         setShowDeleteWarning(true);
-                                    }}><span>{TrashCan}</span></button>
+                                    }}><span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span></button>
                             </>}
                         > <p></p>
                         </Column>
@@ -260,7 +259,7 @@ const MeterMaintenanceWindow = (props: IProps) => {
                         ShowCancel={false}
                         DisableConfirm={hasError()}
                         ConfirmShowToolTip={hasError()}
-                        ConfirmToolTipContent={<p>{WarningIcon} Start Time cannot be after the End Time.</p>}
+                        ConfirmToolTipContent={<p><ReactIcons.Warning Color="var(--warning)" /> Start Time cannot be after the End Time.</p>}
                         ConfirmText={'Save'}
                         CallBack={(confirmed) => {
                             setShowEditNew(false);

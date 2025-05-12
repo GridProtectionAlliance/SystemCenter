@@ -23,8 +23,8 @@
 
 import { useAppDispatch } from '../hooks';
 import * as React from 'react';
-import { ToolTip } from '@gpa-gemstone/react-interactive'
-import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
+import { ToolTip } from '@gpa-gemstone/react-forms';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { ScheduledEmailType } from '../global';
 import { ScheduledEmailTypeSlice } from '../Store';
 import moment from 'moment';
@@ -83,11 +83,11 @@ const TriggerWindow = (props: IProps) => {
                             <div className={'col-12'}>
                                 {triggerStatus == 'valid' && triggers ?
                                     <div className="alert alert-success">
-                                        Based on this SQL Trigger, this Report will be sent out.
+                                        Based on this SQL Trigger, this Report will be sent.
                                     </div> : null}
                                 {triggerStatus == 'valid' && triggers ?
                                     <div className="alert alert-danger">
-                                        Based on this SQL Trigger, this Report will not be send out.
+                                        Based on this SQL Trigger, this Report will not be sent.
                                     </div> : null}
                             </div>
                         </div>
@@ -105,7 +105,7 @@ const TriggerWindow = (props: IProps) => {
                                         value={triggerSQL == null ? '' : triggerSQL}
                                     />
                                     <div className="invalid-feedback">
-                                        Trigger SQL needs to be a valid SQL statement returning 1 or 0.
+                                        Trigger SQL must be a valid SQL statement returning 1 or 0.
                                     </div>
                                 </div>
                             </div>
@@ -130,10 +130,10 @@ const TriggerWindow = (props: IProps) => {
                 </div>
             </div>
             <ToolTip Show={triggerStatus == 'invalid' && hover == 'submit'} Position={'top'} Target={"submit"}>
-                {triggerStatus == 'invalid' ? <p> {CrossMark} Trigger SQL is invalid.</p> : null}
+                {triggerStatus == 'invalid' ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> Trigger SQL is invalid.</p> : null}
             </ToolTip>
             <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Target={"clear"}>
-                {props.Record.TriggerEmailSQL != email.TriggerEmailSQL ? <p> {Warning} Changes to Trigger SQL will be discarded.</p> : null}
+                {props.Record.TriggerEmailSQL != email.TriggerEmailSQL ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to Trigger SQL will be discarded.</p> : null}
             </ToolTip>
         </div>
         )

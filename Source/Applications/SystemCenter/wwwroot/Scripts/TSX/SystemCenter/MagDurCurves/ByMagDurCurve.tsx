@@ -27,7 +27,7 @@ import GenericByPage from '../CommonComponents/GenericByPage';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { GenericController, Modal, Warning } from '@gpa-gemstone/react-interactive';
 import { SystemCenter } from '../global';
-import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 
 declare var homePath: string;
 const controllerPath = `${homePath}api/SystemCenter/StandardMagDurCurve`
@@ -99,7 +99,7 @@ const ByMagDurCurve: Application.Types.iByComponent = () => {
                 DisableConfirm={errors.length > 0}
                 ConfirmText={'Save'}
                 ConfirmShowToolTip={errors.length > 0}
-                ConfirmToolTipContent={errors.map((t, i) => <p key={i}> {CrossMark} {t}</p>)} >
+                ConfirmToolTipContent={errors.map((t, i) => <p key={i}> <ReactIcons.CrossMark Color="var(--danger)" /> {t}</p>)} >
                 <div className="row">
                     <CurveForm Curve={curve} stateSetter={setCurve} setErrors={setErrors} />
                 </div>

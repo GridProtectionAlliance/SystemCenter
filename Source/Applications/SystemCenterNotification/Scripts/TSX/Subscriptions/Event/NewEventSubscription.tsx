@@ -22,7 +22,8 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { ProgressBar, ToolTip } from '@gpa-gemstone/react-interactive'
+import { ProgressBar } from '@gpa-gemstone/react-interactive';
+import { ToolTip } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import EmailSelect from './EmailSelect';
 import AssetGroupSelection from '../AssetGroupSelection';
@@ -175,7 +176,7 @@ const NewEventSubscription = (props: {}) => {
                 </div>
             </div>
             <ToolTip Show={hoverNext && error.length > 0} Position={'top'} Target={"Next"}>
-                {error.map((item, index) => <p key={index}> <ReactIcons.CircledX Color={'red'} Size={'1rem'} /> {item} </p>)}
+                {error.map((item, index) => <p key={index}> <ReactIcons.CrossMark Color={'var(--danger)'} /> {item} </p>)}
             </ToolTip>
         </div>
     );

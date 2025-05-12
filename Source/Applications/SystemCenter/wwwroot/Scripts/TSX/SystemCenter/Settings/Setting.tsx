@@ -174,7 +174,7 @@ function Setting(props: IProps) {
                 DisableConfirm={(editNew === 'Edit' && !hasChanged) || errors.length > 0}
                 ConfirmShowToolTip={errors.length > 0}
                 ConfirmToolTipContent={
-                    errors.map((t, i) => <p key={i}>{ReactIcons.CrossMark} {t} </p>)
+                    errors.map((t, i) => <p key={i}><ReactIcons.CrossMark Color="var(--danger)" /> {t} </p>)
                 }
             >
                 <div className="row">

@@ -28,8 +28,9 @@ import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { CustomerAssetSlice } from '../Store/Store'
 import { Table, Column } from '@gpa-gemstone/react-table';
-import { TrashCan } from '@gpa-gemstone/gpa-symbols';
-import { LoadingIcon, ServerErrorIcon, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { LoadingIcon, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
+import { ToolTip } from '@gpa-gemstone/react-forms';
 import AssetSelect from '../Asset/AssetSelect';
 import { SelectRoles } from '../Store/UserSettings';
 declare var homePath: string;
@@ -168,7 +169,12 @@ const CustomerAssetWindow = (props: IProps) => {
                         AllowSort={false}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
-                        Content={({ item }) => <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => { if (hasPermissions()) setRemoveRecord(item) }}><span>{TrashCan}</span></button> }
+                        Content={({ item }) =>
+                            <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
+                                onClick={(e) => { if (hasPermissions()) setRemoveRecord(item) }}>
+                                <span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span>
+                            </button>
+                        }
                     > <p></p>
                     </Column>
                 </Table>
