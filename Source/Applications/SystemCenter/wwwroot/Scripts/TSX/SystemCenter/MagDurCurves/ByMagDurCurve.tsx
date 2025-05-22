@@ -111,9 +111,9 @@ const ByMagDurCurve: Application.Types.iByComponent = () => {
                 CallBack={(c) => {
                     if (c) {
                         MagDurCurveController.DBAction('DELETE', curve).done(() => refreshData(x => x + 1));
-                        setShowDelete(false);
                         setCurve(emptyCurve);
                     }
+                    setShowDelete(false);
                 }}
             />
         </GenericByPage>
