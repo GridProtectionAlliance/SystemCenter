@@ -61,6 +61,7 @@ export const dBAction = createAsyncThunk(`EventChannels/DBAction`, async (args: 
     return await handle
 });
 
+export const setChanged = createAsyncThunk(`${name}/SetChanged${name}`, async (args: void, { }) => { return; });
 
 export const EventChannelSlice = createSlice({
     name: 'EventChannel',
@@ -119,7 +120,9 @@ export const EventChannelSlice = createSlice({
             state.Error = null;
         });
 
-
+        builder.addCase(setChanged.pending, (state) => {
+            state.Status = 'changed';
+        });
     }
 
 });
