@@ -27,6 +27,9 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import ChannelScalingForm from './ChannelScalingForm';
+import { TrendChannelSlice } from '../../Store/Store';
+import { useAppDispatch } from '../../hooks';
+import { setChanged } from '../../Store/EventChannelSlice';
 
 declare let homePath: string;
 
@@ -38,6 +41,7 @@ interface IProps {
 const ChannelScalingWindow = (props: IProps) => {
     const [status, setStatus] = React.useState<Application.Types.Status>('unintiated');
     const [channels, setChannels] = React.useState<OpenXDA.Types.Channel[]>([]);
+    const dispatch = useAppDispatch();
 
     React.useEffect(() => {
         if (props.IsVisible)
@@ -80,6 +84,9 @@ const ChannelScalingWindow = (props: IProps) => {
         h.done(() => {
             setStatus('idle');
             setChannels(channels);
+            dispatch(TrendChannelSlice.SetChanged());
+            // This one is for event channels
+            dispatch(setChanged());
         });
         h.fail(() => setStatus('error'));
     
