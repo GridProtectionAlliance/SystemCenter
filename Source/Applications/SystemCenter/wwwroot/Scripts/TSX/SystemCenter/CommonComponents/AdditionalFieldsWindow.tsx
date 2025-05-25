@@ -184,10 +184,10 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                                 data-tooltip={'Clear'}
                             >Clear Changes</button>
                             <ToolTip
-                                Show={hover == 'Clear' && changes.length > 0}
+                                Show={hover == 'Clear' && validChanges.length > 0}
                                 Position={'top'}
                                 Target={"Clear"}>
-                                {changes.map((change, index) => <p key={index}> <ReactIcons.Warning Color="var(--warning)"/> {change}</p>)}
+                                {validChanges.map((change, index) => <p key={index}> <ReactIcons.Warning Color="var(--warning)" /> {change.Message}</p>)}
                             </ToolTip>
                         </div>
                     </> : null                 
