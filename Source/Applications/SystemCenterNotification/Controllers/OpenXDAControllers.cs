@@ -425,7 +425,7 @@ namespace SystemCenter.Notifications.Controllers
     public class ScheduledEmailDataSourceSettingController : ModelController<ScheduledEmailDataSourceSetting> { }
 
     [RoutePrefix("api/openXDA/TriggeredEmailDataSourceEmailType")]
-    public class TriggeredEmailDataSourceEmaulTypeController : ModelController<TriggeredEmailDataSourceEmailTypeView>
+    public class TriggeredEmailDataSourceEmailTypeController : ModelController<TriggeredEmailDataSourceEmailTypeView>
     {
         public override IHttpActionResult Delete(TriggeredEmailDataSourceEmailTypeView record)
         {
@@ -510,8 +510,15 @@ namespace SystemCenter.Notifications.Controllers
     }
 
     [RoutePrefix("api/openXDA/ScheduledEmailDataSourceEmailType")]
-    public class TScheduledEmailDataSourceEmaulTypeController : ModelController<ScheduledEmailDataSourceEmailTypeView> 
+    public class ScheduledEmailDataSourceEmailTypeController : ModelController<ScheduledEmailDataSourceEmailTypeView> 
     {
+        public override IHttpActionResult Delete(ScheduledEmailDataSourceEmailTypeView record)
+        {
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                connection.ExecuteNonQuery($"EXEC UniversalCascadeDelete 'ScheduledEmailDataSourceEmailType','ID = {record.ID}'");
+
+            return Ok(1);
+        }
         public override IHttpActionResult Post([FromBody] JObject record)
         {
             try
