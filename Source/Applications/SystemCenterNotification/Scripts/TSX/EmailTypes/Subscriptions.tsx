@@ -96,7 +96,7 @@ const Subscriptions = (props: IProps) => {
                             </div>
                             <div className="col-6 align-self-center">
                                 {props.Record.RequireApproval ?
-                                    <button className="btn btn-danger float-right"
+                                    <button className="btn btn-success float-right"
                                         disabled={!subscriptions.some(s => !s.Approved)}
                                         onClick={() => approveAll()}>
                                         Approve All
@@ -168,7 +168,7 @@ const Subscriptions = (props: IProps) => {
                                                 HeaderStyle={{ width: '20%' }}
                                                 RowStyle={{ width: '20%' }}
                                                 Content={({ item }) => item.Approved ? <ReactIcons.CheckMark Color="var(--success)" /> :
-                                                    <button type="button" className="btn btn-primary btn-sm" onClick={() => approve(item)}>Approve</button> }
+                                                    <button type="button" className="btn btn-success btn-sm" onClick={() => approve(item)}>Approve</button> }
                                             > Approved
                                             </Column>
                                         : null }
