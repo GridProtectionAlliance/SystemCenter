@@ -28,7 +28,7 @@
     "@gpa-gemstone/react-interactive": "1.0.149",
     "@gpa-gemstone/react-table": "1.2.71",
     "@reduxjs/toolkit": "1.8.3",
-    "bootstrap": "4.6.0",
+    "bootstrap": "5.0.0",
     "moment": "2.29.4",
     "react": "18.2.0",
     "react-dom": "18.2.0",
