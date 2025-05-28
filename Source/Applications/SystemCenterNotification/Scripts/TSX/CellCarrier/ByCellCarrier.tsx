@@ -83,7 +83,7 @@ const ByCellCarrier = (props: IProps) => {
                             <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                                 <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                                 <form>
-                                    <button className="btn btn-primary" onClick={(event) => { event.preventDefault(); setCarrier(emptyCarrier); setShowModal('New'); }}>
+                                    <button className="btn btn-info btn-block" onClick={(event) => { event.preventDefault(); setCarrier(emptyCarrier); setShowModal('New'); }}>
                                         Add Cell Carrier
                                     </button>
                                 </form>
@@ -145,7 +145,7 @@ const ByCellCarrier = (props: IProps) => {
                     {carrier.Transform !== null && carrier.Transform.length > 200 ? <p><ReactIcons.CrossMark Color="var(--danger)" /> Transform must not exceed 200 characters.</p> : null}
                     {allData.findIndex(c => c.Name == carrier.Name && c.ID != carrier.ID) > -1 ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> The Name has to be unique. </p> : null}
                 </>}
-                ConfirmBtnClass={'btn-success'} CallBack={(c, b) => {
+                ConfirmBtnClass={'btn-primary'} CallBack={(c, b) => {
                     if (showModal == 'New' && c)
                         dispatch(CellCarrierSlice.DBAction({ verb: 'POST', record: carrier }))
                     if (showModal == 'Edit' && c)
