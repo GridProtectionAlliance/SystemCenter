@@ -134,7 +134,7 @@ const DataSourceWindow = (props: IProps) => {
                         <div className="btn-group mr-2">
                             <button className={"btn btn-info"}
                                 type="submit"
-                                onClick={() => setDataSource({ ScheduledEmailTypeID: props.Record.ID, ID: -1, ScheduledEmailDataSourceID: -1, ScheduledEmailDataSourceName: '' })} >Add DataSource</button>
+                                onClick={() => { setDataSource({ ScheduledEmailTypeID: props.Record.ID, ID: -1, ScheduledEmailDataSourceID: -1, ScheduledEmailDataSourceName: '' }); setShowDataSourceModal(true) }} >Add Data Source</button>
                         </div>
                     </div>
                 </div>
