@@ -656,7 +656,7 @@ public class LineSegmentWizardController : ApiController
             List<string> buses = segments.Select(s => s.FromBus).ToList();
             buses.AddRange(segments.Select(s => s.ToBus));
 
-            List<Segment> sectionEnds = segments.Where(s => buses.Where( b => b == s.ToBus).Count() != 2 || buses.Where(b => b != s.FromBus).Count() != 2).ToList();
+            List<Segment> sectionEnds = segments.Where(s => buses.Where( b => b == s.ToBus).Count() != 2 || buses.Where(b => b == s.FromBus).Count() != 2).ToList();
 
             while (sectionEnds.Count > 0)
             {
