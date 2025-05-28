@@ -143,7 +143,7 @@ const ByCellCarrier = (props: IProps) => {
                     {carrier.Name !== null && carrier.Name.length > 200 ? <p><ReactIcons.CrossMark Color="var(--danger)" /> Name must not exceed 200 characters.</p> : null}
                     {carrier.Transform == null || carrier.Transform.length == 0 ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> A Transform is required. </p> : null}
                     {carrier.Transform !== null && carrier.Transform.length > 200 ? <p><ReactIcons.CrossMark Color="var(--danger)" /> Transform must not exceed 200 characters.</p> : null}
-                    {allData.findIndex(c => c.Name == carrier.Name && c.ID != carrier.ID) > -1 ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> The Name has to be unique. </p> : null}
+                    {allData.findIndex(c => c.Name == carrier.Name && c.ID != carrier.ID) > -1 ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> Name must be unique. </p> : null}
                 </>}
                 ConfirmBtnClass={'btn-primary'} CallBack={(c, b) => {
                     if (showModal == 'New' && c)
@@ -165,7 +165,7 @@ const ByCellCarrier = (props: IProps) => {
                             && (carrier.Name.length <= 200)
                         }
                         Setter={(record) => setCarrier(record)} />
-                    <Input<ICellCarrier> Record={carrier} Field={'Transform'} Label={'Transform'} Help={"The Gateway Domain of the specified carrier to send email as SMS or MMS. {0} is substituted with the user's phone number."}
+                    <Input<ICellCarrier> Record={carrier} Field={'Transform'} Label={'Transform'} Help={"The Gateway Domain of the specified carrier to send email as SMS or MMS, e.g., '{0}@txt.att.net'. {0} is substituted with the user's phone number."}
                         Valid={() => carrier.Transform != null && carrier.Transform.length > 0}
                     Setter={(record) => setCarrier(record)} />
                 </form>
