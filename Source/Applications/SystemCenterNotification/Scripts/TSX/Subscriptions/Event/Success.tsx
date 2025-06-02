@@ -55,6 +55,8 @@ const Success = (props: IProps) => {
                     EmailName: '',
                     LastSent: '',
                     UserName: '',
+                    FirstName: '',
+                    LastName: '',
                     RequireApproval: false
                 }
             }));

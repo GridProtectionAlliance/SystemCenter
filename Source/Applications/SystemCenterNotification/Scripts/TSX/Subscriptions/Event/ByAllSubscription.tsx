@@ -119,7 +119,8 @@ const ByAllSubscription = (props: IProps) => {
                     <SearchBar<ActiveSubscription> CollumnList={[
                         { key: 'EmailName', label: 'Notification', type: 'string', isPivotField: false},
                         { key: 'AssetGroup', label: 'Assets', type: 'string', isPivotField: false },
-                        { key: 'UserName', label: 'User', type: 'string', isPivotField: false },
+                        { key: 'FirstName', label: 'First', type: 'string', isPivotField: false },
+                        { key: 'LastName', label: 'Last', type: 'string', isPivotField: false },
                         { key: 'Email', label: 'Email', type: 'string', isPivotField: false },
                         { key: 'Approved', label: 'Approved', type: 'boolean', isPivotField: false },
                         { key: 'LastSent', label: 'Last Sent', type: 'datetime', isPivotField: false },
@@ -202,12 +203,20 @@ const ByAllSubscription = (props: IProps) => {
                         > Last Sent
                         </Column>
                         <Column<ActiveSubscription>
-                            Key={'UserName'}
+                            Key={'FirstName'}
                             AllowSort={true}
-                            Field={'UserName'}
-                            HeaderStyle={{ width: '20%' }}
-                            RowStyle={{ width: '20%' }}
-                        > User
+                            Field={'FirstName'}
+                            HeaderStyle={{ width: '10%' }}
+                            RowStyle={{ width: '10%' }}
+                        > First
+                        </Column>
+                        <Column<ActiveSubscription>
+                            Key={'LastName'}
+                            AllowSort={true}
+                            Field={'LastName'}
+                            HeaderStyle={{ width: '10%' }}
+                            RowStyle={{ width: '10%' }}
+                        > Last
                         </Column>
                         <Column<ActiveSubscription>
                             Key={'Email'}

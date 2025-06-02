@@ -95,6 +95,8 @@ export interface ActiveSubscription {
     Subject: string, 
     LastSent: string,
     UserName: string,
+    FirstName: string,
+    LastName: string,
     Email: string,
     RequireApproval: boolean
 }
