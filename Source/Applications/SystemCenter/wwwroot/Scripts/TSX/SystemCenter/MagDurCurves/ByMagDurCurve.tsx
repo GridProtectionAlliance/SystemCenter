@@ -45,16 +45,9 @@ const fieldCols: SystemCenter.IByCol<OpenXDA.Types.MagDurCurve>[] = [
 const ByMagDurCurve: Application.Types.iByComponent = () => {
     const [curve, setCurve] = React.useState<OpenXDA.Types.MagDurCurve>(emptyCurve);
     const [errors, setErrors] = React.useState<string[]>([]);
-    const [newEdit, setNewEdit] = React.useState<Application.Types.NewEdit>('Edit');
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
     const [refreshCount, refreshData] = React.useState<number>(0);
-
-    function handleSelect(item) {
-        setCurve(item.row);
-        setShowModal(true);
-        setNewEdit('Edit');
-    }
 
     return (
         <GenericByPage<OpenXDA.Types.MagDurCurve>
@@ -62,7 +55,10 @@ const ByMagDurCurve: Application.Types.iByComponent = () => {
             RefreshData={refreshCount}
             DefaultSortKey='Name'
             PagingID='DBCleanup'
-            OnClick={(item) => { handleSelect(item); }}
+            OnClick={(item) => {
+                setCurve(item.row);
+                setShowModal(true);
+            }}
             Columns={fieldCols}
             DefaultSearchAscending={true}
             DefaultSearchKey='Name'
@@ -76,24 +72,25 @@ const ByMagDurCurve: Application.Types.iByComponent = () => {
                 </fieldset>
             </li>
             <Modal
-                Show={showModal}
-                Title={newEdit == 'Edit'
+                Show={showModal && !showDelete}
+                Title={curve.ID >= 0
                     ? 'Edit ' + (curve?.Name ?? 'MagDur Curve')
                     : 'Add New MagDur Curve'}
                 Size={'xlg'}
-                CallBack={(c,b) => {
+                CallBack={(conf,del) => {
+                    if (del)
+                        setShowDelete(true);
+                    else {
+                        if (conf) {
+                            curve.ID >= 0
+                                ? MagDurCurveController.DBAction('PATCH', curve).done(() => refreshData(x => x + 1))
+                                : MagDurCurveController.DBAction("POST", curve).done(() => refreshData(x => x + 1))
+                        }
                     setShowModal(false);
-                    if (!c && b)
-                        setShowDelete(true)
-                    if (c) {
-                        curve.ID == 0
-                        ? MagDurCurveController.DBAction("POST", curve).done(() => refreshData(x => x + 1))
-                        : MagDurCurveController.DBAction('PATCH', curve).done(() => refreshData(x => x + 1))
-                    }
-                    if (c || !b)
                         setCurve(emptyCurve);
+                    }
                 }}
-                ShowCancel={curve.ID != 0}
+                ShowCancel={curve.ID >= 0}
                 ShowX={true}
                 CancelText={'Delete'}
                 DisableConfirm={errors.length > 0}
