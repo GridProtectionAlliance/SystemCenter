@@ -134,10 +134,10 @@ const ByAllSubscription = (props: IProps) => {
                                 <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                                 <form>
                                     <div className="form-group">
-                                        <button className="btn btn-primary" onClick={(event) => { event.preventDefault(); setShowModal(true); }}>New Subscription</button>
+                                        <button className="btn btn-info btn-block" onClick={(event) => { event.preventDefault(); setShowModal(true); }}>Add Subscription</button>
                                     </div>
                                     <div className="form-group">
-                                        <button className="btn btn-primary" onClick={(event) => { event.preventDefault(); setShowApproveWarning(true) }}>Approve All</button>
+                                        <button className="btn btn-success btn-block" onClick={(event) => { event.preventDefault(); setShowApproveWarning(true) }}>Approve All</button>
                                     </div>
                                 </form>
                             </fieldset>
