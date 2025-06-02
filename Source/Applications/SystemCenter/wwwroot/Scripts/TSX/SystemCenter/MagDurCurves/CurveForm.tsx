@@ -113,7 +113,7 @@ export default function CurveForm(props: IProps) {
     }
 
     return (
-        <div className="col">
+        <>
             <div className="row">
                 <div className="col-9">
                     <Input<OpenXDA.Types.MagDurCurve> Record={props.Curve} Field={'Name'} Label='Name' Feedback={'A unique Name is required.'}
@@ -130,17 +130,14 @@ export default function CurveForm(props: IProps) {
                     />
                 </div>
             </div>
-            <div className="row">
-                <div className="col-6">
+            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="col-6" style={{display: "flex", height: "100%", flexDirection: "column"}}>
                     <Table<Point>
                         TableClass="table table-hover"
                         Data={curve}
                         SortKey={''}
                         Ascending={false}
                         OnSort={() => { }}
-                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 500, width: '100%' }}
-                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         Selected={(item) => false}
                         KeySelector={(item, index) => `${item.toString()}-${index}`}
                     >
