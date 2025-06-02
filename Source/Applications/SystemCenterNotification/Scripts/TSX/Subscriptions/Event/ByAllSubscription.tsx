@@ -27,6 +27,7 @@ import { LoadingScreen, SearchBar, Warning } from '@gpa-gemstone/react-interacti
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
 import { Table, Column } from '@gpa-gemstone/react-table';
+import { ToolTip } from '@gpa-gemstone/react-forms';
 import { ActiveSubscriptionSlice } from '../../Store';
 import { ActiveSubscription } from '../../global';
 import moment from 'moment';
@@ -55,6 +56,7 @@ const ByAllSubscription = (props: IProps) => {
     const [force, setForce] = React.useState<number>(0);
     const [nApproval, setNApproval] = React.useState<number>(0);
     const [record, setRecord] = React.useState<ActiveSubscription>();
+    const [hover, setHover] = React.useState<('approve' | 'none')>('none');
 
     React.useEffect(() => {
         if (status == 'unintiated' || status == 'changed' || parentID != null)
@@ -170,16 +172,16 @@ const ByAllSubscription = (props: IProps) => {
                             Key={'Category'}
                             AllowSort={true}
                             Field={'Category'}
-                            HeaderStyle={{ width: '15%' }}
-                            RowStyle={{ width: '15%' }}
+                            HeaderStyle={{ width: '10%' }}
+                            RowStyle={{ width: '10%' }}
                         > Category
                         </Column>
                         <Column<ActiveSubscription>
                             Key={'EmailName'}
                             AllowSort={true}
                             Field={'EmailName'}
-                            HeaderStyle={{ width: '15%' }}
-                            RowStyle={{ width: '15%' }}
+                            HeaderStyle={{ width: '10%' }}
+                            RowStyle={{ width: '10%' }}
                         > Notification
                         </Column>
                         <Column<ActiveSubscription>
@@ -222,10 +224,14 @@ const ByAllSubscription = (props: IProps) => {
                             HeaderStyle={{ width: '10%' }}
                             RowStyle={{ width: '10%' }}
                             Content={({ item }) => item.RequireApproval ? (item.Approved ? <ReactIcons.CheckMark Color="var(--success)" /> :
-                                <button className="btn btn-sm" onClick={(e) => {
+                                <button className="btn btn-sm"
+                                    data-tooltip='approve'
+                                    onMouseEnter={() => setHover('approve')}
+                                    onMouseLeave={() => setHover('none')}
+                                    onClick={(e) => {
                                     e.preventDefault();
                                     approve(item.UserAccountEmailID);
-                                }}><span><ReactIcons.CrossMark Color="var(--danger)" /></span></button>) : 'N/A'
+                                    }}><span><ReactIcons.CrossMark Color="var(--danger)" Size={20} /></span></button>) : 'N/A'
                             }
                         > Approved
                         </Column>
@@ -246,11 +252,14 @@ const ByAllSubscription = (props: IProps) => {
                     </Table>
                 </div>
             </div>
-            <Warning Show={showApproveWarning} Title={'Approve Notification Subscriptions'} Message={`This will approve all ${nApproval} Subscriptions that are currently pending.`}
+            <Warning Show={showApproveWarning} Title={'Approve Subscriptions'} Message={`This will approve all ${nApproval} subscriptions that are currently pending.`}
                 CallBack={(c) => { setShowApproveWarning(false); if (c) approveAll(); }} />
             <Warning Show={showRemoveWarning} Title={'Remove Subscription'} Message={`Are you sure you want to remove this subscription?`}
                 CallBack={(c) => { setShowRemoveWarning(false); if (c) removeSubscription(); }} />
             <AddAllSubscription OnClose={() => setShowModal(false)} show={showModal} />
+            <ToolTip Show={hover == 'approve'} Position={'top'} Target={"approve"}>
+                Click to approve this subscription.
+            </ToolTip>
         </div>)
 }
 
