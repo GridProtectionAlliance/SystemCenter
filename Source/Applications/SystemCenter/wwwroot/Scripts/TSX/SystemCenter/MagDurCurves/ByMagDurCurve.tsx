@@ -86,7 +86,7 @@ const ByMagDurCurve: Application.Types.iByComponent = () => {
                                 ? MagDurCurveController.DBAction('PATCH', curve).done(() => refreshData(x => x + 1))
                                 : MagDurCurveController.DBAction("POST", curve).done(() => refreshData(x => x + 1))
                         }
-                    setShowModal(false);
+                        setShowModal(false);
                         setCurve(emptyCurve);
                     }
                 }}
@@ -96,8 +96,10 @@ const ByMagDurCurve: Application.Types.iByComponent = () => {
                 DisableConfirm={errors.length > 0}
                 ConfirmText={'Save'}
                 ConfirmShowToolTip={errors.length > 0}
-                ConfirmToolTipContent={errors.map((t, i) => <p key={i}> <ReactIcons.CrossMark Color="var(--danger)" /> {t}</p>)} >
-                <div className="row">
+                ConfirmToolTipContent={errors.map((t, i) => <p key={i}> <ReactIcons.CrossMark Color="var(--danger)" /> {t}</p>)}
+                BodyStyle={{ height: 'calc(-210px + 100vh)' }}
+            >
+                <div className="container-fluid d-flex flex-column p-0 h-100">
                     <CurveForm Curve={curve} stateSetter={setCurve} setErrors={setErrors} />
                 </div>
             </Modal>
