@@ -75,7 +75,7 @@ const ByMagDurCurve: Application.Types.iByComponent = () => {
                 Show={showModal && !showDelete}
                 Title={curve.ID >= 0
                     ? 'Edit ' + (curve?.Name ?? 'MagDur Curve')
-                    : 'Add New MagDur Curve'}
+                    : 'Add New Curve'}
                 Size={'xlg'}
                 CallBack={(conf,del) => {
                     if (del)
