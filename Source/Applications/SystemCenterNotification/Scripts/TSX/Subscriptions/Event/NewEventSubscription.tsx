@@ -60,7 +60,7 @@ const NewEventSubscription = (props: {}) => {
 
     const EmailSteps = [
         { short: 'Notification', long: 'Select Notification', id: 'Selection' },
-        { short: 'Email', long: 'Confirm Emailadress', id: 'Email' },
+        { short: 'Email', long: 'Confirm Email Address', id: 'Email' },
         { short: 'Success', long: 'Success', id: 'Success' }
     ];
 
@@ -72,25 +72,25 @@ const NewEventSubscription = (props: {}) => {
         if (assetGroupID.length == 0 && currentStep == 'Selection')
             e.push('At least 1 Asset Group must be selected.')
         if (currentStep == 'Email')
-            e.push('Your email address needs to be confirmed')
+            e.push('Your email address must be confirmed.')
         if (currentStep == 'Phone')
-            e.push('Your phone number needs to be confirmed')
+            e.push('Your phone number must be confirmed.')
         if (carrierID == null && currentStep == 'Carrier')
-            e.push('A cell Carrier has to be selected.')
+            e.push('A Cell Carrier must be selected.')
         setError(e);
     }, [emailTypeID, assetGroupID, currentStep])
 
     function getHeader() {
         if (currentStep == 'Selection')
-            return "Step 1: Select A Notification"
+            return "Step 1: Select a Notification"
         if (currentStep == 'Email')
-            return "Confirm your email address"
+            return "Confirm Your Email Address"
         if (currentStep == 'Carrier')
-            return "Confirm your Cell Carrier"
+            return "Confirm Your Cell Carrier"
         if (currentStep == 'Phone')
-            return "Confirm your phone number"
+            return "Confirm Your Phone Number"
         if (currentStep == 'Success')
-            return "Success"
+            return "Success!"
     }
 
     function next() {
