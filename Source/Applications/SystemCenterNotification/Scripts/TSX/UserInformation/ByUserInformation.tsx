@@ -121,7 +121,7 @@ const ByUserInformation = (props: IProps) => {
                                 data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
                         </div>
                         <div className="btn-group mr-2">
-                            <button className={"btn btn-default" + (phone.phone != userPhone || carrier.ID != userCarrier ? '' : ' disabled')} data-tooltip="clear"
+                            <button className={"btn btn-warning" + (phone.phone != userPhone || carrier.ID != userCarrier ? '' : ' disabled')} data-tooltip="clear"
                                 onClick={() => {
                                     setPhone(phone);
                                     setCarrier(carriers.find((c) => c.ID == userCarrier));
@@ -132,7 +132,7 @@ const ByUserInformation = (props: IProps) => {
                 </div>
             </div>
             <ToolTip Show={(!validPhone || (phone.phone == userPhone && carrier.ID == userCarrier)) && hover == 'submit'} Position={'top'} Target={"submit"}>
-                {!validPhone ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> A valid Cell Phone is required.</p> : null}
+                {!validPhone ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> A valid Phone Number is required.</p> : null}
                 {(phone.phone == userPhone && carrier.ID == userCarrier) ? <p> No Changes were made.</p> : null}
             </ToolTip>
             <ToolTip Show={hover == 'clear'} Position={'top'} Target={"clear"}>
