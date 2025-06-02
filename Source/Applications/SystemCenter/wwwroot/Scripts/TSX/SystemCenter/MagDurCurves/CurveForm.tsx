@@ -46,6 +46,7 @@ export default function CurveForm(props: IProps) {
 
     const [curve, setCurve] = React.useState<Point[]>(calculateArea(props.Curve.Area));
     const [plotWidth, setPlotWidth] = React.useState<number>(100);
+    const [plotHeight, setPlotHeight] = React.useState<number>(100);
         
     React.useEffect(() => {
         if (acStatus == 'changed' || acStatus == 'unintiated')
@@ -87,7 +88,8 @@ export default function CurveForm(props: IProps) {
     }, [props.setErrors, errors])
 
     React.useLayoutEffect(() => {
-        setPlotWidth(div?.current?.offsetWidth ?? 0)
+        setPlotWidth(div?.current?.clientWidth ?? 0);
+        setPlotHeight(div?.current?.clientHeight ?? 0);
     })
     function valid(field: keyof (OpenXDA.Types.MagDurCurve)): boolean {
         if (field == 'Name')
@@ -244,15 +246,15 @@ export default function CurveForm(props: IProps) {
                         >Add Point</button>
                     </form>
                 </div>
-                <div className="col-6" ref={div}>
-                    <Plot height={window.innerHeight - 400} width={plotWidth - 50} showBorder={false}
+                <div className="col-6 p-0 h-100" ref={div}>
+                    <Plot height={plotHeight} width={plotWidth} showBorder={false}
                         defaultTdomain={[0.00001, 1000]}
                         defaultYdomain={[0, 5]}
                         Tmax={1000}
                         Tmin={0.00001}
                         Ymax={9999}
                         Ymin={0}
-                        legend={'right'}
+                        legend={'hidden'}
                         Tlabel={'Duration (s)'}
                         Ylabel={'Magnitude (pu)'}
                         showMouse={false}
@@ -267,7 +269,7 @@ export default function CurveForm(props: IProps) {
                     </Plot>
                 </div>
             </div>
-        </div>
+        </>
     )
 
 }
