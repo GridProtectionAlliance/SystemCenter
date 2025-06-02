@@ -33,10 +33,10 @@ declare var homePath: string;
 const controllerPath = `${homePath}api/SystemCenter/StandardMagDurCurve`
 const MagDurCurveController = new GenericController<OpenXDA.Types.MagDurCurve>(controllerPath, "ID", true);
 const emptyCurve: OpenXDA.Types.MagDurCurve = {
-    ID: 0,
-    Name: 'Curve',
+    ID: -1,
+    Name: '',
     Area: '0.00001 0, 1000 0, 1000 1, 0.00001 1, 0.00001 0',
-    Color: ''
+    Color: '#000000'
 };
 const fieldCols: SystemCenter.IByCol<OpenXDA.Types.MagDurCurve>[] = [
     { Field: 'Name', Label: 'Name', Type: 'string', Width: 'auto' }
