@@ -148,31 +148,22 @@ namespace SystemCenter.Notifications.Controllers
     [RoutePrefix("api/ReportSubscription")]
     public class ReportSubscriptionController : ModelController<openXDA.Model.SubscribeScheduledEmails>
     {
-        /*
-        [HttpGet, Route("approve/{parentID}")]
-        public IHttpActionResult Approve(int parentID)
+        [HttpGet, Route("Approve/{id:int}")]
+        public IHttpActionResult Approve(int id)
         {
             if (!PatchAuthCheck())
                 return Unauthorized();
             try
             {
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
-                {
-                    TableOperations<UserAccountEmailType> tbl = new TableOperations<UserAccountEmailType>(connection);
-                    UserAccountEmailType record = tbl.QueryRecordWhere("ID = {0}", parentID);
-                    if (record == null)
-                        throw new NullReferenceException("Record not found");
-                    record.Approved = true;
-                    tbl.UpdateRecord(record);
-                    return Ok(1);
-                }
+                    connection.ExecuteNonQuery("UPDATE UserAccountScheduledEmailType SET Approved = 1 WHERE ID = {0}", id);
+                return Ok(1);
             }
             catch (Exception ex)
             {
                 return InternalServerError(ex);
             }
         }
-        */
     }
 
     [RoutePrefix("api/ActiveSubscription")]
