@@ -26,7 +26,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Net.Http;
 using System.Web.Http;
-using FaultData.DataWriters.Emails;
+using System.Xml.Linq;
 using GSF.Configuration;
 using GSF.Data;
 using GSF.Web.Model;
@@ -62,20 +62,6 @@ namespace SystemCenter.Notifications.Controllers
         public string TriggerSQL { get; set; }
     }
 
-    public class DataSourceResponseTSX : DataSourceResponse 
-    { 
-        public DataSourceResponseTSX(DataSourceResponse reponse)
-        {
-            Success = reponse.Success;
-            Created = reponse.Created;
-            Data = reponse.Data?.ToString() ?? "";
-            Exception = reponse.Exception;
-            Model = reponse.Model;
-        }
-
-        public new string Data { get; set; }
-
-    }
     [RoutePrefix("api/OpenXDA/EmailType")]
     public class EmailTypeController : ModelController<EmailType>
     {
@@ -240,9 +226,13 @@ namespace SystemCenter.Notifications.Controllers
                     .GetAwaiter()
                     .GetResult();
 
-                IEnumerable<DataSourceResponse> results = JsonConvert
-                    .DeserializeObject<IEnumerable<DataSourceResponse>>(responseJSON)
-                    .Select(r => new DataSourceResponseTSX(r));
+                JArray results = JArray.Parse(responseJSON);
+
+                for(int index = 0; index < results.Count(); index++)
+                {
+                    XElement data = JsonConvert.DeserializeObject<XElement>(results[index]["Data"].ToString());
+                    results[index]["Data"] = data.ToString() ?? "";
+                }
 
                 return Ok(results);
             }
@@ -331,9 +321,13 @@ namespace SystemCenter.Notifications.Controllers
                     .GetAwaiter()
                     .GetResult();
 
-                IEnumerable<DataSourceResponse> results = JsonConvert
-                    .DeserializeObject<IEnumerable<DataSourceResponse>>(responseJSON)
-                    .Select(r => new DataSourceResponseTSX(r));
+                JArray results = JArray.Parse(responseJSON);
+
+                for (int index = 0; index < results.Count(); index++)
+                {
+                    XElement data = JsonConvert.DeserializeObject<XElement>(results[index]["Data"].ToString());
+                    results[index]["Data"] = data.ToString() ?? "";
+                }
 
                 return Ok(results);
             }
