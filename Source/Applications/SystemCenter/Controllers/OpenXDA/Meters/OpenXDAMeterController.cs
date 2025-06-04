@@ -546,6 +546,7 @@ namespace SystemCenter.Controllers.OpenXDA
     [PostRoles("Administrator, Engineer")]
     [PatchRoles("Administrator, Engineer")]
     [DeleteRoles("Administrator, Engineer")]
+    [AllowSearch]
     public class EventChannel : ChannelBase
     {
         [ParentKey(typeof(MeterDetail))]
@@ -698,6 +699,7 @@ namespace SystemCenter.Controllers.OpenXDA
     [PostRoles("Administrator, Engineer")]
     [PatchRoles("Administrator, Engineer")]
     [DeleteRoles("Administrator, Engineer")]
+    [AllowSearch]
     public class TrendChannel : ChannelBase
     {
         [ParentKey(typeof(MeterDetail))]
