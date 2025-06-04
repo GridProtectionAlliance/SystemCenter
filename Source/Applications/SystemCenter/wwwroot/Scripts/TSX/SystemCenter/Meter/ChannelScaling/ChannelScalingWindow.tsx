@@ -29,7 +29,7 @@ import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import ChannelScalingForm from './ChannelScalingForm';
 import { TrendChannelSlice } from '../../Store/Store';
 import { useAppDispatch } from '../../hooks';
-import { setChanged } from '../../Store/EventChannelSlice';
+import { SetChanged } from '../../Store/EventChannelSlice';
 
 declare let homePath: string;
 
@@ -86,7 +86,7 @@ const ChannelScalingWindow = (props: IProps) => {
             setChannels(channels);
             dispatch(TrendChannelSlice.SetChanged());
             // This one is for event channels
-            dispatch(setChanged());
+            dispatch(SetChanged());
         });
         h.fail(() => setStatus('error'));
     
