@@ -22,28 +22,26 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { MiMDSettingSlice, OpenSEESettingSlice, OpenXDASettingSlice, SystemCenterSettingSlice } from '../Store/Store';
-import { Application } from '@gpa-gemstone/application-typings';
+import { MiMDSettingSlice, OpenSEESettingSlice, OpenXDASettingSlice, SystemCenterSettingSlice, SEBrowserSettingSlice } from '../Store/Store';
+import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
+import { SystemCenter as LocalSC } from '../global';
 import Setting from './Setting';
-import { SystemCenter } from '../global';
-
-declare var homePath: string;
 
 interface IProps {
     System: 'SystemCenter' | 'MiMD' | 'OpenXDA' | 'OpenSEE',
     Roles: Application.Types.SecurityRoleName[]
 }
 
-const BySetting = (props: IProps) => {
+const emptySetting: SystemCenter.Types.Setting = { ID: 0, Name: '', Value: null, DefaultValue: null };
 
+const BySetting = (props: IProps) => {
     if (props.System == 'SystemCenter')
-        return <Setting SettingsSlice={SystemCenterSettingSlice} key='SystemCenter' />
+        return <Setting SettingsSlice={SystemCenterSettingSlice} DefaultSetting={emptySetting} key='SystemCenter' />
     if (props.System == 'MiMD')
-        return <Setting SettingsSlice={MiMDSettingSlice} key='MiMD' />
+        return <Setting SettingsSlice={MiMDSettingSlice} DefaultSetting={emptySetting} key='MiMD' />
     if (props.System == 'OpenSEE')
-        return <Setting SettingsSlice={OpenSEESettingSlice} key='OpenSEE' />
-    return <Setting SettingsSlice={OpenXDASettingSlice} key='OpenXDA' />
-    
+        return <Setting SettingsSlice={OpenSEESettingSlice} DefaultSetting={emptySetting} key='OpenSEE' />
+    return <Setting SettingsSlice={OpenXDASettingSlice} DefaultSetting={emptySetting} key='OpenXDA' />
 }
 export default BySetting;
 
