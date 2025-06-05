@@ -271,7 +271,7 @@ const Matcher: React.FunctionComponent = (props: {}) => {
         else if (params['name'] == "Settings") {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
-            return <BySettings Roles={roles} System={params.System as 'SystemCenter' | 'OpenXDA' | 'MiMD' | 'OpenSEE'} />
+            return <BySettings Roles={roles} System={params.System as 'SystemCenter' | 'OpenXDA' | 'MiMD' | 'OpenSEE' | 'SEBrowser'} />
         }
         else if (params['name'] == "ByAdditionalField") {
             if (roles.indexOf('Administrator') < 0)
