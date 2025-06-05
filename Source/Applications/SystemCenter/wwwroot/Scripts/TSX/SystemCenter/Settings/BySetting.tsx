@@ -28,10 +28,11 @@ import { SystemCenter as LocalSC } from '../global';
 import Setting from './Setting';
 
 interface IProps {
-    System: 'SystemCenter' | 'MiMD' | 'OpenXDA' | 'OpenSEE',
+    System: 'SystemCenter' | 'MiMD' | 'OpenXDA' | 'OpenSEE' | 'SEBrowser',
     Roles: Application.Types.SecurityRoleName[]
 }
 
+const emptySEBSetting: LocalSC.SEBrowserSetting = { ID: 0, Name: '', Value: null, DefaultValue: null, Scope: "app.setting", ApplicationInstance: false, Roles: "Administrator" };
 const emptySetting: SystemCenter.Types.Setting = { ID: 0, Name: '', Value: null, DefaultValue: null };
 
 const BySetting = (props: IProps) => {
@@ -41,6 +42,8 @@ const BySetting = (props: IProps) => {
         return <Setting SettingsSlice={MiMDSettingSlice} DefaultSetting={emptySetting} key='MiMD' />
     if (props.System == 'OpenSEE')
         return <Setting SettingsSlice={OpenSEESettingSlice} DefaultSetting={emptySetting} key='OpenSEE' />
+    if (props.System == 'SEBrowser')
+        return <Setting SettingsSlice={SEBrowserSettingSlice} DefaultSetting={emptySEBSetting}  key='SEBrowser' />
     return <Setting SettingsSlice={OpenXDASettingSlice} DefaultSetting={emptySetting} key='OpenXDA' />
 }
 export default BySetting;
