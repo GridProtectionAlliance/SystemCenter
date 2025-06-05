@@ -292,6 +292,7 @@
     <Compile Include="Model\ChannelTemplate.cs" />
     <Compile Include="Model\DetailedMeterAsset.cs" />
     <Compile Include="Model\Condition.cs" />
+    <Compile Include="Model\SEBrowserSetting.cs" />
     <Compile Include="Model\OpenSEESetting.cs" />
     <Compile Include="Model\RestrictedDetailedAsset.cs" />
     <Compile Include="Model\Security\RemoteUserAccount.cs" />
