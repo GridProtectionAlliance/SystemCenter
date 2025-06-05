@@ -63,6 +63,9 @@ export namespace SystemCenter {
         AllowSort?: boolean,
         Content?: (item: IColDatum<T>) => React.ReactNode;
     }
+
+    // Todo: There is a pr for this in gemstone, when its merged and published, remove this and ues gemstone version
+    interface SEBrowserSetting extends GemstoneSC.Types.Setting { ApplicationInstance: boolean, Scope: string, Roles: string }
 }
 
 // OpenXDA Models
