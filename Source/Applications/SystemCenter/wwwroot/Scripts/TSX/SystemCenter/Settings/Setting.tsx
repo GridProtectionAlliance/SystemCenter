@@ -48,6 +48,7 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
 
     const [editnewSetting, setEditNewSetting] = React.useState<T>(props.DefaultSetting);
     const [editNew, setEditNew] = React.useState<Application.Types.NewEdit>('New');
+    const [defaultChanged, setDefaultChanged] = React.useState<boolean>(false);
 
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
@@ -170,6 +171,7 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
                     if (!conf && isBtn)
                         setShowWarning(true);
                     setShowModal(false);
+                    setDefaultChanged(false);
                 }}
                 DisableConfirm={(editNew === 'Edit' && !hasChanged) || errors.length > 0}
                 ConfirmShowToolTip={errors.length > 0}
@@ -184,11 +186,19 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
                             Setter={(record) => { setEditNewSetting(record); setHasChanged(true); }}
                         />
                         <TextArea<T> Record={editnewSetting} Field={'Value'} Label='Current Value' Valid={field => true}
-                            Setter={(record) => { setEditNewSetting(record); setHasChanged(true); }}
+                            Setter={(record) => {
+                                setHasChanged(true);
+                                // Defaultvalue mirroring value unless set seperately
+                                if (!defaultChanged && editNew === "New") {
+                                    const rec = { ...record };
+                                    rec.DefaultValue = rec.Value;
+                                    setEditNewSetting(rec);
+                                } else setEditNewSetting(record);
+                            }}
                             Rows={1}
                         />
                         <TextArea<T> Record={editnewSetting} Field={'DefaultValue'} Label='Default Value' Valid={field => true} Disabled={editNew !== 'New'}
-                            Setter={(record) => { setEditNewSetting(record); setHasChanged(true); }}
+                            Setter={(record) => { setEditNewSetting(record); setHasChanged(true); setDefaultChanged(true); }}
                             Rows={1}
                         />
                     </div>
