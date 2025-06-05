@@ -62,6 +62,7 @@ export const SystemCenterSettingSlice = new GenericSlice<SystemCenter.Types.Sett
 export const OpenXDASettingSlice = new GenericSlice<SystemCenter.Types.Setting>('OpenXDASetting', `${homePath}api/OpenXDA/Setting`, 'Name');
 export const MiMDSettingSlice = new GenericSlice<SystemCenter.Types.Setting>('MiMDSetting', `${homePath}api/MiMD/Setting`, 'Name');
 export const OpenSEESettingSlice = new GenericSlice<SystemCenter.Types.Setting>('OpenSEESetting', `${homePath}api/OpenSEE/Setting`, 'Name');
+export const SEBrowserSettingSlice = new GenericSlice<LocalSystemCenter.SEBrowserSetting>('SEBrowserSetting', `${homePath}api/SEBrowser/Setting`, 'Name');
 
 
 export const AssetConnectionTypeSlice = new GenericSlice<OpenXDA.Types.AssetConnectionType>("AssetConnectionType", `${homePath}api/OpenXDA/AssetConnectionType`, 'Name');
@@ -158,6 +159,7 @@ const store = configureStore({
         OpenXDASetting: OpenXDASettingSlice.Reducer,
         MiMDSetting: MiMDSettingSlice.Reducer,
         OpenSEESetting: OpenSEESettingSlice.Reducer,
+        SEBrowserSetting: SEBrowserSettingSlice.Reducer,
         AssetType: AssetTypeSlice.Reducer,
         DataFile: DataFileSlice.Reducer,
         Customer: CustomerSlice.Reducer,
