@@ -40,7 +40,6 @@ interface IConsoleMessage {
 const remoteConsoleStyle = {
     backgroundColor: 'black',
     padding: 10,
-    overflow: 'auto',
     fontSize: 10,
     height: '100%'
 }
@@ -204,7 +203,7 @@ const ConsoleWindow = (props: IProps) => {
                             </label>
                         </div>
                     </div>
-                    <div className="row" style={{ flex: 1}}>
+                    <div className="row" style={{ flex: 1, overflow: "auto" }}>
                         <div className="col">
                             <pre className="small" style={remoteConsoleStyle} ref={consoleDiv}
                                 onMouseEnter={() => setAutoScroll(false)}
