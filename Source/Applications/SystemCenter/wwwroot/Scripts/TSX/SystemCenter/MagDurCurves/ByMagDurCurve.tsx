@@ -33,10 +33,10 @@ declare var homePath: string;
 const controllerPath = `${homePath}api/SystemCenter/StandardMagDurCurve`
 const MagDurCurveController = new GenericController<OpenXDA.Types.MagDurCurve>(controllerPath, "ID", true);
 const emptyCurve: OpenXDA.Types.MagDurCurve = {
-    ID: 0,
-    Name: 'Curve',
+    ID: -1,
+    Name: '',
     Area: '0.00001 0, 1000 0, 1000 1, 0.00001 1, 0.00001 0',
-    Color: ''
+    Color: '#000000'
 };
 const fieldCols: SystemCenter.IByCol<OpenXDA.Types.MagDurCurve>[] = [
     { Field: 'Name', Label: 'Name', Type: 'string', Width: 'auto' }
@@ -45,16 +45,9 @@ const fieldCols: SystemCenter.IByCol<OpenXDA.Types.MagDurCurve>[] = [
 const ByMagDurCurve: Application.Types.iByComponent = () => {
     const [curve, setCurve] = React.useState<OpenXDA.Types.MagDurCurve>(emptyCurve);
     const [errors, setErrors] = React.useState<string[]>([]);
-    const [newEdit, setNewEdit] = React.useState<Application.Types.NewEdit>('Edit');
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
     const [refreshCount, refreshData] = React.useState<number>(0);
-
-    function handleSelect(item) {
-        setCurve(item.row);
-        setShowModal(true);
-        setNewEdit('Edit');
-    }
 
     return (
         <GenericByPage<OpenXDA.Types.MagDurCurve>
@@ -62,7 +55,10 @@ const ByMagDurCurve: Application.Types.iByComponent = () => {
             RefreshData={refreshCount}
             DefaultSortKey='Name'
             PagingID='DBCleanup'
-            OnClick={(item) => { handleSelect(item); }}
+            OnClick={(item) => {
+                setCurve(item.row);
+                setShowModal(true);
+            }}
             Columns={fieldCols}
             DefaultSearchAscending={true}
             DefaultSearchKey='Name'
@@ -76,31 +72,34 @@ const ByMagDurCurve: Application.Types.iByComponent = () => {
                 </fieldset>
             </li>
             <Modal
-                Show={showModal}
-                Title={newEdit == 'Edit'
+                Show={showModal && !showDelete}
+                Title={curve.ID >= 0
                     ? 'Edit ' + (curve?.Name ?? 'MagDur Curve')
-                    : 'Add New MagDur Curve'}
+                    : 'Add New Curve'}
                 Size={'xlg'}
-                CallBack={(c,b) => {
-                    setShowModal(false);
-                    if (!c && b)
-                        setShowDelete(true)
-                    if (c) {
-                        curve.ID == 0
-                        ? MagDurCurveController.DBAction("POST", curve).done(() => refreshData(x => x + 1))
-                        : MagDurCurveController.DBAction('PATCH', curve).done(() => refreshData(x => x + 1))
-                    }
-                    if (c || !b)
+                CallBack={(conf,del) => {
+                    if (del)
+                        setShowDelete(true);
+                    else {
+                        if (conf) {
+                            curve.ID >= 0
+                                ? MagDurCurveController.DBAction('PATCH', curve).done(() => refreshData(x => x + 1))
+                                : MagDurCurveController.DBAction("POST", curve).done(() => refreshData(x => x + 1))
+                        }
+                        setShowModal(false);
                         setCurve(emptyCurve);
+                    }
                 }}
-                ShowCancel={curve.ID != 0}
+                ShowCancel={curve.ID >= 0}
                 ShowX={true}
                 CancelText={'Delete'}
                 DisableConfirm={errors.length > 0}
                 ConfirmText={'Save'}
                 ConfirmShowToolTip={errors.length > 0}
-                ConfirmToolTipContent={errors.map((t, i) => <p key={i}> <ReactIcons.CrossMark Color="var(--danger)" /> {t}</p>)} >
-                <div className="row">
+                ConfirmToolTipContent={errors.map((t, i) => <p key={i}> <ReactIcons.CrossMark Color="var(--danger)" /> {t}</p>)}
+                BodyStyle={{ height: 'calc(-210px + 100vh)' }}
+            >
+                <div className="container-fluid d-flex flex-column p-0 h-100">
                     <CurveForm Curve={curve} stateSetter={setCurve} setErrors={setErrors} />
                 </div>
             </Modal>
@@ -111,9 +110,9 @@ const ByMagDurCurve: Application.Types.iByComponent = () => {
                 CallBack={(c) => {
                     if (c) {
                         MagDurCurveController.DBAction('DELETE', curve).done(() => refreshData(x => x + 1));
-                        setShowDelete(false);
                         setCurve(emptyCurve);
                     }
+                    setShowDelete(false);
                 }}
             />
         </GenericByPage>
