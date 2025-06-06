@@ -26,7 +26,8 @@ import { GenericController, Search } from '@gpa-gemstone/react-interactive';
 import { Column, FilterableColumn, Paging, Table } from '@gpa-gemstone/react-table';
 import moment from 'moment';
 import * as React from 'react';
-import RestrictionTooltip from '../CommonComponents/Restrictions/RestrictionTooltip';
+import EditionRestrictionTooltip from '../CommonComponents/Restrictions/EditionRestrictionTooltip';
+import RoleRestrictionTooltip from '../CommonComponents/Restrictions/RoleRestrictionTooltip';
 import Reason from '../CommonComponents/Reason';
 
 const DataOperationFailureController = new GenericController<OpenXDA.Types.DataOperationFailure>(`${homePath}api/OpenXDA/DataOperationFailure`, "ID", true);
@@ -48,7 +49,8 @@ function ByDataOperationsFailure(props: IProps) {
     const [page, setPage] = React.useState<number>(0);
 
     const [hover, setHover] = React.useState<string|undefined>(undefined);
-    const [allowStackTrace, setAllowStackTrace] = React.useState<boolean>(true);
+    const [inEdition, setInEdition] = React.useState<boolean>(true);
+    const [inRoles, setInRoles] = React.useState<boolean>(true);
 
     React.useEffect(() => {
             let storedInfo = JSON.parse(localStorage.getItem(PagingID) as string);
@@ -173,7 +175,7 @@ function ByDataOperationsFailure(props: IProps) {
                     Key={'StackTrace'}
                     AllowSort={true}
                     Field={'StackTrace'}
-                    Content={({ item, field }) => <Reason ID={item.ID} Text={item[field]?.toString() ?? ''} Disabled={!allowStackTrace} OnHover={setHover} />}
+                    Content={({ item, field }) => <Reason ID={item.ID} Text={item[field]?.toString() ?? ''} Disabled={!inEdition || !inRoles} OnHover={setHover} />}
                     HeaderStyle={{ width: '115px' }}
                     RowStyle={{ width: '115px' }}
                 >
@@ -183,13 +185,19 @@ function ByDataOperationsFailure(props: IProps) {
             <div className="row justify-content-center">
                 <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p - 1)} />
             </div>
-            <RestrictionTooltip
-                SetMeetsRequirements={setAllowStackTrace}
+            <EditionRestrictionTooltip
+                SetMeetsRequirements={setInEdition}
                 EditionRequirement={'Enterprise'}
-                RolesRequirement={['Administrator']}
                 FeatureName={'Viewing Stack Trace'}
                 Target={hover}
                 Show={hover != null}
+            />
+            <RoleRestrictionTooltip
+                SetMeetsRequirements={setInRoles}
+                RolesRequirement={['Administrator']}
+                FeatureName={'Viewing Stack Trace'}
+                Target={hover}
+                Show={hover != null && inEdition}
             />
         </div>
     );
