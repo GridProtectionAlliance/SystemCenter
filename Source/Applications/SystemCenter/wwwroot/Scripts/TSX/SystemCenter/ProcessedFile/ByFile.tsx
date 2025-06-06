@@ -29,7 +29,7 @@ import { ToolTip } from '@gpa-gemstone/react-forms';
 import { Column, Paging, Table } from '@gpa-gemstone/react-table';
 import moment from 'moment';
 import * as React from 'react';
-import RestrictionTooltip from '../CommonComponents/Restrictions/RestrictionTooltip';
+import EditionRestrictionTooltip from '../CommonComponents/Restrictions/EditionRestrictionTooltip';
 import { DefaultSearchField } from '../CommonComponents/SearchFields';
 import { OpenXDA as GlobalXDA } from '../global';
 import { useAppDispatch, useAppSelector } from '../hooks';
@@ -186,7 +186,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
                                                 if (inEnterprise) reprocessAll();
                                             }}>Reprocess All {data.length}</button>
                                     </div>
-                                    <RestrictionTooltip
+                                    <EditionRestrictionTooltip
                                         SetMeetsRequirements={setInEnterprise}
                                         EditionRequirement={'Enterprise'}
                                         FeatureName={'Bulk Reprocessing'}
