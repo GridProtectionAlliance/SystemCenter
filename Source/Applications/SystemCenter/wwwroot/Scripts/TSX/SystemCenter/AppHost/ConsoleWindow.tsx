@@ -44,19 +44,27 @@ const remoteConsoleStyle = {
     height: '100%'
 }
 
+function getColor(type: number) {
+    if (type == 2)
+        return 'red';
+    if (type == 1)
+        return 'yellow';
+    return 'white';
+}
+
 const ConsoleWindow = (props: IProps) => {
     const consoleDiv = React.useRef<HTMLPreElement>(null);
     const cmdRef = React.useRef<string>('');
     const lastCmdRef = React.useRef<string>('');
+    const sessionIDRef = React.useRef<string>('');
 
-    const [sessionID, setSessionID] = React.useState<string>('');
     const [update, setUpdate] = React.useState<boolean>(false);
     const [messages, setMessages] = React.useState<IConsoleMessage[]>([]);
     const [cmd, setCMD] = React.useState<string>('');
     const [lastCmd, setLastCmd] = React.useState<string>('');
     const [autoScroll, setAutoScroll] = React.useState<boolean>(true);
 
-    const [lastUpdate, setLastUpdate] = React.useState<string|null>('');
+    const [lastUpdate, setLastUpdate] = React.useState<string | null>('');
 
     React.useEffect(() => {
         setCMD('');
@@ -80,7 +88,7 @@ const ConsoleWindow = (props: IProps) => {
 
 
     React.useEffect(() => {
-        if (sessionID == null || sessionID.length == 0 || props.ConsoleURL == null || props.ConsoleURL.length == 0)
+        if (sessionIDRef.current == null || sessionIDRef.current.length == 0 || props.ConsoleURL == null || props.ConsoleURL.length == 0)
             return;
         const handleRequest = getResponse();
         const h = setTimeout(() => {
@@ -121,8 +129,7 @@ const ConsoleWindow = (props: IProps) => {
         }
     }
 
-
-    function connect() {
+    const connect = React.useCallback(() => {
         const h = $.ajax({
             type: "GET",
             url: props.ConsoleURL + '/Connect',
@@ -131,29 +138,29 @@ const ConsoleWindow = (props: IProps) => {
             cache: false,
             async: true
         });
-        h.then((d) => { setSessionID(d); setUpdate((a) => !a); }, (d) => { console.log(d); });
+        h.then((d) => { sessionIDRef.current = d; setUpdate((a) => !a); }, (d) => { console.error(d); });
         return h;
-    }
+    }, [props.ConsoleURL]);
 
-    function sendCmd(cmd: string) {
+    const sendCmd = React.useCallback((cmd: string) => {
         setLastCmd(cmd)
         const h = $.ajax({
             type: "POST",
-            url: `${props.ConsoleURL}/Send/${sessionID}`,
+            url: `${props.ConsoleURL}/Send/${sessionIDRef.current}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             data: JSON.stringify(cmd),
             cache: false,
             async: true
         });
-        h.then((d) => {  }, (d) => { console.log(d); });
-    }
+        h.then((d) => { }, (d) => { console.error(d); });
+    }, [props.ConsoleURL]);
 
-    function getResponse() {
+    const getResponse = React.useCallback(() => {
         setLastUpdate(null);
         const h = $.ajax({
             type: "GET",
-            url: `${props.ConsoleURL}/Retrieve/${sessionID}`,
+            url: `${props.ConsoleURL}/Retrieve/${sessionIDRef.current}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
@@ -167,23 +174,15 @@ const ConsoleWindow = (props: IProps) => {
                 return u;
             });
             setLastUpdate(new Date().toLocaleTimeString());
-        }, (d) => { console.log(d); });
+        }, (d) => { console.error(d); });
         return h;
-    }
-
-    function getColor(type: number) {
-        if (type == 2)
-            return 'red';
-        if (type == 1)
-            return 'yellow';
-        return 'white';
-    }
+    }, [props.ConsoleURL]);
 
     return (
         <>
             <Modal
                 Show={props.ConsoleURL != undefined && props.ConsoleURL.length > 0}
-                CallBack={(c, b) => { if (!b) { props.Close(); setSessionID(''); } else { sendCmd(cmd); setCMD(''); } }}
+                CallBack={(_conf, button) => { if (!button) { props.Close(); sessionIDRef.current = ''; } else { sendCmd(cmd); setCMD(''); } }}
                 ShowCancel={false} Size={'xlg'}
                 Title={'Console - ' + props.ApplicationName}
                 ShowX={true}
