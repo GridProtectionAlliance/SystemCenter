@@ -22,8 +22,8 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { useAppSelector, useAppDispatch } from '../hooks';
-import { ConfigSlice } from '../Store/Store';
+import { useAppSelector, useAppDispatch } from '../../hooks';
+import { ConfigSlice } from '../../Store/Store';
 import { ServerErrorIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
 
 interface IProps {

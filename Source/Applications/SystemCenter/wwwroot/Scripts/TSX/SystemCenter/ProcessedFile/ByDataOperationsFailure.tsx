@@ -26,7 +26,7 @@ import { GenericController, Search } from '@gpa-gemstone/react-interactive';
 import { Column, FilterableColumn, Paging, Table } from '@gpa-gemstone/react-table';
 import moment from 'moment';
 import * as React from 'react';
-import RestrictionTooltip from '../CommonComponents/RestrictionTooltip';
+import RestrictionTooltip from '../CommonComponents/Restrictions/RestrictionTooltip';
 import Reason from '../CommonComponents/Reason';
 
 const DataOperationFailureController = new GenericController<OpenXDA.Types.DataOperationFailure>(`${homePath}api/OpenXDA/DataOperationFailure`, "ID", true);

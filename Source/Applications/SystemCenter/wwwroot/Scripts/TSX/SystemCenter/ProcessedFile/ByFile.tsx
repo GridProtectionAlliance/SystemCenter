@@ -29,7 +29,7 @@ import { ToolTip } from '@gpa-gemstone/react-forms';
 import { Column, Paging, Table } from '@gpa-gemstone/react-table';
 import moment from 'moment';
 import * as React from 'react';
-import RestrictionTooltip from '../CommonComponents/RestrictionTooltip';
+import RestrictionTooltip from '../CommonComponents/Restrictions/RestrictionTooltip';
 import { DefaultSearchField } from '../CommonComponents/SearchFields';
 import { OpenXDA as GlobalXDA } from '../global';
 import { useAppDispatch, useAppSelector } from '../hooks';

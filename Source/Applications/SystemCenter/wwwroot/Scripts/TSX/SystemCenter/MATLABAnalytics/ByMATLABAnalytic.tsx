@@ -30,7 +30,7 @@ import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 
 import MATLABAnalyticForm from './MATLABAnalyticForm';
 import GenericByPage from '../CommonComponents/GenericByPage';
-import EditionLockPage from '../CommonComponents/EditionLockPage';
+import EditionLockPage from '../CommonComponents/Restrictions/EditionLockPage';
 
 const controllerPath = `${homePath}api/OpenXDA/MATLABAnalytic`;
 
