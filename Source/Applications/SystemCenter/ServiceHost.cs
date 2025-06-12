@@ -1154,7 +1154,7 @@ namespace SystemCenter
 
                 LoggingEventData loggingData = new LoggingEventData();
                 loggingData.LoggerName = logMessage.TypeName;
-                loggingData.TimeStamp = logMessage.UtcTime;
+                loggingData.TimeStampUtc = logMessage.UtcTime;
                 loggingData.Level = ToLog4NetLevel(logMessage.Level);
                 loggingData.Message = logMessage.Message;
                 loggingData.LocationInfo = locationInfo;
