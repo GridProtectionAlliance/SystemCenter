@@ -61,7 +61,6 @@ export const dBAction = createAsyncThunk(`EventChannels/DBAction`, async (args: 
     return await handle
 });
 
-
 export const EventChannelSlice = createSlice({
     name: 'EventChannel',
     initialState: {
@@ -74,6 +73,9 @@ export const EventChannelSlice = createSlice({
         ParentID: null
     },
     reducers: {
+        SetChanged: (state) => {
+            state.Status = "changed";
+        }
     },
     extraReducers: (builder) => {
 
@@ -118,15 +120,12 @@ export const EventChannelSlice = createSlice({
             state.Status = 'changed';
             state.Error = null;
         });
-
-
     }
 
 });
 
-export const { } = EventChannelSlice.actions;
+export const { SetChanged } = EventChannelSlice.actions;
 export default EventChannelSlice.reducer;
-
 export const SelectEventChannels = (state) => state.EventChannels.Data as OpenXDA.EventChannel[];
 export const SelectEventChannelStatus = (state) => state.EventChannels.Status as Application.Types.Status;
 export const SelectMeterID = (state) => state.EventChannels.ParentID as number;
