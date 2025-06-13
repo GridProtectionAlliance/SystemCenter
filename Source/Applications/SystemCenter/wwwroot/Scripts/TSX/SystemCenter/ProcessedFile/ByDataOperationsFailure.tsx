@@ -29,6 +29,7 @@ import * as React from 'react';
 import EditionRestrictionTooltip from '../CommonComponents/Restrictions/EditionRestrictionTooltip';
 import RoleRestrictionTooltip from '../CommonComponents/Restrictions/RoleRestrictionTooltip';
 import Reason from '../CommonComponents/Reason';
+import EditionLockModal from '../CommonComponents/Restrictions/EditionLockModal';
 
 const DataOperationFailureController = new GenericController<OpenXDA.Types.DataOperationFailure>(`${homePath}api/OpenXDA/DataOperationFailure`, "ID", true);
 const storageID = "ByDataOperationsFailure";
@@ -51,6 +52,8 @@ function ByDataOperationsFailure(props: IProps) {
     const [hover, setHover] = React.useState<string|undefined>(undefined);
     const [inEdition, setInEdition] = React.useState<boolean>(true);
     const [inRoles, setInRoles] = React.useState<boolean>(true);
+
+    const [showEdition, setShowEdition] = React.useState<boolean>(false);
 
     React.useEffect(() => {
             let storedInfo = JSON.parse(localStorage.getItem(PagingID) as string);
@@ -175,7 +178,15 @@ function ByDataOperationsFailure(props: IProps) {
                     Key={'StackTrace'}
                     AllowSort={true}
                     Field={'StackTrace'}
-                    Content={({ item, field }) => <Reason ID={item.ID} Text={item[field]?.toString() ?? ''} Disabled={!inEdition || !inRoles} OnHover={setHover} />}
+                    Content={({ item, field }) =>
+                        <Reason
+                            ID={item.ID}
+                            Text={item[field]?.toString() ?? ''}
+                            Disabled={!inEdition || !inRoles}
+                            OnHover={setHover}
+                            OnClick={() => { if (!inEdition) setShowEdition(true); }}
+                        />
+                    }
                     HeaderStyle={{ width: '115px' }}
                     RowStyle={{ width: '115px' }}
                 >
@@ -198,6 +209,11 @@ function ByDataOperationsFailure(props: IProps) {
                 FeatureName={'Viewing Stack Trace'}
                 Target={hover}
                 Show={hover != null && inEdition}
+            />
+            <EditionLockModal
+                SetShow={setShowEdition}
+                Show={showEdition}
+                EditionRequirement={'Enterprise'}
             />
         </div>
     );
