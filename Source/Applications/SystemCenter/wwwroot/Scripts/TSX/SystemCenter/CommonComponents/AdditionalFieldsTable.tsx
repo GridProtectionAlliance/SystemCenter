@@ -55,14 +55,17 @@ function AdditionalFieldsTable(props: IProps): JSX.Element {
     const [hover, setHover] = React.useState<string>('None');
     const [fieldState, setFieldState] = React.useState < Application.Types.Status>('idle')
     const [keyField, setKeyField] = React.useState<SystemCenter.Types.AdditionalFieldView>(undefined);
+    const [showModal, setShowModal] = React.useState<boolean>(false);
 
 
     const keyModalCallback = React.useCallback((newValue: string) => {
-        const val = props.FieldValues.find(field => field.AdditionalFieldID == keyField.ID);
-        val.Value = newValue;
+        let val = props.FieldValues.find(field => field.AdditionalFieldID == keyField.ID);
+        if (val == null) {
+            val = { ID: 0, AdditionalFieldID: keyField.ID, ParentTableID: props.ID, Value: newValue };
+        } else val.Value = newValue;
         props.SetValues(val, keyField);
         setKeyField(null);
-    }, [props.SetValues, props.FieldValues, keyField]);
+    }, [props.SetValues, props.FieldValues, keyField, props.ID]);
 
     React.useEffect(() => {
         setFieldState('loading')
@@ -179,6 +182,7 @@ function AdditionalFieldsTable(props: IProps): JSX.Element {
                                     className="btn btn-sm pull-left" onClick={(e) => {
                                         e.preventDefault();
                                         setKeyField(item);
+                                        setShowModal(true);
                                     }}><ReactIcons.Pencil Color="var(--danger)" Size={20} /></button>
                                 <button
                                     data-tooltip={`${item.ID}_delete`}
@@ -192,7 +196,7 @@ function AdditionalFieldsTable(props: IProps): JSX.Element {
                 > <p></p>
                 </Column>
             </Table>
-            <AdditionalFieldsKeyModal KeyField={keyField} SetKeyFieldValue={keyModalCallback} Show={keyField != null} SetShow={() => setKeyField(null)} />
+            <AdditionalFieldsKeyModal KeyField={keyField} SetKeyFieldValue={keyModalCallback} Show={showModal} SetShow={setShowModal} />
             <ToolTip Show={hover.match(/_edit$/) != null} Position={'left'} Target={hover}>
                 Select Key Field Value
             </ToolTip>
