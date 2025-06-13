@@ -557,6 +557,7 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ByExternalTable.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\GenericByPage.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\Restrictions\EditionLockPage.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\Restrictions\EditionLockModal.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\Restrictions\EditionRestrictionTooltip.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\Restrictions\RoleRestrictionTooltip.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\ExternalDBUpdate.tsx" />
