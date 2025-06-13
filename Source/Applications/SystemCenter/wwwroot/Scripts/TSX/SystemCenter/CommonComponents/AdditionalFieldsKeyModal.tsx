@@ -31,10 +31,10 @@ import ResultDisplay from '../ExternalDB/TableTesting/ResultDisplay';
 declare var homePath: string;
 
 interface IProps {
-    KeyField: SystemCenter.Types.AdditionalFieldView,
+    KeyField?: SystemCenter.Types.AdditionalFieldView,
     SetKeyFieldValue: (val: string) => void,
     Show: boolean,
-    SetShow: (show: boolean) => void,
+    SetShow: (show: boolean) => void
 }
 
 
@@ -99,7 +99,13 @@ function AdditionalFieldsKeyModal(props: IProps): JSX.Element {
             ConfirmText={countStatus === 'error' || dataStatus === 'error' ? 'Close' : 'Select'}
             BodyStyle={{ maxHeight: 'calc(100vh - 210px)', display: 'flex', flexDirection: 'column' }}
         >
-            {dataStatus !== 'error' ? <ResultDisplay GetCount={getCount} GetTable={getData} Selected={(item) => _.isEqual(item, selectedExternal)} OnSelection={setSelectedExternal} ForceReload={props.Show} />
+            {dataStatus !== 'error' ? <ResultDisplay
+                TableID={props.KeyField?.ExternalDBTableID}
+                GetCount={getCount}
+                GetTable={getData}
+                Selected={(item) => _.isEqual(item, selectedExternal)}
+                OnSelection={setSelectedExternal}
+                ForceReload={props.Show} />
             : <ServerErrorIcon Show={dataStatus === 'error'} Label={'The external table is not set up properly. Please check the external database and table configuration'} />
             }
         </Modal>
