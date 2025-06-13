@@ -34,6 +34,7 @@ import { DefaultSearchField } from '../CommonComponents/SearchFields';
 import { OpenXDA as GlobalXDA } from '../global';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { DataFileSlice } from '../Store/Store';
+import EditionLockModal from '../CommonComponents/Restrictions/EditionLockModal';
 
 const filterableList: Search.IField<OpenXDA.Types.DataFile>[] = [
     { isPivotField: false, key: 'FilePath', label: 'File Path', type: 'string' },
@@ -78,6 +79,8 @@ const ByFile: Application.Types.iByComponent = (props) => {
     const [page, setPage] = React.useState<number>(currentPage);
     const totalRecords = useAppSelector(DataFileSlice.TotalRecords);
     const [update, setUpdate] = React.useState<boolean>(false);
+
+    const [showEdition, setShowEdition] = React.useState<boolean>(false);
 
     React.useEffect(() => {
         const h = setTimeout(() => {
@@ -172,7 +175,6 @@ const ByFile: Application.Types.iByComponent = (props) => {
                             setOptions(field.enum);
                             return () => { };
                         }}
-
                     >
                         <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
                             <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
@@ -184,6 +186,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
                                             onClick={(event) => {
                                                 event.preventDefault();
                                                 if (inEnterprise) reprocessAll();
+                                                else setShowEdition(true);
                                             }}>Reprocess All {data.length}</button>
                                     </div>
                                     <EditionRestrictionTooltip
@@ -192,6 +195,11 @@ const ByFile: Application.Types.iByComponent = (props) => {
                                         FeatureName={'Bulk Reprocessing'}
                                         Target={'BulkReload'}
                                         Show={hover === 'Bulk'}
+                                    />
+                                    <EditionLockModal
+                                        SetShow={setShowEdition}
+                                        Show={showEdition}
+                                        EditionRequirement={'Enterprise'}
                                     />
                                 </form>
                             </fieldset>
