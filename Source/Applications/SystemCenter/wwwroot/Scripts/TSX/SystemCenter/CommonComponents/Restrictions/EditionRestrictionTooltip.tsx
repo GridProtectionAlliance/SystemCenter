@@ -39,12 +39,11 @@ const EditionRestrictionTooltip: React.FunctionComponent<IProps> = (props) => {
 
     const configStatus = useAppSelector(ConfigSlice.XDAConfigStatus);
     const config = useAppSelector(ConfigSlice.XDAConfig);
+    const inSpecifiedEdition = config.EditionStatus[props.EditionRequirement] ?? false;
 
-    const inSpecifiedEdition: boolean = React.useMemo(() => {
-        const editionResult = config.EditionStatus[props.EditionRequirement] ?? false;
-        props.SetMeetsRequirements(editionResult);
-        return editionResult;
-    }, [config.EditionStatus, props.EditionRequirement]);
+    React.useEffect(() => {
+        props.SetMeetsRequirements(inSpecifiedEdition);
+    }, [inSpecifiedEdition]);
 
     const message: string = React.useMemo(() => {
         if (!inSpecifiedEdition) {

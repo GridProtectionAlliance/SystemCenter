@@ -37,14 +37,11 @@ interface IProps {
 
 const RoleRestrictionTooltip: React.FunctionComponent<IProps> = (props) => {
     const roles = useAppSelector(SelectRoles);
+    const inRoles: boolean = props.RolesRequirement.some(role => roles.indexOf(role) >= 0);
 
-    const inSpecifiedRoles: boolean = React.useMemo(() => {
-        const roleResult = props.RolesRequirement.some(role => roles.indexOf(role) >= 0);
-        props.SetMeetsRequirements(roleResult);
-        return roleResult;
-    }, [props.RolesRequirement, roles]);
-
-    if (inSpecifiedRoles) return null;
+    React.useEffect(() => {
+        props.SetMeetsRequirements(inRoles);
+    }, [inRoles]);
 
     return (
         <ToolTip Show={props.Show} Position={'bottom'} Target={props.Target}>
