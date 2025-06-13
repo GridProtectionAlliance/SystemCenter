@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-import { GenericController, Search } from '@gpa-gemstone/react-interactive';
+import { GenericController, LoadingScreen, Search } from '@gpa-gemstone/react-interactive';
 import { Column, FilterableColumn, Paging, Table } from '@gpa-gemstone/react-table';
 import moment from 'moment';
 import * as React from 'react';
@@ -109,21 +109,15 @@ function ByDataOperationsFailure(props: IProps) {
 
     }, [props.FileGroupID]);
 
-    const onHoverTrace = React.useCallback((id: number | undefined) => {
-        if (id == null) setHover(undefined);
-        setHover(id.toString());
-    }, []);
-
-    if (fileGroup == null) return null;
-
     return (
         <div style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
             <div className="row">
                 <div className="col">
-                    <h2>{fileGroup.FilePath}</h2>
+                    <h2>{fileGroup?.FilePath ?? "Unknow File Group"}</h2>
                 </div>
             </div>
             <hr />
+            <LoadingScreen Show={pageStatus == 'idle'} />
             <Table<OpenXDA.Types.DataOperationFailure>
                 TableClass="table table-hover"
                 Data={failureData}
