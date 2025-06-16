@@ -71,9 +71,9 @@ export default function ExternalDBTables(props: { ID: number }) {
         setRecord(emptyRecord);
     }
 
-    function handleSelect(item) {
-        if (item.colKey == 'btns') return;
-        navigate(`${homePath}index.cshtml?name=ExternalTable&ID=${item.row.ID}`);
+    function handleSelect(item, event) {
+        if (event.target.localName == 'td')
+            navigate(`${homePath}index.cshtml?name=ExternalTable&ID=${item.row.ID}`);
     }
 
     return (
