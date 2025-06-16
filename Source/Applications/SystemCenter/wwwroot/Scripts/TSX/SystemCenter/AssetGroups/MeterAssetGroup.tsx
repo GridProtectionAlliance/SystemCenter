@@ -168,6 +168,11 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
         return true;
     }
 
+    function handleSelect(item, event) {
+        if (event.target.localName == 'td')
+            navigate(`${homePath}index.cshtml?name=Meter&MeterID=${item.row.assetID}`);
+    }
+
     return (
         <>
         <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -199,10 +204,7 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
                                 setMeterList(ordered);
                             }
                         }}
-                        OnClick={(data) => { 
-                            if (data.colKey != 'Remove')
-                                navigate(`${homePath}index.cshtml?name=Meter&MeterID=${data.row.ID}`);
-                            }}
+                        OnClick={handleSelect}
                         TheadStyle={{ fontSize: 'smaller' }}
                         RowStyle={{ fontSize: 'smaller' }}
                         Selected={(item) => false}
