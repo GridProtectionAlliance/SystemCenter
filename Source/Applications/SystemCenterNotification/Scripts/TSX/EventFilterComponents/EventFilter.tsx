@@ -82,48 +82,46 @@ const EventFilter = (props: IProps) => {
                     }}
                     DisableConfirm={false}
                 >
-                <div className="row">
                     <div className="col">
                         <div className="row">
-                            <TimeFilter filter={{ start: filter.Start, end: filter.End }} setFilter={(start: string, end: string, unit: TimeUnit, duration: number) => {
+                            <div className="col">
+                                <TimeFilter filter={{ start: filter.Start, end: filter.End }} setFilter={(start: string, end: string, unit: TimeUnit, duration: number) => {
                                     setFilter((f) => ({ ...f, Start: start, End: end }));
                                 }} showQuickSelect={true} timeZone={'UTC'} dateTimeSetting={'startEnd'} isHorizontal={false} />
                             </div>
-                            <div className="row">
-                                <div className="col-8 p-1">
-                                    <nav className="navbar navbar-expand-xl navbar-light">
-                                        <EventTypeFilter SetSelectedTypeIDs={(types: number[]) => setFilter((f) => ({ ...f, EventTypes: types }))} EventTypes={eventTypes}
-                                            SelectedTypeID={filter.EventTypes} Height={window.innerHeight - 660} />
-                                    </nav>
-                                </div>
-                                <div className="col-4 p-1">
-                                    <fieldset className="border" style={{ padding: '10px', height: '100%', width: '100%' }}>
-                                        <legend className="w-auto" style={{ fontSize: 'large', width: '50%' }}>Other Filters:</legend>
-                                        <div className={"row"}>
-                                            <div className={'col'}>
-                                                <EventFilterButton Type={'Meter'} OnClick={() => setShowFilter('Meter')} IDs={filter.MeterIDs} />
-                                            </div>
-                                        </div>
-                                        <div className={"row"}>
-                                            <div className={'col'}>
-                                                <EventFilterButton Type={'Asset'} OnClick={() => setShowFilter('Asset')} IDs={filter.AssetIDs} />
-                                            </div>
-                                        </div>
-                                        <div className={"row"}>
-                                            <div className={'col'}>
-                                                <EventFilterButton Type={'AssetGroup'} OnClick={() => setShowFilter('AssetGroup')} IDs={filter.GroupIDs} />
-                                            </div>
-                                        </div>
-                                        <div className={"row"}>
-                                            <div className={'col'}>
-                                                <EventFilterButton Type={'Location'} OnClick={() => setShowFilter('Location')} IDs={filter.SubstationIDs} />
-                                            </div>
-                                        </div>
-                                    </fieldset>
-                                </div>
+                        </div>
+                        <div className="row">
+                            <div className="col-8">
+                                <EventTypeFilter SetSelectedTypeIDs={(types: number[]) => setFilter((f) => ({ ...f, EventTypes: types }))} EventTypes={eventTypes}
+                                    SelectedTypeID={filter.EventTypes} />
                             </div>
+                            <div className="col-4">
+                                <fieldset className="border" style={{ padding: '10px', height: '100%', width: '100%' }}>
+                                    <legend className="w-auto" style={{ fontSize: 'large', width: '50%' }}>Other Filters:</legend>
+                                    <div className={"row"}>
+                                        <div className={'col'}>
+                                            <EventFilterButton Type={'Meter'} OnClick={() => setShowFilter('Meter')} IDs={filter.MeterIDs} />
+                                        </div>
+                                    </div>
+                                    <div className={"row"}>
+                                        <div className={'col'}>
+                                            <EventFilterButton Type={'Asset'} OnClick={() => setShowFilter('Asset')} IDs={filter.AssetIDs} />
+                                        </div>
+                                    </div>
+                                    <div className={"row"}>
+                                        <div className={'col'}>
+                                            <EventFilterButton Type={'AssetGroup'} OnClick={() => setShowFilter('AssetGroup')} IDs={filter.GroupIDs} />
+                                        </div>
+                                    </div>
+                                    <div className={"row"}>
+                                        <div className={'col'}>
+                                            <EventFilterButton Type={'Location'} OnClick={() => setShowFilter('Location')} IDs={filter.SubstationIDs} />
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
                     </div>
-                </div>
                 </Modal>
             <FilterSelect Show={showFilter != 'None'}
                 OnClose={() => setShowFilter('None')}
