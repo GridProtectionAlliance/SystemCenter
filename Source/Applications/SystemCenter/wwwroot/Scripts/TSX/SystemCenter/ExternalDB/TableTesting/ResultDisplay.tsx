@@ -81,7 +81,7 @@ export default function ResultDisplay(props: IProps) {
     React.useEffect(() => {
         if (externalData.length == 0)
             return;
-        const updatedCols = Object.keys(externalData[0]);
+        const updatedCols = Object.keys(externalData[0]).filter(col => col != "__tempXdaKey__");
         if (!_.isEqual(updatedCols, cols))
             setCols(updatedCols);
     }, [externalData]);
