@@ -364,7 +364,7 @@ namespace SystemCenter.ScheduledProcesses
                         limit = $"TOP {count}";
                     string order = "";
                     if (!String.IsNullOrEmpty(orderBy))
-                        order = $"ORDER BY {orderBy} {(ascending ? "ASC" : "DESC")}";
+                        order = $"ORDER BY \"{orderBy}\" {(ascending ? "ASC" : "DESC")}";
                     string offset = "";
                     if (skip > 0)
                         offset = $"OFFSET {skip} ROWS";

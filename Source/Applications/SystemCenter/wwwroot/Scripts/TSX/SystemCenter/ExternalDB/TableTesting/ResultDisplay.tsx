@@ -28,6 +28,7 @@ import { Paging, ConfigurableTable, ConfigurableColumn, Column } from '@gpa-gems
 import * as _ from 'lodash';
 
 interface IProps {
+    TableID: number;
     GetTable: (start: number, end: number, Filters: Search.IFilter<any>[], OrderBy: string, Ascending: boolean) => JQuery.jqXHR<any[]>;
     GetCount: (Filters: Search.IFilter<any>[]) => JQuery.jqXHR<number>;
     OnSelection?: (record: any) => void;
@@ -80,7 +81,7 @@ export default function ResultDisplay(props: IProps) {
     React.useEffect(() => {
         if (externalData.length == 0)
             return;
-        const updatedCols = Object.keys(externalData[0]);
+        const updatedCols = Object.keys(externalData[0]).filter(col => col != "__tempXdaKey__");
         if (!_.isEqual(updatedCols, cols))
             setCols(updatedCols);
     }, [externalData]);
@@ -94,7 +95,7 @@ export default function ResultDisplay(props: IProps) {
             <div className="col" style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
                 {countstatus !== 'error' && datastatus !== 'error' ?
                     <ConfigurableTable<any>
-                        LocalStorageKey={'TestTableResultColumns'}
+                        LocalStorageKey={`TestTableResultColumns.${props.TableID}`}
                         TableClass="table table-hover"
                         Data={externalData}
                         TheadStyle={{ fontSize: 'smaller' }}
