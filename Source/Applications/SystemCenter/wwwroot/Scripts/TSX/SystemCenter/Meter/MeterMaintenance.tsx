@@ -178,8 +178,8 @@ const MeterMaintenanceWindow = (props: IProps) => {
                         <Column<MaintenanceWindow>
                             Key={'EditDelete'}
                             AllowSort={false}
-                            HeaderStyle={{ width: 80, paddingLeft: 0, paddingRight: 5 }}
-                            RowStyle={{ width: 80, paddingLeft: 0, paddingRight: 5 }}
+                            HeaderStyle={{ width: 'auto', paddingLeft: 0, paddingRight: 5 }}
+                            RowStyle={{ width: 'auto', paddingLeft: 0, paddingRight: 5 }}
                             Content={({ item }) => <>
                                 <button className="btn btn-sm"
                                     onClick={(e) => {
