@@ -47,7 +47,7 @@ export default class CFGParser {
                 Description: a[3],
                 Enabled: true,
                 Adder: 0,
-                Multiplier: parseFloat(a[10]) ?? 1,
+                Multiplier: 1,
                 Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: a[1] } as OpenXDA.Types.Series],
                 ConnectionPriority: 0,
                 Trend: false
