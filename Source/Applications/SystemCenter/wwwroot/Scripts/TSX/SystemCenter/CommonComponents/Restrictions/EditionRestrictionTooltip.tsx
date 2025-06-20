@@ -1,5 +1,5 @@
 //******************************************************************************************************
-//  EditionTooltip.tsx - Gbtc
+//  EditionRestrictionTooltip.tsx - Gbtc
 //
 //  Copyright © 2025, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -16,39 +16,34 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  02/19/2025 - Gabriel Santos
+//  06/06/2025 - Gabriel Santos
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
-import * as React from 'react';
-import { useAppSelector, useAppDispatch } from '../hooks';
-import { ConfigSlice } from '../Store/Store';
 import { ToolTip } from '@gpa-gemstone/react-forms';
-import { SelectRoles } from '../Store/UserSettings';
-import { Application } from '@gpa-gemstone/application-typings';
+import * as React from 'react';
+import { useAppDispatch, useAppSelector } from '../../hooks';
+import { ConfigSlice } from '../../Store/Store';
 
 interface IProps {
-    // Edition Requirement Defaults to Allow Any Edition
     EditionRequirement?: 'Enterprise' | 'Base',
-    // Role Requirement Defaults to Allow to All Roles
-    RolesRequirement?: Application.Types.SecurityRoleName[]
     SetMeetsRequirements: (status: boolean) => void,
     FeatureName: string,
     Target: string,
     Show: boolean
 }
 
-const RestrictionTooltip: React.FunctionComponent<IProps> = (props) => {
+const EditionRestrictionTooltip: React.FunctionComponent<IProps> = (props) => {
     let dispatch = useAppDispatch();
 
     const configStatus = useAppSelector(ConfigSlice.XDAConfigStatus);
     const config = useAppSelector(ConfigSlice.XDAConfig);
+    const inSpecifiedEdition = config.EditionStatus[props.EditionRequirement] ?? false;
 
-    const roles = useAppSelector(SelectRoles);
-
-    const [inSpecifiedEdition, setInSpecifiedEdition] = React.useState<boolean>(false);
-    const [inSpecifiedRoles, setInSpecifiedRoles] = React.useState<boolean>(false);
+    React.useEffect(() => {
+        props.SetMeetsRequirements(inSpecifiedEdition);
+    }, [inSpecifiedEdition]);
 
     const message: string = React.useMemo(() => {
         if (!inSpecifiedEdition) {
@@ -58,31 +53,15 @@ const RestrictionTooltip: React.FunctionComponent<IProps> = (props) => {
                 default: return "Validating License..."
             }
         }
-        if (!inSpecifiedRoles) return `${props.FeatureName} is unavailable in your role(s).`;
-
         return undefined;
-    }, [configStatus, inSpecifiedEdition, inSpecifiedRoles]);
-
-    React.useEffect(() => {
-        const editionResult = props.EditionRequirement != null ?
-            (config.EditionStatus[props.EditionRequirement] ?? false) :
-            true;
-        setInSpecifiedEdition(editionResult);
-
-        const roleResult = props.RolesRequirement != null ?
-            props.RolesRequirement.some(role => roles.indexOf(role) >= 0) :
-            true;
-        setInSpecifiedRoles(roleResult);
-
-        props.SetMeetsRequirements(editionResult && roleResult);
-    }, [config.EditionStatus, props.EditionRequirement, props.RolesRequirement, roles]);
+    }, [configStatus, inSpecifiedEdition]);
 
     React.useEffect(() => {
         if (configStatus == 'unintiated' || configStatus == 'changed')
             dispatch(ConfigSlice.FetchXDAConfig());
     }, [configStatus]);
 
-    if (inSpecifiedEdition && inSpecifiedRoles) return null;
+    if (inSpecifiedEdition) return null;
 
     return (
         <ToolTip Show={props.Show} Position={'bottom'} Target={props.Target}>
@@ -91,5 +70,4 @@ const RestrictionTooltip: React.FunctionComponent<IProps> = (props) => {
     );
 }
 
-export default RestrictionTooltip;
-
+export default EditionRestrictionTooltip;

@@ -84,10 +84,12 @@ const EventFilter = (props: IProps) => {
                 >
                 <div className="row">
                     <div className="col">
-                        <div className="row">
-                            <TimeFilter filter={{ start: filter.Start, end: filter.End }} setFilter={(start: string, end: string, unit: TimeUnit, duration: number) => {
-                                    setFilter((f) => ({ ...f, Start: start, End: end }));
-                                }} showQuickSelect={true} timeZone={'UTC'} dateTimeSetting={'startEnd'} isHorizontal={false} />
+                            <div className="row">
+                                <div className="col-12 p-1">
+                                    <TimeFilter filter={{ start: filter.Start, end: filter.End }} setFilter={(start: string, end: string, unit: TimeUnit, duration: number) => {
+                                            setFilter((f) => ({ ...f, Start: start, End: end }));
+                                        }} showQuickSelect={true} timeZone={'UTC'} dateTimeSetting={'startEnd'} isHorizontal={false} />
+                                </div>
                             </div>
                             <div className="row">
                                 <div className="col-8 p-1">
