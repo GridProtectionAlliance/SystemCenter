@@ -148,31 +148,22 @@ namespace SystemCenter.Notifications.Controllers
     [RoutePrefix("api/ReportSubscription")]
     public class ReportSubscriptionController : ModelController<openXDA.Model.SubscribeScheduledEmails>
     {
-        /*
-        [HttpGet, Route("approve/{parentID}")]
-        public IHttpActionResult Approve(int parentID)
+        [HttpGet, Route("Approve/{id:int}")]
+        public IHttpActionResult Approve(int id)
         {
             if (!PatchAuthCheck())
                 return Unauthorized();
             try
             {
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
-                {
-                    TableOperations<UserAccountEmailType> tbl = new TableOperations<UserAccountEmailType>(connection);
-                    UserAccountEmailType record = tbl.QueryRecordWhere("ID = {0}", parentID);
-                    if (record == null)
-                        throw new NullReferenceException("Record not found");
-                    record.Approved = true;
-                    tbl.UpdateRecord(record);
-                    return Ok(1);
-                }
+                    connection.ExecuteNonQuery("UPDATE UserAccountScheduledEmailType SET Approved = 1 WHERE ID = {0}", id);
+                return Ok(1);
             }
             catch (Exception ex)
             {
                 return InternalServerError(ex);
             }
         }
-        */
     }
 
     [RoutePrefix("api/ActiveSubscription")]
@@ -425,12 +416,12 @@ namespace SystemCenter.Notifications.Controllers
     public class ScheduledEmailDataSourceSettingController : ModelController<ScheduledEmailDataSourceSetting> { }
 
     [RoutePrefix("api/openXDA/TriggeredEmailDataSourceEmailType")]
-    public class TriggeredEmailDataSourceEmaulTypeController : ModelController<TriggeredEmailDataSourceEmailTypeView>
+    public class TriggeredEmailDataSourceEmailTypeController : ModelController<TriggeredEmailDataSourceEmailTypeView>
     {
         public override IHttpActionResult Delete(TriggeredEmailDataSourceEmailTypeView record)
         {
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
-                connection.ExecuteNonQuery("DELETE FROM TriggeredEmailDataSourceEmailType WHERE ID = {0}", record.ID);
+                connection.ExecuteNonQuery($"EXEC UniversalCascadeDelete 'TriggeredEmailDataSourceEmailType','ID = {record.ID}'");
 
             return Ok(1);
         }
@@ -510,8 +501,15 @@ namespace SystemCenter.Notifications.Controllers
     }
 
     [RoutePrefix("api/openXDA/ScheduledEmailDataSourceEmailType")]
-    public class TScheduledEmailDataSourceEmaulTypeController : ModelController<ScheduledEmailDataSourceEmailTypeView> 
+    public class ScheduledEmailDataSourceEmailTypeController : ModelController<ScheduledEmailDataSourceEmailTypeView> 
     {
+        public override IHttpActionResult Delete(ScheduledEmailDataSourceEmailTypeView record)
+        {
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                connection.ExecuteNonQuery($"EXEC UniversalCascadeDelete 'ScheduledEmailDataSourceEmailType','ID = {record.ID}'");
+
+            return Ok(1);
+        }
         public override IHttpActionResult Post([FromBody] JObject record)
         {
             try

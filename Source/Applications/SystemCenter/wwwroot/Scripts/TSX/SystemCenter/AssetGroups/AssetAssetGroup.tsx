@@ -127,6 +127,11 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
         return false;
     }
 
+    function handleSelect(item, event) {
+        if (event.target.localName == 'td')
+            navigate(`${homePath}index.cshtml?name=Asset&AssetID=${item.row.assetID}`);
+    }
+
     return (
         <>
         <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -161,10 +166,7 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                                 setAssetList(ordered);
                             }
                         }}
-                        OnClick={(data) => {
-                            if (data.colKey != 'Remove')
-                                navigate(`${homePath}index.cshtml?name=Asset&AssetID=${data.row.ID}`);
-                            }}
+                        OnClick={handleSelect}
                         TheadStyle={{ fontSize: 'smaller' }}
                         RowStyle={{ fontSize: 'smaller' }}
                         Selected={(item) => false}
