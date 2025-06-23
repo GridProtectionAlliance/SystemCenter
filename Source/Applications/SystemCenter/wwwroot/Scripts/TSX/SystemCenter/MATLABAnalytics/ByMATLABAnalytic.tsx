@@ -30,6 +30,7 @@ import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 
 import MATLABAnalyticForm from './MATLABAnalyticForm';
 import GenericByPage from '../CommonComponents/GenericByPage';
+import EditionLockPage from '../CommonComponents/Restrictions/EditionLockPage';
 
 const controllerPath = `${homePath}api/OpenXDA/MATLABAnalytic`;
 
@@ -69,66 +70,68 @@ const MATLABAnalytics: Application.Types.iByComponent = (props) => {
     }
 
     return (
-        <GenericByPage<OpenXDA.Types.MATLABAnalytic>
-            ControllerPath={controllerPath}
-            RefreshData={refreshCount}
-            DefaultSortKey='LoadOrder'
-            PagingID='ByMATLABAnalytics'
-            OnClick={(item) => { handleSelect(item); }}
-            Columns={fieldCols}
-            DefaultSearchAscending={false}
-            DefaultSearchKey='MethodName'
-        >
-            <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
-                <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                    <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
-                    <form>
-                        <button className="btn btn-info btn-block"
-                            onClick={(evt) => {
-                                evt.preventDefault();
-                                setRecord({ ...emptyRecord });
-                                setShowNew(true);
-                            }}
-                            >Add Analytic
-                        </button>
-                    </form>
-                </fieldset>
-            </li>
-            <Modal Title={'Add New MATLAB Analytic'}
-                CallBack={(conf) => {
-                    if (conf) $.ajax({
-                        type: "POST",
-                        url: `${homePath}api/OpenXDA/MATLABAnalytic/Add`,
-                        contentType: "application/json; charset=utf-8",
-                        data: JSON.stringify({
-                            MATLABAnalytic: record,
-                            MATLABAnalyticEventType: eventTypeRecord,
-                            MATLABAnalyticAssetType: assetTypeRecord,
-                        }),
-                        dataType: 'json',
-                        cache: false,
-                        async: true
-                    }).done(() => {
-                        refreshData(x => x + 1);
-                    });
-                    setShowNew(false);
-                }}
-                ShowCancel={false}
-                ShowX={true}
-                ConfirmBtnClass={'btn-primary'}
-                ConfirmText={'Save'}
-                ConfirmShowToolTip={errors.length > 0}
+        <EditionLockPage>
+            <GenericByPage<OpenXDA.Types.MATLABAnalytic>
+                ControllerPath={controllerPath}
+                RefreshData={refreshCount}
+                DefaultSortKey='LoadOrder'
+                PagingID='ByMATLABAnalytics'
+                OnClick={(item) => { handleSelect(item); }}
+                Columns={fieldCols}
+                DefaultSearchAscending={false}
+                DefaultSearchKey='MethodName'
+            >
+                <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
+                    <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                        <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
+                        <form>
+                            <button className="btn btn-info btn-block"
+                                onClick={(evt) => {
+                                    evt.preventDefault();
+                                    setRecord({ ...emptyRecord });
+                                    setShowNew(true);
+                                }}
+                                >Add Analytic
+                            </button>
+                        </form>
+                    </fieldset>
+                </li>
+                <Modal Title={'Add New MATLAB Analytic'}
+                    CallBack={(conf) => {
+                        if (conf) $.ajax({
+                            type: "POST",
+                            url: `${homePath}api/OpenXDA/MATLABAnalytic/Add`,
+                            contentType: "application/json; charset=utf-8",
+                            data: JSON.stringify({
+                                MATLABAnalytic: record,
+                                MATLABAnalyticEventType: eventTypeRecord,
+                                MATLABAnalyticAssetType: assetTypeRecord,
+                            }),
+                            dataType: 'json',
+                            cache: false,
+                            async: true
+                        }).done(() => {
+                            refreshData(x => x + 1);
+                        });
+                        setShowNew(false);
+                    }}
+                    ShowCancel={false}
+                    ShowX={true}
+                    ConfirmBtnClass={'btn-primary'}
+                    ConfirmText={'Save'}
+                    ConfirmShowToolTip={errors.length > 0}
                 ConfirmToolTipContent={errors.map((e, i) => <p key={i}><ReactIcons.CrossMark Color="var(--danger)" /> {e}</p>)}
-                DisableConfirm={errors.length > 0}
-                Show={showNew} >
-                <MATLABAnalyticForm
-                    Record={record}
-                    Setter={setRecord}
-                    ETSetter={setEventTypeRecord}
-                    ATSetter={setAssetTypeRecord}
-                />
-            </Modal>
-        </GenericByPage>
+                    DisableConfirm={errors.length > 0}
+                    Show={showNew} >
+                    <MATLABAnalyticForm
+                        Record={record}
+                        Setter={setRecord}
+                        ETSetter={setEventTypeRecord}
+                        ATSetter={setAssetTypeRecord}
+                    />
+                </Modal>
+            </GenericByPage>
+        </EditionLockPage>
     )
 }
 

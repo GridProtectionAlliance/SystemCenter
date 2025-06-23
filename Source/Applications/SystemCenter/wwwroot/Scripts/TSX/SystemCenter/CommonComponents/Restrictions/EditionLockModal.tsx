@@ -1,5 +1,5 @@
 //******************************************************************************************************
-//  EditionLockPage.tsx - Gbtc
+//  EditionLockModal.tsx - Gbtc
 //
 //  Copyright © 2025, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -16,21 +16,23 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  01/14/2025 - Gabriel Santos
+//  06/06/2025 - Gabriel Santos
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
 import * as React from 'react';
-import { useAppSelector, useAppDispatch } from '../hooks';
-import { ConfigSlice } from '../Store/Store';
-import { ServerErrorIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
+import { useAppSelector, useAppDispatch } from '../../hooks';
+import { ConfigSlice } from '../../Store/Store';
+import { ServerErrorIcon, LoadingScreen, Modal } from '@gpa-gemstone/react-interactive';
 
 interface IProps {
-    EditionRequirement?: 'Enterprise' | 'Base'
+    EditionRequirement?: 'Enterprise' | 'Base',
+    SetShow: (c: boolean) => void,
+    Show: boolean
 }
 
-const EditionLockPage: React.FunctionComponent<IProps> = (props) => {
+const EditionLockModal: React.FunctionComponent<IProps> = (props) => {
     let dispatch = useAppDispatch();
     const configStatus = useAppSelector(ConfigSlice.XDAConfigStatus);
     const config = useAppSelector(ConfigSlice.XDAConfig);
@@ -40,30 +42,31 @@ const EditionLockPage: React.FunctionComponent<IProps> = (props) => {
             dispatch(ConfigSlice.FetchXDAConfig());
     }, [configStatus]);
 
-    if (config.EditionStatus[props.EditionRequirement ?? 'Enterprise'] ?? false) return <>{props.children}</>;
+    const editionStatus = React.useMemo(() => (config.EditionStatus[props.EditionRequirement ?? 'Enterprise'] ?? false), [props.EditionRequirement, config.EditionStatus]);
 
-    // Note: Using loading screen this way is intentional, we don't want the error screen to begin rendering before we check the edition
     return (
-        <div className={"container-fluid d-flex h-100 flex-column"}>
-            { configStatus === 'loading' ? <LoadingScreen Show={true} /> :
-                <div className="col" style={{ height: "100%", width: "100%" }}>
-                    <div className="row" style={{ width: "100%", height: "45%", minHeight: "200px", paddingBottom: "50px" }}>
+        <Modal Title={`${props.EditionRequirement} is Required`}
+            Show={props.Show && !editionStatus} ShowX={true} Size={'lg'} ShowCancel={false} ShowConfirm={false}
+            CallBack={() => props.SetShow(false)}>
+            {configStatus === 'loading' ? <LoadingScreen Show={true} /> :
+                <>
+                    <div className="row" style={{ width: "100%", height: "100px" }}>
                         <img src={`${homePath}Images/GiantLogo.png`} className="contain"
                             style={{ height: "100%", marginLeft: "auto", marginRight: "auto" }} />
                     </div>
-                    <div className="row" style={{ justifyContent: "center", width: "100%", paddingBottom: "50px" }}>
-                        <ServerErrorIcon Show={true} Label={`${props.EditionRequirement ?? 'Enterprise'} Edition is required to use this feature.`} Size={75} />
+                    <div className="row" style={{ justifyContent: "center", width: "100%" }}>
+                        <ServerErrorIcon Show={true} Label={`${props.EditionRequirement ?? 'Enterprise'} Edition is required to use this feature.`} Size={50} />
                     </div>
-                    <div className="row" style={{ justifyContent: "center", width: "100%", fontSize: '2em' }}>
+                    <div className="row" style={{ justifyContent: "center", width: "100%", fontSize: '1.2em' }}>
                         <p style={{ width: "50%", whiteSpace: "preserve-spaces", textAlign: "center" }}>
                             Click <a href="mailto:support@gridprotectionalliance.org">here</a> if you believe you are receiving this message in error or would like to inquire about openXDA {props.EditionRequirement ?? 'Enterprise'} Edition.
                         </p>
                     </div>
-                </div>
+                </>
             }
-        </div>
+        </Modal>
     )
 }
 
-export default EditionLockPage;
+export default EditionLockModal;
 
