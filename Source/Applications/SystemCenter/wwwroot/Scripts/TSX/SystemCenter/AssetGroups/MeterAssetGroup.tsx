@@ -168,9 +168,8 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
         return true;
     }
 
-    function handleSelect(item, event) {
-        if (event.target.localName == 'td')
-            navigate(`${homePath}index.cshtml?name=Meter&MeterID=${item.row.assetID}`);
+    function handleSelect(item) {
+        navigate(`${homePath}index.cshtml?name=Meter&MeterID=${item.row.ID}`);
     }
 
     return (
@@ -233,7 +232,13 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
                             RowStyle={{ width: 'auto' }}
                             Content={({ item }) =>
                                 <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
-                                    onClick={(e) => { if (hasPermissions()) setRemoveMeter(item.ID) }}>
+                                    onClick={(e) => {
+                                        if (hasPermissions()) {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            setRemoveMeter(item.ID);
+                                        }
+                                    }}>
                                     <span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span>
                                 </button>
                             }

@@ -131,8 +131,7 @@ const MeterAssetWindow = (props: IProps) => {
         return true;
     }
 
-    function handleSelect(item, event) {
-        if (event.target.localName == 'td')
+    function handleSelect(item) {
             navigate(`${homePath}index.cshtml?name=Asset&AssetID=${item.row.ID}`);
     }
 
@@ -227,6 +226,7 @@ const MeterAssetWindow = (props: IProps) => {
                                         onClick={(e) => {
                                             if (hasPermissions()) {
                                                 e.preventDefault();
+                                                e.stopPropagation();
                                                 setActiveAsset(item.ID, item.AssetType);
                                                 setShoweditNew(true);
                                             }
@@ -235,6 +235,7 @@ const MeterAssetWindow = (props: IProps) => {
                                         onClick={(e) => {
                                             if (hasPermissions()) {
                                                 e.preventDefault();
+                                                e.stopPropagation();
                                                 setActiveAsset(item.ID, item.AssetType);
                                                 setShowDeleteWarning(true);
                                             }
