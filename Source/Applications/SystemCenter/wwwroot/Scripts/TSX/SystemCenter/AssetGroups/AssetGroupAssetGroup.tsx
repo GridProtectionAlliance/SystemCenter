@@ -145,8 +145,8 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
 
     function hasPermissions(): boolean {
         if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0)
-            return true;
-        return false;
+            return false;
+        return true;
     }
 
     return (
@@ -225,8 +225,8 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                             Content={({ item }) => <>
-                                <button className={"btn btn-sm" + (hasPermissions() ? ' disabled' : '')}
-                                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (!hasPermissions()) setRemoveGroup(item.ID); }}>
+                                <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
+                                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (hasPermissions()) setRemoveGroup(item.ID); }}>
                                     <span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span>
                                 </button>
                             </> }
@@ -237,10 +237,10 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
                 
             </div>
             <div className="card-footer">
-                    <button className={"btn btn-info pull-left" + (hasPermissions() ? ' disabled' : '')} data-tooltip='AddGroup'
-                        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (!hasPermissions()) setShowAdd(true); }}>Add Asset Groups</button>
+                    <button className={"btn btn-info pull-left" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='AddGroup'
+                        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (hasPermissions()) setShowAdd(true); }}>Add Asset Groups</button>
                 </div>
-                <ToolTip Show={hover == 'Update' && hasPermissions()} Position={'top'} Target={"AddGroup"}>
+                <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Target={"AddGroup"}>
                     <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                 </ToolTip>
 
