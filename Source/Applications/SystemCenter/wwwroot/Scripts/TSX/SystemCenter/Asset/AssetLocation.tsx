@@ -126,9 +126,8 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
         });
     }
 
-    function handleSelect(item, event) {
-        if (event.target.localName == 'td')
-            navigate(`${homePath}index.cshtml?name=Location&LocationID=${item.row.ID}`);
+    function handleSelect(item) {
+        navigate(`${homePath}index.cshtml?name=Location&LocationID=${item.row.ID}`);
     }
 
     return (
@@ -208,6 +207,7 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
                                 onClick={(e) => {
                                     if (hasPermissions) {
                                         e.preventDefault();
+                                        e.stopPropagation();
                                         deleteLocation(item);
                                     }
                                 }}

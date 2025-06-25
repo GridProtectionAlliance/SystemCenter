@@ -71,8 +71,7 @@ export default function ExternalDBTables(props: { ID: number }) {
         setRecord(emptyRecord);
     }
 
-    function handleSelect(item, event) {
-        if (event.target.localName == 'td')
+    function handleSelect(item) {
             navigate(`${homePath}index.cshtml?name=ExternalTable&ID=${item.row.ID}`);
     }
 
@@ -132,6 +131,7 @@ export default function ExternalDBTables(props: { ID: number }) {
                                             Content={({ item }) => <>
                                                 <button className="btn btn-sm" onClick={(e) => {
                                                     e.preventDefault();
+                                                    e.stopPropagation();
                                                     setRecord(item);
                                                     setShowWarning(true);
                                                 }}><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></button>
