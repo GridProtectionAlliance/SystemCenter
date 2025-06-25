@@ -131,9 +131,8 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
         navigate(`${homePath}index.cshtml?name=Asset&AssetID=${item.row.ID}`);
     }
 
-    function handleSelect(item, event) {
-        if (event.target.localName == 'td')
-            navigate(`${homePath}index.cshtml?name=Asset&AssetID=${item.row.assetID}`);
+    function handleSelect(item) {
+        navigate(`${homePath}index.cshtml?name=Asset&AssetID=${item.row.ID}`);
     }
 
     return (
