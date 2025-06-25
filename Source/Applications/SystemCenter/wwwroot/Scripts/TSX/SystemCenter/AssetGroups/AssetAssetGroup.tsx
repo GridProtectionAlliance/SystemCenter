@@ -127,9 +127,8 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
         return false;
     }
 
-    function handleSelect(item, event) {
-        if (event.target.localName == 'td')
-            navigate(`${homePath}index.cshtml?name=Asset&AssetID=${item.row.assetID}`);
+    function handleSelect(item) {
+        navigate(`${homePath}index.cshtml?name=Asset&AssetID=${item.row.ID}`);
     }
 
     return (
@@ -202,8 +201,14 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                             Content={({ item }) => <>
-                                <button className={"btn btn-sm" + (hasPermissions() ? ' disabled' : '')}
-                                    onClick={(e) => { if (!hasPermissions()) setRemoveAsset(item.ID) }}>
+                                <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
+                                    onClick={(e) => {
+                                        if (hasPermissions()) {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            setRemoveAsset(item.ID);
+                                        }
+                                    }}>
                                     <span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span>
                                 </button>
                             </> }
