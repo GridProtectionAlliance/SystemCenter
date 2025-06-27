@@ -84,6 +84,8 @@ const AddAllSubscription = (props: IProps) => {
                     EmailName: '',
                     LastSent: '',
                     UserName: '',
+                    FirstName: '',
+                    LastName: '',
                     RequireApproval: false
                 }
             }));
@@ -95,13 +97,14 @@ const AddAllSubscription = (props: IProps) => {
         <>
             <Modal Show={props.show} ShowCancel={true} Size={'xlg'} ShowX={true} Title={'Add New Event Subscription'}
                 BodyStyle={{ overflowY: 'hidden' }}
-                ConfirmText={step == 'Email' ? 'Add Subscription' : 'Next'}
-                CancelText={'Back'}
+                CancelText={step == 'Email' ? 'Add Subscription' : 'Next'}
+                ConfirmText={'Back'}
                 DisableCancel={step == 'User'}
                 DisableConfirm={error.length > 0}
                 ConfirmShowToolTip={error.length > 0}
                 ConfirmToolTipContent={<> {error.map((s, i) => <p key={i}> <ReactIcons.CrossMark Color="var(--danger)" /> {s} </p>)}</>}
-                ConfirmBtnClass={'success-btn'}
+                CancelBtnClass={step == 'Email' ? 'btn-primary' : 'btn-success'}
+                ConfirmBtnClass={'btn-danger mr-auto'}
                 CallBack={(c,b) => {
                     if (!b)
                         props.OnClose();

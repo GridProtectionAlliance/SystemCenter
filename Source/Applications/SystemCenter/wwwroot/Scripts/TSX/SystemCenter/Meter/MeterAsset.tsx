@@ -131,6 +131,10 @@ const MeterAssetWindow = (props: IProps) => {
         return true;
     }
 
+    function handleSelect(item) {
+            navigate(`${homePath}index.cshtml?name=Asset&AssetID=${item.row.ID}`);
+    }
+
     return (
         <>
             <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -158,7 +162,7 @@ const MeterAssetWindow = (props: IProps) => {
                                     setSortKey(d.colKey as keyof OpenXDA.Types.Asset);
                                 }
                             }}
-                            OnClick={ (c) => navigate(`${homePath}index.cshtml?name=Asset&AssetID=${c.row.ID}`) }
+                            OnClick={handleSelect}
                             TheadStyle={{ fontSize: 'smaller' }}
                             RowStyle={{ fontSize: 'smaller' }}
                             Selected={(item) => false}
@@ -215,13 +219,14 @@ const MeterAssetWindow = (props: IProps) => {
                             <Column<OpenXDA.Types.MeterAsset>
                                 Key={'EditDelete'}
                                 AllowSort={false}
-                                HeaderStyle={{ width: 80 }}
-                                RowStyle={{ width: 80 }}
+                                HeaderStyle={{ width: 'auto', paddingLeft: 0, paddingRight: 5 }}
+                                RowStyle={{ width: 'auto', paddingLeft: 0, paddingRight: 5 }}
                                 Content={({ item }) => <>
                                     <button className={"btn btn-sm" + (hasPermissions() ? '' : ' disabled')}
                                         onClick={(e) => {
                                             if (hasPermissions()) {
                                                 e.preventDefault();
+                                                e.stopPropagation();
                                                 setActiveAsset(item.ID, item.AssetType);
                                                 setShoweditNew(true);
                                             }
@@ -230,8 +235,9 @@ const MeterAssetWindow = (props: IProps) => {
                                         onClick={(e) => {
                                             if (hasPermissions()) {
                                                 e.preventDefault();
+                                                e.stopPropagation();
                                                 setActiveAsset(item.ID, item.AssetType);
-                                                setShowDeleteWarning(true)
+                                                setShowDeleteWarning(true);
                                             }
                                         }}><span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span></button>
                                 </>}

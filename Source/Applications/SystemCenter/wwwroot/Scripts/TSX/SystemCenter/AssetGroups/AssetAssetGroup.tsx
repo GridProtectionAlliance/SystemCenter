@@ -123,8 +123,12 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
 
     function hasPermissions(): boolean {
         if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0)
-            return true;
-        return false;
+            return false;
+        return true;
+    }
+
+    function handleSelect(item) {
+        navigate(`${homePath}index.cshtml?name=Asset&AssetID=${item.row.ID}`);
     }
 
     return (
@@ -161,10 +165,7 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                                 setAssetList(ordered);
                             }
                         }}
-                        OnClick={(data) => {
-                            if (data.colKey != 'Remove')
-                                navigate(`${homePath}index.cshtml?name=Asset&AssetID=${data.row.ID}`);
-                            }}
+                        OnClick={handleSelect}
                         TheadStyle={{ fontSize: 'smaller' }}
                         RowStyle={{ fontSize: 'smaller' }}
                         Selected={(item) => false}
@@ -200,8 +201,14 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
                             Content={({ item }) => <>
-                                <button className={"btn btn-sm" + (hasPermissions() ? ' disabled' : '')}
-                                    onClick={(e) => { if (!hasPermissions()) setRemoveAsset(item.ID) }}>
+                                <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
+                                    onClick={(e) => {
+                                        if (hasPermissions()) {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            setRemoveAsset(item.ID);
+                                        }
+                                    }}>
                                     <span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span>
                                 </button>
                             </> }
@@ -212,10 +219,10 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                        <button className={"btn btn-info pull-right" + (hasPermissions() ? ' disabled' : '')} data-tooltip='AddAsset'
-                            onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (!hasPermissions()) setShowAdd(true) }}>Add Assets</button>
+                        <button className={"btn btn-info pull-right" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='AddAsset'
+                            onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (hasPermissions()) setShowAdd(true) }}>Add Assets</button>
                 </div>
-                    <ToolTip Show={hover == 'Update' && hasPermissions()} Position={'top'} Target={"AddAsset"}>
+                    <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Target={"AddAsset"}>
                         <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                     </ToolTip>
             </div>

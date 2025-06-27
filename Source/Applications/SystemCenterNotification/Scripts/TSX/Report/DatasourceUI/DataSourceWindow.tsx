@@ -63,7 +63,7 @@ const DataSourceWindow = (props: IProps) => {
                                 <h4>Data Sources:</h4>
                             </div>
                             <div className="col-6">
-                                <button className="btn btn-primary float-right" style={{ marginRight: 10 }} onClick={() => setShowTest(true)}>Test Data Sources</button>
+                                <button className="btn btn-info float-right" style={{ marginRight: 10 }} onClick={() => setShowTest(true)}>Test Data Sources</button>
                             </div>
                         </div>
                     </div>
@@ -132,9 +132,9 @@ const DataSourceWindow = (props: IProps) => {
                     </div>
                     <div className="card-footer">
                         <div className="btn-group mr-2">
-                            <button className={"btn btn-primary"}
+                            <button className={"btn btn-info"}
                                 type="submit"
-                                onClick={() => setDataSource({ ScheduledEmailTypeID: props.Record.ID, ID: -1, ScheduledEmailDataSourceID: -1, ScheduledEmailDataSourceName: '' })} >Add DataSource</button>
+                                onClick={() => { setDataSource({ ScheduledEmailTypeID: props.Record.ID, ID: -1, ScheduledEmailDataSourceID: -1, ScheduledEmailDataSourceName: '' }); setShowDataSourceModal(true) }} >Add Data Source</button>
                         </div>
                     </div>
                 </div>
