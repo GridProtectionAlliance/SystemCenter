@@ -30,9 +30,7 @@ import { CheckBox, Input, SearchableSelect } from '@gpa-gemstone/react-forms';
 import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
 
-interface IOption { Value: string | number; Label: string }
-
-function searchSCADAPoint(search: string): [PromiseLike<IOption[]>, () => void] {
+function searchSCADAPoint(search: string) {
     const searchHandle: JQuery.jqXHR<string> = $.ajax({
         type: 'POST',
         url: `${homePath}api/OpenXDA/SCADAPoint/SCADAPointSearch`,
@@ -42,17 +40,10 @@ function searchSCADAPoint(search: string): [PromiseLike<IOption[]>, () => void] 
         async: true
     });
 
-    const cleanup = () => {
-        if (searchHandle != null && searchHandle.abort != null) searchHandle.abort();
-    }
-
-    return [
-        searchHandle.then((dataString: string) => {
-            const data: string[] = JSON.parse(dataString);
-            return data.map(datum => ({ Label: datum, Value: datum }));
-        }),
-        cleanup
-    ];
+    return searchHandle.then((dataString: string) => {
+        const data: string[] = JSON.parse(dataString);
+        return data.map(datum => ({ Label: datum, Value: datum }));
+    });
 }
 
 function BreakerAttributes(props: { NewEdit: Application.Types.NewEdit, Asset: OpenXDA.Types.Breaker,
