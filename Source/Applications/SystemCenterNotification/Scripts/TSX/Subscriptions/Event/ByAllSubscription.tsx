@@ -56,7 +56,7 @@ const ByAllSubscription = (props: IProps) => {
     const [force, setForce] = React.useState<number>(0);
     const [nApproval, setNApproval] = React.useState<number>(0);
     const [record, setRecord] = React.useState<ActiveSubscription>();
-    const [hover, setHover] = React.useState<('approve' | 'none')>('none');
+    const [hover, setHover] = React.useState<string>('none');
 
     React.useEffect(() => {
         if (status == 'unintiated' || status == 'changed' || parentID != null)
@@ -234,8 +234,8 @@ const ByAllSubscription = (props: IProps) => {
                             RowStyle={{ width: '10%' }}
                             Content={({ item }) => item.RequireApproval ? (item.Approved ? <ReactIcons.CheckMark Color="var(--success)" /> :
                                 <button className="btn btn-sm"
-                                    data-tooltip='approve'
-                                    onMouseEnter={() => setHover('approve')}
+                                    data-tooltip={`${item.ID}_approve`}
+                                    onMouseEnter={() => setHover(`${item.ID}_approve`)}
                                     onMouseLeave={() => setHover('none')}
                                     onClick={(e) => {
                                     e.preventDefault();
@@ -266,7 +266,7 @@ const ByAllSubscription = (props: IProps) => {
             <Warning Show={showRemoveWarning} Title={'Remove Subscription'} Message={`Are you sure you want to remove this subscription?`}
                 CallBack={(c) => { setShowRemoveWarning(false); if (c) removeSubscription(); }} />
             <AddAllSubscription OnClose={() => setShowModal(false)} show={showModal} />
-            <ToolTip Show={hover == 'approve'} Position={'top'} Target={"approve"}>
+            <ToolTip Show={hover.match(/_approve$/) != null} Position={'top'} Target={hover}>
                 Click to approve this subscription.
             </ToolTip>
         </div>)
