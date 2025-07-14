@@ -92,7 +92,7 @@ function LineAttributes(props: {
             </div>
             </div>
             <div className="col-6">
-            <Input<OpenXDA.Types.LineDetail> Record={props.Asset.Detail} Field={'ThermalRating'} Label={'Thermal Rating MVA'} Valid={valid} Setter={updateLineDetail} Disabled={true} />
+            <Input<OpenXDA.Types.LineDetail> Record={props.Asset.Detail} Field={'ThermalRating'} Label={'Thermal Rating (Amps)'} Valid={valid} Setter={updateLineDetail} Disabled={true} />
             </div>
             <div className="col-6">
             <Input<OpenXDA.Types.LineDetail> Record={props.Asset.Detail} Field={'Length'} Label={'Length (miles)'} Feedback={'Length is a required numeric field.'} Valid={valid} Setter={updateLineDetail} Disabled={true} />
