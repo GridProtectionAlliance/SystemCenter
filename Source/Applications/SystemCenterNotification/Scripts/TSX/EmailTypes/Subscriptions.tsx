@@ -47,7 +47,7 @@ const Subscriptions = (props: IProps) => {
     const parentID = useAppSelector(EventSubscriptionSlice.ParentID);
     const asc = useAppSelector(EventSubscriptionSlice.Ascending);
     const sortKey = useAppSelector(EventSubscriptionSlice.SortField);
-    const [hover, setHover] = React.useState<('approve' | 'none')>('none');
+    const [hover, setHover] = React.useState<string>('none');
 
     const [approvalStatus, setApprovalStatus] = React.useState<Application.Types.Status>('idle');
 
@@ -171,8 +171,8 @@ const Subscriptions = (props: IProps) => {
                                                 RowStyle={{ width: 'auto' }}
                                                 Content={({ item }) => item.Approved ? <ReactIcons.CheckMark Color="var(--success)" /> :
                                                     <button className="btn btn-sm"
-                                                        data-tooltip='approve'
-                                                        onMouseEnter={() => setHover('approve')}
+                                                        data-tooltip={`${item.ID}_approve`}
+                                                        onMouseEnter={() => setHover(`${item.ID}_approve`)}
                                                         onMouseLeave={() => setHover('none')}
                                                         onClick={() => approve(item)}>
                                                         <span><ReactIcons.CrossMark Color="var(--danger)" Size={20} /></span></button>}
@@ -186,7 +186,7 @@ const Subscriptions = (props: IProps) => {
                     </div>
                 </div>
             </div>
-            <ToolTip Show={hover == 'approve'} Position={'top'} Target={"approve"}>
+            <ToolTip Show={hover.match(/_approve$/) != null} Position={'top'} Target={hover}>
                 Click to approve this subscription.
             </ToolTip>
         </div>
