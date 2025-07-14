@@ -110,13 +110,14 @@ const MainPage = (props: {}) => {
                 </Page>
             </Section>
             <Section Label='Subscriptions'>
-                <Page Name='MyEventSubscriptions' Label=' My Subscriptions' Icon={ReactIcons.AlertPerson} >
+                <Page Name='MyEventSubscriptions' Label='My Subscriptions' Icon={ReactIcons.AlertPerson} >
                     <BySubscription/>
                 </Page>
-                <Page Name='AllEventSubscriptions' Label=' All Subscriptions' Icon={ReactIcons.AlertPeople} RequiredRoles={['Administrator']} >
+                <Page Name='AllEventSubscriptions' Label='All Event Subscriptions' Icon={ReactIcons.AlertPeople} RequiredRoles={['Administrator']} >
                     <ByAllSubscription />
                 </Page>
-                <Page Name='ContactInfo' Label={' My Contact Info'} Icon={ReactIcons.PhoneSettings}>
+                {/*TO DO: Add 'All Report Subscriptions' page*/}
+                <Page Name='ContactInfo' Label={'My Contact Info'} Icon={ReactIcons.PhoneSettings}>
                     <ByUserInformation />
                 </Page>
                 </Section>
