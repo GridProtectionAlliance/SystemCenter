@@ -28,7 +28,7 @@ import {
     ITriggeredEmailDataSourceSetting, SubscribeEmails,
     ICellCarrier, ScheduledEmailType, ActiveReportSubscription,
     IScheduledDataSource, IScheduledEmailDataSourceSetting, IDataSourceScheduledEmailType,
-    SubscribeReports
+    SubscribeScheduledEmails
 } from './global';
 import { GenericSlice } from '@gpa-gemstone/react-interactive';
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
@@ -45,8 +45,8 @@ export const EmailTypeSlice = new GenericSlice<EmailType>("EmailType", `${homePa
 export const ScheduledEmailTypeSlice = new GenericSlice<ScheduledEmailType>("ScheduledEmailType", `${homePath}api/OpenXDA/ScheduledEmailType`, "Name", true);
 export const AssetGroupSlice = new GenericSlice<OpenXDA.Types.AssetGroup>("AssetGroup", `${homePath}api/OpenXDA/AssetGroup`, "Name", true);
 export const SettingSlice = new GenericSlice<SystemCenter.Types.Setting>('Setting', `${homePath}api/Setting`, 'Name');
-export const EventSubscriptionSlice = new GenericSlice<SubscribeEmails>('EventSubscription', `${homePath}api/EventSubscription`, 'FirstName');
-export const ReportSubscriptionSlice = new GenericSlice<SubscribeReports>('ReportSubscription', `${homePath}api/ReportSubscription`, 'FirstName');
+export const EventSubscriptionSlice = new GenericSlice<SubscribeEmails>('EventSubscription', `${homePath}api/EventSubscription`, 'Email');
+export const ReportSubscriptionSlice = new GenericSlice<SubscribeScheduledEmails>('ReportSubscription', `${homePath}api/ReportSubscription`, 'Email');
 export const ActiveSubscriptionSlice = new GenericSlice<ActiveSubscription>('ActiveSubscription', `${homePath}api/ActiveSubscription`, 'LastSent');
 export const ActiveReportSubscriptionSlice = new GenericSlice<ActiveReportSubscription>('ActiveReportSubscription', `${homePath}api/ActiveScheduleSubscription`, 'Email');
 
