@@ -101,7 +101,7 @@ const EmailConfirmed = (props: { useParams: { code: string } }) => {
                 <LoadingScreen Show={state == 'loading' || status != 'idle'}/>
                 <div className={"alert alert-" + getClass()}>
                     <p>{getText()}</p>
-                    {!success && state == 'idle'? < button type="button" className="btn btn-secondary"
+                    {!success && state == 'idle'? < button type="button" className="btn btn-info"
                         onClick={() => { setForceResend(x => x + 1) }}>Resend Link</button> : null}
                 </div> 
             </div>

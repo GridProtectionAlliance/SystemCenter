@@ -72,7 +72,7 @@ export interface SubscribeEmails {
     AssetGroup: string
 }
 
-export interface SubscribeReports {
+export interface SubscribeScheduledEmails {
     ID: number,
     Approved: boolean,
     ScheduledEmailID: number,
@@ -95,6 +95,8 @@ export interface ActiveSubscription {
     Subject: string, 
     LastSent: string,
     UserName: string,
+    FirstName: string,
+    LastName: string,
     Email: string,
     RequireApproval: boolean
 }

@@ -84,8 +84,8 @@ function AssetGroup(props: IProps) {
 
     function hasPermissions(): boolean {
         if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0)
-            return true;
-        return false;
+            return false;
+        return true;
     }
 
     if (group == null) return null;
@@ -103,7 +103,7 @@ function AssetGroup(props: IProps) {
                     <h2>{group.Name}</h2>
                 </div>
                 <div className="col">
-                    <button className={"btn btn-danger pull-right"} hidden={hasPermissions()} onClick={() => { if (!hasPermissions()) setShowDelete(true); }}>Delete Asset Group</button>
+                    <button className={"btn btn-danger pull-right"} hidden={!hasPermissions()} onClick={() => { if (hasPermissions()) setShowDelete(true); }}>Delete Asset Group</button>
                 </div>
             </div>
             <hr />

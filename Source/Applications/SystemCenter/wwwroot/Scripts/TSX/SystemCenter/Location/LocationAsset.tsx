@@ -221,8 +221,7 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
             return <StationBatteryAttributes NewEdit={newEdit} Asset={newEditAsset} UpdateState={setNewEditAsset} />;
     }
 
-    function handleSelect(item, event) {
-        if (event.target.localName == 'td')
+    function handleSelect(item) {
             navigate(`${homePath}index.cshtml?name=Asset&AssetID=${item.row.ID}`);
     }
 
@@ -359,16 +358,18 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
                                 <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => {
                                         if (hasPermissions()) {
                                             e.preventDefault();
+                                            e.stopPropagation();
                                             let assetType = assetTypes.find(at => at.ID == item['AssetTypeID']);
                                             setLStatus('loading')
                                             getAssetWithAdditionalFields(item.ID, assetType.Name).then(asset => { setEditasset(asset); setLStatus('idle'); }, () => setLStatus('error'));
                                             setNewEdit('Edit');
-                                            setShowModal(true)
+                                            setShowModal(true);
                                     }
                                 }}><ReactIcons.Pencil Color="var(--warning)" Size={20} /></button>
                                     <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => {
                                         if (hasPermissions()) {
                                             e.preventDefault();
+                                            e.stopPropagation();
                                             deleteAsset(item);
                                     }
                                 }}><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></button></>
