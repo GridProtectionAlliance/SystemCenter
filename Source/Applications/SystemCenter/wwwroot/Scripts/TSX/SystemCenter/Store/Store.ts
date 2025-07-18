@@ -62,6 +62,7 @@ export const SystemCenterSettingSlice = new GenericSlice<SystemCenter.Types.Sett
 export const OpenXDASettingSlice = new GenericSlice<SystemCenter.Types.Setting>('OpenXDASetting', `${homePath}api/OpenXDA/Setting`, 'Name');
 export const MiMDSettingSlice = new GenericSlice<SystemCenter.Types.Setting>('MiMDSetting', `${homePath}api/MiMD/Setting`, 'Name');
 export const OpenSEESettingSlice = new GenericSlice<SystemCenter.Types.Setting>('OpenSEESetting', `${homePath}api/OpenSEE/Setting`, 'Name');
+export const SEBrowserSettingSlice = new GenericSlice<LocalSystemCenter.SEBrowserSetting>('SEBrowserSetting', `${homePath}api/SEBrowser/Setting`, 'Name');
 
 
 export const AssetConnectionTypeSlice = new GenericSlice<OpenXDA.Types.AssetConnectionType>("AssetConnectionType", `${homePath}api/OpenXDA/AssetConnectionType`, 'Name');
@@ -122,9 +123,12 @@ export const APIAccessKeySlice = new GenericSlice<IAPIAccessKey>('APIAccessKey',
 
 
 export const EventTagSlice = new GenericSlice<OpenXDA.Types.EventTag>("EventTag", `${homePath}api/OpenXDA/EventTag`, 'Name');
+
+// The following use endpoints that are locked down by enterprise edition
 export const MATLABAnalyticSlice = new GenericSlice<OpenXDA.Types.MATLABAnalytic>("MATLABAnalytic", `${homePath}api/OpenXDA/MATLABAnalytic`, 'LoadOrder');
 export const MATLABAnalyticEventTypeSlice = new GenericSlice<OpenXDA.Types.MATLABAnalyticEventType>("MATLABAnalyticEventType", `${homePath}api/OpenXDA/MATLABAnalyticEventType`, 'ID');
 export const MATLABAnalyticAssetTypeSlice = new GenericSlice<OpenXDA.Types.MATLABAnalyticAssetType>("MATLABAnalyticAssetType", `${homePath}api/OpenXDA/MATLABAnalyticAssetType`, 'ID');
+
 export const TrendChannelSlice = new GenericSlice<LocalXDA.TrendChannel>('TrendChannels', `${homePath}api/OpenXDA/TrendChannel`, 'Name');
 
 export const ChannelTemplateSlice = new GenericSlice<LocalSystemCenter.ChannelTemplateFile>('ChannelTemplate', `${homePath}api/SystemCenter/ChannelTemplateFile`, 'ID', true);
@@ -155,6 +159,7 @@ const store = configureStore({
         OpenXDASetting: OpenXDASettingSlice.Reducer,
         MiMDSetting: MiMDSettingSlice.Reducer,
         OpenSEESetting: OpenSEESettingSlice.Reducer,
+        SEBrowserSetting: SEBrowserSettingSlice.Reducer,
         AssetType: AssetTypeSlice.Reducer,
         DataFile: DataFileSlice.Reducer,
         Customer: CustomerSlice.Reducer,
