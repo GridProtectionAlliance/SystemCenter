@@ -99,8 +99,8 @@ const EventDetails = (props: IProps) => {
                                             Key={'StartTime'}
                                             AllowSort={false}
                                             Field={'StartTime'}
-                                            HeaderStyle={{ width: '20%' }}
-                                            RowStyle={{ width: '20%' }}
+                                            HeaderStyle={{ width: 'auto' }}
+                                            RowStyle={{ width: 'auto' }}
                                             Content={({ item }) => <> {moment(item.StartTime).format("MM/DD/YYYY")} <br /> {moment(item.StartTime).format("HH:mm:ss.ssss")}  </> }
                                         > Time
                                         </Column>
@@ -108,24 +108,24 @@ const EventDetails = (props: IProps) => {
                                             Key={'Asset'}
                                             AllowSort={false}
                                             Field={'Asset'}
-                                            HeaderStyle={{ width: '40%' }}
-                                            RowStyle={{ width: '40%' }}
+                                            HeaderStyle={{ width: 'auto' }}
+                                            RowStyle={{ width: 'auto' }}
                                         > Asset
                                         </Column>
                                         <Column<IEvent>
                                             Key={'Meter'}
                                             AllowSort={false}
                                             Field={'Meter'}
-                                            HeaderStyle={{ width: '40%' }}
-                                            RowStyle={{ width: '40%' }}
+                                            HeaderStyle={{ width: 'auto' }}
+                                            RowStyle={{ width: 'auto' }}
                                         > Meter
                                         </Column>
                                         <Column<IEvent>
                                             Key={'EventType'}
                                             AllowSort={false}
                                             Field={'EventType'}
-                                            HeaderStyle={{ width: '20%' }}
-                                            RowStyle={{ width: '20%' }}
+                                            HeaderStyle={{ width: 'auto' }}
+                                            RowStyle={{ width: 'auto' }}
                                         > Type
                                         </Column>
                                     </Table>

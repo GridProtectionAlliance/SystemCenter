@@ -130,15 +130,13 @@ const AssetGroupSelection = (props: IProps) => {
     return (<>
             <LoadingIcon Show={parentGroupState == 'loading' || assetGrpStatus == 'loading'} />
             <div className="col">
-                <div className="row">
                     <div className="col">
-                    <Select<OpenXDA.Types.AssetGroup> Record={selectedParent} Field={'ID'} Label='Asset Group' Help={'Choose a parent Asset Group or "Other" from the dropdown to see all parent Groups, then select a Subgroup from the table below. Only Asset Groups marked "Show in Email Subscription" in System Center will appear here.'} Setter={setSelectedParent}
-                            Options={[{ Label: 'Other', Value: '-1' }].concat(parentGroups.map((p) => {
+                    <Select<OpenXDA.Types.AssetGroup> Record={selectedParent} Field={'ID'} Label='Asset Group'
+                        Help={'Choose a parent Asset Group or "Other" from the dropdown to see all parent Groups, then select a Subgroup from the table below. Only Asset Groups marked "Show in Email Subscription" in System Center will appear here.'}
+                        Setter={setSelectedParent} Options={[{ Label: 'Other', Value: '-1' }].concat(parentGroups.map((p) => {
                                 return { Label: p.Name, Value: p.ID.toString() }
                             }))} />
                     </div>
-                </div>
-                <div className='row'>
                     <div className='col'>
                         <Table<OpenXDA.Types.AssetGroup>
                             TableClass="table table-hover"
@@ -154,13 +152,9 @@ const AssetGroupSelection = (props: IProps) => {
                                 }
                             }}
                             OnClick={handleSelected}
-                            TableStyle={{
-                                padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
-                                tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
-                            }}
-                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
-                            RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            TableStyle={{ height: 'calc(100% - 16px)' }}
+                            TheadStyle={{ fontSize: 'smaller' }}
+                            TbodyStyle={{ fontSize: 'smaller' }}
                             Selected={(item) => props.assetGroupID.includes(item.ID)}
                             KeySelector={(item) => item.ID}
                         >
@@ -190,9 +184,8 @@ const AssetGroupSelection = (props: IProps) => {
                             </Column>
                         </Table>
                     </div>
-                </div>
                 <Warning
-                    Message={`You are subscribing to ${props.assetGroupID.length} sets of notifications. For some events you may recieve one notification for each asset group selected.`}
+                    Message={`You are subscribing to ${props.assetGroupID.length} sets of notifications. For some events you may receive a notification for each Asset Group selected.`}
                     Title={`Subscribing to ${props.assetGroupID.length} Notifications`}
                     Show={showWarning}
                     CallBack={(c) => { setShowWarning(false); }}

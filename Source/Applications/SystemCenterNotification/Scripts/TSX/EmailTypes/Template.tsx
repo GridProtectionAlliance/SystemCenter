@@ -80,7 +80,7 @@ const Template = (props: IProps) => {
                                 data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
                         </div>
                         <div className="btn-group mr-2">
-                            <button className={"btn btn-danger" + (hasChanged ? '' : ' disabled')} data-tooltip="clear"
+                            <button className={"btn btn-warning" + (hasChanged ? '' : ' disabled')} data-tooltip="clear"
                                 onClick={() => { setEmail(props.Record); setHasChanged(false); }}
                                 onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')} >Clear Changes</button>
                         </div>

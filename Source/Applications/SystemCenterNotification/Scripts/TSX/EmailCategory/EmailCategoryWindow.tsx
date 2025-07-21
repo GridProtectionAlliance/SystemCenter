@@ -82,7 +82,7 @@ const EmailCategoryWindow = (props: IProps) => {
                                 data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
                         </div>
                         <div className="btn-group mr-2">
-                            <button className={"btn btn-default" + (hasChanged ? '' : ' disabled')} data-tooltip="clear"
+                            <button className={"btn btn-warning" + (hasChanged ? '' : ' disabled')} data-tooltip="clear"
                                 onClick={() => { setCategory(props.Category); setHasChanged(false); }}
                                 onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')} >Clear Changes</button>
                         </div>

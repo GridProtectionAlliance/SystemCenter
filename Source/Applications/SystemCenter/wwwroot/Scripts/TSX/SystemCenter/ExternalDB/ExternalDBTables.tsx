@@ -72,8 +72,7 @@ export default function ExternalDBTables(props: { ID: number }) {
     }
 
     function handleSelect(item) {
-        if (item.colKey == 'btns') return;
-        navigate(`${homePath}index.cshtml?name=ExternalTable&ID=${item.row.ID}`);
+            navigate(`${homePath}index.cshtml?name=ExternalTable&ID=${item.row.ID}`);
     }
 
     return (
@@ -132,6 +131,7 @@ export default function ExternalDBTables(props: { ID: number }) {
                                             Content={({ item }) => <>
                                                 <button className="btn btn-sm" onClick={(e) => {
                                                     e.preventDefault();
+                                                    e.stopPropagation();
                                                     setRecord(item);
                                                     setShowWarning(true);
                                                 }}><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></button>

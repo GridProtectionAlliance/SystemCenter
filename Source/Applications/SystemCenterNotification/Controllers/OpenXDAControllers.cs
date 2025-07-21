@@ -148,8 +148,7 @@ namespace SystemCenter.Notifications.Controllers
     [RoutePrefix("api/ReportSubscription")]
     public class ReportSubscriptionController : ModelController<openXDA.Model.SubscribeScheduledEmails>
     {
-        /*
-        [HttpGet, Route("approve/{parentID}")]
+        [HttpGet, Route("Approve/{parentID}")]
         public IHttpActionResult Approve(int parentID)
         {
             if (!PatchAuthCheck())
@@ -158,21 +157,20 @@ namespace SystemCenter.Notifications.Controllers
             {
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
-                    TableOperations<UserAccountEmailType> tbl = new TableOperations<UserAccountEmailType>(connection);
-                    UserAccountEmailType record = tbl.QueryRecordWhere("ID = {0}", parentID);
+                    TableOperations<openXDA.Model.Links.UserAccountScheduledEmailType> tbl = new TableOperations<openXDA.Model.Links.UserAccountScheduledEmailType>(connection);
+                    openXDA.Model.Links.UserAccountScheduledEmailType record = tbl.QueryRecordWhere("ID = {0}", parentID);
                     if (record == null)
                         throw new NullReferenceException("Record not found");
                     record.Approved = true;
                     tbl.UpdateRecord(record);
-                    return Ok(1);
-                }
+                return Ok(1);
+            }
             }
             catch (Exception ex)
             {
                 return InternalServerError(ex);
             }
         }
-        */
     }
 
     [RoutePrefix("api/ActiveSubscription")]
@@ -425,15 +423,8 @@ namespace SystemCenter.Notifications.Controllers
     public class ScheduledEmailDataSourceSettingController : ModelController<ScheduledEmailDataSourceSetting> { }
 
     [RoutePrefix("api/openXDA/TriggeredEmailDataSourceEmailType")]
-    public class TriggeredEmailDataSourceEmaulTypeController : ModelController<TriggeredEmailDataSourceEmailTypeView>
+    public class TriggeredEmailDataSourceEmailTypeController : ModelController<TriggeredEmailDataSourceEmailTypeView, TriggeredEmailDataSourceEmailType>
     {
-        public override IHttpActionResult Delete(TriggeredEmailDataSourceEmailTypeView record)
-        {
-            using (AdoDataConnection connection = new AdoDataConnection(Connection))
-                connection.ExecuteNonQuery("DELETE FROM TriggeredEmailDataSourceEmailType WHERE ID = {0}", record.ID);
-
-            return Ok(1);
-        }
         public override IHttpActionResult Post([FromBody] JObject record)
         {
             try
@@ -474,43 +465,10 @@ namespace SystemCenter.Notifications.Controllers
                 return InternalServerError(ex);
             }
         }
-
-        public override IHttpActionResult Patch([FromBody] TriggeredEmailDataSourceEmailTypeView record)
-        {
-            try
-            {
-                if (PatchAuthCheck() && !ViewOnly)
-                {
-                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
-                    {
-
-                        TriggeredEmailDataSourceEmailType updatedRecord = new TriggeredEmailDataSourceEmailType()
-                        {
-                            ID = record.ID,
-                            TriggeredEmailDataSourceID = record.TriggeredEmailDataSourceID,
-                            EmailTypeID = record.EmailTypeID
-                        };
-
-                        int result = new TableOperations<TriggeredEmailDataSourceEmailType>(connection).UpdateRecord(updatedRecord);
-
-                        return Ok(result);
-                    }
-                }
-                else
-                {
-                    return Unauthorized();
-                }
-
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
-        }
     }
 
     [RoutePrefix("api/openXDA/ScheduledEmailDataSourceEmailType")]
-    public class TScheduledEmailDataSourceEmaulTypeController : ModelController<ScheduledEmailDataSourceEmailTypeView> 
+    public class ScheduledEmailDataSourceEmailTypeController : ModelController<ScheduledEmailDataSourceEmailTypeView, ScheduledEmailDataSourceEmailType> 
     {
         public override IHttpActionResult Post([FromBody] JObject record)
         {
@@ -537,39 +495,6 @@ namespace SystemCenter.Notifications.Controllers
                             setting.ScheduledEmailDataSourceEmailTypeID = newRecord.ID;
                             result += settingsTable.AddNewRecord(setting);
                         }
-
-                        return Ok(result);
-                    }
-                }
-                else
-                {
-                    return Unauthorized();
-                }
-
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
-        }
-
-        public override IHttpActionResult Patch([FromBody] ScheduledEmailDataSourceEmailTypeView record)
-        {
-            try
-            {
-                if (PatchAuthCheck() && !ViewOnly)
-                {
-                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
-                    {
-
-                        ScheduledEmailDataSourceEmailType updatedRecord = new ScheduledEmailDataSourceEmailType()
-                        {
-                            ID = record.ID,
-                            ScheduledEmailDataSourceID = record.ScheduledEmailDataSourceID,
-                            ScheduledEmailTypeID = record.ScheduledEmailTypeID
-                        };
-
-                        int result = new TableOperations<ScheduledEmailDataSourceEmailType>(connection).UpdateRecord(updatedRecord);
 
                         return Ok(result);
                     }

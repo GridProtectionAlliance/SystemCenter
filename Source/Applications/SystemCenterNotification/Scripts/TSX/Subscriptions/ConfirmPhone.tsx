@@ -86,7 +86,7 @@ const ConfirmPhone = (props: IProps) => {
                     <div className="alert alert-info" style={{ margin: 'auto' }}>
                         Please confirm your phone number by entering the 5 digit code received by Text message.
                         <div>
-                            <button type="button" className="btn btn-secondary" onClick={() => { setForceResend(x => x + 1) }}>Resend Text Message</button>
+                            <button type="button" className="btn btn-info" onClick={() => { setForceResend(x => x + 1) }}>Resend Text Message</button>
                         </div>
                     </div>
                 </div>

@@ -30,6 +30,7 @@ import { EventSubscriptionSlice } from '../Store';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import * as $ from 'jquery';
 import { Application } from '@gpa-gemstone/application-typings';
+import { ToolTip } from '@gpa-gemstone/react-forms';
 
 declare var homePath;
 declare var version;
@@ -46,6 +47,7 @@ const Subscriptions = (props: IProps) => {
     const parentID = useAppSelector(EventSubscriptionSlice.ParentID);
     const asc = useAppSelector(EventSubscriptionSlice.Ascending);
     const sortKey = useAppSelector(EventSubscriptionSlice.SortField);
+    const [hover, setHover] = React.useState<string>('none');
 
     const [approvalStatus, setApprovalStatus] = React.useState<Application.Types.Status>('idle');
 
@@ -96,7 +98,7 @@ const Subscriptions = (props: IProps) => {
                             </div>
                             <div className="col-6 align-self-center">
                                 {props.Record.RequireApproval ?
-                                    <button className="btn btn-danger float-right"
+                                    <button className="btn btn-success float-right"
                                         disabled={!subscriptions.some(s => !s.Approved)}
                                         onClick={() => approveAll()}>
                                         Approve All
@@ -132,32 +134,32 @@ const Subscriptions = (props: IProps) => {
                                             Key={'FirstName'}
                                             AllowSort={true}
                                             Field={'FirstName'}
-                                            HeaderStyle={{ width: props.Record.RequireApproval ? '20%' : '25%' }}
-                                            RowStyle={{ width: props.Record.RequireApproval ? '20%' : '25%' }}
+                                            HeaderStyle={{ width: 'auto' }}
+                                            RowStyle={{ width: 'auto' }}
                                         > First Name
                                         </Column>
                                         <Column<SubscribeEmails>
                                             Key={'LastName'}
                                             AllowSort={true}
                                             Field={'LastName'}
-                                            HeaderStyle={{ width: props.Record.RequireApproval ? '20%' : '25%' }}
-                                            RowStyle={{ width: props.Record.RequireApproval ? '20%' : '25%' }}
+                                            HeaderStyle={{ width: 'auto' }}
+                                            RowStyle={{ width: 'auto' }}
                                         > Last Name
                                         </Column>
                                         <Column<SubscribeEmails>
                                             Key={'Email'}
                                             AllowSort={true}
                                             Field={'Email'}
-                                            HeaderStyle={{ width: props.Record.RequireApproval ? '20%' : '25%' }}
-                                            RowStyle={{ width: props.Record.RequireApproval ? '20%' : '25%' }}
+                                            HeaderStyle={{ width: 'auto' }}
+                                            RowStyle={{ width: 'auto' }}
                                         > Email
                                         </Column>
                                         <Column<SubscribeEmails>
                                             Key={'AssetGroup'}
                                             AllowSort={true}
                                             Field={'AssetGroup'}
-                                            HeaderStyle={{ width: props.Record.RequireApproval ? '20%' : '25%' }}
-                                            RowStyle={{ width: props.Record.RequireApproval ? '20%' : '25%' }}
+                                            HeaderStyle={{ width: 'auto' }}
+                                            RowStyle={{ width: 'auto' }}
                                         > Assets
                                         </Column>
                                         {props.Record.RequireApproval ?
@@ -165,10 +167,15 @@ const Subscriptions = (props: IProps) => {
                                                 Key={'Approved'}
                                                 AllowSort={true}
                                                 Field={'Approved'}
-                                                HeaderStyle={{ width: '20%' }}
-                                                RowStyle={{ width: '20%' }}
+                                                HeaderStyle={{ width: 'auto' }}
+                                                RowStyle={{ width: 'auto' }}
                                                 Content={({ item }) => item.Approved ? <ReactIcons.CheckMark Color="var(--success)" /> :
-                                                    <button type="button" className="btn btn-primary btn-sm" onClick={() => approve(item)}>Approve</button> }
+                                                    <button className="btn btn-sm"
+                                                        data-tooltip={`${item.ID}_approve`}
+                                                        onMouseEnter={() => setHover(`${item.ID}_approve`)}
+                                                        onMouseLeave={() => setHover('none')}
+                                                        onClick={() => approve(item)}>
+                                                        <span><ReactIcons.CrossMark Color="var(--danger)" Size={20} /></span></button>}
                                             > Approved
                                             </Column>
                                         : null }
@@ -179,6 +186,9 @@ const Subscriptions = (props: IProps) => {
                     </div>
                 </div>
             </div>
+            <ToolTip Show={hover.match(/_approve$/) != null} Position={'top'} Target={hover}>
+                Click to approve this subscription.
+            </ToolTip>
         </div>
         )
 }
