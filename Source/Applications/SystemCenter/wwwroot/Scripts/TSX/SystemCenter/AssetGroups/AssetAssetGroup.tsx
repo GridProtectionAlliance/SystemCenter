@@ -131,10 +131,6 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
         navigate(`${homePath}index.cshtml?name=Asset&AssetID=${item.row.ID}`);
     }
 
-    function handleSelect(item) {
-        navigate(`${homePath}index.cshtml?name=Asset&AssetID=${item.row.ID}`);
-    }
-
     return (
         <>
         <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
