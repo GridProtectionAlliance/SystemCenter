@@ -37,5 +37,5 @@ namespace SystemCenter.Model
     }
 
     [RoutePrefix("api/ValueListGroup")]
-    public class SystemCenterValueListGroupController : ValueListGroupController<ValueListGroupView> { }
+    public class ValueListGroupController : ValueListGroupController<ValueListGroupView> { }
 }

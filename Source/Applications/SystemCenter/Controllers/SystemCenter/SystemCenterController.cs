@@ -54,7 +54,7 @@ using Setting = SystemCenter.Model.Setting;
 namespace SystemCenter.Controllers
 {
     [RoutePrefix("api/ValueList")]
-    public class SystemCenterValueListController : ValueListController<ValueList> { }
+    public class ValueListController : ValueListController<ValueList> { }
 
 
     [RoutePrefix("api/ChannelGroupDetails")]
