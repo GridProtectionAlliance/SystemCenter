@@ -345,20 +345,7 @@ namespace SystemCenter.Notifications.Controllers
     public class EventTypeController : ModelController<EventType> { }
 
     [RoutePrefix("api/ValueList")]
-    public class ValueListController : ModelController<ValueList>
-    {
-        [HttpGet, Route("Group/{groupName}")]
-        public IHttpActionResult GetValueListForGroup(string groupName)
-        {
-            using (AdoDataConnection connection = new AdoDataConnection(Connection))
-            {
-                string tableName = new TableOperations<ValueListGroup>(connection).TableName;
-                IEnumerable<ValueList> records = new TableOperations<ValueList>(connection).QueryRecordsWhere($"GroupID = ( SELECT ID FROM {tableName} WHERE Name = {{0}})", groupName);
-                return Ok(records);
-            }
-        }
-
-    }
+    public class NotificationsValueListController : ValueListController<ValueList> { }
 
     [RoutePrefix("api/openXDA/Event/AssetGroup")]
     public class OpenXDAAssetGroupController : ModelController<AssetGroupView> { }
