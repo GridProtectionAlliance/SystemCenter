@@ -113,7 +113,7 @@ function ByDataOperationsFailure(props: IProps) {
         <div style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
             <div className="row">
                 <div className="col">
-                    <h2>{fileGroup?.FilePath ?? "Unknow File Group"}</h2>
+                    <h2>{fileGroup?.FilePath ?? "Unknown File Group"}</h2>
                 </div>
             </div>
             <hr />
