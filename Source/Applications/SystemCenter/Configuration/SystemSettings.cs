@@ -69,7 +69,7 @@ namespace SystemCenter.Configuration
         /// query is given to complete, in seconds.
         /// </summary>
         [Setting]
-        [DefaultValue(120)]
+        [DefaultValue(30)]
         public int DbTimeout { get; set; }
 
         #endregion
