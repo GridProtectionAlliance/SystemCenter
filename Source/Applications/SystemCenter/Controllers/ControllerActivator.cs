@@ -23,6 +23,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Net.Http;
 using System.Reflection;
@@ -72,7 +73,15 @@ namespace openXDA.WebHosting
 
         private Func<IHttpController> BuildFactory(Type controllerType)
         {
+            // Look for category on controller type
             string connection = controllerType.GetCustomAttribute<SettingsCategoryAttribute>()?.SettingsCategory;
+            // Look for category on first model type, this should support settings categories on models for model controllers
+            if (connection is null)
+            {
+                Type[] genericArguments = controllerType.BaseType.GetGenericArguments();
+                if (genericArguments.Any())
+                    connection = genericArguments.First().GetCustomAttribute<SettingsCategoryAttribute>()?.SettingsCategory;
+            }
             Func<AdoDataConnection> connectionFactory = () => Program.Host.CreateDbConnection(connection);
 
             // Get connection factory constructor, failing that, try to create the default constructor and then allow us to set connection factory in the object
