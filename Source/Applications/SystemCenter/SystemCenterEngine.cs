@@ -69,6 +69,7 @@
 //*********************************************************************************************************************
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
@@ -248,19 +249,15 @@ namespace SystemCenter
             m_systemSettings = new SystemSettings(LoadSystemSettings());
         }
 
-
-        /// <summary>
-        /// Creates a db connection to the default database, using timeout settings.
-        /// </summary>
-        public AdoDataConnection CreateDbConnection() => CreateDbConnection(DefaultCategory);
-
         /// <summary>
         /// Creates a db connection to the database, using timeout settings.
         /// </summary>
-        public AdoDataConnection CreateDbConnection(string settingsCategory)
+        public AdoDataConnection CreateDbConnection(string? settingsCategory = null)
         {
-            if (!m_connectionFactories.TryGetValue(settingsCategory, out DatabaseConnectionFactory factory))
-                factory = CreateAndAddFactory(ConfigurationFile.Current, settingsCategory);
+            string category = settingsCategory ?? DefaultCategory;
+
+            if (!m_connectionFactories.TryGetValue(category, out DatabaseConnectionFactory factory))
+                factory = CreateAndAddFactory(ConfigurationFile.Current, category);
 
             AdoDataConnection connection = factory.CreateDbConnection();
             if (m_systemSettings is not null)

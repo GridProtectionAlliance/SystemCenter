@@ -743,14 +743,9 @@ namespace SystemCenter
         }
 
         /// <summary>
-        /// Creates a db connection to the database, using timeout settings.
-        /// </summary>
-        public AdoDataConnection CreateDbConnection() => m_systemCenterEngine.CreateDbConnection();
-
-        /// <summary>
         /// Creates a db connection to the database connection, using timeout settings.
         /// </summary>
-        public AdoDataConnection CreateDbConnection(string category) => m_systemCenterEngine.CreateDbConnection(category);
+        public AdoDataConnection CreateDbConnection(string? category = null) => m_systemCenterEngine.CreateDbConnection(category);
 
         // Send the error to the service helper, error logger, and each service monitor
         public void HandleException(Exception ex)
