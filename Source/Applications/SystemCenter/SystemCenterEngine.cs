@@ -243,7 +243,7 @@ namespace SystemCenter
             // Reconstruct known connection factories
             AdoDataConnection.ReloadConfigurationSettings();
             foreach (string key in m_connectionFactories.Keys)
-                CreateAndAddFactory(configurationFile, key);
+                m_connectionFactories[key] = new DatabaseConnectionFactory(configurationFile, key);
 
             // Load system settings from the database
             m_systemSettings = new SystemSettings(LoadSystemSettings());
@@ -256,8 +256,8 @@ namespace SystemCenter
         {
             string category = settingsCategory ?? DefaultCategory;
 
-            if (!m_connectionFactories.TryGetValue(category, out DatabaseConnectionFactory factory))
-                factory = CreateAndAddFactory(ConfigurationFile.Current, category);
+            DatabaseConnectionFactory factory = m_connectionFactories
+                .GetOrAdd(category, new DatabaseConnectionFactory(ConfigurationFile.Current, category));
 
             AdoDataConnection connection = factory.CreateDbConnection();
             if (m_systemSettings is not null)
@@ -278,14 +278,6 @@ namespace SystemCenter
             {
                 Stopped = true;
             }
-        }
-
-        // Adds a new connection factory given a configuration file and settings category
-        private DatabaseConnectionFactory CreateAndAddFactory(ConfigurationFile file, string category)
-        {
-            DatabaseConnectionFactory factory = new DatabaseConnectionFactory(file, category);
-            m_connectionFactories.AddOrUpdate(category, factory);
-            return factory;
         }
 
         // Loads system settings from the database.
@@ -316,8 +308,8 @@ namespace SystemCenter
             // already one explicitly specified in the Setting table
             if (!settings.ContainsKey("dbConnectionString"))
             {
-                if (!m_connectionFactories.TryGetValue(DefaultCategory, out DatabaseConnectionFactory factory))
-                    factory = CreateAndAddFactory(ConfigurationFile.Current, DefaultCategory);
+                DatabaseConnectionFactory factory = m_connectionFactories
+                    .GetOrAdd(DefaultCategory, new DatabaseConnectionFactory(ConfigurationFile.Current, DefaultCategory));
                 settings.Add("dbConnectionString", factory.ConnectionString);
             }
 
