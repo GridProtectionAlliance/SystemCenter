@@ -68,28 +68,19 @@
 //
 //*********************************************************************************************************************
 
-using GSF.Annotations;
-using GSF.Collections;
-using GSF.Configuration;
-using GSF.Data;
-using GSF.Data.Model;
-using GSF.IO;
-using GSF.IO.Checksums;
-using GSF.Threading;
-using log4net;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
-using System.Data.SqlClient;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
+using GSF.Annotations;
+using GSF.Collections;
+using GSF.Configuration;
+using GSF.Data;
+using GSF.Data.Model;
+using log4net;
 using SystemCenter.Configuration;
 using SystemCenter.Model;
 
@@ -105,10 +96,78 @@ namespace SystemCenter
 
 
         // Fields
-        private string m_dbConnectionString;
         private SystemSettings m_systemSettings;
+        private ConcurrentDictionary<string, DatabaseConnectionFactory> m_connectionFactories;
+
+        // Constants
+        private const string DefaultCategory = "systemSettings";
+
         #endregion
 
+        // ToDo: Move version in XDA to somewhere where we can use same class both there and here
+        private class DatabaseConnectionFactory
+        {
+            #region [ Members ]
+
+            // Constants
+            private const string DefaultConnectionStringSettingName = "ConnectionString";
+            private const string DefaultDataProviderStringSettingName = "DataProviderString";
+
+            #endregion
+
+            #region [ Constructors ]
+
+            public DatabaseConnectionFactory(ConfigurationFile configurationFile, string settingsCategory)
+                : this (configurationFile, settingsCategory, DefaultConnectionStringSettingName, DefaultDataProviderStringSettingName) { }
+
+            public DatabaseConnectionFactory(ConfigurationFile configurationFile, string settingsCategory, string connStringSetting, string dataStringSetting)
+            {
+                ConfigurationFile = configurationFile;
+                SettingsCategory = settingsCategory;
+                ConnStringSettingName = connStringSetting;
+                DataStringSettingName = dataStringSetting;
+                LoadSettings();
+            }
+
+            #endregion
+
+            #region [ Properties ]
+
+            private ConfigurationFile ConfigurationFile { get; }
+            private string SettingsCategory { get; }
+            private string ConnStringSettingName { get; }
+            private string DataStringSettingName { get; }
+            public string ConnectionString { get; set; }
+            public string DataProviderString { get; set; }
+
+            #endregion
+
+            #region [ Methods ]
+
+            public AdoDataConnection CreateDbConnection() =>
+                new AdoDataConnection(ConnectionString, DataProviderString);
+
+            private void LoadSettings()
+            {
+                CategorizedSettingsSection categorizedSettings = ConfigurationFile.Settings;
+                CategorizedSettingsElementCollection category = categorizedSettings[SettingsCategory];
+                if (category is null)
+                    throw new ArgumentNullException($"Could not retrieve settings of category {SettingsCategory} for db connection...");
+
+                CategorizedSettingsElement connectionSetting = category[ConnStringSettingName];
+                if (connectionSetting is null)
+                    throw new ArgumentNullException($"Could not retrieve setting {ConnStringSettingName} of category {SettingsCategory} for db connection...");
+
+                CategorizedSettingsElement dataProviderSetting = category[DataStringSettingName];
+                if (dataProviderSetting is null)
+                    throw new ArgumentNullException($"Could not retrieve setting {DataStringSettingName} of category {SettingsCategory} for db connection...");
+
+                ConnectionString = connectionSetting.Value;
+                DataProviderString = dataProviderSetting.Value;
+            }
+
+            #endregion
+        }
 
         #region [ Properties ]
         private bool Stopped { get; set; } = true;
@@ -142,6 +201,9 @@ namespace SystemCenter
         /// </summary>
         public void Start()
         {
+            // Create Connection factory object
+            m_connectionFactories = new ConcurrentDictionary<string, DatabaseConnectionFactory>();
+
             // Get system settings from the database
             ReloadSystemSettings();
 
@@ -173,21 +235,35 @@ namespace SystemCenter
         public void ReloadSystemSettings()
         {
             ConfigurationFile configurationFile;
-            CategorizedSettingsElementCollection category;
 
             // Reload the configuration file
             configurationFile = ConfigurationFile.Current;
             configurationFile.Reload();
-            AdoDataConnection.ReloadConfigurationSettings();
 
-            // Retrieve the connection string from the config file
-            category = configurationFile.Settings["systemSettings"];
-            category.Add("ConnectionString", "Data Source=localhost; Initial Catalog=SystemCenter; Integrated Security=SSPI", "Defines the connection to the openXDA database.");
-            m_dbConnectionString = category["ConnectionString"].Value;
-            
+            // Reconstruct known connection factories
+            AdoDataConnection.ReloadConfigurationSettings();
+            foreach (string key in m_connectionFactories.Keys)
+                m_connectionFactories[key] = new DatabaseConnectionFactory(configurationFile, key);
+
             // Load system settings from the database
             m_systemSettings = new SystemSettings(LoadSystemSettings());
+        }
 
+        /// <summary>
+        /// Creates a db connection to the database, using timeout settings.
+        /// </summary>
+        public AdoDataConnection CreateDbConnection(string? settingsCategory = null)
+        {
+            string category = settingsCategory ?? DefaultCategory;
+
+            DatabaseConnectionFactory factory = m_connectionFactories
+                .GetOrAdd(category, new DatabaseConnectionFactory(ConfigurationFile.Current, category));
+
+            AdoDataConnection connection = factory.CreateDbConnection();
+            if (m_systemSettings is not null)
+                connection.DefaultTimeout = m_systemSettings.DbTimeout;
+
+            return connection;
         }
 
         /// <summary>
@@ -204,14 +280,11 @@ namespace SystemCenter
             }
         }
 
-
         // Loads system settings from the database.
         private string LoadSystemSettings()
         {
-            using (AdoDataConnection connection = new AdoDataConnection(m_dbConnectionString, typeof(SqlConnection), typeof(SqlDataAdapter)))
-            {
+            using (AdoDataConnection connection = CreateDbConnection())
                 return LoadSystemSettings(connection);
-            }
         }
 
         // Loads system settings from the database.
@@ -234,7 +307,11 @@ namespace SystemCenter
             // Add the database connection string if there is not
             // already one explicitly specified in the Setting table
             if (!settings.ContainsKey("dbConnectionString"))
-                settings.Add("dbConnectionString", m_dbConnectionString);
+            {
+                DatabaseConnectionFactory factory = m_connectionFactories
+                    .GetOrAdd(DefaultCategory, new DatabaseConnectionFactory(ConfigurationFile.Current, DefaultCategory));
+                settings.Add("dbConnectionString", factory.ConnectionString);
+            }
 
             // Convert dictionary to a connection string and return it
             return SystemSettings.ToConnectionString(settings);

@@ -273,6 +273,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controllers\ControllerActivator.cs" />
     <Compile Include="Controllers\ControllerHelpers.cs" />
     <Compile Include="Controllers\ExternalDB\ExternalModelController.cs" />
     <Compile Include="Controllers\ExternalDB\LineSegmentWizardController.cs" />

@@ -24,6 +24,7 @@
 using System.Collections.Generic;
 using System.Web.Http;
 using System.Web.Http.Controllers;
+using System.Web.Http.Dispatcher;
 using System.Web.Http.Routing;
 using GSF.Configuration;
 using GSF.Web.Hosting;
@@ -33,6 +34,7 @@ using Microsoft.AspNet.SignalR.Json;
 using Microsoft.Owin.Cors;
 using Microsoft.Owin.Extensions;
 using Newtonsoft.Json;
+using openXDA.WebHosting;
 using Owin;
 using SystemCenter.Model;
 
@@ -93,6 +95,10 @@ namespace SystemCenter
 
             // Set configuration to use reflection to setup routes
             httpConfig.MapHttpAttributeRoutes(new CustomDirectRouteProvider());
+
+            // Override controller activation
+            ControllerActivator controllerActivator = new ControllerActivator();
+            httpConfig.Services.Replace(typeof(IHttpControllerActivator), controllerActivator);
 
             // Load the WebPageController class and assign its routes
             app.UseWebApi(httpConfig);

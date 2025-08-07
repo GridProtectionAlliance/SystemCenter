@@ -742,6 +742,11 @@ namespace SystemCenter
             return $"UpdateExternal-{dbTask.ExternalDB.ID}";
         }
 
+        /// <summary>
+        /// Creates a db connection to the database connection, using timeout settings.
+        /// </summary>
+        public AdoDataConnection CreateDbConnection(string? category = null) => m_systemCenterEngine.CreateDbConnection(category);
+
         // Send the error to the service helper, error logger, and each service monitor
         public void HandleException(Exception ex)
         {
