@@ -23,14 +23,11 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Data.Common;
 using System.Linq.Expressions;
 using System.Net.Http;
 using System.Reflection;
 using System.Web.Http.Controllers;
 using System.Web.Http.Dispatcher;
-using System.Web.UI.WebControls;
 using GSF.Data;
 using GSF.Data.Model;
 using log4net;
@@ -52,8 +49,6 @@ namespace openXDA.WebHosting
         #region [ Properties ]
 
         private ConcurrentDictionary<Type, Func<IHttpController>> FactoryLookup { get; }
-        private Func<AdoDataConnection> DefaultConnectionFactory => Program.Host.CreateDbConnection;
-        private ConcurrentDictionary<string, Func<AdoDataConnection>> m_registeredConnectionFactories = new ConcurrentDictionary<string, Func<AdoDataConnection>>();
 
         #endregion
 
@@ -77,31 +72,8 @@ namespace openXDA.WebHosting
 
         private Func<IHttpController> BuildFactory(Type controllerType)
         {
-
-            Func<AdoDataConnection> connectionFactory;
             string connection = controllerType.GetCustomAttribute<SettingsCategoryAttribute>()?.SettingsCategory;
-
-            //Create or get connection factory
-            if (connection is null)
-                connectionFactory = DefaultConnectionFactory;
-            else if (!m_registeredConnectionFactories.TryGetValue(connection, out connectionFactory))
-            {
-                MethodInfo getConnection = typeof(ServiceHost).GetMethod(nameof(Program.Host.CreateDbConnection), [typeof(string)]);
-                if (getConnection is null)
-                {
-                    Log.Error("Unable to retrieve method information to create db connection with connection string.");
-                    return null;
-                }
-
-                Expression connectionConst = Expression.Constant(connection);
-                Expression host = Expression.Constant(Program.Host);
-                MethodCallExpression callExpression = Expression.Call(host, getConnection, connectionConst);
-                UnaryExpression typedCallExpression = Expression.TypeAs(callExpression, typeof(AdoDataConnection));
-                BlockExpression blockCallExpression = Expression.Block(typedCallExpression);
-                LambdaExpression lambdaCallExpression = Expression.Lambda(blockCallExpression);
-                connectionFactory = (Func<AdoDataConnection>)lambdaCallExpression.Compile();
-                m_registeredConnectionFactories.TryAdd(connection, connectionFactory);
-            }
+            Func<AdoDataConnection> connectionFactory = () => Program.Host.CreateDbConnection(connection);
 
             // Get connection factory constructor, failing that, try to create the default constructor and then allow us to set connection factory in the object
             ConstructorInfo constructor = controllerType.GetConstructor([typeof(Func<AdoDataConnection>)]);
@@ -111,7 +83,7 @@ namespace openXDA.WebHosting
             {
                 constructor = controllerType.GetConstructor([]);
                 PropertyInfo connectionFactoryProperty = controllerType.GetProperty("ConnectionFactory", typeof(Func<AdoDataConnection>));
-                if (constructor is null || connectionFactoryProperty is null)
+                if (constructor is null || connectionFactoryProperty is null || !connectionFactoryProperty.CanWrite)
                     return null;
 
                 //Create controller variable, construct, and assign property
@@ -121,7 +93,7 @@ namespace openXDA.WebHosting
 
                 // Cast to IHttpControlller and return from block
                 UnaryExpression typeAsExpression = Expression.TypeAs(controller, typeof(IHttpController));
-                blockExpression = Expression.Block(typeof(IHttpController), [controller], [constructedController, setExpression, typeAsExpression]);
+                blockExpression = Expression.Block([controller], constructedController, setExpression, typeAsExpression);
             }
             else
             {

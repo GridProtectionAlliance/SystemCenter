@@ -96,7 +96,7 @@ namespace SystemCenter
 
         // Fields
         private SystemSettings m_systemSettings;
-        private Dictionary<string, DatabaseConnectionFactory> m_connectionFactories;
+        private ConcurrentDictionary<string, DatabaseConnectionFactory> m_connectionFactories;
 
         // Constants
         private const string DefaultCategory = "systemSettings";
@@ -201,7 +201,7 @@ namespace SystemCenter
         public void Start()
         {
             // Create Connection factory object
-            m_connectionFactories = new Dictionary<string, DatabaseConnectionFactory>();
+            m_connectionFactories = new ConcurrentDictionary<string, DatabaseConnectionFactory>();
 
             // Get system settings from the database
             ReloadSystemSettings();
