@@ -23,8 +23,10 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 using System.Linq;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Http;
 using System.Xml.Linq;
 using GSF.Configuration;
@@ -264,7 +266,73 @@ namespace SystemCenter.Notifications.Controllers
             public APIConfiguration APISettings { get; } = new APIConfiguration();
         }
 
-      
+        public override IHttpActionResult Patch(ScheduledEmailType record)
+        {
+            if (!PatchAuthCheck())
+                return Unauthorized();
+
+            IHttpActionResult result = base.Patch(record);
+            ReconfigureScheduledEmailNode();
+
+            return result;
+        }
+
+        public override IHttpActionResult Post(JObject record)
+        {
+            if (!PostAuthCheck())
+                return Unauthorized();
+
+            IHttpActionResult result = base.Post(record);
+            ReconfigureScheduledEmailNode();
+
+            return result;
+        }
+
+        public override IHttpActionResult Delete(ScheduledEmailType record)
+        {
+            if (!DeleteAuthCheck())
+                return Unauthorized();
+
+            IHttpActionResult result = base.Delete(record);
+            ReconfigureScheduledEmailNode();
+
+            return result;
+        }
+
+        private void ReconfigureScheduledEmailNode()
+        {
+            Settings settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure);
+            void ConfigureRequest(HttpRequestMessage request)
+            {
+                request.Method = HttpMethod.Get;
+            }
+
+            using (AdoDataConnection connection = CreateDbConnection())
+            {
+                DataTable hosts = connection
+                    .RetrieveData(@"
+                        SELECT ActiveHost.URL , Node.ID as NodeID
+                        FROM 
+	                        ActiveHost JOIN 
+	                        Node ON ActiveHost.ID = Node.HostRegistrationID JOIN
+	                        NodeType ON Node.NodeTypeID = NodeType.ID
+                        WHERE
+	                        NodeType.Name = 'ScheduledEmail'");
+                Task[] reconfigureTasks = hosts
+                    .AsEnumerable()
+                    .Select(row =>
+                    {
+                        string url = row.ConvertField<string>("URL");
+                        int nodeID = row.ConvertField<int>("NodeID");
+
+                        APIQuery query = new APIQuery(settings.APISettings.Key, settings.APISettings.Token, url.Split(';'));
+                        return query.SendWebRequestAsync(ConfigureRequest, $"/Node/{nodeID}/Reconfigure");
+                    }).ToArray();
+                Task.WaitAll(reconfigureTasks);
+            }
+        }
+
+
         [HttpGet, Route("Test/{reportID:int}/{recipient}")]
         public IHttpActionResult Test(int reportID, string recipient)
         {
