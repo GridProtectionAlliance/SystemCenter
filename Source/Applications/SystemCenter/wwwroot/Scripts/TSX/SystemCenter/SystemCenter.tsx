@@ -118,10 +118,10 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                             <Page Name={"index.cshtml?name=AppHost"} Label={"Nodes"} />
                             <Page Name={"index.cshtml?name=Settings&System=SystemCenter"} Label={"System Center"} />
                             <Page Name={"index.cshtml?name=Settings&System=OpenXDA"} Label={"openXDA"} />
-                            <Page Name={"index.cshtml?name=ByAdditionalField"} Label={"Additional Fields"} />
-                            <Page Name={"index.cshtml?name=Settings&System=MiMD"} Label={"miMD"} />
+                            <Page Name={"index.cshtml?name=Settings&System=SEBrowser"} Label={"PQ Browser"} />
                             <Page Name={"index.cshtml?name=Settings&System=OpenSEE"} Label={"OpenSEE"} />
-                            <Page Name={"index.cshtml?name=Settings&System=SEBrowser"} Label={"SEBrowser"} />
+                            <Page Name={"index.cshtml?name=Settings&System=MiMD"} Label={"miMD"} />
+                            <Page Name={"index.cshtml?name=ByAdditionalField"} Label={"Additional Fields"} />
                         </Section>
                         <Section Label={"ACCESS"} Style={{ marginLeft: "10px" }} RequiredRoles={["Administrator"]}>
                             <Page Name={"index.cshtml?name=UserStatistics"} Label={"User Statistics"} />

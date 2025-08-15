@@ -45,7 +45,7 @@ const RoleRestrictionTooltip: React.FunctionComponent<IProps> = (props) => {
 
     return (
         <ToolTip Show={props.Show} Position={'bottom'} Target={props.Target}>
-            {`${props.FeatureName} is unavailable in your role(s).`}
+            {`${props.FeatureName} is unavailable for your role(s).`}
         </ToolTip>
     );
 }
