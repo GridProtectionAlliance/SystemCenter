@@ -311,10 +311,10 @@ namespace SystemCenter.Notifications.Controllers
             {
                 DataTable hosts = connection
                     .RetrieveData(@"
-                        SELECT ActiveHost.* , Node.ID as NodeID
+                        SELECT ActiveHost.URL , Node.ID as NodeID
                         FROM 
-	                        ActiveHost LEFT JOIN 
-	                        Node ON ActiveHost.ID = Node.HostRegistrationID LEFT JOIN
+	                        ActiveHost JOIN 
+	                        Node ON ActiveHost.ID = Node.HostRegistrationID JOIN
 	                        NodeType ON Node.NodeTypeID = NodeType.ID
                         WHERE
 	                        NodeType.Name = 'ScheduledEmail'");
