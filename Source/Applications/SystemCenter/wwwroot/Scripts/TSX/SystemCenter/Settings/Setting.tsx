@@ -28,25 +28,25 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Input, TextArea } from '@gpa-gemstone/react-forms';
 
-interface IProps {
-    SettingsSlice: GenericSlice<SystemCenter.Types.Setting>
+interface IProps<T extends SystemCenter.Types.Setting>  {
+    SettingsSlice: GenericSlice<T>
+    DefaultSetting?: T
 }
 
-function Setting(props: IProps) {
+function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
     const dispatch = useAppDispatch();
 
-    const search: Search.IFilter<SystemCenter.Types.Setting>[] = useAppSelector(props.SettingsSlice.SearchFilters);
+    const search: Search.IFilter<T>[] = useAppSelector(props.SettingsSlice.SearchFilters);
     const searchStatus: Application.Types.Status = useAppSelector(props.SettingsSlice.SearchStatus);
 
-    const data: SystemCenter.Types.Setting[] = useAppSelector(props.SettingsSlice.SearchResults);
-    const allSettings: SystemCenter.Types.Setting[] = useAppSelector(props.SettingsSlice.Data);
+    const data: T[] = useAppSelector(props.SettingsSlice.SearchResults);
+    const allSettings: T[] = useAppSelector(props.SettingsSlice.Data);
     const status: Application.Types.Status = useAppSelector(props.SettingsSlice.Status);
 
-    const [sortField, setSortField] = React.useState<keyof SystemCenter.Types.Setting>('Name');
+    const [sortField, setSortField] = React.useState<keyof T>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
 
-    const emptySetting = { ID: 0, Name: '', Value: null, DefaultValue: null }
-    const [editnewSetting, setEditNewSetting] = React.useState<SystemCenter.Types.Setting>(emptySetting);
+    const [editnewSetting, setEditNewSetting] = React.useState<T>(props.DefaultSetting);
     const [editNew, setEditNew] = React.useState<Application.Types.NewEdit>('New');
 
     const [showModal, setShowModal] = React.useState<boolean>(false);
@@ -79,7 +79,7 @@ function Setting(props: IProps) {
         setErrors(e)
     }, [editnewSetting])
 
-    const searchFields: Search.IField<SystemCenter.Types.Setting>[] = [
+    const searchFields: Search.IField<T>[] = [
         { key: 'Name', label: 'Setting Name', type: 'string', isPivotField: false },
         { key: 'DefaultValue', label: 'Default Value', type: 'string', isPivotField: false },
         { key: 'Value', label: 'Current Value', type: 'string', isPivotField: false }
@@ -94,7 +94,7 @@ function Setting(props: IProps) {
         <>
             <LoadingScreen Show={status === 'loading'} />
             <div style={{ width: '100%', height: '100%' }}>
-                <SearchBar<SystemCenter.Types.Setting> CollumnList={searchFields} SetFilter={(flds) => dispatch(props.SettingsSlice.DBSearch({ filter: flds, sortField, ascending }))}
+                <SearchBar<T> CollumnList={searchFields} SetFilter={(flds) => dispatch(props.SettingsSlice.DBSearch({ filter: flds, sortField, ascending }))}
                     Direction={'left'} defaultCollumn={{ key: 'Name', label: 'Setting Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'} StorageID={`${props.SettingsSlice.Name}Filter`}
                     ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Setting(s)'}
                     GetEnum={() => {
@@ -105,17 +105,17 @@ function Setting(props: IProps) {
                         <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                             <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                             <form>
-                                <button className="btn btn-info btn-block" onClick={(event) => { setEditNewSetting(emptySetting); setEditNew('New'); setShowModal(true); event.preventDefault() }}>Add Setting</button>
+                                <button className="btn btn-info btn-block" onClick={(event) => { setEditNewSetting(props.DefaultSetting); setEditNew('New'); setShowModal(true); event.preventDefault() }}>Add Setting</button>
                             </form>
                         </fieldset>
                     </li>
                 </SearchBar>
 
                 <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                    <Table<SystemCenter.Types.Setting>
+                    <Table<T>
                         TableClass="table table-hover"
                         Data={data}
-                        SortKey={sortField}
+                        SortKey={sortField as string}
                         Ascending={ascending}
                         OnSort={(d) => {
                             if (d.colField === sortField)
@@ -132,7 +132,7 @@ function Setting(props: IProps) {
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
                     >
-                        <Column<SystemCenter.Types.Setting>
+                        <Column<T>
                             Key={'Name'}
                             AllowSort={true}
                             Field={'Name'}
@@ -140,7 +140,7 @@ function Setting(props: IProps) {
                             RowStyle={{ width: '24%' }}
                         > Setting
                         </Column>
-                        <Column<SystemCenter.Types.Setting>
+                        <Column<T>
                             Key={'Value'}
                             AllowSort={true}
                             Field={'Value'}
@@ -148,7 +148,7 @@ function Setting(props: IProps) {
                             RowStyle={{ width: '38%' }}
                         > Current Value
                         </Column>
-                        <Column<SystemCenter.Types.Setting>
+                        <Column<T>
                             Key={'DefaultValue'}
                             AllowSort={true}
                             Field={'DefaultValue'}
@@ -179,16 +179,22 @@ function Setting(props: IProps) {
             >
                 <div className="row">
                     <div className="col">
-                        <Input<SystemCenter.Types.Setting> Record={editnewSetting} Field={'Name'} Label='Setting Name' Feedback={'A unique Setting Name is required.'}
+                        <Input<T> Record={editnewSetting} Field={'Name'} Label='Setting Name' Feedback={'A unique Setting Name is required.'}
                             Valid={field => editnewSetting.Name != null && editnewSetting.Name.length > 0 && allSettings.findIndex(s => s.Name === editnewSetting.Name && s.ID !== editnewSetting.ID) < 0}
                             Setter={(record) => { setEditNewSetting(record); setHasChanged(true); }}
                         />
-                        <TextArea<SystemCenter.Types.Setting> Record={editnewSetting} Field={'Value'} Label='Current Value' Valid={field => true}
-                            Setter={(record) => { setEditNewSetting(record); setHasChanged(true); }}
+                        <TextArea<T> Record={editnewSetting} Field={'Value'} Label='Current Value' Valid={field => true}
+                            Setter={(record) => {
+                                setHasChanged(true);
+                                setEditNewSetting(record);
+                            }}
                             Rows={1}
                         />
-                        <TextArea<SystemCenter.Types.Setting> Record={editnewSetting} Field={'DefaultValue'} Label='Default Value' Valid={field => true}
-                            Setter={(record) => { setEditNewSetting(record); setHasChanged(true); }}
+                        <TextArea<T> Record={editnewSetting} Field={'DefaultValue'} Label='Default Value' Valid={field => true} Disabled={editNew !== 'New'}
+                            Setter={(record) => {
+                                setEditNewSetting(record);
+                                setHasChanged(true);
+                            }}
                             Rows={1}
                         />
                     </div>

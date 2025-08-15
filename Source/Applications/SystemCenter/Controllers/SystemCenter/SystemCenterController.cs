@@ -1843,7 +1843,7 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/OpenXDA/EventTag")]
     public class EventTagController : ModelController<openXDA.Model.EventTag> { }
 
-    [RoutePrefix("api/OpenXDA/MATLABAnalytic")]
+    [RoutePrefix("api/OpenXDA/MATLABAnalytic"), HttpEditionFilter(Edition.Enterprise)]
     public class MATLABAnalyticController : ModelController<openXDA.Model.MATLABAnalytic>
     {
         public override IHttpActionResult Post([FromBody] JObject record)
@@ -1889,10 +1889,10 @@ namespace SystemCenter.Controllers
         }
     }
 
-    [RoutePrefix("api/OpenXDA/MATLABAnalyticEventType")]
+    [RoutePrefix("api/OpenXDA/MATLABAnalyticEventType"), HttpEditionFilter(Edition.Enterprise)]
     public class MATLABAnalyticEventTypeController : ModelController<openXDA.Model.MATLABAnalyticEventType> { }
 
-    [RoutePrefix("api/OpenXDA/MATLABAnalyticAssetType")]
+    [RoutePrefix("api/OpenXDA/MATLABAnalyticAssetType"), HttpEditionFilter(Edition.Enterprise)]
     public class MATLABAnalyticAssetTypeController : ModelController<openXDA.Model.MATLABAnalyticAssetType> { }
 
 }

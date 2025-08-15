@@ -22,12 +22,14 @@
 //******************************************************************************************************
 
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-import { GenericController, Search } from '@gpa-gemstone/react-interactive';
+import { GenericController, LoadingScreen, Search } from '@gpa-gemstone/react-interactive';
 import { Column, FilterableColumn, Paging, Table } from '@gpa-gemstone/react-table';
 import moment from 'moment';
 import * as React from 'react';
-import RestrictionTooltip from '../CommonComponents/RestrictionTooltip';
+import EditionRestrictionTooltip from '../CommonComponents/Restrictions/EditionRestrictionTooltip';
+import RoleRestrictionTooltip from '../CommonComponents/Restrictions/RoleRestrictionTooltip';
 import Reason from '../CommonComponents/Reason';
+import EditionLockModal from '../CommonComponents/Restrictions/EditionLockModal';
 
 const DataOperationFailureController = new GenericController<OpenXDA.Types.DataOperationFailure>(`${homePath}api/OpenXDA/DataOperationFailure`, "ID", true);
 const storageID = "ByDataOperationsFailure";
@@ -48,7 +50,10 @@ function ByDataOperationsFailure(props: IProps) {
     const [page, setPage] = React.useState<number>(0);
 
     const [hover, setHover] = React.useState<string|undefined>(undefined);
-    const [allowStackTrace, setAllowStackTrace] = React.useState<boolean>(true);
+    const [inEdition, setInEdition] = React.useState<boolean>(true);
+    const [inRoles, setInRoles] = React.useState<boolean>(true);
+
+    const [showEdition, setShowEdition] = React.useState<boolean>(false);
 
     React.useEffect(() => {
             let storedInfo = JSON.parse(localStorage.getItem(PagingID) as string);
@@ -104,21 +109,15 @@ function ByDataOperationsFailure(props: IProps) {
 
     }, [props.FileGroupID]);
 
-    const onHoverTrace = React.useCallback((id: number | undefined) => {
-        if (id == null) setHover(undefined);
-        setHover(id.toString());
-    }, []);
-
-    if (fileGroup == null) return null;
-
     return (
         <div style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
             <div className="row">
                 <div className="col">
-                    <h2>{fileGroup.FilePath}</h2>
+                    <h2>{fileGroup?.FilePath ?? "Unknow File Group"}</h2>
                 </div>
             </div>
             <hr />
+            <LoadingScreen Show={pageStatus == 'idle'} />
             <Table<OpenXDA.Types.DataOperationFailure>
                 TableClass="table table-hover"
                 Data={failureData}
@@ -173,7 +172,15 @@ function ByDataOperationsFailure(props: IProps) {
                     Key={'StackTrace'}
                     AllowSort={true}
                     Field={'StackTrace'}
-                    Content={({ item, field }) => <Reason ID={item.ID} Text={item[field]?.toString() ?? ''} Disabled={!allowStackTrace} OnHover={setHover} />}
+                    Content={({ item, field }) =>
+                        <Reason
+                            ID={item.ID}
+                            Text={item[field]?.toString() ?? ''}
+                            Disabled={!inEdition || !inRoles}
+                            OnHover={setHover}
+                            OnClick={() => { if (!inEdition) setShowEdition(true); }}
+                        />
+                    }
                     HeaderStyle={{ width: '115px' }}
                     RowStyle={{ width: '115px' }}
                 >
@@ -183,13 +190,24 @@ function ByDataOperationsFailure(props: IProps) {
             <div className="row justify-content-center">
                 <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p - 1)} />
             </div>
-            <RestrictionTooltip
-                SetMeetsRequirements={setAllowStackTrace}
+            <EditionRestrictionTooltip
+                SetMeetsRequirements={setInEdition}
                 EditionRequirement={'Enterprise'}
-                RolesRequirement={['Administrator']}
                 FeatureName={'Viewing Stack Trace'}
                 Target={hover}
                 Show={hover != null}
+            />
+            <RoleRestrictionTooltip
+                SetMeetsRequirements={setInRoles}
+                RolesRequirement={['Administrator']}
+                FeatureName={'Viewing Stack Trace'}
+                Target={hover}
+                Show={hover != null && inEdition}
+            />
+            <EditionLockModal
+                SetShow={setShowEdition}
+                Show={showEdition}
+                EditionRequirement={'Enterprise'}
             />
         </div>
     );

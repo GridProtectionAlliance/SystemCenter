@@ -30,7 +30,7 @@ import * as _ from 'lodash';
 import moment from 'moment';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { ApplicationNodeSlice } from '../Store/Store';
-import EditionLockPage from '../CommonComponents/EditionLockPage';
+import EditionLockPage from '../CommonComponents/Restrictions/EditionLockPage';
 
 interface Aggregate {
     Date: string,

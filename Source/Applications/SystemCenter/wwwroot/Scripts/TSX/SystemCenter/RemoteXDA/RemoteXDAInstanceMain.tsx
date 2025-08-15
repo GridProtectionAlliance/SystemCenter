@@ -29,7 +29,7 @@ import { GenericController, Modal } from '@gpa-gemstone/react-interactive';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { RemoteXDAInstanceForm, BlankRemoteXDAInstance } from './RemoteXDAInstanceForm';
 import GenericByPage from '../CommonComponents/GenericByPage';
-import EditionLockPage from '../CommonComponents/EditionLockPage';
+import EditionLockPage from '../CommonComponents/Restrictions/EditionLockPage';
 import { SystemCenter } from '../global';
 
 declare var homePath: string;

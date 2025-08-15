@@ -292,6 +292,7 @@
     <Compile Include="Model\ChannelTemplate.cs" />
     <Compile Include="Model\DetailedMeterAsset.cs" />
     <Compile Include="Model\Condition.cs" />
+    <Compile Include="Model\SEBrowserSetting.cs" />
     <Compile Include="Model\OpenSEESetting.cs" />
     <Compile Include="Model\RestrictedDetailedAsset.cs" />
     <Compile Include="Model\Security\RemoteUserAccount.cs" />
@@ -555,8 +556,10 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\AdditionalFieldsProperties.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ByExternalTable.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\GenericByPage.tsx" />
-    <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\EditionLockPage.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\RestrictionTooltip.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\Restrictions\EditionLockPage.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\Restrictions\EditionLockModal.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\Restrictions\EditionRestrictionTooltip.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\Restrictions\RoleRestrictionTooltip.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\ExternalDBUpdate.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDBTable.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDBTableFields.tsx" />

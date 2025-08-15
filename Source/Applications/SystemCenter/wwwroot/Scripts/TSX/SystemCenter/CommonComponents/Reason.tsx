@@ -23,7 +23,7 @@
 import * as React from 'react';
 import { Modal } from '@gpa-gemstone/react-interactive';
 
-const Reason = React.memo((props: { ID: number, Text: string, Disabled?: boolean, OnHover?: (ID: string | undefined) => void }) => {
+const Reason = React.memo((props: { ID: number, Text: string, Disabled?: boolean, OnHover?: (ID: string | undefined) => void, OnClick?: (evt: React.MouseEvent<HTMLButtonElement, MouseEvent>, disabled: boolean) => void }) => {
     const [show, setShow] = React.useState<boolean>(false);
 
     const handleMouse = React.useCallback((id: string|undefined) => {
@@ -35,13 +35,13 @@ const Reason = React.memo((props: { ID: number, Text: string, Disabled?: boolean
 
     return (
         <div onMouseEnter={() => handleMouse(props.ID.toString())} onMouseLeave={() => handleMouse(undefined)}>
-            <button className='btn'
+            <button className={`btn${props.Disabled ? ' disabled' : ''}`}
                 onClick={evt => {
                     evt.preventDefault();
                     evt.stopPropagation();
+                    if (props.OnClick != null) props.OnClick(evt, props.Disabled);
                     if (!props.Disabled) setShow(true);
                 }}
-                disabled={props.Disabled}
                 data-tooltip={(props.OnHover == null) ? undefined : props.ID.toString()}
             >...</button>
             <Modal
