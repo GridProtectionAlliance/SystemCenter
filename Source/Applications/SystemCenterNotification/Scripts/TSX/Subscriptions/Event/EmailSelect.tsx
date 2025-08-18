@@ -106,13 +106,15 @@ const EmailSelect = (props: IProps) => {
         <LoadingIcon Show={emailCategoryStatus == 'loading' || emailTypeStatus == 'loading'} />
         <div className="col">
             <Select<EmailCategory> Record={selectedCategory} Field={'ID'} Label='Notification Category' Setter={(record) => setSelectedCategory({ ...record, ID: typeof record.ID == 'string' ? parseInt(record.ID) : record.ID })}
-                Options={emailCategories.map((e) => {
-                    if (e.SelfSubscribe) return { Label: e.Name, Value: e.ID.toString() }
-                })} />
+                Options={emailCategories
+                    .filter(e => e.SelfSubscribe)
+                    .map((e) => ({ Label: e.Name, Value: e.ID.toString() }))
+                } />
             <Select<EmailType> Record={selectedEmailType} Field={'ID'} Label='Notification Template' Setter={(record) => setSelectedEmailType({ ...record, ID: typeof record.ID == 'string' ? parseInt(record.ID) : record.ID })}
-                Options={emailTypes.map((e) => {
-                    if (e.ShowSubscription) return { Label: e.Name, Value: e.ID.toString() }
-                })} />
+                Options={emailTypes
+                    .filter(e => e.ShowSubscription)
+                    .map((e) => ({ Label: e.Name, Value: e.ID.toString() }))
+                } />
         </div>
     </>);
 }
