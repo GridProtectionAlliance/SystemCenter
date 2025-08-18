@@ -118,15 +118,18 @@ const ReportSelect = (props: IProps) => {
             <div className="row">
                 <div className="col">
                     <Select<EmailCategory> Record={selectedCategory} Field={'ID'} Label='Notification Category' Setter={setSelectedCategory}
-                        Options={emailCategories.map((e) => {
-                            if (e.SelfSubscribe) return { Label: e.Name, Value: e.ID.toString() }
-                        })} />
+                        Options={emailCategories
+                            .map((e) => ({ Label: e.Name, Value: e.ID.toString() }))
+                        } />
                 </div>
             </div>
             <div className="row">
                 <div className="col">
                     <Select<ScheduledEmailType> Record={selectedReport} Field={'ID'} Label='Notification Template' Setter={(record) => setSelectedReport({ ...record, ID: typeof record.ID == 'string' ? parseInt(record.ID) : record.ID })}
-                        Options={reportTypes.map((e) => { return { Label: e.Name, Value: e.ID.toString() }})} />
+                        Options={reportTypes
+                            .filter(e => e.ShowSubscription)
+                            .map((e) => ({ Label: e.Name, Value: e.ID.toString() }))
+                        } />
                 </div>
             </div>
         </div>
