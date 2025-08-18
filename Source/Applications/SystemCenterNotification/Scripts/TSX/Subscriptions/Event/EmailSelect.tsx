@@ -21,12 +21,14 @@
 //
 //******************************************************************************************************
 
-import { useAppDispatch, useAppSelector } from '../../hooks';
-import * as React from 'react';
-import { LoadingIcon } from '@gpa-gemstone/react-interactive'
-import { EmailCategorySlice, EmailTypeSlice } from '../../Store';
-import { EmailCategory, EmailType } from '../../global';
 import { Select } from '@gpa-gemstone/react-forms';
+import { GenericController, LoadingIcon } from '@gpa-gemstone/react-interactive';
+import * as $ from 'jquery';
+import * as React from 'react';
+import { EmailTypeSlice } from '../../Store';
+import { EmailCategory, EmailType } from '../../global';
+import { useAppDispatch, useAppSelector } from '../../hooks';
+import { Application } from '@gpa-gemstone/application-typings';
 
 
 const emptyEmailType: EmailType = {
@@ -53,10 +55,9 @@ interface IProps {
 
 const EmailSelect = (props: IProps) => {
     const dispatch = useAppDispatch();
-    const emailCategoryStatus = useAppSelector(EmailCategorySlice.Status);
-    const emailCategories = useAppSelector(EmailCategorySlice.Data);
 
-    
+    const [emailCategories, setEmailCategories] = React.useState<EmailCategory[]>([]);
+    const [emailCategoryStatus, setEmailCategoryStatus] = React.useState<Application.Types.Status>('unintiated');
     const [selectedCategory, setSelectedCategory] = React.useState<EmailCategory>(emptyCategory);
 
     const emailTypeStatus = useAppSelector(EmailTypeSlice.Status);
@@ -66,9 +67,21 @@ const EmailSelect = (props: IProps) => {
     const [selectedEmailType, setSelectedEmailType] = React.useState<EmailType>(emptyEmailType);
 
     React.useEffect(() => {
-        if (emailCategoryStatus === 'unintiated' || emailCategoryStatus === 'changed')
-            dispatch(EmailCategorySlice.Fetch());
-    }, [emailCategoryStatus])
+        setEmailCategoryStatus('loading')
+        const handle = $.ajax<EmailCategory[]>({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/EmailCategory/SubscribeDropdown/Event`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true
+        }).done(categories => {
+            setEmailCategories(categories);
+            setEmailCategoryStatus('idle');
+        });
+
+        return () => { if (handle?.abort != null) handle.abort(); }
+    }, []);
 
     React.useEffect(() => {
         if (emailCategories.length > 0) {
@@ -79,7 +92,7 @@ const EmailSelect = (props: IProps) => {
                 setSelectedCategory(emailCategories.find(e => e.ID == parseInt(keys)));
 
         }
-    }, [])
+    }, [emailCategories]);
 
     React.useEffect(() => {
         if (selectedCategory.ID != emailTypeParentID || emailTypeStatus == 'unintiated' || emailTypeStatus == 'changed')
@@ -106,13 +119,14 @@ const EmailSelect = (props: IProps) => {
         <LoadingIcon Show={emailCategoryStatus == 'loading' || emailTypeStatus == 'loading'} />
         <div className="col">
             <Select<EmailCategory> Record={selectedCategory} Field={'ID'} Label='Notification Category' Setter={(record) => setSelectedCategory({ ...record, ID: typeof record.ID == 'string' ? parseInt(record.ID) : record.ID })}
-                Options={emailCategories.map((e) => {
-                    if (e.SelfSubscribe) return { Label: e.Name, Value: e.ID.toString() }
-                })} />
+                Options={emailCategories
+                    .map((e) => ({ Label: e.Name, Value: e.ID.toString() }))
+                } />
             <Select<EmailType> Record={selectedEmailType} Field={'ID'} Label='Notification Template' Setter={(record) => setSelectedEmailType({ ...record, ID: typeof record.ID == 'string' ? parseInt(record.ID) : record.ID })}
-                Options={emailTypes.map((e) => {
-                    if (e.ShowSubscription) return { Label: e.Name, Value: e.ID.toString() }
-                })} />
+                Options={emailTypes
+                    .filter(e => e.ShowSubscription)
+                    .map((e) => ({ Label: e.Name, Value: e.ID.toString() }))
+                } />
         </div>
     </>);
 }
