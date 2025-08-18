@@ -88,7 +88,7 @@ const ReportSelect = (props: IProps) => {
             else
                 setSelectedCategory(emailCategories.find(e => e.ID == parseInt(keys)));
         }
-    }, [])
+    }, [emailCategories]);
 
     React.useEffect(() => {
         if (selectedCategory.ID !== reportTypeParentID || reportTypeStatus == 'unintiated' || reportTypeStatus == 'changed')
