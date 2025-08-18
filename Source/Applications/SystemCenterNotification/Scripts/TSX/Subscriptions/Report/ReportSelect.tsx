@@ -21,12 +21,14 @@
 //
 //******************************************************************************************************
 
-import { useAppDispatch, useAppSelector } from '../../hooks';
-import * as React from 'react';
-import { LoadingIcon } from '@gpa-gemstone/react-interactive'
-import { EmailCategorySlice, ScheduledEmailTypeSlice } from '../../Store';
 import { Select } from '@gpa-gemstone/react-forms';
+import { LoadingIcon } from '@gpa-gemstone/react-interactive';
+import * as $ from 'jquery';
+import * as React from 'react';
 import { EmailCategory, ScheduledEmailType } from '../../global';
+import { useAppDispatch, useAppSelector } from '../../hooks';
+import { ScheduledEmailTypeSlice } from '../../Store';
+import { Application } from '@gpa-gemstone/application-typings';
 
 const emptyReport: ScheduledEmailType = {
     ID: -1,
@@ -50,9 +52,9 @@ interface IProps {
 
 const ReportSelect = (props: IProps) => {
     const dispatch = useAppDispatch();
-    const emailCategoryStatus = useAppSelector(EmailCategorySlice.Status);
-    const emailCategories = useAppSelector(EmailCategorySlice.Data);
 
+    const [emailCategories, setEmailCategories] = React.useState<EmailCategory[]>([]);
+    const [emailCategoryStatus, setEmailCategoryStatus] = React.useState<Application.Types.Status>('unintiated');
     const [selectedCategory, setSelectedCategory] = React.useState<EmailCategory>(emptyCategory);
 
     const reportTypeStatus = useAppSelector(ScheduledEmailTypeSlice.Status);
@@ -62,9 +64,21 @@ const ReportSelect = (props: IProps) => {
     const [selectedReport, setSelectedReport] = React.useState<ScheduledEmailType>(emptyReport);
 
     React.useEffect(() => {
-        if (emailCategoryStatus === 'unintiated' || emailCategoryStatus === 'changed')
-            dispatch(EmailCategorySlice.Fetch());
-    }, [emailCategoryStatus])
+        setEmailCategoryStatus('loading')
+        const handle = $.ajax<EmailCategory[]>({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/EmailCategory/SubscribeDropdown/Report`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true
+        }).done(categories => {
+            setEmailCategories(categories);
+            setEmailCategoryStatus('idle');
+        });
+
+        return () => { if (handle?.abort != null) handle.abort(); }
+    }, []);
 
     React.useEffect(() => {
         if (emailCategories.length > 0) {
