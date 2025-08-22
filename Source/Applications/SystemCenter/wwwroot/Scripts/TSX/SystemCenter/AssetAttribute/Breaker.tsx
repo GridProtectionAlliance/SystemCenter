@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
+import { Application, OpenXDA, Gemstone } from '@gpa-gemstone/application-typings';
 import { AssetAttributes } from './Asset';
 import { getSpareBreakersForSubstation } from '../../../TS/Services/Asset';
 import { CheckBox, Input, SearchableSelect } from '@gpa-gemstone/react-forms';
@@ -32,27 +32,18 @@ import { SelectRoles } from '../Store/UserSettings';
 
 interface IOption { Value: string | number; Label: string }
 
-function searchSCADAPoint(search: string): [PromiseLike<IOption[]>, () => void] {
-    const searchHandle: JQuery.jqXHR<string> = $.ajax({
+function searchSCADAPoint(search: string): Gemstone.TSX.Interfaces.AbortablePromise<Gemstone.TSX.Interfaces.ILabelValue<string | number>[]> {
+    return $.ajax({
         type: 'POST',
         url: `${homePath}api/OpenXDA/SCADAPoint/SCADAPointSearch`,
         data: { TagSearch: search, Take: 25 },
         dataType: 'json',
         cache: false,
         async: true
+    }).then((dataString: string) => {
+        const data: string[] = JSON.parse(dataString);
+        return data.map(datum => ({ Label: datum, Value: datum }));
     });
-
-    const cleanup = () => {
-        if (searchHandle != null && searchHandle.abort != null) searchHandle.abort();
-    }
-
-    return [
-        searchHandle.then((dataString: string) => {
-            const data: string[] = JSON.parse(dataString);
-            return data.map(datum => ({ Label: datum, Value: datum }));
-        }),
-        cleanup
-    ];
 }
 
 function BreakerAttributes(props: { NewEdit: Application.Types.NewEdit, Asset: OpenXDA.Types.Breaker,
