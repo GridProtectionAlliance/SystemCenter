@@ -87,7 +87,7 @@ const EventFilter = (props: IProps) => {
                             <div className="col">
                                 <TimeFilter filter={{ start: filter.Start, end: filter.End }} setFilter={(start: string, end: string, unit: TimeUnit, duration: number) => {
                                     setFilter((f) => ({ ...f, Start: start, End: end }));
-                                }} showQuickSelect={true} timeZone={'UTC'} dateTimeSetting={'startEnd'} isHorizontal={false} />
+                                }} showQuickSelect={true} timeZone={'UTC'} dateTimeSetting={'startEnd'} />
                             </div>
                         </div>
                         <div className="row">
