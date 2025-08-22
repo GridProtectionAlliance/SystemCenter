@@ -23,6 +23,10 @@
 
 using System;
 using System.ComponentModel;
+using System.Data;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 using GSF.Configuration;
 using GSF.Data;
 using openXDA.APIAuthentication;
@@ -55,6 +59,41 @@ namespace SEBrowser.Controllers.OpenXDA
         public static void RefreshSettings()
         {
             config = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).APISettings;
+        }
+
+        public async void ReconfigureNodes(string nodeName)
+        {
+            RefreshSettings();
+            void ConfigureRequest(HttpRequestMessage request)
+            {
+                request.Method = HttpMethod.Get;
+            }
+
+            using (AdoDataConnection connection = CreateDbConnection())
+            {
+                DataTable hosts = connection
+                    .RetrieveData(@"
+                        SELECT
+                            ActiveHost.URL,
+                            Node.ID as NodeID
+                        FROM 
+	                        ActiveHost JOIN 
+	                        Node ON ActiveHost.ID = Node.HostRegistrationID JOIN
+	                        NodeType ON Node.NodeTypeID = NodeType.ID
+                        WHERE
+	                        NodeType.Name = {0}", nodeName);
+                Task[] reconfigureTasks = hosts
+                    .AsEnumerable()
+                    .Select(row =>
+                    {
+                        string url = row.ConvertField<string>("URL");
+                        int nodeID = row.ConvertField<int>("NodeID");
+
+                        APIQuery query = new APIQuery(Key, Token, url.Split(';'));
+                        return query.SendWebRequestAsync(ConfigureRequest, $"/Node/{nodeID}/Reconfigure");
+                    }).ToArray();
+                await Task.WhenAll(reconfigureTasks).ConfigureAwait(false);
+            }
         }
 
         /// <summary>
