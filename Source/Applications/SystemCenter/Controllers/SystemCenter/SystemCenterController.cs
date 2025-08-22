@@ -21,6 +21,16 @@
 //
 //******************************************************************************************************
 
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Configuration;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Web.Http;
+using System.Web.Http.Results;
 using FaultData.DataReaders;
 using FaultData.DataSets;
 using GSF;
@@ -34,16 +44,8 @@ using GSF.Web.Model;
 using Newtonsoft.Json.Linq;
 using openXDA.Configuration;
 using openXDA.Model;
+using SEBrowser.Controllers.OpenXDA;
 using SEBrowser.Model;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Configuration;
-using System.Data;
-using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Web.Http;
 using SystemCenter.Model;
 using SystemCenter.ScheduledProcesses;
 using ConfigurationLoader = SystemCenter.Model.ConfigurationLoader;
@@ -538,7 +540,41 @@ namespace SystemCenter.Controllers
 
 
     [RoutePrefix("api/OpenXDA/Setting")]
-    public class OpenXDASettingController : ModelController<openXDA.Model.Setting> { }
+    public class OpenXDASettingController : ModelController<openXDA.Model.Setting>
+    {
+        OpenXDAApi api = new OpenXDAApi();
+
+        public override IHttpActionResult Patch(openXDA.Model.Setting record)
+        {
+            IHttpActionResult result = base.Patch(record);
+            ReconfigureNodes<openXDA.Model.Setting>(record, result);
+
+            return result;
+        }
+
+        public override IHttpActionResult Post(JObject record)
+        {
+            IHttpActionResult result = base.Post(record);
+            ReconfigureNodes<int>(record.ToObject<openXDA.Model.Setting>(), result);
+
+            return result;
+        }
+
+        public override IHttpActionResult Delete(openXDA.Model.Setting record)
+        {
+            IHttpActionResult result = base.Delete(record);
+            ReconfigureNodes<int>(record, result);
+
+            return result;
+        }
+
+        private void ReconfigureNodes<T>(openXDA.Model.Setting record, IHttpActionResult result)
+        {
+            OkNegotiatedContentResult<T> okResult = result as OkNegotiatedContentResult<T>;
+            if (okResult is not null && record.Name == $"{SSAMSSection.CategoryName}.{nameof(SSAMSSection.Schedule)}")
+                api.ReconfigureNodes("SSAMS");
+        }
+    }
 
     [RoutePrefix("api/MiMD/Setting")]
     public class MiMDSettingController : ModelController<MiMDSetting> { }
