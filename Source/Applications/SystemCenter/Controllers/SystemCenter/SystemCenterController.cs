@@ -33,7 +33,6 @@ using System.Web.Http;
 using System.Web.Http.Results;
 using FaultData.DataReaders;
 using FaultData.DataSets;
-using GSF;
 using GSF.Configuration;
 using GSF.Data;
 using GSF.Data.Model;
@@ -113,7 +112,41 @@ namespace SystemCenter.Controllers
 
     
     [RoutePrefix("api/OpenXDA/DBCleanup")]
-    public class DBCleanupController : ModelController<openXDA.Model.DBCleanup> { }
+    public class DBCleanupController : ModelController<DBCleanup>
+    {
+        OpenXDAApi api = new OpenXDAApi();
+
+        public override IHttpActionResult Patch(DBCleanup record)
+        {
+            IHttpActionResult result = base.Patch(record);
+            ReconfigureNodes<DBCleanup>(result);
+
+            return result;
+        }
+
+        public override IHttpActionResult Post(JObject record)
+        {
+            IHttpActionResult result = base.Post(record);
+            ReconfigureNodes<int>(result);
+
+            return result;
+        }
+
+        public override IHttpActionResult Delete(DBCleanup record)
+        {
+            IHttpActionResult result = base.Delete(record);
+            ReconfigureNodes<int>(result);
+
+            return result;
+        }
+
+        private void ReconfigureNodes<T>(IHttpActionResult result)
+        {
+            OkNegotiatedContentResult<T> okResult = result as OkNegotiatedContentResult<T>;
+            if (okResult is not null)
+                api.ReconfigureNodes("DatabaseMaintenance");
+        }
+    }
 
     [RoutePrefix("api/SystemCenter/Customer")]
     public class CustomerController : ExternalModelController<Customer>
