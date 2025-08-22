@@ -78,6 +78,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                         OnSignOut={() => { window.location.href = `/@GSF/Web/Security/Views/Login.cshtml?logout=yes`; }}
                         UseLegacyNavigation={true} // Note: if we move away from legacy nav, we will have to add roles to pages that need them. Right now, access control is done in the matcher
                         UserRoles={roles}
+                        AllowCollapsed={false}
                     >
                         <Section Style={{ width: '100%' }}>
                             <h5 style={{ alignSelf: 'center'}}>System Center</h5>
