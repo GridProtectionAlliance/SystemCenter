@@ -32,6 +32,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Results;
 using GSF.Configuration;
 using GSF.Data;
 using GSF.Data.Model;
@@ -356,9 +357,34 @@ namespace SystemCenter.Controllers.OpenXDA
             [SettingName("XDA")]
             public APIConfiguration APISettings { get; } = new APIConfiguration();
         }
+        OpenXDAApi api = new OpenXDAApi();
         #endregion
 
         #region [HttpMethods]
+        public override IHttpActionResult Patch(RemoteXDAInstance record)
+        {
+            IHttpActionResult result = base.Patch(record);
+            ReconfigureNodes<RemoteXDAInstance>(result);
+
+            return result;
+        }
+
+        public override IHttpActionResult Post(JObject record)
+        {
+            IHttpActionResult result = base.Post(record);
+            ReconfigureNodes<int>(result);
+
+            return result;
+        }
+
+        public override IHttpActionResult Delete(RemoteXDAInstance record)
+        {
+            IHttpActionResult result = base.Delete(record);
+            ReconfigureNodes<int>(result);
+
+            return result;
+        }
+
         [HttpGet, Route("Alive/{remoteInstanceID}")]
         public IHttpActionResult TestRemoteXDAConnection(int remoteInstanceID)
         {
@@ -410,6 +436,13 @@ namespace SystemCenter.Controllers.OpenXDA
 
             return await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
 
+        }
+
+        private void ReconfigureNodes<T>(IHttpActionResult result)
+        {
+            OkNegotiatedContentResult<T> okResult = result as OkNegotiatedContentResult<T>;
+            if (okResult is not null)
+                api.ReconfigureNodes("DataPusher");
         }
 
         private AdoDataConnection CreateDbConnection()
