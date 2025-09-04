@@ -22,8 +22,6 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { useAppDispatch } from '../hooks';
-import { ChannelGroupSlice } from '../Store/Store';
 import { SystemCenter as LocalSC } from '../global';
 import * as _ from 'lodash';
 import { useNavigate } from "react-router-dom";
@@ -66,7 +64,7 @@ const ChannelGroups: Application.Types.iByComponent = () => {
             OnClick={(item) => { handleSelect(item); }}
             DefaultSearchAscending={false}
         >
-            <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
+            <li className="nav-item" style={{ width: '25%', paddingRight: 10 }}>
                 <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                     <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                     <form>
