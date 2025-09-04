@@ -21,14 +21,13 @@
 //
 //******************************************************************************************************
 
+import { TabSelector } from '@gpa-gemstone/react-interactive';
 import * as React from 'react';
-import * as _ from 'lodash';
+import { useAppDispatch, useAppSelector } from '../hooks';
+import { ValueListGroupSlice } from '../Store/Store';
+import { ValueListGroupDelete } from './ValueListGroupDelete';
 import ValueListGroupInfo from './ValueListGroupInfo';
 import ValueListGroupItems from './ValueListGroupItem';
-import { useAppSelector, useAppDispatch } from '../hooks';
-import { ValueListGroupSlice } from '../Store/Store';
-import { TabSelector } from '@gpa-gemstone/react-interactive';
-import { ValueListGroupDelete } from './ValueListGroupDelete';
 
 declare var homePath: string;
 declare type Tab = 'info' | 'items'
@@ -39,6 +38,7 @@ export default function ValueListGroup(props: IProps) {
     const dispatch = useAppDispatch();
     const record = useAppSelector((state) => ValueListGroupSlice.Datum(state, props.GroupID));
     const valueListGroupStatus = useAppSelector(ValueListGroupSlice.Status);
+
     const [tab, setTab] = React.useState(getTab());
     const [showRemove, setShowRemove] = React.useState<boolean>(false);
 
@@ -59,13 +59,11 @@ export default function ValueListGroup(props: IProps) {
     React.useEffect(() => {
         if (valueListGroupStatus == 'unintiated' || valueListGroupStatus == 'changed')
             dispatch(ValueListGroupSlice.Fetch());
-        return function () {
-        }
-    }, [dispatch, valueListGroupStatus]);
+    }, [valueListGroupStatus]);
 
     function Delete() {
         dispatch(ValueListGroupSlice.DBAction({ verb: 'DELETE', record }))
-        window.location.href = homePath + 'index.cshtml?name=ValueListGroups';
+        window.location.href = homePath + 'index.cshtml?name=ValueLists';
     }
 
     if (record == null) return null;

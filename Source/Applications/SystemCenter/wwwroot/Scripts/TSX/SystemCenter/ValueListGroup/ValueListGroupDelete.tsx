@@ -28,7 +28,7 @@ import { SystemCenter } from '@gpa-gemstone/application-typings';
 
 declare var homePath: string;
 interface IProps { CallBack: (conf: boolean) => void, Record: SystemCenter.Types.ValueListGroup, Show: boolean }
-export const requiredValueLists = ["TimeZones","Make","Model","Unit","Category", "SpareChannel"]
+export const requiredValueLists = ["TimeZones", "Make", "Model", "Unit", "Category", "SpareChannel", "TrendLabelDefaults", "TrendLabelOptions"]
 
 export function ValueListGroupDelete(props: IProps) {
     const [message, setMessage] = React.useState<string>('')
