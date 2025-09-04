@@ -51,18 +51,6 @@ const ChannelGroups: Application.Types.iByComponent = () => {
     const [record, setRecord] = React.useState<SystemCenter.Types.ChannelGroup>(emptyRecord);
     const [refreshCount, refreshData] = React.useState<number>(0);
 
-    React.useEffect(() => {
-        let e = [];
-        if (record.Name == null || record.Name.length == 0) {
-            e.push('A Name is required.');
-        }
-        if (record.Name.length > 200) {
-            e.push('A Name of less than 200 characters is required.')
-        }
-
-        setErrors(e);
-    }, [record]);
-
     function handleSelect(item) {
         navigate(`${homePath}index.cshtml?name=ChannelGroup&GroupID=${item.row.ID}`);
     }
@@ -108,7 +96,7 @@ const ChannelGroups: Application.Types.iByComponent = () => {
                 ConfirmToolTipContent={errors.map((e, i) => <p key={i}><ReactIcons.CrossMark Color="var(--danger)" /> {e}</p>)}
                 DisableConfirm={errors.length > 0}
                 Show={showNew} >
-                <ChannelGroupForm Record={record} Setter={setRecord} />
+                <ChannelGroupForm Record={record} Setter={setRecord} SetErrors={setErrors} />
             </Modal>
         </GenericByPage>
     )
