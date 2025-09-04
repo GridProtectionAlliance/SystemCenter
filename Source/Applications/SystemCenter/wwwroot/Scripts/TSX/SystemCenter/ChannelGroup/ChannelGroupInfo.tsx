@@ -37,18 +37,6 @@ const ChannelGroupInfoWindow = (props: { Record: SystemCenter.Types.ChannelGroup
     const [hover, setHover] = React.useState<('update' | 'none')>('none');
     const dispatch = useAppDispatch();
 
-    React.useEffect(() => {
-        let e = [];
-        if (record.Name == null || record.Name.length == 0) {
-            e.push('A Name is required.');
-        }
-        if (record.Name.length > 200) {
-            e.push('A Name of less than 200 characters is required.')
-        }
-
-        setError(e);
-    }, [record]);
-
     if (record == null) return;
     return (
         <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -60,7 +48,7 @@ const ChannelGroupInfoWindow = (props: { Record: SystemCenter.Types.ChannelGroup
                 </div>
             </div>
             <div className="card-body" style={{ flex: 1, overflowY: 'auto' }}>
-                <ChannelGroupForm Record={record} Setter={(r) => setRecord(r)} />
+                <ChannelGroupForm Record={record} Setter={(r) => setRecord(r)} SetErrors={setError} />
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
