@@ -28,7 +28,7 @@ import { Input, TextArea } from '@gpa-gemstone/react-forms';
 export default function ChannelGroupForm(props: { Record: SystemCenter.Types.ChannelGroup, Setter: (record: SystemCenter.Types.ChannelGroup) => void, setErrors?: (e: string[]) => void }) {
     function Valid(field: keyof (SystemCenter.Types.ChannelGroup)): boolean {
         if (field == 'Name')
-            return props.Record.Name != null && props.Record.Name.length > 0 && props.Record.Name.length <= 200;
+            return !(props.Record.Name == null || props.Record.Name.length == 0 || props.Record.Name.length > 200);
         else if (field == 'Description')
             return true;
         return false;
