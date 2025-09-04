@@ -108,7 +108,7 @@ export default function MATLABAnalyticForm(props: {
                 </div>
                 <div className="col">
                     <MultiCheckBoxSelect Label='Event Type'
-                        Options={allEventTypes.map((item => ({ Value: item.ID, Text: item.Name.toString(), Selected: selectedEventTypes.findIndex((e) => e.EventTypeID == item.ID) !== -1 })))}
+                        Options={allEventTypes.map((item => ({ Value: item.ID, Label: item.Name.toString(), Selected: selectedEventTypes.findIndex((e) => e.EventTypeID == item.ID) !== -1 })))}
                         OnChange={(evt, opts) => {
                             let eventTypesCopy = _.cloneDeep(selectedEventTypes);
                             opts.forEach((et) => {
@@ -122,7 +122,7 @@ export default function MATLABAnalyticForm(props: {
                         }}
                     />
                     <MultiCheckBoxSelect Label='Asset Type'
-                        Options={allAssetTypes.map((item => ({ Value: item.ID, Text: item.Name.toString(), Selected: selectedAssetTypes.findIndex((a) => a.AssetTypeID == item.ID) !== -1 })))}
+                        Options={allAssetTypes.map((item => ({ Value: item.ID, Label: item.Name.toString(), Selected: selectedAssetTypes.findIndex((a) => a.AssetTypeID == item.ID) !== -1 })))}
                         OnChange={(evt, opts) => {
                             let assetTypesCopy = _.cloneDeep(selectedAssetTypes);
                             opts.forEach((at) => {

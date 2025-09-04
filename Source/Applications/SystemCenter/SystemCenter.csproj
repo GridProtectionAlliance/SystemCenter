@@ -393,9 +393,11 @@
     <TypeScriptCompile Include="EventWidgets\TSX\Widget\CapBankAnalyticOverview.tsx" />
     <TypeScriptCompile Include="EventWidgets\TSX\Widget\CorrelatedSags.tsx" />
     <TypeScriptCompile Include="EventWidgets\TSX\Widget\ESRIMap.tsx" />
+    <TypeScriptCompile Include="EventWidgets\TSX\Widget\EventInfo.tsx" />
     <TypeScriptCompile Include="EventWidgets\TSX\Widget\FaultInfo.tsx" />
     <TypeScriptCompile Include="EventWidgets\TSX\Widget\FileInfo.tsx" />
     <TypeScriptCompile Include="EventWidgets\TSX\Widget\InterruptionReport.tsx" />
+    <TypeScriptCompile Include="EventWidgets\TSX\Widget\ITOA.tsx" />
     <TypeScriptCompile Include="EventWidgets\TSX\Widget\Lightning.tsx" />
     <TypeScriptCompile Include="EventWidgets\TSX\Widget\LineParameters.tsx" />
     <TypeScriptCompile Include="EventWidgets\TSX\Widget\MatlabAnalyticResults.tsx" />
