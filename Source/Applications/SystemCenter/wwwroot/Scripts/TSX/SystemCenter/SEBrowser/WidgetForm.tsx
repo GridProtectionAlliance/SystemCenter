@@ -44,26 +44,23 @@ export default function WidgetForm(props: IProps) {
     const allWidgets = useAppSelector(SEBrowserWidgetSlice.Data);
 
     React.useEffect(() => {
+    React.useEffect(() => {
+        if (props.setErrors == null)
+            return;
+
         let e = [];
         if (props.Widget.Name == null || props.Widget.Name.length == 0)
             e.push('Name is required.');
-        if (props.Widget.Type == null || props.Widget.Type.length == 0)
-            e.push('Type is required.');
         if (allWidgets.find(w => w.Name.toLowerCase() == props.Widget.Name.toLowerCase() && w.ID != props.Widget.ID) != null)
             e.push('Name must be unique.');
         
-        setErrors(e);
-    }, [props.Widget.Setting, props.Widget.Name, props.Widget.Type])
+        props.setErrors(e);
+    }, [props.Widget.Setting, props.Widget.Name, props.Widget.Type]);
 
     React.useEffect(() => {
-        if (props.setErrors != undefined)
-            props.setErrors(errors);
-    }, [props.setErrors, errors])
-
-    React.useEffect(() => {
-        if (AllWidgets.map(w => w.Name).indexOf(props.Widget.Type) < 0)
+        if (AllWidgets.findIndex(widget => widget.Name === props.Widget.Type) < 0)
             props.stateSetter({ ...props.Widget, Type: null })
-    }, [props.Widget.Type])
+    }, [props.Widget.Type]);
 
 
     return (
