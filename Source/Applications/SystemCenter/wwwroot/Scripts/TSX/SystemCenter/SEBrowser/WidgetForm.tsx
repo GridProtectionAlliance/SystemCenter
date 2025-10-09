@@ -28,16 +28,13 @@ import { AllWidgets } from '../../../../../EventWidgets/TSX/WidgetWrapper';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { SEBrowserWidgetSlice } from '../Store/Store';
 import { cloneDeep } from 'lodash';
-
-
-declare var homePath: string;
+import { EventWidget } from '../../../../../EventWidgets/TSX/global';
 
 interface IProps {
     Widget: LocalXDA.IWidget,
     stateSetter: (tab: LocalXDA.IWidget) => void,
     setErrors?: (e: string[]) => void,
 }
-
 
 export default function WidgetForm(props: IProps) {
     const dispatch = useAppDispatch();
@@ -58,7 +55,7 @@ export default function WidgetForm(props: IProps) {
             e.push('Name is required.');
         if (allWidgets.find(w => w.Name.toLowerCase() == props.Widget.Name.toLowerCase() && w.ID != props.Widget.ID) != null)
             e.push('Name must be unique.');
-        
+
         props.setErrors(e);
     }, [props.Widget.Setting, props.Widget.Name, props.Widget.Type]);
 
@@ -82,8 +79,8 @@ export default function WidgetForm(props: IProps) {
                 <div className="alert alert-danger">
                     This Widget is not available. Please ensure a valid Type is selected.
                 </div> :
-                <WidgetSetting Settings={props.Widget.Setting}
-                    SetSetting={(s) => props.stateSetter({ ...props.Widget, Setting: s })}
+                <WidgetSetting Settings={JSON.parse(props.Widget.Setting ?? "")}
+                    SetSetting={(s) => props.stateSetter({ ...props.Widget, Setting: JSON.stringify(s) })}
                     Type={props.Widget.Type} />
                 }
 
@@ -92,30 +89,35 @@ export default function WidgetForm(props: IProps) {
 
 }
 
-const WidgetSetting = (props: { Settings: string, Type: string, SetSetting: (s: string) => void }) => {
-    const [data, setData] = React.useState<object>({});
-    const Jsx = React.useMemo(() => AllWidgets.find(w => w.Name == props.Type)?.Settings ?? null, [props.Type])
-    const defaults = React.useMemo(() => AllWidgets.find(w => w.Name == props.Type)?.DefaultSettings ?? null, [props.Type])
+const WidgetSetting = (props: { Settings: {}, Type: string, SetSetting: (s: {}) => void }) => {
+    const widget: EventWidget.IWidget<unknown> | undefined = React.useMemo(() => AllWidgets.find(w => w.Name == props.Type), [props.Type]);
 
-    React.useEffect(() => {
-        const settings = props.Settings == null || props.Settings.length == 0 ? {} : JSON.parse(props.Settings);
-        const s = cloneDeep(defaults ?? {});
-        for (const [k, v] of Object.entries(defaults ?? {})) {
+    const workingSettings = React.useMemo(() => {
+        if (widget == null) return undefined;
+
+        const settings = props.Settings == null ? {} : props.Settings;
+        const newSettings = cloneDeep(widget.DefaultSettings);
+
+        for (const k of Object.keys(newSettings))
             if (settings.hasOwnProperty(k))
-                s[k] = cloneDeep(settings[k]);
-        }
-        setData(s);
-    }, [props.Type, defaults]);
+                newSettings[k] = cloneDeep(settings[k]);
 
-    React.useEffect(() => {
-        const s = JSON.stringify(data);
-        props.SetSetting(s);
-    }, [data])
+        return newSettings;
+    }, [widget, props.Settings]);
 
-    if (Jsx == null || defaults == null)
-        return <div className="alert alert-info">
-            This Widget has no settings.
-        </div>;
+    if (widget == null)
+        return (
+            <div className="alert alert-info">
+                Widget could not be found, please contact your administrator.
+            </div>
+        );
 
-    return <Jsx Settings={(data ?? defaults) as any} SetSettings = {setData} />
+    if (widget.Settings == null)
+        return (
+            <div className="alert alert-info">
+                This Widget has no settings.
+            </div>
+        );
+
+    return <widget.Settings Settings={workingSettings} SetSettings={props.SetSetting} />
 }
