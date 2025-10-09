@@ -25,7 +25,7 @@ import * as _ from 'lodash';
 import { Select, Input } from '@gpa-gemstone/react-forms';
 import { OpenXDA as LocalXDA } from '../global';
 import { AllWidgets } from '../../../../../EventWidgets/TSX/WidgetWrapper';
-import { useAppSelector } from '../hooks';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { SEBrowserWidgetSlice } from '../Store/Store';
 import { cloneDeep } from 'lodash';
 
@@ -40,10 +40,15 @@ interface IProps {
 
 
 export default function WidgetForm(props: IProps) {
-    const [errors, setErrors] = React.useState<string[]>([]);
+    const dispatch = useAppDispatch();
     const allWidgets = useAppSelector(SEBrowserWidgetSlice.Data);
+    const allWidgetStatus = useAppSelector(SEBrowserWidgetSlice.Status);
 
     React.useEffect(() => {
+        if (allWidgetStatus == 'unintiated' || allWidgetStatus == 'changed')
+            dispatch(SEBrowserWidgetSlice.Fetch());
+    }, [allWidgetStatus]);
+
     React.useEffect(() => {
         if (props.setErrors == null)
             return;
