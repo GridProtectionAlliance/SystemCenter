@@ -75,7 +75,7 @@ export default function WidgetForm(props: IProps) {
             <Select<LocalXDA.IWidget> Record={props.Widget} Field={'Type'}
                 Label='Type'
                 Setter={(record) => props.stateSetter(record)}
-                Options={AllWidgets.map(o => ({ Value: o.Name, Label: o.Name }))}
+                Options={_.orderBy(AllWidgets.map(o => ({ Value: o.Name, Label: o.Name })), [widget => widget.Label.toLowerCase()], ['asc'])}
                 EmptyLabel=''
             />
             {props.Widget.Type == null ?
