@@ -72,12 +72,12 @@ const ByWidget: Application.Types.iByComponent = () => {
                 Show={showModal}
                 Title={'Add New PQ Browser Widget'}
                 CallBack={(c) => {
-                    setShowModal(false);
                     if (c && record.ID == 0)
                         WidgetController.DBAction("POST", record).done(() => refreshData(x => x + 1));
                     if (c && record.ID > 0)
                         WidgetController.DBAction("PATCH", record).done(() => refreshData(x => x + 1));
                     setRecord(emptyWidget);
+                    setShowModal(false);
                 }}
                 ShowCancel={false}
                 ShowX={true}

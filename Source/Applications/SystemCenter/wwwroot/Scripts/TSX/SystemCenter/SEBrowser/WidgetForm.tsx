@@ -25,12 +25,11 @@ import * as _ from 'lodash';
 import { Select, Input } from '@gpa-gemstone/react-forms';
 import { OpenXDA as LocalXDA } from '../global';
 import { AllWidgets } from '../../../../../EventWidgets/TSX/WidgetWrapper';
-import { useAppSelector } from '../hooks';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { SEBrowserWidgetSlice } from '../Store/Store';
 import { cloneDeep } from 'lodash';
-
-
-declare var homePath: string;
+import { EventWidget } from '../../../../../EventWidgets/TSX/global';
+import { Alert } from '@gpa-gemstone/react-interactive';
 
 interface IProps {
     Widget: LocalXDA.IWidget,
@@ -38,32 +37,33 @@ interface IProps {
     setErrors?: (e: string[]) => void,
 }
 
-
 export default function WidgetForm(props: IProps) {
-    const [errors, setErrors] = React.useState<string[]>([]);
+    const dispatch = useAppDispatch();
     const allWidgets = useAppSelector(SEBrowserWidgetSlice.Data);
+    const allWidgetStatus = useAppSelector(SEBrowserWidgetSlice.Status);
 
     React.useEffect(() => {
+        if (allWidgetStatus == 'unintiated' || allWidgetStatus == 'changed')
+            dispatch(SEBrowserWidgetSlice.Fetch());
+    }, [allWidgetStatus]);
+
+    React.useEffect(() => {
+        if (props.setErrors == null)
+            return;
+
         let e = [];
         if (props.Widget.Name == null || props.Widget.Name.length == 0)
             e.push('Name is required.');
-        if (props.Widget.Type == null || props.Widget.Type.length == 0)
-            e.push('Type is required.');
         if (allWidgets.find(w => w.Name.toLowerCase() == props.Widget.Name.toLowerCase() && w.ID != props.Widget.ID) != null)
             e.push('Name must be unique.');
-        
-        setErrors(e);
-    }, [props.Widget.Setting, props.Widget.Name, props.Widget.Type])
+
+        props.setErrors(e);
+    }, [props.Widget.Setting, props.Widget.Name, props.Widget.Type]);
 
     React.useEffect(() => {
-        if (props.setErrors != undefined)
-            props.setErrors(errors);
-    }, [props.setErrors, errors])
-
-    React.useEffect(() => {
-        if (AllWidgets.map(w => w.Name).indexOf(props.Widget.Type) < 0)
+        if (AllWidgets.findIndex(widget => widget.Name === props.Widget.Type) < 0)
             props.stateSetter({ ...props.Widget, Type: null })
-    }, [props.Widget.Type])
+    }, [props.Widget.Type]);
 
 
     return (
@@ -73,15 +73,15 @@ export default function WidgetForm(props: IProps) {
             <Select<LocalXDA.IWidget> Record={props.Widget} Field={'Type'}
                 Label='Type'
                 Setter={(record) => props.stateSetter(record)}
-                Options={AllWidgets.map(o => ({ Value: o.Name, Label: o.Name }))}
+                Options={_.orderBy(AllWidgets.map(o => ({ Value: o.Name, Label: o.Name })), [widget => widget.Label.toLowerCase()], ['asc'])}
                 EmptyLabel=''
             />
             {props.Widget.Type == null ?
-                <div className="alert alert-danger">
+                <Alert Class="alert-danger">
                     This Widget is not available. Please ensure a valid Type is selected.
-                </div> :
-                <WidgetSetting Settings={props.Widget.Setting}
-                    SetSetting={(s) => props.stateSetter({ ...props.Widget, Setting: s })}
+                </Alert> :
+                <WidgetSetting Settings={JSON.parse(props.Widget.Setting ?? "")}
+                    SetSetting={(s) => props.stateSetter({ ...props.Widget, Setting: JSON.stringify(s) })}
                     Type={props.Widget.Type} />
                 }
 
@@ -90,30 +90,35 @@ export default function WidgetForm(props: IProps) {
 
 }
 
-const WidgetSetting = (props: { Settings: string, Type: string, SetSetting: (s: string) => void }) => {
-    const [data, setData] = React.useState<object>({});
-    const Jsx = React.useMemo(() => AllWidgets.find(w => w.Name == props.Type)?.Settings ?? null, [props.Type])
-    const defaults = React.useMemo(() => AllWidgets.find(w => w.Name == props.Type)?.DefaultSettings ?? null, [props.Type])
+const WidgetSetting = (props: { Settings: {}, Type: string, SetSetting: (s: {}) => void }) => {
+    const widget: EventWidget.IWidget<unknown> | undefined = React.useMemo(() => AllWidgets.find(w => w.Name == props.Type), [props.Type]);
 
-    React.useEffect(() => {
-        const settings = props.Settings == null || props.Settings.length == 0 ? {} : JSON.parse(props.Settings);
-        const s = cloneDeep(defaults ?? {});
-        for (const [k, v] of Object.entries(defaults ?? {})) {
+    const workingSettings = React.useMemo(() => {
+        if (widget == null) return undefined;
+
+        const settings = props.Settings == null ? {} : props.Settings;
+        const newSettings = cloneDeep(widget.DefaultSettings);
+
+        for (const k of Object.keys(newSettings))
             if (settings.hasOwnProperty(k))
-                s[k] = cloneDeep(settings[k]);
-        }
-        setData(s);
-    }, [props.Type, defaults]);
+                newSettings[k] = cloneDeep(settings[k]);
 
-    React.useEffect(() => {
-        const s = JSON.stringify(data);
-        props.SetSetting(s);
-    }, [data])
+        return newSettings;
+    }, [widget, props.Settings]);
 
-    if (Jsx == null || defaults == null)
-        return <div className="alert alert-info">
-            This Widget has no settings.
-        </div>;
+    if (widget == null)
+        return (
+            <Alert Class="alert-info">
+                Widget could not be found, please contact your administrator.
+            </Alert>
+        );
 
-    return <Jsx Settings={(data ?? defaults) as any} SetSettings = {setData} />
+    if (widget.Settings == null)
+        return (
+            <Alert Class="alert-info">
+                This Widget has no settings.
+            </Alert>
+        );
+
+    return <widget.Settings Settings={workingSettings} SetSettings={props.SetSetting} />
 }
