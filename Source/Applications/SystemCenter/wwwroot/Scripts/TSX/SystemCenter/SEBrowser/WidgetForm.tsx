@@ -29,6 +29,7 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 import { SEBrowserWidgetSlice } from '../Store/Store';
 import { cloneDeep } from 'lodash';
 import { EventWidget } from '../../../../../EventWidgets/TSX/global';
+import { Alert } from '@gpa-gemstone/react-interactive';
 
 interface IProps {
     Widget: LocalXDA.IWidget,
@@ -76,9 +77,9 @@ export default function WidgetForm(props: IProps) {
                 EmptyLabel=''
             />
             {props.Widget.Type == null ?
-                <div className="alert alert-danger">
+                <Alert Class="alert-danger">
                     This Widget is not available. Please ensure a valid Type is selected.
-                </div> :
+                </Alert> :
                 <WidgetSetting Settings={JSON.parse(props.Widget.Setting ?? "")}
                     SetSetting={(s) => props.stateSetter({ ...props.Widget, Setting: JSON.stringify(s) })}
                     Type={props.Widget.Type} />
@@ -107,16 +108,16 @@ const WidgetSetting = (props: { Settings: {}, Type: string, SetSetting: (s: {}) 
 
     if (widget == null)
         return (
-            <div className="alert alert-info">
+            <Alert Class="alert-info">
                 Widget could not be found, please contact your administrator.
-            </div>
+            </Alert>
         );
 
     if (widget.Settings == null)
         return (
-            <div className="alert alert-info">
+            <Alert Class="alert-info">
                 This Widget has no settings.
-            </div>
+            </Alert>
         );
 
     return <widget.Settings Settings={workingSettings} SetSettings={props.SetSetting} />
