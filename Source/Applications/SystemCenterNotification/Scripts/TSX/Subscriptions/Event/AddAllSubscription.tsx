@@ -98,7 +98,7 @@ const AddAllSubscription = (props: IProps) => {
             <Modal Show={props.show} ShowCancel={true} Size={'xlg'} ShowX={true} Title={'Add New Event Subscription'}
                 BodyStyle={{ overflowY: 'hidden' }}
                 CancelText={step == 'Email' ? 'Add Subscription' : 'Next'}
-                ConfirmText={'Back'}
+                ConfirmText={'Previous'}
                 DisableConfirm={step == 'User'}
                 DisableCancel={error.length > 0}
                 CancelShowToolTip={error.length > 0}
