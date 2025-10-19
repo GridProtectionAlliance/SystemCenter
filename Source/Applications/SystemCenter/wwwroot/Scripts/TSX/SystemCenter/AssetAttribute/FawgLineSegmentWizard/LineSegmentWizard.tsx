@@ -290,7 +290,7 @@ function LineSegmentWizard(props: IProps): JSX.Element {
         <>
             <Modal Title={'Line Segment Wizard'} ShowX={true} Show={true} Size={'xlg'}
                 ConfirmBtnClass={'btn-danger mr-auto'}
-                ConfirmText={'Back'}
+                ConfirmText={'Previous'}
                 DisableConfirm={step == 'SetupTap'}
                 CancelBtnClass={'btn-success'}
                 CancelText={step == 'EditSection' && currentSegment == (sections.length - 1) ? 'Confirm' : 'Next'}
