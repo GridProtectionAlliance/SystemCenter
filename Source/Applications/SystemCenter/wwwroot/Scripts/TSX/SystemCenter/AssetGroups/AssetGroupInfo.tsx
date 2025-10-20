@@ -67,7 +67,12 @@ function AssetgroupInfoWindow(props: { AssetGroup: OpenXDA.Types.AssetGroup, Sta
 
     }
 
-    const hasPermissions = () => roles.indexOf('Administrator') > 0 || roles.indexOf('Engineer') > 0
+    function hasPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0)
+            return false;
+        return true;
+    }
+
     const hasChanged = () => !isEqual(assetGroup, props.AssetGroup)
 
     
