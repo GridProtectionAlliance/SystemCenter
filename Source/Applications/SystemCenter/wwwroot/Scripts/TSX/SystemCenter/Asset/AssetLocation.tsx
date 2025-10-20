@@ -45,11 +45,11 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const roles = useAppSelector(SelectRoles);
 
-    const hasPermissions: boolean = React.useMemo(() => {
+    function hasPermissions(): boolean {
         if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0)
             return false;
         return true;
-    }, [roles]);
+    }
 
     React.useEffect(() => {
         getData();

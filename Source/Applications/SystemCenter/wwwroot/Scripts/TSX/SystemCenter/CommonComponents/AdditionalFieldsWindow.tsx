@@ -52,7 +52,6 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
     // View perms are different than write
     const dispatch = useAppDispatch();
     const roles = useAppSelector(SelectRoles);
-    const hasPermissions = React.useMemo(() => (roles.indexOf('Administrator') >= 0 || roles.indexOf('Engineer') >= 0), [roles]);
 
     const [invalidChanges, setInvalidChanges] = React.useState<IValidated[]>([]);
     const [validChanges, setValidChanges] = React.useState<IValidated[]>([]);
@@ -93,6 +92,12 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
             });
         }
     }, [state])
+
+    function hasPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0)
+            return false;
+        return true;
+    }
 
     return (
         <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
