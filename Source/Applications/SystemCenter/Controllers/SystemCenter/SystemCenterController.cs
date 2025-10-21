@@ -43,7 +43,6 @@ using GSF.Web.Model;
 using Newtonsoft.Json.Linq;
 using openXDA.Configuration;
 using openXDA.Model;
-using SEBrowser.Controllers.OpenXDA;
 using SEBrowser.Model;
 using SystemCenter.Model;
 using SystemCenter.ScheduledProcesses;
@@ -114,8 +113,6 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/OpenXDA/DBCleanup")]
     public class DBCleanupController : ModelController<DBCleanup>
     {
-        OpenXDAApi api = new OpenXDAApi();
-
         public override IHttpActionResult Patch(DBCleanup record)
         {
             IHttpActionResult result = base.Patch(record);
@@ -144,7 +141,7 @@ namespace SystemCenter.Controllers
         {
             OkNegotiatedContentResult<T> okResult = result as OkNegotiatedContentResult<T>;
             if (okResult is not null)
-                api.ReconfigureNodes("DatabaseMaintenance");
+                XDANodeHelper.ReconfigureNodes("DatabaseMaintenance");
         }
     }
 
@@ -575,8 +572,6 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/OpenXDA/Setting")]
     public class OpenXDASettingController : ModelController<openXDA.Model.Setting>
     {
-        OpenXDAApi api = new OpenXDAApi();
-
         public override IHttpActionResult Patch(openXDA.Model.Setting record)
         {
             IHttpActionResult result = base.Patch(record);
@@ -605,7 +600,7 @@ namespace SystemCenter.Controllers
         {
             OkNegotiatedContentResult<T> okResult = result as OkNegotiatedContentResult<T>;
             if (okResult is not null && record.Name == $"{SSAMSSection.CategoryName}.{nameof(SSAMSSection.Schedule)}")
-                api.ReconfigureNodes("SSAMS");
+                XDANodeHelper.ReconfigureNodes("SSAMS");
         }
     }
 
