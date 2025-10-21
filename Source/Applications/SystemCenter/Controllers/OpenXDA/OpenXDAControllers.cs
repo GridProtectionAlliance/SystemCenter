@@ -524,7 +524,9 @@ namespace SystemCenter.Controllers.OpenXDA
         [Route("SCADAPoint/SCADAPointSearch"), HttpPost]
         public async Task<IHttpActionResult> QuerySCADADataPoints([FromBody] JObject query, CancellationToken token)
         {
-            XDAAPIHelper.RefreshSettings();
+            if (!XDAAPIHelper.TryRefreshSettings())
+                throw new InvalidOperationException("Unable to refresh static XDA API object.");
+
             using (HttpResponseMessage response = XDAAPIHelper
                 .GetResponseTask($"api/SystemCenter/SCADAPoint/SCADAPointSearch", new StringContent(query.ToString(), Encoding.UTF8, "application/json"))
                 .Result)
