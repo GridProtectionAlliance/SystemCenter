@@ -43,7 +43,30 @@ using ConfigurationLoader = SystemCenter.Notifications.Model.ConfigurationLoader
 namespace SystemCenter.Notifications.Controllers
 {
     [RoutePrefix("api/OpenXDA/EmailCategory")]
-    public class EmailCategoryController : ModelController<EmailCategory> { }
+    public class EmailCategoryController : ModelController<EmailCategory> 
+    { 
+        [HttpGet, Route("SubscribeDropdown/Report")]
+        public IHttpActionResult GetCategoriesReport() => GetCategories<ScheduledEmailType>();
+
+        [HttpGet, Route("SubscribeDropdown/Event")]
+        public IHttpActionResult GetCategoriesEvent() => GetCategories<EmailType>();
+
+        private IHttpActionResult GetCategories<T>() where T : class, new()
+        {
+            if (!GetAuthCheck())
+                return Unauthorized();
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                string tableName = TableOperations<T>.GetTableName();
+                string sql = $@"SELECT DISTINCT EmailCategory.*
+	                FROM EmailCategory JOIN {tableName} ON EmailCategory.ID = {tableName}.EmailCategoryID AND {tableName}.ShowSubscription = 1
+	                Where EmailCategory.SelfSubscribe = 1";
+
+                return Ok(connection.RetrieveData(sql));
+            }
+        }
+    }
 
     [AllowSearch]
     [SettingsCategory("systemSettings")]
