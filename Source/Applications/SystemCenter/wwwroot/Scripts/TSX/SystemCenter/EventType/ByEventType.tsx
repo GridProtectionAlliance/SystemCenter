@@ -21,14 +21,15 @@
 //
 //******************************************************************************************************
 
-import * as _ from 'lodash';
-import { Modal, GenericController } from '@gpa-gemstone/react-interactive';
-import * as React from 'react';
-import EventTypeForm from './EventTypeForm';
-import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import GenericByPage from '../CommonComponents/GenericByPage';
-import { SystemCenter } from '../global'
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { Modal } from '@gpa-gemstone/react-interactive';
+import * as React from 'react';
+import GenericByPage from '../CommonComponents/GenericByPage';
+import { EventTypeAssetTypeSlice, EventTypeSlice } from '../Store/Store';
+import { SystemCenter } from '../global';
+import { useAppDispatch } from '../hooks';
+import EventTypeForm from './EventTypeForm';
 
 declare var homePath: string;
 const fieldCols: SystemCenter.IByCol<OpenXDA.Types.EventType>[] = [
@@ -37,11 +38,11 @@ const fieldCols: SystemCenter.IByCol<OpenXDA.Types.EventType>[] = [
     { Field: 'Description', Label: 'Description', Type: 'string', Width: 'auto'},
     { Field: 'ShowInFilter', Label: 'Show in UI', Type: 'boolean', Width: 'auto' }
 ]
-const controllerPath = `${homePath}api/OpenXDA/EventType`
+const controllerPath = `${homePath}api/OpenXDA/EventType`;
 
-const EventTypeController = new GenericController<OpenXDA.Types.EventType>(controllerPath, "ID", true);
+const ByEventType: Application.Types.iByComponent = () => {
+    const dispatch = useAppDispatch();
 
-const ByEventType: Application.Types.iByComponent = (props) => {
     const [record, setRecord] = React.useState<OpenXDA.Types.EventType>(null);
     const [errors, setErrors] = React.useState<string[]>([]);
     const [showModal, setShowModal] = React.useState<boolean>(false);
@@ -69,8 +70,21 @@ const ByEventType: Application.Types.iByComponent = (props) => {
                 Title={'Edit ' + (record?.Name ?? 'Event Type')}
                 ShowCancel={false}
                 CallBack={(conf) => {
-                    if (conf)
-                        EventTypeController.DBAction('PATCH', record).done(() => refreshData(x => x + 1));
+                    if (conf) {
+                        $.ajax({
+                            type: "PATCH",
+                            url: `${controllerPath}/UpdateWithAssetTypes`,
+                            contentType: "application/json; charset=utf-8",
+                            dataType: 'json',
+                            data: JSON.stringify({ EventType: record, EventTypeAssetType: assetTypeET }),
+                            cache: false,
+                            async: true
+                        }).done(() => {
+                            refreshData(x => x + 1);
+                            dispatch(EventTypeAssetTypeSlice.SetChanged());
+                            dispatch(EventTypeSlice.SetChanged());
+                        });
+                    }
                     setShowModal(false);
                 }}
                 DisableConfirm={errors.length > 0}

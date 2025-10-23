@@ -53,8 +53,46 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA/SourceImpedance")]
     public class SourceImpedanceController : ModelController<SourceImpedance> { }
     [RoutePrefix("api/OpenXDA/EventType")]
-    public class EventTypeController : ModelController<EventType> { }
-    
+    public class EventTypeController : ModelController<EventType>
+    {
+        private class EventTypeAssetTypeComparer : EqualityComparer<EventTypeAssetType>
+        {
+            // No need to compare EventTypes, since those are assumed the same
+            public override bool Equals(EventTypeAssetType x, EventTypeAssetType y) => x.AssetTypeID == y.AssetTypeID;
+            public override int GetHashCode(EventTypeAssetType obj) => obj.ID;
+        }
+
+        [HttpPatch, Route("UpdateWithAssetTypes")]
+        public IHttpActionResult PatchWithAssetTypes([FromBody] JObject record)
+        {
+            // Perform base patch, check result to see if it happened properly (this handles authorization)
+            EventType eventTypeRecord = record["EventType"].ToObject<EventType>();
+            IHttpActionResult result = Patch(eventTypeRecord);
+            OkNegotiatedContentResult<EventType> okResult = result as OkNegotiatedContentResult<EventType>;
+            if (okResult is null)
+                return result;
+
+            EventTypeAssetType[] eventTypeRecords = record["EventTypeAssetType"].ToObject<EventTypeAssetType[]>();
+            int rowsEffected = 1;
+
+            using (AdoDataConnection connection = ConnectionFactory())
+            {
+                TableOperations<EventTypeAssetType> table = new TableOperations<EventTypeAssetType>(connection);
+                IEnumerable<EventTypeAssetType> existingRecords = table.QueryRecordsWhere("EventTypeID = {0}", eventTypeRecord.ID);
+
+                IEnumerable<EventTypeAssetType> deletionRecords = existingRecords.Except(eventTypeRecords, new EventTypeAssetTypeComparer());
+                IEnumerable<EventTypeAssetType> newRecords = eventTypeRecords.Except(existingRecords, new EventTypeAssetTypeComparer());
+
+                foreach (EventTypeAssetType deleteRecord in deletionRecords)
+                    rowsEffected += table.DeleteRecord(deleteRecord);
+                foreach (EventTypeAssetType newRecord in newRecords)
+                    rowsEffected += table.AddNewRecord(newRecord);
+            }
+
+            return Ok(rowsEffected);
+        }
+    }
+
     [RoutePrefix("api/OpenXDA/EventTypeAssetType")]
     public class EventTypeAssetTypeController : ModelController<EventTypeAssetType> { }
 
