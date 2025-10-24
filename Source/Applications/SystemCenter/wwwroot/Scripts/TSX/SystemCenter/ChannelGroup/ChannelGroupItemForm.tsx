@@ -26,6 +26,7 @@ import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { Input, Select } from '@gpa-gemstone/react-forms';
 import { MeasurmentTypeSlice, MeasurementCharacteristicSlice, ValueListSlice, ValueListGroupSlice } from '../Store/Store';
 import { useAppSelector, useAppDispatch } from '../hooks';
+import { LoadingIcon } from '@gpa-gemstone/react-interactive';
 
 interface IProps {
     Record: SystemCenter.Types.ChannelGroupDetails,
@@ -83,6 +84,12 @@ export default function ChannelGroupItemForm(props: IProps) {
 
         props.SetErrors(e);
     }, [props.Record]);
+
+    if (valueListGroupStatus !== 'idle')
+        return (
+            <LoadingIcon Show={true} />
+        );
+
     return (
         <>
             <Input<SystemCenter.Types.ChannelGroupDetails> Record={props.Record} Field={'DisplayName'} Label='Name' Feedback={'A Name of less than 200 characters is required.'} Valid={Valid} Setter={props.Setter} />
