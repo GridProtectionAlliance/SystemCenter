@@ -25,10 +25,25 @@ import * as React from 'react';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { Input, TextArea } from '@gpa-gemstone/react-forms';
 
-export default function ChannelGroupForm(props: { Record: SystemCenter.Types.ChannelGroup, Setter: (record: SystemCenter.Types.ChannelGroup) => void, setErrors?: (e: string[]) => void }) {
+export default function ChannelGroupForm(props: { Record: SystemCenter.Types.ChannelGroup, Setter: (record: SystemCenter.Types.ChannelGroup) => void, SetErrors?: (e: string[]) => void }) {
+
+    React.useEffect(() => {
+        if (props?.SetErrors == null) return;
+
+        let e = [];
+        if (props.Record.Name == null || props.Record.Name.length == 0) {
+            e.push('A Name is required.');
+        }
+        else if (props.Record.Name.length > 200) {
+            e.push('A Name of less than 200 characters is required.')
+        }
+
+        props.SetErrors(e);
+    }, [props?.SetErrors, props.Record]);
+
     function Valid(field: keyof (SystemCenter.Types.ChannelGroup)): boolean {
         if (field == 'Name')
-            return props.Record.Name != null && props.Record.Name.length > 0 && props.Record.Name.length <= 200;
+            return !(props.Record.Name == null || props.Record.Name.length == 0 || props.Record.Name.length > 200);
         else if (field == 'Description')
             return true;
         return false;
