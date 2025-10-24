@@ -72,6 +72,17 @@ export default function ChannelGroupItemForm(props: IProps) {
         return true;
     }
 
+    React.useEffect(() => {
+        if (props.SetErrors == null) return;
+
+        let e = [];
+        if (props.Record.DisplayName == null || props.Record.DisplayName.length == 0)
+            e.push('A Name is required.');
+        else if (props.Record.DisplayName.length > 200)
+            e.push('A Name of less than 200 characters is required.');
+
+        props.SetErrors(e);
+    }, [props.Record]);
     return (
         <>
             <Input<SystemCenter.Types.ChannelGroupDetails> Record={props.Record} Field={'DisplayName'} Label='Name' Feedback={'A Name of less than 200 characters is required.'} Valid={Valid} Setter={props.Setter} />
