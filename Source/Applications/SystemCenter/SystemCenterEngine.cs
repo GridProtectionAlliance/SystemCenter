@@ -81,7 +81,9 @@ using GSF.Configuration;
 using GSF.Data;
 using GSF.Data.Model;
 using log4net;
+using openXDA.APIAuthentication;
 using SystemCenter.Configuration;
+using SystemCenter.Controllers;
 using SystemCenter.Model;
 
 namespace SystemCenter
@@ -209,6 +211,10 @@ namespace SystemCenter
 
             // Reload configuration at startup
             ReloadConfiguration();
+
+            // Supply Settings into XDAAPIHelper static class
+            if (!XDAAPIHelper.IsIntialized)
+                XDAAPIHelper.InitializeHelper(new XDAAPICredentialRetriever());
 
             Stopped = false;
 

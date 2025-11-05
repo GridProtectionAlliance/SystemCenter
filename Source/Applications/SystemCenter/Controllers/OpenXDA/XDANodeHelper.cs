@@ -1,5 +1,5 @@
 //******************************************************************************************************
-//  OpenXDAApi.cs - Gbtc
+//  XDANodeHelper.cs - Gbtc
 //
 //  Copyright © 2023, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -18,58 +18,34 @@
 //  ----------------------------------------------------------------------------------------------------
 //  04/08/2025 - Gabriel Santos
 //       Generated original version of source code.
+//  10/16/2025 - Gabriel Santos
+//       Refactored with upstream changes, scope reduced to just nodes.
 //
 //******************************************************************************************************
 
 using System;
-using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using GSF.Configuration;
 using GSF.Data;
 using openXDA.APIAuthentication;
-using SystemCenter.Model;
 
-namespace SEBrowser.Controllers.OpenXDA
+namespace SystemCenter.Controllers
 {
-    /// <summary>
-    /// Helper class that provides openXDA API Calls
-    /// </summary>
-    public class OpenXDAApi : XDAAPIHelper
+    public static class XDANodeHelper
     {
-        private static string Connection { get; } = "systemSettings";
-        private static APIConfiguration config;
-        private class Settings
+        public static async void ReconfigureNodes(string nodeName)
         {
-            public Settings(Action<object> configure) =>
-                configure(this);
+            if (!XDAAPIHelper.TryRefreshSettings())
+                throw new InvalidOperationException("Unable to retrieve XDA credentials while using API Helper. Check static intialization in startup.");
 
-            [Category]
-            [SettingName("XDA")]
-            public APIConfiguration APISettings { get; } = new APIConfiguration();
-        }
-
-        static OpenXDAApi()
-        {
-            RefreshSettings();
-        }
-
-        public static void RefreshSettings()
-        {
-            config = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).APISettings;
-        }
-
-        public async void ReconfigureNodes(string nodeName)
-        {
-            RefreshSettings();
             void ConfigureRequest(HttpRequestMessage request)
             {
                 request.Method = HttpMethod.Get;
             }
 
-            using (AdoDataConnection connection = CreateDbConnection())
+            using (AdoDataConnection connection = Program.Host.CreateDbConnection())
             {
                 DataTable hosts = connection
                     .RetrieveData(@"
@@ -89,53 +65,11 @@ namespace SEBrowser.Controllers.OpenXDA
                         string url = row.ConvertField<string>("URL");
                         int nodeID = row.ConvertField<int>("NodeID");
 
-                        APIQuery query = new APIQuery(Key, Token, url.Split(';'));
+                        APIQuery query = new APIQuery(XDAAPIHelper.Key, XDAAPIHelper.Token, url.Split(';'));
                         return query.SendWebRequestAsync(ConfigureRequest, $"/Node/{nodeID}/Reconfigure");
                     }).ToArray();
                 await Task.WhenAll(reconfigureTasks).ConfigureAwait(false);
             }
-        }
-
-        /// <summary>
-        /// API Token used to access OpenXDA
-        /// </summary>
-        protected override string Token
-        {
-            get
-            {
-               return config?.Token ?? "";
-            }
-
-        }
-
-        /// <summary>
-        /// API Key used to access OpenXDA
-        /// </summary>
-        protected override string Key
-        {
-            get
-            {
-                return config?.Key ?? "";
-            }
-
-        }
-
-        /// <summary>
-        /// API Key used to access OpenXDA
-        /// </summary>
-        protected override string Host
-        {
-            get
-            {
-                return config?.Host ?? "";
-            }
-        }
-
-        private static AdoDataConnection CreateDbConnection()
-        {
-            AdoDataConnection connection = new AdoDataConnection(Connection);
-            connection.DefaultTimeout = DataExtensions.DefaultTimeoutDuration;
-            return connection;
         }
     }
 }

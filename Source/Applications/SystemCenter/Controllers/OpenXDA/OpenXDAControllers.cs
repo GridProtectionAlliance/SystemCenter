@@ -44,7 +44,6 @@ using openXDA.APIAuthentication;
 using openXDA.Configuration;
 using openXDA.Model;
 using PQView.Model;
-using SEBrowser.Controllers.OpenXDA;
 using SystemCenter.Model;
 using ConfigurationLoader = SystemCenter.Model.ConfigurationLoader;
 
@@ -395,7 +394,6 @@ namespace SystemCenter.Controllers.OpenXDA
             [SettingName("XDA")]
             public APIConfiguration APISettings { get; } = new APIConfiguration();
         }
-        OpenXDAApi api = new OpenXDAApi();
         #endregion
 
         #region [HttpMethods]
@@ -480,7 +478,7 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             OkNegotiatedContentResult<T> okResult = result as OkNegotiatedContentResult<T>;
             if (okResult is not null)
-                api.ReconfigureNodes("DataPusher");
+                XDANodeHelper.ReconfigureNodes("DataPusher");
         }
 
         private AdoDataConnection CreateDbConnection()
@@ -495,14 +493,12 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA")]
     public class GeneralController : ApiController
     {
-        OpenXDAApi api = new OpenXDAApi();
-
         [HttpGet, Route("Tiles/GetAll")]
         public IHttpActionResult GetAllTiles()
         {
             try
             {
-                Task<string> responseTask = api.GetAsync($"/api/TileList/GetAll");
+                Task<string> responseTask = XDAAPIHelper.GetAsync($"/api/TileList/GetAll");
                 object json_obj = JsonConvert.DeserializeObject(responseTask.Result);
                 return Json(json_obj);
             }
@@ -516,7 +512,7 @@ namespace SystemCenter.Controllers.OpenXDA
         public IHttpActionResult GetEditionComparitor()
         {
             // Ensuring XDA is in lockstep with us
-            Task<string> responseTask = api.GetAsync($"/api/GetEdition");
+            Task<string> responseTask = XDAAPIHelper.GetAsync($"/api/GetEdition");
             EditionChecker.UpdateEdition();
             // Build comparitor object for typescript
             JObject editionComparitor = new JObject();
@@ -528,8 +524,10 @@ namespace SystemCenter.Controllers.OpenXDA
         [Route("SCADAPoint/SCADAPointSearch"), HttpPost]
         public async Task<IHttpActionResult> QuerySCADADataPoints([FromBody] JObject query, CancellationToken token)
         {
-            OpenXDAApi.RefreshSettings();
-            using (HttpResponseMessage response = api
+            if (!XDAAPIHelper.TryRefreshSettings())
+                throw new InvalidOperationException("Unable to refresh static XDA API object.");
+
+            using (HttpResponseMessage response = XDAAPIHelper
                 .GetResponseTask($"api/SystemCenter/SCADAPoint/SCADAPointSearch", new StringContent(query.ToString(), Encoding.UTF8, "application/json"))
                 .Result)
             {
