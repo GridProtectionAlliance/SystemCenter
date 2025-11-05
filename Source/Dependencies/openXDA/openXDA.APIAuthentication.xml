@@ -80,9 +80,135 @@
             <param name="cancellationToken">Token used to cancel the request before it has completed.</param>
             <returns>The HTTP response returned by the host that handled the request.</returns>
         </member>
+        <member name="T:openXDA.APIAuthentication.IAPICredentialRetriever">
+            <summary>
+            Interface of credential retriever object for <see cref="T:openXDA.APIAuthentication.XDAAPI"/>.
+            </summary>
+        </member>
+        <member name="P:openXDA.APIAuthentication.IAPICredentialRetriever.Token">
+            <summary>
+            API Token used to access OpenXDA
+            </summary>
+        </member>
+        <member name="P:openXDA.APIAuthentication.IAPICredentialRetriever.Key">
+            <summary>
+            API Key used to access OpenXDA
+            </summary>
+        </member>
+        <member name="P:openXDA.APIAuthentication.IAPICredentialRetriever.Host">
+            <summary>
+            API Key used to access OpenXDA
+            </summary>
+        </member>
+        <member name="M:openXDA.APIAuthentication.IAPICredentialRetriever.TryRefreshSettings">
+            <summary>
+            Refreshes the settings from the original source.
+            </summary>
+            <returns> A flag indicating if the operation was successful. </returns>
+        </member>
+        <member name="T:openXDA.APIAuthentication.XDAAPI">
+            <summary>
+            Helper class that provides openXDA API Calls.
+            </summary>
+        </member>
+        <member name="P:openXDA.APIAuthentication.XDAAPI.IsIntialized">
+            <summary>
+            Tells users if the helper has been intialized or not.
+            </summary>
+        </member>
+        <member name="P:openXDA.APIAuthentication.XDAAPI.Token">
+            <summary>
+            API Token used to access OpenXDA
+            </summary>
+        </member>
+        <member name="P:openXDA.APIAuthentication.XDAAPI.Key">
+            <summary>
+            API Key used to access OpenXDA
+            </summary>
+        </member>
+        <member name="P:openXDA.APIAuthentication.XDAAPI.Host">
+            <summary>
+            API Key used to access OpenXDA
+            </summary>
+        </member>
+        <member name="P:openXDA.APIAuthentication.XDAAPI.SettingsRetriever">
+            <summary>
+            Object that retireves the token,key, and host of the helper.
+            </summary>
+        </member>
+        <member name="M:openXDA.APIAuthentication.XDAAPI.#ctor(openXDA.APIAuthentication.IAPICredentialRetriever)">
+            <summary>
+            Creates API object and registers retriever.
+            </summary>
+        </member>
+        <member name="M:openXDA.APIAuthentication.XDAAPI.TryRefreshSettings">
+            <summary>
+            Recalls the setup settings function from <see cref="T:openXDA.APIAuthentication.IAPICredentialRetriever"/> to refetch settings.
+            </summary>
+        </member>
+        <member name="M:openXDA.APIAuthentication.XDAAPI.GetResponseTask(System.String,System.Net.Http.HttpContent)">
+            <summary>
+            Gets Response Task from XDA 
+            </summary>
+            <param name="requestURI">Path to specific API request</param>
+            <param name="content"> The <see cref="T:System.Net.Http.HttpContent"/> of the request </param>
+            <returns> response as a <see cref="T:System.IO.Stream"/></returns>
+        </member>
+        <member name="M:openXDA.APIAuthentication.XDAAPI.GetAsync(System.String)">
+            <summary>
+            Makes a Get Request to OpenXDA to obtain a string
+            </summary>
+            <param name="requestURI">Path to specific API request</param>
+            <returns>string</returns>
+        </member>
+        <member name="M:openXDA.APIAuthentication.XDAAPI.GetStreamAsync(System.String)">
+            <summary>
+            Makes a Get Request to OpenXDA to obtain a stream
+            </summary>
+            <param name="requestURI">Path to specific API request</param>
+            <returns>stream</returns>
+        </member>
+        <member name="M:openXDA.APIAuthentication.XDAAPI.GetAsync``1(System.String)">
+            <summary>
+            Makes a Get Request to OpenXDA to obtain an object
+            </summary>
+            <param name="requestURI">Path to specific API request</param>
+            <returns> a <see cref="T:System.Threading.Tasks.Task`1"/> object</returns>
+        </member>
+        <member name="M:openXDA.APIAuthentication.XDAAPI.PostAsync(System.String,System.Net.Http.HttpContent)">
+            <summary>
+            Makes Post request on OpenXDA
+            </summary>
+            <param name="requestURI">Path to specific API request</param>
+            <param name="content"> The <see cref="T:System.Net.Http.HttpContent"/> of the request </param>
+            <returns> response as a <see cref="T:System.String"/></returns>
+        </member>
+        <member name="M:openXDA.APIAuthentication.XDAAPI.PostAllAsync``1(System.String,System.Net.Http.HttpContent)">
+            <summary>
+            Makes Post request on OpenXDA
+            </summary>
+            <param name="endpoint">Path to specific API request</param>
+            <param name="content"> The <see cref="T:System.Net.Http.HttpContent"/> of the request </param>
+            <returns> response as a <see cref="T:System.String"/></returns>
+        </member>
+        <member name="M:openXDA.APIAuthentication.XDAAPI.GetAllAsync``1(System.String)">
+            <summary>
+            Makes a Get Request to OpenXDA to obtain a <see cref="T:System.Collections.Generic.List`1"/> objects
+            </summary>
+            <param name="requestURI">Path to specific API request</param>
+            <returns> a <see cref="T:System.Collections.Generic.List`1"/> object</returns>
+        </member>
         <member name="T:openXDA.APIAuthentication.XDAAPIHelper">
             <summary>
-            Helper class that provides openXDA API Calls
+            Wrapper class that turns <see cref="T:openXDA.APIAuthentication.XDAAPI"/> into a static for easy use across an application.
+            </summary>
+            <remarks>
+            Must be initialized with the <see cref="M:openXDA.APIAuthentication.XDAAPIHelper.InitializeHelper(openXDA.APIAuthentication.IAPICredentialRetriever)"/> method to fetch settings.
+            </remarks>
+        </member>
+        <member name="P:openXDA.APIAuthentication.XDAAPIHelper.IsIntialized">
+            <summary>
+            Tells users if the helper has been intialized or not.
             </summary>
         </member>
         <member name="P:openXDA.APIAuthentication.XDAAPIHelper.Token">
@@ -98,6 +224,21 @@
         <member name="P:openXDA.APIAuthentication.XDAAPIHelper.Host">
             <summary>
             API Key used to access OpenXDA
+            </summary>
+        </member>
+        <member name="P:openXDA.APIAuthentication.XDAAPIHelper.API">
+            <summary>
+            Object that retireves the token,key, and host of the helper.
+            </summary>
+        </member>
+        <member name="M:openXDA.APIAuthentication.XDAAPIHelper.InitializeHelper(openXDA.APIAuthentication.IAPICredentialRetriever)">
+            <summary>
+            Function for setup of static helper. This must be ran once and only once before using the helper.
+            </summary>
+        </member>
+        <member name="M:openXDA.APIAuthentication.XDAAPIHelper.TryRefreshSettings">
+            <summary>
+            Recalls the setup settings function from <see cref="M:openXDA.APIAuthentication.XDAAPIHelper.InitializeHelper(openXDA.APIAuthentication.IAPICredentialRetriever)"/> to refetch settings.
             </summary>
         </member>
         <member name="M:openXDA.APIAuthentication.XDAAPIHelper.GetResponseTask(System.String,System.Net.Http.HttpContent)">
