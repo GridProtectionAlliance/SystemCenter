@@ -381,7 +381,7 @@ function SectionEdit(props: IProps): JSX.Element {
                                     AllowSort={false}
                                     Content={({ item, index }) => <Input<ISegment> Label={''} Record={item} Field={'ThermalRating'} Type={'number'} Setter={(r) => updateSegment(r, index)} Valid={() => true} />}
                                 >
-                                    ThermalRating (MVA)
+                                    Thermal Rating (Amps)
                                 </Column>
                             </ConfigurableColumn>
                             <Column<ISegment>
