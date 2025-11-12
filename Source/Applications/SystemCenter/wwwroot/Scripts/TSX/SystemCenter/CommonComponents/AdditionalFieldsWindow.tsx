@@ -60,12 +60,12 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
 
     const [changes, setChanges] = React.useState<SystemCenter.Types.AdditionalFieldValue[]>([]);
     const [values, setValues] = React.useState<SystemCenter.Types.AdditionalFieldValue[]>([]);
-    const [state, setState] = React.useState<Application.Types.Status>('unintiated')
+    const [state, setState] = React.useState<Application.Types.Status>('uninitiated')
 
     const allValues = React.useMemo(() => values.filter((v) => changes.findIndex((item) => item.AdditionalFieldID == v.AdditionalFieldID) < 0).concat(changes), [values, changes])
 
     React.useEffect(() => {
-        if (state === 'unintiated' || state === 'changed') {
+        if (state === 'uninitiated' || state === 'changed') {
             setState('loading');
             $.ajax({
                 type: "GET",

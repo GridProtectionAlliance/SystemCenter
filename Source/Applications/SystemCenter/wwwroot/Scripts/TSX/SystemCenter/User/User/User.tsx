@@ -59,7 +59,7 @@ function User(props: IProps) {
 	}, [tab]);
 
 	React.useEffect(() => {
-		if (status === 'unintiated' || status === 'changed')
+		if (status === 'uninitiated' || status === 'changed')
 			dispatch(UserAccountSlice.Fetch());
 	}, [status]);
 

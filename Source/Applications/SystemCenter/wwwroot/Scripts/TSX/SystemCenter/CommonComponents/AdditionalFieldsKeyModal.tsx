@@ -41,8 +41,8 @@ interface IProps {
 function AdditionalFieldsKeyModal(props: IProps): JSX.Element {
     const [selectedExternal, setSelectedExternal] = React.useState<any>(undefined);
 
-    const [dataStatus, setDataStatus] = React.useState<Application.Types.Status>('unintiated');
-    const [countStatus, setCountStatus] = React.useState<Application.Types.Status>('unintiated');
+    const [dataStatus, setDataStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [countStatus, setCountStatus] = React.useState<Application.Types.Status>('uninitiated');
     
     const getData = (start: number, end: number, filters: Search.IFilter<any>[], orderBy: string, asc: boolean) => {
         setDataStatus('loading');
@@ -77,7 +77,7 @@ function AdditionalFieldsKeyModal(props: IProps): JSX.Element {
   
     React.useEffect(() => {
         if (props.Show && dataStatus === 'error') {
-            setDataStatus('unintiated');
+            setDataStatus('uninitiated');
         }
     }, [props.Show])
 

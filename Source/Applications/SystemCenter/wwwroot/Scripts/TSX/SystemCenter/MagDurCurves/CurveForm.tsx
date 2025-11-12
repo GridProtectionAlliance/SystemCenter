@@ -49,7 +49,7 @@ export default function CurveForm(props: IProps) {
     const [plotHeight, setPlotHeight] = React.useState<number>(100);
         
     React.useEffect(() => {
-        if (acStatus == 'changed' || acStatus == 'unintiated')
+        if (acStatus == 'changed' || acStatus == 'uninitiated')
             dispatch(SEBrowserWidgetSlice.Fetch());
     }, [acStatus])
 

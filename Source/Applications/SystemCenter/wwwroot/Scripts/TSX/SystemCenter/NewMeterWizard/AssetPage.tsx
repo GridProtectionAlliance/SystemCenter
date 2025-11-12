@@ -153,7 +153,7 @@ export default function AssetPage(props: IProps) {
     }, [props.Channels]);
 
     React.useEffect(() => {
-        if (atStatus === 'unintiated' || atStatus === 'changed') {
+        if (atStatus === 'uninitiated' || atStatus === 'changed') {
             dispatch(AssetTypeSlice.Fetch());
             return function () {
             }
@@ -161,7 +161,7 @@ export default function AssetPage(props: IProps) {
     }, [atStatus]);
 
     React.useEffect(() => {
-        if (aStatus === 'unintiated' || aStatus === 'changed') {
+        if (aStatus === 'uninitiated' || aStatus === 'changed') {
             dispatch(FetchAsset());
             return function () {
             }
@@ -169,7 +169,7 @@ export default function AssetPage(props: IProps) {
     }, [aStatus]);
 
     React.useEffect(() => {
-        if (byAssetStatus === 'unintiated' || byAssetStatus === 'changed') {
+        if (byAssetStatus === 'uninitiated' || byAssetStatus === 'changed') {
             dispatch(ByAssetSlice.Fetch());
         }
     }, [byAssetStatus]);

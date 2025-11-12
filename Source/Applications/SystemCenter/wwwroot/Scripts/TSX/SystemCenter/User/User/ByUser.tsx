@@ -90,7 +90,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
 
     const [act, setAct] = React.useState<IUserAccount>(newAcct)
 
-    const [pageStatus, setPageStatus] = React.useState<Application.Types.Status>('unintiated');
+    const [pageStatus, setPageStatus] = React.useState<Application.Types.Status>('uninitiated');
 
     React.useEffect(() => {
         if (userStatus === 'error' || adlFieldStatus === 'error' || valueListItemStatus === 'error' || valueListGroupStatus === 'error')
@@ -102,22 +102,22 @@ const ByUser: Application.Types.iByComponent = (props) => {
     }, [userStatus, adlFieldStatus, valueListItemStatus, valueListGroupStatus])
 
     React.useEffect(() => {
-        if (searchStatus === 'unintiated' || searchStatus === 'changed')
+        if (searchStatus === 'uninitiated' || searchStatus === 'changed')
             dispatch(UserAccountSlice.DBSearch({ filter: search, sortField, ascending }));
     }, [searchStatus]);
 
     React.useEffect(() => {
-        if (adlFieldStatus === 'unintiated' || adlFieldStatus === 'changed')
+        if (adlFieldStatus === 'uninitiated' || adlFieldStatus === 'changed')
             dispatch(UserAdditionalFieldSlice.FetchField());
     }, [adlFieldStatus]);
 
      React.useEffect(() => {
-        if (valueListItemStatus === 'unintiated' || valueListItemStatus === 'changed')
+        if (valueListItemStatus === 'uninitiated' || valueListItemStatus === 'changed')
             dispatch(ValueListSlice.Fetch());
     }, [valueListItemStatus]);
 
     React.useEffect(() => {
-        if (valueListGroupStatus === 'unintiated' || valueListGroupStatus === 'changed')
+        if (valueListGroupStatus === 'uninitiated' || valueListGroupStatus === 'changed')
             dispatch(ValueListGroupSlice.Fetch());
     }, [valueListGroupStatus]);
 

@@ -49,7 +49,7 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
     const roles = useAppSelector(SelectRoles);
 
     React.useEffect(() => {
-        if (mStatus == 'unintiated' || mStatus == 'changed' || mParentID != null)
+        if (mStatus == 'uninitiated' || mStatus == 'changed' || mParentID != null)
             dispatch(ByMeterSlice.Fetch());
     }, [mStatus, mParentID]);
 

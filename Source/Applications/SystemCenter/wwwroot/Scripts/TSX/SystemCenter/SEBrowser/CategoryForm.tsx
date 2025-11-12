@@ -43,7 +43,7 @@ export default function CategoryForm(props: IProps) {
 
   
     React.useEffect(() => {
-        if (acStatus == 'changed' || acStatus == 'unintiated')
+        if (acStatus == 'changed' || acStatus == 'uninitiated')
             dispatch(WidgetCategorySlice.Fetch());
     }, [acStatus])
 

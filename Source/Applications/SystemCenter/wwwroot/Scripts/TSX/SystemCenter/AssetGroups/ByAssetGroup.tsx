@@ -65,17 +65,17 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
     const [assetGrpErrors, setAssetGrpErrors] = React.useState<string[]>([]);
 
     React.useEffect(() => {
-        if (status == 'changed' || status == 'unintiated')
+        if (status == 'changed' || status == 'uninitiated')
             dispatch(AssetGroupSlice.Fetch());
     }, [status]);
 
     React.useEffect(() => {
-        if (searchStatus == 'changed' || searchStatus == 'unintiated')
+        if (searchStatus == 'changed' || searchStatus == 'uninitiated')
             dispatch(AssetGroupSlice.DBSearch({ filter: searchFields }));
     }, [searchStatus]);
 
     React.useEffect(() => {
-        if (assetTypeStatus == 'changed' || assetTypeStatus == 'unintiated')
+        if (assetTypeStatus == 'changed' || assetTypeStatus == 'uninitiated')
             dispatch(AssetTypeSlice.Fetch());
     }, [assetTypeStatus]);
 

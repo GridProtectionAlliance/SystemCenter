@@ -94,7 +94,7 @@ const ByAsset: Application.Types.iByComponent = (props) => {
     const [assetErrors, setAssetErrors] = React.useState<string[]>([]);
 
     React.useEffect(() => {
-        if (assetTypeStatus == 'changed' || assetTypeStatus == 'unintiated')
+        if (assetTypeStatus == 'changed' || assetTypeStatus == 'uninitiated')
             dispatch(AssetTypeSlice.Fetch());
     }, [assetTypeStatus]);
 
@@ -107,7 +107,7 @@ const ByAsset: Application.Types.iByComponent = (props) => {
     }, [assetType]);
 
     React.useEffect(() => {
-        if (aStatus === 'unintiated' || aStatus === 'changed')
+        if (aStatus === 'uninitiated' || aStatus === 'changed')
             dispatch(FetchAsset());
         else if (loadAssetKey !== null && aStatus === 'idle') {
             const asset = allAssets.find(asset => asset.AssetKey == loadAssetKey);

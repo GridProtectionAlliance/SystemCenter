@@ -35,7 +35,7 @@ const GroupUser = (props: {Group: ISecurityGroup}) => {
     const [users, setUsers] = React.useState<Application.Types.iUserAccount[]>([]);
     const [asc, setAsc] = React.useState<boolean>(true);
     const [sortField, setSortField] = React.useState<keyof Application.Types.iUserAccount>('AccountName');
-    const [status, setStatus] = React.useState<Application.Types.Status>('unintiated');
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 
     React.useEffect(() => {
         const handle = getUsers();

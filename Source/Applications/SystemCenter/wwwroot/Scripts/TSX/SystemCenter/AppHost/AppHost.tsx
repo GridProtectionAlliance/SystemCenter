@@ -32,12 +32,12 @@ import NodeStats from './NodeStats';
 
 const AppHost: Application.Types.iByComponent = (props) => {
     const [hosts, setHosts] = React.useState<IHost[]>([]);
-    const [status, setStatus] = React.useState<Application.Types.Status>('unintiated');
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [console, setConsole] = React.useState<IHost | null>(null);
     const [stats, setStats] = React.useState<IHost | null>(null);
 
     React.useEffect(() => {
-        if (status == 'changed' || status == 'unintiated') {
+        if (status == 'changed' || status == 'uninitiated') {
             getApps();
         }
     }, [status]);

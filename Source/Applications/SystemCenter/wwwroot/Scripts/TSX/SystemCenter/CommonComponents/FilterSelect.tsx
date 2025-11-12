@@ -70,7 +70,7 @@ export default function FilterSelect(props: IProps) {
     }, [data, props.Selected]);
 
     React.useEffect(() => {
-        if (assetTypeStatus == 'changed' || assetTypeStatus == 'unintiated')
+        if (assetTypeStatus == 'changed' || assetTypeStatus == 'uninitiated')
             dispatch(AssetTypeSlice.Fetch());
     }, [assetTypeStatus]);
 

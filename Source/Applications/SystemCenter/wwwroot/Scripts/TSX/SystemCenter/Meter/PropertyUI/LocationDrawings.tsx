@@ -49,7 +49,7 @@ const LocationDrawings = (props: IProps) => {
     const [hover, setHover] = React.useState<'none' | 'drawings'>('none');
 
     React.useEffect(() => {
-        if (drawingStatus == 'unintiated' || drawingStatus == 'changed' || drawingParentID != props.LocationID)
+        if (drawingStatus == 'uninitiated' || drawingStatus == 'changed' || drawingParentID != props.LocationID)
             dispatch(LocationDrawingSlice.Fetch(props.LocationID));
     }, [drawingStatus, drawingParentID, props.LocationID]);
 

@@ -57,7 +57,7 @@ export default class ConfigurationSlice {
         const slice = createSlice({
             name: this.Name,
             initialState: {
-                XDAConfigStatus: 'unintiated',
+                XDAConfigStatus: 'uninitiated',
                 XDAConfig: {
                     EditionStatus: {}
                 }

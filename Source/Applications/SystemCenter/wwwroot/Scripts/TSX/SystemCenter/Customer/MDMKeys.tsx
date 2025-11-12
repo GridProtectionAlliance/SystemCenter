@@ -54,12 +54,12 @@ function MDMKeys(props: IProps) {
     const roles = useAppSelector(SelectRoles);
 
     React.useEffect(() => {
-        if (status === 'unintiated' || status === 'changed' || parentID != props.CustomerID)
+        if (status === 'uninitiated' || status === 'changed' || parentID != props.CustomerID)
             dispatch(LSCVSAccountSlice.Fetch(props.CustomerID));
     }, [status, props.CustomerID, parentID]);
 
     React.useEffect(() => {
-        if (searchStatus === 'unintiated' || status === 'changed')
+        if (searchStatus === 'uninitiated' || status === 'changed')
             dispatch(LSCVSAccountSlice.DBSearch({ filter: search, sortField, ascending }));
     }, [searchStatus, status]);
 

@@ -39,8 +39,8 @@ interface IProps {
 const RowsPerPage = 50;
 
 export default function ResultDisplay(props: IProps) {
-    const [datastatus, setDataStatus] = React.useState<Application.Types.Status>('unintiated');
-    const [countstatus, setCountStatus] = React.useState<Application.Types.Status>('unintiated');
+    const [datastatus, setDataStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [countstatus, setCountStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [externalData, setExternalData] = React.useState<any[]>([]);
     const [ascExt, setAscExt] = React.useState<boolean>(false);
     const [sortExt, setSortExt] = React.useState<string>("");

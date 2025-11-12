@@ -71,17 +71,17 @@ const MeterEventChannelWindow = (props: IProps) => {
 
 
     React.useEffect(() => {
-        if (pStatus == 'unintiated' || pStatus == 'changed')
+        if (pStatus == 'uninitiated' || pStatus == 'changed')
             dispatch(PhaseSlice.Fetch());
     }, [pStatus])
 
     React.useEffect(() => {
-        if (mtStatus == 'unintiated' || mtStatus == 'changed')
+        if (mtStatus == 'uninitiated' || mtStatus == 'changed')
             dispatch(MeasurmentTypeSlice.Fetch());
     }, [mtStatus])
 
     React.useEffect(() => {
-        if (status == 'unintiated' || meterID !== props.Meter.ID || status == 'changed')
+        if (status == 'uninitiated' || meterID !== props.Meter.ID || status == 'changed')
             dispatch(FetchChannels({ meterId: props.Meter.ID }));
     }, [props.Meter,status])
 

@@ -36,7 +36,7 @@ export default function MeterInfoPage(props: { MeterInfo: OpenXDA.Types.Meter, U
     const mStatus = useAppSelector(SelectMeterStatus);
 
     React.useEffect(() => {
-        if (mStatus === 'unintiated' || mStatus === 'changed') {
+        if (mStatus === 'uninitiated' || mStatus === 'changed') {
             dispatch(FetchMeter());
             return function () {
             }

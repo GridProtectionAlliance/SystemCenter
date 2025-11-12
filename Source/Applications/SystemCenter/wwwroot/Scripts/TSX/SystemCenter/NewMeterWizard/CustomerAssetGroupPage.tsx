@@ -45,7 +45,7 @@ interface CommonCustomerAssetMeter extends LocalXDA.CustomerAsset, LocalXDA.Cust
 interface CommonAssetGroupAssetMeter extends LocalXDA.AssetAssetGroup, LocalXDA.MeterAssetGroup { }
 
 export default function CustomerAssetGroupPage(props: IProps) {
-    const [state, setState] = React.useState<Application.Types.Status>('unintiated');
+    const [state, setState] = React.useState<Application.Types.Status>('uninitiated');
     const dispatch = useAppDispatch();
 
     const [customerList, setCustomerList] = React.useState<CommonCustomerAssetMeter[]>([]);
@@ -92,12 +92,12 @@ export default function CustomerAssetGroupPage(props: IProps) {
     }, [showGroup]);
 
     React.useEffect(() => {
-        if (customerStatus === 'unintiated' || customerStatus === 'changed')
+        if (customerStatus === 'uninitiated' || customerStatus === 'changed')
             dispatch(CustomerSlice.Fetch());
     }, [CustomerSlice]);
 
     React.useEffect(() => {
-        if (groupStatus === 'unintiated' || groupStatus === 'changed')
+        if (groupStatus === 'uninitiated' || groupStatus === 'changed')
             dispatch(AssetGroupSlice.Fetch());
     }, [AssetGroupSlice]);
 

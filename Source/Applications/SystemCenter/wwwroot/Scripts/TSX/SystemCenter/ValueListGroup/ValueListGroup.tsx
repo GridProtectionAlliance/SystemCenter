@@ -57,7 +57,7 @@ export default function ValueListGroup(props: IProps) {
     }, [tab]);
 
     React.useEffect(() => {
-        if (valueListGroupStatus == 'unintiated' || valueListGroupStatus == 'changed')
+        if (valueListGroupStatus == 'uninitiated' || valueListGroupStatus == 'changed')
             dispatch(ValueListGroupSlice.Fetch());
     }, [valueListGroupStatus]);
 

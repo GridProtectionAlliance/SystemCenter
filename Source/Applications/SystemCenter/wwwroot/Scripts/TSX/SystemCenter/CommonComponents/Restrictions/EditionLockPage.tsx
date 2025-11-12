@@ -36,7 +36,7 @@ const EditionLockPage: React.FunctionComponent<IProps> = (props) => {
     const config = useAppSelector(ConfigSlice.XDAConfig);
 
     React.useEffect(() => {
-        if (configStatus == 'unintiated' || configStatus == 'changed')
+        if (configStatus == 'uninitiated' || configStatus == 'changed')
             dispatch(ConfigSlice.FetchXDAConfig());
     }, [configStatus]);
 

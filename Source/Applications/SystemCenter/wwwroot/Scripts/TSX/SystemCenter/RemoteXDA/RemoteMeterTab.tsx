@@ -84,17 +84,17 @@ const RemoteMeterTab = (props: IProps) => {
     const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
 
     React.useEffect(() => {
-        if (remoteMeterStatus === 'unintiated' || remoteMeterStatus === 'changed')
+        if (remoteMeterStatus === 'uninitiated' || remoteMeterStatus === 'changed')
             dispatch(RemoteXDAMeterSlice.Fetch());
     }, [dispatch, remoteMeterStatus]);
 
     React.useEffect(() => {
-        if (meterStatus === 'unintiated' || meterStatus === 'changed')
+        if (meterStatus === 'uninitiated' || meterStatus === 'changed')
             dispatch(ByMeterSlice.Fetch());
     }, [dispatch, meterStatus]);
 
     React.useEffect(() => {
-        if (searchState === 'unintiated' || searchState === 'changed')
+        if (searchState === 'uninitiated' || searchState === 'changed')
             dispatch(RemoteXDAMeterSlice.DBSearch({ filter: searchFilters, ascending: ascending, sortField: sortKey }));
     }, [dispatch, searchState]);
 

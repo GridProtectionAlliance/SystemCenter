@@ -55,12 +55,12 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
 
     const [errors, setErrors] = React.useState<string[]>([]);
     React.useEffect(() => {
-        if (status === 'unintiated' || status === 'changed')
+        if (status === 'uninitiated' || status === 'changed')
             dispatch(props.SettingsSlice.Fetch());
     }, [status]);
 
     React.useEffect(() => {
-        if (searchStatus === 'unintiated' || searchStatus === 'changed')
+        if (searchStatus === 'uninitiated' || searchStatus === 'changed')
             dispatch(props.SettingsSlice.DBSearch({ filter: search, sortField, ascending }));
     }, [searchStatus]);
 

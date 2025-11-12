@@ -98,17 +98,17 @@ const ChannelScalingForm = (props: IProps) => {
     }, [multiplier.Voltage, multiplier.Current]);
 
     React.useEffect(() => {
-        if (pStatus == 'unintiated' || pStatus == 'changed')
+        if (pStatus == 'uninitiated' || pStatus == 'changed')
             dispatch(PhaseSlice.Fetch());
     }, [pStatus])
 
     React.useEffect(() => {
-        if (mtStatus == 'unintiated' || pStatus == 'changed')
+        if (mtStatus == 'uninitiated' || pStatus == 'changed')
             dispatch(MeasurmentTypeSlice.Fetch());
     }, [mtStatus])
 
     React.useEffect(() => {
-        if (mcStatus == 'unintiated' || pStatus == 'changed')
+        if (mcStatus == 'uninitiated' || pStatus == 'changed')
             dispatch(MeasurementCharacteristicSlice.Fetch());
     }, [mcStatus])
 

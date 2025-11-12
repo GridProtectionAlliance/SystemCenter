@@ -69,7 +69,7 @@ function Applications(props: IProps) {
     const status: Application.Types.Status = useAppSelector(PQApplicationsSlice.Status);
 
     React.useEffect(() => {
-        if (status === 'unintiated' || status === 'changed' || parentID !== props.ID)
+        if (status === 'uninitiated' || status === 'changed' || parentID !== props.ID)
             dispatch(PQApplicationsSlice.Fetch(props.ID));
     }, [dispatch, status, parentID]);
 

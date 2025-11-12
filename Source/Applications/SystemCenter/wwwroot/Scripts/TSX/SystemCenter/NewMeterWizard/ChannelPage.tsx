@@ -103,17 +103,17 @@ export default function ChannelPage(props: IProps) {
     }, []);
 
     React.useEffect(() => {
-        if (mTStatus == 'unintiated' || mTStatus == 'changed')
+        if (mTStatus == 'uninitiated' || mTStatus == 'changed')
             dispatch(MeasurmentTypeSlice.Fetch()); 
     }, [mTStatus]);
 
     React.useEffect(() => {
-        if (mCStatus == 'unintiated' || mCStatus == 'changed')
+        if (mCStatus == 'uninitiated' || mCStatus == 'changed')
             dispatch(MeasurementCharacteristicSlice.Fetch()); 
     }, [mCStatus]);
 
     React.useEffect(() => {
-        if (pStatus == 'unintiated' || pStatus == 'changed')
+        if (pStatus == 'uninitiated' || pStatus == 'changed')
             dispatch(PhaseSlice.Fetch()); 
     }, [pStatus]);
 

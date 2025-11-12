@@ -59,7 +59,7 @@ export default function AssetSelect(props: IProps) {
     };
 
     React.useEffect(() => {
-        if (assetTypeStatus == 'changed' || assetTypeStatus == 'unintiated')
+        if (assetTypeStatus == 'changed' || assetTypeStatus == 'uninitiated')
             dispatch(AssetTypeSlice.Fetch());
     }, [assetTypeStatus]);
 

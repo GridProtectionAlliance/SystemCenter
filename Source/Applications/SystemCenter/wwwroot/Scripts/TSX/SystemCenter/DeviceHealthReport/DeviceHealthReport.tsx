@@ -86,7 +86,7 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
     }, []);
 
     React.useEffect(() => {
-        if (settingStatus == 'unintiated' || settingStatus == 'changed')
+        if (settingStatus == 'uninitiated' || settingStatus == 'changed')
             dispatch(SystemCenterSettingSlice.Fetch());
     }, [settingStatus]);
 

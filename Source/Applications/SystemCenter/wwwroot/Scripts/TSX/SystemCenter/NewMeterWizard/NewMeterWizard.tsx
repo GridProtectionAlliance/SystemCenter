@@ -99,18 +99,18 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
     const [warning, setWarning] = React.useState<string[]>([]);
     const [hover, setHover] = React.useState<'None' | 'Next' | 'Prev'>('None');
     const [showSubmit, setShowSubmit] = React.useState<boolean>(false);
-    const [status, setStatus] = React.useState<Application.Types.Status>('unintiated');
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 
     const [addlFldValues, setAddlFldValues] = React.useState<SystemCenter.Types.AdditionalFieldValue[]>([]);
 
     // Callback for saving additional fields
     React.useEffect(() => {
-        if (mStatus === 'unintiated' || mStatus === 'changed')
+        if (mStatus === 'uninitiated' || mStatus === 'changed')
             dispatch(FetchMeter());
     }, [mStatus, dispatch]);
 
     React.useEffect(() => {
-        if (lStatus === 'unintiated' || lStatus === 'changed')
+        if (lStatus === 'uninitiated' || lStatus === 'changed')
             dispatch(LocationSlice.Fetch());
     }, [lStatus, dispatch]);
 
@@ -349,7 +349,7 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
         setChannels(getChannels());
         setCurrentStep(getCurrentStep());
         setAssets(getAssets());
-        setStatus('unintiated');
+        setStatus('uninitiated');
         setError([])
         //Take us back to meter page when done
         if (currentStep > saveStep)

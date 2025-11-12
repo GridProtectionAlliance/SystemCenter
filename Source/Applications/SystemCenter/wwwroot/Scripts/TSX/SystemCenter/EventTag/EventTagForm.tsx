@@ -34,7 +34,7 @@ export default function EventTagForm(props: { Record: OpenXDA.Types.EventTag, Se
     const allTagsStatus = useAppSelector(EventTagSlice.Status);
 
     React.useEffect(() => {
-        if (allTagsStatus == 'unintiated' || allTagsStatus == 'changed')
+        if (allTagsStatus == 'uninitiated' || allTagsStatus == 'changed')
             dispatch(EventTagSlice.Fetch());
     }, [allTagsStatus]);
 

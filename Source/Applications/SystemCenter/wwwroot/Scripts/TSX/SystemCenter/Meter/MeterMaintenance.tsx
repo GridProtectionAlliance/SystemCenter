@@ -50,7 +50,7 @@ const MeterMaintenanceWindow = (props: IProps) => {
     // Table Consts
     const [sortKey, setSortKey] = React.useState<keyof MaintenanceWindow>('StartTime');
     const [ascending, setAscending] = React.useState<boolean>(true);
-    const [status, setStatus] = React.useState<Application.Types.Status>('unintiated');
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [tableData, setTableData] = React.useState<MaintenanceWindow[]>([]);
 
     // Modal Consts

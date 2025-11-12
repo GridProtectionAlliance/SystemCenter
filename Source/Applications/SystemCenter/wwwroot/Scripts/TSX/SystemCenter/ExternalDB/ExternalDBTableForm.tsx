@@ -44,7 +44,7 @@ export default function ExternalDBTableForm(props: IProps) {
     const extDbStatus = useAppSelector(ExternalDatabasesSlice.Status);
 
     React.useEffect(() => {
-        if (extDbStatus === 'unintiated' || extDbStatus === 'changed')
+        if (extDbStatus === 'uninitiated' || extDbStatus === 'changed')
             dispatch(ExternalDatabasesSlice.Fetch());
     }, [extDbStatus]);
 

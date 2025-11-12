@@ -71,8 +71,8 @@ export default class NoteSlice {
         const slice = createSlice({
             name: this.Name,
             initialState: {
-                Status: 'unintiated',
-                SearchStatus: 'unintiated',
+                Status: 'uninitiated',
+                SearchStatus: 'uninitiated',
                 Error: null,
                 Data: [],
                 SortField: 'Timestamp',

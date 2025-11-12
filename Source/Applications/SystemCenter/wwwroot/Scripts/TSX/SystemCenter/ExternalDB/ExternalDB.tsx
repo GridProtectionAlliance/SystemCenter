@@ -42,7 +42,7 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
     const [tab, setTab] = React.useState(getTab());
     const [showRemove, setShowRemove] = React.useState<boolean>(false);
 
-    const [requestStatus, setRequestStatus] = React.useState<Application.Types.Status>('unintiated');
+    const [requestStatus, setRequestStatus] = React.useState<Application.Types.Status>('uninitiated');
 
     const Tabs = [
         { Id: "info", Label: "Info" },
@@ -50,7 +50,7 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
     ];
 
     React.useEffect(() => {
-        if (status == 'unintiated' || status == 'changed')
+        if (status == 'uninitiated' || status == 'changed')
             dispatch(ExternalDatabasesSlice.Fetch());
     }, [status]);
 
@@ -95,7 +95,7 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
     }, [record]);
 
     const ClosePopup = React.useCallback(() => {
-        setRequestStatus('unintiated');
+        setRequestStatus('uninitiated');
     }, [setRequestStatus]);
 
     if (record == null) return null;

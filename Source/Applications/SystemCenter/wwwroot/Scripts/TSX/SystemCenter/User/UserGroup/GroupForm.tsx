@@ -45,7 +45,7 @@ function GroupForm(props: IProps) {
     const [valid, setValid] = React.useState<'valid' | 'resolving' | 'invalid' | 'unknown'>("valid")
 
     React.useEffect(() => {
-        if (groupStatus === 'unintiated' || groupStatus === 'changed')
+        if (groupStatus === 'uninitiated' || groupStatus === 'changed')
             dispatch(SecurityGroupSlice.Fetch());
     }, [groupStatus]);
 

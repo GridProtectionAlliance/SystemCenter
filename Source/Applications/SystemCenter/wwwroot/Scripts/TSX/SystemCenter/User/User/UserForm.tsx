@@ -47,7 +47,7 @@ function UserForm(props: IProps) {
     const [valid, setValid] = React.useState<'valid' | 'resolving' | 'invalid' | 'unknown'>("valid")
 
     React.useEffect(() => {
-        if (userStatus === 'unintiated' || userStatus === 'changed')
+        if (userStatus === 'uninitiated' || userStatus === 'changed')
             dispatch(UserAccountSlice.Fetch());
     }, [userStatus]);
 

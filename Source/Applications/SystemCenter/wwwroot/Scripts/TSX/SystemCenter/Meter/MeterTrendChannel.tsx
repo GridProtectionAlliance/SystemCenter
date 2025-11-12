@@ -68,22 +68,22 @@ const MeterTrendChannelWindow = (props: IProps) => {
 
 
     React.useEffect(() => {
-        if (phaseStatus == 'unintiated' || phaseStatus == 'changed')
+        if (phaseStatus == 'uninitiated' || phaseStatus == 'changed')
             dispatch(PhaseSlice.Fetch());
     }, [phaseStatus]);
 
     React.useEffect(() => {
-        if (mtStatus == 'unintiated' || mtStatus == 'changed')
+        if (mtStatus == 'uninitiated' || mtStatus == 'changed')
             dispatch(MeasurmentTypeSlice.Fetch());
     }, [mtStatus]);
 
     React.useEffect(() => {
-        if (mcStatus == 'unintiated' || mcStatus == 'changed')
+        if (mcStatus == 'uninitiated' || mcStatus == 'changed')
             dispatch(MeasurementCharacteristicSlice.Fetch());
     }, [mcStatus]);
 
     React.useEffect(() => {
-        if (status == 'unintiated' || status == 'changed' || meterID !== props.Meter.ID)
+        if (status == 'uninitiated' || status == 'changed' || meterID !== props.Meter.ID)
             dispatch(TrendChannelSlice.Fetch(props.Meter.ID));
     }, [props.Meter, status]);
 

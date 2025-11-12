@@ -59,7 +59,7 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
     }, [props.AssetGroupID, counter]);
 
     React.useEffect(() => {
-        if (assetTypeStatus == 'changed' || assetTypeStatus == 'unintiated')
+        if (assetTypeStatus == 'changed' || assetTypeStatus == 'uninitiated')
             dispatch(AssetTypeSlice.Fetch());
     }, [assetTypeStatus]);
 

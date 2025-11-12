@@ -53,7 +53,7 @@ const AdditionalFieldsPage: React.ForwardRefRenderFunction<IRef, IProps> = (prop
     const dispatch = useAppDispatch();
     const [changes, setChanges] = React.useState<SystemCenter.Types.AdditionalFieldValue[]>([]);
     const [values, setValues] = React.useState<SystemCenter.Types.AdditionalFieldValue[]>([]);
-    const [state, setState] = React.useState<Application.Types.Status>('unintiated')
+    const [state, setState] = React.useState<Application.Types.Status>('uninitiated')
     const [invalidChanges, setInvalidChanges] = React.useState<IValidated[]>([]);
 
     React.useEffect(() => { props.SetError(invalidChanges.map((m) => m.Message))}, [invalidChanges]);

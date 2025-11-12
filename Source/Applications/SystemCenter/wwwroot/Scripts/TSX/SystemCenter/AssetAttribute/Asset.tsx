@@ -52,7 +52,7 @@ export namespace AssetAttributes {
         const roles = useAppSelector(SelectRoles);
 
         React.useEffect(() => {
-            if (assetStatus == 'unintiated' || assetStatus == 'changed')
+            if (assetStatus == 'uninitiated' || assetStatus == 'changed')
                 dispatch(FetchAsset());
         }, [assetStatus]);
 

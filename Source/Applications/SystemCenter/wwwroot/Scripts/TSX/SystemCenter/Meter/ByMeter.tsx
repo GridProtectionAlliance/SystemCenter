@@ -56,7 +56,7 @@ const ByMeter: Application.Types.iByComponent = (props) => {
     }, [sortKey, ascending, page]);
 
     React.useEffect(() => {
-        if (cState === 'unintiated' || cState === 'changed')
+        if (cState === 'uninitiated' || cState === 'changed')
             dispatch(ByMeterSlice.PagedSearch({ sortField: sortKey, ascending, page }));
     }, [cState]);
 

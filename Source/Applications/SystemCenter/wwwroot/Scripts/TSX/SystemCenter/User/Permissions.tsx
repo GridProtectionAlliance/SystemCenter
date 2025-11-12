@@ -48,7 +48,7 @@ function Permission(props: IProps) {
     const applicationNodeStatus = useAppSelector(ApplicationNodeSlice.Status);
     const applicationNodes = useAppSelector(ApplicationNodeSlice.Data);
 
-    const [status, setStatus] = React.useState<Application.Types.Status>('unintiated');
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 
     React.useEffect(() => {
         const handle = LoadRoles();
@@ -56,12 +56,12 @@ function Permission(props: IProps) {
     }, []);
 
     React.useEffect(() => {
-        if (applicationNodeStatus === 'unintiated' || applicationNodeStatus === 'changed')
+        if (applicationNodeStatus === 'uninitiated' || applicationNodeStatus === 'changed')
             dispatch(ApplicationNodeSlice.Fetch())
     }, [applicationNodeStatus])
 
     React.useEffect(() => {
-        if (applicationRolesStatus === 'unintiated' || applicationRolesStatus === 'changed')
+        if (applicationRolesStatus === 'uninitiated' || applicationRolesStatus === 'changed')
             dispatch(ApplicationRoleSlice.Fetch())
     }, [applicationRolesStatus])
 

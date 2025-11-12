@@ -69,7 +69,7 @@ export default function ExternalDBXdaFieldsForm(props: IProps) {
     }, [props.Record]);
 
     React.useEffect(() => {
-        if (status == 'unintiated' || status == 'changed' || parentID !== props.Record.ExternalDBTableID)
+        if (status == 'uninitiated' || status == 'changed' || parentID !== props.Record.ExternalDBTableID)
             dispatch(ExternalXDAFieldsSlice.Fetch(props.Record.ExternalDBTableID));
     }, [status, parentID, props.Record.ExternalDBTableID]);
 

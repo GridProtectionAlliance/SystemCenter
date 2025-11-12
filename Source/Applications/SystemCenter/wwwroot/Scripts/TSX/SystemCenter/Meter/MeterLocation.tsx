@@ -62,7 +62,7 @@ const LocationWindow = (props: IProps) => {
     const roles = useAppSelector(SelectRoles);
 
     React.useEffect(() => {
-        if (locationStatus === 'unintiated' || locationStatus === 'changed')
+        if (locationStatus === 'uninitiated' || locationStatus === 'changed')
             dispatch(LocationSlice.Fetch());
         else if (locationStatus === 'idle' && updateMeter)
             setLocation(locationList.find((d: OpenXDA.Types.Location) => d.LocationKey === location.LocationKey) as OpenXDA.Types.Location);

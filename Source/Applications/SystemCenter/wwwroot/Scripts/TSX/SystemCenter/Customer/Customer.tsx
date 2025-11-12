@@ -64,7 +64,7 @@ export default function Customer(props: IProps) {
     }, [tab]);
 
     React.useEffect(() => {
-        if (cStatus == 'unintiated' || cStatus == 'changed')
+        if (cStatus == 'uninitiated' || cStatus == 'changed')
             dispatch(CustomerSlice.Fetch());
     }, [cStatus])
 
@@ -83,7 +83,7 @@ export default function Customer(props: IProps) {
         window.location.href = homePath + 'index.cshtml?name=PQViewCustomers'
     }
 
-    if (cStatus == 'unintiated' || cStatus == 'loading')
+    if (cStatus == 'uninitiated' || cStatus == 'loading')
         return null;
 
     if (cStatus == 'error')

@@ -43,7 +43,7 @@ export default function WidgetForm(props: IProps) {
     const allWidgetStatus = useAppSelector(SEBrowserWidgetSlice.Status);
 
     React.useEffect(() => {
-        if (allWidgetStatus == 'unintiated' || allWidgetStatus == 'changed')
+        if (allWidgetStatus == 'uninitiated' || allWidgetStatus == 'changed')
             dispatch(SEBrowserWidgetSlice.Fetch());
     }, [allWidgetStatus]);
 

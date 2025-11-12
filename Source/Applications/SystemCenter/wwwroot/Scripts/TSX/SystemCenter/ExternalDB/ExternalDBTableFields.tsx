@@ -60,7 +60,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
 
     const [fieldsInTable, setFieldsInTable] = React.useState<SystemCenter.Types.AdditionalFieldView[]>([]);
     const parentID = React.useRef<number>(-1);
-    const [tableStatus, setTableStatus] = React.useState<Application.Types.Status>('unintiated');
+    const [tableStatus, setTableStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [asc, setAsc] = React.useState<boolean>(true);
     const [sortKey, setSortKey] = React.useState<string>('FieldName');
 
@@ -75,7 +75,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
 
     React.useEffect(() => {
         if (status !== 'idle') return;
-        if (tableStatus === 'unintiated' || tableStatus === 'changed' || parentID.current !== props.ID) {
+        if (tableStatus === 'uninitiated' || tableStatus === 'changed' || parentID.current !== props.ID) {
             setTableStatus('loading');
             parentID.current = props.ID;
             const handle = $.ajax({
@@ -101,12 +101,12 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
     }, [sortKey, asc]);
 
     React.useEffect(() => {
-        if (status === 'unintiated' || status === 'changed')
+        if (status === 'uninitiated' || status === 'changed')
             dispatch(AdditionalFieldsSlice.Fetch());
     }, [status]);
 
     React.useEffect(() => {
-        if (valueListGroupStatus === 'unintiated' || valueListGroupStatus === 'changed')
+        if (valueListGroupStatus === 'uninitiated' || valueListGroupStatus === 'changed')
             dispatch(ValueListGroupSlice.Fetch());
     }, [valueListGroupStatus]);
 

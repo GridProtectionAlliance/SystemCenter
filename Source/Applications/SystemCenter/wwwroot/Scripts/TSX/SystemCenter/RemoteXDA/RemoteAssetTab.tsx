@@ -71,12 +71,12 @@ const RemoteAssetTab = (props: IProps) => {
     const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
 
     React.useEffect(() => {
-        if (remoteAssetStatus === 'unintiated' || remoteAssetStatus === 'changed')
+        if (remoteAssetStatus === 'uninitiated' || remoteAssetStatus === 'changed')
             dispatch(RemoteXDAAssetSlice.Fetch());
     }, [dispatch, remoteAssetStatus]);
 
     React.useEffect(() => {
-        if (searchState === 'unintiated' || searchState === 'changed')
+        if (searchState === 'uninitiated' || searchState === 'changed')
             dispatch(RemoteXDAAssetSlice.DBSearch({ filter: searchFilters, ascending: ascending, sortField: sortKey }));
     }, [dispatch, searchState]);
 
@@ -85,7 +85,7 @@ const RemoteAssetTab = (props: IProps) => {
     }, [ascending, sortKey]);
 
     React.useEffect(() => {
-        if (assetStatus === 'unintiated' || assetStatus === 'changed')
+        if (assetStatus === 'uninitiated' || assetStatus === 'changed')
             dispatch(ByAssetSlice.Fetch());
     }, [dispatch, assetStatus]);
 

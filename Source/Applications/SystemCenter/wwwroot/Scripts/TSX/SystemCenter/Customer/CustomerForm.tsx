@@ -77,22 +77,22 @@ export default function CustomerForm(props: IProps) {
 
 
     React.useEffect(() => {
-        if (pqiFacilityStatus == 'unintiated' || pqiFacilityStatus == 'changed')
+        if (pqiFacilityStatus == 'uninitiated' || pqiFacilityStatus == 'changed')
             dispatch(FetchPQIFacilities());
     }, [pqiFacilityStatus])
 
     React.useEffect(() => {
-        if (pqiAddressStatus == 'unintiated' || pqiAddressStatus == 'changed')
+        if (pqiAddressStatus == 'uninitiated' || pqiAddressStatus == 'changed')
             dispatch(FetchPQIAddresses());
     }, [pqiAddressStatus])
 
     React.useEffect(() => {
-        if (pqiCompanyStatus == 'unintiated' || pqiCompanyStatus == 'changed')
+        if (pqiCompanyStatus == 'uninitiated' || pqiCompanyStatus == 'changed')
             dispatch(FetchPQICompanies());
     }, [pqiCompanyStatus])
 
     React.useEffect(() => {
-        if (acStatus == 'changed' || acStatus == 'unintiated')
+        if (acStatus == 'changed' || acStatus == 'uninitiated')
             dispatch(CustomerSlice.Fetch());
     }, [])
 

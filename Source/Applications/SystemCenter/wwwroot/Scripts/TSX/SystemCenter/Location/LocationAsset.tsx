@@ -79,12 +79,12 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
     const [pageInfo, setPageInfo] = React.useState<{ RecordsPerPage: number, NumberOfPages: number, TotalRecords: number }>({ RecordsPerPage: 0, NumberOfPages: 0, TotalRecords: 0 });
 
     React.useEffect(() => {
-        if (atStatus == 'unintiated' || atStatus == 'changed')
+        if (atStatus == 'uninitiated' || atStatus == 'changed')
             dispatch(AssetTypeSlice.Fetch());
     }, []);
 
     React.useEffect(() => {
-        if (aStatus == 'unintiated' || aStatus == 'changed')
+        if (aStatus == 'uninitiated' || aStatus == 'changed')
             dispatch(FetchAsset());
     }, []);
 
