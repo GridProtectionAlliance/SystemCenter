@@ -41,7 +41,7 @@ const statStyle: React.CSSProperties = {
 
 const ConsoleWindow = (props: IProps) => {
     const [statInfo, setStatInfo] = React.useState<string>('');
-    const [status, setStatus] = React.useState<Application.Types.Status>('unintiated');
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [autoScroll, setAutoScroll] = React.useState<boolean>(true);
     const [lastUpdate, setLastUpdate] = React.useState<string|null>('');
 
@@ -79,7 +79,7 @@ const ConsoleWindow = (props: IProps) => {
         <Modal
             Show={props.StatsURL != undefined && props.StatsURL.length > 0}
             ShowCancel={false} ShowConfirm={false} ShowX={true} Size={'xlg'}
-            CallBack={() => { props.Close(); setStatus('unintiated'); setStatInfo('') }}
+            CallBack={() => { props.Close(); setStatus('uninitiated'); setStatInfo('') }}
             Title={'Statistics - ' + props.ApplicationName}
         >
             <LoadingScreen Show={status === "loading"} />

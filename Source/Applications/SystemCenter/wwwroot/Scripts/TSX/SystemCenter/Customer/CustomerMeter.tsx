@@ -51,7 +51,7 @@ const CustomerMeterWindow = (props: IProps) => {
     const roles = useAppSelector(SelectRoles);
 
     React.useEffect(() => {
-        if (status == 'unintiated' || status == 'changed')
+        if (status == 'uninitiated' || status == 'changed')
             getData();
     }, [status])
 

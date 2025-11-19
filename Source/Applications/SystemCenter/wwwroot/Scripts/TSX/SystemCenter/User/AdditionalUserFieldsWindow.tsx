@@ -57,7 +57,7 @@ function AdditionalField(props: IProps) {
 	const valueStatus = useAppSelector(UserAdditionalFieldSlice.ValueStatus);
 	const valueParentID = useAppSelector(UserAdditionalFieldSlice.ValueParentId);
 
-	const [pageStatus, setPageStatus] = React.useState<Application.Types.Status>('unintiated');
+	const [pageStatus, setPageStatus] = React.useState<Application.Types.Status>('uninitiated');
 
 	const [editValues, setEditValues] = React.useState<Application.Types.iAdditionalUserFieldValue[]>([]);
 
@@ -88,22 +88,22 @@ function AdditionalField(props: IProps) {
 	}, [fieldStatus, valueStatus, valueListGroupStatus, valueListItemStatus])
 
 	React.useEffect(() => {
-		if (fieldStatus === 'unintiated' || fieldStatus === 'changed')
+		if (fieldStatus === 'uninitiated' || fieldStatus === 'changed')
 			dispatch(UserAdditionalFieldSlice.FetchField());
 	}, [dispatch, fieldStatus]);
 
 	React.useEffect(() => {
-		if (valueStatus === 'unintiated' || valueStatus === 'changed' || props.Id !== valueParentID)
+		if (valueStatus === 'uninitiated' || valueStatus === 'changed' || props.Id !== valueParentID)
 			dispatch(UserAdditionalFieldSlice.FetchValues(props.Id));
 	}, [dispatch, valueStatus, props.Id, valueParentID]);
 
 	React.useEffect(() => {
-		if (valueListItemStatus === 'unintiated' || valueListItemStatus === 'changed')
+		if (valueListItemStatus === 'uninitiated' || valueListItemStatus === 'changed')
 			dispatch(ValueListSlice.Fetch());
 	}, [dispatch, valueListItemStatus]);
 
 	React.useEffect(() => {
-		if (valueListGroupStatus === 'unintiated' || valueListGroupStatus === 'changed')
+		if (valueListGroupStatus === 'uninitiated' || valueListGroupStatus === 'changed')
 			dispatch(ValueListGroupSlice.Fetch());
 	}, [dispatch, valueListGroupStatus]);
 

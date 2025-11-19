@@ -39,7 +39,7 @@ interface IProps {
 }
 
 const ChannelScalingWindow = (props: IProps) => {
-    const [status, setStatus] = React.useState<Application.Types.Status>('unintiated');
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [channels, setChannels] = React.useState<OpenXDA.Types.Channel[]>([]);
     const dispatch = useAppDispatch();
 

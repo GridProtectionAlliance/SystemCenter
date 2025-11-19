@@ -66,8 +66,8 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
 
     const [plotData, setPlotData] = React.useState<IAccessSummary[]>([])
 
-    const [tableStatus, setTableStatus] = React.useState<Application.Types.Status>('unintiated');
-    const [plotStatus, setPlotStatus] = React.useState<Application.Types.Status>('unintiated');
+    const [tableStatus, setTableStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [plotStatus, setPlotStatus] = React.useState<Application.Types.Status>('uninitiated');
 
     const applicationNodeStatus = useAppSelector(ApplicationNodeSlice.Status);
     const applicationNodes = useAppSelector(ApplicationNodeSlice.Data);
@@ -79,7 +79,7 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
     const [plotWidth, setPlotWidth] = React.useState<number>(100);
 
     React.useEffect(() => {
-        if (applicationNodeStatus === 'unintiated' || applicationNodeStatus === 'changed')
+        if (applicationNodeStatus === 'uninitiated' || applicationNodeStatus === 'changed')
             dispatch(ApplicationNodeSlice.Fetch())
     }, [applicationNodeStatus])
 

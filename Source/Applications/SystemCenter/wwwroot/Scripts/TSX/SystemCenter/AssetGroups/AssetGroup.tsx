@@ -65,7 +65,7 @@ function AssetGroup(props: IProps) {
     }, [tab]);
 
     React.useEffect(() => {
-        if (gStatus == 'unintiated' || gStatus == 'changed')
+        if (gStatus == 'uninitiated' || gStatus == 'changed')
             dispatch(AssetGroupSlice.Fetch());
     }, [gStatus])
 
@@ -76,7 +76,7 @@ function AssetGroup(props: IProps) {
         window.location.href = homePath + 'index.cshtml?name=AssetGroups'
     }
 
-    if (gStatus == 'unintiated')
+    if (gStatus == 'uninitiated')
         return null;
 
     if (gStatus == 'error')

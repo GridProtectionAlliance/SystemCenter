@@ -44,7 +44,7 @@ function ApplicationCategory(props: IProps) {
     const dispatch = useAppDispatch();
 
     React.useEffect(() => {
-        if (acStatus == 'unintiated' || acStatus == 'changed')
+        if (acStatus == 'uninitiated' || acStatus == 'changed')
             dispatch(ApplicationCategorySlice.Fetch());
     }, [acStatus]);
 

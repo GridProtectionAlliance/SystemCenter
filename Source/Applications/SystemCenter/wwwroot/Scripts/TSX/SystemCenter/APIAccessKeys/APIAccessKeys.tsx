@@ -92,7 +92,7 @@ const ByAPIAccessKeys: Application.Types.iByComponent = (props) => {
     }, [search, ascending, sortKey, page]);
 
     React.useEffect(() => {
-        if (state == 'unintiated' || state == 'changed')
+        if (state == 'uninitiated' || state == 'changed')
             dispatch(APIAccessKeySlice.PagedSearch({ sortField: sortKey, ascending, filter: search }))
     }, [state, tstate]);
 

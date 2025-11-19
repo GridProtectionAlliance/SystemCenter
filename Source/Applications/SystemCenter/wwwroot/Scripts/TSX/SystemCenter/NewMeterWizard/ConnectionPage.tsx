@@ -61,7 +61,7 @@ export default function ConnectionPage(props: IProps) {
 
     const [showAssetConnection, setShowAssetConnection] = React.useState<boolean>(false);
 
-    const [status, setStatus] = React.useState<Application.Types.Status>('unintiated');
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [currentConnections, setCurrentConnections] = React.useState<IConnection[]>([]);
 
     const [asc, setAsc] = React.useState<boolean>(true);

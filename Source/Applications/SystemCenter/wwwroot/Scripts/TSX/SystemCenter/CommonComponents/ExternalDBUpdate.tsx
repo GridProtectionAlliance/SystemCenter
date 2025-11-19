@@ -39,7 +39,7 @@ const ExternalDBUpdate = React.memo((props: {
     const [statusMap, setStatusMap] = React.useState<Map<number, Application.Types.Status>>(new Map<number, Application.Types.Status>());
     const [externalDB, setExternalDB] = React.useState<Array<SystemCenter.Types.DetailedExternalDatabases>>([]);
     // Status/reload for whole page
-    const [status, setStatus] = React.useState<Application.Types.Status>('unintiated');
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [reload, reloadExternals] = React.useState<number>(0);
     // Table Controls
     const [asc, setAsc] = React.useState<boolean>(true);

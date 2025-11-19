@@ -50,7 +50,7 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
     ];
 
     React.useEffect(() => {
-        if (status == 'unintiated' || status == 'changed')
+        if (status == 'uninitiated' || status == 'changed')
             dispatch(ExternalDBTablesSlice.Fetch());
     }, [status]);
 

@@ -58,7 +58,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     }, []);
 
     React.useEffect(() => {
-        if (settingsStatus == 'unintiated' || settingsStatus == 'changed')
+        if (settingsStatus == 'uninitiated' || settingsStatus == 'changed')
             dispatch(SystemCenterSettingSlice.Fetch());
     }, [settingsStatus]);
 

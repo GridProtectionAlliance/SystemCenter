@@ -91,12 +91,12 @@ const ByLocation: Application.Types.iByComponent = (props) => {
     }, [newLocation, allKeys]);
 
     React.useEffect(() => {
-        if (status == 'changed' || status == 'unintiated')
+        if (status == 'changed' || status == 'uninitiated')
             dispatch(ByLocationSlice.Fetch());
     }, [dispatch, status])
 
     React.useEffect(() => {
-        if (searchStatus == 'changed' || searchStatus == 'unintiated')
+        if (searchStatus == 'changed' || searchStatus == 'uninitiated')
             dispatch(ByLocationSlice.PagedSearch({ filter: searchFields, sortField: sortKey, ascending, page }));
     }, [searchStatus]);
 

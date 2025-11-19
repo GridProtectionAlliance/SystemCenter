@@ -47,22 +47,22 @@ export default function ChannelGroupItemForm(props: IProps) {
     const valueListGroupStatus = useAppSelector(ValueListGroupSlice.Status);
 
     React.useEffect(() => {
-        if (valueListGroupStatus == 'unintiated' || valueListGroupStatus == 'changed')
+        if (valueListGroupStatus == 'uninitiated' || valueListGroupStatus == 'changed')
             dispatch(ValueListGroupSlice.Fetch());
     }, [valueListGroupStatus]);
 
     React.useEffect(() => {
-        if (valueListStatus == 'unintiated' || valueListStatus == 'changed')
+        if (valueListStatus == 'uninitiated' || valueListStatus == 'changed')
             dispatch(ValueListSlice.Fetch());
     }, [valueListStatus]);
 
     React.useEffect(() => {
-        if (measurementTypeStatus == 'unintiated' || measurementTypeStatus == 'changed')
+        if (measurementTypeStatus == 'uninitiated' || measurementTypeStatus == 'changed')
             dispatch(MeasurmentTypeSlice.Fetch());
     }, [measurementTypeStatus]);
 
     React.useEffect(() => {
-        if (measurementCharacteristicStatus == 'unintiated' || measurementCharacteristicStatus == 'changed')
+        if (measurementCharacteristicStatus == 'uninitiated' || measurementCharacteristicStatus == 'changed')
             dispatch(MeasurementCharacteristicSlice.Fetch());
     }, [measurementCharacteristicStatus]);
 

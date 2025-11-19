@@ -44,7 +44,7 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
     const locationStatus = useAppSelector(LocationSlice.Status);
 
     const [assetLocations, setAssetLocations] = React.useState<OpenXDA.Types.AssetLocation[]>([]);
-    const [aLStatus, setALStatus] = React.useState<Application.Types.Status>('unintiated');
+    const [aLStatus, setALStatus] = React.useState<Application.Types.Status>('uninitiated');
 
     const sourceImpedances = useAppSelector(SourceImpedanceSlice.SearchResults);
     const sourceImpedanceStatus = useAppSelector(SourceImpedanceSlice.SearchStatus);
@@ -82,12 +82,12 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
     }, [props.ID])
 
     React.useEffect(() => {
-        if (locationStatus == 'changed' || locationStatus == 'unintiated')
+        if (locationStatus == 'changed' || locationStatus == 'uninitiated')
             dispatch(LocationSlice.Fetch());
     }, [locationStatus])
 
     React.useEffect(() => {
-        if (sourceImpedanceStatus == 'changed' || sourceImpedanceStatus == 'unintiated') {
+        if (sourceImpedanceStatus == 'changed' || sourceImpedanceStatus == 'uninitiated') {
             const filter = [
                 { FieldName: "AssetLocationID", Operator: "IN", Type: "query", IsPivotColumn: false, SearchText: `(SELECT ID FROM AssetLocation WHERE AssetID=${props.ID})` }
             ] as Search.IFilter<OpenXDA.Types.SourceImpedance>[]

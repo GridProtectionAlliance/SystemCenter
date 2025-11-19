@@ -44,7 +44,7 @@ export default function ChannelGroup(props: IProps) {
     const [showRemove, setShowRemove] = React.useState<boolean>(false);
 
     React.useEffect(() => {
-        if (channelGroupStatus == 'unintiated' || channelGroupStatus == 'changed')
+        if (channelGroupStatus == 'uninitiated' || channelGroupStatus == 'changed')
             dispatch(ChannelGroupSlice.Fetch());
     }, [channelGroupStatus]);
 

@@ -55,22 +55,22 @@ export default function MATLABAnalyticForm(props: {
     const assetTypeParentID = useAppSelector(MATLABAnalyticAssetTypeSlice.ParentID);
 
     React.useEffect(() => {
-        if (allEventTypesStatus == 'unintiated' || allEventTypesStatus == 'changed')
+        if (allEventTypesStatus == 'uninitiated' || allEventTypesStatus == 'changed')
             dispatch(EventTypeSlice.Fetch());
     }, [allEventTypesStatus]);
 
     React.useEffect(() => {
-        if (allAssetTypesStatus == 'unintiated' || allAssetTypesStatus == 'changed')
+        if (allAssetTypesStatus == 'uninitiated' || allAssetTypesStatus == 'changed')
             dispatch(AssetTypeSlice.Fetch());
     }, [allAssetTypesStatus]);
 
     React.useEffect(() => {
-        if (eventTypeStatus == 'unintiated' || eventTypeStatus == 'changed' || eventTypeParentID != props.Record.ID)
+        if (eventTypeStatus == 'uninitiated' || eventTypeStatus == 'changed' || eventTypeParentID != props.Record.ID)
             dispatch(MATLABAnalyticEventTypeSlice.Fetch(props.Record.ID));
     }, [eventTypeStatus, props.Record]);
 
     React.useEffect(() => {
-        if (assetTypeStatus == 'unintiated' || assetTypeStatus == 'changed' || assetTypeParentID != props.Record.ID)
+        if (assetTypeStatus == 'uninitiated' || assetTypeStatus == 'changed' || assetTypeParentID != props.Record.ID)
             dispatch(MATLABAnalyticAssetTypeSlice.Fetch(props.Record.ID));
     }, [assetTypeStatus, props.Record]);
 

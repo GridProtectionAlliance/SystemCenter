@@ -59,7 +59,7 @@ export default function ChannelGroupDetails(props: IProps) {
     const [errors, setErrors] = React.useState<string[]>([]);
 
     React.useEffect(() => {
-        if (status == 'unintiated' || status == 'changed' || parentID != props.Record.ID)
+        if (status == 'uninitiated' || status == 'changed' || parentID != props.Record.ID)
             dispatch(ChannelGroupDetailsSlice.Fetch(props.Record.ID));
     }, [status, parentID, props.Record.ID]);
 

@@ -50,17 +50,17 @@ export default function MATLABAnalytic(props: IProps) {
     const [showRemove, setShowRemove] = React.useState<boolean>(false);
 
     React.useEffect(() => {
-        if (status == 'unintiated' || status == 'changed')
+        if (status == 'uninitiated' || status == 'changed')
             dispatch(MATLABAnalyticSlice.Fetch());
     }, [status]);
 
     React.useEffect(() => {
-        if (eventTypeStatus == 'unintiated' || eventTypeStatus == 'changed')
+        if (eventTypeStatus == 'uninitiated' || eventTypeStatus == 'changed')
             dispatch(MATLABAnalyticEventTypeSlice.Fetch(props.AnalyticID));
     }, [eventTypeStatus]);
 
     React.useEffect(() => {
-        if (assetTypeStatus == 'unintiated' || assetTypeStatus == 'changed')
+        if (assetTypeStatus == 'uninitiated' || assetTypeStatus == 'changed')
             dispatch(MATLABAnalyticAssetTypeSlice.Fetch(props.AnalyticID));
     }, [assetTypeStatus]);
 

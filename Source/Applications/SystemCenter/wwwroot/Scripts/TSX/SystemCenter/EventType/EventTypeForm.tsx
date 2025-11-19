@@ -95,12 +95,12 @@ function EventTypeAssetTypeForm(props: IRightProps) {
     React.useEffect(() => { props.SetAssetTypeETs(etAt); }, [etAt]);
 
     React.useEffect(() => {
-        if (atStatus == 'unintiated' || atStatus == 'changed')
+        if (atStatus == 'uninitiated' || atStatus == 'changed')
             dispatch(AssetTypeSlice.Fetch());
     }, [atStatus]);
 
     React.useEffect(() => {
-        if (atetStatus == 'unintiated' || atetStatus == 'changed' || eventTypeAssettypeParentID != props?.ID)
+        if (atetStatus == 'uninitiated' || atetStatus == 'changed' || eventTypeAssettypeParentID != props?.ID)
             dispatch(EventTypeAssetTypeSlice.Fetch(props?.ID));
     }, [atetStatus, props?.ID]);
 

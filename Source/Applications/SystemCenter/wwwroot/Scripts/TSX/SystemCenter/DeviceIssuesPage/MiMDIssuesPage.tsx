@@ -66,7 +66,7 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
     }, [order]);
 
     React.useEffect(() => {
-        if (settingStatus == 'unintiated' || settingStatus == 'changed')
+        if (settingStatus == 'uninitiated' || settingStatus == 'changed')
             dispatch(SystemCenterSettingSlice.Fetch());
     }, [settingStatus]);
 

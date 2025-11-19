@@ -57,7 +57,7 @@ const EditionRestrictionTooltip: React.FunctionComponent<IProps> = (props) => {
     }, [configStatus, inSpecifiedEdition]);
 
     React.useEffect(() => {
-        if (configStatus == 'unintiated' || configStatus == 'changed')
+        if (configStatus == 'uninitiated' || configStatus == 'changed')
             dispatch(ConfigSlice.FetchXDAConfig());
     }, [configStatus]);
 

@@ -69,22 +69,22 @@ export default function QueryTestDialog(props: IProps) {
     const customerStatus = useAppSelector(CustomerSlice.Status);
 
     React.useEffect(() => {
-        if (assetStatus === 'unintiated' || assetStatus == 'changed')
+        if (assetStatus === 'uninitiated' || assetStatus == 'changed')
             dispatch(ByAssetSlice.Fetch());
     }, [assetStatus]);
 
     React.useEffect(() => {
-        if (meterStatus === 'unintiated' || meterStatus == 'changed')
+        if (meterStatus === 'uninitiated' || meterStatus == 'changed')
             dispatch(ByMeterSlice.Fetch());
     }, [meterStatus]);
 
     React.useEffect(() => {
-        if (locationStatus === 'unintiated' || locationStatus == 'changed')
+        if (locationStatus === 'uninitiated' || locationStatus == 'changed')
             dispatch(ByLocationSlice.Fetch());
     }, [locationStatus]);
 
     React.useEffect(() => {
-        if (customerStatus === 'unintiated' || customerStatus == 'changed')
+        if (customerStatus === 'uninitiated' || customerStatus == 'changed')
             dispatch(CustomerSlice.Fetch());
     }, [customerStatus]);
 

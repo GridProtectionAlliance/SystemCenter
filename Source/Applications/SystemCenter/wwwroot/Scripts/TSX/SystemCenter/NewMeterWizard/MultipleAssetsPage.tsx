@@ -36,7 +36,7 @@ interface IProps {
 }
 
 const MultipleAssetsPage: React.FC<IProps> = (props) => {
-    const [tableState, setTableState] = React.useState<Application.Types.Status>('unintiated');
+    const [tableState, setTableState] = React.useState<Application.Types.Status>('uninitiated');
     const [currentAsset, setCurrentAsset] = React.useState<OpenXDA.Types.Asset>(null);
 
     const [sortKey, setSortKey] = React.useState<string>('AssetName');

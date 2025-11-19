@@ -48,7 +48,7 @@ function RemoteXDAInstance(props: IProps) {
 
 
     React.useEffect(() => {
-        if (instStatus === 'unintiated' || instStatus === 'changed')
+        if (instStatus === 'uninitiated' || instStatus === 'changed')
             dispatch(RemoteXDAInstanceSlice.Fetch());
     }, [dispatch, instStatus]);
 

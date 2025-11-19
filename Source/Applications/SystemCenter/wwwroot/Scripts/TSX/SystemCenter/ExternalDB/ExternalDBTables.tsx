@@ -49,7 +49,7 @@ export default function ExternalDBTables(props: { ID: number }) {
     const [errors, setErrors] = React.useState<string[]>([]);
 
     React.useEffect(() => {
-        if (status == 'unintiated' || status == 'changed' || parentID != props.ID)
+        if (status == 'uninitiated' || status == 'changed' || parentID != props.ID)
             dispatch(ExternalDBTablesSlice.Fetch(props.ID));
     }, [status, parentID, props.ID]);
 

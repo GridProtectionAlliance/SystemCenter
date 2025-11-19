@@ -37,7 +37,7 @@ export default function ApplicationCategoryForm(props: IProps) {
     const [errors, setErrors] = React.useState<string[]>([]);
 
     React.useEffect(() => {
-        if (acStatus == 'changed' || acStatus == 'unintiated')
+        if (acStatus == 'changed' || acStatus == 'uninitiated')
             dispatch(ApplicationCategorySlice.Fetch());
     }, [])
 

@@ -41,7 +41,7 @@ export default function APIKeyForm(props: IProps) {
     const [errors, setErrors] = React.useState<string[]>([]);
 
     React.useEffect(() => {
-        if (status == 'changed' || status == 'unintiated')
+        if (status == 'changed' || status == 'uninitiated')
             dispatch(APIAccessKeySlice.Fetch());
     }, [status])
 

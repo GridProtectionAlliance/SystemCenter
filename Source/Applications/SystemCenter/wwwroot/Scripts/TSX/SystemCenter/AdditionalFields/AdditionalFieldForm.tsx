@@ -59,7 +59,7 @@ export default function AdditionalFieldForm(props: IProps) {
     const [extDBId, setExtDbId] = React.useState<{ ID: number }>({ ID: -1 });
 
     React.useEffect(() => {
-        if (showExt && (externalDBTableParentID !== null || externalDBTablesStatus === 'unintiated' || externalDBTablesStatus === 'changed'))
+        if (showExt && (externalDBTableParentID !== null || externalDBTablesStatus === 'uninitiated' || externalDBTablesStatus === 'changed'))
             dispatch(ExternalDBTablesSlice.Fetch());
     }, [showExt]);
 
@@ -74,23 +74,23 @@ export default function AdditionalFieldForm(props: IProps) {
     }, [externalDBTableParentID, externalDBTablesStatus, externalDBStatus]);
 
     React.useEffect(() => {
-        if (allAddlFieldsStatus === 'unintiated' || allAddlFieldsStatus === 'changed')
+        if (allAddlFieldsStatus === 'uninitiated' || allAddlFieldsStatus === 'changed')
             dispatch(AdditionalFieldsSlice.Fetch());
     }, [allAddlFieldsStatus]);
 
     React.useEffect(() => {
-        if (valueListGroupStatus === 'unintiated' || valueListGroupStatus === 'changed')
+        if (valueListGroupStatus === 'uninitiated' || valueListGroupStatus === 'changed')
             dispatch(ValueListGroupSlice.Fetch());
     }, [valueListGroupStatus]);
 
     React.useEffect(() => {
-        if (showExt && (externalDBStatus === 'unintiated' || externalDBStatus === 'changed'))
+        if (showExt && (externalDBStatus === 'uninitiated' || externalDBStatus === 'changed'))
             dispatch(ExternalDatabasesSlice.Fetch());
     }, [externalDBStatus, showExt]);
 
     React.useEffect(() => {
         if (showExt && extDBId.ID > -1 &&
-            (externalDBTablesStatus === 'unintiated' || externalDBTablesStatus === 'changed' || externalDBTableParentID !== extDBId.ID))
+            (externalDBTablesStatus === 'uninitiated' || externalDBTablesStatus === 'changed' || externalDBTableParentID !== extDBId.ID))
             dispatch(ExternalDBTablesSlice.Fetch(extDBId.ID));
     }, [externalDBTablesStatus, externalDBTableParentID, extDBId, showExt]);
 

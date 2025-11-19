@@ -60,7 +60,7 @@ export default function TemplateWindow(props: IProps) {
     const asc = useAppSelector(ChannelTemplateSlice.Ascending);
 
     React.useEffect(() => {
-        if (templateStatus == 'unintiated' || templateStatus == 'changed')
+        if (templateStatus == 'uninitiated' || templateStatus == 'changed')
             dispatch(ChannelTemplateSlice.Fetch());
     }, [templateStatus]);
 

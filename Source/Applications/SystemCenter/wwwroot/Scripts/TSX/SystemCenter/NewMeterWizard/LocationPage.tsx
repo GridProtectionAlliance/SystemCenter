@@ -43,7 +43,7 @@ export default function LocationPage(props: IProps) {
     const lStatus = useAppSelector(LocationSlice.Status);
 
     React.useEffect(() => {
-        if (lStatus === 'unintiated' || lStatus === 'changed') {
+        if (lStatus === 'uninitiated' || lStatus === 'changed') {
             dispatch(LocationSlice.Fetch());
         }
     }, []);

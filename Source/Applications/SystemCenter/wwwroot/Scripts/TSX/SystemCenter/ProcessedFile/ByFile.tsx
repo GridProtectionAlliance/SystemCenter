@@ -97,7 +97,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
     }, [search, ascending, sortKey, page, update]);
 
     React.useEffect(() => {
-        if (cState == 'unintiated' || cState == 'changed')
+        if (cState == 'uninitiated' || cState == 'changed')
             dispatch(DataFileSlice.PagedSearch({ sortField: sortKey, ascending, filter: search }))
     }, [cState]);
 

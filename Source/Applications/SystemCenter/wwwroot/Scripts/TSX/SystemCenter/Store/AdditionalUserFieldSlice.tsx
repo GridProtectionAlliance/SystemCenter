@@ -82,8 +82,8 @@ export default class AdditionalUserFieldSlice {
         const slice = createSlice({
             name: this.Name,
             initialState: {
-                FieldStatus: 'unintiated',
-                ValueStatus: 'unintiated',
+                FieldStatus: 'uninitiated',
+                ValueStatus: 'uninitiated',
                 Fields: [],
                 Values: [],
                 ParentID: '',

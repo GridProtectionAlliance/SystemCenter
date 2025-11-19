@@ -54,7 +54,7 @@ export default function WidgetCategory(props: IProps) {
     }, [tab])
 
     React.useEffect(() => {
-        if (cStatus == 'unintiated' || cStatus == 'changed')
+        if (cStatus == 'uninitiated' || cStatus == 'changed')
             dispatch(WidgetCategorySlice.Fetch());
     }, [cStatus])
 
@@ -73,7 +73,7 @@ export default function WidgetCategory(props: IProps) {
         window.location.href = homePath + 'index.cshtml?name=SEBrowserTabs'
     }
 
-    if (cStatus == 'unintiated' || cStatus == 'loading')
+    if (cStatus == 'uninitiated' || cStatus == 'loading')
         return null;
 
     if (cStatus == 'error')

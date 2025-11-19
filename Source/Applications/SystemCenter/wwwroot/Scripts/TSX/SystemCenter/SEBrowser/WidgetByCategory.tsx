@@ -48,7 +48,7 @@ const WidgetByCategory = (props: IProps) => {
     const allWidgetStatus = useAppSelector(SEBrowserWidgetSlice.Status);
 
     React.useEffect(() => {
-        if (allWidgetStatus == 'unintiated' || allWidgetStatus == 'changed')
+        if (allWidgetStatus == 'uninitiated' || allWidgetStatus == 'changed')
             dispatch(SEBrowserWidgetSlice.Fetch())
     }, [allWidgetStatus]);
 
@@ -60,7 +60,7 @@ const WidgetByCategory = (props: IProps) => {
     }, [allWidgets])
 
     React.useEffect(() => {
-        if (status == 'unintiated' || status == 'changed' || categoryID != props.CategoryID)
+        if (status == 'uninitiated' || status == 'changed' || categoryID != props.CategoryID)
             dispatch(SEBrowserWidgetViewSlice.Fetch(props.CategoryID))
     }, [status, categoryID, props.CategoryID])
 

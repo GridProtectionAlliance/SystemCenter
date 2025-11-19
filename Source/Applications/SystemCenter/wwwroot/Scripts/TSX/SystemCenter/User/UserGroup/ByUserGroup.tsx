@@ -50,7 +50,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
     const data = useSelector(SecurityGroupSlice.SearchResults);
     const allGroups = useSelector(SecurityGroupSlice.Data);
 
-    const [status, setStatus] = React.useState<Application.Types.Status>('unintiated');
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const searchStatus = useSelector(SecurityGroupSlice.SearchStatus);
 
     const sortField = useSelector(SecurityGroupSlice.SortField);
@@ -61,7 +61,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
 
     const [newGroup, setNewGroup] = React.useState<ISecurityGroup>(emptyGroup);
 
-    const [pageStatus, setPageStatus] = React.useState<Application.Types.Status>('unintiated');
+    const [pageStatus, setPageStatus] = React.useState<Application.Types.Status>('uninitiated');
 
     React.useEffect(() => {
         if (status === 'error')
@@ -73,7 +73,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
     }, [status])
 
     React.useEffect(() => {
-        if (searchStatus == 'unintiated' || searchStatus == 'changed')
+        if (searchStatus == 'uninitiated' || searchStatus == 'changed')
             dispatch(SecurityGroupSlice.DBSearch({ sortField, ascending, filter: search }))
     }, [searchStatus])
 

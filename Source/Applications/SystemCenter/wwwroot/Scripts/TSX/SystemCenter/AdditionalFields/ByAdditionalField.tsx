@@ -102,13 +102,13 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
     }, [parentID]);
 
     React.useEffect(() => {
-        if (status === 'unintiated' || status === 'changed')
+        if (status === 'uninitiated' || status === 'changed')
             dispatch(AdditionalFieldsSlice.DBSearch({ filter: search }));
     }, [status]);
 
 
     React.useEffect(() => {
-        if (valueListGroupStatus == 'unintiated' || valueListGroupStatus == 'changed')
+        if (valueListGroupStatus == 'uninitiated' || valueListGroupStatus == 'changed')
             dispatch(ValueListGroupSlice.Fetch());
     }, [valueListGroupStatus]);
 

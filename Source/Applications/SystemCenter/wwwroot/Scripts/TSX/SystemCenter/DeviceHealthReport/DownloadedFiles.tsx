@@ -40,7 +40,7 @@ function DownloadedFiles(props: { MeterID: number, MeterName: string }) {
     const meterID = useAppSelector(DataFileSlice.ParentID);
 
     React.useEffect(() => {
-        if (status == 'unintiated' || status == 'changed' || meterID != props.MeterID)
+        if (status == 'uninitiated' || status == 'changed' || meterID != props.MeterID)
             dispatch(DataFileSlice.Fetch(props.MeterID));
         return () => { }
     }, [dispatch, status, props.MeterID]);
