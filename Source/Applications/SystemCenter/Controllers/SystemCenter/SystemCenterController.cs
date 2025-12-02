@@ -1768,6 +1768,9 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/SEbrowser/Widget")]
     public class SEBrowserWidgetController : ModelController<SEBrowser.Model.Widget> {}
 
+    [RoutePrefix("api/PQDigest/Widget"), HttpEditionFilter(Edition.Enterprise)]
+    public class PQDigestWidgetController : ModelController<PQDigest.Model.Widget> { }
+
     [RoutePrefix("api/OpenXDA/EventTag")]
     public class EventTagController : ModelController<openXDA.Model.EventTag> { }
 

@@ -734,6 +734,8 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\SEBrowser\WidgetForm.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\SEBrowser\WidgetByCategory.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\SEBrowser\ByWidget.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\PQDigest\ByWidget.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\PQDigest\WidgetForm.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Settings\DataOperations.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Settings\DataReaders.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Settings\Setting.tsx" />
