@@ -112,6 +112,8 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                             <Page Name={"index.cshtml?name=SEBrowserTabs"} Label={"PQ Browser Tabs"} OtherActivePages={["index.cshtml?name=SEBrowserTab"]} />
                             <Page Name={"index.cshtml?name=SEBrowserWidget"} Label={"PQ Browser Widgets"} />
                             <Page Name={"index.cshtml?name=PQDigestWidget"} Label={"PQ Digest Widgets"} />
+                            <Page Name={"index.cshtml?name=PQDigestHomePage"} Label={"PQ Digest Home"} />
+
                             <Page Name={"index.cshtml?name=MagDurCurves"} Label={"MagDur Curves"} />
                             <Page Name={"index.cshtml?name=EventTags"} Label={"Event Tags"} />
                             <Page Name={"index.cshtml?name=ByApplicationCategory"} Label={"Application Categories"} OtherActivePages={["index.cshtml?name=ApplicationCategory"]} />

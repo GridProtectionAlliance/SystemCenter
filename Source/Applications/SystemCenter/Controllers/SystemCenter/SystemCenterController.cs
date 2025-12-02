@@ -1771,6 +1771,9 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/PQDigest/Widget"), HttpEditionFilter(Edition.Enterprise)]
     public class PQDigestWidgetController : ModelController<PQDigest.Model.Widget> { }
 
+    [RoutePrefix("api/PQDigest/HomeScreenWidget"), HttpEditionFilter(Edition.Enterprise)]
+    public class PQDigestHomeScreenController : ModelController<PQDigest.Model.HomeScreenWidget> { }
+
     [RoutePrefix("api/OpenXDA/EventTag")]
     public class EventTagController : ModelController<openXDA.Model.EventTag> { }
 

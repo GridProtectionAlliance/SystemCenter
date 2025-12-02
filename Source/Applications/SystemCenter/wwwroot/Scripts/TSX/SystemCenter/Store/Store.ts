@@ -118,6 +118,7 @@ export const ApplicationRoleSlice = new GenericSlice<IApplicationRole>("Applicat
 export const WidgetCategorySlice = new GenericSlice<LocalXDA.IWidgetCategory>("WidgetCategory", `${homePath}api/SystemCenter/WidgetCategory`, "OrderBy", true)
 export const SEBrowserWidgetSlice = new GenericSlice<LocalXDA.IWidget>("SEBrowserWidget", `${homePath}api/SEbrowser/Widget`, "Name", true);
 export const PQDigestWidgetSlice = new GenericSlice<LocalXDA.IWidget>("PQDigestWidget", `${homePath}api/PQDigest/Widget`, "Name", true);
+export const PQDigestHomeScreenSlice = new GenericSlice<LocalXDA.IHomeScreenWidget>("PQDigestHomeScreenWidget", `${homePath}api/PQDigest/HomeScreenWidget`, "Name", true);
 
 
 export const SEBrowserWidgetViewSlice = new GenericSlice<EventWidget.IWidgetView>("SEBrowserWidgetView", `${homePath}api/SEbrowser/WidgetView`, "Name", true)
@@ -197,6 +198,7 @@ const store = configureStore({
         ApplicationRole: ApplicationRoleSlice.Reducer,
         SEBrowserWidget: SEBrowserWidgetSlice.Reducer,
         PQDigestWidget: PQDigestWidgetSlice.Reducer,
+        PQDigestHomeScreenWidget: PQDigestHomeScreenSlice.Reducer,
         SEBrowserWidgetView: SEBrowserWidgetViewSlice.Reducer,
         MagDurCurve: MagDurCurveSlice.Reducer,
         APIAccessKey: APIAccessKeySlice.Reducer,

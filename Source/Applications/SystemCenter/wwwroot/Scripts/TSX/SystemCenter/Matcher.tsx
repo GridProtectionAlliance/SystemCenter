@@ -87,7 +87,7 @@ const Matcher: React.FunctionComponent = (props: {}) => {
     const ByDataOperationsFailure = React.lazy(() => import(/* webpackChunkName: "ByDataOperationsFailure" */ './ProcessedFile/ByDataOperationsFailure'));
     const AppHost = React.lazy(() => import(/* webpackChunkName: "AppHost" */ './AppHost/AppHost'));
 
-
+    const ByPQDigestHomePage = React.lazy(() => import(/* webpackChunkName: "ByHomeScreenWidget" */ './PQDigest/ByHomeScreenWidget'));
     const ByPQDigestWidget = React.lazy(() => import(/* webpackChunkName: "ByPQDigestWidget" */ './PQDigest/ByWidget'));
     const SEBrowserCategory = React.lazy(() => import(/* webpackChunkName: "DataFile" */ './SEBrowser/WidgetCategory'));
     const BySEBrowserCategory = React.lazy(() => import(/* webpackChunkName: "DataFile" */ './SEBrowser/ByWidgetCategory'));
@@ -249,8 +249,12 @@ const Matcher: React.FunctionComponent = (props: {}) => {
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ByPQDigestWidget Roles={roles} />
         }
-        
-
+        else if (params['name'] == "PQDigestHomePage") {
+            if (roles.indexOf('Administrator') < 0)
+                return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
+            return <ByPQDigestHomePage Roles={roles} />
+        }
+            
         else if (params['name'] == "MagDurCurves") {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />

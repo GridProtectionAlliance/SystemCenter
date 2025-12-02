@@ -141,6 +141,10 @@ export namespace OpenXDA {
         Setting: string
     }
 
+    interface IHomeScreenWidget extends IWidget {
+       TimeFrame: number
+    }
+
 }
 
 export namespace PQView {
