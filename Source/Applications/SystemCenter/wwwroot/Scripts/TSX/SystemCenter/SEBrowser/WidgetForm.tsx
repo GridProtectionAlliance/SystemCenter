@@ -30,6 +30,7 @@ import { SEBrowserWidgetSlice } from '../Store/Store';
 import { cloneDeep } from 'lodash';
 import { EventWidget } from '../../../../../EventWidgets/TSX/global';
 import { Alert } from '@gpa-gemstone/react-interactive';
+import { settings } from 'cluster';
 
 interface IProps {
     Widget: LocalXDA.IWidget,
@@ -41,6 +42,7 @@ export default function WidgetForm(props: IProps) {
     const dispatch = useAppDispatch();
     const allWidgets = useAppSelector(SEBrowserWidgetSlice.Data);
     const allWidgetStatus = useAppSelector(SEBrowserWidgetSlice.Status);
+    const [settingsErrors, setSettingsErrors] = React.useState<string[]>([]);
 
     React.useEffect(() => {
         if (allWidgetStatus == 'uninitiated' || allWidgetStatus == 'changed')
@@ -56,13 +58,14 @@ export default function WidgetForm(props: IProps) {
             e.push('Name is required.');
         if (allWidgets.find(w => w.Name.toLowerCase() == props.Widget.Name.toLowerCase() && w.ID != props.Widget.ID) != null)
             e.push('Name must be unique.');
-
+        e = e.concat(settingsErrors);
         props.setErrors(e);
-    }, [props.Widget.Setting, props.Widget.Name, props.Widget.Type]);
+    }, [props.Widget.Setting, props.Widget.Name, props.Widget.Type, settingsErrors]);
 
     React.useEffect(() => {
         if (AllWidgets.findIndex(widget => widget.Name === props.Widget.Type) < 0)
             props.stateSetter({ ...props.Widget, Type: null })
+        setSettingsErrors([]);
     }, [props.Widget.Type]);
 
 
@@ -82,7 +85,7 @@ export default function WidgetForm(props: IProps) {
                 </Alert> :
                 <WidgetSetting Settings={JSON.parse(props.Widget.Setting ?? "")}
                     SetSetting={(s) => props.stateSetter({ ...props.Widget, Setting: JSON.stringify(s) })}
-                    Type={props.Widget.Type} />
+                    Type={props.Widget.Type} SetErrors={setSettingsErrors} />
                 }
 
         </div>
@@ -90,7 +93,7 @@ export default function WidgetForm(props: IProps) {
 
 }
 
-const WidgetSetting = (props: { Settings: {}, Type: string, SetSetting: (s: {}) => void }) => {
+const WidgetSetting = (props: { Settings: {}, Type: string, SetSetting: (s: {}) => void, SetErrors: (e: string[]) => void }) => {
     const widget: EventWidget.IWidget<unknown> | undefined = React.useMemo(() => AllWidgets.find(w => w.Name == props.Type), [props.Type]);
 
     const workingSettings = React.useMemo(() => {
@@ -120,5 +123,5 @@ const WidgetSetting = (props: { Settings: {}, Type: string, SetSetting: (s: {}) 
             </Alert>
         );
 
-    return <widget.Settings Settings={workingSettings} SetSettings={props.SetSetting} />
+    return <widget.Settings Settings={workingSettings} SetSettings={props.SetSetting} SetErrors={props.SetErrors} HomePath={homePath} />
 }

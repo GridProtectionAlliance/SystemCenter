@@ -27,8 +27,9 @@
     "webpack-cli": "4.7.2"
   },
   "dependencies": {
-    "@gpa-gemstone/react-graph": "1.0.88",
-    "@gpa-gemstone/common-pages": "0.0.157",
+    "@gpa-gemstone/react-graph": "1.0.90",
+    "proj4leaflet": "^1.0.2",
+    "@gpa-gemstone/common-pages": "0.0.159",
     "@reduxjs/toolkit": "1.8.3",
     "assert": "2.0.0",
     "buffer": "6.0.3",
