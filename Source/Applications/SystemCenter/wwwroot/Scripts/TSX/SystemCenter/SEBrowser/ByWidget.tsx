@@ -71,6 +71,7 @@ const ByWidget: Application.Types.iByComponent = () => {
             <Modal
                 Show={showModal}
                 Title={'Add New PQ Browser Widget'}
+                Size={'xlg'}
                 CallBack={(c) => {
                     if (c && record.ID == 0)
                         WidgetController.DBAction("POST", record).done(() => refreshData(x => x + 1));
