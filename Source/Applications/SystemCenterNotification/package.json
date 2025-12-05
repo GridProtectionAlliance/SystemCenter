@@ -41,7 +41,7 @@
     "build": "set NODE_OPTIONS=--openssl-legacy-provider && npm prune && npm ci && webpack --mode=development",
     "watch": "webpack --watch --color --mode=development",
     "update": "npx npm-check-updates",
-    "builddebug": "set NODE_OPTIONS=--openssl-legacy-provider && npm prune && npm ci && webpack --mode=none",
+    "builddebug": "set NODE_OPTIONS=--openssl-legacy-provider && npm i && webpack --mode=development",
     "buildrelease": "set NODE_OPTIONS=--openssl-legacy-provider && npm prune && npm ci && webpack --mode=production",
     "lint": "npm ci"
   }
