@@ -134,7 +134,7 @@ const ByLineSegment: Application.Types.iByComponent = (props) => {
                     { label: 'Key', key: 'AssetKey', type: 'string', isPivotField: false },
                     { label: 'Nominal Voltage (L-L kV)', key: 'VoltageKV', type: 'number', isPivotField: false },
                     { label: 'Thermal Rating', key: 'ThermalRating', type: 'number', isPivotField: false },
-                    { label: 'Length', key: 'Length', type: 'number', isPivotField: false },
+                    { label: 'Length (miles)', key: 'Length', type: 'number', isPivotField: false },
                     { label: 'Description', key: 'Description', type: 'string', isPivotField: false },
                     ...addlFieldCols]}
                 defaultCollumn={{ label: 'Name', key: 'AssetName', type: 'string', isPivotField: false }}

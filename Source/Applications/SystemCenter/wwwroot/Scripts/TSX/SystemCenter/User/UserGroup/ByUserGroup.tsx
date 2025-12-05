@@ -36,6 +36,8 @@ import GroupForm from './GroupForm';
 const defaultSearchcols: Search.IField<Application.Types.iSecurityGroup>[] = [
     { label: 'Name', key: 'DisplayName', type: 'string', isPivotField: false },
     { label: 'Description', key: 'Description', type: 'string', isPivotField: false },
+    { label: 'Added On', key: 'CreatedOn', type: 'datetime', isPivotField: false },
+    { label: 'Created By', key: 'CreatedBy', type: 'datetime', isPivotField: false },
     { label: 'Type', key: 'Type', type: 'enum', enum: [{ Label: 'AD', Value: 'AD' }, { Label: 'Database', Value: 'Database' },{ Label: 'Azure', Value: 'Azure' }], isPivotField: false },
 ];
 
