@@ -108,7 +108,8 @@ const ByReport = (props: IProps) => {
         { key: "Name", label: "Name", type: "string", isPivotField: false },
         { key: "Schedule", label: "Schedule", type: "string", isPivotField: false },
         { key: "SMS", label: "Text Message", type: "boolean", isPivotField: false },
-        { key: "EmailCategoryID", label: "Category", type: "enum", isPivotField: false, enum: categories.map(item => ({ Label: item.Name, Value: item.ID.toString() })) },
+        { key: "ShowSubscription", label: "Self Subscription", type: "boolean", isPivotField: false },
+        { key: "RequireApproval", label: "Requires Approval", type: "boolean", isPivotField: false }, ,
     ]
 
     return (
