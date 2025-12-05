@@ -34,7 +34,6 @@ import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 
 const defaultSearchcols: Search.IField<SCGlobal.DeviceHealthReport>[] = [
     { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
-    { label: 'MIC ID', key: 'openMIC', type: 'string', isPivotField: false},
     { label: 'Substation', key: 'LocationKey', type: 'string', isPivotField: false },
     { label: 'Model', key: 'Model', type: 'string', isPivotField: false },
     { label: 'TSC', key: 'TSC', type: 'string', isPivotField: false },
@@ -42,11 +41,11 @@ const defaultSearchcols: Search.IField<SCGlobal.DeviceHealthReport>[] = [
     { label: 'IP', key: 'IP', type: 'string', isPivotField: false },
     { label: 'Last Successful Connection', key: 'LastGood', type: 'datetime', isPivotField: false },
     { label: 'Bad Days', key: 'BadDays', type: 'number', isPivotField: false },
-    { label: 'Last Config Change', key: 'LastConfigChange', type: 'datetime', isPivotField: false },
     { label: 'MIC', key: 'MICStatus', type: 'enum', enum: [{ Value: 'Warning', Label: 'Warning' }, { Value: 'Error', Label: 'Error' }], isPivotField: false },
     { label: 'miMD', key: 'MiMDStatus', type: 'enum', enum: [{ Value: 'Warning', Label: 'Warning' }, { Value: 'Error', Label: 'Error' }], isPivotField: false },
     { label: 'XDA', key: 'XDAStatus', type: 'enum', enum: [{ Value: 'Warning', Label: 'Warning' }, { Value: 'Error', Label: 'Error' }], isPivotField: false },
-    { label: 'DQ', key: 'DQStatis', type: 'enum', enum: [{ Value: 'Warning', Label: 'Warning' }, { Value: 'Error', Label: 'Error'}], isPivotField: false },
+    { label: 'Last Config Change', key: 'LastConfigChange', type: 'datetime', isPivotField: false },
+
 ];
 
 const DeviceHealthReport: Application.Types.iByComponent = (props) => {
@@ -130,10 +129,10 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
         }
 
         handle.done((d: Array<SystemCenter.Types.AdditionalFieldView>) => {
-            let filterableList = defaultSearchcols.concat(_.orderBy(d.filter(item => item.Searchable).map(item => (
+            let ordered = _.orderBy(defaultSearchcols.concat(d.filter(item => item.Searchable).map(item => (
                 { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type) } as Search.IField<SCGlobal.DeviceHealthReport>
-            )), ['label'], ["asc"]));
-            setFilterableList(filterableList)
+            ))), ['label'], ["asc"]);
+            setFilterableList(ordered)
         });
 
         return handle;
@@ -225,7 +224,7 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                                 else
                                     return trimString(item.OpenMIC, 10)
                             }}
-                        > MIC ID
+                        > openMIC ID
                         </Column>
                         <Column<SCGlobal.DeviceHealthReport>
                             Key={'LocationKey'}
@@ -243,7 +242,7 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                             }}
 
                                 
-                        > Substation
+                        > Substn
                         </Column>
                         <Column<SCGlobal.DeviceHealthReport>
                             Key={'Model'}

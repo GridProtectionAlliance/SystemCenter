@@ -265,12 +265,15 @@ const ByAsset: Application.Types.iByComponent = (props) => {
         <div className="container-fluid d-flex h-100 flex-column">
             <SearchBar<SystemCenter.Types.DetailedAsset>
                 CollumnList={[
-                    { label: 'Name', key: 'AssetName', type: 'string', isPivotField: false },
                     { label: 'Key', key: 'AssetKey', type: 'string', isPivotField: false },
-                    { label: 'Type', key: 'AssetType', type: 'enum', isPivotField: false },
+                    { label: 'Name', key: 'AssetName', type: 'string', isPivotField: false },
                     { label: 'Nominal Voltage (L-L kV)', key: 'VoltageKV', type: 'number', isPivotField: false },
-                    { label: 'Meters', key: 'Meters', type: 'integer', isPivotField: false },
-                    { label: 'Substations', key: 'Locations', type: 'integer', isPivotField: false },
+                    { label: 'Type', key: 'AssetType', type: 'enum', isPivotField: false },
+                    { label: 'Meter Key', key: 'Meter', type: 'string', isPivotField: false },
+                    { label: 'Substation Key', key: 'Location', type: 'string', isPivotField: false },
+                    { label: 'Number of Meters', key: 'Meters', type: 'integer', isPivotField: false },
+                    { label: 'Number of Substations', key: 'Locations', type: 'integer', isPivotField: false },
+                    { label: 'Description', key: 'Description', type: 'string', isPivotField: false },
                     ...addlFieldCols]}
                 SetFilter={setFilters} Direction='left' Width='50%' Label='Search' ShowLoading={pageState === 'loading'} GetEnum={getEnum} StorageID={'AssetFilter'}
                 defaultCollumn={{ label: 'Name', key: 'AssetName', type: 'string', isPivotField: false }}

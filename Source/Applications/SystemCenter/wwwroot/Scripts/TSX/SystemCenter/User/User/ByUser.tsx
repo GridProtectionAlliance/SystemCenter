@@ -39,7 +39,6 @@ const defaultSearchcols: Search.IField<Application.Types.iUserAccount>[] = [
     { label: 'Last Name', key: 'LastName', type: 'string', isPivotField: false },
     { label: 'Phone', key: 'Phone', type: 'string', isPivotField: false },
     { label: 'Email', key: 'Email', type: 'string', isPivotField: false },
-    { label: 'Type', key: 'Type', type: 'enum', enum: [{ Label: 'AD', Value: 'AD' }, { Label: 'Database', Value: 'Database' }, { Label: 'Azure', Value: 'Azure' }], isPivotField: false },
 ];
 
 const newAcct: IUserAccount = {
@@ -129,9 +128,9 @@ const ByUser: Application.Types.iByComponent = (props) => {
                 return { type }
             return { type: 'enum', enum: [{ Label: type, Value: type }] }
         }
-        const ordered = defaultSearchcols.concat(_.orderBy(adlFields.map(item => (
+        const ordered = _.orderBy(defaultSearchcols.concat(adlFields.map(item => (
             { label: `[AF] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type) } as Search.IField<IUserAccount>
-        )), ['label'], ["asc"]));
+        ))), ['label'], ["asc"]);
 
         setFilterableList(ordered)
     }, [adlFields]);
