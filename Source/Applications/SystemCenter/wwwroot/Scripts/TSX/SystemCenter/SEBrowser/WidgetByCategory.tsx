@@ -28,7 +28,7 @@ import { SEBrowserWidgetSlice, SEBrowserWidgetViewSlice } from '../Store/Store'
 import { Table, Column } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { LoadingIcon, Modal, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
-import { EventWidget } from '../../../../../EventWidgets/TSX/global';
+import { PQBrowser } from '@gpa-gemstone/application-typings';
 import { Select } from '@gpa-gemstone/react-forms';
 
 interface IProps { CategoryID: number }
@@ -43,7 +43,7 @@ const WidgetByCategory = (props: IProps) => {
 
     const sortField = useAppSelector(SEBrowserWidgetViewSlice.SortField);
     const ascending = useAppSelector(SEBrowserWidgetViewSlice.Ascending);
-    const [record, setRecord] = React.useState<EventWidget.IWidgetView>(null);
+    const [record, setRecord] = React.useState<PQBrowser.Types.IWidgetView>(null);
     const allWidgets = useAppSelector(SEBrowserWidgetSlice.Data);
     const allWidgetStatus = useAppSelector(SEBrowserWidgetSlice.Status);
 
@@ -56,7 +56,7 @@ const WidgetByCategory = (props: IProps) => {
         if (allWidgets.length == 0)
             return;
         if (record == null)
-            return setRecord({ ...allWidgets[0], CategoryID: props.CategoryID, CategoryName: '' })
+            return setRecord({ ...allWidgets[0], CategoryID: props.CategoryID });
     }, [allWidgets])
 
     React.useEffect(() => {
@@ -111,7 +111,7 @@ const WidgetByCategory = (props: IProps) => {
         </div>
         <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
             <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', padding: 0 }}>
-                <Table<EventWidget.IWidgetView>
+                <Table<PQBrowser.Types.IWidgetView>
                     TableClass="table table-hover"
                     Data={data}
                     SortKey={sortField}
@@ -127,7 +127,7 @@ const WidgetByCategory = (props: IProps) => {
                     Selected={(item) => false}
                     KeySelector={(item) => item.ID}
                 >
-                    <Column<EventWidget.IWidgetView>
+                    <Column<PQBrowser.Types.IWidgetView>
                         Key={'Name'}
                         AllowSort={true}
                         Field={'Name'}
@@ -135,7 +135,7 @@ const WidgetByCategory = (props: IProps) => {
                         RowStyle={{ width: 'auto' }}
                     > Name
                     </Column>
-                    <Column<EventWidget.IWidgetView>
+                    <Column<PQBrowser.Types.IWidgetView>
                         Key={'Type'}
                         AllowSort={true}
                         Field={'Type'}
@@ -143,7 +143,7 @@ const WidgetByCategory = (props: IProps) => {
                         RowStyle={{ width: 'auto' }}
                     > Type
                     </Column>
-                    <Column<EventWidget.IWidgetView>
+                    <Column<PQBrowser.Types.IWidgetView>
                         Key={'Remove'}
                         AllowSort={false}
                         HeaderStyle={{ width: 'auto' }}
@@ -189,7 +189,7 @@ const WidgetByCategory = (props: IProps) => {
             ConfirmText={'Save'}
         >
             {record != null ?
-                <Select<EventWidget.IWidgetView> Record={record} Field={'ID'}
+                <Select<PQBrowser.Types.IWidgetView> Record={record} Field={'ID'}
                     Label='Widget'
                     Setter={(record) => setRecord({ ...record, CategoryID: props.CategoryID, ID: parseInt(record.ID.toString()) })}
                     Options={allWidgets.map(o => ({ Value: o.ID.toString(), Label: o.Name }))}
