@@ -80,7 +80,10 @@ const ByEmailCategory = (props: IProps) => {
             <LoadingScreen Show={status === 'loading'} />
             <div className="row">
                 <div className="col">
-                    <SearchBar<EmailCategory> CollumnList={[{ key: "Name", label: "Name", type: "string", isPivotField: false }]}
+                    <SearchBar<EmailCategory> CollumnList={[
+                        { key: "Name", label: "Name", type: "string", isPivotField: false },
+                        { key: "ShowSubscription", label: "Self Subscription", type: "boolean", isPivotField: false },
+                    ]}
                         SetFilter={(flds) => dispatch(EmailCategorySlice.DBSearch({ filter: flds }))}
                         Direction={'left'} defaultCollumn={{ key: 'Name', label: 'Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
                         ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Email Category(s)'}
