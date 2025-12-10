@@ -38,8 +38,6 @@ const EventDetails = (props: IProps) => {
     const [data, setData] = React.useState<IEvent[]>([]);
 
     React.useEffect(() => {
-        if (props.SelectedEventID == -1)
-            return;
         // Shortest possible is SELECT 1 which is 8 Characters
         if (props.CombineSQL == null || props.CombineSQL.length < 8) {
             props.SetStatus(false, false);
