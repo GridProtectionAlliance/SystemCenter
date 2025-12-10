@@ -228,35 +228,33 @@ const MeterAssetWindow = (props: IProps) => {
                                 > Designation
                                 </Column>
                             </ConfigurableColumn>
-                            <ConfigurableColumn Key={'EditDelete'} Label={'EditDelete'} Default={true}>
-                                <Column<OpenXDA.Types.MeterAsset>
-                                    Key={'EditDelete'}
-                                    AllowSort={false}
-                                    HeaderStyle={{ width: 'auto', paddingLeft: 0, paddingRight: 5 }}
-                                    RowStyle={{ width: 'auto', paddingLeft: 0, paddingRight: 5 }}
-                                    Content={({ item }) => <>
-                                        <button className={"btn btn-sm" + (hasPermissions() ? '' : ' disabled')}
-                                            onClick={(e) => {
-                                                if (hasPermissions()) {
-                                                    e.preventDefault();
-                                                    e.stopPropagation();
-                                                    setActiveAsset(item.ID, item.AssetType);
-                                                    setShoweditNew(true);
-                                                }
-                                            }}><span><ReactIcons.Pencil Color="var(--warning)" Size={20} /></span></button>
-                                        <button className={"btn btn-sm" + (hasPermissions() ? '' : ' disabled')}
-                                            onClick={(e) => {
-                                                if (hasPermissions()) {
-                                                    e.preventDefault();
-                                                    e.stopPropagation();
-                                                    setActiveAsset(item.ID, item.AssetType);
-                                                    setShowDeleteWarning(true);
-                                                }
-                                            }}><span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span></button>
-                                    </>}
-                                > <p></p>
-                                </Column>
-                            </ConfigurableColumn>
+                            <Column<OpenXDA.Types.MeterAsset>
+                                Key={'EditDelete'}
+                                AllowSort={false}
+                                HeaderStyle={{ width: 'auto', paddingLeft: 0, paddingRight: 5 }}
+                                RowStyle={{ width: 'auto', paddingLeft: 0, paddingRight: 5 }}
+                                Content={({ item }) => <>
+                                    <button className={"btn btn-sm" + (hasPermissions() ? '' : ' disabled')}
+                                        onClick={(e) => {
+                                            if (hasPermissions()) {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                setActiveAsset(item.ID, item.AssetType);
+                                                setShoweditNew(true);
+                                            }
+                                        }}><span><ReactIcons.Pencil Color="var(--warning)" Size={20} /></span></button>
+                                    <button className={"btn btn-sm" + (hasPermissions() ? '' : ' disabled')}
+                                        onClick={(e) => {
+                                            if (hasPermissions()) {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                setActiveAsset(item.ID, item.AssetType);
+                                                setShowDeleteWarning(true);
+                                            }
+                                        }}><span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span></button>
+                                </>}
+                            > <p></p>
+                            </Column>
                         </ConfigurableTable>
                         <Warning Show={showDeleteWarning} CallBack={(confirmed) => { if (confirmed) dispatch(DBMeterAction({ verb: 'DELETE', assetID: activeAsset.ID, meterID: props.Meter.ID, locationID: props.Meter.LocationID })); setShowDeleteWarning(false); }} Title={'Remove ' + (activeAsset?.AssetName ?? 'Asset') + ' from ' + (props.Meter?.Name ?? 'Meter')} Message={'This will permanently remove the Asset from this Meter.'} />
                         <LoadingScreen Show={pageState == 'loading'} />
