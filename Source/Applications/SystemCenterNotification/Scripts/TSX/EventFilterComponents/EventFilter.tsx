@@ -74,7 +74,7 @@ const EventFilter = (props: IProps) => {
         <div id='baseEventFilterPortal'>
             {domReady ? createPortal(<>
                 <Modal Title={'Event Filter'}
-                    Show={props.Show} ShowX={true} Size={'lg'} ShowCancel={false} ConfirmText={'Apply'} BodyStyle={{ overflow: "hidden" }}
+                    Show={props.Show} ShowX={true} Size={'lg'} ShowCancel={false} ConfirmText={'Apply'} BodyStyle={{ maxHeight: 'calc(100vh - 210px)', overflowY: 'auto', overflowX: 'hidden' }}
                     CallBack={(conf, isBtn) => {
                         if (conf)
                             props.SetFilter(filter);
