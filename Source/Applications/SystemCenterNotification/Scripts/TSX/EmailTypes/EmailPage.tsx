@@ -38,7 +38,7 @@ declare var version;
 
 interface IProps { useParams: {id: string}}
 
-type tab = 'settings' | 'template' | 'dataSources' | 'subscriptions'  | 'trigger'
+type tab = 'settings' | 'template' | 'dataSources' | 'subscriptions'  | 'condition'
 
 
 const EmailPage = (props: IProps) => {
@@ -77,7 +77,7 @@ const EmailPage = (props: IProps) => {
                         { Label: 'Settings', Id: 'settings' },
                         { Label: ' Template', Id: 'template' },
                         { Label: ' Data Sources', Id: 'dataSources' },
-                        { Label: ' Trigger', Id: 'trigger' },
+                        { Label: ' Condition', Id: 'condition' },
                         { Label: ' Subscriptions', Id: 'subscriptions' }
                     ]} />
                 </div>
@@ -100,7 +100,7 @@ const EmailPage = (props: IProps) => {
                                     <DataSourceWindow Record={email} />
                                 </div>
                                 : <></>}
-                            {tab == "trigger" ?
+                            {tab == "condition" ?
                                 <div className="tab-pane active" style={{ height: 'inherit' }}>
                                     <TriggerWindow Record={email} />
                                 </div>
