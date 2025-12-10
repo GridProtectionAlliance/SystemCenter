@@ -77,7 +77,7 @@ const TriggerWindow = (props: IProps) => {
                     <div className="card-header">
                         <div className="row">
                             <div className="col">
-                                <h4>Notification Trigger:</h4>
+                                <h4>Notification Condition:</h4>
                             </div>
                         </div>
                     </div>
@@ -138,11 +138,11 @@ const TriggerWindow = (props: IProps) => {
                 </div>
             </div>
             <ToolTip Show={(triggerStatus == 'invalid' || aggregateStatus == 'invalid') && hover == 'submit'} Position={'top'} Target={"submit"}>
-                {triggerStatus == 'invalid' ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> Trigger SQL is invalid.</p> : null}
+                {triggerStatus == 'invalid' ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> Condition SQL is invalid.</p> : null}
                 {aggregateStatus == 'invalid' ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> Suppression SQL is invalid.</p> : null}
             </ToolTip>
             <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Target={"clear"}>
-                {props.Record.TriggerEmailSQL != email.TriggerEmailSQL ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to Trigger SQL will be discarded.</p> : null}
+                {props.Record.TriggerEmailSQL != email.TriggerEmailSQL ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to Condition SQL will be discarded.</p> : null}
                 {props.Record.CombineEventsSQL != email.CombineEventsSQL ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to Suppression SQL will be discarded.</p> : null}
             </ToolTip>
         </div>
@@ -169,8 +169,8 @@ const EditSection = (props: IEditProps) => {
             Field={'TriggerSQL'}
             Help={'SQL query that returns 1 or 0 to indicate whether an email should be sent. {0} is substituted with the Event ID.'}
             Rows={3}
-            Label={'Trigger SQL'}
-            Feedback={'Trigger SQL needs to be a valid SQL statement returning 1 or 0.'}
+            Label={'Condition SQL'}
+            Feedback={'Condition SQL needs to be a valid SQL statement returning 1 or 0.'}
             Valid={(r) => props.ValidTrigger} />
 
         <TextArea <IEditProps>
