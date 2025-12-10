@@ -21,20 +21,16 @@
 //
 //******************************************************************************************************
 
-import * as React from 'react';
-import { Table, Column, Paging } from '@gpa-gemstone/react-table';
-import * as _ from 'lodash';
 import { Application } from '@gpa-gemstone/application-typings';
-import { SearchBar, Search, Modal, Warning, Alert } from '@gpa-gemstone/react-interactive';
-import { useAppSelector, useAppDispatch } from '../hooks';
-import { APIAccessKeySlice } from '../Store/Store';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { CreateGuid } from '@gpa-gemstone/helper-functions';
+import { Alert, GenericController, Modal, Warning } from '@gpa-gemstone/react-interactive';
+import * as React from 'react';
+import GenericByPage from '../CommonComponents/GenericByPage';
+import { SystemCenter } from '../global';
+import { useAppDispatch } from '../hooks';
+import { APIAccessKeySlice } from '../Store/Store';
 import APIKeyForm from './APIKeyForm';
-import moment from 'moment';
-import { CreateGuid } from '@gpa-gemstone/helper-functions'
-
-
-declare var homePath: string;
 
 export interface IAPIAccessKey {
     ID: number;
@@ -45,188 +41,142 @@ export interface IAPIAccessKey {
 }
 
 const emptyKey: IAPIAccessKey = {
-    ID: 0,
+    ID: -1,
     RegistrationKey: '',
     APIToken: '',
     Expires: null,
     AllowImpersonation: false
 };
 
+const fieldCols: SystemCenter.IByCol<IAPIAccessKey>[] = [
+    { Field: 'RegistrationKey', Label: 'Registration Key', Type: 'string' },
+    { Field: 'Expires', Label: 'Key Expiration', Type: 'datetime' },
+    { Field: 'AllowImpersonation', Label: 'Allow Impersonation', Type: 'boolean' }
+];
+const controllerPath = `${homePath}api/OpenXDA/APIAccessKey`;
+const controller = new GenericController<IAPIAccessKey>(
+    controllerPath, "RegistrationKey", true
+);
+
 const ByAPIAccessKeys: Application.Types.iByComponent = (props) => {
-    let dispatch = useAppDispatch();
-
-    const state = useAppSelector(APIAccessKeySlice.PagedStatus);
-    const tstate = useAppSelector(APIAccessKeySlice.SearchStatus);
-
-    const data = useAppSelector(APIAccessKeySlice.SearchResults);
+    const dispatch = useAppDispatch();
 
     const [APIKey, setAPIKey] = React.useState<IAPIAccessKey>(emptyKey);
 
-    const allPages = useAppSelector(APIAccessKeySlice.TotalPages);
-    const currentPage = useAppSelector(APIAccessKeySlice.CurrentPage);
-
-    const [sortKey, setSortKey] = React.useState<keyof IAPIAccessKey>('RegistrationKey');
-    const [ascending, setAscending] = React.useState<boolean>(true);
-    const [search, setSearch] = React.useState<Array<Search.IFilter<IAPIAccessKey>>>([]);
-    const [page, setPage] = React.useState<number>(currentPage);
-    const totalRecords = useAppSelector(APIAccessKeySlice.TotalRecords);
-
     const [showModal, setShowModal] = React.useState<boolean>(false);
-    const [formDisabled, setFormDisabled] = React.useState<boolean>(false);
-    
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
     const [showKeyWarning, setShowKeyWarning] = React.useState<boolean>(false);
 
     const [errors, setErrors] = React.useState<string[]>([]);
-    const [newEdit, setNewEdit] = React.useState<Application.Types.NewEdit>('Edit');
+    const [refreshCount, refreshData] = React.useState<number>(0);
 
-
-    function handleSelect(item) {
-        setAPIKey({...item.row, Expires: item.row.Expires ?? ''});
-        setShowModal(true);
-        setNewEdit('Edit');
-    }
-
-    React.useEffect(() => {
-        dispatch(APIAccessKeySlice.PagedSearch({ sortField: sortKey, ascending, filter: search, page }))
-    }, [search, ascending, sortKey, page]);
-
-    React.useEffect(() => {
-        if (state == 'uninitiated' || state == 'changed')
-            dispatch(APIAccessKeySlice.PagedSearch({ sortField: sortKey, ascending, filter: search }))
-    }, [state, tstate]);
-
-    React.useEffect(() => {
-        if (tstate == 'changed')
-            dispatch(APIAccessKeySlice.PagedSearch({ sortField: sortKey, ascending, filter: search }))
-    }, [tstate]);
-
-    const searchFields: Search.IField<IAPIAccessKey>[] = [
-        { key: 'RegistrationKey', isPivotField: false, label: 'Registration Key', type: 'string' },
-        { key: 'Expires', isPivotField: false, label: 'Key Expiration', type: 'datetime' },
-        { key: 'AllowImpersonation', isPivotField: false, label: 'Allow Impersonation', type: 'boolean' }
-    ]
     return (
-        <div style={{ width: '100%', height: '100%' }}>
-            <div className="container-fluid d-flex h-100 flex-column">
-                <div className="row">
-                    <SearchBar<IAPIAccessKey> CollumnList={searchFields}
-                        SetFilter={(flds) => setSearch(flds)}
-                        Direction={'left'}
-                        defaultCollumn={{ key: 'RegistrationKey', isPivotField: false, label: 'RegistrationKey', type: 'string' }}
-                        Width={'50%'} Label={'Search'}
-                        StorageID="APIAccessKeysFilter"
-                        ShowLoading={state == 'loading'}
-                        ResultNote={state == 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Key(s)'}
-                    >
-                        <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
-                            <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                                <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
-                                <form>
-                                    <button className="btn btn-info btn-block" onClick={(event) => { setAPIKey(emptyKey); setNewEdit('New'); setShowModal(true); event.preventDefault() }}>Add API Key</button>
-                                </form>
-                            </fieldset>
-                        </li>
-                        </SearchBar>
-                </div>
-                <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                    <Table<IAPIAccessKey>
-                        TableClass="table table-hover"
-                        Data={data}
-                        SortKey={sortKey}
-                        OnSort={(d) => {
-                            if (d.colKey === sortKey)
-                                setAscending(!ascending);
-                            else {
-                                setAscending(true);
-                                setSortKey(d.colField);
-                            }
-                        }}
-
-                        Ascending={ascending}
-                        OnClick={handleSelect}
-                        TableStyle={{
-                            padding: 0, width: 'calc(100%)', height: '100%',
-                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column', marginBottom: 0
-                        }}
-                        TheadStyle={{ fontSize: 'smaller' }}
-                        RowStyle={{ fontSize: 'smaller' }}
-                        Selected={(item) => false}
-                        KeySelector={(item) => item.ID}
-                    >
-                        <Column<IAPIAccessKey>
-                            Key={'RegistrationKey'}
-                            AllowSort={true}
-                            Field={'RegistrationKey'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Registration Key
-                        </Column>
-                        <Column<IAPIAccessKey>
-                            Key={'Expires'}
-                            AllowSort={true}
-                            Field={'Expires'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                            Content={({ item }) => item.Expires == null ? 'N/A' : moment(item.Expires).format("MM/DD/YYYY HH:mm")}
-                        > Expires
-                        </Column>
-                        <Column<IAPIAccessKey>
-                            Key={'AllowImpersonation'}
-                            AllowSort={true}
-                            Field={'AllowImpersonation'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                            Content={({ item }) => item.AllowImpersonation ? <ReactIcons.CheckMark Color="var(--success)" /> : <ReactIcons.CrossMark Color="var(--danger)" />}
-                        > Allow Impersonation
-                        </Column>
-                    </Table>
-                </div>
-                <div className="row">
-                    <div className="col">
-                        <Paging Current={page + 1} Total={allPages} SetPage={(p) => setPage(p - 1)} />
-                    </div>
-                </div>
-            </div>
-            <Modal Show={showModal} Title={newEdit == 'Edit' ? 'Edit ' + APIKey.RegistrationKey : 'Add New API Key'} CallBack={(c, b) => {
-                if (newEdit == 'Edit' || !b) { setShowModal(false); setFormDisabled(false); setAPIKey(emptyKey); }          // X button is clicked
-
-                if (!c && b)        // delete button is clicked
-                    setShowDelete(true)
-                if (c && newEdit == 'New') {        // Generate key button is clicked
-                    const newToken = CreateGuid();
-                    setAPIKey((key) => ({ ...key, APIToken: newToken })); setFormDisabled(true); setShowKeyWarning(true);
-                    APIKey.ID == 0 && dispatch(APIAccessKeySlice.DBAction({ verb: 'POST', record: { ...APIKey, APIToken: newToken } }));
-                }
-                if (c && newEdit == 'Edit')           // save button is clicked on edit form
-                    APIKey.ID != 0 && dispatch(APIAccessKeySlice.DBAction({ verb: 'PATCH', record: APIKey }));
+        <GenericByPage<IAPIAccessKey>
+            ControllerPath={controllerPath}
+            RefreshData={refreshCount}
+            DefaultSortKey='RegistrationKey'
+            PagingID='APIAccessKey'
+            OnClick={(item) => {
+                setAPIKey({ ...item.row, Expires: item.row.Expires ?? '' });
+                setShowModal(true);
             }}
-                ShowCancel={newEdit == 'Edit'}
+            Columns={fieldCols}
+            DefaultSearchAscending={true}
+            DefaultSearchKey='Name'
+        >
+            <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
+                <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                    <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
+                    <form>
+                        <button
+                            className="btn btn-info btn-block"
+                            onClick={(event) => {
+                                setAPIKey(emptyKey);
+                                setShowModal(true);
+                                event.preventDefault()
+                            }}
+                        >Add API Key</button>
+                    </form>
+                </fieldset>
+            </li>
+            <Modal
+                Show={showModal}
+                Title={APIKey.ID >= 0 ? 'Edit ' + APIKey.RegistrationKey : 'Add New API Key'}
+                CallBack={(confirmed, isButton) => {
+                    // back button is clicked
+                    if (!isButton) {
+                        setShowModal(false);
+                        setShowKeyWarning(false);
+                        return;
+                    }
+
+                    // Generate key button is clicked
+                    if (confirmed && APIKey.ID < 0 && isButton) {
+                        const newKey = ({ ...APIKey, APIToken: CreateGuid() })
+                        setShowKeyWarning(true);
+                        setAPIKey(newKey);
+                        controller.DBAction("POST", newKey).done(() => {
+                            refreshData(d => d + 1);
+                            dispatch(APIAccessKeySlice.SetChanged());
+                        });
+                        return;
+                    }
+
+                    // save button is clicked on edit form
+                    if (confirmed && APIKey.ID >= 0 && isButton) {
+                        controller.DBAction("PATCH", APIKey).done(() => {
+                            refreshData(d => d + 1);
+                            dispatch(APIAccessKeySlice.SetChanged());
+                        });
+                        setShowModal(false);
+                        return;
+                    }
+
+                    // delete button pressed
+                    if (!confirmed && isButton) {
+                        setShowDelete(true);
+                        setShowModal(false);
+                        return;
+                    }
+                }}
+                ShowCancel={APIKey.ID >= 0}
+                ShowConfirm={APIKey.ID >= 0 || !showKeyWarning}
                 ShowX={true}
                 CancelText={'Delete'}
-                DisableConfirm={errors.length > 0 || formDisabled}
-                ConfirmText={newEdit == 'Edit' ? 'Save' : 'Generate New Key'}
+                DisableConfirm={errors.length > 0}
+                ConfirmText={APIKey.ID >= 0 ? 'Save' : 'Generate New Key'}
                 ConfirmShowToolTip={errors.length > 0}
-                ConfirmToolTipContent={errors.map((t, i) => <p key={i}><ReactIcons.CrossMark Color="var(--danger)" /> {t}</p>)} >
-                {showKeyWarning
-                    ? <Alert Class={'alert-info'} ShowX={false}>
-                        <p>You will only be able to view this API Key once. If it is lost, you will need to generate a new one.</p>
-                     </Alert>
-                    : null
+                ConfirmToolTipContent={errors.map((t, i) => <p key={i}><ReactIcons.CrossMark Color="var(--danger)" /> {t}</p>)}
+            >
+                {showKeyWarning ?
+                    <Alert Class={'alert-info'} ShowX={false}>
+                        You will only be able to view this API Key once. If it is lost, you will need to generate a new one.
+                    </Alert> :
+                    <></>
                 }
                 <div className="row">
-                    <APIKeyForm Key={APIKey} formDisabled={formDisabled} stateSetter={setAPIKey} setErrors={setErrors} />
+                    <APIKeyForm
+                        Key={APIKey}
+                        stateSetter={setAPIKey}
+                        setErrors={setErrors}
+                        disableForm={showKeyWarning}
+                    />
                 </div>
             </Modal>
-
-            <Warning Message={'This will permanently delete the API Key and cannot be undone.'} Show={showDelete} Title={'Delete ' + APIKey.RegistrationKey }
-                CallBack={(c) => { if (c) { dispatch(APIAccessKeySlice.DBAction({ record: APIKey, verb: 'DELETE' })); setShowDelete(false); setAPIKey(emptyKey); } else setShowDelete(false)}}
+            <Warning
+                Message={'This will permanently delete the API Key and cannot be undone.'}
+                Show={showDelete}
+                Title={'Delete ' + APIKey.RegistrationKey}
+                CallBack={(confirmed) => {
+                    if (confirmed)
+                        controller.DBAction("DELETE", APIKey).done(() => {
+                            refreshData(d => d + 1);
+                            dispatch(APIAccessKeySlice.SetChanged());
+                        });
+                    setShowDelete(false);
+                }}
             />
-
-           
-
-
-        </div>
+        </GenericByPage>
     )
 }
 

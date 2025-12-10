@@ -321,6 +321,16 @@ namespace SystemCenter.Controllers.OpenXDA
             return record;
         }
 
+        // Unmask token and save
+        public override IHttpActionResult Patch([FromBody] APIAccessKey record)
+        {
+            using (AdoDataConnection connection = ConnectionFactory())
+            {
+                APIAccessKey currentRecord = new TableOperations<APIAccessKey>(connection).LoadRecord(record.ID);
+                record.APIToken = currentRecord?.APIToken;
+            }
+            return base.Patch(record);
+        }
     }
 
 
