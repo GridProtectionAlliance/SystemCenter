@@ -33,7 +33,7 @@ import { useNavigate } from 'react-router-dom';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { getAssetTypes, getAssetWithAdditionalFields } from '../../../TS/Services/Asset';
 import { DBActionAsset, DBMeterAction, SelectAssetStatus } from '../Store/AssetSlice'
-import { Table, Column, Paging } from '@gpa-gemstone/react-table';
+import { ConfigurableTable, ConfigurableColumn, Column, Paging } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Warning, Modal, LoadingScreen, GenericController, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { ToolTip } from '@gpa-gemstone/react-forms';
@@ -147,7 +147,7 @@ const MeterAssetWindow = (props: IProps) => {
                 </div>
                 <div className="card-body" style={{ paddingBottom: 0,  display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
                     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-                        <Table<OpenXDA.Types.MeterAsset>
+                        <ConfigurableTable<OpenXDA.Types.MeterAsset>
                             TableClass="table table-hover"
                             Data={data}
                             SortKey={sortKey}
@@ -168,83 +168,96 @@ const MeterAssetWindow = (props: IProps) => {
                             Selected={(item) => false}
                             KeySelector={(item) => item.ID}
                         >
-                            <Column<OpenXDA.Types.MeterAsset>
-                                Key={'AssetName'}
-                                AllowSort={true}
-                                Field={'AssetName'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                            > Name
-                            </Column>
-                            <Column<OpenXDA.Types.MeterAsset>
-                                Key={'AssetKey'}
-                                AllowSort={true}
-                                Field={'AssetKey'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                            > Key
-                            </Column>
-                            <Column<OpenXDA.Types.MeterAsset>
-                                Key={'VoltageKV'}
-                                AllowSort={true}
-                                Field={'VoltageKV'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                            > Voltage (kV)
-                            </Column>
-                            <Column<OpenXDA.Types.MeterAsset>
-                                Key={'AssetType'}
-                                AllowSort={true}
-                                Field={'AssetType'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                            > Type
-                            </Column>
-                            <Column<OpenXDA.Types.MeterAsset>
-                                Key={'FaultDetectionLogic'}
-                                AllowSort={true}
-                                Field={'FaultDetectionLogic'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                            > Fault Detection Logic
-                            </Column>
-                            <Column<OpenXDA.Types.MeterAsset>
-                                Key={'Designation'}
-                                AllowSort={true}
-                                Field={'Designation'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                            > Designation
-                            </Column>
-                            <Column<OpenXDA.Types.MeterAsset>
-                                Key={'EditDelete'}
-                                AllowSort={false}
-                                HeaderStyle={{ width: 'auto', paddingLeft: 0, paddingRight: 5 }}
-                                RowStyle={{ width: 'auto', paddingLeft: 0, paddingRight: 5 }}
-                                Content={({ item }) => <>
-                                    <button className={"btn btn-sm" + (hasPermissions() ? '' : ' disabled')}
-                                        onClick={(e) => {
-                                            if (hasPermissions()) {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                                setActiveAsset(item.ID, item.AssetType);
-                                                setShoweditNew(true);
-                                            }
-                                        }}><span><ReactIcons.Pencil Color="var(--warning)" Size={20} /></span></button>
-                                    <button className={"btn btn-sm" + (hasPermissions() ? '' : ' disabled')}
-                                        onClick={(e) => {
-                                            if (hasPermissions()) {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                                setActiveAsset(item.ID, item.AssetType);
-                                                setShowDeleteWarning(true);
-                                            }
-                                        }}><span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span></button>
-                                </>}
-                            > <p></p>
-                            </Column>
-                        </Table>
-
+                            <ConfigurableColumn Key={'AssetName'} Label={'AssetName'} Default={true}>
+                                <Column<OpenXDA.Types.MeterAsset>
+                                    Key={'AssetName'}
+                                    AllowSort={true}
+                                    Field={'AssetName'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                    > Name
+                                </Column>
+                            </ConfigurableColumn>
+                            <ConfigurableColumn Key={'AssetKey'} Label={'AssetKey'} Default={true}>
+                                <Column<OpenXDA.Types.MeterAsset>
+                                    Key={'AssetKey'}
+                                    AllowSort={true}
+                                    Field={'AssetKey'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                > Key
+                                </Column>
+                            </ConfigurableColumn>
+                            <ConfigurableColumn Key={'VoltageKV'} Label={'VoltageKV'} Default={true}>
+                                <Column<OpenXDA.Types.MeterAsset>
+                                    Key={'VoltageKV'}
+                                    AllowSort={true}
+                                    Field={'VoltageKV'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                > Voltage (kV)
+                                </Column>
+                            </ConfigurableColumn>
+                            <ConfigurableColumn Key={'AssetType'} Label={'AssetType'} Default={true}>
+                                <Column<OpenXDA.Types.MeterAsset>
+                                    Key={'AssetType'}
+                                    AllowSort={true}
+                                    Field={'AssetType'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                > Type
+                                </Column>
+                            </ConfigurableColumn>
+                            <ConfigurableColumn Key={'FaultDetectionLogic'} Label={'FaultDetectionLogic'} Default={false}>
+                                <Column<OpenXDA.Types.MeterAsset>
+                                    Key={'FaultDetectionLogic'}
+                                    AllowSort={true}
+                                    Field={'FaultDetectionLogic'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                > Fault Detection Logic
+                                </Column>
+                            </ConfigurableColumn>
+                            <ConfigurableColumn Key={'Designation'} Label={'Designation'} Default={false}>
+                                <Column<OpenXDA.Types.MeterAsset>
+                                    Key={'Designation'}
+                                    AllowSort={true}
+                                    Field={'Designation'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                > Designation
+                                </Column>
+                            </ConfigurableColumn>
+                            <ConfigurableColumn Key={'EditDelete'} Label={'EditDelete'} Default={true}>
+                                <Column<OpenXDA.Types.MeterAsset>
+                                    Key={'EditDelete'}
+                                    AllowSort={false}
+                                    HeaderStyle={{ width: 'auto', paddingLeft: 0, paddingRight: 5 }}
+                                    RowStyle={{ width: 'auto', paddingLeft: 0, paddingRight: 5 }}
+                                    Content={({ item }) => <>
+                                        <button className={"btn btn-sm" + (hasPermissions() ? '' : ' disabled')}
+                                            onClick={(e) => {
+                                                if (hasPermissions()) {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    setActiveAsset(item.ID, item.AssetType);
+                                                    setShoweditNew(true);
+                                                }
+                                            }}><span><ReactIcons.Pencil Color="var(--warning)" Size={20} /></span></button>
+                                        <button className={"btn btn-sm" + (hasPermissions() ? '' : ' disabled')}
+                                            onClick={(e) => {
+                                                if (hasPermissions()) {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    setActiveAsset(item.ID, item.AssetType);
+                                                    setShowDeleteWarning(true);
+                                                }
+                                            }}><span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span></button>
+                                    </>}
+                                > <p></p>
+                                </Column>
+                            </ConfigurableColumn>
+                        </ConfigurableTable>
                         <Warning Show={showDeleteWarning} CallBack={(confirmed) => { if (confirmed) dispatch(DBMeterAction({ verb: 'DELETE', assetID: activeAsset.ID, meterID: props.Meter.ID, locationID: props.Meter.LocationID })); setShowDeleteWarning(false); }} Title={'Remove ' + (activeAsset?.AssetName ?? 'Asset') + ' from ' + (props.Meter?.Name ?? 'Meter')} Message={'This will permanently remove the Asset from this Meter.'} />
                         <LoadingScreen Show={pageState == 'loading'} />
                         <ServerErrorIcon Show={pageState == 'error'} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
