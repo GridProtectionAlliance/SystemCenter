@@ -44,44 +44,30 @@ export default function HomeScreenWidgetForm(props: IProps) {
     const [settingsErrors, setSettingsErrors] = React.useState<string[]>([]);
     const [validName, setValidName] = React.useState<boolean>(false);
 
-
     React.useEffect(() => {
         if (allWidgetStatus == 'uninitiated' || allWidgetStatus == 'changed')
             dispatch(PQDigestHomeScreenSlice.Fetch());
     }, [allWidgetStatus]);
 
     React.useEffect(() => {
-        if (props.setErrors == null)
-            return;
-
         let e = [];
         if (props.Widget.Name == null || props.Widget.Name.length == 0)
             e.push('Name is required.');
-        if (allWidgets.find(w => w.Name.toLowerCase() == props.Widget.Name.toLowerCase() && w.ID != props.Widget.ID) != null)
+        else if (allWidgets.find(w => w.Name.toLowerCase() == props.Widget.Name.toLowerCase() && w.ID != props.Widget.ID) != null)
             e.push('Name must be unique.');
-        e = e.concat(settingsErrors);
-        props.setErrors(e);
-    }, [validName, settingsErrors?.length ?? 0]);
+        setValidName(e.length <= 0);
 
-    React.useEffect(() => {
-       
-        let e = [];
-        if (props.Widget.Name == null || props.Widget.Name.length == 0)
-            e.push('Name is required.');
-        if (allWidgets.find(w => w.Name.toLowerCase() == props.Widget.Name.toLowerCase() && w.ID != props.Widget.ID) != null)
-            e.push('Name must be unique.');
-        if (e.length > 0)
-            setValidName(false);
-        else
-            setValidName(true);
-    }, [props.Widget.Name]);
-
+        // Add other errors and push out
+        if (props.setErrors != null) {
+            e = e.concat(settingsErrors);
+            props.setErrors(e);
+        }
+    }, [props.Widget.Name, settingsErrors?.length ?? 0]);
 
     React.useEffect(() => {
         if (AllWidgets.findIndex(widget => widget.Name === props.Widget.Type) < 0)
             props.stateSetter({ ...props.Widget, Type: null })
     }, [props.Widget.Type]);
-
 
     return (
         <div className="col">
@@ -106,7 +92,6 @@ export default function HomeScreenWidgetForm(props: IProps) {
 
         </div>
     )
-
 }
 
 const WidgetSetting = (props: { Settings: {}, Type: string, SetSetting: (s: {}) => void, SetErrors: (e: string[]) => void }) => {
