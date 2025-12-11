@@ -21,32 +21,33 @@
 //
 //******************************************************************************************************
 
-import * as React from 'react';
-import WidgetForm from './WidgetForm';
-import GenericByPage from '../CommonComponents/GenericByPage';
-import {  GenericController, Modal } from '@gpa-gemstone/react-interactive';
-import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { AllWidgets } from '../../../../../EventWidgets/TSX/WidgetWrapper';
 import { Application } from '@gpa-gemstone/application-typings';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { GenericController, Modal } from '@gpa-gemstone/react-interactive';
+import * as React from 'react';
+import { EventWidget } from '../../../../../EventWidgets/TSX/global';
+import { AllWidgets } from '../../../../../EventWidgets/TSX/WidgetWrapper';
+import GenericByPage from '../CommonComponents/GenericByPage';
 import WidgetForm from '../CommonComponents/WidgetForm';
+import { SystemCenter } from '../global';
 
 declare var homePath: string;
 const controllerPath = `${homePath}api/SEbrowser/Widget`;
-const WidgetController = new GenericController<LocalXDA.IWidget>(controllerPath, "ID", true);
-const fieldCols: SystemCenter.IByCol<LocalXDA.IWidget>[] = [
+const WidgetController = new GenericController<EventWidget.IWidgetView>(controllerPath, "ID", true);
+const fieldCols: SystemCenter.IByCol<EventWidget.IWidgetView>[] = [
     { Field: 'Name', Label: 'Name', Type: 'string', Width: 'auto' },
     { Field: 'Type', Label: 'Type', Type: 'string', Width: 'auto' }
 ]
-const emptyWidget: LocalXDA.IWidget = { ID: 0, Name: '', Setting: '{}', Type: AllWidgets[0].Name };
+const emptyWidget: EventWidget.IWidgetView = { ID: 0, Name: '', Setting: '{}', Type: AllWidgets[0].Name };
 
 const ByWidget: Application.Types.iByComponent = () => {
-    const [record, setRecord] = React.useState<LocalXDA.IWidget>(emptyWidget);
+    const [record, setRecord] = React.useState<EventWidget.IWidgetView>(emptyWidget);
     const [refreshCount, refreshData] = React.useState<number>(0);
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [errors, setErrors] = React.useState<string[]>([]);
 
     return (
-        <GenericByPage<LocalXDA.IWidget>
+        <GenericByPage<EventWidget.IWidgetView>
             ControllerPath={controllerPath}
             RefreshData={refreshCount}
             DefaultSortKey='Name'
