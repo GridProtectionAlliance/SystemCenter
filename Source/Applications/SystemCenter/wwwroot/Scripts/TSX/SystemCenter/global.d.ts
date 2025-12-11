@@ -26,6 +26,7 @@ import type {
     SystemCenter as GemstoneSC
 } from '@gpa-gemstone/application-typings';
 import { Search } from '@gpa-gemstone/react-interactive';
+import { EventWidget } from '../../../../EventWidgets/TSX/global';
 
 // System Center Models
 declare global {
@@ -134,17 +135,9 @@ export namespace OpenXDA {
         OrderBy: number
     }
 
-    interface IWidget {
-        ID: number,
-        Name: string,
-        Type: string,
-        Setting: string
-    }
-
-    interface IHomeScreenWidget extends IWidget {
+    interface IHomeScreenWidget extends EventWidget.IWidgetView {
        TimeFrame: number
     }
-
 }
 
 export namespace PQView {
