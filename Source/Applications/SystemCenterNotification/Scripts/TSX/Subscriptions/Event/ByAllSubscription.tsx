@@ -117,14 +117,14 @@ const ByAllSubscription = (props: IProps) => {
             <div className="row">
                 <div className="col">
                     <SearchBar<ActiveSubscription> CollumnList={[
+                        { key: 'Category', label: 'Category', type: 'string', isPivotField: false },
                         { key: 'EmailName', label: 'Notification', type: 'string', isPivotField: false},
                         { key: 'AssetGroup', label: 'Assets', type: 'string', isPivotField: false },
+                        { key: 'LastSent', label: 'Last Sent', type: 'datetime', isPivotField: false },
                         { key: 'FirstName', label: 'First', type: 'string', isPivotField: false },
                         { key: 'LastName', label: 'Last', type: 'string', isPivotField: false },
                         { key: 'Email', label: 'Email', type: 'string', isPivotField: false },
                         { key: 'Approved', label: 'Approved', type: 'boolean', isPivotField: false },
-                        { key: 'LastSent', label: 'Last Sent', type: 'datetime', isPivotField: false },
-                        { key: 'Category', label: 'Category', type: 'string', isPivotField: false },
                     ]} SetFilter={(flds) => dispatch(ActiveSubscriptionSlice.DBSearch({ filter: flds, sortField, ascending: asc }))}
                         Direction={'left'} defaultCollumn={{ key: 'EmailName', label: 'Notification', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
                         ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Subscriptions'}
