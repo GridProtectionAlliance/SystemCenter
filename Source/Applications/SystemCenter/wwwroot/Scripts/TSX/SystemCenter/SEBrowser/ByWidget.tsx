@@ -28,7 +28,7 @@ import {  GenericController, Modal } from '@gpa-gemstone/react-interactive';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { AllWidgets } from '../../../../../EventWidgets/TSX/WidgetWrapper';
 import { Application } from '@gpa-gemstone/application-typings';
-import { OpenXDA as LocalXDA, SystemCenter } from '../global';
+import WidgetForm from '../CommonComponents/WidgetForm';
 
 declare var homePath: string;
 const controllerPath = `${homePath}api/SEbrowser/Widget`;
@@ -88,8 +88,9 @@ const ByWidget: Application.Types.iByComponent = () => {
                 <div className="row">
                     <WidgetForm
                         Widget={record}
-                        stateSetter={setRecord}
-                        setErrors={setErrors}
+                        StateSetter={setRecord}
+                        SetErrors={setErrors}
+                        Type={"SEBrowser"}
                     />
                 </div>
             </Modal>
