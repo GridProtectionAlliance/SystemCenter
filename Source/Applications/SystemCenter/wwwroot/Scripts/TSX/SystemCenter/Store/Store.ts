@@ -26,7 +26,7 @@ import MeterReducer from './MeterSlice';
 import AssetReducer from './AssetSlice';
 import { GenericSlice } from '@gpa-gemstone/react-interactive'
 import { EventChannelSlice } from './EventChannelSlice';
-import { SystemCenter, OpenXDA, Application } from '@gpa-gemstone/application-typings';
+import { SystemCenter, OpenXDA, Application, PQBrowser } from '@gpa-gemstone/application-typings';
 import NoteSlice from './NoteSlice';
 import AdditionalUserFieldSlice from './AdditionalUserFieldSlice';
 import ConfigurationSlice from './ConfigurationSlice';
@@ -121,7 +121,7 @@ export const PQDigestWidgetSlice = new GenericSlice<LocalXDA.IWidget>("PQDigestW
 export const PQDigestHomeScreenSlice = new GenericSlice<LocalXDA.IHomeScreenWidget>("PQDigestHomeScreenWidget", `${homePath}api/PQDigest/HomeScreenWidget`, "Name", true);
 
 
-export const SEBrowserWidgetViewSlice = new GenericSlice<EventWidget.IWidgetView>("SEBrowserWidgetView", `${homePath}api/SEbrowser/WidgetView`, "Name", true)
+export const SEBrowserWidgetViewSlice = new GenericSlice<PQBrowser.Types.IWidgetView>("SEBrowserWidgetView", `${homePath}api/SEbrowser/WidgetView`, "Name", true)
 export const MagDurCurveSlice = new GenericSlice<OpenXDA.Types.MagDurCurve>('MagDurCurve', `${homePath}api/SystemCenter/StandardMagDurCurve`, 'Name');
 export const APIAccessKeySlice = new GenericSlice<IAPIAccessKey>('APIAccessKey', `${homePath}api/OpenXDA/APIAccessKey`, 'RegistrationKey');
 
