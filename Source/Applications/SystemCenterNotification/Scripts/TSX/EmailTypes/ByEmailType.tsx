@@ -120,12 +120,12 @@ const ByEmailType = (props: IProps) => {
 
     const searchFields: Search.IField<EmailType>[] = [
         { key: "Name", label: "Name", type: "string", isPivotField: false },
+        { key: "EmailCategoryID", label: "Category", type: "enum", isPivotField: false, enum: categories.map(item => ({ Label: item.Name, Value: item.ID.toString() })) },
         { key: "MinDelay", label: "Minimum Delay", type: "number", isPivotField: false },
         { key: "MaxDelay", label: "Maximum Delay", type: "number", isPivotField: false },
         { key: "SMS", label: "Text Message", type: "boolean", isPivotField: false },
         { key: "ShowSubscription", label: "Self Subscription", type: "boolean", isPivotField: false },
         { key: "RequireApproval", label: "Requires Approval", type: "boolean", isPivotField: false },
-        { key: "EmailCategoryID", label: "Category", type: "enum", isPivotField: false, enum: categories.map(item => ({ Label: item.Name, Value: item.ID.toString() })) },
     ];
 
     return (
@@ -180,6 +180,15 @@ const ByEmailType = (props: IProps) => {
                         > Name
                         </Column>
                         <Column<EmailType>
+                            Key={'EmailCategoryID'}
+                            AllowSort={true}
+                            Field={'EmailCategoryID'}
+                            HeaderStyle={{ width: '10%' }}
+                            RowStyle={{ width: '10%' }}
+                            Content={({ item }) => categories.find(c => c.ID === item.EmailCategoryID).Name}
+                        > Category
+                        </Column>
+                        <Column<EmailType>
                             Key={'MaxDelay'}
                             AllowSort={true}
                             Field={'MaxDelay'}
@@ -199,8 +208,8 @@ const ByEmailType = (props: IProps) => {
                             Key={'SMS'}
                             AllowSort={true}
                             Field={'SMS'}
-                            HeaderStyle={{ width: '15%' }}
-                            RowStyle={{ width: '15%' }}
+                            HeaderStyle={{ width: '10%' }}
+                            RowStyle={{ width: '10%' }}
                             Content={({ item }) => item.SMS ? <ReactIcons.CheckMark Color="var(--success)" /> : <ReactIcons.CrossMark Color="var(--danger)" />}
                         > Text Message
                         </Column>
@@ -208,8 +217,8 @@ const ByEmailType = (props: IProps) => {
                             Key={'ShowSubscription'}
                             AllowSort={true}
                             Field={'ShowSubscription'}
-                            HeaderStyle={{ width: '15%' }}
-                            RowStyle={{ width: '15%' }}
+                            HeaderStyle={{ width: '10%' }}
+                            RowStyle={{ width: '10%' }}
                             Content={({ item }) => item.ShowSubscription ? <ReactIcons.CheckMark Color="var(--success)" /> : <ReactIcons.CrossMark Color="var(--danger)" />}
                         > Self Subscription
                         </Column>
