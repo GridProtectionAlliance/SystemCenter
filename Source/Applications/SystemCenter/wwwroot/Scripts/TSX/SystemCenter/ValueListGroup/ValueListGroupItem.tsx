@@ -48,6 +48,7 @@ export default function ValueListGroupItems(props: IProps) {
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [errors, setErrors] = React.useState<string[]>([]);
 
+    const [countDictionary, setCountDictionary] = React.useState<{ [key: string]: number }>({});
     React.useEffect(() => {
         if (status == 'uninitiated' || status == 'changed' || parentID != props.Record.ID)
             dispatch(ValueListSlice.Fetch(props.Record.ID));
@@ -144,7 +145,8 @@ export default function ValueListGroupItems(props: IProps) {
                 Show={showWarning}
                 CallBack={(conf) => { if (conf) Delete(); setShowWarning(false); }}
                 Record={record}
-                ItemCount={data.length}
+                GroupItemCount={data.length}
+                AssignedDictionary={countDictionary}
                 Group={props.Record}
                 />
             <Modal Title={record.ID == 0 ? 'Add New Value List Item' : 'Edit ' + (record.AltValue ?? record.Value)} Show={showModal} ShowCancel={false} ConfirmText={'Save'}
