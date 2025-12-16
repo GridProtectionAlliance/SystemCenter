@@ -22,20 +22,22 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { useAppSelector, useAppDispatch } from '../hooks';
 import { Warning } from '@gpa-gemstone/react-interactive';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
+interface IProps {
+    CallBack: (conf: boolean) => void,
+    Record: SystemCenter.Types.ValueListGroup,
+    Show: boolean
+}
 
-declare var homePath: string;
-interface IProps { CallBack: (conf: boolean) => void, Record: SystemCenter.Types.ValueListGroup, Show: boolean }
-export const requiredValueLists = ["TimeZones", "Make", "Model", "Unit", "Category", "SpareChannel", "TrendLabelDefaults", "TrendLabelOptions"]
+export const RequiredValueLists = ["TimeZones", "Make", "Model", "Unit", "Category", "SpareChannel", "TrendLabelDefaults", "TrendLabelOptions"]
 
 export function ValueListGroupDelete(props: IProps) {
     const [message, setMessage] = React.useState<string>('')
     const [prevent, setPrevent] = React.useState<boolean>(false)
 
     React.useEffect(() => {
-        if (requiredValueLists.includes(props.Record?.Name)) {
+        if (RequiredValueLists.includes(props.Record?.Name)) {
             setPrevent(true);
             setMessage('This Value List Group is required and cannot be removed.')
             return
@@ -52,10 +54,10 @@ export function ValueListGroupDelete(props: IProps) {
     )
 }
 
-interface IPropsItem { 
+interface IPropsItem {
     CallBack: (conf: boolean) => void,
-    Record: SystemCenter.Types.ValueListItem, 
-    Show: boolean, 
+    Record: SystemCenter.Types.ValueListItem,
+    Show: boolean,
     GroupItemCount: number,
     AssignedDictionary: { [key: string]: number },
     Group: SystemCenter.Types.ValueListGroup
@@ -75,7 +77,7 @@ export function ValueListItemDelete(props: IPropsItem) {
 
     return (
         <Warning
-        Message={message}
+            Message={message}
             Show={props.Show}
             Title={'Delete ' + (props.Record.AltValue ?? props.Record.Value)}
             CallBack={props.CallBack}
