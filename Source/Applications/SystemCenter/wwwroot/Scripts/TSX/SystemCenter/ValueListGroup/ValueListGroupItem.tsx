@@ -54,12 +54,6 @@ export default function ValueListGroupItems(props: IProps) {
             dispatch(ValueListSlice.Fetch(props.Record.ID));
     }, [status, parentID, props.Record.ID]);
 
-    function Delete() {
-        dispatch(ValueListSlice.DBAction({ verb: 'DELETE', record: { ...record } }));
-        setShowWarning(false);
-        setRecord(emptyRecord);
-    }
-
     return (
         <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="card-header">
@@ -143,7 +137,11 @@ export default function ValueListGroupItems(props: IProps) {
             </div>
             <ValueListItemDelete
                 Show={showWarning}
-                CallBack={(conf) => { if (conf) Delete(); setShowWarning(false); }}
+                CallBack={(conf) => {
+                    if (conf)
+                        dispatch(ValueListSlice.DBAction({ verb: 'DELETE', record: { ...record } }));
+                    setShowWarning(false);
+                }}
                 Record={record}
                 GroupItemCount={data.length}
                 AssignedDictionary={countDictionary}
