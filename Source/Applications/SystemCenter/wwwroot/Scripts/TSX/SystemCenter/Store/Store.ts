@@ -116,8 +116,8 @@ export const SecurityGroupSlice = new GenericSlice<ISecurityGroup>("SecurityGrou
 export const ApplicationRoleSlice = new GenericSlice<IApplicationRole>("ApplicationRole", `${homePath}api/SystemCenter/ApplicationRole`, "Name", false)
 
 export const WidgetCategorySlice = new GenericSlice<LocalXDA.IWidgetCategory>("WidgetCategory", `${homePath}api/SystemCenter/WidgetCategory`, "OrderBy", true)
-export const SEBrowserWidgetSlice = new GenericSlice<LocalXDA.IWidget>("SEBrowserWidget", `${homePath}api/SEbrowser/Widget`, "Name", true);
-export const PQDigestWidgetSlice = new GenericSlice<LocalXDA.IWidget>("PQDigestWidget", `${homePath}api/PQDigest/Widget`, "Name", true);
+export const SEBrowserWidgetSlice = new GenericSlice<EventWidget.IWidgetView>("SEBrowserWidget", `${homePath}api/SEbrowser/Widget`, "Name", true);
+export const PQDigestWidgetSlice = new GenericSlice<EventWidget.IWidgetView>("PQDigestWidget", `${homePath}api/PQDigest/Widget`, "Name", true);
 export const PQDigestHomeScreenSlice = new GenericSlice<LocalXDA.IHomeScreenWidget>("PQDigestHomeScreenWidget", `${homePath}api/PQDigest/HomeScreenWidget`, "Name", true);
 
 

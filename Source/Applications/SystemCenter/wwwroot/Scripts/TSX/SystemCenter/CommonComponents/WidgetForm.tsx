@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  CategoryForm.tsx - Gbtc
+//  WidgetForm.tsx - Gbtc
 //
 //  Copyright © 2023, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -18,32 +18,50 @@
 //  ----------------------------------------------------------------------------------------------------
 //  03/15/2023 - C. Lackner
 //       Generated original version of source code.
+//  12/11/2025 - G. Santos
+//      Migrated and refactored code to merge 2 similar pages.
 //
 //******************************************************************************************************
-import * as React from 'react';
+
+import { Application } from '@gpa-gemstone/application-typings';
+import { Input, Select } from '@gpa-gemstone/react-forms';
+import { Alert } from '@gpa-gemstone/react-interactive';
 import * as _ from 'lodash';
-import { Select, Input } from '@gpa-gemstone/react-forms';
-import { OpenXDA as LocalXDA } from '../global';
+import { cloneDeep } from 'lodash';
+import * as React from 'react';
+import { EventWidget } from '../../../../../EventWidgets/TSX/global';
 import { AllWidgets } from '../../../../../EventWidgets/TSX/WidgetWrapper';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import { SEBrowserWidgetSlice } from '../Store/Store';
-import { cloneDeep } from 'lodash';
-import { EventWidget } from '../../../../../EventWidgets/TSX/global';
-import { Alert } from '@gpa-gemstone/react-interactive';
+import { PQDigestWidgetSlice, SEBrowserWidgetSlice } from '../Store/Store';
 
 interface IProps {
-    Widget: LocalXDA.IWidget,
-    stateSetter: (tab: LocalXDA.IWidget) => void,
-    setErrors?: (e: string[]) => void,
+    Widget: EventWidget.IWidgetView,
+    StateSetter: (tab: EventWidget.IWidgetView) => void,
+    SetErrors?: (e: string[]) => void,
+    Type: 'SEBrowser' | 'PQDigest'
 }
 
 export default function WidgetForm(props: IProps) {
     const dispatch = useAppDispatch();
-    const allWidgets = useAppSelector(SEBrowserWidgetSlice.Data);
-    const allWidgetStatus = useAppSelector(SEBrowserWidgetSlice.Status);
+
+    let allWidgets: EventWidget.IWidgetView[]; 
+    switch (props.Type) {
+        case 'SEBrowser':
+            allWidgets = useAppSelector(SEBrowserWidgetSlice.Data);
+        case 'PQDigest':
+            allWidgets = useAppSelector(PQDigestWidgetSlice.Data);
+    }
+
+    let allWidgetStatus: Application.Types.Status;
+    switch (props.Type) {
+        case 'SEBrowser':
+            allWidgetStatus = useAppSelector(SEBrowserWidgetSlice.Status);
+        case 'PQDigest':
+            allWidgetStatus = useAppSelector(PQDigestWidgetSlice.Status);
+    }
+
     const [settingsErrors, setSettingsErrors] = React.useState<string[]>([]);
     const [validName, setValidName] = React.useState<boolean>(false);
-
 
     React.useEffect(() => {
         if (allWidgetStatus == 'uninitiated' || allWidgetStatus == 'changed')
@@ -51,45 +69,32 @@ export default function WidgetForm(props: IProps) {
     }, [allWidgetStatus]);
 
     React.useEffect(() => {
-        if (props.setErrors == null)
-            return;
-
         let e = [];
         if (props.Widget.Name == null || props.Widget.Name.length == 0)
             e.push('Name is required.');
-        if (allWidgets.find(w => w.Name.toLowerCase() == props.Widget.Name.toLowerCase() && w.ID != props.Widget.ID) != null)
+        else if (allWidgets.find(w => w.Name.toLowerCase() == props.Widget.Name.toLowerCase() && w.ID != props.Widget.ID) != null)
             e.push('Name must be unique.');
-        e = e.concat(settingsErrors);
-        props.setErrors(e);
-    }, [validName, settingsErrors?.length ?? 0]);
+        setValidName(e.length <= 0);
 
-    React.useEffect(() => {
-       
-        let e = [];
-        if (props.Widget.Name == null || props.Widget.Name.length == 0)
-            e.push('Name is required.');
-        if (allWidgets.find(w => w.Name.toLowerCase() == props.Widget.Name.toLowerCase() && w.ID != props.Widget.ID) != null)
-            e.push('Name must be unique.');
-        if (e.length > 0)
-            setValidName(false);
-        else
-            setValidName(true);
-    }, [props.Widget.Name]);
-
+        // Add other errors and push out
+        if (props.SetErrors != null) {
+            e = e.concat(settingsErrors);
+            props.SetErrors(e);
+        }
+    }, [props.Widget.Name, settingsErrors?.length ?? 0]);
 
     React.useEffect(() => {
         if (AllWidgets.findIndex(widget => widget.Name === props.Widget.Type) < 0)
-            props.stateSetter({ ...props.Widget, Type: null })
+            props.StateSetter({ ...props.Widget, Type: null })
     }, [props.Widget.Type]);
-
 
     return (
         <div className="col">
-            <Input<LocalXDA.IWidget> Record={props.Widget} Setter={props.stateSetter} Field={'Name'}
+            <Input<EventWidget.IWidgetView> Record={props.Widget} Setter={props.StateSetter} Field={'Name'}
                 Valid={() => validName} />
-            <Select<LocalXDA.IWidget> Record={props.Widget} Field={'Type'}
+            <Select<EventWidget.IWidgetView> Record={props.Widget} Field={'Type'}
                 Label='Type'
-                Setter={(record) => props.stateSetter(record)}
+                Setter={(record) => props.StateSetter(record)}
                 Options={_.orderBy(AllWidgets.map(o => ({ Value: o.Name, Label: o.Name })), [widget => widget.Label.toLowerCase()], ['asc'])}
                 EmptyLabel=''
             />
@@ -98,13 +103,11 @@ export default function WidgetForm(props: IProps) {
                     This Widget is not available. Please ensure a valid Type is selected.
                 </Alert> :
                 <WidgetSetting Settings={JSON.parse(props.Widget.Setting ?? "")}
-                    SetSetting={(s) => props.stateSetter({ ...props.Widget, Setting: JSON.stringify(s) })}
+                    SetSetting={(s) => props.StateSetter({ ...props.Widget, Setting: JSON.stringify(s) })}
                     Type={props.Widget.Type} SetErrors={(e) => setSettingsErrors(e)} />
-                }
-
+            }
         </div>
-    )
-
+    );
 }
 
 const WidgetSetting = (props: { Settings: {}, Type: string, SetSetting: (s: {}) => void, SetErrors: (e: string[]) => void }) => {
