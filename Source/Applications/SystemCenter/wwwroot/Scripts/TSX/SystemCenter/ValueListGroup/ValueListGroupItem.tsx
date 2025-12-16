@@ -54,6 +54,22 @@ export default function ValueListGroupItems(props: IProps) {
             dispatch(ValueListSlice.Fetch(props.Record.ID));
     }, [status, parentID, props.Record.ID]);
 
+    React.useEffect(() => {
+        if (props.Record?.Name == null) return;
+
+        const h = $.ajax({
+            type: "GET",
+            url: `${homePath}api/ValueList/Count/${props.Record.Name}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true
+        });
+        h.then(setCountDictionary);
+
+        return () => { if (h?.abort != null) h.abort(); }
+    }, [props.Record?.Name]);
+
     return (
         <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="card-header">
