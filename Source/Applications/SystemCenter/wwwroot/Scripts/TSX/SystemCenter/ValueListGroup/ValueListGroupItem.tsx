@@ -149,7 +149,7 @@ export default function ValueListGroupItems(props: IProps) {
                 />
             <Modal Title={record.ID == 0 ? 'Add New Value List Item' : 'Edit ' + (record.AltValue ?? record.Value)} Show={showModal} ShowCancel={false} ConfirmText={'Save'}
                 ConfirmShowToolTip={errors.length > 0}
-                CancelToolTipContent={<> {errors.map(e => <p><ReactIcons.CrossMark Color="var(--danger)" /> {e}</p>)}</>}
+                ConfirmToolTipContent={errors.map(e => <p><ReactIcons.CrossMark Color="var(--danger)" /> {e}</p>)}
                 DisableConfirm={errors.length > 0}
                 ShowX={true} CallBack={(conf) => {
                     setShowModal(false);
