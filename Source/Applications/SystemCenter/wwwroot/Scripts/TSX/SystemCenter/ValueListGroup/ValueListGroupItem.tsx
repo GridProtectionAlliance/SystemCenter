@@ -29,10 +29,14 @@ import { ValueListSlice } from '../Store/Store';
 import ValueListForm from './ValueListForm';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { Modal, Warning } from '@gpa-gemstone/react-interactive';
-import { ValueListItemDelete } from './ValueListGroupDelete';
+import { Modal } from '@gpa-gemstone/react-interactive';
+import { ValueListItemDelete, RequiredValueLists } from './ValueListGroupDelete';
+import { ToolTip } from '@gpa-gemstone/react-forms';
 
-interface IProps { Record: SystemCenter.Types.ValueListGroup }
+interface IProps {
+    Record: SystemCenter.Types.ValueListGroup
+}
+
 export default function ValueListGroupItems(props: IProps) {
     const dispatch = useAppDispatch();
 
@@ -49,6 +53,19 @@ export default function ValueListGroupItems(props: IProps) {
     const [errors, setErrors] = React.useState<string[]>([]);
 
     const [countDictionary, setCountDictionary] = React.useState<{ [key: string]: number }>({});
+    const [hover, setHover] = React.useState<string>('');
+
+    const disallowReason = React.useCallback((ID: string) => {
+        if (!RequiredValueLists.includes(props.Record?.Name))
+            return null;
+        if (data.length == 1)
+            return 'This Value List Group is required and must contain at least 1 item.';
+        if ((countDictionary?.[ID] ?? 0) !== 0)
+            return 'This Value List Group is required and this Value List Item is still in use. Use of this Value List Item must be removed before it can be deleted.';
+
+        return null;
+    }, [props.Record?.Name, data.length, countDictionary]);
+
     React.useEffect(() => {
         if (status == 'uninitiated' || status == 'changed' || parentID != props.Record.ID)
             dispatch(ValueListSlice.Fetch(props.Record.ID));
@@ -127,18 +144,38 @@ export default function ValueListGroupItems(props: IProps) {
                             AllowSort={false}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                            Content={({ item }) => <>
-                                <button className="btn btn-sm" onClick={(e) => {
-                                    e.preventDefault();
-                                    setRecord(item);
-                                    setShowModal(true);
-                                }}><ReactIcons.Pencil Color="var(--warning)" Size={20} /></button>
-                                <button className="btn btn-sm" onClick={(e) => {
-                                    e.preventDefault();
-                                    setRecord(item);
-                                    setShowWarning(true)
-                                }}><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></button>
-                            </> }
+                            Content={({ item }) => {
+                                const id = item.ID.toString();
+                                const isDisallowed = disallowReason(id) != null;
+                                return (
+                                    <>
+                                        <button
+                                            className="btn btn-sm"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                setRecord(item);
+                                                setShowModal(true);
+                                            }}
+                                        >
+                                            <ReactIcons.Pencil Color="var(--warning)" Size={20} />
+                                        </button>
+                                        <button
+                                            className={`btn btn-sm${isDisallowed ? " disabled" : ""}`}
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                if (isDisallowed) return;
+                                                setRecord(item);
+                                                setShowWarning(true);
+                                            }}
+                                            onMouseEnter={() => { if (isDisallowed) setHover(id); }}
+                                            onMouseLeave={() => setHover('')}
+                                            data-tooltip={id}
+                                        >
+                                            <ReactIcons.TrashCan Color="var(--danger)" Size={20} />
+                                        </button>
+                                    </>
+                                );
+                            }}
                         > <p></p>
                         </Column>
                     </Table>
@@ -162,7 +199,10 @@ export default function ValueListGroupItems(props: IProps) {
                 GroupItemCount={data.length}
                 AssignedDictionary={countDictionary}
                 Group={props.Record}
-                />
+            />
+            <ToolTip Show={hover !== ''} Position={'bottom'} Target={hover}>
+                {disallowReason(hover)}
+            </ToolTip>
             <Modal Title={record.ID == 0 ? 'Add New Value List Item' : 'Edit ' + (record.AltValue ?? record.Value)} Show={showModal} ShowCancel={false} ConfirmText={'Save'}
                 ConfirmShowToolTip={errors.length > 0}
                 ConfirmToolTipContent={errors.map((e, i) => <p key={i}><ReactIcons.CrossMark Color="var(--danger)" /> {e}</p>)}
