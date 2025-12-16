@@ -74,7 +74,7 @@ const TriggerWindow = (props: IProps) => {
                     <div className="card-header">
                         <div className="row">
                             <div className="col">
-                                <h4>Report Trigger:</h4>
+                                <h4>Report Condition:</h4>
                             </div>
                         </div>
                     </div>
@@ -83,11 +83,11 @@ const TriggerWindow = (props: IProps) => {
                             <div className={'col-12'}>
                                 {triggerStatus == 'valid' && triggers ?
                                     <div className="alert alert-success">
-                                        Based on this SQL Trigger, this Report will be sent.
+                                        Based on this SQL Condition, this Report will be sent.
                                     </div> : null}
                                 {triggerStatus == 'valid' && triggers ?
                                     <div className="alert alert-danger">
-                                        Based on this SQL Trigger, this Report will not be sent.
+                                        Based on this SQL Condition, this Report will not be sent.
                                     </div> : null}
                             </div>
                         </div>
@@ -130,10 +130,10 @@ const TriggerWindow = (props: IProps) => {
                 </div>
             </div>
             <ToolTip Show={triggerStatus == 'invalid' && hover == 'submit'} Position={'top'} Target={"submit"}>
-                {triggerStatus == 'invalid' ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> Trigger SQL is invalid.</p> : null}
+                {triggerStatus == 'invalid' ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> Condition SQL is invalid.</p> : null}
             </ToolTip>
             <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Target={"clear"}>
-                {props.Record.TriggerEmailSQL != email.TriggerEmailSQL ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to Trigger SQL will be discarded.</p> : null}
+                {props.Record.TriggerEmailSQL != email.TriggerEmailSQL ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to Condition SQL will be discarded.</p> : null}
             </ToolTip>
         </div>
         )
