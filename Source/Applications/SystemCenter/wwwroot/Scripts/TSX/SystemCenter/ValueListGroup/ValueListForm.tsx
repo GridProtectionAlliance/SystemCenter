@@ -54,7 +54,7 @@ export default function ValueListForm(props: IProps) {
             e.push('A Value is required.');
         else if (props.Record.Value.length > 200)
             e.push('Value must be less than 200 characters.');
-        else if (data.findIndex(valueItem => props.Record.Value === valueItem.Value && props.Record.ID !== valueItem.ID) >= 0)
+        else if (data.findIndex(valueItem => props.Record.ID !== valueItem.ID && props.Record.Value.localeCompare(valueItem.Value, undefined, { sensitivity: 'base' }) === 0) >= 0)
             e.push('Value may not be a duplicate of another in the same group.');
         if (props.Record.AltValue != null && props.Record.AltValue.length > 200)
             e.push('Label must be less than 200 characters.');
