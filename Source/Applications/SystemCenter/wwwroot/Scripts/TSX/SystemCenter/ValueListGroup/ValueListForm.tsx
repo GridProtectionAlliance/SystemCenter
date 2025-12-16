@@ -25,6 +25,8 @@ import * as React from 'react';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { Input } from '@gpa-gemstone/react-forms';
 import { IsInteger } from '@gpa-gemstone/helper-functions';
+import { useAppSelector, useAppDispatch } from '../hooks';
+import { ValueListSlice } from '../Store/Store';
 
 interface IProps {
     Record: SystemCenter.Types.ValueListItem,
@@ -33,6 +35,16 @@ interface IProps {
 }
 
 export default function ValueListForm(props: IProps) {
+    const dispatch = useAppDispatch();
+
+    const data = useAppSelector(ValueListSlice.Data);
+    const status = useAppSelector(ValueListSlice.Status);
+    const parentID = useAppSelector(ValueListSlice.ParentID);
+
+    React.useEffect(() => {
+        if (status == 'uninitiated' || status == 'changed' || parentID != props.Record.GroupID)
+            dispatch(ValueListSlice.Fetch(props.Record.GroupID));
+    }, [status, parentID, props.Record.GroupID]);
 
     React.useEffect(() => {
         if (props.SetErrors == undefined)
@@ -40,8 +52,10 @@ export default function ValueListForm(props: IProps) {
         const e = [];
         if (props.Record.Value == null || props.Record.Value.length == 0)
             e.push('A Value is required.');
-        if (props.Record.Value != null && props.Record.Value.length > 200)
+        else if (props.Record.Value.length > 200)
             e.push('Value must be less than 200 characters.');
+        else if (data.findIndex(valueItem => props.Record.Value === valueItem.Value && props.Record.ID !== valueItem.ID) >= 0)
+            e.push('Value may not be a duplicate of another in the same group.');
         if (props.Record.AltValue != null && props.Record.AltValue.length > 200)
             e.push('Label must be less than 200 characters.');
         if (props.Record.SortOrder != null && !IsInteger(props.Record.SortOrder))
