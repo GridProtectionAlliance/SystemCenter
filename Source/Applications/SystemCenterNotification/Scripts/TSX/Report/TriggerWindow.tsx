@@ -99,7 +99,7 @@ const TriggerWindow = (props: IProps) => {
                                         Help={'SQL query that returns 1 or 0 to indicate whether an email should be sent.'}
                                         Rows={10}
                                         Setter={(evt) => { if (evt.TriggerEmailSQL !== '') setTriggerSQL(evt.TriggerEmailSQL); else setTriggerSQL(null) }}
-                                        Feedback={'Condition SQL needs to be a valid SQL statement returning 1 or 0.'}
+                                        Feedback={'Condition SQL must be a valid SQL statement returning 1 or 0.'}
                                         Field={'TriggerEmailSQL'}
                                         Label={'Condition SQL'}
                                         Valid={(r) => triggerStatus != 'invalid'}
