@@ -23,7 +23,7 @@
 
 import { useAppDispatch } from '../hooks';
 import * as React from 'react';
-import { ToolTip } from '@gpa-gemstone/react-forms';
+import { TextArea, ToolTip } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { ScheduledEmailType } from '../global';
 import { ScheduledEmailTypeSlice } from '../Store';
@@ -74,7 +74,7 @@ const TriggerWindow = (props: IProps) => {
                     <div className="card-header">
                         <div className="row">
                             <div className="col">
-                                <h4>Report Trigger:</h4>
+                                <h4>Report Condition:</h4>
                             </div>
                         </div>
                     </div>
@@ -83,30 +83,27 @@ const TriggerWindow = (props: IProps) => {
                             <div className={'col-12'}>
                                 {triggerStatus == 'valid' && triggers ?
                                     <div className="alert alert-success">
-                                        Based on this SQL Trigger, this Report will be sent.
+                                        Based on this SQL Condition, this Report will be sent.
                                     </div> : null}
                                 {triggerStatus == 'valid' && triggers ?
                                     <div className="alert alert-danger">
-                                        Based on this SQL Trigger, this Report will not be sent.
+                                        Based on this SQL Condition, this Report will not be sent.
                                     </div> : null}
                             </div>
                         </div>
                         <div className="row">
                             <div className="col">
                                 <div className="form-group">
-                                    <label>Trigger SQL</label>
-                                    <textarea
-                                        rows={10}
-                                        className={triggerStatus != 'invalid' ? 'form-control' : 'form-control is-invalid'}
-                                        onChange={(evt) => {
-                                            if (evt.target.value !== '') setTriggerSQL(evt.target.value);
-                                            else setTriggerSQL(null)
-                                        }}
-                                        value={triggerSQL == null ? '' : triggerSQL}
+                                    <TextArea
+                                        Record={props.Record}
+                                        Help={'SQL query that returns 1 or 0 to indicate whether an email should be sent.'}
+                                        Rows={10}
+                                        Setter={(evt) => { if (evt.TriggerEmailSQL !== '') setTriggerSQL(evt.TriggerEmailSQL); else setTriggerSQL(null) }}
+                                        Feedback={'Condition SQL must be a valid SQL statement returning 1 or 0.'}
+                                        Field={'TriggerEmailSQL'}
+                                        Label={'Condition SQL'}
+                                        Valid={(r) => triggerStatus != 'invalid'}
                                     />
-                                    <div className="invalid-feedback">
-                                        Trigger SQL must be a valid SQL statement returning 1 or 0.
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -130,10 +127,10 @@ const TriggerWindow = (props: IProps) => {
                 </div>
             </div>
             <ToolTip Show={triggerStatus == 'invalid' && hover == 'submit'} Position={'top'} Target={"submit"}>
-                {triggerStatus == 'invalid' ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> Trigger SQL is invalid.</p> : null}
+                {triggerStatus == 'invalid' ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> Condition SQL is invalid.</p> : null}
             </ToolTip>
             <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Target={"clear"}>
-                {props.Record.TriggerEmailSQL != email.TriggerEmailSQL ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to Trigger SQL will be discarded.</p> : null}
+                {props.Record.TriggerEmailSQL != email.TriggerEmailSQL ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to Condition SQL will be discarded.</p> : null}
             </ToolTip>
         </div>
         )
