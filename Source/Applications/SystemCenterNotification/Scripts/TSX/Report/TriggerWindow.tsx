@@ -94,19 +94,16 @@ const TriggerWindow = (props: IProps) => {
                         <div className="row">
                             <div className="col">
                                 <div className="form-group">
-                                    <label>Trigger SQL</label>
-                                    <textarea
-                                        rows={10}
-                                        className={triggerStatus != 'invalid' ? 'form-control' : 'form-control is-invalid'}
-                                        onChange={(evt) => {
-                                            if (evt.target.value !== '') setTriggerSQL(evt.target.value);
-                                            else setTriggerSQL(null)
-                                        }}
-                                        value={triggerSQL == null ? '' : triggerSQL}
+                                    <TextArea
+                                        Record={props.Record}
+                                        Help={'SQL query that returns 1 or 0 to indicate whether an email should be sent.'}
+                                        Rows={10}
+                                        Setter={(evt) => { if (evt.TriggerEmailSQL !== '') setTriggerSQL(evt.TriggerEmailSQL); else setTriggerSQL(null) }}
+                                        Feedback={'Condition SQL needs to be a valid SQL statement returning 1 or 0.'}
+                                        Field={'TriggerEmailSQL'}
+                                        Label={'Condition SQL'}
+                                        Valid={(r) => triggerStatus != 'invalid'}
                                     />
-                                    <div className="invalid-feedback">
-                                        Trigger SQL must be a valid SQL statement returning 1 or 0.
-                                    </div>
                                 </div>
                             </div>
                         </div>
