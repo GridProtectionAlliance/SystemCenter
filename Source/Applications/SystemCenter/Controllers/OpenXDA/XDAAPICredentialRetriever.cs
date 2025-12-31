@@ -23,6 +23,7 @@
 
 using System;
 using System.ComponentModel;
+using System.Security.Claims;
 using GSF.Configuration;
 using openXDA.APIAuthentication;
 using SystemCenter.Model;
@@ -52,6 +53,12 @@ namespace SystemCenter.Controllers
             Token = config.Token;
             Key = config.Key;
             Host = config.Host;
+            return true;
+        }
+
+        public bool TryRetrieveCustomer(ClaimsPrincipal principal, out string customerKey)
+        {
+            customerKey = null;
             return true;
         }
     }
