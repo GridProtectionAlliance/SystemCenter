@@ -148,7 +148,12 @@ namespace SystemCenter.Controllers.OpenXDA
                                 AssetID = assetID,
                                 MeterID = meter.ID
                             });
-                            (new TableOperations<AssetLocation>(connection)).AddNewRecord(new AssetLocation()
+
+                            TableOperations<AssetLocation> assetLocationTable = new TableOperations<AssetLocation>(connection);
+                            int assetLocations = assetLocationTable.QueryRecordCountWhere("LocationID = {0} AND AssetID = {1}", meter.LocationID, assetID);
+                            if (assetLocations <= 0)
+                            {
+                                assetLocationTable.AddNewRecord(new AssetLocation()
                             {
                                 AssetID = assetID,
                                 LocationID = meter.LocationID
