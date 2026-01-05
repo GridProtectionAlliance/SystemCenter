@@ -189,7 +189,7 @@ namespace SystemCenter.Controllers.OpenXDA
 
                             JToken Series = channel["Series"];
                             string sourceIndex = Series[0]["SourceIndexes"].ToString();
-                            if (assetKey == string.Empty) continue;
+                            if (assetKey is null || assetKey == string.Empty) continue;
 
                             Phase ph = new TableOperations<Phase>(connection).QueryRecordWhere("Name = {0}", phase);
                             if(ph == null)
