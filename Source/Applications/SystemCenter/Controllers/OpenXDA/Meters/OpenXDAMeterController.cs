@@ -90,12 +90,12 @@ namespace SystemCenter.Controllers.OpenXDA
                     using (AdoDataConnection connection = ConnectionFactory())
                     {
                         if (location.ID == 0)
-                            (new TableOperations<Location>(connection)).AddNewRecord(location);
+                            new TableOperations<Location>(connection).AddNewRecord(location);
 
                         JToken Assets = record["Assets"];
                         meter.LocationID = connection.ExecuteScalar<int>($"SELECT ID FROM Location WHERE LocationKey = '{location.LocationKey}'");
 
-                        (new TableOperations<Meter>(connection)).AddNewRecord(meter);
+                        new TableOperations<Meter>(connection).AddNewRecord(meter);
                         meter.ID = connection.ExecuteScalar<int>($"SELECT ID FROM Meter WHERE AssetKey = '{meter.AssetKey}'");
 
                         foreach (var asset in Assets)
@@ -107,43 +107,42 @@ namespace SystemCenter.Controllers.OpenXDA
                             } catch
                             {
                                 assetType = asset["AssetTypeID"].ToString();
-                                assetType = (new TableOperations<AssetTypes>(connection)).QueryRecordWhere("ID = {0}", assetType).Name;
+                                assetType = new TableOperations<AssetTypes>(connection).QueryRecordWhere("ID = {0}", assetType).Name;
                             }
                             if (asset["ID"].ToString() == "0")
                             {
                                 if (assetType == "Line")
-                                    (new TableOperations<Line>(connection)).AddNewRecord(asset.ToObject<Line>());
+                                    new TableOperations<Line>(connection).AddNewRecord(asset.ToObject<Line>());
                                 else if (assetType == "LineSegment")
-                                    (new TableOperations<LineSegment>(connection)).AddNewRecord(asset.ToObject<LineSegment>());
+                                    new TableOperations<LineSegment>(connection).AddNewRecord(asset.ToObject<LineSegment>());
                                 else if (assetType == "Breaker")
                                 {
-                                    (new TableOperations<Breaker>(connection)).AddNewRecord(asset.ToObject<Breaker>());
+                                    new TableOperations<Breaker>(connection).AddNewRecord(asset.ToObject<Breaker>());
                                     if (asset["SCADAPoint"] != null)
                                         connection.ExecuteNonQuery($"INSERT INTO SCADAPoint (BreakerID, Point) VALUES ((SELECT ID FROM Asset WHERE AssetKey = '{asset["AssetKey"].ToString()}'),'{asset["SCADAPoint"].ToString()}')");
                                 }
                                 else if (assetType == "Bus")
-                                    (new TableOperations<Bus>(connection)).AddNewRecord(asset.ToObject<Bus>());
+                                    new TableOperations<Bus>(connection).AddNewRecord(asset.ToObject<Bus>());
                                 else if (assetType == "Generation")
-                                    (new TableOperations<Generation>(connection)).AddNewRecord(asset.ToObject<Generation>());
+                                    new TableOperations<Generation>(connection).AddNewRecord(asset.ToObject<Generation>());
                                 else if (assetType == "StationAux")
-                                    (new TableOperations<StationAux>(connection)).AddNewRecord(asset.ToObject<StationAux>());
+                                    new TableOperations<StationAux>(connection).AddNewRecord(asset.ToObject<StationAux>());
                                 else if (assetType == "StationBattery")
-                                    (new TableOperations<StationBattery>(connection)).AddNewRecord(asset.ToObject<StationBattery>());
+                                    new TableOperations<StationBattery>(connection).AddNewRecord(asset.ToObject<StationBattery>());
                                 else if (assetType == "CapacitorBank")
-                                    (new TableOperations<CapBank>(connection)).AddNewRecord(asset.ToObject<CapBank>());
+                                    new TableOperations<CapBank>(connection).AddNewRecord(asset.ToObject<CapBank>());
                                 else if (assetType == "Transformer")
-                                    (new TableOperations<Transformer>(connection)).AddNewRecord(asset.ToObject<Transformer>());
+                                    new TableOperations<Transformer>(connection).AddNewRecord(asset.ToObject<Transformer>());
                                 else if (assetType == "CapacitorBankRelay")
-                                    (new TableOperations<CapBankRelay>(connection)).AddNewRecord(asset.ToObject<CapBankRelay>());
+                                    new TableOperations<CapBankRelay>(connection).AddNewRecord(asset.ToObject<CapBankRelay>());
                                 else if (assetType == "DER")
-                                    (new TableOperations<DER>(connection)).AddNewRecord(asset.ToObject<DER>());
-
+                                    new TableOperations<DER>(connection).AddNewRecord(asset.ToObject<DER>());
                                 else
-                                    (new TableOperations<Asset>(connection)).AddNewRecord(asset.ToObject<Asset>());
+                                    new TableOperations<Asset>(connection).AddNewRecord(asset.ToObject<Asset>());
                             }
                             int assetID = connection.ExecuteScalar<int>($"SELECT ID FROM Asset WHERE AssetKey = '{asset["AssetKey"].ToString()}'");
 
-                            (new TableOperations<MeterAsset>(connection)).AddNewRecord(new MeterAsset()
+                            new TableOperations<MeterAsset>(connection).AddNewRecord(new MeterAsset()
                             {
                                 AssetID = assetID,
                                 MeterID = meter.ID
@@ -154,10 +153,11 @@ namespace SystemCenter.Controllers.OpenXDA
                             if (assetLocations <= 0)
                             {
                                 assetLocationTable.AddNewRecord(new AssetLocation()
-                            {
-                                AssetID = assetID,
-                                LocationID = meter.LocationID
-                            });
+                                {
+                                    AssetID = assetID,
+                                    LocationID = meter.LocationID
+                                });
+                            }
                         }
 
                         JToken AssetConnections = record["AssetConnections"];
@@ -165,7 +165,7 @@ namespace SystemCenter.Controllers.OpenXDA
                         {
                             int childID = connection.ExecuteScalar<int>($"SELECT ID From asset WHERE AssetKey = '{assetConnection["Child"].ToString()}'");
                             int parentID = connection.ExecuteScalar<int>($"SELECT ID From asset WHERE AssetKey = '{assetConnection["Parent"].ToString()}'");
-                            (new TableOperations<AssetConnection>(connection)).AddNewRecord(new AssetConnection()
+                            new TableOperations<AssetConnection>(connection).AddNewRecord(new AssetConnection()
                             {
                                 ParentID = parentID,
                                 ChildID = childID,
