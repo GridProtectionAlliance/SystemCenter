@@ -33,12 +33,11 @@ using GSF.Web.Model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using openXDA.Model;
-using SystemCenter.Model;
 
 namespace SystemCenter.Controllers.OpenXDA
 {
     [AdditionalFieldSearch("ParentTable='Meter'")]
-    public class MeterDetail : openXDA.Model.Meter { }
+    public class MeterDetail : Meter { }
     
     [RoutePrefix("api/OpenXDA/Meter")]
     public class OpenXDAMeterController : ModelController<Meter>
@@ -48,7 +47,7 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                using (AdoDataConnection connection = ConnectionFactory())
                 {
                     IEnumerable<Meter> records = new TableOperations<Meter>(connection).QueryRecordsWhere("ID IN ( SELECT MeterID FROM MeterAsset WHERE AssetID = {0})", lineID);
                     return Ok(records);
@@ -63,7 +62,7 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                using (AdoDataConnection connection = ConnectionFactory())
                 {
                     IEnumerable<Meter> records = new TableOperations<Meter>(connection).QueryRecordsWhere("LocationID = {0}", meterLocationID);
                     return Ok(records);
@@ -88,7 +87,7 @@ namespace SystemCenter.Controllers.OpenXDA
 
                 using (TransactionScope scope = new TransactionScope())
                 {
-                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    using (AdoDataConnection connection = ConnectionFactory())
                     {
                         if (location.ID == 0)
                             (new TableOperations<Location>(connection)).AddNewRecord(location);
@@ -245,7 +244,7 @@ namespace SystemCenter.Controllers.OpenXDA
             
             try
             {
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                using (AdoDataConnection connection = ConnectionFactory())
                 {
                     TableOperations<Channel> channelTable = new TableOperations<Channel>(connection);
                     TableOperations<Series> seriesTable = new TableOperations<Series>(connection);
@@ -383,7 +382,7 @@ namespace SystemCenter.Controllers.OpenXDA
                 "    Channel ON Series.ChannelID = Channel.ID " +
                 "WHERE Channel.MeterID = {0}";
 
-        using (AdoDataConnection connection = new AdoDataConnection(Connection))
+        using (AdoDataConnection connection = ConnectionFactory())
         {
             DataTable channelTable = connection.RetrieveData(ChannelQuery, meterID);
             string channelJSON = JsonConvert.SerializeObject(channelTable);
@@ -440,7 +439,7 @@ namespace SystemCenter.Controllers.OpenXDA
             if (GetRoles != string.Empty && !User.IsInRole(GetRoles))
                 return Unauthorized();
             
-            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            using (AdoDataConnection connection = ConnectionFactory())
             {
                 DataTable records = connection.RetrieveData($@"
                 SELECT 
@@ -480,7 +479,7 @@ namespace SystemCenter.Controllers.OpenXDA
             if (DeleteRoles != string.Empty && !User.IsInRole(DeleteRoles))
                 return Unauthorized();
             
-            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            using (AdoDataConnection connection = ConnectionFactory())
             {
                 try
                 {
@@ -502,7 +501,7 @@ namespace SystemCenter.Controllers.OpenXDA
             if (PostRoles != string.Empty && !User.IsInRole(PostRoles))
                 return Unauthorized();
             
-            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            using (AdoDataConnection connection = ConnectionFactory())
             {
                 try
                 {
@@ -570,7 +569,7 @@ namespace SystemCenter.Controllers.OpenXDA
                     return Unauthorized();
 
                 
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                using (AdoDataConnection connection = ConnectionFactory())
                 {
 
                     EventChannel newRecord = record.ToObject<EventChannel>();
@@ -622,7 +621,7 @@ namespace SystemCenter.Controllers.OpenXDA
             if (!DeleteAuthCheck())
                 return Unauthorized();
 
-            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            using (AdoDataConnection connection = ConnectionFactory())
             {
                 int result = connection.ExecuteNonQuery($"EXEC UniversalCascadeDelete Channel, 'ID = ''{record.ID}'''");
                 return Ok(result);
@@ -639,7 +638,7 @@ namespace SystemCenter.Controllers.OpenXDA
 
                 
 
-                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    using (AdoDataConnection connection = ConnectionFactory())
                     {
                         IEnumerable<MeasurementCharacteristic> measurementCharacteristics = new TableOperations<MeasurementCharacteristic>(connection).QueryRecordsWhere("Name = 'Instantaneous'");
 
@@ -722,7 +721,7 @@ namespace SystemCenter.Controllers.OpenXDA
                 if (!PostAuthCheck())
                     return Unauthorized();
 
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                using (AdoDataConnection connection = ConnectionFactory())
                 {
                     TrendChannel newRecord = record.ToObject<TrendChannel>();
 
@@ -762,7 +761,7 @@ namespace SystemCenter.Controllers.OpenXDA
             if (!DeleteAuthCheck())
                 return Unauthorized();
 
-            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            using (AdoDataConnection connection = ConnectionFactory())
             {
                 int result = connection.ExecuteNonQuery($"EXEC UniversalCascadeDelete Channel, 'ID = ''{record.ID}'''");
                 return Ok(result);
@@ -777,7 +776,7 @@ namespace SystemCenter.Controllers.OpenXDA
                 if (!PatchAuthCheck())
                     return Unauthorized();
 
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                using (AdoDataConnection connection = ConnectionFactory())
                 {
                     ChannelBase channel = new ChannelBase()
                     {
