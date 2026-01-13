@@ -52,6 +52,19 @@ namespace SystemCenter.Controllers
 
             await Task.WhenAll(reconfigureTasks).ConfigureAwait(false);
         }
+
+        public static Task<HttpResponseMessage> SendRequest(string nodeType, Action<HttpRequestMessage> configureRequest, string endPoint)
+        {
+            if (!XDAAPIHelper.TryRefreshSettings())
+                throw new InvalidOperationException("Unable to retrieve XDA credentials while using API Helper. Check static intialization in startup.");
+
+            DataRow firstHost = GetNodeDataTable(nodeType)
+                .AsEnumerable()
+                .First();
+
+            return SendRequest(firstHost, configureRequest, endPoint);
+        }
+
         private static Task<HttpResponseMessage> SendRequest(DataRow row, Action<HttpRequestMessage> configureRequest, string endPoint)
         {
             string url = row.ConvertField<string>("URL");
