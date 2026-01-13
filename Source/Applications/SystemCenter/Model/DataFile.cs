@@ -130,6 +130,48 @@ namespace SystemCenter.Model
             }
         }
 
+        [Route("Enumerate"), HttpPost, HttpEditionFilter(Edition.Enterprise)]
+        public IHttpActionResult Enumerate()
+        {
+            if (PatchAuthCheck())
+            {
+                void ConfigureRequest(HttpRequestMessage request)
+                {
+                    request.Method = HttpMethod.Post;
+                }
+
+                HttpResponseMessage responseMessage = XDANodeHelper.SendRequest("FileProcessor", ConfigureRequest, "Enumerate").Result;
+                responseMessage.EnsureSuccessStatusCode();
+
+                return Ok(1);
+            }
+            else
+            {
+                return Unauthorized();
+            }
+        }
+
+        [Route("FlushAndEnumerate"), HttpPost, HttpEditionFilter(Edition.Enterprise)]
+        public IHttpActionResult FlushAndEnumerate()
+        {
+            if (PatchAuthCheck())
+            {
+                void ConfigureRequest(HttpRequestMessage request)
+                {
+                    request.Method = HttpMethod.Post;
+                }
+
+                HttpResponseMessage responseMessage = XDANodeHelper.SendRequest("FileProcessor", ConfigureRequest, "FlushAndEnumerate").Result;
+                responseMessage.EnsureSuccessStatusCode();
+
+                return Ok(1);
+            }
+            else
+            {
+                return Unauthorized();
+            }
+        }
+
         [Route("Download/{id:int}"), HttpGet]
         public IHttpActionResult Download(int id)
         {
