@@ -98,6 +98,9 @@ namespace SystemCenter.Model
         {
             if (PatchAuthCheck())
             {
+                if (!XDAAPIHelper.TryRefreshSettings())
+                    throw new InvalidOperationException("Unable to refresh static XDA API credentials.");
+
                 XDAAPIHelper.GetResponseTask($"api/Workbench/DataFiles/ReprocessFile/{id}", new StringContent(""));
                 return Ok(1);
             }
@@ -110,9 +113,11 @@ namespace SystemCenter.Model
         [Route("ReprocessMany"), HttpPost]
         public IHttpActionResult ReprocessMany([FromBody] IEnumerable<int> ids)
         {
-
             if (PatchAuthCheck())
             {
+                if (!XDAAPIHelper.TryRefreshSettings())
+                    throw new InvalidOperationException("Unable to refresh static XDA API credentials.");
+
                 HttpContent content = new StringContent(JsonConvert.SerializeObject(ids), Encoding.UTF8, "application/json");
                 HttpResponseMessage responseMessage = XDAAPIHelper.GetResponseTask($"api/Workbench/DataFiles/ReprocessFilesByID", content).Result;
 
