@@ -23,27 +23,22 @@
 
 
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Web.Http;
 using GSF.Data;
 using GSF.Data.Model;
 using GSF.Web.Model;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web.Http;
-using SystemCenter.Controllers;
-using openXDA.Model;
-using openXDA.APIAuthentication;
-using System;
-using System.Net.Http;
-using System.ComponentModel;
-using GSF.Configuration;
-using System.Net.Http.Headers;
-using System.Net;
-using System.IO;
-using Newtonsoft.Json.Linq;
-using System.Text;
 using Newtonsoft.Json;
-using GSF.Communication;
-using GSF.Web.Security;
+using openXDA.APIAuthentication;
+using openXDA.Configuration;
+using openXDA.Model;
+using SystemCenter.Controllers;
 
 namespace SystemCenter.Model
 {
@@ -72,25 +67,13 @@ namespace SystemCenter.Model
 
     [RoutePrefix("api/OpenXDA/DataFile")]
     public class OpenXDADataFileController : ModelController<DataFile> {
-
-        private class Settings
-        {
-            public Settings(Action<object> configure) =>
-                configure(this);
-
-            [Category]
-            [SettingName("XDA")]
-            public APIConfiguration APISettings { get; } = new APIConfiguration();
-        }
-
-        [HttpGet]
-        [Route("GetEvents/{id:int}")]
+        [Route("GetEvents/{id:int}"), HttpGet]
         public IHttpActionResult GetEvents(int id)
         {
 
             if (GetAuthCheck())
             {
-                using (AdoDataConnection connection = CreateDbConnection())
+                using (AdoDataConnection connection = ConnectionFactory())
                 {
 
                     try
@@ -110,23 +93,12 @@ namespace SystemCenter.Model
 
         }
 
-        [HttpGet]
-        [Route("Reprocess/{id:int}")]
+        [Route("Reprocess/{id:int}"), HttpGet]
         public IHttpActionResult Reprocess(int id)
         {
-
             if (PatchAuthCheck())
             {
-                APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).APISettings;
-
-                APIQuery query = new APIQuery(settings.Key, settings.Token, settings.Host.Split(';'));
-
-                void ConfigureRequest(HttpRequestMessage request)
-                {
-                    request.Method = HttpMethod.Post;
-                }
-
-                HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"/api/Workbench/DataFiles/ReprocessFile/{id}").Result;
+                XDAAPIHelper.GetResponseTask($"api/Workbench/DataFiles/ReprocessFile/{id}", new StringContent(""));
                 return Ok(1);
             }
             else
@@ -135,27 +107,17 @@ namespace SystemCenter.Model
             }
         }
 
-        [HttpPost]
-        [Route("ReprocessMany")]
+        [Route("ReprocessMany"), HttpPost]
         public IHttpActionResult ReprocessMany([FromBody] IEnumerable<int> ids)
         {
 
             if (PatchAuthCheck())
             {
-                APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).APISettings;
-                APIQuery query = new APIQuery(settings.Key, settings.Token, settings.Host.Split(';'));
-                void ConfigureRequest(HttpRequestMessage request)
-                {
-                    request.Method = HttpMethod.Post;
-                    request.Content = new StringContent(JsonConvert.SerializeObject(ids), Encoding.UTF8, "application/json");
-                    
-                }
+                HttpContent content = new StringContent(JsonConvert.SerializeObject(ids), Encoding.UTF8, "application/json");
+                HttpResponseMessage responseMessage = XDAAPIHelper.GetResponseTask($"api/Workbench/DataFiles/ReprocessFilesByID", content).Result;
 
-                HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"/api/Workbench/DataFiles/ReprocessFilesByID").Result;
-                if (responseMessage.IsSuccessStatusCode)
-                    return Ok(1);
-                else
-                    return InternalServerError();
+                responseMessage.EnsureSuccessStatusCode();
+                return Ok(1);
             }
             else
             {
@@ -163,25 +125,14 @@ namespace SystemCenter.Model
             }
         }
 
-        [HttpGet]
-        [Route("Download/{id:int}")]
+        [Route("Download/{id:int}"), HttpGet]
         public IHttpActionResult Download(int id)
         {
 
             if (GetAuthCheck())
             {
-                APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).APISettings;
-
-                APIQuery query = new APIQuery(settings.Key, settings.Token, settings.Host.Split(';'));
-
-                void ConfigureRequest(HttpRequestMessage request)
-                {
-                    request.Method = HttpMethod.Get;
-                }
-
-                HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"/api/Workbench/DataFiles/Download/{id}").Result;
-                if (!responseMessage.IsSuccessStatusCode)
-                    return InternalServerError();
+                HttpResponseMessage responseMessage = XDAAPIHelper.GetResponseTask($"/api/Workbench/DataFiles/Download/{id}").Result;
+                responseMessage.EnsureSuccessStatusCode();
             
                 byte[] data = responseMessage.Content.ReadAsByteArrayAsync().Result;
 
@@ -206,13 +157,6 @@ namespace SystemCenter.Model
             {
                 return Unauthorized();
             }
-        }
-
-        private AdoDataConnection CreateDbConnection()
-        {
-            AdoDataConnection connection = new AdoDataConnection(Connection);
-            connection.DefaultTimeout = DataExtensions.DefaultTimeoutDuration;
-            return connection;
         }
 
  
