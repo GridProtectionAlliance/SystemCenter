@@ -79,7 +79,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
 
     const [search, setSearch] = React.useState<Array<Search.IFilter<OpenXDA.Types.DataFile>>>([]);
 
-    const [hover, setHover] = React.useState<'None' | 'Bulk'>('None');
+    const [hover, setHover] = React.useState<null | string>(null);
     const [sortKey, setSortKey] = React.useState<keyof OpenXDA.Types.DataFile>('DataStartTime');
     const [ascending, setAscending] = React.useState<boolean>(false);
     const [page, setPage] = React.useState<number>(currentPage);
@@ -206,31 +206,100 @@ const ByFile: Application.Types.iByComponent = (props) => {
                             return () => { };
                         }}
                     >
+                        <EditionRestrictionTooltip
+                            SetMeetsRequirements={setInEnterprise}
+                            EditionRequirement={'Enterprise'}
+                            FeatureName={'Advanced File Watch Action'}
+                            Target={hover}
+                            Show={hover != null}
+                        />
+                        <EditionLockModal
+                            SetShow={setShowEdition}
+                            Show={showEdition}
+                            EditionRequirement={'Enterprise'}
+                        />
                         <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
                             <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                                 <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                                 <form>
                                     <div className="form-group">
                                         <button className={`btn btn-info btn-block${inEnterprise ? '' : ' disabled'}`} hidden={props.Roles.indexOf('Administrator') < 0}
-                                            onMouseEnter={() => setHover('Bulk')} onMouseLeave={() => setHover('None')} data-tooltip={"BulkReload"}
+                                            onMouseEnter={() => setHover('Bulk')} onMouseLeave={() => setHover(null)} data-tooltip={"Bulk"}
                                             onClick={(event) => {
                                                 event.preventDefault();
                                                 if (inEnterprise) reprocessAll();
                                                 else setShowEdition(true);
                                             }}>Reprocess All {data.length}</button>
                                     </div>
-                                    <EditionRestrictionTooltip
-                                        SetMeetsRequirements={setInEnterprise}
-                                        EditionRequirement={'Enterprise'}
-                                        FeatureName={'Bulk Reprocessing'}
-                                        Target={'BulkReload'}
-                                        Show={hover === 'Bulk'}
-                                    />
-                                    <EditionLockModal
-                                        SetShow={setShowEdition}
-                                        Show={showEdition}
-                                        EditionRequirement={'Enterprise'}
-                                    />
+                                </form>
+                            </fieldset>
+                        </li>
+                        <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
+                            <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                                <legend className="w-auto" style={{ fontSize: 'large' }}>Scan:</legend>
+                                <form>
+                                    <div className="form-group">
+                                        <button className={`btn btn-info btn-block${inEnterprise ? '' : ' disabled'}`} hidden={props.Roles.indexOf('Administrator') < 0}
+                                            onMouseEnter={() => setHover('ScanUnprocessed')} onMouseLeave={() => setHover(null)} data-tooltip={"ScanUnprocessed"}
+                                            onClick={(event) => {
+                                                event.preventDefault();
+                                                if (inEnterprise) {
+                                                    setWarningModal({ State: "loading" });
+                                                    $.ajax({
+                                                        type: "POST",
+                                                        url: `${homePath}api/OpenXDA/DataFile/Enumerate`,
+                                                        contentType: "application/json; charset=utf-8",
+                                                        dataType: 'json',
+                                                        cache: false,
+                                                        async: true
+                                                    }).fail(() =>
+                                                        setWarningModal({
+                                                            Message: 'openXDA File Watcher was unable to begin scanning. If this error continues to occur please contact your system administrator.',
+                                                            Title: "Error Scanning",
+                                                            State: "show"
+                                                        })
+                                                    ).done(() =>
+                                                        setWarningModal({
+                                                            Message: 'openXDA File Watcher has begun enumerating files contained in the Watch directorie(s). Note that this may take several minutes.',
+                                                            Title: "Started Scanning",
+                                                            State: "show"
+                                                        })
+                                                    );
+                                                }
+                                                else setShowEdition(true);
+                                            }}>Scan Unprocessed Files</button>
+                                    </div>
+                                    <div className="form-group">
+                                        <button className={`btn btn-info btn-block${inEnterprise ? '' : ' disabled'}`} hidden={props.Roles.indexOf('Administrator') < 0}
+                                            onMouseEnter={() => setHover('ScanAll')} onMouseLeave={() => setHover(null)} data-tooltip={"ScanAll"}
+                                            onClick={(event) => {
+                                                event.preventDefault();
+                                                if (inEnterprise) {
+                                                    setWarningModal({ State: "loading" });
+                                                    $.ajax({
+                                                        type: "POST",
+                                                        url: `${homePath}api/OpenXDA/DataFile/FlushAndEnumerate`,
+                                                        contentType: "application/json; charset=utf-8",
+                                                        dataType: 'json',
+                                                        cache: false,
+                                                        async: true
+                                                    }).fail(() =>
+                                                        setWarningModal({
+                                                            Message: 'openXDA File Watcher was unable to begin scanning. If this error continues to occur please contact your system administrator.',
+                                                            Title: "Error Scanning",
+                                                            State: "show"
+                                                        })
+                                                    ).done(() =>
+                                                        setWarningModal({
+                                                            Message: 'openXDA File Watcher has begun enumerating files contained in the Watch directorie(s). Note that this may take several minutes.',
+                                                            Title: "Started Scanning",
+                                                            State: "show"
+                                                        })
+                                                    );
+                                                }
+                                                else setShowEdition(true);
+                                            }}>Scan All Files</button>
+                                    </div>
                                 </form>
                             </fieldset>
                         </li>
