@@ -35,7 +35,7 @@ namespace SystemCenter.Controllers
 {
     public static class XDANodeHelper
     {
-        public static async void ReconfigureNodes(string nodeName)
+        public static async void ReconfigureNodes(string nodeType)
         {
             if (!XDAAPIHelper.TryRefreshSettings())
                 throw new InvalidOperationException("Unable to retrieve XDA credentials while using API Helper. Check static intialization in startup.");
@@ -45,9 +45,26 @@ namespace SystemCenter.Controllers
                 request.Method = HttpMethod.Get;
             }
 
+            Task[] reconfigureTasks = GetNodeDataTable(nodeType)
+                .AsEnumerable()
+                .Select(row => SendRequest(row, ConfigureRequest, "Reconfigure"))
+                .ToArray();
+
+            await Task.WhenAll(reconfigureTasks).ConfigureAwait(false);
+        }
+        private static Task<HttpResponseMessage> SendRequest(DataRow row, Action<HttpRequestMessage> configureRequest, string endPoint)
+        {
+            string url = row.ConvertField<string>("URL");
+            int nodeID = row.ConvertField<int>("NodeID");
+
+            APIQuery query = new APIQuery(XDAAPIHelper.Key, XDAAPIHelper.Token, url.Split(';'));
+            return query.SendWebRequestAsync(configureRequest, $"Node/{nodeID}/{endPoint}");
+        }
+
+        private static DataTable GetNodeDataTable(string nodeType)
+        {
             using (AdoDataConnection connection = Program.Host.CreateDbConnection())
-            {
-                DataTable hosts = connection
+                return connection
                     .RetrieveData(@"
                         SELECT
                             ActiveHost.URL,
@@ -57,19 +74,7 @@ namespace SystemCenter.Controllers
 	                        Node ON ActiveHost.ID = Node.HostRegistrationID JOIN
 	                        NodeType ON Node.NodeTypeID = NodeType.ID
                         WHERE
-	                        NodeType.Name = {0}", nodeName);
-                Task[] reconfigureTasks = hosts
-                    .AsEnumerable()
-                    .Select(row =>
-                    {
-                        string url = row.ConvertField<string>("URL");
-                        int nodeID = row.ConvertField<int>("NodeID");
-
-                        APIQuery query = new APIQuery(XDAAPIHelper.Key, XDAAPIHelper.Token, url.Split(';'));
-                        return query.SendWebRequestAsync(ConfigureRequest, $"/Node/{nodeID}/Reconfigure");
-                    }).ToArray();
-                await Task.WhenAll(reconfigureTasks).ConfigureAwait(false);
-            }
+	                        NodeType.Name = {0}", nodeType);
         }
     }
 }
