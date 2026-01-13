@@ -33,12 +33,11 @@ using GSF.Web.Model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using openXDA.Model;
-using SystemCenter.Model;
 
 namespace SystemCenter.Controllers.OpenXDA
 {
     [AdditionalFieldSearch("ParentTable='Meter'")]
-    public class MeterDetail : openXDA.Model.Meter { }
+    public class MeterDetail : Meter { }
     
     [RoutePrefix("api/OpenXDA/Meter")]
     public class OpenXDAMeterController : ModelController<Meter>
@@ -48,7 +47,7 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                using (AdoDataConnection connection = ConnectionFactory())
                 {
                     IEnumerable<Meter> records = new TableOperations<Meter>(connection).QueryRecordsWhere("ID IN ( SELECT MeterID FROM MeterAsset WHERE AssetID = {0})", lineID);
                     return Ok(records);
@@ -63,7 +62,7 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                using (AdoDataConnection connection = ConnectionFactory())
                 {
                     IEnumerable<Meter> records = new TableOperations<Meter>(connection).QueryRecordsWhere("LocationID = {0}", meterLocationID);
                     return Ok(records);
@@ -88,15 +87,15 @@ namespace SystemCenter.Controllers.OpenXDA
 
                 using (TransactionScope scope = new TransactionScope())
                 {
-                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    using (AdoDataConnection connection = ConnectionFactory())
                     {
                         if (location.ID == 0)
-                            (new TableOperations<Location>(connection)).AddNewRecord(location);
+                            new TableOperations<Location>(connection).AddNewRecord(location);
 
                         JToken Assets = record["Assets"];
                         meter.LocationID = connection.ExecuteScalar<int>($"SELECT ID FROM Location WHERE LocationKey = '{location.LocationKey}'");
 
-                        (new TableOperations<Meter>(connection)).AddNewRecord(meter);
+                        new TableOperations<Meter>(connection).AddNewRecord(meter);
                         meter.ID = connection.ExecuteScalar<int>($"SELECT ID FROM Meter WHERE AssetKey = '{meter.AssetKey}'");
 
                         foreach (var asset in Assets)
@@ -108,52 +107,57 @@ namespace SystemCenter.Controllers.OpenXDA
                             } catch
                             {
                                 assetType = asset["AssetTypeID"].ToString();
-                                assetType = (new TableOperations<AssetTypes>(connection)).QueryRecordWhere("ID = {0}", assetType).Name;
+                                assetType = new TableOperations<AssetTypes>(connection).QueryRecordWhere("ID = {0}", assetType).Name;
                             }
                             if (asset["ID"].ToString() == "0")
                             {
                                 if (assetType == "Line")
-                                    (new TableOperations<Line>(connection)).AddNewRecord(asset.ToObject<Line>());
+                                    new TableOperations<Line>(connection).AddNewRecord(asset.ToObject<Line>());
                                 else if (assetType == "LineSegment")
-                                    (new TableOperations<LineSegment>(connection)).AddNewRecord(asset.ToObject<LineSegment>());
+                                    new TableOperations<LineSegment>(connection).AddNewRecord(asset.ToObject<LineSegment>());
                                 else if (assetType == "Breaker")
                                 {
-                                    (new TableOperations<Breaker>(connection)).AddNewRecord(asset.ToObject<Breaker>());
+                                    new TableOperations<Breaker>(connection).AddNewRecord(asset.ToObject<Breaker>());
                                     if (asset["SCADAPoint"] != null)
                                         connection.ExecuteNonQuery($"INSERT INTO SCADAPoint (BreakerID, Point) VALUES ((SELECT ID FROM Asset WHERE AssetKey = '{asset["AssetKey"].ToString()}'),'{asset["SCADAPoint"].ToString()}')");
                                 }
                                 else if (assetType == "Bus")
-                                    (new TableOperations<Bus>(connection)).AddNewRecord(asset.ToObject<Bus>());
+                                    new TableOperations<Bus>(connection).AddNewRecord(asset.ToObject<Bus>());
                                 else if (assetType == "Generation")
-                                    (new TableOperations<Generation>(connection)).AddNewRecord(asset.ToObject<Generation>());
+                                    new TableOperations<Generation>(connection).AddNewRecord(asset.ToObject<Generation>());
                                 else if (assetType == "StationAux")
-                                    (new TableOperations<StationAux>(connection)).AddNewRecord(asset.ToObject<StationAux>());
+                                    new TableOperations<StationAux>(connection).AddNewRecord(asset.ToObject<StationAux>());
                                 else if (assetType == "StationBattery")
-                                    (new TableOperations<StationBattery>(connection)).AddNewRecord(asset.ToObject<StationBattery>());
+                                    new TableOperations<StationBattery>(connection).AddNewRecord(asset.ToObject<StationBattery>());
                                 else if (assetType == "CapacitorBank")
-                                    (new TableOperations<CapBank>(connection)).AddNewRecord(asset.ToObject<CapBank>());
+                                    new TableOperations<CapBank>(connection).AddNewRecord(asset.ToObject<CapBank>());
                                 else if (assetType == "Transformer")
-                                    (new TableOperations<Transformer>(connection)).AddNewRecord(asset.ToObject<Transformer>());
+                                    new TableOperations<Transformer>(connection).AddNewRecord(asset.ToObject<Transformer>());
                                 else if (assetType == "CapacitorBankRelay")
-                                    (new TableOperations<CapBankRelay>(connection)).AddNewRecord(asset.ToObject<CapBankRelay>());
+                                    new TableOperations<CapBankRelay>(connection).AddNewRecord(asset.ToObject<CapBankRelay>());
                                 else if (assetType == "DER")
-                                    (new TableOperations<DER>(connection)).AddNewRecord(asset.ToObject<DER>());
-
+                                    new TableOperations<DER>(connection).AddNewRecord(asset.ToObject<DER>());
                                 else
-                                    (new TableOperations<Asset>(connection)).AddNewRecord(asset.ToObject<Asset>());
+                                    new TableOperations<Asset>(connection).AddNewRecord(asset.ToObject<Asset>());
                             }
                             int assetID = connection.ExecuteScalar<int>($"SELECT ID FROM Asset WHERE AssetKey = '{asset["AssetKey"].ToString()}'");
 
-                            (new TableOperations<MeterAsset>(connection)).AddNewRecord(new MeterAsset()
+                            new TableOperations<MeterAsset>(connection).AddNewRecord(new MeterAsset()
                             {
                                 AssetID = assetID,
                                 MeterID = meter.ID
                             });
-                            (new TableOperations<AssetLocation>(connection)).AddNewRecord(new AssetLocation()
+
+                            TableOperations<AssetLocation> assetLocationTable = new TableOperations<AssetLocation>(connection);
+                            int assetLocations = assetLocationTable.QueryRecordCountWhere("LocationID = {0} AND AssetID = {1}", meter.LocationID, assetID);
+                            if (assetLocations <= 0)
                             {
-                                AssetID = assetID,
-                                LocationID = meter.LocationID
-                            });
+                                assetLocationTable.AddNewRecord(new AssetLocation()
+                                {
+                                    AssetID = assetID,
+                                    LocationID = meter.LocationID
+                                });
+                            }
                         }
 
                         JToken AssetConnections = record["AssetConnections"];
@@ -161,7 +165,7 @@ namespace SystemCenter.Controllers.OpenXDA
                         {
                             int childID = connection.ExecuteScalar<int>($"SELECT ID From asset WHERE AssetKey = '{assetConnection["Child"].ToString()}'");
                             int parentID = connection.ExecuteScalar<int>($"SELECT ID From asset WHERE AssetKey = '{assetConnection["Parent"].ToString()}'");
-                            (new TableOperations<AssetConnection>(connection)).AddNewRecord(new AssetConnection()
+                            new TableOperations<AssetConnection>(connection).AddNewRecord(new AssetConnection()
                             {
                                 ParentID = parentID,
                                 ChildID = childID,
@@ -185,7 +189,7 @@ namespace SystemCenter.Controllers.OpenXDA
 
                             JToken Series = channel["Series"];
                             string sourceIndex = Series[0]["SourceIndexes"].ToString();
-                            if (assetKey == string.Empty) continue;
+                            if (assetKey is null || assetKey == string.Empty) continue;
 
                             Phase ph = new TableOperations<Phase>(connection).QueryRecordWhere("Name = {0}", phase);
                             if(ph == null)
@@ -245,7 +249,7 @@ namespace SystemCenter.Controllers.OpenXDA
             
             try
             {
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                using (AdoDataConnection connection = ConnectionFactory())
                 {
                     TableOperations<Channel> channelTable = new TableOperations<Channel>(connection);
                     TableOperations<Series> seriesTable = new TableOperations<Series>(connection);
@@ -383,7 +387,7 @@ namespace SystemCenter.Controllers.OpenXDA
                 "    Channel ON Series.ChannelID = Channel.ID " +
                 "WHERE Channel.MeterID = {0}";
 
-        using (AdoDataConnection connection = new AdoDataConnection(Connection))
+        using (AdoDataConnection connection = ConnectionFactory())
         {
             DataTable channelTable = connection.RetrieveData(ChannelQuery, meterID);
             string channelJSON = JsonConvert.SerializeObject(channelTable);
@@ -440,7 +444,7 @@ namespace SystemCenter.Controllers.OpenXDA
             if (GetRoles != string.Empty && !User.IsInRole(GetRoles))
                 return Unauthorized();
             
-            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            using (AdoDataConnection connection = ConnectionFactory())
             {
                 DataTable records = connection.RetrieveData($@"
                 SELECT 
@@ -480,7 +484,7 @@ namespace SystemCenter.Controllers.OpenXDA
             if (DeleteRoles != string.Empty && !User.IsInRole(DeleteRoles))
                 return Unauthorized();
             
-            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            using (AdoDataConnection connection = ConnectionFactory())
             {
                 try
                 {
@@ -502,7 +506,7 @@ namespace SystemCenter.Controllers.OpenXDA
             if (PostRoles != string.Empty && !User.IsInRole(PostRoles))
                 return Unauthorized();
             
-            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            using (AdoDataConnection connection = ConnectionFactory())
             {
                 try
                 {
@@ -570,7 +574,7 @@ namespace SystemCenter.Controllers.OpenXDA
                     return Unauthorized();
 
                 
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                using (AdoDataConnection connection = ConnectionFactory())
                 {
 
                     EventChannel newRecord = record.ToObject<EventChannel>();
@@ -622,7 +626,7 @@ namespace SystemCenter.Controllers.OpenXDA
             if (!DeleteAuthCheck())
                 return Unauthorized();
 
-            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            using (AdoDataConnection connection = ConnectionFactory())
             {
                 int result = connection.ExecuteNonQuery($"EXEC UniversalCascadeDelete Channel, 'ID = ''{record.ID}'''");
                 return Ok(result);
@@ -639,7 +643,7 @@ namespace SystemCenter.Controllers.OpenXDA
 
                 
 
-                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    using (AdoDataConnection connection = ConnectionFactory())
                     {
                         IEnumerable<MeasurementCharacteristic> measurementCharacteristics = new TableOperations<MeasurementCharacteristic>(connection).QueryRecordsWhere("Name = 'Instantaneous'");
 
@@ -722,7 +726,7 @@ namespace SystemCenter.Controllers.OpenXDA
                 if (!PostAuthCheck())
                     return Unauthorized();
 
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                using (AdoDataConnection connection = ConnectionFactory())
                 {
                     TrendChannel newRecord = record.ToObject<TrendChannel>();
 
@@ -762,7 +766,7 @@ namespace SystemCenter.Controllers.OpenXDA
             if (!DeleteAuthCheck())
                 return Unauthorized();
 
-            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            using (AdoDataConnection connection = ConnectionFactory())
             {
                 int result = connection.ExecuteNonQuery($"EXEC UniversalCascadeDelete Channel, 'ID = ''{record.ID}'''");
                 return Ok(result);
@@ -777,7 +781,7 @@ namespace SystemCenter.Controllers.OpenXDA
                 if (!PatchAuthCheck())
                     return Unauthorized();
 
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                using (AdoDataConnection connection = ConnectionFactory())
                 {
                     ChannelBase channel = new ChannelBase()
                     {

@@ -77,7 +77,7 @@ export default function AssetPage(props: IProps) {
     const detailedAssets = useAppSelector(ByAssetSlice.Data);
 
     const [newEditAsset, setNewEditAsset] = React.useState<AssetType>(AssetAttributes.getNewAsset('Line'));
-    const [editAssetKey, setEditAssetKey] = React.useState<string>('');
+    const [oldAssetKey, setOldAssetKey] = React.useState<string>('');
     const [newEdit, setNewEdit] = React.useState<'New' | 'Edit'>('New');
     const [showAssetModal, setShowAssetModal] = React.useState<boolean>(false);
 
@@ -97,14 +97,14 @@ export default function AssetPage(props: IProps) {
         .map(a => a.AssetKey)
         .concat(
             props.Assets
-                .filter((a) => a.AssetKey !== editAssetKey)
+                .filter((a) => a.AssetKey !== oldAssetKey)
                 .map(a => a.AssetKey)
         )
-    , [detailedAssets, props.Assets, newEditAsset.ID, editAssetKey]);
+    , [detailedAssets, props.Assets, newEditAsset.ID, oldAssetKey]);
 
     const filterChannels = React.useMemo(() =>
-        channelsWorking.filter(ch => (ch.Asset === (newEdit === 'Edit' ? editAssetKey : tempKey)) || (ch.Asset === ""))
-    , [channelsWorking, editAssetKey, newEdit]);
+        channelsWorking.filter(ch => (ch.Asset === oldAssetKey) || (ch.Asset === ""))
+    , [channelsWorking, oldAssetKey, newEdit]);
 
     const assetData = React.useMemo(() => {
         const u = _.cloneDeep(props.Assets);
@@ -235,7 +235,7 @@ export default function AssetPage(props: IProps) {
         const asset = props.Assets.find(a => a.AssetKey === assetData[index].AssetKey);
         setNewEdit('Edit');
         setNewEditAsset(asset);
-        setEditAssetKey(asset.AssetKey);
+        setOldAssetKey(asset.AssetKey);
         setShowAssetModal(true);
     }
 
@@ -363,7 +363,7 @@ export default function AssetPage(props: IProps) {
                             <div className="row">
                                 <div className="col">
                                     <div className="col pull-right btn-toolbar justify-content-end">
-                                        <button className="btn btn-info mr-4" onClick={() => { setNewEdit('New'); setShowAssetModal(true); }}>Add New</button>
+                                        <button className="btn btn-info mr-4" onClick={() => { setNewEdit('New'); setOldAssetKey(tempKey); setShowAssetModal(true); }}>Add New</button>
                                         <button className="btn btn-info mr-4" onClick={() => { setShowAssetSelect(true); }}>Add Existing</button>
                                     </div>
                                 </div>
@@ -533,19 +533,20 @@ export default function AssetPage(props: IProps) {
                         if (confirm) {
                             const record: OpenXDA.Types.Asset = _.cloneDeep(newEditAsset);
                             const list = _.cloneDeep(props.Assets);
+
+                            // We have to do this swap because the key isn't set in stone until now
+                            const channelsWithNewKey = channelsWorking
+                                .map(chan => (chan.Asset === oldAssetKey) ? ({ ...chan, Asset: record.AssetKey }) : chan);
+                            record.Channels = channelsWithNewKey
+                                .filter(chan => chan.Asset === record.AssetKey);
+                            props.UpdateChannels(channelsWithNewKey);
+
                             if (newEdit == 'New') {
-                                // We have to do this swap because the key isn't set in stone until now
-                                const channelsWithNewKey = channelsWorking
-                                    .map(chan => (chan.Asset === tempKey) ? ({ ...chan, Asset: record.AssetKey }) : chan);
-                                record.Channels = channelsWithNewKey
-                                    .filter(chan => chan.Asset === record.AssetKey);                                    ;
                                 list.push(record);
-                                props.UpdateChannels(channelsWithNewKey);
                             }
-                            else if (newEdit == 'Edit') {
-                                const index = list.findIndex(a => a.AssetKey == editAssetKey);
+                            else {
+                                const index = list.findIndex(a => a.AssetKey == oldAssetKey);
                                 list[index] = record;
-                                props.UpdateChannels(channelsWorking);
                             }
                             props.UpdateAssets(list);
                         }
@@ -604,17 +605,16 @@ export default function AssetPage(props: IProps) {
                                     Label=""
                                     Channels={filterChannels}
                                     CurrentConnectionPriority={connectionPriority}
-                                    Asset={newEdit === 'Edit' ? newEditAsset.AssetKey : tempKey}
+                                    Asset={oldAssetKey}
                                     ConnectionPriorityTranslation={tabs}
                                     ShowSeries={showSeries}
                                     UpdateChannels={(updatedChannelArray) => {
-                                        const key = newEdit === 'Edit' ? newEditAsset.AssetKey : tempKey;
                                         // update our channel working set
                                         setChannelsWorking(chans => chans.map(chan => {
                                             const arrayIndex = updatedChannelArray.findIndex(ch => ch.ID === chan.ID);
                                             if (arrayIndex > -1)
                                                 return updatedChannelArray[arrayIndex];
-                                            if (chan.Asset === key && chan.ConnectionPriority === connectionPriority)
+                                            if (chan.Asset === oldAssetKey && chan.ConnectionPriority === connectionPriority)
                                                 return { ...chan, Asset: '', ConnectionPriority: 0 };
 
                                             return chan;
