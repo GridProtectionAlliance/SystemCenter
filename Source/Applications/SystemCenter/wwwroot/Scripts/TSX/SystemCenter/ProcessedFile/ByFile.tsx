@@ -24,7 +24,7 @@
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { CreateGuid } from '@gpa-gemstone/helper-functions';
-import { LoadingIcon, LoadingScreen, Modal, Search, SearchBar } from '@gpa-gemstone/react-interactive';
+import { LoadingIcon, LoadingScreen, Modal, Search, SearchBar, Warning } from '@gpa-gemstone/react-interactive';
 import { ToolTip } from '@gpa-gemstone/react-forms';
 import { Column, Paging, Table } from '@gpa-gemstone/react-table';
 import moment from 'moment';
@@ -52,6 +52,12 @@ const filterableList: Search.IField<OpenXDA.Types.DataFile>[] = [
     }
 ];
 
+interface IWarningModalInfo {
+    Message?: string,
+    Title?: string,
+    State: "show" | "loading" | "idle"
+}
+
 declare var homePath: string;
 
 const ByFile: Application.Types.iByComponent = (props) => {
@@ -69,7 +75,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
     const [selectedID, setSelectetID] = React.useState<OpenXDA.Types.DataFile|null>(null);
     const [evts, setEvts] = React.useState<GlobalXDA.Event[]>([]);
 
-    const [showWarning, setShowWarning] = React.useState<'hide' | 'complete' | 'error' | 'loading'>('hide');
+    const [warningModal, setWarningModal] = React.useState<IWarningModalInfo>({ State: "idle" });
 
     const [search, setSearch] = React.useState<Array<Search.IFilter<OpenXDA.Types.DataFile>>>([]);
 
@@ -106,7 +112,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
             return;
         const h = loadEvents(selectedID.ID);
         return () => { if (h !== null && h.abort != null) h.abort(); }
-    }, [selectedID])
+    }, [selectedID]);
 
     function loadEvents(fileID: number) {
         if (fileID < 0)
@@ -120,11 +126,11 @@ const ByFile: Application.Types.iByComponent = (props) => {
             dataType: 'json',
             cache: true,
             async: true
-        }).fail(() => setEState('error')).done((d) => { setEState('idle'); setEvts(d); });;
+        }).fail(() => setEState('error')).done((d) => { setEState('idle'); setEvts(d); });
     }
 
-    function reprocess(file: OpenXDA.Types.DataFile) {
-        setShowWarning('loading')
+    function reprocess() {
+        setWarningModal({ State: "loading" });
         $.ajax({
             type: "GET",
             url: `${homePath}api/OpenXDA/DataFile/Reprocess/${selectedID.FileGroupID}` ,
@@ -132,11 +138,23 @@ const ByFile: Application.Types.iByComponent = (props) => {
             dataType: 'json',
             cache: true,
             async: true
-        }).fail(() => setShowWarning('error')).done((d) => { setShowWarning('complete'); });;
+        }).fail(() =>
+            setWarningModal({
+                Message: 'openXDA was unable to reprocess the selected file(s). If this error continues to occur please contact your system administrator.',
+                Title: "Error Reprocessing",
+                State: "show"
+            })
+        ).done(() =>
+            setWarningModal({
+                Message: 'openXDA has begun to reprocess the selected file(s). Note that this may take several minutes.',
+                Title: "Started Reprocessing",
+                State: "show"
+            })
+        );
     }
 
     function reprocessAll() {
-        setShowWarning('loading')
+        setWarningModal({ State: "loading" });
         $.ajax({
             type: "POST",
             url: `${homePath}api/OpenXDA/DataFile/ReprocessMany`,
@@ -145,7 +163,19 @@ const ByFile: Application.Types.iByComponent = (props) => {
             data: JSON.stringify(data.map(d => d.FileGroupID)),
             cache: false,
             async: true
-        }).fail(() => setShowWarning('error')).done((d) => { setShowWarning('complete'); });;
+        }).fail(() =>
+            setWarningModal({
+                Message: 'openXDA was unable to reprocess the selected file(s). If this error continues to occur please contact your system administrator.',
+                Title: "Error Reprocessing",
+                State: "show"
+            })
+        ).done(() =>
+            setWarningModal({
+                Message: 'openXDA has begun to reprocess the selected file(s). Note that this may take several minutes.',
+                Title: "Started Reprocessing",
+                State: "show"
+            })
+        );
     }
 
     function getFileName(file: OpenXDA.Types.DataFile) {
@@ -164,7 +194,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
 
     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <LoadingScreen Show={showWarning == 'loading'} />
+            <LoadingScreen Show={warningModal.State === 'loading'} />
             <div className="container-fluid d-flex h-100 flex-column">
                 <div className="row">
                     <SearchBar<OpenXDA.Types.DataFile> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={DefaultSearchField.DataFile as Search.IField<OpenXDA.Types.DataFile>} Width={'100%'} Label={'Search'} StorageID="DataFilesFilter"
@@ -270,7 +300,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
 
             <Modal Show={selectedID != null} Title={'File Details'} CallBack={(c,b) => {
                 if (c)
-                    reprocess(selectedID);
+                    reprocess();
                 setSelectetID(null);
             }} ShowCancel={false} ShowX={true} ConfirmText={'Reprocess File'} ConfirmBtnClass={'btn-info'} >
                 <div className="alert alert-primary" >
@@ -340,12 +370,13 @@ const ByFile: Application.Types.iByComponent = (props) => {
                 </div>
                 
             </Modal>
-            <Modal Show={showWarning == 'complete'} Size={'sm'} Title={'Started Reprocessing'} CallBack={(c) => setShowWarning('hide')} ShowCancel={false} ShowX={true} ConfirmText={'Close'}>
-                openXDA has begun to reprocess the selected file(s). Note that this may take several minutes.
-            </Modal>
-            <Modal Show={showWarning == 'error'} Size={'sm'} Title={'Error Reprocessing'} CallBack={(c) => setShowWarning('hide')} ShowCancel={false} ShowX={true} ConfirmText={'Close'} ConfirmBtnClass={'btn-danger'}>
-                openXDA was unable to reprocess the selected file(s). If this error continues to occur please contact your system administrator.
-            </Modal>
+            <Warning
+                Show={warningModal.State === "show"}
+                Title={'Started Reprocessing'}
+                CallBack={() => setWarningModal({State: "idle"})}
+                ShowCancel={false}
+                Message={warningModal.Message}
+            />
         </div>
     )
 }
