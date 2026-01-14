@@ -75,7 +75,9 @@ const ReportForm = (props: IProps) => {
                     Label={'File Path'}
                     Help={'Specify the path to save this Report as a file. The subject will be used for the file name. If File Path is left empty, no file will be saved.'}
                     Valid={Valid} Setter={(record) => props.setRecord(record)} />
-                <CheckBox<ScheduledEmailType> Record={props.record} Field={'ShowSubscription'} Label={'Allow Self Subscription'} Setter={(record) => props.setRecord(record)} />
+                <CheckBox<ScheduledEmailType> Record={props.record} Field={'ShowSubscription'} Label={'Allow Self Subscription'} Setter={(record) => props.setRecord(record)}
+                    Disabled={!(categories.find(category => category.ID === props.record.EmailCategoryID)?.SelfSubscribe ?? false)}
+                    Help={"Category must allow self-subscription to change this setting."} />
                 <CheckBox<ScheduledEmailType> Record={props.record} Field={'RequireApproval'} Label={'Requires Approval'} Setter={(record) => props.setRecord(record)} />
                 <CheckBox<ScheduledEmailType> Record={props.record} Field={'SMS'} Label={'Send as a Text'} Setter={(record) => props.setRecord(record)} />
             </div>

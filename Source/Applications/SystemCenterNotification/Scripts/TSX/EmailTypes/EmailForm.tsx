@@ -71,7 +71,9 @@ const EmailForm = (props: IProps) => {
                     <Select<EmailType> Record={props.record} Field={'EmailCategoryID'} Label={'Category'}
                         Options={categories.map(c => ({ Value: c.ID.toString(), Label: c.Name }))}
                         Setter={(record) => { record.EmailCategoryID = parseInt(record.EmailCategoryID.toString()); props.setRecord(record) }} />
-                    <CheckBox<EmailType> Record={props.record} Field={'ShowSubscription'} Label={'Allow Self Subscription'} Setter={(record) => props.setRecord(record)} />
+                    <CheckBox<EmailType> Record={props.record} Field={'ShowSubscription'} Label={'Allow Self Subscription'} Setter={(record) => props.setRecord(record)}
+                        Disabled={!(categories.find(category => category.ID === props.record.EmailCategoryID)?.SelfSubscribe ?? false)}
+                        Help={"Category must allow self-subscription to change this setting."} />
                     <CheckBox<EmailType> Record={props.record} Field={'RequireApproval'} Label={'Requires Approval'} Setter={(record) => props.setRecord(record)} />
                 </div>
                 <div className="col">
