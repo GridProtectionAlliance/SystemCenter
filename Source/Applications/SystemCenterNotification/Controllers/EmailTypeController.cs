@@ -233,7 +233,7 @@ namespace SystemCenter.Notifications.Controllers
                 for(int index = 0; index < results.Count(); index++)
                 {
                     XElement data = JsonConvert.DeserializeObject<XElement>(results[index]["Data"].ToString());
-                    results[index]["Data"] = data.ToString() ?? "";
+                    results[index]["Data"] = data?.ToString() ?? "";
                 }
 
                 return Ok(results);

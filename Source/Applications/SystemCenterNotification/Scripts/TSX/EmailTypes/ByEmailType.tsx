@@ -219,7 +219,11 @@ const ByEmailType = (props: IProps) => {
                             Field={'ShowSubscription'}
                             HeaderStyle={{ width: '10%' }}
                             RowStyle={{ width: '10%' }}
-                            Content={({ item }) => item.ShowSubscription ? <ReactIcons.CheckMark Color="var(--success)" /> : <ReactIcons.CrossMark Color="var(--danger)" />}
+                            Content={({ item }) =>
+                                item.ShowSubscription && (categories.find(category => category.ID === item.EmailCategoryID)?.SelfSubscribe ?? false) ?
+                                    <ReactIcons.CheckMark Color="var(--success)" /> :
+                                    <ReactIcons.CrossMark Color="var(--danger)" />
+                            }
                         > Self Subscription
                         </Column>
                         <Column<EmailType>
