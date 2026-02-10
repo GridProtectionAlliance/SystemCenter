@@ -23,15 +23,13 @@
 
 using GSF.Data;
 using GSF.Data.Model;
-using GSF.Threading;
 using GSF.Web.Model;
-using openXDA.Model;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Web;
 using System.Web.Http;
+using SystemCenter.Controllers;
 
 namespace SystemCenter.Model
 {
@@ -39,6 +37,7 @@ namespace SystemCenter.Model
 	SELECT 
 		Meter.ID,
 		Meter.Name,
+		Meter.TimeZone,
 		omic.Value as OpenMIC,
 		Make + ' ' + Model as Model,
 		Location.ID as LocationID,
@@ -47,13 +46,10 @@ namespace SystemCenter.Model
 		afvtsc.Value as TSC,
 		afvsector.Value as Sector,
 		afvip.Value as IP,
-		micstat.LastSuccessfulConnection as LastGood,
 		bds.BadDays,
 		mimdstat.BadDays as MiMDBadDays,
-		micstat.BadDays as MICBadDays,
 		xdastat.BadDays as XDABadDays,
 		mimdstat.[Status] as MiMDStatus,
-		micstat.[Status] as MICStatus,
 		xdastat.[Status] as XDAStatus,
 		dqstat.[Status] as DQStatus,
 		CAST(mimdstat.LastConfigFileChange as DATE) as LastConfigChange
@@ -66,8 +62,6 @@ namespace SystemCenter.Model
 		AdditionalFieldValue afvip ON afvip.ParentTableID = Meter.ID AND afvip.AdditionalFieldID = (SELECT ID FROM AdditionalField WHERE ParentTable = 'Meter' AND FieldName ='IP') OUTER APPLY (
 			SELECT TOP 1 LastConfigFileChange,BadDays, [Status] FROM [MiMDDailyStatistic]  WHERE  Meter.AssetKey = [MiMDDailyStatistic].Meter  ORDER BY CAST([MiMDDailyStatistic].Date as Date) DESC
 		) as mimdstat OUTER APPLY (
-			SELECT TOP 1 LastSuccessfulConnection,BadDays, [Status] FROM [OpenMICDailyStatistic]  WHERE  Meter.AssetKey = [OpenMICDailyStatistic].Meter  ORDER BY CAST([OpenMICDailyStatistic].Date as date) DESC
-		) as micstat  OUTER APPLY (
 			SELECT TOP 1 BadDays, [Status] FROM [OpenXDADailyStatistic]  WHERE  Meter.AssetKey = [OpenXDADailyStatistic].Meter  ORDER BY CAST([OpenXDADailyStatistic].Date as date) DESC
 		) as xdastat OUTER APPLY  (
 		SELECT 
@@ -80,7 +74,6 @@ namespace SystemCenter.Model
 		  FROM MeterDataQualitySummary where meterid = Meter.ID order by Date desc
 		) as dqstat OUTER APPLY(
 			SELECT MAX(BadDays) as BadDays FROM (
-			SELECT TOP 1 BadDays FROM [OpenMICDailyStatistic]  WHERE  Meter.AssetKey = [OpenMICDailyStatistic].Meter  ORDER BY Cast([OpenMICDailyStatistic].Date as date) DESC UNION
 			SELECT TOP 1 BadDays FROM [OpenXDADailyStatistic]  WHERE  Meter.AssetKey = [OpenXDADailyStatistic].Meter  ORDER BY Cast([OpenXDADailyStatistic].Date as date) DESC UNION
 			SELECT TOP 1 BadDays FROM [MiMDDailyStatistic]  WHERE  Meter.AssetKey = [MiMDDailyStatistic].Meter  ORDER BY Cast([MiMDDailyStatistic].Date as date) DESC ) t
 		) as bds     
@@ -90,6 +83,7 @@ namespace SystemCenter.Model
 		public int ID { get; set; }
 		public string Name { get; set; }
 		public string Model { get; set; }
+		public string TimeZone { get; set; }
 		public string OpenMIC { get; set; }
 		public int LocationID { get; set; }
 		public string Substation { get; set; }
@@ -97,22 +91,65 @@ namespace SystemCenter.Model
 		public string TSC { get; set; }
 		public string Sector { get; set; }
 		public string IP { get; set; }
-		public DateTime LastGood { get; set; }
+		public DateTime LastGood { get; set; } // no longer gotten from table
 		public int BadDays { get; set; }
 		public int MiMDBadDays { get; set; }
-		public int MICBadDays { get; set; }
+		public int MICBadDays { get; set; }  // no longer gotten from table
 		public int XDABadDays { get; set; }
-
 		public string MiMDStatus { get; set; }
-		public string MICStatus { get; set; }
+        public string MICStatus { get; set; } // no longer gotten from table
 		public string XDAStatus { get; set; }
-
 		public DateTime LastConfigChange { get; set; }
+	}
+
+
+        public override IHttpActionResult GetSearchableList([FromBody] PostData postData)
+        {
+            int warningLevel = 50;
+            int errorLevel = 100;
+            DataTable table = GetSearchResults(postData);
+
+			// add empty rows to table for openMIC info
+			table.Columns.Add("MICStatus");
+			table.Columns.Add("MICBadDays", Type.GetType("System.Int32"));
+			table.Columns.Add("LastGood");
+            foreach (DataRow devHealthReport in table.Rows)
+			{
+				if (string.IsNullOrEmpty(devHealthReport.ConvertField<string>("OpenMic")))
+				{
+					continue;
+				}
+                JObject openMicResult = JObject.Parse(ControllerHelpers.Get("OpenMIC", $"api/Operations/Statistics/{devHealthReport["OpenMIC"]}"));
+                int totalUnsuccessfulConnections = openMicResult["TotalUnsuccessfulConnections"]?.ToObject<int>() ?? 0;
+                if (totalUnsuccessfulConnections > errorLevel)
+                {
+                    devHealthReport["Status"] = "Error";
+
+                }
+                else if (totalUnsuccessfulConnections > warningLevel)
+                {
+                    devHealthReport["Status"] = "Warning";
+                }
+                devHealthReport["MICStatus"] = openMicResult["Status"];
+				devHealthReport["MICBadDays"] = 0; // just a placeholder for now.
+				if (Convert.ToInt32(devHealthReport["MICBadDays"]) > Convert.ToInt32(devHealthReport["BadDays"]))
+				{ 
+					devHealthReport["BadDays"] = devHealthReport["MICBadDays"]; 
+				}
+
+				if (openMicResult["LastSuccessfulConnection"] != null)
+				{
+                    devHealthReport["LastGood"] = openMicResult["LastSuccessfulConnection"];
+                }
+                ;
+			}
+			return Ok(JsonConvert.SerializeObject(table));
+        }
+
 
 	}
 
 
-	[RoutePrefix("api/DeviceHealthReport")]
-	public class DeviceHealthReportController : ModelController<DeviceHealthReport> { }
+        }
 
 }
