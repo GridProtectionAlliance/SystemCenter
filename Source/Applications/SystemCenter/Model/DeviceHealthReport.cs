@@ -215,7 +215,18 @@ namespace SystemCenter.Model
                 status.Details.Add(new StatusItem()
                 {
                     Status = "Error",
-                    Description = "Failed to authenticate with openMIC. Check the OpenMIC.Credential and OpenMIC.Password settings in System Center Settings."
+					Description = "Could not authorize with openMIC. Check the OpenMIC.Credential and OpenMIC.Password settings in System Center Settings."
+				});
+
+				return Ok(status);
+            }
+            if (openMICResponse.StatusCode != System.Net.HttpStatusCode.OK)
+            {
+                status.Status = "Error";
+                status.Details.Add(new StatusItem()
+                {
+                    Status = "Error",
+                    Description = "openMIC must be updated to v2.0.246 or later."
                 });
 
                 return Ok(status);
