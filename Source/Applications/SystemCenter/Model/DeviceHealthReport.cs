@@ -26,10 +26,12 @@ using GSF.Data.Model;
 using GSF.Web.Model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Net.Http;
 using System;
 using System.Data;
 using System.Web.Http;
 using SystemCenter.Controllers;
+using System.Collections.Generic;
 
 namespace SystemCenter.Model
 {
@@ -96,12 +98,28 @@ namespace SystemCenter.Model
 		public int MiMDBadDays { get; set; }
 		public int MICBadDays { get; set; }  // no longer gotten from table
 		public int XDABadDays { get; set; }
-		public string MiMDStatus { get; set; }
+        public string MiMDStatus { get; set; } 
         public string MICStatus { get; set; } // no longer gotten from table
 		public string XDAStatus { get; set; }
 		public DateTime LastConfigChange { get; set; }
 	}
 
+	[RoutePrefix("api/DeviceHealthReport")]
+	public class DeviceHealthReportController : ModelController<DeviceHealthReport> 
+	{
+		public class StatusItem
+		{
+			public string Status { get; set; }
+			public string Description { get; set; }
+		}
+
+		public class AppStatus 
+		{
+			public string Status { get; set; }
+
+			public List<StatusItem> Details { get; set; }
+			
+		}
 
         public override IHttpActionResult GetSearchableList([FromBody] PostData postData)
         {
@@ -119,7 +137,16 @@ namespace SystemCenter.Model
 				{
 					continue;
 				}
-                JObject openMicResult = JObject.Parse(ControllerHelpers.Get("OpenMIC", $"api/Operations/Statistics/{devHealthReport["OpenMIC"]}"));
+				var rawResponse = ControllerHelpers.Get("OpenMIC", $"api/Operations/Statistics/{devHealthReport["OpenMIC"]}");
+				JObject? openMicResult = null;
+				try
+				{
+					openMicResult = JObject.Parse(rawResponse);
+				}
+				catch(JsonReaderException)
+				{
+					continue;
+				}
                 int totalUnsuccessfulConnections = openMicResult["TotalUnsuccessfulConnections"]?.ToObject<int>() ?? 0;
                 if (totalUnsuccessfulConnections > errorLevel)
                 {
@@ -146,10 +173,89 @@ namespace SystemCenter.Model
 			return Ok(JsonConvert.SerializeObject(table));
         }
 
+		[HttpGet, Route("OpenMICStatus")]
+        public IHttpActionResult GetOpenMICStatus()
+		{
+			AppStatus status = new AppStatus() 
+			{ 
+				Status ="Success",
+				Details = []
+			};
 
-	}
+			HttpResponseMessage? openMICResponse = null;
 
+            try
+			{
+				using (HttpClient client = new())
+					openMICResponse = ControllerHelpers.Get(client, "OpenMIC", $"api/health/status/");
+				;
+			}
+			catch
+			{
+				status.Status = "Error";
+				status.Details.Add(new StatusItem()
+				{
+					Status = "Error",
+					Description = "Could not connect to openMIC. Check the OpenMIC.URL setting in System Center Settings."
+                });
+            }
 
+			if (openMICResponse is null)
+                return Ok(status);
+
+            status.Details.Add(new StatusItem()
+            {
+                Status = "Success",
+                Description = "Connected to openMIC"
+            });
+
+            if (openMICResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+			{
+                status.Status = "Error";
+                status.Details.Add(new StatusItem()
+                {
+                    Status = "Error",
+                    Description = "Failed to authenticate with openMIC. Check the OpenMIC.Credential and OpenMIC.Password settings in System Center Settings."
+                });
+
+                return Ok(status);
+            }
+
+            status.Details.Add(new StatusItem()
+            {
+                Status = "Success",
+                Description = "Successful authentication."
+            });
+
+			string r = openMICResponse.Content.ReadAsStringAsync().Result;
+
+            return Ok(status);
         }
 
+		[HttpGet, Route("OMTriggerStatus")]
+		public IHttpActionResult GetOMTriggerStatus()
+		{
+            AppStatus status = new AppStatus()
+            {
+                Status = "Success",
+                Details = []
+            };
+			try
+			{
+				using (HttpClient client = new())
+					ControllerHelpers.Get(client, "OpenMIC", $"api/health/status/"); 
+				;
+			}
+			catch
+			{
+				status.Status = "N/A";
+				status.Details.Add(new StatusItem()
+				{
+					Status = "Error",
+					Description = "Could not connect to openMIC. Check the OpenMIC.URL setting in System Center Settings."
+				});
+            }
+			return Ok(status);
+		}
+    }
 }
