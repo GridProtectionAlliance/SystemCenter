@@ -187,7 +187,7 @@ namespace SystemCenter.Model
             try
 			{
 				using (HttpClient client = new())
-					openMICResponse = ControllerHelpers.Get(client, "OpenMIC", $"api/health/status/");
+					openMICResponse = ControllerHelpers.Get(client, "OpenMIC", $"api/health/getsystemstatus/");
 				;
 			}
 			catch
@@ -243,7 +243,7 @@ namespace SystemCenter.Model
 			try
 			{
 				using (HttpClient client = new())
-					ControllerHelpers.Get(client, "OpenMIC", $"api/health/status/"); 
+					ControllerHelpers.Get(client, "OpenMIC", $"api/health/getsystemstatus/"); 
 				;
 			}
 			catch
