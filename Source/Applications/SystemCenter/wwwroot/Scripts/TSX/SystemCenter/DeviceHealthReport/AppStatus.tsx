@@ -71,7 +71,7 @@ const AppStatus = (props: { Name: string, Endpoint: string }) => {
     return (
         <>
             <div
-                data-tooltip={"statusbutton"}
+                data-tooltip={`statusbutton${props.Name}`}
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
                 className={`btn btn-${GetStatusClass(appStatusData.Status)} m-2`}
@@ -79,9 +79,9 @@ const AppStatus = (props: { Name: string, Endpoint: string }) => {
                 {status === 'idle' ? props.Name : GetStatusButton(status)}
             </div>
             <ToolTip
-                Show={isHovered && status === 'idle' && appStatusData.Status !== 'N/A' && appStatusData.Details !== null}
+                Show={isHovered && status === 'idle' && appStatusData.Status !== 'N/A' && appStatusData.Details !== null && appStatusData.Details.length !== 0}
                 Position={'bottom'}
-                Target={"statusbutton"}
+                Target={`statusbutton${props.Name}`}
             >
                 {appStatusData == undefined || appStatusData.Details == null ? <></> :
                    appStatusData.Details.map((data, index) => (
