@@ -31,6 +31,8 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 import { SystemCenterSettingSlice } from '../Store/Store';
 import moment from 'moment';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import AppStatus from './AppStatus'
+import { ErrorBoundary } from '@gpa-gemstone/common-pages'
 
 const defaultSearchcols: Search.IField<SCGlobal.DeviceHealthReport>[] = [
     { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
@@ -171,9 +173,25 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                     handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
                     return () => { if (handle != null && handle.abort == null) handle.abort(); }
                 }}
-
-            >
-            </SearchBar>
+                >
+                    <li className="nav-item">
+                        <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                            <legend className="w-auto" style={{ fontSize: 'large' }}>Connection Status:</legend>
+                            <div className="form-group">
+                                
+                                <AppStatus
+                                    Name="openMIC"
+                                    Endpoint="OpenMICStatus"
+                                />
+                                <AppStatus
+                                    Name="Scada Trigger"
+                                    Endpoint="OMTriggerStatus"
+                                />
+                                
+                             </div>
+                        </fieldset>
+                    </li>
+                </SearchBar>
             </div>
             <div className={'row'} style={{ flex: 1, overflow: 'hidden' }}>
                 <div className={'col-12 p-0'} style={{ height: '100%', overflow: 'hidden' }}>

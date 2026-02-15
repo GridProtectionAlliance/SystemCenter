@@ -97,7 +97,6 @@ namespace SystemCenter.Controllers
                         client.DefaultRequestHeaders.Add("X-GSF-Verify", token);
 
                     HttpResponseMessage response = client.GetAsync(requestURI).Result;
-
                     if (!response.IsSuccessStatusCode)
                     {
                         Log.Error( new Exception($"Unsuccessful status code for - {baseURL}/{requestURI} - {response.StatusCode} : {response.ReasonPhrase}") );
@@ -126,7 +125,6 @@ namespace SystemCenter.Controllers
         {
             using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
             {
-
                 try
                 {
                     string url = new TableOperations<Setting>(connection).QueryRecordWhere($"Name = '{application}.Url'")?.Value ?? "";
@@ -183,6 +181,51 @@ namespace SystemCenter.Controllers
             }
         }
 
+        /// <summary>
+        /// Processes Get request on baseURL + requestURI using provided credentials using Basic auth and a provided client.
+        /// Exceptions are expected to be handled by the caller.
+        /// </summary>
+        /// <param name="httpClient">HttpClient to use for sending requests and accepting responses.</param>
+        /// <param name="baseURL">Base URL of WebAPI</param>
+        /// <param name="requestURI">Path to specific API request</param>
+        /// <param name="credential">User Name</param>
+        /// <param name="password">Password</param>
+        /// <param name="token">anti forgery token, defaults to null</param>
+        /// <returns>string</returns>
+        public static HttpResponseMessage Get(HttpClient httpClient, string baseURL, string requestURI, string credential, string password, string token = null)
+        {
+            httpClient.BaseAddress = new Uri(baseURL);
+            httpClient.DefaultRequestHeaders.Accept.Clear();
+            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.ASCII.GetBytes($"{credential}:{password}")));
 
+            if (token != null)
+                httpClient.DefaultRequestHeaders.Add("X-GSF-Verify", token);
+
+            HttpResponseMessage response = httpClient.GetAsync(requestURI).Result;
+
+            return response;
+        }
+
+        /// <summary>
+        /// Processes Get request from an application using settings table parameters and a provided client.
+        /// Exceptions are expected to be handled by the caller.
+        /// </summary>
+        /// <param name="httpClient">HttpClient to use for sending requests and accepting responses.</param>
+        /// <param name="application">Name of Application</param>
+        /// <param name="requestURI">Path to specific API request</param>
+        /// <returns>string</returns>
+        public static HttpResponseMessage Get(HttpClient httpClient, string application, string requestURI)
+        {
+            using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+            {
+                string url = new TableOperations<Setting>(connection).QueryRecordWhere($"Name = '{application}.Url'")?.Value ?? "";
+                string credential = new TableOperations<Setting>(connection).QueryRecordWhere($"Name = '{application}.Credential'")?.Value ?? "";
+                string password = new TableOperations<Setting>(connection).QueryRecordWhere($"Name = '{application}.Password'")?.Value ?? "";
+
+                string token = GenerateAntiForgeryToken(application);
+                return Get(httpClient, url, requestURI, credential, password, token);
+            }
+        }
     }
 }
