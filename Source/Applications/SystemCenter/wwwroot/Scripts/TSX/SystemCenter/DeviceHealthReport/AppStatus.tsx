@@ -87,10 +87,10 @@ const AppStatus = (props: { Name: string, Endpoint: string }) => {
             >
                 {appStatusData?.Details == null ? <></> :
                    appStatusData.Details.map((data, index) => (
-                        <div className={'d-flex'}>
+                        <>
                             {GetStatusSymbol(data.Status)}
                             <p> {data.Description} </p>
-                        </div>
+                        </>
                     ))
 
                 }
