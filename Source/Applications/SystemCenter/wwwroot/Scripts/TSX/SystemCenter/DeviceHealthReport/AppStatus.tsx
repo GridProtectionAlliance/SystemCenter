@@ -81,11 +81,11 @@ const AppStatus = (props: { Name: string, Endpoint: string }) => {
                 <LoadingIcon Show={status == 'loading' } />
             </div>
             <ToolTip
-                Show={isHovered && status === 'idle' && appStatusData.Status !== 'N/A' && appStatusData.Details !== null && appStatusData.Details.length !== 0}
+                Show={isHovered && status === 'idle' && appStatusData.Status !== 'N/A' && (appStatusData.Details?.length ?? 0) > 0}
                 Position={'bottom'}
                 Target={`statusbutton${props.Name}`}
             >
-                {appStatusData == undefined || appStatusData.Details == null ? <></> :
+                {appStatusData?.Details == null ? <></> :
                    appStatusData.Details.map((data, index) => (
                         <div className={'d-flex'}>
                             {GetStatusSymbol(data.Status)}
