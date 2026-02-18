@@ -117,7 +117,7 @@ function ByDataOperationsFailure(props: IProps) {
                 </div>
             </div>
             <hr />
-            <LoadingScreen Show={pageStatus == 'idle'} />
+            <LoadingScreen Show={pageStatus === 'loading'} />
             <Table<OpenXDA.Types.DataOperationFailure>
                 TableClass="table table-hover"
                 Data={failureData}

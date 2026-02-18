@@ -22,20 +22,22 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { useAppSelector, useAppDispatch } from '../hooks';
 import { Warning } from '@gpa-gemstone/react-interactive';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
+interface IProps {
+    CallBack: (conf: boolean) => void,
+    Record: SystemCenter.Types.ValueListGroup,
+    Show: boolean
+}
 
-declare var homePath: string;
-interface IProps { CallBack: (conf: boolean) => void, Record: SystemCenter.Types.ValueListGroup, Show: boolean }
-export const requiredValueLists = ["TimeZones", "Make", "Model", "Unit", "Category", "SpareChannel", "TrendLabelDefaults", "TrendLabelOptions"]
+export const RequiredValueLists = ["TimeZones", "Make", "Model", "Unit", "Category", "SpareChannel", "TrendLabelDefaults", "TrendLabelOptions"]
 
 export function ValueListGroupDelete(props: IProps) {
     const [message, setMessage] = React.useState<string>('')
     const [prevent, setPrevent] = React.useState<boolean>(false)
 
     React.useEffect(() => {
-        if (requiredValueLists.includes(props.Record?.Name)) {
+        if (RequiredValueLists.includes(props.Record?.Name)) {
             setPrevent(true);
             setMessage('This Value List Group is required and cannot be removed.')
             return
@@ -52,65 +54,33 @@ export function ValueListGroupDelete(props: IProps) {
     )
 }
 
-interface IPropsItem { 
+interface IPropsItem {
     CallBack: (conf: boolean) => void,
-    Record: SystemCenter.Types.ValueListItem, 
-    Show: boolean, 
-    ItemCount: number, 
+    Record: SystemCenter.Types.ValueListItem,
+    Show: boolean,
+    GroupItemCount: number,
+    AssignedDictionary: { [key: string]: number },
     Group: SystemCenter.Types.ValueListGroup
 }
 
 export function ValueListItemDelete(props: IPropsItem) {
+    const message = React.useMemo(() => {
+        const assignedCount = props.AssignedDictionary?.[props.Record.ID] ?? 0;
 
-    const [message, setMessage] = React.useState<string>('')
-    const [prevent, setPrevent]  = React.useState<boolean>(false)
-    const [removalCount, setRemovalCount] = React.useState<number>(0);
+        if (props.GroupItemCount == 1 && assignedCount > 0)
+            return 'Removing this Value List Item will result in an empty Value List Group. All Fields using this Value List Group will be changed to strings.';
+        else if (assignedCount > 0)
+            return `This Value List Group is in use, with ${assignedCount} values corresponding to this Value List Item. These values will be unassigned.`;
+        else
+            return 'This will permanently delete this Value List Item and cannot be undone.';
+    }, [props.Group?.Name, props.Record.ID, props.AssignedDictionary, props.GroupItemCount])
 
-    React.useEffect(() => {
-        if ((props.Group?.Name?.length ?? 0) === 0 || (props.Record?.Value ?? 0) === 0)
-            return;
-        
-        const h =  $.ajax({
-            type: "GET",
-            url: `${homePath}api/ValueList/Count/${props.Group?.Name ?? 'Make'}/${props.Record?.Value}`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: false,
-            async: true
-        });
-        h.then((c: number) => {setRemovalCount(c);});
-        return () => { if (h != null && h.abort != null) h.abort();}
-    }, [props.Group, props.Record])
-    
-    React.useEffect(() => {
-        if (requiredValueLists.includes(props.Group?.Name) && props.ItemCount == 1) {
-            setPrevent(true);
-            setMessage('This Value List Group is required and must contain at least 1 item.')
-        }
-        else if (props.ItemCount == 1 && removalCount > 0)
-        {
-            setMessage('Removing this Value List Item will result in an empty Value List Group. All Fields using this Value List Group will be changed to strings.')
-            setPrevent(false);
-        }
-        else if (requiredValueLists.includes(props.Group?.Name) && removalCount > 0) {
-            setPrevent(true);
-            setMessage('This Value List Group is required and this Value List Item is still in use. Use of this Value List Item must be removed before it can be deleted.')
-        }
-        else if (removalCount > 0)
-        {
-            setMessage(`This Value List Group is in use, with ${removalCount} values corresponding to this Value List Item. These values will be unassigned.`)
-            setPrevent(false);
-        }
-        else {
-            setPrevent(false);
-            setMessage('This will permanently delete this Value List Item and cannot be undone.')   
-        }
-    }, [props.Group, removalCount, props.ItemCount])
-
-    return ( <Warning
-        Message={message}
-        Show={props.Show} Title={'Delete ' + (props.Record.AltValue ?? props.Record.Value)}
-        ShowCancel={!prevent}
-        CallBack={(c) => {props.CallBack(c && !prevent)}} />
+    return (
+        <Warning
+            Message={message}
+            Show={props.Show}
+            Title={'Delete ' + (props.Record.AltValue ?? props.Record.Value)}
+            CallBack={props.CallBack}
+        />
     )
 }

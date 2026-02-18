@@ -24,7 +24,7 @@
 import * as React from 'react';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { Input, TextArea } from '@gpa-gemstone/react-forms';
-import { requiredValueLists } from './ValueListGroupDelete';
+import { RequiredValueLists } from './ValueListGroupDelete';
 
 export default function ValueListGroupForm(props: { Record: SystemCenter.Types.ValueListGroup, Setter: (record: SystemCenter.Types.ValueListGroup) => void, setErrors?: (e: string[]) => void }) {
     function Valid(field: keyof (SystemCenter.Types.ValueListGroup)): boolean {
@@ -35,7 +35,8 @@ export default function ValueListGroupForm(props: { Record: SystemCenter.Types.V
         return false;
     }
 
-    const required = requiredValueLists.includes(props.Record?.Name)
+    const required = RequiredValueLists.includes(props.Record?.Name);
+
     return (
         <form>
             <Input<SystemCenter.Types.ValueListGroup> Record={props.Record} Field={'Name'} Feedback={'Name must be less than 200 characters.'} 

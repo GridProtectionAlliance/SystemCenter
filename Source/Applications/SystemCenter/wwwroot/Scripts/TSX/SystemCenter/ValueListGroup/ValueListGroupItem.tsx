@@ -29,10 +29,14 @@ import { ValueListSlice } from '../Store/Store';
 import ValueListForm from './ValueListForm';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { Modal, Warning } from '@gpa-gemstone/react-interactive';
-import { ValueListItemDelete } from './ValueListGroupDelete';
+import { Modal } from '@gpa-gemstone/react-interactive';
+import { ValueListItemDelete, RequiredValueLists } from './ValueListGroupDelete';
+import { ToolTip } from '@gpa-gemstone/react-forms';
 
-interface IProps { Record: SystemCenter.Types.ValueListGroup }
+interface IProps {
+    Record: SystemCenter.Types.ValueListGroup
+}
+
 export default function ValueListGroupItems(props: IProps) {
     const dispatch = useAppDispatch();
 
@@ -48,16 +52,40 @@ export default function ValueListGroupItems(props: IProps) {
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [errors, setErrors] = React.useState<string[]>([]);
 
+    const [countDictionary, setCountDictionary] = React.useState<{ [key: string]: number }>({});
+    const [hover, setHover] = React.useState<string>('');
+
+    const disallowReason = React.useCallback((ID: string) => {
+        if (!RequiredValueLists.includes(props.Record?.Name))
+            return null;
+        if (data.length == 1)
+            return 'This Value List Group is required and must contain at least 1 item.';
+        if ((countDictionary?.[ID] ?? 0) !== 0)
+            return 'This Value List Group is required and this Value List Item is still in use. Use of this Value List Item must be removed before it can be deleted.';
+
+        return null;
+    }, [props.Record?.Name, data.length, countDictionary]);
+
     React.useEffect(() => {
         if (status == 'uninitiated' || status == 'changed' || parentID != props.Record.ID)
             dispatch(ValueListSlice.Fetch(props.Record.ID));
     }, [status, parentID, props.Record.ID]);
 
-    function Delete() {
-        dispatch(ValueListSlice.DBAction({ verb: 'DELETE', record: { ...record } }));
-        setShowWarning(false);
-        setRecord(emptyRecord);
-    }
+    React.useEffect(() => {
+        if (props.Record?.Name == null) return;
+
+        const h = $.ajax({
+            type: "GET",
+            url: `${homePath}api/ValueList/Count/${props.Record.Name}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true
+        });
+        h.then(setCountDictionary);
+
+        return () => { if (h?.abort != null) h.abort(); }
+    }, [props.Record?.Name]);
 
     return (
         <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -116,18 +144,38 @@ export default function ValueListGroupItems(props: IProps) {
                             AllowSort={false}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                            Content={({ item }) => <>
-                                <button className="btn btn-sm" onClick={(e) => {
-                                    e.preventDefault();
-                                    setRecord(item);
-                                    setShowModal(true);
-                                }}><ReactIcons.Pencil Color="var(--warning)" Size={20} /></button>
-                                <button className="btn btn-sm" onClick={(e) => {
-                                    e.preventDefault();
-                                    setRecord(item);
-                                    setShowWarning(true)
-                                }}><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></button>
-                            </> }
+                            Content={({ item }) => {
+                                const id = item.ID.toString();
+                                const isDisallowed = disallowReason(id) != null;
+                                return (
+                                    <>
+                                        <button
+                                            className="btn btn-sm"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                setRecord(item);
+                                                setShowModal(true);
+                                            }}
+                                        >
+                                            <ReactIcons.Pencil Color="var(--warning)" Size={20} />
+                                        </button>
+                                        <button
+                                            className={`btn btn-sm${isDisallowed ? " disabled" : ""}`}
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                if (isDisallowed) return;
+                                                setRecord(item);
+                                                setShowWarning(true);
+                                            }}
+                                            onMouseEnter={() => { if (isDisallowed) setHover(id); }}
+                                            onMouseLeave={() => setHover('')}
+                                            data-tooltip={id}
+                                        >
+                                            <ReactIcons.TrashCan Color="var(--danger)" Size={20} />
+                                        </button>
+                                    </>
+                                );
+                            }}
                         > <p></p>
                         </Column>
                     </Table>
@@ -142,14 +190,22 @@ export default function ValueListGroupItems(props: IProps) {
             </div>
             <ValueListItemDelete
                 Show={showWarning}
-                CallBack={(conf) => { if (conf) Delete(); setShowWarning(false); }}
+                CallBack={(conf) => {
+                    if (conf)
+                        dispatch(ValueListSlice.DBAction({ verb: 'DELETE', record: { ...record } }));
+                    setShowWarning(false);
+                }}
                 Record={record}
-                ItemCount={data.length}
+                GroupItemCount={data.length}
+                AssignedDictionary={countDictionary}
                 Group={props.Record}
-                />
+            />
+            <ToolTip Show={hover !== ''} Position={'bottom'} Target={hover}>
+                {disallowReason(hover)}
+            </ToolTip>
             <Modal Title={record.ID == 0 ? 'Add New Value List Item' : 'Edit ' + (record.AltValue ?? record.Value)} Show={showModal} ShowCancel={false} ConfirmText={'Save'}
                 ConfirmShowToolTip={errors.length > 0}
-                CancelToolTipContent={<> {errors.map(e => <p><ReactIcons.CrossMark Color="var(--danger)" /> {e}</p>)}</>}
+                ConfirmToolTipContent={errors.map((e, i) => <p key={i}><ReactIcons.CrossMark Color="var(--danger)" /> {e}</p>)}
                 DisableConfirm={errors.length > 0}
                 ShowX={true} CallBack={(conf) => {
                     setShowModal(false);
