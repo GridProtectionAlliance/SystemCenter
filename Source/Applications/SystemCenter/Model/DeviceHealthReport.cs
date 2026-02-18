@@ -159,16 +159,11 @@ namespace SystemCenter.Model
                 }
                 devHealthReport["MICStatus"] = openMicResult["Status"];
 				devHealthReport["MICBadDays"] = 0; // just a placeholder for now.
-				if (Convert.ToInt32(devHealthReport["MICBadDays"]) > Convert.ToInt32(devHealthReport["BadDays"]))
-				{ 
-					devHealthReport["BadDays"] = devHealthReport["MICBadDays"]; 
-				}
 
 				if (openMicResult["LastSuccessfulConnection"] != null)
 				{
                     devHealthReport["LastGood"] = openMicResult["LastSuccessfulConnection"];
                 }
-                ;
 			}
 			return Ok(JsonConvert.SerializeObject(table));
         }
