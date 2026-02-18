@@ -179,7 +179,7 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
                             Field={'ParentTable'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                            Content={({ item }) => item.ParentTable != '' ? item.ParentTable : 'No Associated Table' }
+                            Content={({ item }) => item.ParentTable != '' ? (item.ParentTable === 'Location' ? 'Substation' : item.ParentTable) : 'No Associated Table' }
                         > Parent Type
                         </Column>
                         <Column<SystemCenter.Types.AdditionalFieldView>
