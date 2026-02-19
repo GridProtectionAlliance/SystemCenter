@@ -1592,7 +1592,7 @@ namespace SystemCenter.Controllers
             {
                 string query;
                 if (extConn.IsOracle)
-                    query = "SELECT 0 FROM dual;";
+                    query = "SELECT 0 FROM dual"; // oracle adds the semicolon for you as a way to keep you from delimiting multiple statements.
                 else
                     query = "SELECT 0;";
                 return Ok(extConn.ExecuteScalar<int>(query));
