@@ -64,6 +64,8 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
     }, [order]);
 
     return <div className="card" style={{ width: '100%', height: '100%' }}>
+    return (
+    <div className="card" style={{ width: '100%', height: '100%' }}>
         <div className="card-header">
             <div className="row">
                 <div className="col">
@@ -180,6 +182,7 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
             </ConfigurableTable>
         </div>
     </div>
+    )
 }
 
 const Test = (props: { Meter: OpenXDA.Types.Meter }) => {
