@@ -151,7 +151,7 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
             <ConfigurableTable<SC.OpenMICDailyStatistic>
                 LocalStorageKey="MiMDIssuesConfigTable"
                 TableClass="table table-hover"
-                Data={data}
+                Data={tableData}
                 SortKey={sortField}
                 Ascending={ascending}
                 Selected={() => false}
