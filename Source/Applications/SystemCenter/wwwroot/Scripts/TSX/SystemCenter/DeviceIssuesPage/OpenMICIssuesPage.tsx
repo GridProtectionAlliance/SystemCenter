@@ -36,6 +36,12 @@ import moment from 'moment';
 import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
 
+interface IDailyStatisticSummary {
+    Successful: [number, number][]
+    Unsuccessful: [number, number][]
+    Total: [number, number][]
+}
+
 const OpenMICDailyStatisticController = new GenericController<SC.OpenMICDailyStatistic>(`${homePath}api/SystemCenter/Statistics/OpenMIC`, "LastSuccessfulConnection", false);
 
 function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: string }) {
