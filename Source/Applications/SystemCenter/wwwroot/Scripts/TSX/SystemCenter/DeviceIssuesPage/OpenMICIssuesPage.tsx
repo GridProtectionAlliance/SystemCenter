@@ -23,7 +23,7 @@
 
 
 
-import { OpenXDA } from '@gpa-gemstone/application-typings';
+import { OpenXDA, Application} from '@gpa-gemstone/application-typings';
 import { SystemCenter as SC } from '../global';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import _ from 'lodash';
@@ -31,6 +31,7 @@ import * as React from 'react';
 import { GenericController } from '@gpa-gemstone/react-interactive';
 import { ToolTip } from '@gpa-gemstone/react-forms';
 import { ConfigurableTable, ConfigurableColumn, Column } from '@gpa-gemstone/react-table';
+import { Plot, Line } from '@gpa-gemstone/react-graph';
 import Reason from '../CommonComponents/Reason';
 import moment from 'moment';
 import { useAppSelector } from '../hooks';
@@ -45,18 +46,37 @@ interface IDailyStatisticSummary {
 const OpenMICDailyStatisticController = new GenericController<SC.OpenMICDailyStatistic>(`${homePath}api/SystemCenter/Statistics/OpenMIC`, "LastSuccessfulConnection", false);
 
 function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: string }) {
-    const [data, setData] = React.useState<SC.OpenMICDailyStatistic[]>([]);
+    const [tableData, setTableData] = React.useState<SC.OpenMICDailyStatistic[]>([]);
     const [sortField, setSortField] = React.useState<keyof SC.OpenMICDailyStatistic>('Date');
     const [ascending, setAscending] = React.useState<boolean>(false);
-
+    const [plotStatus, setPlotStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [plotData, setPlotData] = React.useState<IDailyStatisticSummary>();
+    const [plotHeight, setPlotHeight] = React.useState<number>(100);
+    const [plotWidth, setPlotWidth] = React.useState<number>(100);
+    const rowRef = React.useRef<HTMLDivElement>(null);
+    const timeFrame = [moment.utc().endOf('d').subtract(30, 'd').valueOf(), moment.utc().startOf('d').valueOf()] as[number, number] 
     const order = React.useCallback((data: SC.OpenMICDailyStatistic[]) => {
         return _.orderBy(data, [sortField], [ascending ? 'asc' : 'desc'])
     }, [sortField, ascending]);
 
     React.useEffect(() => {
+        setPlotStatus('loading')
         const handle = OpenMICDailyStatisticController.PagedSearch([], undefined, undefined, 0, props.Meter.AssetKey).done(result => {
             const data = JSON.parse(result.Data as unknown as string);
-            setData(order(data));
+            setTableData(order(data));
+            let dailyStatisticSummary = {
+                Successful: [],
+                Unsuccessful: [],
+                Total: []
+            }
+            data.map((d: SC.OpenMICDailyStatistic) => {
+                dailyStatisticSummary.Successful.push([moment(d.Date, 'MM/DD/YYYY').valueOf(), d.TotalSuccessfulConnections]);
+                dailyStatisticSummary.Unsuccessful.push([moment(d.Date, 'MM/DD/YYYY').valueOf(), d.TotalUnsuccessfulConnections]);
+                dailyStatisticSummary.Total.push([moment(d.Date, 'MM/DD/YYYY').valueOf(), d.TotalConnections]);
+               }
+            );
+            setPlotData(dailyStatisticSummary);
+            setPlotStatus('idle')
         });
 
         return () => {
@@ -65,11 +85,16 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
     }, [props.Meter.AssetKey]);
 
     React.useEffect(() => {
-        if (data.length === 0) return;
-        setData(order(data));
+        if (tableData.length === 0) return;
+        setTableData(order(tableData));
     }, [order]);
 
-    return <div className="card" style={{ width: '100%', height: '100%' }}>
+    // set plot dimensions
+    React.useLayoutEffect(() => {
+        setPlotHeight(rowRef?.current?.offsetHeight ?? 100)
+        setPlotWidth((rowRef?.current?.offsetWidth ?? 130) - 30)
+    });
+
     return (
     <div className="card" style={{ width: '100%', height: '100%' }}>
         <div className="card-header">
@@ -80,6 +105,46 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
                 <div className="col">
                     <Test {...props}/>
                 </div>
+            </div>
+        </div>
+        <div className="row h-50" ref={rowRef}>
+                <div className="col">
+                    {plotStatus !== 'idle' ? <></> :
+                        <Plot
+                            defaultTdomain={timeFrame}
+                            height={plotHeight}
+                            width={plotWidth}
+                            showGrid={true}
+                            XAxisType='time'
+                            legend='bottom'
+                            Ylabel='Count'
+                            Tlabel='Date'
+                            pan={false}
+                            zoom={false}
+                            holdMenuOpen={false}
+                            yDomain={'HalfAutoValue'}
+                        >
+                                <Line
+                                    data={plotData.Successful}
+                                    lineStyle={'solid'}
+                                    color={"#007A29"}
+                                    legend={"Total Successful Connections"}
+                                />
+                                <Line
+                                    data={plotData.Total}
+                                    lineStyle={'solid'}
+                                    color={"#0029A3"}
+                                    legend={"Total Connections"}
+                                />
+                                <Line
+                                    data={plotData.Unsuccessful}
+                                    lineStyle={'solid'}
+                                    color={"#A30000"}
+                                    legend={"Total Unsuccessful Connections"}
+                                />
+                            
+                        </Plot>
+                    }
             </div>
         </div>
         <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
