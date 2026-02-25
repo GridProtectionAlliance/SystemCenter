@@ -109,8 +109,10 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
         });
     }
 
-    function handleSelect(item) {
-        //history({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + item.row.ID})
+    function handleSelect(item, event) {
+        //if (event.target.tagName !== 'TR' && event.target.tagName !== 'TD') return
+        //const pathname = `${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.row.ID}`;
+        //window.open(pathname, '_blank');
     }
 
     function getAdditionalFields(): JQuery.jqXHR<Array<SystemCenter.Types.AdditionalField>> {
