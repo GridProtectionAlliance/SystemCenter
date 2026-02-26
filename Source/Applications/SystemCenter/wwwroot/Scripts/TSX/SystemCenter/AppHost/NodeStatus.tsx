@@ -99,6 +99,7 @@ const NodeStatus = (props: {ApplicationName: string}) => {
             {dBStatuses.length == 0 ? null :
                     dBStatuses.map((dBStatus, index) => (
                         <div className="row"
+                            key={index}
                         >
                             {GetStatusSymbol(dBStatus.Status)}
                             <p
@@ -116,6 +117,7 @@ const NodeStatus = (props: {ApplicationName: string}) => {
                                         dBStatus.Details.map((data, index) => (
                                             <div
                                                 className={'d-flex'}
+                                                key={index}
                                             >
                                                 {GetStatusSymbol(data.Status)}
                                                 <p> {data.Description} </p>

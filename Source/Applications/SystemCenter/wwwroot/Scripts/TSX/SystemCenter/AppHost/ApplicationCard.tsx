@@ -77,7 +77,7 @@ const Applicationcard = (props: IHost) => {
                     {status == 'Unknown' ? <span className="badge badge-pill badge-danger">Offline</span> : null}
                     {status == 'Loading' ? <span className="badge badge-pill badge-secondary">...Loading</span> : null}
                     <ul className="list-group list-group-flush">
-                        {props.Properties.map((p) => <li className="list-group-item">
+                        {props.Properties.map((p, i) => <li className="list-group-item" key={i}>
                             {p.Name}
                             <span className="badge badge-info" style={{ marginLeft: 10 }}>{p.Value}</span>
                         </li>)} 

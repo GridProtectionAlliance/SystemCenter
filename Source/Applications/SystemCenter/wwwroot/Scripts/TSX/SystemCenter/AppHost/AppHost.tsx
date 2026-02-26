@@ -61,9 +61,10 @@ const AppHost: Application.Types.iByComponent = (props) => {
                 <LoadingScreen Show={status == 'loading'} />
                 <ServerErrorIcon Show={status == 'error'} />
                 <div className="card-deck">
-                    {hosts.map((h) => <ApplicationCard {...h}
+                    {hosts.map((h, i) => <ApplicationCard {...h}
                         OpenConsole={() => setConsole(h)}
                         OpenStats={() => setStats(h)}
+                        key={i}
                     />)}
                 </div>               
             </div>
