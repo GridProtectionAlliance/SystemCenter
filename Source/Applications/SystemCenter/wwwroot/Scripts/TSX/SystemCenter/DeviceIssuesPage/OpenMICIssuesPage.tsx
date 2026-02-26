@@ -125,6 +125,12 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
                             yDomain={'HalfAutoValue'}
                         >
                                 <Line
+                                data={plotData.Total}
+                                lineStyle={'solid'}
+                                color={"#0029A3"}
+                                legend={"Total Connections"}
+                            />
+                            <Line
                                     data={plotData.Successful}
                                     lineStyle={'solid'}
                                     color={"#007A29"}
