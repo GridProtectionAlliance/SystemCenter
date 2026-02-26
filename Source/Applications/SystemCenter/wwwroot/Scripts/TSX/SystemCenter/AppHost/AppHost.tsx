@@ -29,7 +29,6 @@ import ApplicationCard, { IHost } from './ApplicationCard';
 import ConsoleWindow from './ConsoleWindow';
 import NodeStats from './NodeStats';
 
-
 const AppHost: Application.Types.iByComponent = (props) => {
     const [hosts, setHosts] = React.useState<IHost[]>([]);
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');

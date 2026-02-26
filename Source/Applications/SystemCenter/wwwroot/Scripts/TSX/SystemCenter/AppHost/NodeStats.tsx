@@ -24,6 +24,7 @@
 import * as React from 'react';
 import { LoadingScreen, Modal, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { Application } from '@gpa-gemstone/application-typings';
+import NodeStatus from './NodeStatus';
 
 export interface IMessage { Message: string, Type: number }
 
@@ -73,25 +74,37 @@ const NodeStats = (props: IProps) => {
             clearInterval(intervalHandle);
             if (statHandle != null && statHandle.abort != null) statHandle.abort();
         };
-    }, [props.StatsURL]);
+    }, [props.ApplicationName]);
 
     return (
         <Modal
-            Show={props.StatsURL != undefined && props.StatsURL.length > 0}
+            Show={ props.ApplicationName ? true : false }
             ShowCancel={false} ShowConfirm={false} ShowX={true} Size={'xlg'}
             CallBack={() => { props.Close(); setStatus('uninitiated'); setStatInfo('') }}
             Title={'Statistics - ' + props.ApplicationName}
         >
             <LoadingScreen Show={status === "loading"} />
-            {
-                status === "error" ?
-                    <ServerErrorIcon Show={true}
-                        Label={"An error has occurred. Please contact your administrator."}
-                        Size={50} /> :
-                    <pre style={statStyle}>
-                        {statInfo}
-                    </pre>
-            }
+            <div className="row">
+                { props.StatsURL === "" || props.StatsURL == null ? <></> :
+                    <div className="col">
+                        {
+                            status === "error" ?
+                                <ServerErrorIcon Show={true}
+                                    Label={"An error has occurred. Please contact your administrator."}
+                                    Size={50} /> :
+                                <pre style={statStyle}>
+                                    {statInfo}
+                                </pre>
+                        }
+
+                    </div>
+                }
+                <div className="col">
+                    <NodeStatus
+                        ApplicationName={props.ApplicationName}
+                    />
+                </div>
+            </div>
         </Modal>);
 }
 

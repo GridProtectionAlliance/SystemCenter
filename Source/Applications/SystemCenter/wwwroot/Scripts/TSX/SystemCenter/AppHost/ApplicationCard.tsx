@@ -85,10 +85,7 @@ const Applicationcard = (props: IHost) => {
                 </div>
                 <div className="card-footer">
                     <button className="btn btn-info" onClick={() => props.OpenConsole()}>Console</button>
-                    {
-                        props.StatsURL == null || props.StatsURL === "" ? null :
-                        <button className="btn btn-info pull-right" onClick={() => props.OpenStats()}>Status</button>
-                    }
+                    <button className="btn btn-info pull-right" onClick={() => props.OpenStats()}>Status</button>
                 </div>
             </div>
          </>)
