@@ -223,7 +223,7 @@ namespace SystemCenter.Model
                 status.Details.Add(new StatusItem()
                 {
                     Status = "Error",
-                    Description = "openMIC must be updated to v2.0.246 or later."
+                    Description = "Failed to establish connection with openMIC."
                 });
 
                 return Ok(status);
@@ -275,12 +275,29 @@ namespace SystemCenter.Model
 			}
 			catch
 			{
+                status.Status = "N/A";
+                status.Details.Add(new StatusItem()
+                {
+                    Status = "Error",
+                    Description = "Could not connect to Scada Trigger."
+                });
+            }
+
+			if (scadaTriggerResponse is null) 
+			{
+				return Ok(status);
+			}
+
+			if (scadaTriggerResponse.StatusCode != System.Net.HttpStatusCode.OK)
+			{
 				status.Status = "N/A";
 				status.Details.Add(new StatusItem()
 				{
 					Status = "Error",
 					Description = "Could not connect to openMIC. Check the OpenMIC.URL setting in System Center Settings."
 				});
+
+				return Ok(status);
             }
 			return Ok(status);
 		}
