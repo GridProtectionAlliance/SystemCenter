@@ -26,9 +26,12 @@ using GSF.Data.Model;
 using GSF.Web.Model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Net.Http;
+using openXDA.APIAuthentication;
 using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Linq;
+using System.Net.Http;
 using System.Web.Http;
 using SystemCenter.Controllers;
 using System.Collections.Generic;
@@ -181,9 +184,8 @@ namespace SystemCenter.Model
 
             try
 			{
-				using (HttpClient client = new())
-					openMICResponse = ControllerHelpers.Get(client, "OpenMIC", $"api/health/getsystemstatus/");
-				;
+				openMICResponse = GetHealth("OpenMIC", $"api/health/getsystemstatus/");
+				
 			}
 			catch
 			{
@@ -238,19 +240,38 @@ namespace SystemCenter.Model
             return Ok(status);
         }
 
-		[HttpGet, Route("OMTriggerStatus")]
-		public IHttpActionResult GetOMTriggerStatus()
+		[HttpGet, Route("ScadaTriggerStatus")]
+		public IHttpActionResult GetScadaTriggerStatus()
 		{
             AppStatus status = new AppStatus()
             {
                 Status = "Success",
                 Details = []
             };
+			HttpResponseMessage openMICResponse = null;
 			try
 			{
-				using (HttpClient client = new())
-					ControllerHelpers.Get(client, "OpenMIC", $"api/health/getsystemstatus/"); 
-				;
+                openMICResponse = GetHealth("OpenMIC", $"api/health/getsystemstatus/");
+			}
+			catch
+			{
+				status.Status = "N/A";
+				status.Details.Add(new StatusItem()
+				{
+					Status = "Error",
+					Description = "Could not connect to openMIC."
+				});
+            }
+
+			if (openMICResponse is null)
+			{
+				return Ok(status);
+			}
+
+			HttpResponseMessage scadaTriggerResponse = null;
+			try
+			{
+				scadaTriggerResponse = GetHealth("OpenMIC", $"api/health/getscadatriggerhealth/");
 			}
 			catch
 			{
@@ -263,5 +284,31 @@ namespace SystemCenter.Model
             }
 			return Ok(status);
 		}
+
+        /// <summary>
+        /// Processes Get request from an application using settings table parameters.
+        /// Exceptions are expected to be handled by the caller.
+        /// </summary>
+        /// <param name="application">Name of Application</param>
+        /// <param name="requestURI">Path to specific API request</param>
+        /// <returns>string</returns>
+        public static HttpResponseMessage GetHealth(string application, string requestURI)
+        {
+            using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+            {
+                string url = new TableOperations<Setting>(connection).QueryRecordWhere($"Name = '{application}.Url'")?.Value ?? "";
+                string credential = new TableOperations<Setting>(connection).QueryRecordWhere($"Name = '{application}.Credential'")?.Value ?? "";
+                string password = new TableOperations<Setting>(connection).QueryRecordWhere($"Name = '{application}.Password'")?.Value ?? "";
+
+                void ConfigureRequest(HttpRequestMessage request)
+                {
+                    request.Method = HttpMethod.Get;
+                }
+                //string token = GenerateAntiForgeryToken(application);
+                //return Get(httpClient, url, requestURI, credential, password, token);
+                APIQuery query = new APIQuery(credential, password, url);
+                return query.SendWebRequestAsync(ConfigureRequest, requestURI).Result;
+            }
+        }
     }
 }

@@ -187,7 +187,7 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                                 />
                                 <AppStatus
                                     Name="Scada Trigger"
-                                    Endpoint="OMTriggerStatus"
+                                    Endpoint="ScadaTriggerStatus"
                                 />
                                 
                              </div>
