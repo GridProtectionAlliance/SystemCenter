@@ -28,8 +28,9 @@ import { ToolTip } from '@gpa-gemstone/react-forms'
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 
 
-interface DBStatus {
+interface StatusItem {
     Name: string
+    Type: "ExternalDB"
     Status: 'Error' | 'Success' | 'Warning'
     Details: {
         Status: 'Success' | 'Error'
@@ -43,7 +44,7 @@ const ExternalDBController = new GenericController<SystemCenter.Types.DetailedEx
 const NodeStatus = (props: {ApplicationName: string}) => {
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [externalDBs, setExternalDBs] = React.useState<SystemCenter.Types.DetailedExternalDatabases[]>([]);
-    const [dBStatuses, setDBStatuses] = React.useState<DBStatus[]>([]);
+    const [statusItems, setStatusItems] = React.useState<StatusItem[]>([]);
     const [hoveredItem, setHoveredItem] = React.useState<string>("")
 
     React.useEffect(() => {
@@ -73,7 +74,7 @@ const NodeStatus = (props: {ApplicationName: string}) => {
                 }]
             });
         })
-        setDBStatuses(dbstatuses)
+        setStatusItems(dbstatuses)
     }, [externalDBs])
 
     function testDB(db: SystemCenter.Types.DetailedExternalDatabases) {
@@ -96,35 +97,37 @@ const NodeStatus = (props: {ApplicationName: string}) => {
 
     return (
         <div>
-            {dBStatuses.length == 0 ? null :
-                    dBStatuses.map((dBStatus, index) => (
-                        <div className="row"
+            {statusItems.length == 0 ? null :
+                    statusItems.map((statusItem, index) => (
+                        <div className="row mb-2"
                             key={index}
                         >
-                            {GetStatusSymbol(dBStatus.Status)}
-                            <p
-                                onMouseEnter={() => setHoveredItem(dBStatus.Name)}
-                                onMouseLeave={() => setHoveredItem(dBStatus.Name)}
-                                data-tooltip={`statusbutton${dBStatus.Name}`}
-                            >{dBStatus.Name}</p>
-
+                        <div className={`col-12 d-flex alert-${statusItem.Status === 'Success' ? 'success' : 'danger'}`}>
+                                <span className={"my-3"}>{GetStatusSymbol(statusItem.Status)}</span>
+                            <h4
+                                    onMouseEnter={() => setHoveredItem(statusItem.Name)}
+                                    onMouseLeave={() => setHoveredItem("")}
+                                    data-tooltip={`statusbutton${statusItem.Name}`}
+                                    className={"m-3"}
+                            >{statusItem.Name}</h4>
                                 <ToolTip
-                                    Show={hoveredItem === dBStatus.Name && status === 'idle' && (dBStatus.Details?.length ?? 0) > 0}
+                                Show={hoveredItem === statusItem.Name && status === 'idle' && (statusItem.Details?.length ?? 0) > 0}
                                     Position={'right'}
-                                    Target={`statusbutton${dBStatus.Name}`}
+                                Target={`statusbutton${statusItem.Name}`}
                                 >
-                                    {dBStatus?.Details == null ? <></> :
-                                        dBStatus.Details.map((data, index) => (
+                                {statusItem?.Details == null ? <></> :
+                                    statusItem.Details.map((data, index) => (
                                             <div
                                                 className={'d-flex'}
                                                 key={index}
                                             >
-                                                {GetStatusSymbol(data.Status)}
+                                                {GetDetailStatusSymbol(data.Status)}
                                                 <p> {data.Description} </p>
                                             </div>
                                         ))
                                     }
                                 </ToolTip>
+                                </div>
                         </div>
                     ))
             }
@@ -136,6 +139,21 @@ export default NodeStatus;
 
 // helper functions
 const GetStatusSymbol = (status: 'Success' | 'Error' | 'Warning' | 'Loading') => {
+    switch (status) {
+        case 'Success':
+            return <ReactIcons.CircleCheckMark Color="var(--success)" />
+        case 'Error':
+            return <ReactIcons.CircledX Color="var(--danger)"/>
+        case 'Warning':
+            return <ReactIcons.QuestionMark />
+        case 'Loading':
+            return <ReactIcons.SpiningIcon />
+        default:
+            return <></>
+    }
+}
+
+const GetDetailStatusSymbol = (status: 'Success' | 'Error' | 'Warning' | 'Loading') => {
     switch (status) {
         case 'Success':
             return <ReactIcons.CheckMark Color="var(--success)" />
