@@ -39,7 +39,7 @@ const statStyle: React.CSSProperties = {
     overflow: 'auto'
 }
 
-const ConsoleWindow = (props: IProps) => {
+const NodeStats = (props: IProps) => {
     const [statInfo, setStatInfo] = React.useState<string>('');
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [autoScroll, setAutoScroll] = React.useState<boolean>(true);
@@ -96,4 +96,4 @@ const ConsoleWindow = (props: IProps) => {
 }
 
 
-export default ConsoleWindow;
+export default NodeStats;
