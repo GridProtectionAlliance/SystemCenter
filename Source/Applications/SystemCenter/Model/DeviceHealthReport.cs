@@ -203,7 +203,7 @@ namespace SystemCenter.Model
             status.Details.Add(new StatusItem()
             {
                 Status = "Success",
-                Description = "Connected to openMIC"
+                Description = "Connected to openMIC."
             });
 
             if (openMICResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
@@ -217,6 +217,19 @@ namespace SystemCenter.Model
 
 				return Ok(status);
             }
+
+            if (openMICResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                status.Status = "Error";
+                status.Details.Add(new StatusItem()
+                {
+                    Status = "Error",
+                    Description = "openMIC must be updated to v2.0.246 or later."
+                });
+
+                return Ok(status);
+            }
+
             if (openMICResponse.StatusCode != System.Net.HttpStatusCode.OK)
             {
                 status.Status = "Error";
@@ -236,6 +249,14 @@ namespace SystemCenter.Model
             });
 
 			string r = openMICResponse.Content.ReadAsStringAsync().Result;
+
+			StatusItem[] responseStatus = JsonConvert.DeserializeObject<StatusItem[]>(r);
+
+            status.Details.AddRange(responseStatus);
+
+            if (status.Details.Any(item => item.Status == "Error")) {
+				status.Status = "Error";
+			}
 
             return Ok(status);
         }
@@ -294,11 +315,22 @@ namespace SystemCenter.Model
 				status.Details.Add(new StatusItem()
 				{
 					Status = "Error",
-					Description = "Could not connect to openMIC. Check the OpenMIC.URL setting in System Center Settings."
+                    Description = "Could not establish connection to Scada Trigger."
 				});
 
 				return Ok(status);
             }
+
+            string r = scadaTriggerResponse.Content.ReadAsStringAsync().Result;
+
+            StatusItem[] responseStatus = JsonConvert.DeserializeObject<StatusItem[]>(r);
+
+			status.Details.AddRange(responseStatus);
+
+            if (status.Details.Any(item => item.Status == "Error")) {
+                status.Status = "Error";
+            }
+
 			return Ok(status);
 		}
 
