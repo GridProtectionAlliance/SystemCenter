@@ -84,6 +84,7 @@ const NodeStatus = (props: {ApplicationName: string, ApplicationType: 'SystemCen
 
     function testDB(db: SystemCenter.Types.DetailedExternalDatabases) {
         let result;
+        setStatus('loading');
         const h = $.ajax({
             type: "POST",
             url: `${homePath}api/SystemCenter/ExternalDatabases/TestConnection`,
@@ -97,12 +98,13 @@ const NodeStatus = (props: {ApplicationName: string, ApplicationType: 'SystemCen
         h.then((d) => {
             result = 'Success';
         }, (d) => { result = 'Error' })
+        setStatus('idle')
         return result;
     }
 
     return (
         <div>
-            {statusItems.length == 0 ? null :
+            {statusItems.length == 0 ? <ReactIcons.SpiningIcon/> :
                     statusItems.map((statusItem, index) => (
                         <div className="row mb-2 mx-2"
                             key={index}
@@ -120,7 +122,7 @@ const NodeStatus = (props: {ApplicationName: string, ApplicationType: 'SystemCen
                                     Position={'right'}
                                 Target={`statusbutton${statusItem.Name}`}
                                 >
-                                {statusItem?.Details == null ? <></> :
+                                {statusItem?.Details == null ? <ReactIcons.SpiningIcon/> :
                                     statusItem.Details.map((data, index) => (
                                             <div
                                                 className={'d-flex'}
