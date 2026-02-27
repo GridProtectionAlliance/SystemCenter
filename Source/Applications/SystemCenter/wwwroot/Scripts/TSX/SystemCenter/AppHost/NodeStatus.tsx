@@ -41,25 +41,15 @@ interface StatusItem {
 const controllerPath = `${homePath}api/SystemCenter/ExternalDatabases`
 const ExternalDBController = new GenericController<SystemCenter.Types.DetailedExternalDatabases>(controllerPath, "ID", true)
 
-const NodeStatus = (props: {ApplicationName: string}) => {
+const NodeStatus = (props: {ApplicationName: string, ApplicationType: 'SystemCenter' | 'MiMD' | 'XDA'}) => {
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [externalDBs, setExternalDBs] = React.useState<SystemCenter.Types.DetailedExternalDatabases[]>([]);
     const [statusItems, setStatusItems] = React.useState<StatusItem[]>([]);
     const [hoveredItem, setHoveredItem] = React.useState<string>("")
 
     React.useEffect(() => {
-        setStatus('loading');
-        const handle = ExternalDBController.PagedSearch([]);
-
-        handle.done((dt) => {
-            setStatus('idle')
-            setExternalDBs(JSON.parse(dt.Data as unknown as string))
-        }).fail((d) => setStatus('error'));
-
-        return function cleanup() {
-            if (handle.abort != null)
-                handle.abort();
-        }
+        if (props.ApplicationType === 'SystemCenter')
+            getExternalDBs()
     }, [props.ApplicationName])
 
     React.useEffect(() => {
@@ -76,6 +66,21 @@ const NodeStatus = (props: {ApplicationName: string}) => {
         })
         setStatusItems(dbstatuses)
     }, [externalDBs])
+
+    function getExternalDBs() {
+        setStatus('loading');
+        const handle = ExternalDBController.PagedSearch([]);
+
+        handle.done((dt) => {
+            setStatus('idle')
+            setExternalDBs(JSON.parse(dt.Data as unknown as string))
+        }).fail((d) => setStatus('error'));
+
+        return function cleanup() {
+            if (handle.abort != null)
+                handle.abort();
+        }
+    }
 
     function testDB(db: SystemCenter.Types.DetailedExternalDatabases) {
         let result;
@@ -99,17 +104,17 @@ const NodeStatus = (props: {ApplicationName: string}) => {
         <div>
             {statusItems.length == 0 ? null :
                     statusItems.map((statusItem, index) => (
-                        <div className="row mb-2"
+                        <div className="row mb-2 mx-2"
                             key={index}
                         >
                         <div className={`col-12 d-flex alert-${statusItem.Status === 'Success' ? 'success' : 'danger'}`}>
                                 <span className={"my-3"}>{GetStatusSymbol(statusItem.Status)}</span>
-                            <h4
+                            <h5
                                     onMouseEnter={() => setHoveredItem(statusItem.Name)}
                                     onMouseLeave={() => setHoveredItem("")}
                                     data-tooltip={`statusbutton${statusItem.Name}`}
                                     className={"m-3"}
-                            >{statusItem.Name}</h4>
+                            >{statusItem.Name}</h5>
                                 <ToolTip
                                 Show={hoveredItem === statusItem.Name && status === 'idle' && (statusItem.Details?.length ?? 0) > 0}
                                     Position={'right'}
