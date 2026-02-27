@@ -33,6 +33,7 @@ export interface IHost {
     StatsURL?: string,
     ConsoleURL: string,
     Name: string,
+    App: 'XDA' | 'MiMD' | 'SystemCenter',
     OpenConsole: () => void,
     OpenStats: () => void
 }
