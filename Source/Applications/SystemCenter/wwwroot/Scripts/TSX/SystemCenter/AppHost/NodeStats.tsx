@@ -31,6 +31,7 @@ export interface IMessage { Message: string, Type: number }
 export interface IProps {
     StatsURL: string,
     ApplicationName: string,
+    ApplicationType: 'SystemCenter' | 'XDA' | 'MiMD',
     Close: () => void
 }
 
@@ -102,6 +103,7 @@ const NodeStats = (props: IProps) => {
                 <div className="col">
                     <NodeStatus
                         ApplicationName={props.ApplicationName}
+                        ApplicationType={props.ApplicationType}
                     />
                 </div>
             </div>

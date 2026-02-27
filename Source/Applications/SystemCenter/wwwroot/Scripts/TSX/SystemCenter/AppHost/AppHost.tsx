@@ -77,6 +77,7 @@ const AppHost: Application.Types.iByComponent = (props) => {
                 ApplicationName={stats?.Name ?? ''}
                 Close={() => setStats(null)}
                 StatsURL={stats?.StatsURL}
+                ApplicationType={stats?.App ?? null}
             />
          </>)
 }
