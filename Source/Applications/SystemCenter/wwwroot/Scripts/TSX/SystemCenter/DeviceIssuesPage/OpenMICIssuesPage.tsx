@@ -52,10 +52,6 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
     const orderedData = React.useMemo(() => _.orderBy(data, [sortField], [ascending ? 'asc' : 'desc']),
     [data, sortField, ascending])
 
-    const order = React.useCallback((data: SC.OpenMICDailyStatistic[]) => {
-        return _.orderBy(data, [sortField], [ascending ? 'asc' : 'desc'])
-    }, [sortField, ascending]);
-
     React.useEffect(() => {
         setStatus('loading')
         const handle = OpenMICDailyStatisticController.PagedSearch([], undefined, undefined, 0, props.Meter.AssetKey).done(result => {
@@ -68,11 +64,6 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
             if (handle.abort != undefined) handle.abort();
         }
     }, [props.Meter.AssetKey]);
-
-    React.useEffect(() => {
-        if (data.length === 0) return;
-        setData(order(data));
-    }, [order]);
 
     // set plot dimensions
     React.useLayoutEffect(() => {
