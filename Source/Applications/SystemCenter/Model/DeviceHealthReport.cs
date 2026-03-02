@@ -26,9 +26,12 @@ using GSF.Data.Model;
 using GSF.Web.Model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Net.Http;
+using openXDA.APIAuthentication;
 using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Linq;
+using System.Net.Http;
 using System.Web.Http;
 using SystemCenter.Controllers;
 using System.Collections.Generic;
@@ -159,16 +162,11 @@ namespace SystemCenter.Model
                 }
                 devHealthReport["MICStatus"] = openMicResult["Status"];
 				devHealthReport["MICBadDays"] = 0; // just a placeholder for now.
-				if (Convert.ToInt32(devHealthReport["MICBadDays"]) > Convert.ToInt32(devHealthReport["BadDays"]))
-				{ 
-					devHealthReport["BadDays"] = devHealthReport["MICBadDays"]; 
-				}
 
 				if (openMicResult["LastSuccessfulConnection"] != null)
 				{
                     devHealthReport["LastGood"] = openMicResult["LastSuccessfulConnection"];
                 }
-                ;
 			}
 			return Ok(JsonConvert.SerializeObject(table));
         }
@@ -186,9 +184,8 @@ namespace SystemCenter.Model
 
             try
 			{
-				using (HttpClient client = new())
-					openMICResponse = ControllerHelpers.Get(client, "OpenMIC", $"api/health/getsystemstatus/");
-				;
+				openMICResponse = GetHealth("OpenMIC", $"api/health/getsystemstatus/");
+				
 			}
 			catch
 			{
@@ -206,7 +203,7 @@ namespace SystemCenter.Model
             status.Details.Add(new StatusItem()
             {
                 Status = "Success",
-                Description = "Connected to openMIC"
+                Description = "Connected to openMIC."
             });
 
             if (openMICResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
@@ -220,13 +217,26 @@ namespace SystemCenter.Model
 
 				return Ok(status);
             }
-            if (openMICResponse.StatusCode != System.Net.HttpStatusCode.OK)
+
+            if (openMICResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
                 status.Status = "Error";
                 status.Details.Add(new StatusItem()
                 {
                     Status = "Error",
                     Description = "openMIC must be updated to v2.0.246 or later."
+                });
+
+                return Ok(status);
+            }
+
+            if (openMICResponse.StatusCode != System.Net.HttpStatusCode.OK)
+            {
+                status.Status = "Error";
+                status.Details.Add(new StatusItem()
+                {
+                    Status = "Error",
+                    Description = "Failed to establish connection with openMIC."
                 });
 
                 return Ok(status);
@@ -240,22 +250,29 @@ namespace SystemCenter.Model
 
 			string r = openMICResponse.Content.ReadAsStringAsync().Result;
 
+			StatusItem[] responseStatus = JsonConvert.DeserializeObject<StatusItem[]>(r);
+
+            status.Details.AddRange(responseStatus);
+
+            if (status.Details.Any(item => item.Status == "Error")) {
+				status.Status = "Error";
+			}
+
             return Ok(status);
         }
 
-		[HttpGet, Route("OMTriggerStatus")]
-		public IHttpActionResult GetOMTriggerStatus()
+		[HttpGet, Route("ScadaTriggerStatus")]
+		public IHttpActionResult GetScadaTriggerStatus()
 		{
             AppStatus status = new AppStatus()
             {
                 Status = "Success",
                 Details = []
             };
+			HttpResponseMessage openMICResponse = null;
 			try
 			{
-				using (HttpClient client = new())
-					ControllerHelpers.Get(client, "OpenMIC", $"api/health/getsystemstatus/"); 
-				;
+                openMICResponse = GetHealth("OpenMIC", $"api/health/getsystemstatus/");
 			}
 			catch
 			{
@@ -263,10 +280,84 @@ namespace SystemCenter.Model
 				status.Details.Add(new StatusItem()
 				{
 					Status = "Error",
-					Description = "Could not connect to openMIC. Check the OpenMIC.URL setting in System Center Settings."
+					Description = "Could not connect to openMIC."
 				});
             }
+
+			if (openMICResponse is null)
+			{
+				return Ok(status);
+			}
+
+			HttpResponseMessage scadaTriggerResponse = null;
+			try
+			{
+				scadaTriggerResponse = GetHealth("OpenMIC", $"api/health/getscadatriggerhealth/");
+			}
+			catch
+			{
+                status.Status = "N/A";
+                status.Details.Add(new StatusItem()
+                {
+                    Status = "Error",
+                    Description = "Could not connect to Scada Trigger."
+                });
+            }
+
+			if (scadaTriggerResponse is null) 
+			{
+				return Ok(status);
+			}
+
+			if (scadaTriggerResponse.StatusCode != System.Net.HttpStatusCode.OK)
+			{
+				status.Status = "N/A";
+				status.Details.Add(new StatusItem()
+				{
+					Status = "Error",
+                    Description = "Could not establish connection to Scada Trigger."
+				});
+
+				return Ok(status);
+            }
+
+            string r = scadaTriggerResponse.Content.ReadAsStringAsync().Result;
+
+            StatusItem[] responseStatus = JsonConvert.DeserializeObject<StatusItem[]>(r);
+
+			status.Details.AddRange(responseStatus);
+
+            if (status.Details.Any(item => item.Status == "Error")) {
+                status.Status = "Error";
+            }
+
 			return Ok(status);
 		}
+
+        /// <summary>
+        /// Processes Get request from an application using settings table parameters.
+        /// Exceptions are expected to be handled by the caller.
+        /// </summary>
+        /// <param name="application">Name of Application</param>
+        /// <param name="requestURI">Path to specific API request</param>
+        /// <returns>string</returns>
+        public static HttpResponseMessage GetHealth(string application, string requestURI)
+        {
+            using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+            {
+                string url = new TableOperations<Setting>(connection).QueryRecordWhere($"Name = '{application}.Url'")?.Value ?? "";
+                string credential = new TableOperations<Setting>(connection).QueryRecordWhere($"Name = '{application}.Credential'")?.Value ?? "";
+                string password = new TableOperations<Setting>(connection).QueryRecordWhere($"Name = '{application}.Password'")?.Value ?? "";
+
+                void ConfigureRequest(HttpRequestMessage request)
+                {
+                    request.Method = HttpMethod.Get;
+                }
+                //string token = GenerateAntiForgeryToken(application);
+                //return Get(httpClient, url, requestURI, credential, password, token);
+                APIQuery query = new APIQuery(credential, password, url);
+                return query.SendWebRequestAsync(ConfigureRequest, requestURI).Result;
+            }
+        }
     }
 }

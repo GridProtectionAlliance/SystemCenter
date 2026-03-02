@@ -76,16 +76,20 @@ const AppStatus = (props: { Name: string, Endpoint: string }) => {
                 onMouseLeave={() => setIsHovered(false)}
                 className={`btn btn-${GetStatusClass(appStatusData.Status)} m-2`}
             >
-                {status === 'idle' ? props.Name : GetStatusButton(status)}
+                {status === 'idle' ? props.Name : null}
+                <ServerErrorIcon Show={status == 'error'} />
+                <LoadingIcon Show={status == 'loading' } />
             </div>
             <ToolTip
-                Show={isHovered && status === 'idle' && appStatusData.Status !== 'N/A' && appStatusData.Details !== null && appStatusData.Details.length !== 0}
+                Show={isHovered && status === 'idle' && appStatusData.Status !== 'N/A' && (appStatusData.Details?.length ?? 0) > 0}
                 Position={'bottom'}
                 Target={`statusbutton${props.Name}`}
             >
-                {appStatusData == undefined || appStatusData.Details == null ? <></> :
+                {appStatusData?.Details == null ? <></> :
                    appStatusData.Details.map((data, index) => (
-                        <div className={'d-flex'}>
+                       <div
+                           className={'d-flex'}
+                       >
                             {GetStatusSymbol(data.Status)}
                             <p> {data.Description} </p>
                         </div>
@@ -121,16 +125,5 @@ const GetStatusClass = (status: 'Success' | 'Error' | 'N/A') => {
             return 'secondary'
         default:
             return ''
-    }
-}
-
-const GetStatusButton = (status: Application.Types.Status) => {
-    switch (status) {
-        case 'error':
-            return <ServerErrorIcon Show={true} />
-        case 'loading':
-            return <LoadingIcon Show={true} />
-        default:
-            return <></>
     }
 }
