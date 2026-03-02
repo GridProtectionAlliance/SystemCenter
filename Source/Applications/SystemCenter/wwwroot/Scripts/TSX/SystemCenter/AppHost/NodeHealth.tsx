@@ -48,8 +48,15 @@ const NodeHealth = (props: {ApplicationName: string, ApplicationType: 'SystemCen
     const [hoveredItem, setHoveredItem] = React.useState<string>(null)
 
     React.useEffect(() => {
-        if (props.ApplicationType === 'SystemCenter')
-            getExternalDBs()
+        setStatus('loading');
+        switch (props.ApplicationType) {
+            case 'SystemCenter':
+                getExternalDBs()
+                break;
+            default:
+                setStatus('idle')
+                break;
+        }
     }, [props.ApplicationName])
 
     React.useEffect(() => {
@@ -104,7 +111,7 @@ const NodeHealth = (props: {ApplicationName: string, ApplicationType: 'SystemCen
 
     return (
         <div>
-            {statusItems.length == 0 ? <ReactIcons.SpiningIcon/> :
+            {status === 'loading' ? <ReactIcons.SpiningIcon/> :
                     statusItems.map((statusItem, index) => (
                         <div className="row mb-2 mx-2"
                             key={index}
