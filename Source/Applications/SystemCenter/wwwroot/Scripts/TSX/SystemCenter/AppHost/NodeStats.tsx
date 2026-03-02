@@ -24,7 +24,7 @@
 import * as React from 'react';
 import { LoadingScreen, Modal, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { Application } from '@gpa-gemstone/application-typings';
-import NodeStatus from './NodeStatus';
+import NodeHealth from './NodeHealth';
 
 export interface IMessage { Message: string, Type: number }
 
@@ -101,7 +101,7 @@ const NodeStats = (props: IProps) => {
                     </div>
                 }
                 <div className="col">
-                    <NodeStatus
+                    <NodeHealth
                         ApplicationName={props.ApplicationName}
                         ApplicationType={props.ApplicationType}
                     />
