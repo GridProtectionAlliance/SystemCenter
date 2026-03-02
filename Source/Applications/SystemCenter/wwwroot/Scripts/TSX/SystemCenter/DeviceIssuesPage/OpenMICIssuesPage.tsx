@@ -37,47 +37,32 @@ import moment from 'moment';
 import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
 
-interface IDailyStatisticSummary {
-    Successful: [number, number][]
-    Unsuccessful: [number, number][]
-    Total: [number, number][]
-}
-
 const OpenMICDailyStatisticController = new GenericController<SC.OpenMICDailyStatistic>(`${homePath}api/SystemCenter/Statistics/OpenMIC`, "LastSuccessfulConnection", false);
 
 function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: string }) {
-    const [tableData, setTableData] = React.useState<SC.OpenMICDailyStatistic[]>([]);
+    const [data, setData] = React.useState<SC.OpenMICDailyStatistic[]>([]);
     const [sortField, setSortField] = React.useState<keyof SC.OpenMICDailyStatistic>('Date');
     const [ascending, setAscending] = React.useState<boolean>(false);
-    const [plotStatus, setPlotStatus] = React.useState<Application.Types.Status>('uninitiated');
-    const [plotData, setPlotData] = React.useState<IDailyStatisticSummary>();
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [plotHeight, setPlotHeight] = React.useState<number>(100);
     const [plotWidth, setPlotWidth] = React.useState<number>(100);
     const rowRef = React.useRef<HTMLDivElement>(null);
     const timeFrame = [moment.utc().endOf('d').subtract(30, 'd').valueOf(), moment.utc().startOf('d').valueOf()] as[number, number] 
+
+    const orderedData = React.useMemo(() => _.orderBy(data, [sortField], [ascending ? 'asc' : 'desc']),
+    [data, sortField, ascending])
+
     const order = React.useCallback((data: SC.OpenMICDailyStatistic[]) => {
         return _.orderBy(data, [sortField], [ascending ? 'asc' : 'desc'])
     }, [sortField, ascending]);
 
     React.useEffect(() => {
-        setPlotStatus('loading')
+        setStatus('loading')
         const handle = OpenMICDailyStatisticController.PagedSearch([], undefined, undefined, 0, props.Meter.AssetKey).done(result => {
             const data = JSON.parse(result.Data as unknown as string);
-            setTableData(order(data));
-            let dailyStatisticSummary = {
-                Successful: [],
-                Unsuccessful: [],
-                Total: []
-            }
-            data.map((d: SC.OpenMICDailyStatistic) => {
-                dailyStatisticSummary.Successful.push([moment(d.Date, 'MM/DD/YYYY').valueOf(), d.TotalSuccessfulConnections]);
-                dailyStatisticSummary.Unsuccessful.push([moment(d.Date, 'MM/DD/YYYY').valueOf(), d.TotalUnsuccessfulConnections]);
-                dailyStatisticSummary.Total.push([moment(d.Date, 'MM/DD/YYYY').valueOf(), d.TotalConnections]);
-               }
-            );
-            setPlotData(dailyStatisticSummary);
-            setPlotStatus('idle')
+            setData(data);
         });
+        setStatus('idle')
 
         return () => {
             if (handle.abort != undefined) handle.abort();
@@ -85,8 +70,8 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
     }, [props.Meter.AssetKey]);
 
     React.useEffect(() => {
-        if (tableData.length === 0) return;
-        setTableData(order(tableData));
+        if (data.length === 0) return;
+        setData(order(data));
     }, [order]);
 
     // set plot dimensions
@@ -109,7 +94,7 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
         </div>
         <div className="row h-50" ref={rowRef}>
                 <div className="col">
-                    {plotStatus !== 'idle' ? <></> :
+                    {status !== 'idle' ? <></> :
                         <Plot
                             defaultTdomain={timeFrame}
                             height={plotHeight}
@@ -124,31 +109,24 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
                             holdMenuOpen={false}
                             yDomain={'HalfAutoValue'}
                         >
-                                <Line
-                                data={plotData.Total}
+                            <Line
+                                data={data.map(d => [moment(d.Date, "MM/DD/YYYY").valueOf(), d.TotalConnections])}
                                 lineStyle={'solid'}
                                 color={"#0029A3"}
                                 legend={"Total Connections"}
                             />
                             <Line
-                                    data={plotData.Successful}
-                                    lineStyle={'solid'}
-                                    color={"#007A29"}
-                                    legend={"Total Successful Connections"}
-                                />
-                                <Line
-                                    data={plotData.Total}
-                                    lineStyle={'solid'}
-                                    color={"#0029A3"}
-                                    legend={"Total Connections"}
-                                />
-                                <Line
-                                    data={plotData.Unsuccessful}
-                                    lineStyle={'solid'}
-                                    color={"#A30000"}
-                                    legend={"Total Unsuccessful Connections"}
-                                />
-                            
+                                data={data.map(d => [moment(d.Date, "MM/DD/YYYY").valueOf(), d.TotalSuccessfulConnections])}
+                                lineStyle={'solid'}
+                                color={"#007A29"}
+                                legend={"Total Successful Connections"}
+                            />
+                            <Line
+                                data={data.map(d => [moment(d.Date, "MM/DD/YYYY").valueOf(), d.TotalUnsuccessfulConnections])}
+                                lineStyle={'solid'}
+                                color={"#A30000"}
+                                legend={"Total Unsuccessful Connections"}
+                            />
                         </Plot>
                     }
             </div>
@@ -157,7 +135,7 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
             <ConfigurableTable<SC.OpenMICDailyStatistic>
                 LocalStorageKey="MiMDIssuesConfigTable"
                 TableClass="table table-hover"
-                Data={tableData}
+                Data={orderedData}
                 SortKey={sortField}
                 Ascending={ascending}
                 Selected={() => false}
