@@ -41,11 +41,11 @@ interface StatusItem {
 const controllerPath = `${homePath}api/SystemCenter/ExternalDatabases`
 const ExternalDBController = new GenericController<SystemCenter.Types.DetailedExternalDatabases>(controllerPath, "ID", true)
 
-const NodeStatus = (props: {ApplicationName: string, ApplicationType: 'SystemCenter' | 'MiMD' | 'XDA'}) => {
+const NodeHealth = (props: {ApplicationName: string, ApplicationType: 'SystemCenter' | 'MiMD' | 'XDA'}) => {
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [externalDBs, setExternalDBs] = React.useState<SystemCenter.Types.DetailedExternalDatabases[]>([]);
     const [statusItems, setStatusItems] = React.useState<StatusItem[]>([]);
-    const [hoveredItem, setHoveredItem] = React.useState<string>("")
+    const [hoveredItem, setHoveredItem] = React.useState<string>(null)
 
     React.useEffect(() => {
         if (props.ApplicationType === 'SystemCenter')
@@ -113,7 +113,7 @@ const NodeStatus = (props: {ApplicationName: string, ApplicationType: 'SystemCen
                                 <span className={"my-3"}>{GetStatusSymbol(statusItem.Status)}</span>
                             <h5
                                     onMouseEnter={() => setHoveredItem(statusItem.Name)}
-                                    onMouseLeave={() => setHoveredItem("")}
+                                    onMouseLeave={() => setHoveredItem(null)}
                                     data-tooltip={`statusbutton${statusItem.Name}`}
                                     className={"m-3"}
                             >{statusItem.Name}</h5>
@@ -142,7 +142,7 @@ const NodeStatus = (props: {ApplicationName: string, ApplicationType: 'SystemCen
     )
 }
 
-export default NodeStatus;
+export default NodeHealth;
 
 // helper functions
 const GetStatusSymbol = (status: 'Success' | 'Error' | 'Warning' | 'Loading') => {
