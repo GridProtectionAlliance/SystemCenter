@@ -30,7 +30,7 @@ import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 
 interface StatusItem {
     Name: string
-    Type: "ExternalDB"
+    Type: 'ExternalDB'
     Status: 'Error' | 'Success' | 'Warning'
     Details: {
         Status: 'Success' | 'Error'
@@ -43,7 +43,6 @@ const ExternalDBController = new GenericController<SystemCenter.Types.DetailedEx
 
 const NodeHealth = (props: {ApplicationName: string, ApplicationType: 'SystemCenter' | 'MiMD' | 'XDA'}) => {
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
-    const [externalDBs, setExternalDBs] = React.useState<SystemCenter.Types.DetailedExternalDatabases[]>([]);
     const [statusItems, setStatusItems] = React.useState<StatusItem[]>([]);
     const [hoveredItem, setHoveredItem] = React.useState<string>(null)
 
@@ -59,28 +58,17 @@ const NodeHealth = (props: {ApplicationName: string, ApplicationType: 'SystemCen
         }
     }, [props.ApplicationName])
 
-    React.useEffect(() => {
-        let dbstatuses = [];
-        externalDBs.map((db) => {
-            dbstatuses.push({
-                Name: db.Name,
-                Status: testDB(db) ?? 'Error',
-                Details: [{
-                    Status: 'Error',
-                    Description: 'Failed to connect to database.'
-                }]
-            });
-        })
-        setStatusItems(dbstatuses)
-    }, [externalDBs])
-
     function getExternalDBs() {
         setStatus('loading');
+        setStatusItems([])
         const handle = ExternalDBController.PagedSearch([]);
 
         handle.done((dt) => {
+            const externalDBs = JSON.parse(dt.Data as unknown as string)
+            externalDBs.map((db) => {
+                testDB(db)
+            })
             setStatus('idle')
-            setExternalDBs(JSON.parse(dt.Data as unknown as string))
         }).fail((d) => setStatus('error'));
 
         return function cleanup() {
@@ -90,8 +78,6 @@ const NodeHealth = (props: {ApplicationName: string, ApplicationType: 'SystemCen
     }
 
     function testDB(db: SystemCenter.Types.DetailedExternalDatabases) {
-        let result;
-        setStatus('loading');
         const h = $.ajax({
             type: "POST",
             url: `${homePath}api/SystemCenter/ExternalDatabases/TestConnection`,
@@ -102,11 +88,19 @@ const NodeHealth = (props: {ApplicationName: string, ApplicationType: 'SystemCen
             async: true
         });
 
-        h.then((d) => {
-            result = 'Success';
-        }, (d) => { result = 'Error' })
-        setStatus('idle')
-        return result;
+        h.done((d) => {
+            const status = { Name: db.Name, Status: 'Success', Type: "ExternalDB", Details: [{ Status: 'Success', Description: 'Successfully connected to database.' }] }
+            setStatusItems(statusItems => [...statusItems, status as StatusItem])
+        }).fail((d) => {
+            const status = handleAdoException(d.responseJSON)
+            status.Name = db.Name
+            setStatusItems(statusItems => [...statusItems, status as StatusItem])
+        })
+
+        return function cleanup() {
+            if (h.abort != null)
+                h.abort();
+        }
     }
 
     return (
@@ -180,4 +174,52 @@ const GetDetailStatusSymbol = (status: 'Success' | 'Error' | 'Warning' | 'Loadin
         default:
             return <></>
     }
+}
+
+const handleAdoException = (result) => {
+
+    const dbstatus = { Name: '', Status: 'Error', Type: "ExternalDB", Details: [] }
+
+    if (result == null || result == undefined) {
+        dbstatus.Status = 'Warning'
+        dbstatus.Details.push({ Status: 'Warning', Description: 'Unexpected exception.' })
+        return dbstatus
+    }
+
+    if (!('ExceptionMessage' in result)) {
+        dbstatus.Status = 'Warning'
+        dbstatus.Details.push({ Status: 'Warning', Description: 'Excpetion response has no message.' })
+        return dbstatus
+    }
+
+    const exceptionMessage = result['ExceptionMessage']
+
+    // specific error handling in case we want to derive our messages from the ADO exception
+    /**
+    if (exceptionMessage.includes('cannot find the file')) {
+        dbstatus.Status = 'Error'
+        dbstatus.Details.push({ Status: 'Error', Description: 'Could not load database connection settings from configuration file.'})
+        return dbstatus
+    }
+
+    if (exceptionMessage.includes('not set to an instance')) {
+        dbstatus.Status = 'Error'
+        dbstatus.Details.push({ Status: 'Error', Description: 'Failed to connect to database.' })
+        return dbstatus
+    }
+
+    if (exceptionMessage.includes('No listener')) {
+        dbstatus.Status = 'Error'
+        dbstatus.Details.push({ Status: 'Error', Description: 'Failed to connect to given host.' })
+        return dbstatus
+    }
+    */
+
+    if (exceptionMessage.includes('Login failed')) {
+        dbstatus.Details.push({ Status: 'Success', Description: 'Successfully found database.' })
+    }
+
+    dbstatus.Details.push({ Status: 'Error', Description: `${exceptionMessage}` })
+
+    return dbstatus
 }
