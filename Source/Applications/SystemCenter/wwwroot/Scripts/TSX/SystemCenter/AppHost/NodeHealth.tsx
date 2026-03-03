@@ -35,7 +35,7 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [statusItems, setStatusItems] = React.useState<SC.StatusItem[]>([]);
     const [hoveredItem, setHoveredItem] = React.useState<string>(null)
-    const [fawgStatus, setFawgStatus] = React.useState<boolean>(null)
+    const [fawgStatus, setFawgStatus] = React.useState<SC.StatusItem>(null)
 
     React.useEffect(() => {
         setStatus('loading');
@@ -120,9 +120,9 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
         });
 
         h.done((d: SC.StatusItem) => {
-            setFawgStatus(true)
+            setFawgStatus(d)
         }).fail((d) => {
-            setFawgStatus(false)
+            setStatus('error')
         })
 
         return function cleanup() {
@@ -176,7 +176,7 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
                 </fieldset>
                 <fieldset className="border col-6" style={{ padding: '10px', height: '100%' }}>
                     <legend className="w-auto" style={{ fontSize: 'large' }}>FAWG Connection Status:</legend>
-                    { fawgStatus ? <h3>Conncection successful.</h3> : <h3>Connection unsuccessful.</h3> }
+                    { fawgStatus ? <h3> Conncection successful. </h3> : <h3> Connection unsuccessful. </h3> }
                 </fieldset>
             </div >
         : null 
