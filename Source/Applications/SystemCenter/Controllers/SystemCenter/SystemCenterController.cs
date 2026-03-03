@@ -1657,7 +1657,7 @@ namespace SystemCenter.Controllers
                     testDatabaseStatus.Details.Add(new()
                     {
                         Status = "Error",
-                        Description = "Could not find SQL file."
+                        Description = "Missing file or dependency."
                     });
                     return Ok(testDatabaseStatus);
                 }
