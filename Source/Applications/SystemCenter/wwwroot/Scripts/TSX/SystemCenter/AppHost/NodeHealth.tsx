@@ -121,7 +121,8 @@ const NodeHealth = (props: {ApplicationName: string, ApplicationType: 'SystemCen
                                     onMouseLeave={() => setHoveredItem(null)}
                                     data-tooltip={`statusbutton${statusItem.Name}`}
                                     className={"m-3"}
-                            >{statusItem.Name}</h5>
+                                >{statusItem.Name}</h5>
+                                {statusItem.Status !== 'Error' ? null : <p className={"my-3 mx-2" }> {statusItem.Details.find((detail) => detail.Status === 'Error').Description } </p>}
                                 <ToolTip
                                 Show={hoveredItem === statusItem.Name && status === 'idle' && (statusItem.Details?.length ?? 0) > 0}
                                     Position={'right'}
