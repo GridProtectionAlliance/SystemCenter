@@ -154,7 +154,6 @@ namespace SystemCenter.Model
                 if (totalUnsuccessfulConnections > errorLevel)
                 {
                     devHealthReport["Status"] = "Error";
-
                 }
                 else if (totalUnsuccessfulConnections > warningLevel)
                 {
