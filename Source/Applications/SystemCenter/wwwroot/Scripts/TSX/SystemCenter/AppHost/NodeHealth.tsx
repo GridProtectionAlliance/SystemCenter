@@ -26,24 +26,14 @@ import { Application, SystemCenter } from '@gpa-gemstone/application-typings'
 import { GenericController } from '@gpa-gemstone/react-interactive'
 import { ToolTip } from '@gpa-gemstone/react-forms'
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-
-
-interface StatusItem {
-    Name: string
-    Type: 'ExternalDB'
-    Status: 'Error' | 'Success' | 'Warning' | 'Loading'
-    Details: {
-        Status: 'Success' | 'Error'
-        Description: string
-    }[],
-}
+import { SystemCenter as SC } from '../global'
 
 const controllerPath = `${homePath}api/SystemCenter/ExternalDatabases`
 const ExternalDBController = new GenericController<SystemCenter.Types.DetailedExternalDatabases>(controllerPath, "ID", true)
 
 const NodeHealth = (props: {ApplicationName: string, ApplicationType: 'SystemCenter' | 'MiMD' | 'XDA'}) => {
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
-    const [statusItems, setStatusItems] = React.useState<StatusItem[]>([]);
+    const [statusItems, setStatusItems] = React.useState<SC.StatusItem[]>([]);
     const [hoveredItem, setHoveredItem] = React.useState<string>(null)
 
     React.useEffect(() => {
@@ -96,27 +86,18 @@ const NodeHealth = (props: {ApplicationName: string, ApplicationType: 'SystemCen
             async: true
         });
 
-        h.done((d) => {
+        h.done((d: SC.StatusItem) => {
             const status = { Name: db.Name, Status: 'Success', Type: "ExternalDB", Details: [{ Status: 'Success', Description: 'Successfully connected to database.'}] }
             setStatusItems(statusItems => statusItems.map((statusItem) => {
                 if (db.Name !== statusItem.Name) {
                     return statusItem
                 }
                 else {
-                    return status as StatusItem
+                    return status as SC.StatusItem
                 }
             }))
         }).fail((d) => {
-            const status = handleAdoException(d.responseJSON)
-            status.Name = db.Name
-            setStatusItems(statusItems => statusItems.map((statusItem) => {
-                if (db.Name !== statusItem.Name) {
-                    return statusItem
-                }
-                else {
-                    return status as StatusItem
-                }
-            }))
+            setStatus('error')
         })
 
         return function cleanup() {
@@ -213,7 +194,7 @@ const GetStatusItemAlertClass = (status: 'Success' | 'Error' | 'Warning' | 'Load
 
 const handleAdoException = (result) => {
 
-    const dbstatus = { Name: '', Status: 'Error', Type: "ExternalDB", Details: [] }
+    const dbstatus = { Name: '', Status: 'Error', Details: [] }
 
     if (result == null || result == undefined) {
         dbstatus.Status = 'Warning'

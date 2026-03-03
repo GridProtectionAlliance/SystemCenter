@@ -67,6 +67,15 @@ export namespace SystemCenter {
 
     // Todo: There is a pr for this in gemstone, when its merged and published, remove this and ues gemstone version
     interface SEBrowserSetting extends GemstoneSC.Types.Setting { ApplicationInstance: boolean, Scope: string, Roles: string }
+
+    interface StatusItem {
+        Name: string
+        Status: 'Error' | 'Success' | 'Warning' | 'Loading'
+        Details: {
+            Status: 'Success' | 'Error'
+            Description: string
+        } [],
+    }
 }
 
 // OpenXDA Models
