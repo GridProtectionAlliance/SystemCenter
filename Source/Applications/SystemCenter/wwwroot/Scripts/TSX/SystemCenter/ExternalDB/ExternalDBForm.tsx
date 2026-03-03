@@ -88,7 +88,9 @@ export default function ExternalDBForm(props: {
                 ShowX={true} ShowCancel={false} Size={'sm'} CallBack={() => setRequestStatus('uninitiated')}>
                 {connectionStatus == null ? <></> :
                     <div>
-                        <h2>{connectionStatus.Status === 'Success' ? "Connection successful." : connectionStatus.Details[connectionStatus.Details.length - 1].Description}</h2>
+                        <h2>{connectionStatus.Status === 'Success' ? "Connection successful." :
+                            connectionStatus.Details.length == 0 ? 'Connection unsuccessful.' :
+                            connectionStatus.Details[connectionStatus.Details.length - 1].Description}</h2>
                     </div>
                 }
             </Modal>
