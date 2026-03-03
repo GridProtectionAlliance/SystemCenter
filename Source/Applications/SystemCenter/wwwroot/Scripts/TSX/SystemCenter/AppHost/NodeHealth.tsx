@@ -31,7 +31,7 @@ import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 interface StatusItem {
     Name: string
     Type: 'ExternalDB'
-    Status: 'Error' | 'Success' | 'Warning'
+    Status: 'Error' | 'Success' | 'Warning' | 'Loading'
     Details: {
         Status: 'Success' | 'Error'
         Description: string
@@ -60,11 +60,19 @@ const NodeHealth = (props: {ApplicationName: string, ApplicationType: 'SystemCen
 
     function getExternalDBs() {
         setStatus('loading');
-        setStatusItems([])
         const handle = ExternalDBController.PagedSearch([]);
 
         handle.done((dt) => {
             const externalDBs = JSON.parse(dt.Data as unknown as string)
+            // first set them all as loading
+            setStatusItems(externalDBs.map((db) => {
+                return {
+                    Name: db.Name,
+                    Type: 'ExternalDB',
+                    Details: [],
+                    Status: 'Loading'
+                }
+            }))
             externalDBs.map((db) => {
                 testDB(db)
             })
@@ -89,12 +97,26 @@ const NodeHealth = (props: {ApplicationName: string, ApplicationType: 'SystemCen
         });
 
         h.done((d) => {
-            const status = { Name: db.Name, Status: 'Success', Type: "ExternalDB", Details: [{ Status: 'Success', Description: 'Successfully connected to database.' }] }
-            setStatusItems(statusItems => [...statusItems, status as StatusItem])
+            const status = { Name: db.Name, Status: 'Success', Type: "ExternalDB", Details: [{ Status: 'Success', Description: 'Successfully connected to database.'}] }
+            setStatusItems(statusItems => statusItems.map((statusItem) => {
+                if (db.Name !== statusItem.Name) {
+                    return statusItem
+                }
+                else {
+                    return status as StatusItem
+                }
+            }))
         }).fail((d) => {
             const status = handleAdoException(d.responseJSON)
             status.Name = db.Name
-            setStatusItems(statusItems => [...statusItems, status as StatusItem])
+            setStatusItems(statusItems => statusItems.map((statusItem) => {
+                if (db.Name !== statusItem.Name) {
+                    return statusItem
+                }
+                else {
+                    return status as StatusItem
+                }
+            }))
         })
 
         return function cleanup() {
