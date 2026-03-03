@@ -1539,7 +1539,22 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/SystemCenter/ExternalDatabases")]
     public class ExternalDatabasesController : ModelController<DetailedExternalDatabases, ExternalDatabases>
     {
+        public class StatusItem
+        {
+            public string Status { get; set; }
+            public string Description { get; set; }
+        }
+
+        public class ExternalDatabaseStatus
+        {			
+            public string Status { get; set; }
+
+			public List<StatusItem> Details { get; set; }
+			
+        }
+
         private static ServiceHost Host = Program.Host;
+
         public override IHttpActionResult Post([FromBody] JObject record)
         {
             if (!PostAuthCheck() || ViewOnly)
@@ -1584,18 +1599,49 @@ namespace SystemCenter.Controllers
         [HttpPost, Route("TestConnection")]
         public IHttpActionResult TestConnection([FromBody] JObject record)
         {
+            ExternalDatabaseStatus testDatabaseStatus = new()
+            {
+                Status = "Success",
+                Details = []
+            };
             if (!PostAuthCheck())
                 return Unauthorized();
 
             ExternalDatabases extDB = record.ToObject<ExternalDatabases>();
-            using (AdoDataConnection extConn = ScheduledExtDBTask.GetExternalConnection(extDB))
+            try
             {
-                string query;
-                if (extConn.IsOracle)
-                    query = "SELECT 0 FROM dual"; // oracle adds the semicolon for you as a way to keep you from delimiting multiple statements.
-                else
-                    query = "SELECT 0;";
-                return Ok(extConn.ExecuteScalar<int>(query));
+                using (AdoDataConnection extConn = ScheduledExtDBTask.GetExternalConnection(extDB))
+                {
+                    string query;
+
+                    if (extConn.IsOracle)
+                        query = "SELECT 0 FROM dual"; // oracle adds the semicolon for you as a way to keep you from delimiting multiple statements.
+                    else
+                        query = "SELECT 0;";
+
+                    int result = extConn.ExecuteScalar<int>(query);
+
+                    if (result == 0)
+                    {
+                        testDatabaseStatus.Details.Add(new()
+                        {
+                            Status = "Success",
+                            Description = "Successfully connected to database."
+                        });
+                        return Ok(testDatabaseStatus);
+                    }
+
+                    else
+                    {
+                        testDatabaseStatus.Status = "Warning";
+                        return Ok(testDatabaseStatus);
+                    }
+                }
+            }
+            catch(InvalidOperationException e)
+            {
+                testDatabaseStatus.Status = "Error";
+                return Ok(testDatabaseStatus);
             }
         }
 
@@ -1763,7 +1809,6 @@ namespace SystemCenter.Controllers
         }
 
     }
-
 
     [RoutePrefix("api/SEbrowser/Widget")]
     public class SEBrowserWidgetController : ModelController<SEBrowser.Model.Widget> {}
