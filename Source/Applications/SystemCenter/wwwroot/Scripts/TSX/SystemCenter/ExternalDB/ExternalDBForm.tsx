@@ -36,6 +36,7 @@ export default function ExternalDBForm(props: {
 }) {
 
     const [requestStatus, setRequestStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [connectionStatus, setConnectionStatus] = React.useState<SC.StatusItem>(null);
 
     function Valid(field: keyof (SystemCenter.Types.ExternalDatabases)): boolean {
         if (field == 'Name')
@@ -59,10 +60,8 @@ export default function ExternalDBForm(props: {
             async: true
         });
         handle.done((response) => {
-            if (response['Status'] === 'Success')
-                setRequestStatus('idle');
-            else
-                setRequestStatus('error')
+            setConnectionStatus(response);
+            setRequestStatus('idle');
         });
         handle.fail(() => {
             setRequestStatus('error');
@@ -87,7 +86,11 @@ export default function ExternalDBForm(props: {
             <Modal Title="Connection Test Results" Show={requestStatus === 'error' || requestStatus === 'idle'}
                 ConfirmBtnClass={requestStatus === 'idle' ? 'btn-success' : 'btn-danger'} ConfirmText={'Close'}
                 ShowX={true} ShowCancel={false} Size={'sm'} CallBack={() => setRequestStatus('uninitiated')}>
-                <p>{requestStatus === 'idle' ? "Connection to database successful." : "Unable to connect to external database. Check connection settings."}</p>
+                {connectionStatus == null ? <></> :
+                    <div>
+                        <h2>{connectionStatus.Status === 'Success' ? "Connection successful." : connectionStatus.Details[connectionStatus.Details.length - 1].Description}</h2>
+                    </div>
+                }
             </Modal>
             <LoadingScreen Show={requestStatus === 'loading'} />
         </>

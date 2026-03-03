@@ -87,13 +87,14 @@ const NodeHealth = (props: {ApplicationName: string, ApplicationType: 'SystemCen
         });
 
         h.done((d: SC.StatusItem) => {
-            const status = { Name: db.Name, Status: 'Success', Type: "ExternalDB", Details: [{ Status: 'Success', Description: 'Successfully connected to database.'}] }
             setStatusItems(statusItems => statusItems.map((statusItem) => {
                 if (db.Name !== statusItem.Name) {
                     return statusItem
                 }
                 else {
-                    return status as SC.StatusItem
+                    const status = d
+                    status.Name = db.Name
+                    return status
                 }
             }))
         }).fail((d) => {
@@ -190,52 +191,4 @@ const GetStatusItemAlertClass = (status: 'Success' | 'Error' | 'Warning' | 'Load
         case 'Loading':
             return 'secondary'
     }
-}
-
-const handleAdoException = (result) => {
-
-    const dbstatus = { Name: '', Status: 'Error', Details: [] }
-
-    if (result == null || result == undefined) {
-        dbstatus.Status = 'Warning'
-        dbstatus.Details.push({ Status: 'Warning', Description: 'Unexpected exception.' })
-        return dbstatus
-    }
-
-    if (!('ExceptionMessage' in result)) {
-        dbstatus.Status = 'Warning'
-        dbstatus.Details.push({ Status: 'Warning', Description: 'Excpetion response has no message.' })
-        return dbstatus
-    }
-
-    const exceptionMessage = result['ExceptionMessage']
-
-    // specific error handling in case we want to derive our messages from the ADO exception
-    /**
-    if (exceptionMessage.includes('cannot find the file')) {
-        dbstatus.Status = 'Error'
-        dbstatus.Details.push({ Status: 'Error', Description: 'Could not load database connection settings from configuration file.'})
-        return dbstatus
-    }
-
-    if (exceptionMessage.includes('not set to an instance')) {
-        dbstatus.Status = 'Error'
-        dbstatus.Details.push({ Status: 'Error', Description: 'Failed to connect to database.' })
-        return dbstatus
-    }
-
-    if (exceptionMessage.includes('No listener')) {
-        dbstatus.Status = 'Error'
-        dbstatus.Details.push({ Status: 'Error', Description: 'Failed to connect to given host.' })
-        return dbstatus
-    }
-    */
-
-    if (exceptionMessage.includes('Login failed')) {
-        dbstatus.Details.push({ Status: 'Success', Description: 'Successfully found database.' })
-    }
-
-    dbstatus.Details.push({ Status: 'Error', Description: `${exceptionMessage}` })
-
-    return dbstatus
 }
