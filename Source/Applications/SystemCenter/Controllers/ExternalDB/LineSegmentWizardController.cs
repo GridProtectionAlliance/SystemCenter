@@ -163,7 +163,7 @@ public class LineSegmentWizardController : ApiController
     #region [ HttpFunctions ]
 
     [HttpPost, Route("TestConnection")]
-    public IHttpActionResult PostTestConnection([FromBody] JObject record)
+    public IHttpActionResult PostTestConnection()
     {
         using (AdoDataConnection connection = new(Connection))
         {

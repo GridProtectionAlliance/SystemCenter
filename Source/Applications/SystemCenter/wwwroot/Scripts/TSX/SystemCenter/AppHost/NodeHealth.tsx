@@ -35,12 +35,14 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [statusItems, setStatusItems] = React.useState<SC.StatusItem[]>([]);
     const [hoveredItem, setHoveredItem] = React.useState<string>(null)
+    const [fawgStatus, setFawgStatus] = React.useState<boolean>(null)
 
     React.useEffect(() => {
         setStatus('loading');
         switch (props.ApplicationType) {
             case 'SystemCenter':
                 getExternalDBs()
+                testFAWG()
                 break;
             default:
                 setStatus('idle')
@@ -107,6 +109,28 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
         }
     }
 
+    function testFAWG() {
+        const h = $.ajax({
+            type: "POST",
+            url: `${homePath}api/LineSegmentWizard/TestConnection`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true
+        });
+
+        h.done((d: SC.StatusItem) => {
+            setFawgStatus(true)
+        }).fail((d) => {
+            setFawgStatus(false)
+        })
+
+        return function cleanup() {
+            if (h.abort != null)
+                h.abort();
+        }
+    }
+
     return (
         props.ApplicationType === 'SystemCenter' ?
             <div className="row">
@@ -152,6 +176,7 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
                 </fieldset>
                 <fieldset className="border col-6" style={{ padding: '10px', height: '100%' }}>
                     <legend className="w-auto" style={{ fontSize: 'large' }}>FAWG Connection Status:</legend>
+                    { fawgStatus ? <h3>Conncection successful.</h3> : <h3>Connection unsuccessful.</h3> }
                 </fieldset>
             </div >
         : null 
