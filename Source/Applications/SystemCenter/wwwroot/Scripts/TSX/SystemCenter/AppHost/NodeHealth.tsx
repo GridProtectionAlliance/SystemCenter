@@ -31,7 +31,7 @@ import { SystemCenter as SC } from '../global'
 const controllerPath = `${homePath}api/SystemCenter/ExternalDatabases`
 const ExternalDBController = new GenericController<SystemCenter.Types.DetailedExternalDatabases>(controllerPath, "ID", true)
 
-const NodeHealth = (props: {ApplicationName: string, ApplicationType: 'SystemCenter' | 'MiMD' | 'XDA'}) => {
+const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCenter' | 'MiMD' | 'XDA' }) => {
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [statusItems, setStatusItems] = React.useState<SC.StatusItem[]>([]);
     const [hoveredItem, setHoveredItem] = React.useState<string>(null)
@@ -108,43 +108,53 @@ const NodeHealth = (props: {ApplicationName: string, ApplicationType: 'SystemCen
     }
 
     return (
-        <div>
-            {status === 'loading' ? <ReactIcons.SpiningIcon/> :
-                    statusItems.map((statusItem, index) => (
-                        <div className="row mb-2 mx-2"
-                            key={index}
-                        >
-                        <div className={`col-12 d-flex alert-${GetStatusItemAlertClass(statusItem.Status)}`}>
-                                <span className={"my-3"}>{GetStatusSymbol(statusItem.Status)}</span>
-                            <h5
-                                    onMouseEnter={() => setHoveredItem(statusItem.Name)}
-                                    onMouseLeave={() => setHoveredItem(null)}
-                                    data-tooltip={`statusbutton${statusItem.Name}`}
-                                    className={"m-3"}
-                                >{statusItem.Name}</h5>
-                                {statusItem.Status !== 'Error' ? null : <p className={"my-3 mx-2" }> {statusItem.Details.find((detail) => detail.Status === 'Error').Description } </p>}
-                                <ToolTip
-                                Show={hoveredItem === statusItem.Name && status === 'idle' && (statusItem.Details?.length ?? 0) > 0}
-                                    Position={'right'}
-                                Target={`statusbutton${statusItem.Name}`}
-                                >
-                                {statusItem?.Details == null ? <ReactIcons.SpiningIcon/> :
-                                    statusItem.Details.map((data, index) => (
-                                            <div
-                                                className={'d-flex'}
-                                                key={index}
-                                            >
-                                                {GetDetailStatusSymbol(data.Status)}
-                                                <p> {data.Description} </p>
-                                            </div>
-                                        ))
-                                    }
-                                </ToolTip>
+        props.ApplicationType === 'SystemCenter' ?
+            <div className="row">
+                <fieldset className="border col-6" style={{ padding: '10px', height: '100%' }}>
+                    <legend className="w-auto" style={{ fontSize: 'large' }}>Database Connection Status:</legend>
+                    {status === 'loading' ? <ReactIcons.SpiningIcon /> :
+                        statusItems.map((statusItem, index) => (
+                            <div className="row mb-2 mx-2"
+                                key={index}
+                            >
+                                <div className={`col-12 d-flex alert-${GetStatusItemAlertClass(statusItem.Status)}`}>
+                                    <span className={"my-3"}>{GetStatusSymbol(statusItem.Status)}</span>
+                                    <h5
+                                        onMouseEnter={() => setHoveredItem(statusItem.Name)}
+                                        onMouseLeave={() => setHoveredItem(null)}
+                                        data-tooltip={`statusbutton${statusItem.Name}`}
+                                        className={"m-3"}
+                                    >
+                                        {statusItem.Name}
+                                    </h5>
+                                    {statusItem.Status !== 'Error' ? null : <p className={"my-3 mx-2"}> {statusItem.Details.find((detail) => detail.Status === 'Error').Description} </p>}
+                                    <ToolTip
+                                        Show={hoveredItem === statusItem.Name && status === 'idle' && (statusItem.Details?.length ?? 0) > 0}
+                                        Position={'right'}
+                                        Target={`statusbutton${statusItem.Name}`}
+                                    >
+                                        {statusItem?.Details == null ? <ReactIcons.SpiningIcon /> :
+                                            statusItem.Details.map((data, index) => (
+                                                <div
+                                                    className={'d-flex'}
+                                                    key={index}
+                                                >
+                                                    {GetDetailStatusSymbol(data.Status)}
+                                                    <p> {data.Description} </p>
+                                                </div>
+                                            ))
+                                        }
+                                    </ToolTip>
                                 </div>
-                        </div>
-                    ))
-            }
-        </div>
+                            </div>
+                        ))
+                    }
+                </fieldset>
+                <fieldset className="border col-6" style={{ padding: '10px', height: '100%' }}>
+                    <legend className="w-auto" style={{ fontSize: 'large' }}>FAWG Connection Status:</legend>
+                </fieldset>
+            </div >
+        : null 
     )
 }
 
