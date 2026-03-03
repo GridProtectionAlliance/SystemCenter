@@ -132,7 +132,7 @@ const NodeHealth = (props: {ApplicationName: string, ApplicationType: 'SystemCen
                         <div className="row mb-2 mx-2"
                             key={index}
                         >
-                        <div className={`col-12 d-flex alert-${statusItem.Status === 'Success' ? 'success' : 'danger'}`}>
+                        <div className={`col-12 d-flex alert-${GetStatusItemAlertClass(statusItem.Status)}`}>
                                 <span className={"my-3"}>{GetStatusSymbol(statusItem.Status)}</span>
                             <h5
                                     onMouseEnter={() => setHoveredItem(statusItem.Name)}
@@ -195,6 +195,19 @@ const GetDetailStatusSymbol = (status: 'Success' | 'Error' | 'Warning' | 'Loadin
             return <ReactIcons.SpiningIcon />
         default:
             return <></>
+    }
+}
+
+const GetStatusItemAlertClass = (status: 'Success' | 'Error' | 'Warning' | 'Loading') => {
+    switch (status) {
+        case 'Success':
+            return 'success'
+        case 'Error':
+            return 'danger'
+        case 'Warning':
+            return 'warning'
+        case 'Loading':
+            return 'secondary'
     }
 }
 
