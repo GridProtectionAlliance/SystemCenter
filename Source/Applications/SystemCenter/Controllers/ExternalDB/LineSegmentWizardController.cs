@@ -31,6 +31,8 @@ using openXDA.Model;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Web.Http;
@@ -149,6 +151,20 @@ public class LineSegmentWizardController : ApiController
         public string Name;
         public List<int> StationID;
     };
+
+    public class StatusItem
+    {
+        public string Status { get; set; }
+        public string Description { get; set; }
+    }
+
+    public class FAWGStatus
+    {
+        public string Status { get; set; }
+
+        public List<StatusItem> Details { get; set; }
+
+    }
     #endregion
 
     #region [ Statics ]
@@ -165,10 +181,98 @@ public class LineSegmentWizardController : ApiController
     [HttpPost, Route("TestConnection")]
     public IHttpActionResult PostTestConnection()
     {
-        using (AdoDataConnection connection = new(Connection))
+        FAWGStatus status = new()
         {
-            string query = "SELECT 0;";
-            return Ok(connection.ExecuteScalar<int>(query));
+            Status = "Success",
+            Details = new()
+        };
+        try
+        {
+            using (AdoDataConnection connection = new(Connection))
+            {
+                string query = "SELECT 0;";
+                int result = connection.ExecuteScalar<int>(query);
+                return Ok(status);
+            }
+        }
+        catch (InvalidOperationException e)
+        {
+            status.Status = "Error";
+            if (e.InnerException is ArgumentException)
+            {
+                status.Details.Add(new()
+                {
+                    Status = "Error",
+                    Description = "ConnectionString contains errors."
+                });
+                return Ok(status);
+            }
+            if (e.InnerException is FileNotFoundException)
+            {
+                status.Details.Add(new()
+                {
+                    Status = "Error",
+                    Description = "Missing file or dependency."
+                });
+                return Ok(status);
+            }
+            if (e.InnerException is NullReferenceException)
+            {
+                status.Details.Add(new()
+                {
+                    Status = "Error",
+                    Description = "Could not load connection settings from configuration file."
+                });
+                return Ok(status);
+            }
+            if (e.InnerException is SqlException s)
+            {
+                int number = s.Number;
+
+                // data provider string
+                if (number == 4060)
+                {
+                    status.Details.Add(new()
+                    {
+                        Status = "Success",
+                        Description = "Successfully reached SQL server."
+                    });
+                    status.Details.Add(new()
+                    {
+                        Status = "Error",
+                        Description = "Failed to open database."
+                    });
+                }
+
+                // failed to open an ADO connection - "a network-related or instance-specific error"
+                if (number == 53)
+                {
+                    status.Details.Add(new()
+                    {
+                        Status = "Error",
+                        Description = "Failed to reach the server. Check that the connection string is correct and the server is accessible over network."
+                    });
+                    return Ok(status);
+                }
+
+                // failed for user permissions.
+                if (number == 18456)
+                {
+                    status.Details.Add(new()
+                    {
+                        Status = "Success",
+                        Description = "Successfully reached server."
+                    });
+                    status.Details.Add(new()
+                    {
+                        Status = "Error",
+                        Description = "Failed to authenticate."
+                    });
+                    return Ok(status);
+                }
+                return Ok(status);
+            }
+            return Ok(status);
         }
     }
 
