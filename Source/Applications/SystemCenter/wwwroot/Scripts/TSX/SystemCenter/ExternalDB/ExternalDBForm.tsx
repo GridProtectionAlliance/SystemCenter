@@ -26,6 +26,7 @@ import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { Input, TextArea, CheckBox } from '@gpa-gemstone/react-forms';
 import { IsCron } from '@gpa-gemstone/helper-functions';
 import { LoadingScreen, Modal } from '@gpa-gemstone/react-interactive';
+import { SystemCenter as SC } from './../global'
 
 export default function ExternalDBForm(props: {
     Record: SystemCenter.Types.ExternalDatabases,
