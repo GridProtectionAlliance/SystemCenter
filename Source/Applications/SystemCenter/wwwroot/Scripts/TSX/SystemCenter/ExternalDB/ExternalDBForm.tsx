@@ -57,8 +57,11 @@ export default function ExternalDBForm(props: {
             cache: false,
             async: true
         });
-        handle.done(() => {
-            setRequestStatus('idle');
+        handle.done((response) => {
+            if (response['Status'] === 'Success')
+                setRequestStatus('idle');
+            else
+                setRequestStatus('error')
         });
         handle.fail(() => {
             setRequestStatus('error');
