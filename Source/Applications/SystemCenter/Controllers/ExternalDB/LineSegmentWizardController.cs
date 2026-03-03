@@ -162,6 +162,16 @@ public class LineSegmentWizardController : ApiController
 
     #region [ HttpFunctions ]
 
+    [HttpPost, Route("TestConnection")]
+    public IHttpActionResult PostTestConnection([FromBody] JObject record)
+    {
+        using (AdoDataConnection connection = new(Connection))
+        {
+            string query = "SELECT 0;";
+            return Ok(connection.ExecuteScalar<int>(query));
+        }
+    }
+
     [HttpPost, Route("Save/{id:int}")]
     public IHttpActionResult PostData(int id, [FromBody] LineConfiguration record)
     {
