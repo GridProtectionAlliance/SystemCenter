@@ -84,13 +84,16 @@ export default function ExternalDBForm(props: {
             <button className="btn btn-info pull-left" hidden={!(props.ShowTestButton ?? false)}
                 onClick={TestExternal}>Test DB Connection</button>
             <Modal Title="Connection Test Results" Show={requestStatus === 'error' || requestStatus === 'idle'}
-                ConfirmBtnClass={requestStatus === 'idle' ? 'btn-success' : 'btn-danger'} ConfirmText={'Close'}
+                ConfirmBtnClass={connectionStatus?.Status === 'Success' ? 'btn-success' : 'btn-danger'} ConfirmText={'Close'}
                 ShowX={true} ShowCancel={false} Size={'sm'} CallBack={() => setRequestStatus('uninitiated')}>
                 {connectionStatus == null ? <></> :
                     <div>
-                        <h2>{connectionStatus.Status === 'Success' ? "Connection successful." :
-                            connectionStatus.Details.length == 0 ? 'Connection unsuccessful.' :
-                            connectionStatus.Details[connectionStatus.Details.length - 1].Description}</h2>
+                        {connectionStatus.Status === 'Success' ? <h2>"Connection to database successful."</h2> :
+                            <>
+                                <h2>Unable to connect to external database.</h2>
+                                <p>{connectionStatus.Details.length === 0 ? null : connectionStatus.Details.find((detail) => detail.Status === 'Error').Description}</p>
+                            </>
+                        }
                     </div>
                 }
             </Modal>
