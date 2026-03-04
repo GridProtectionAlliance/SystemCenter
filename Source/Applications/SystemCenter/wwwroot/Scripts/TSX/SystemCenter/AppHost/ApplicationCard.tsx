@@ -71,8 +71,8 @@ const Applicationcard = (props: IHost) => {
     }
     return (
         <>
-            <div className="card">
-                <img className="card-img-top" src={props.Image} alt="SystemCenter" />
+            <div className="card h-100">
+                <img className="card-img-top" src={props.Image} alt="SystemCenter" style={{maxWidth: '300px'}} />
                 <div className="card-body">
                     {status == 'Online' ? <span className="badge badge-pill badge-success">Online</span> : null}
                     {status == 'Unknown' ? <span className="badge badge-pill badge-danger">Offline</span> : null}
