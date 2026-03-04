@@ -23,17 +23,24 @@
 
 import * as React from 'react';
 import { Application } from '@gpa-gemstone/application-typings';
-import { useAppDispatch } from '../hooks';
-import { LoadingScreen, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { LoadingScreen, ServerErrorIcon, LayoutGrid } from '@gpa-gemstone/react-interactive';
 import ApplicationCard, { IHost } from './ApplicationCard';
 import ConsoleWindow from './ConsoleWindow';
 import NodeStats from './NodeStats';
+import { useMediaQuery } from '@gpa-gemstone/helper-functions';
+
 
 const AppHost: Application.Types.iByComponent = (props) => {
     const [hosts, setHosts] = React.useState<IHost[]>([]);
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [console, setConsole] = React.useState<IHost | null>(null);
     const [stats, setStats] = React.useState<IHost | null>(null);
+
+    const shouldHaveTwoRows = useMediaQuery('(max-height: 1000px)');
+
+    const shouldHaveTwoCols = useMediaQuery('(max-width: 1000px)');
+    const shouldHaveThreeCols = useMediaQuery('(max-width: 1300px)');
+    const shouldHaveFourCols = useMediaQuery('(max-width: 1600px)');
 
     React.useEffect(() => {
         if (status == 'changed' || status == 'uninitiated') {
@@ -60,13 +67,13 @@ const AppHost: Application.Types.iByComponent = (props) => {
             <div style={{ width: '100%', height: '100%', overflowY: 'auto' }}>
                 <LoadingScreen Show={status == 'loading'} />
                 <ServerErrorIcon Show={status == 'error'} />
-                <div className="card-deck">
+                <LayoutGrid RowsPerPage={3} ColMax={shouldHaveTwoCols ? 2 : 3} >
                     {hosts.map((h, i) => <ApplicationCard {...h}
                         OpenConsole={() => setConsole(h)}
                         OpenStats={() => setStats(h)}
                         key={i}
                     />)}
-                </div>               
+                    </LayoutGrid>    
             </div>
             <ConsoleWindow
                 ApplicationName={console?.Name ?? ''}
