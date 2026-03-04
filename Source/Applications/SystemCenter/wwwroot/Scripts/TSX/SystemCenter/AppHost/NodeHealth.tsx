@@ -120,6 +120,7 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
         });
 
         h.done((d: SC.StatusItem) => {
+            d.Name = 'fawgStatus'
             setFawgStatus(d)
         }).fail((d) => {
             setStatus('error')
@@ -151,7 +152,7 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
                                     >
                                         {statusItem.Name}
                                     </h5>
-                                    {statusItem.Status !== 'Error' ? null : <p className={"my-3 mx-2"}> {statusItem.Details.find((detail) => detail.Status === 'Error').Description} </p>}
+                                    {statusItem.Status !== 'Error' ? null : <p className={"my-3 mx-2"}> {statusItem.Details.find((detail) => detail.Status === 'Error')?.Description} </p>}
                                     <ToolTip
                                         Show={hoveredItem === statusItem.Name && status === 'idle' && (statusItem.Details?.length ?? 0) > 0}
                                         Position={'right'}
@@ -176,7 +177,40 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
                 </fieldset>
                 <fieldset className="border col-6" style={{ padding: '10px', height: '100%' }}>
                     <legend className="w-auto" style={{ fontSize: 'large' }}>FAWG Connection Status:</legend>
-                    { fawgStatus ? <h3> Conncection successful. </h3> : <h3> Connection unsuccessful. </h3> }
+                    {fawgStatus == null ? null :
+                        <div className="row mb-2 mx-2"
+                        >
+                            <div className={`col-12 d-flex alert-${GetStatusItemAlertClass(fawgStatus.Status)}`}>
+                                <span className={"my-3"}>{GetStatusSymbol(fawgStatus.Status)}</span>
+                                <h5
+                                    onMouseEnter={() => setHoveredItem(fawgStatus.Name)}
+                                    onMouseLeave={() => setHoveredItem(null)}
+                                    data-tooltip={`statusbutton${fawgStatus.Name}`}
+                                    className={"m-3"}
+                                >
+                                    {fawgStatus.Name}
+                                </h5>
+                                {fawgStatus.Status !== 'Error' ? null : <p className={"my-3 mx-2"}> {fawgStatus.Details.find((detail) => detail.Status === 'Error')?.Description} </p>}
+                                <ToolTip
+                                    Show={hoveredItem === fawgStatus.Name && status === 'idle' && (fawgStatus.Details.length ?? 0) > 0}
+                                    Position={'right'}
+                                    Target={`statusbutton${fawgStatus.Name}`}
+                                >
+                                    {fawgStatus.Details == null ? <ReactIcons.SpiningIcon /> :
+                                        fawgStatus.Details.map((data, index) => (
+                                            <div
+                                                className={'d-flex'}
+                                                key={index}
+                                            >
+                                                {GetDetailStatusSymbol(data.Status)}
+                                                <p> {data.Description} </p>
+                                            </div>
+                                        ))
+                                    }
+                                </ToolTip>
+                            </div>
+                        </div>
+                    }
                 </fieldset>
             </div >
         : null 
