@@ -36,7 +36,7 @@ interface IProps {
     ForceReload?: boolean;
 }
 
-const RowsPerPage = 50;
+const RowsPerPage = 5;
 
 export default function ResultDisplay(props: IProps) {
     const [datastatus, setDataStatus] = React.useState<Application.Types.Status>('uninitiated');
@@ -84,6 +84,9 @@ export default function ResultDisplay(props: IProps) {
         const updatedCols = Object.keys(externalData[0]).filter(col => col != "__tempXdaKey__");
         if (!_.isEqual(updatedCols, cols))
             setCols(updatedCols);
+        if (sortExt === "") {
+            setSortExt(updatedCols[0]) // set a default column to sort by, so as not to break pagination by using FETCH without ORDER BY. 
+        }
     }, [externalData]);
 
     return <>
