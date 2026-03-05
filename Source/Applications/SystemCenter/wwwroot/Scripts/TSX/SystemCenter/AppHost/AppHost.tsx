@@ -38,9 +38,9 @@ const AppHost: Application.Types.iByComponent = (props) => {
 
     const shouldHaveTwoRows = useMediaQuery('(max-height: 1000px)');
 
-    const shouldHaveTwoCols = useMediaQuery('(max-width: 1000px)');
-    const shouldHaveThreeCols = useMediaQuery('(max-width: 1300px)');
-    const shouldHaveFourCols = useMediaQuery('(max-width: 1600px)');
+    const shouldHaveTwoCols = useMediaQuery('(max-width: 1750px)');
+
+    const shouldHaveOneCol = useMediaQuery('(max-width: 1250px)');
 
     React.useEffect(() => {
         if (status == 'changed' || status == 'uninitiated') {
@@ -67,7 +67,7 @@ const AppHost: Application.Types.iByComponent = (props) => {
             <div style={{ width: '100%', height: '100%', overflowY: 'auto' }}>
                 <LoadingScreen Show={status == 'loading'} />
                 <ServerErrorIcon Show={status == 'error'} />
-                <LayoutGrid RowsPerPage={3} ColMax={shouldHaveTwoCols ? 2 : 3} >
+                <LayoutGrid RowsPerPage={shouldHaveTwoRows ? 2 : 3} ColMax={ shouldHaveOneCol ? 1 : shouldHaveTwoCols ? 2 : 3 }>
                     {hosts.map((h, i) => <ApplicationCard {...h}
                         OpenConsole={() => setConsole(h)}
                         OpenStats={() => setStats(h)}

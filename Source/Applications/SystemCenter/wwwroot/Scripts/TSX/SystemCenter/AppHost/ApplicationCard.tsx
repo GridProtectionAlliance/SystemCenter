@@ -72,8 +72,9 @@ const Applicationcard = (props: IHost) => {
     return (
         <>
             <div className="card h-100">
-                <img className="card-img-top" src={props.Image} alt="SystemCenter" style={{maxWidth: '300px'}} />
-                <div className="card-body">
+                <div className="card-body row justify-content-center align-items-center">
+                    <img className="img-fluid" src={props.Image} alt="SystemCenter" style={{ width: '30%' }} />
+                    <div>
                     {status == 'Online' ? <span className="badge badge-pill badge-success">Online</span> : null}
                     {status == 'Unknown' ? <span className="badge badge-pill badge-danger">Offline</span> : null}
                     {status == 'Loading' ? <span className="badge badge-pill badge-secondary">...Loading</span> : null}
@@ -82,7 +83,8 @@ const Applicationcard = (props: IHost) => {
                             {p.Name}
                             <span className="badge badge-info" style={{ marginLeft: 10 }}>{p.Value}</span>
                         </li>)} 
-                    </ul>
+                        </ul>
+                    </div>
                 </div>
                 <div className="card-footer">
                     <button className="btn btn-info" onClick={() => props.OpenConsole()}>Console</button>
