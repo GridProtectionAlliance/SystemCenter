@@ -64,7 +64,7 @@ export default function ResultDisplay(props: IProps) {
 
     React.useEffect(() => {
         setDataStatus('loading');
-        const dataHandle = props.GetTable(page * RowsPerPage + 1, (page + 1) * RowsPerPage, filters, sortExt, ascExt);
+        const dataHandle = props.GetTable((page * RowsPerPage) + 1, ((page + 1) * RowsPerPage + 1), filters, sortExt, ascExt);
 
         dataHandle.then((d) => {
             const keyedData = d?.map((datum, index) => ({ ...datum, __tempXdaKey__: index }));
