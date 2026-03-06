@@ -53,8 +53,8 @@ export default function ResultDisplay(props: IProps) {
         setCountStatus('loading');
         const countHandle = props.GetCount(filters);
 
-        countHandle.then((d) => { setCount(d);  setCountStatus('idle') },
-            (d) => {if (d.statusText === 'abort') return; setCountStatus('error')})
+        countHandle.then((d) => { setCount(d); setCountStatus('idle') },
+            (d) => { if (d.statusText === 'abort') return; setCountStatus('error') })
         return () => {
             if (countHandle != null && countHandle.abort != null) countHandle.abort()
         }
@@ -64,7 +64,7 @@ export default function ResultDisplay(props: IProps) {
 
     React.useEffect(() => {
         setDataStatus('loading');
-        const dataHandle = props.GetTable(page * RowsPerPage + 1, (page + 1) * RowsPerPage, filters, sortExt, ascExt);
+        const dataHandle = props.GetTable((page * RowsPerPage) + 1, ((page + 1) * RowsPerPage + 1), filters, sortExt, ascExt);
 
         dataHandle.then((d) => {
             const keyedData = d?.map((datum, index) => ({ ...datum, __tempXdaKey__: index }));
@@ -72,7 +72,7 @@ export default function ResultDisplay(props: IProps) {
             setDataStatus('idle');
             if (keyedData == null || keyedData.length == 0)
                 setCount(0);
-        }, (d) => {if (d.statusText === 'abort') return; setDataStatus('error')})
+        }, (d) => { if (d.statusText === 'abort') return; setDataStatus('error') })
         return () => {
             if (dataHandle != null && dataHandle.abort != null) dataHandle.abort()
         }
@@ -84,12 +84,15 @@ export default function ResultDisplay(props: IProps) {
         const updatedCols = Object.keys(externalData[0]).filter(col => col != "__tempXdaKey__");
         if (!_.isEqual(updatedCols, cols))
             setCols(updatedCols);
+        if (sortExt === "") {
+            setSortExt(updatedCols[0]) // set a default column to sort by, so as not to break pagination by using FETCH without ORDER BY. 
+        }
     }, [externalData]);
 
     return <>
-        <ServerErrorIcon Show={countstatus === 'error' || datastatus === 'error'} Size = {40}
-            Label = { 'Could not query external database table. Please contact your administrator.'}
-            />
+        <ServerErrorIcon Show={countstatus === 'error' || datastatus === 'error'} Size={40}
+            Label={'Could not query external database table. Please contact your administrator.'}
+        />
         <LoadingScreen Show={countstatus === 'loading' || datastatus === 'loading'} />
         <div className="row" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="col" style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
@@ -117,17 +120,16 @@ export default function ResultDisplay(props: IProps) {
                             }
                         }}
                     >
-                        {cols.map(col =>
-                        <ConfigurableColumn Key={col} Default={true} Label={col} key={col}>
-                            <Column<any> key={col}
-                                Key={col} Field={col}
-                                AllowSort={true} Adjustable={false}
-                                HeaderStyle={{ width: 'auto', minWidth: '20%' }}
-                                RowStyle={{ width: 'auto', minWidth: '20%' }}
-                            >{col}
-                            </Column>
-                        </ConfigurableColumn>
-                        )}
+                        {
+                            cols.map(col =>
+                                <ConfigurableColumn Key={col} Default={true} Label={col} key={col}>
+                                    <Column<any> key={col}
+                                        Key={col} Field={col}
+                                        AllowSort={true} Adjustable={false}
+                                    >{col}
+                                    </Column>
+                                </ConfigurableColumn>
+                            )}
                     </ConfigurableTable> : null}
             </div>
         </div>
