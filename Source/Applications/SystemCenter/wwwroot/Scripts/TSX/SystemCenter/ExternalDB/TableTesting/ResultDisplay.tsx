@@ -36,7 +36,7 @@ interface IProps {
     ForceReload?: boolean;
 }
 
-const RowsPerPage = 5;
+const RowsPerPage = 50;
 
 export default function ResultDisplay(props: IProps) {
     const [datastatus, setDataStatus] = React.useState<Application.Types.Status>('uninitiated');
@@ -53,8 +53,8 @@ export default function ResultDisplay(props: IProps) {
         setCountStatus('loading');
         const countHandle = props.GetCount(filters);
 
-        countHandle.then((d) => { setCount(d);  setCountStatus('idle') },
-            (d) => {if (d.statusText === 'abort') return; setCountStatus('error')})
+        countHandle.then((d) => { setCount(d); setCountStatus('idle') },
+            (d) => { if (d.statusText === 'abort') return; setCountStatus('error') })
         return () => {
             if (countHandle != null && countHandle.abort != null) countHandle.abort()
         }
@@ -72,7 +72,7 @@ export default function ResultDisplay(props: IProps) {
             setDataStatus('idle');
             if (keyedData == null || keyedData.length == 0)
                 setCount(0);
-        }, (d) => {if (d.statusText === 'abort') return; setDataStatus('error')})
+        }, (d) => { if (d.statusText === 'abort') return; setDataStatus('error') })
         return () => {
             if (dataHandle != null && dataHandle.abort != null) dataHandle.abort()
         }
@@ -90,9 +90,9 @@ export default function ResultDisplay(props: IProps) {
     }, [externalData]);
 
     return <>
-        <ServerErrorIcon Show={countstatus === 'error' || datastatus === 'error'} Size = {40}
-            Label = { 'Could not query external database table. Please contact your administrator.'}
-            />
+        <ServerErrorIcon Show={countstatus === 'error' || datastatus === 'error'} Size={40}
+            Label={'Could not query external database table. Please contact your administrator.'}
+        />
         <LoadingScreen Show={countstatus === 'loading' || datastatus === 'loading'} />
         <div className="row" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="col" style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
@@ -120,17 +120,16 @@ export default function ResultDisplay(props: IProps) {
                             }
                         }}
                     >
-                        {cols.map(col =>
-                        <ConfigurableColumn Key={col} Default={true} Label={col} key={col}>
-                            <Column<any> key={col}
-                                Key={col} Field={col}
-                                AllowSort={true} Adjustable={false}
-                                HeaderStyle={{ width: 'auto', minWidth: '20%' }}
-                                RowStyle={{ width: 'auto', minWidth: '20%' }}
-                            >{col}
-                            </Column>
-                        </ConfigurableColumn>
-                        )}
+                        {
+                            cols.map(col =>
+                                <ConfigurableColumn Key={col} Default={true} Label={col} key={col}>
+                                    <Column<any> key={col}
+                                        Key={col} Field={col}
+                                        AllowSort={true} Adjustable={false}
+                                    >{col}
+                                    </Column>
+                                </ConfigurableColumn>
+                            )}
                     </ConfigurableTable> : null}
             </div>
         </div>
