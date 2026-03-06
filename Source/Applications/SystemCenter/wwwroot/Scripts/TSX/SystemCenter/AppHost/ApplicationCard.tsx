@@ -73,15 +73,15 @@ const Applicationcard = (props: IHost) => {
         <div className="d-flex h-100 flex-column">
             <div className="card h-100 container">
                 <div className="card-body row justify-content-around align-items-center">
-                    <div className="col-6">
-                        <img className="img-fluid" src={props.Image} alt="SystemCenter" style={{maxWidth: '200px'}} />
+                    <div className="col-3">
+                        <img className="img-fluid" src={props.Image} alt="SystemCenter" style={{maxWidth: '200px', width: '150%'}} />
                     </div>
                    
-                    <div className="col-6">
-                    {status == 'Online' ? <span className="badge badge-pill badge-success">Online</span> : null}
-                    {status == 'Unknown' ? <span className="badge badge-pill badge-danger">Offline</span> : null}
-                    {status == 'Loading' ? <span className="badge badge-pill badge-secondary">...Loading</span> : null}
+                    <div className="col-5">
                         <ul className="list-group list-group-flush">
+                            {status == 'Online' ? <li className="list-group-item" key={'status'}> <span className="badge badge-pill badge-success">Online</span> </li> : null}
+                            {status == 'Unknown' ? <li className="list-group-item" key={'status'}> <span className="badge badge-pill badge-danger">Offline</span> </li> : null}
+                            {status == 'Loading' ? <li className="list-group-item" key={'status'}> <span className="badge badge-pill badge-secondary">...Loading</span> </li> : null}
                             {props.Properties.map((p, i) => <li className="list-group-item" key={i}>
                                 {p.Name}
                                 <span className="badge badge-info" style={{ marginLeft: 10 }}>{p.Value}</span>

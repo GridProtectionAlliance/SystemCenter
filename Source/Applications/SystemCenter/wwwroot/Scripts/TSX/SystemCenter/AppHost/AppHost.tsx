@@ -38,7 +38,6 @@ const AppHost: Application.Types.iByComponent = (props) => {
 
     const shouldHaveTwoRowsHeight = useMediaQuery('(max-height: 1000px)');
 
-    const shouldHaveTwoRowsWidth = useMediaQuery('(max-width: 1250px)');
 
     const shouldHaveTwoCols = useMediaQuery('(max-width: 1750px)');
 
@@ -67,7 +66,7 @@ const AppHost: Application.Types.iByComponent = (props) => {
             <div style={{ width: '100%', height: '100%', overflowY: 'auto' }}>
                 <LoadingScreen Show={status == 'loading'} />
                 <ServerErrorIcon Show={status == 'error'} />
-                <LayoutGrid RowsPerPage={shouldHaveTwoRowsHeight ? 2 : shouldHaveTwoRowsWidth ? 2 : 3} ColMax={shouldHaveTwoCols ? 2 : 3 }>
+                <LayoutGrid RowsPerPage={shouldHaveTwoRowsHeight ? 2 : 3} ColMax={shouldHaveTwoCols ? 2 : 3 }>
                     {hosts.map((h, i) => <ApplicationCard {...h}
                         OpenConsole={() => setConsole(h)}
                         OpenStats={() => setStats(h)}
