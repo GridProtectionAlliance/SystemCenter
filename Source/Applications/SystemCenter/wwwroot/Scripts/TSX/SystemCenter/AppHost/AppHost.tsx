@@ -67,7 +67,7 @@ const AppHost: Application.Types.iByComponent = (props) => {
             <div style={{ width: '100%', height: '100%', overflowY: 'auto' }}>
                 <LoadingScreen Show={status == 'loading'} />
                 <ServerErrorIcon Show={status == 'error'} />
-                <LayoutGrid RowsPerPage={shouldHaveTwoRows ? 2 : 3} ColMax={ shouldHaveOneCol ? 1 : shouldHaveTwoCols ? 2 : 3 }>
+                <LayoutGrid RowsPerPage={shouldHaveOneCol ? 2 : shouldHaveTwoRows ? 2 : 3} ColMax={ shouldHaveOneCol ? 1 : shouldHaveTwoCols ? 2 : 3 }>
                     {hosts.map((h, i) => <ApplicationCard {...h}
                         OpenConsole={() => setConsole(h)}
                         OpenStats={() => setStats(h)}

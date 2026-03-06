@@ -70,29 +70,32 @@ const Applicationcard = (props: IHost) => {
         return h;
     }
     return (
-        <>
-            <div className="card h-100">
-                <div className="card-body row justify-content-center align-items-center">
-                    <img className="img-fluid" src={props.Image} alt="SystemCenter" style={{ width: '30%' }} />
-                    <div>
+        <div className="d-flex h-100 flex-column">
+            <div className="card h-100 container">
+                <div className="card-body row justify-content-around align-items-center">
+                    <div className="col-6">
+                        <img className="img-fluid" src={props.Image} alt="SystemCenter" style={{maxWidth: '200px'}} />
+                    </div>
+                   
+                    <div className="col-6">
                     {status == 'Online' ? <span className="badge badge-pill badge-success">Online</span> : null}
                     {status == 'Unknown' ? <span className="badge badge-pill badge-danger">Offline</span> : null}
                     {status == 'Loading' ? <span className="badge badge-pill badge-secondary">...Loading</span> : null}
-                    <ul className="list-group list-group-flush">
-                        {props.Properties.map((p, i) => <li className="list-group-item" key={i}>
-                            {p.Name}
-                            <span className="badge badge-info" style={{ marginLeft: 10 }}>{p.Value}</span>
+                        <ul className="list-group list-group-flush">
+                            {props.Properties.map((p, i) => <li className="list-group-item" key={i}>
+                                {p.Name}
+                                <span className="badge badge-info" style={{ marginLeft: 10 }}>{p.Value}</span>
                         </li>)} 
                         </ul>
                     </div>
                 </div>
-                <div className="card-footer">
-                    <button className="btn btn-info" onClick={() => props.OpenConsole()}>Console</button>
+                <div className="card-footer row justify-content-between">
+                    <button className="btn btn-info col-3" onClick={() => props.OpenConsole()}>Console</button>
                     {props.App === 'MiMD' ? null :
-                        <button className="btn btn-info pull-right" onClick={() => props.OpenStats()}>Status</button>
+                        <button className="btn btn-info col-3" onClick={() => props.OpenStats()}>Status</button>
                     }
                 </div>
             </div>
-         </>)
+        </div>)
 }
 export default Applicationcard;
