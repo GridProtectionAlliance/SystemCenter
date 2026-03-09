@@ -37,9 +37,8 @@ const AppHost: Application.Types.iByComponent = (props) => {
     const [stats, setStats] = React.useState<IHost | null>(null);
 
     const shouldHaveTwoRowsHeight = useMediaQuery('(max-height: 1000px)');
-
-
     const shouldHaveTwoCols = useMediaQuery('(max-width: 1750px)');
+    const shouldBeSmall = useMediaQuery('(max-width: 1200px)');
 
     React.useEffect(() => {
         if (status == 'changed' || status == 'uninitiated') {
@@ -71,6 +70,7 @@ const AppHost: Application.Types.iByComponent = (props) => {
                         OpenConsole={() => setConsole(h)}
                         OpenStats={() => setStats(h)}
                         key={i}
+                        IsSmall={shouldBeSmall}
                     />)}
                     </LayoutGrid>    
             </div>
