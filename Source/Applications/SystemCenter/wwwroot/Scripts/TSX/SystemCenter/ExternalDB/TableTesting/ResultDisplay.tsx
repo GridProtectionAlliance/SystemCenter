@@ -89,7 +89,7 @@ export default function ResultDisplay(props: IProps) {
         }
     }, [externalData]);
 
-    return <>
+    return <div>
         <ServerErrorIcon Show={countstatus === 'error' || datastatus === 'error'} Size={40}
             Label={'Could not query external database table. Please contact your administrator.'}
         />
@@ -139,5 +139,5 @@ export default function ResultDisplay(props: IProps) {
                 {count > 0 ? <Paging Current={page + 1} Total={Math.ceil(count / RowsPerPage)} SetPage={(p) => setPage(p - 1)} /> : null}
             </div>
         </div>
-    </>
+    </div>
 }
