@@ -25,6 +25,7 @@ using GSF.Data;
 using GSF.Data.Model;
 using GSF.Web.Model;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using openXDA.APIAuthentication;
 using System;
 using System.Collections.Generic;
@@ -134,9 +135,9 @@ namespace SystemCenter.Model
             public int TotalUnsuccessfulConnections { get; set; }
 
             public int TotalSuccessfulConnections { get; set; }
-
         }
-		public class StatusItem
+
+        public class StatusItem
 		{
 			public string Status { get; set; }
 			public string Description { get; set; }
@@ -272,7 +273,7 @@ namespace SystemCenter.Model
 
             DataTable systemCenterResult = GetSearchResults(systemCenterRequestBody);
 
-			// add empty rows to table for openMIC info
+            // add empty rows to table for openMIC info
             systemCenterResult.Columns.Add("MICStatus");
             systemCenterResult.Columns.Add("MICBadDays", Type.GetType("System.Int32"));
             systemCenterResult.Columns.Add("LastGood");
@@ -330,12 +331,12 @@ namespace SystemCenter.Model
                 if (openMicRequestBody.Searches.Count() == 0) // if not filtered by openMIC, add the rest of systemCenter below 
                 {
                     foreach (DataRow systemCenterRow in systemCenterResult.Rows)
-			{
+                    {
                         DataRow existingRow = resultTable.AsEnumerable().FirstOrDefault(r => String.Equals(r.Field<string>("Name"), systemCenterRow["Name"]));
                         if (existingRow != null)
-				{
-					continue;
-				}
+                        {
+                            continue;
+                        }
                         resultTable.ImportRow(systemCenterRow);
                     }
                 }
@@ -393,14 +394,14 @@ namespace SystemCenter.Model
             foreach (DataRow devHealthReport in systemCenterResult.Rows)
             {
                 if (string.IsNullOrEmpty(devHealthReport.ConvertField<string>("OpenMic")))
-				{
+                {
                     continue;
-				}
+                }
                 DailyStatisticsRecord openMicRecord = openMicStatistics.FirstOrDefault(record => String.Equals(record.Meter, devHealthReport["OpenMic"]));
                 if (openMicRecord is null)
-				{
-					continue;
-				}
+                {
+                    continue;
+                }
                 int totalUnsuccessfulConnections = openMicRecord.TotalUnsuccessfulConnections;
                 devHealthReport["MICStatus"] = "";
                 if (totalUnsuccessfulConnections > errorLevel)
@@ -466,11 +467,11 @@ namespace SystemCenter.Model
                     systemCenterResult = filteredTable;
                 }
                 else
-				{
+                {
                     filteredTable = filteredRows.CopyToDataTable();
                     systemCenterResult = filteredTable;
                 }
-			}
+            }
             return Ok(JsonConvert.SerializeObject(systemCenterResult));
         }
 
@@ -483,16 +484,15 @@ namespace SystemCenter.Model
                 request.Method = HttpMethod.Get;
             }
 
-			AppStatus status = new AppStatus() 
+            AppStatus status = new AppStatus() 
 			{ 
 				Status ="Success",
 				Details = []
 			};
 
 			HttpResponseMessage? openMICResponse = null;
-
             try
-			{
+            {
                 APIQuery apiQuery = GetAPIQuery();
                 openMICResponse = apiQuery.SendWebRequestAsync(ConfigureRequest, $"api/health/getsystemstatus/").Result;
 			}
@@ -586,8 +586,8 @@ namespace SystemCenter.Model
                 request.Method = HttpMethod.Get;
             }
 
-			try
-			{
+            try
+            {
                 APIQuery apiQuery = GetAPIQuery();
 				openMICResponse = apiQuery.SendWebRequestAsync(ConfigureRequest, $"api/health/getsystemstatus/").Result;
 			}
@@ -652,6 +652,48 @@ namespace SystemCenter.Model
 			return Ok(status);
 		}
 
+        [HttpGet, Route("OpenMICMeterStatistics")]
+        public IHttpActionResult GetOpenMICMeterStatistics([FromUri] string meter) 
+        {
+            DailyStatisticsRecord[] meterStatistics = [];
+            OpenMICDailyStatistic[] micDailyStatistics = [];
+            void ConfigureRequest(HttpRequestMessage request)
+            {
+                request.Method = HttpMethod.Get;
+            }
+            try
+            {
+                APIQuery apiQuery = GetAPIQuery();
+                HttpResponseMessage response = apiQuery.SendWebRequestAsync(ConfigureRequest, $"api/DailyStatistics/Get/?meter={meter}").Result;
+                string responseContent = response.Content.ReadAsStringAsync().Result;
+                string trimmedResponse = responseContent.Trim('"');
+                string unescapedResponse = Regex.Unescape(trimmedResponse);
+                meterStatistics = JsonConvert.DeserializeObject<DailyStatisticsRecord[]>(unescapedResponse);
+                foreach (DailyStatisticsRecord record in meterStatistics)
+                {
+                    micDailyStatistics = micDailyStatistics.Append(new()
+                    {
+                        ID = record.ID,
+                        Date = record.Timestamp.ToString(),
+                        Meter = record.Meter,
+                        LastSuccessfulConnection = record.LastSuccessfulConnection,
+                        LastUnsuccessfulConnection = record.LastUnsuccessfulConnection,
+                        LastUnsuccessfulConnectionExplanation = record.LastUnsuccessfulConnectionExplanation,
+                        TotalConnections = record.TotalConnections,
+                        TotalSuccessfulConnections = record.TotalSuccessfulConnections,
+                        TotalUnsuccessfulConnections = record.TotalUnsuccessfulConnections,
+                        BadDays = record.BadDays,
+                        Status = ""
+                    }).ToArray();
+                }
+            }
+            catch (Exception e)
+            {
+                return Ok();
+            }
+            return Ok(JsonConvert.SerializeObject(micDailyStatistics));
+        }
+        
         public static APIQuery GetAPIQuery()
         {
             using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
