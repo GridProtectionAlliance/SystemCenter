@@ -1,23 +1,11 @@
-<h4>Jira Issue(s)</h4>  
-
-*<h6>Format example: SC-###, GEM-###</h6>*
-
-<br />
+What does this PR add or solve? What should the reviewer know about your changes? Provide sufficient detail.
 
 ---
-<h4>Description</h4>  
+**Jira Work Item(s)**
 
-*<h6>Include what is being changed and why.</h6>*  
-<br />
-
----
-<h4>How/Where to test OR Detail how it was tested</h4>  
-
-*<h6>Include path/link to any necessary files if applicable.</h6>*  
-
-1.   
+- List issue(s), links optional
 
 ---
-<h5>Related PRs</h5>  
+**The following PR(s) need to be merged prior to this one:**
 
-*<h6>Include links to any related PRs here.</h6>*  
+[] List links to PRs required by this PR here. Check the corresponding box once required PR is merged.
