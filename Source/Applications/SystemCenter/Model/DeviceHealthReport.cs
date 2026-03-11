@@ -25,7 +25,6 @@ using GSF.Data;
 using GSF.Data.Model;
 using GSF.Web.Model;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using openXDA.APIAuthentication;
 using System;
 using System.Collections.Generic;
@@ -35,8 +34,6 @@ using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web.Http;
-using SystemCenter.Controllers;
-using System.Collections.Generic;
 
 namespace SystemCenter.Model
 {
