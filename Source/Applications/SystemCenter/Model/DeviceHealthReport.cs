@@ -51,9 +51,9 @@ namespace SystemCenter.Model
 		afvtsc.Value as TSC,
 		afvsector.Value as Sector,
 		afvip.Value as IP,
-		bds.BadDays,
-		mimdstat.BadDays as MiMDBadDays,
-		xdastat.BadDays as XDABadDays,
+		ISNULL(bds.BadDays, 0) as BadDays,
+		ISNULL(mimdstat.BadDays, 0) as MiMDBadDays,
+		ISNULL(xdastat.BadDays, 0) as XDABadDays,
 		mimdstat.[Status] as MiMDStatus,
 		xdastat.[Status] as XDAStatus,
 		dqstat.[Status] as DQStatus,
@@ -289,7 +289,7 @@ namespace SystemCenter.Model
                 foreach (DailyStatisticsRecord record in openMicStatistics)
                 {
                     string openMICAcronym = record.Meter;
-                    // if there is already a statistic from the meter, delete the other if this timestamp is newer, otherwise skip
+
                     DataRow systemCenterRow = systemCenterResult.AsEnumerable().FirstOrDefault(r => String.Equals(r.Field<string>("OpenMIC"), record.Meter));
                     if (systemCenterRow is null) // could be possible due to filters
                     {
