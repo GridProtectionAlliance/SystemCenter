@@ -32,6 +32,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Web.Http;
 using SystemCenter.Controllers;
 using System.Collections.Generic;
@@ -174,6 +176,12 @@ namespace SystemCenter.Model
 		[HttpGet, Route("OpenMICStatus")]
         public IHttpActionResult GetOpenMICStatus()
 		{
+
+            void ConfigureRequest(HttpRequestMessage request)
+            {
+                request.Method = HttpMethod.Get;
+            }
+
 			AppStatus status = new AppStatus() 
 			{ 
 				Status ="Success",
@@ -184,8 +192,8 @@ namespace SystemCenter.Model
 
             try
 			{
-				openMICResponse = GetHealth("OpenMIC", $"api/health/getsystemstatus/");
-				
+                APIQuery apiQuery = GetAPIQuery();
+                openMICResponse = apiQuery.SendWebRequestAsync(ConfigureRequest, $"api/health/getsystemstatus/").Result;
 			}
 			catch
 			{
@@ -270,9 +278,17 @@ namespace SystemCenter.Model
                 Details = []
             };
 			HttpResponseMessage openMICResponse = null;
+
+
+            void ConfigureRequest(HttpRequestMessage request)
+            {
+                request.Method = HttpMethod.Get;
+            }
+
 			try
 			{
-                openMICResponse = GetHealth("OpenMIC", $"api/health/getsystemstatus/");
+                APIQuery apiQuery = GetAPIQuery();
+				openMICResponse = apiQuery.SendWebRequestAsync(ConfigureRequest, $"api/health/getsystemstatus/").Result;
 			}
 			catch
 			{
@@ -292,7 +308,8 @@ namespace SystemCenter.Model
 			HttpResponseMessage scadaTriggerResponse = null;
 			try
 			{
-				scadaTriggerResponse = GetHealth("OpenMIC", $"api/health/getscadatriggerhealth/");
+                APIQuery apiQuery = GetAPIQuery();
+                scadaTriggerResponse = apiQuery.SendWebRequestAsync(ConfigureRequest, $"api/health/getscadatriggerhealth/").Result;
 			}
 			catch
 			{
@@ -334,29 +351,18 @@ namespace SystemCenter.Model
 			return Ok(status);
 		}
 
-        /// <summary>
-        /// Processes Get request from an application using settings table parameters.
-        /// Exceptions are expected to be handled by the caller.
-        /// </summary>
-        /// <param name="application">Name of Application</param>
-        /// <param name="requestURI">Path to specific API request</param>
-        /// <returns>string</returns>
-        public static HttpResponseMessage GetHealth(string application, string requestURI)
+        public static APIQuery GetAPIQuery()
         {
             using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
             {
-                string url = new TableOperations<Setting>(connection).QueryRecordWhere($"Name = '{application}.Url'")?.Value ?? "";
-                string credential = new TableOperations<Setting>(connection).QueryRecordWhere($"Name = '{application}.Credential'")?.Value ?? "";
-                string password = new TableOperations<Setting>(connection).QueryRecordWhere($"Name = '{application}.Password'")?.Value ?? "";
+                string url = new TableOperations<Setting>(connection).QueryRecordWhere($"Name = 'OpenMIC.Url'")?.Value ?? "";
+                string credential = new TableOperations<Setting>(connection).QueryRecordWhere($"Name = 'OpenMIC.Credential'")?.Value ?? "";
+                string password = new TableOperations<Setting>(connection).QueryRecordWhere($"Name = 'OpenMIC.Password'")?.Value ?? "";
 
-                void ConfigureRequest(HttpRequestMessage request)
-                {
-                    request.Method = HttpMethod.Get;
-                }
                 //string token = GenerateAntiForgeryToken(application);
                 //return Get(httpClient, url, requestURI, credential, password, token);
                 APIQuery query = new APIQuery(credential, password, url);
-                return query.SendWebRequestAsync(ConfigureRequest, requestURI).Result;
+                return query;
             }
         }
     }
