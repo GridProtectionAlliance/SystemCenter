@@ -125,6 +125,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                             <Page Name={"index.cshtml?name=Settings&System=SEBrowser"} Label={"PQ Browser"} />
                             <Page Name={"index.cshtml?name=Settings&System=OpenSEE"} Label={"OpenSEE"} />
                             <Page Name={"index.cshtml?name=Settings&System=MiMD"} Label={"miMD"} />
+                            <Page Name={"index.cshtml?name=Settings&System=PQDigest"} Label={"PQ Digest"} />
                             <Page Name={"index.cshtml?name=ByAdditionalField"} Label={"Additional Fields"} />
                         </Section>
                         <Section Label={"ACCESS"} Style={{ marginLeft: "10px" }} RequiredRoles={["Administrator"]}>

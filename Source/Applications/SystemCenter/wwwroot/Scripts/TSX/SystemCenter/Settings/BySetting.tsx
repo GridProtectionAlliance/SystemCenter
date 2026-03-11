@@ -22,13 +22,13 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { MiMDSettingSlice, OpenSEESettingSlice, OpenXDASettingSlice, SystemCenterSettingSlice, SEBrowserSettingSlice } from '../Store/Store';
+import { MiMDSettingSlice, OpenSEESettingSlice, OpenXDASettingSlice, SystemCenterSettingSlice, SEBrowserSettingSlice, PQDigestSettingSlice } from '../Store/Store';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { SystemCenter as LocalSC } from '../global';
 import Setting from './Setting';
 
 interface IProps {
-    System: 'SystemCenter' | 'MiMD' | 'OpenXDA' | 'OpenSEE' | 'SEBrowser',
+    System: 'SystemCenter' | 'MiMD' | 'OpenXDA' | 'OpenSEE' | 'SEBrowser' | 'PQDigest',
     Roles: Application.Types.SecurityRoleName[]
 }
 
@@ -43,7 +43,9 @@ const BySetting = (props: IProps) => {
     if (props.System == 'OpenSEE')
         return <Setting SettingsSlice={OpenSEESettingSlice} DefaultSetting={emptySetting} key='OpenSEE' />
     if (props.System == 'SEBrowser')
-        return <Setting SettingsSlice={SEBrowserSettingSlice} DefaultSetting={emptySEBSetting}  key='SEBrowser' />
+        return <Setting SettingsSlice={SEBrowserSettingSlice} DefaultSetting={emptySEBSetting} key='SEBrowser' />
+    if (props.System == 'PQDigest')
+        return <Setting SettingsSlice={PQDigestSettingSlice} DefaultSetting={emptySetting} key='PQDigest' />
     return <Setting SettingsSlice={OpenXDASettingSlice} DefaultSetting={emptySetting} key='OpenXDA' />
 }
 export default BySetting;
