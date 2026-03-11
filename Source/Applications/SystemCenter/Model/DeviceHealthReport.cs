@@ -683,7 +683,7 @@ namespace SystemCenter.Model
                         TotalSuccessfulConnections = record.TotalSuccessfulConnections,
                         TotalUnsuccessfulConnections = record.TotalUnsuccessfulConnections,
                         BadDays = record.BadDays,
-                        Status = ""
+                        Status = (record.TotalUnsuccessfulConnections >= 50) ? (record.TotalUnsuccessfulConnections >= 100) ? "Error" : "Warning" : "" 
                     }).ToArray();
                 }
             }
