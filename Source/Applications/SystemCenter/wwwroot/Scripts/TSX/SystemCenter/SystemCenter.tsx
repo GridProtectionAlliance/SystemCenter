@@ -88,8 +88,8 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 OtherActivePages={["index.cshtml?name=Meter", "index.cshtml?name=ConfigurationHistory", "index.cshtml?name=NewMeterWizard"]} />
                             <Page Name={"index.cshtml?name=Locations"} Label={"Substations"} OtherActivePages={["index.cshtml?name=Location"]} />
                             <Page Name={"index.cshtml?name=Assets"} Label={"Assets"} OtherActivePages={["index.cshtml?name=Asset&"]} />
-                            <Page Name={"index.cshtml?name=AssetGroups"} Label={"Asset Groups"} OtherActivePages={["index.cshtml?name=AssetGroup"]} />
                             <Page Name={"index.cshtml?name=LineSegments"} Label={"Line Segments"} OtherActivePages={["index.cshtml?name=LineSegment"]} />
+                            <Page Name={"index.cshtml?name=AssetGroups"} Label={"Asset Groups"} OtherActivePages={["index.cshtml?name=AssetGroup"]} />
                             <Page Name={"index.cshtml?name=PQViewCustomers"} Label={"Customers"} OtherActivePages={["index.cshtml?name=Customer"]} />
                             <Page Name={"index.cshtml?name=DeviceHealthReport"} Label={"Device Health Report"} OtherActivePages={["index.cshtml?name=DeviceIssuesPage"]} />
                         </Section>
@@ -111,9 +111,8 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                             <Page Name={"index.cshtml?name=ChannelGroups"} Label={"Channel Groups"} OtherActivePages={["index.cshtml?name=ChannelGroup"]} />
                             <Page Name={"index.cshtml?name=SEBrowserTabs"} Label={"PQ Browser Tabs"} OtherActivePages={["index.cshtml?name=SEBrowserTab"]} />
                             <Page Name={"index.cshtml?name=SEBrowserWidget"} Label={"PQ Browser Widgets"} />
-                            <Page Name={"index.cshtml?name=PQDigestWidget"} Label={"PQ Digest Widgets"} />
                             <Page Name={"index.cshtml?name=PQDigestHomePage"} Label={"PQ Digest Home"} />
-
+                            <Page Name={"index.cshtml?name=PQDigestWidget"} Label={"PQ Digest Widgets"} />
                             <Page Name={"index.cshtml?name=MagDurCurves"} Label={"MagDur Curves"} />
                             <Page Name={"index.cshtml?name=EventTags"} Label={"Event Tags"} />
                             <Page Name={"index.cshtml?name=ByApplicationCategory"} Label={"Application Categories"} OtherActivePages={["index.cshtml?name=ApplicationCategory"]} />
@@ -123,7 +122,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                             <Page Name={"index.cshtml?name=Settings&System=SystemCenter"} Label={"System Center"} />
                             <Page Name={"index.cshtml?name=Settings&System=OpenXDA"} Label={"openXDA"} />
                             <Page Name={"index.cshtml?name=Settings&System=SEBrowser"} Label={"PQ Browser"} />
-                            <Page Name={"index.cshtml?name=Settings&System=OpenSEE"} Label={"OpenSEE"} />
+                            <Page Name={"index.cshtml?name=Settings&System=OpenSEE"} Label={"openSEE"} />
                             <Page Name={"index.cshtml?name=Settings&System=MiMD"} Label={"miMD"} />
                             <Page Name={"index.cshtml?name=Settings&System=PQDigest"} Label={"PQ Digest"} />
                             <Page Name={"index.cshtml?name=ByAdditionalField"} Label={"Additional Fields"} />
