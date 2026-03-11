@@ -32,7 +32,7 @@ import { SystemCenterSettingSlice } from '../Store/Store';
 import moment from 'moment';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import AppStatus from './AppStatus'
-import { ErrorBoundary } from '@gpa-gemstone/common-pages'
+import  { ToolTip } from '@gpa-gemstone/react-forms'
 
 const defaultSearchcols: Search.IField<SCGlobal.DeviceHealthReport>[] = [
     { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
@@ -65,6 +65,7 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
 
     const settings = useAppSelector(SystemCenterSettingSlice.Data);
     const settingStatus = useAppSelector(SystemCenterSettingSlice.Status);
+    const [hovered, setHovered] = React.useState<number>(null);
 
     React.useEffect(() => {
         let handle = getMeters();
@@ -81,7 +82,6 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
 
     React.useEffect(() => {
         let handle = getAdditionalFields();
-
         return () => {
             if (handle.abort != null) handle.abort();
         }
@@ -93,11 +93,9 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
     }, [settingStatus]);
 
 
-
     function getMeters(): JQuery.jqXHR<string>{
         setSearchState('Loading');
         let searches = search.map(s => { if (defaultSearchcols.findIndex(item => item.key == s.FieldName) == -1) return { ...s, IsPivotColumn: true }; else return s; })
-
         return $.ajax({
             type: "Post",
             url: `${homePath}api/DeviceHealthReport/SearchableList`,
@@ -336,6 +334,38 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                             Field={'BadDays'}
                             HeaderStyle={{ width: 100 }}
                             RowStyle={{ width: 100, textAlign: 'center' }}
+                            Content={({ item, key, index }) => {
+                                if (item[key] == undefined)
+                                    return '';
+                                return(
+                                <>
+                                    <div
+                                        data-tooltip={`badDays${index}`}
+                                        onMouseEnter={() => setHovered(index)}
+                                        onMouseLeave={() => setHovered(null)}
+                                        >
+                                     {item[key]}
+                                    </div>
+                                    <ToolTip
+                                        Show={hovered == index}
+                                        Position={'bottom'}
+                                        Target={`badDays${index}`}
+                                        >
+                                            <ul>
+                                                <li key={0}>
+                                                    {`openMIC: ${item['MICBadDays']}` }
+                                                </li>
+                                                <li key={1}>
+                                                    {`miMD: ${item['MiMDBadDays']}`}
+                                                </li>
+                                                <li key={2}>
+                                                    {`openXDA: ${item['XDABadDays']}`}
+                                                </li>
+                                            </ul>
+                                    </ToolTip>
+                                    </>
+                                )
+                            }}
                         > Bad Days
                         </Column>
                         <Column<SCGlobal.DeviceHealthReport>
