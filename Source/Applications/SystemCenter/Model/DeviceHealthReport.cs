@@ -25,7 +25,6 @@ using GSF.Data;
 using GSF.Data.Model;
 using GSF.Web.Model;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using openXDA.APIAuthentication;
 using System;
 using System.Collections.Generic;
@@ -256,7 +255,18 @@ namespace SystemCenter.Model
             systemCenterResult.Columns.Add("MICBadDays", Type.GetType("System.Int32"));
             systemCenterResult.Columns.Add("LastGood");
 
-            // ADD A FILTER TO FILTER OPEN MIC RECORDS BY WHAT IS IN SYSTEM CENTER
+            // get a list of meters to search for in open mic
+            string[] openMICMeters = systemCenterResult.AsEnumerable()
+                .Select(row => row.Field<string>("OpenMIC")).Where(openMIC => openMIC != "").ToArray();
+
+            SQLSearchFilter openMICMeterFilter = new()
+            {
+                SearchText = $"({String.Join(",", openMICMeters)})",
+                Operator = "IN",
+                FieldName = "Meter"
+            };
+
+            openMicRequestBody.Searches.Append(openMICMeterFilter);
 
             DailyStatisticsRecord[] openMicStatistics;
 
