@@ -683,6 +683,6 @@ namespace SystemCenter.Model
         }
 
         public int WarningLevel { get; set; } = 50;
-        public int ErrorLevel { get; set; } = 50;
+        public int ErrorLevel { get; set; } = 100;
     }
 }
