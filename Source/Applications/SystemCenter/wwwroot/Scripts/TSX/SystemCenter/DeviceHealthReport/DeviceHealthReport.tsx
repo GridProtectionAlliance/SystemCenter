@@ -32,7 +32,7 @@ import { SystemCenterSettingSlice } from '../Store/Store';
 import moment from 'moment';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import AppStatus from './AppStatus'
-import  { ToolTip } from '@gpa-gemstone/react-forms'
+import { ToolTip } from '@gpa-gemstone/react-forms'
 
 const defaultSearchcols: Search.IField<SCGlobal.DeviceHealthReport>[] = [
     { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
@@ -93,7 +93,7 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
     }, [settingStatus]);
 
 
-    function getMeters(): JQuery.jqXHR<string>{
+    function getMeters(): JQuery.jqXHR<string> {
         setSearchState('Loading');
         let searches = search.map(s => { if (defaultSearchcols.findIndex(item => item.key == s.FieldName) == -1) return { ...s, IsPivotColumn: true }; else return s; })
         return $.ajax({
@@ -155,30 +155,30 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
         <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
             <div className="row">
                 <SearchBar<SCGlobal.DeviceHealthReport> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={standardSearch} Width={'50%'} Label={'Search'} StorageID="DeviceHealthReportFilter"
-                ShowLoading={searchState == 'Loading'} ResultNote={searchState == 'Error' ? 'Could not complete Search' : 'Found ' + data.length + ' Meter(s)'}
-                GetEnum={(setOptions, field) => {
-                    let handle = null;
-                    if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
-                        return () => { };
+                    ShowLoading={searchState == 'Loading'} ResultNote={searchState == 'Error' ? 'Could not complete Search' : 'Found ' + data.length + ' Meter(s)'}
+                    GetEnum={(setOptions, field) => {
+                        let handle = null;
+                        if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
+                            return () => { };
 
-                    handle = $.ajax({
-                        type: "GET",
-                        url: `${homePath}api/ValueList/Group/${field.enum[0].Value}`,
-                        contentType: "application/json; charset=utf-8",
-                        dataType: 'json',
-                        cache: true,
-                        async: true
-                    });
+                        handle = $.ajax({
+                            type: "GET",
+                            url: `${homePath}api/ValueList/Group/${field.enum[0].Value}`,
+                            contentType: "application/json; charset=utf-8",
+                            dataType: 'json',
+                            cache: true,
+                            async: true
+                        });
 
-                    handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
-                    return () => { if (handle != null && handle.abort == null) handle.abort(); }
-                }}
+                        handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
+                        return () => { if (handle != null && handle.abort == null) handle.abort(); }
+                    }}
                 >
                     <li className="nav-item">
                         <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                             <legend className="w-auto" style={{ fontSize: 'large' }}>Connection Status:</legend>
                             <div className="form-group">
-                                
+
                                 <AppStatus
                                     Name="openMIC"
                                     Endpoint="OpenMICStatus"
@@ -187,8 +187,8 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                                     Name="Scada Trigger"
                                     Endpoint="ScadaTriggerStatus"
                                 />
-                                
-                             </div>
+
+                            </div>
                         </fieldset>
                     </li>
                 </SearchBar>
@@ -225,7 +225,7 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                             Field={'Name'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                            Content={({ item, field }) => <a href={`${homePath}index.cshtml?name=Meter&MeterID=${item.ID}&MeterName=${item.Name}`} target='_blank'>{item[field]}</a> }
+                            Content={({ item, field }) => <a href={`${homePath}index.cshtml?name=Meter&MeterID=${item.ID}&MeterName=${item.Name}`} target='_blank'>{item[field]}</a>}
                         > Name
                         </Column>
                         <Column<SCGlobal.DeviceHealthReport>
@@ -259,7 +259,7 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                                     return item.LocationKey
                             }}
 
-                                
+
                         > Substn
                         </Column>
                         <Column<SCGlobal.DeviceHealthReport>
@@ -268,7 +268,7 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                             Field={'Model'}
                             HeaderStyle={{ width: '8%' }}
                             RowStyle={{ width: '8%' }}
-                            Content={({ item, field }) => { 
+                            Content={({ item, field }) => {
                                 const MimdUrl = settings.find(s => s.Name == 'MiMD.Url')?.Value;
 
                                 if (MimdUrl != undefined)
@@ -284,7 +284,7 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                             Field={'TSC'}
                             HeaderStyle={{ width: 50 }}
                             RowStyle={{ width: 50 }}
-                            Content={({ item, field }) => <a href={`${homePath}index.cshtml?name=DeviceContacts&ID=${item.TSC}&Name=${item.TSC}&Field=TSC`} target='_blank'>{item[field]}</a> }
+                            Content={({ item, field }) => <a href={`${homePath}index.cshtml?name=DeviceContacts&ID=${item.TSC}&Name=${item.TSC}&Field=TSC`} target='_blank'>{item[field]}</a>}
                         > TSC
                         </Column>
                         <Column<SCGlobal.DeviceHealthReport>
@@ -293,7 +293,7 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                             Field={'Sector'}
                             HeaderStyle={{ width: '5%' }}
                             RowStyle={{ width: '5%' }}
-                            Content={({ item, field }) => <a href={`${homePath}index.cshtml?name=DeviceContacts&ID=${item.Sector}&Name=${item.Sector}&Field=Sector`} target='_blank'>{item[field]}</a> }
+                            Content={({ item, field }) => <a href={`${homePath}index.cshtml?name=DeviceContacts&ID=${item.Sector}&Name=${item.Sector}&Field=Sector`} target='_blank'>{item[field]}</a>}
                         > Sector
                         </Column>
                         <Column<SCGlobal.DeviceHealthReport>
@@ -337,24 +337,25 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                             Content={({ item, key, index }) => {
                                 if (item[key] == undefined)
                                     return '';
-                                return(
-                                <>
-                                    <div
-                                        data-tooltip={`badDays${index}`}
-                                        onMouseEnter={() => setHovered(index)}
-                                        onMouseLeave={() => setHovered(null)}
+                                return (
+                                    <>
+                                        <div
+                                            data-tooltip={`badDays${index}`}
+                                            onMouseEnter={() => setHovered(index)}
+                                            onMouseLeave={() => setHovered(null)}
                                         >
-                                     {item[key]}
-                                    </div>
-                                    <ToolTip
-                                        Show={hovered == index}
-                                        Position={'bottom'}
-                                        Target={`badDays${index}`}
+                                            {item[key]}
+                                        </div>
+                                        <ToolTip
+                                            Show={hovered == index}
+                                            Position={'bottom'}
+                                            Target={`badDays${index}`}
                                         >
-                                            <ul>
+                                            <ul> {item['MICBadDays'] == null ? null :
                                                 <li key={0}>
-                                                    {`openMIC: ${item['MICBadDays']}` }
+                                                    {`openMIC: ${item['MICBadDays']}`}
                                                 </li>
+                                            }
                                                 <li key={1}>
                                                     {`miMD: ${item['MiMDBadDays']}`}
                                                 </li>
@@ -362,7 +363,7 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                                                     {`openXDA: ${item['XDABadDays']}`}
                                                 </li>
                                             </ul>
-                                    </ToolTip>
+                                        </ToolTip>
                                     </>
                                 )
                             }}
