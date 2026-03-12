@@ -285,6 +285,14 @@ namespace SystemCenter.Model
             {
                 resultTable = FilterBadDays(resultTable, badDayFilter);
             }
+
+            if (postData.OrderBy == "BadDays")
+            {
+                DataView dataView = resultTable.DefaultView;
+                string asc = postData.Ascending ? "ASC" : "DESC";
+                dataView.Sort = $"BadDays {asc}";
+                resultTable = dataView.ToTable();
+            }
            
             return Ok(JsonConvert.SerializeObject(resultTable));
         }
@@ -574,8 +582,6 @@ namespace SystemCenter.Model
         {
             DataTable resultTable = systemCenterData.Clone();
 
-            Tuple<DataRow, DailyStatisticsRecord?>[] dataTuples = [];
-
             bool openMICFiltered = (postData.Searches.Any(search => Equals(search.FieldName, "LastGood") || Equals(search.FieldName, "MICStatus")));
 
             bool openMICPrecedence = (postData.OrderBy == "LastGood" || postData.OrderBy == "MICStatus");
@@ -593,23 +599,20 @@ namespace SystemCenter.Model
                         continue;
                     }
 
-                    Tuple<DataRow, DailyStatisticsRecord?> newTuple = Tuple.Create(systemCenterRow, record);
-
-                    dataTuples = dataTuples.Append(newTuple).ToArray();
+                    resultTable.ImportRow(CombineRow(systemCenterRow, record));
 
                 }
                 if (!openMICFiltered) // if not filtered by openMIC, add the rest of systemCenter below 
                 {
                     foreach (DataRow systemCenterRow in systemCenterData.Rows)
                     {
-                        Tuple<DataRow, DailyStatisticsRecord?> existingTuple = dataTuples.FirstOrDefault(tuple => Equals(tuple.Item1.Field<string>("Name"), systemCenterRow["Name"]));
-                        if (existingTuple != null)
+                        DataRow existingRow = resultTable.AsEnumerable()
+                            .FirstOrDefault(resultRow => Equals(resultRow.Field<string>("Name"), systemCenterRow["Name"]));
+                        if (existingRow != null)
                         {
                             continue;
                         }
-                        Tuple<DataRow, DailyStatisticsRecord?> newTuple = Tuple.Create<DataRow, DailyStatisticsRecord?>(systemCenterRow, null);
-
-                        dataTuples = dataTuples.Append(newTuple).ToArray();
+                        resultTable.ImportRow(CombineRow(systemCenterRow, null));
                     }
                 }
             }
@@ -621,8 +624,7 @@ namespace SystemCenter.Model
                     {
                         if (openMICFiltered) { continue; }
 
-                        Tuple<DataRow, DailyStatisticsRecord?> tuple = Tuple.Create<DataRow, DailyStatisticsRecord?>(row, null);
-                        dataTuples = dataTuples.Append(tuple).ToArray();
+                        resultTable.ImportRow(CombineRow(row, null));
                         continue;
                     }
                     
@@ -632,55 +634,50 @@ namespace SystemCenter.Model
                     {
                         if (openMICFiltered) { continue; }
 
-                        Tuple<DataRow, DailyStatisticsRecord?> tuple = Tuple.Create<DataRow, DailyStatisticsRecord?>(row, null);
-                        dataTuples = dataTuples.Append(tuple).ToArray();
+                        resultTable.ImportRow(CombineRow(row, null));
                         continue;
                     }
-                    
-                    Tuple<DataRow, DailyStatisticsRecord> newTuple = Tuple.Create(row, openMicRecord);
-
-                    dataTuples = dataTuples.Append(newTuple).ToArray();
+                    resultTable.ImportRow(CombineRow(row, openMicRecord));
                 }
-            }
-
-            foreach (var (SC, openMIC) in dataTuples)
-            {
-                if (openMIC is null)
-                {
-                    resultTable.ImportRow(SC);
-                    continue;
-                }
-
-                int totalUnsuccessfulConnections = openMIC.TotalUnsuccessfulConnections;
-
-                SC["MICStatus"] = "";
-
-                if (totalUnsuccessfulConnections > ErrorLevel)
-                {
-                    SC["Status"] = "Error";
-
-                }
-                else if (totalUnsuccessfulConnections > WarningLevel)
-                {
-                    SC["Status"] = "Warning";
-                }
-
-                SC["MICBadDays"] = openMIC.BadDays;
-
-                if (openMIC.BadDays > Convert.ToInt32(SC["BadDays"]))
-                {
-                    SC["BadDays"] = openMIC.BadDays;
-                }
-
-                if (openMIC.LastSuccessfulConnection != null)
-                {
-                    SC["LastGood"] = openMIC.LastSuccessfulConnection;
-                }
-
-                resultTable.ImportRow(SC);
             }
 
             return resultTable;
+        }
+
+        public DataRow CombineRow(DataRow systemCenterRow, DailyStatisticsRecord? openMICRecord)
+        {
+            if (openMICRecord is null)
+            {
+                return systemCenterRow;
+            }
+
+            int totalUnsuccessfulConnections = openMICRecord.TotalUnsuccessfulConnections;
+
+            systemCenterRow["MICStatus"] = "";
+
+            if (totalUnsuccessfulConnections > ErrorLevel)
+            {
+                systemCenterRow["Status"] = "Error";
+
+            }
+            else if (totalUnsuccessfulConnections > WarningLevel)
+            {
+                systemCenterRow["Status"] = "Warning";
+            }
+
+            systemCenterRow["MICBadDays"] = openMICRecord.BadDays;
+
+            if (openMICRecord.BadDays > Convert.ToInt32(systemCenterRow["BadDays"]))
+            {
+                systemCenterRow["BadDays"] = openMICRecord.BadDays;
+            }
+
+            if (openMICRecord.LastSuccessfulConnection != null)
+            {
+                systemCenterRow["LastGood"] = openMICRecord.LastSuccessfulConnection;
+            }
+
+            return systemCenterRow;
         }
 
         public int WarningLevel { get; set; } = 50;
