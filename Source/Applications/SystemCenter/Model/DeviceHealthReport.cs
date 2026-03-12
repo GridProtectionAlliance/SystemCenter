@@ -34,6 +34,7 @@ using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web.Http;
+using System.Windows.Forms.DataVisualization.Charting;
 
 namespace SystemCenter.Model
 {
@@ -95,15 +96,15 @@ namespace SystemCenter.Model
         public string TSC { get; set; }
         public string Sector { get; set; }
         public string IP { get; set; }
-        public DateTime LastGood { get; set; } // no longer gotten from table
+        public DateTime? LastGood { get; set; } // no longer gotten from table
         public int BadDays { get; set; }
         public int MiMDBadDays { get; set; }
-        public int MICBadDays { get; set; }  // no longer gotten from table
+        public int? MICBadDays { get; set; }  // no longer gotten from table
         public int XDABadDays { get; set; }
         public string MiMDStatus { get; set; }
         public string MICStatus { get; set; } // no longer gotten from table
         public string XDAStatus { get; set; }
-        public DateTime LastConfigChange { get; set; }
+        public DateTime? LastConfigChange { get; set; }
     }
 
     [RoutePrefix("api/DeviceHealthReport")]
@@ -250,14 +251,35 @@ namespace SystemCenter.Model
 
             DataTable systemCenterResult = GetSearchResults(systemCenterRequestBody);
 
-            // add empty rows to table for openMIC info
-            systemCenterResult.Columns.Add("MICStatus");
-            systemCenterResult.Columns.Add("MICBadDays", Type.GetType("System.Int32"));
-            systemCenterResult.Columns.Add("LastGood");
+            //turn into array.
+            DeviceHealthReport[] deviceHealthReports = systemCenterResult.AsEnumerable()
+                .Select(row => new DeviceHealthReport()
+                {
+                    ID = row.Field<int>("ID"),
+                    Name = row.Field<string>("Name"),
+                    Model = row.Field<string>("Model"),
+                    TimeZone = row.Field<string>("TimeZone"),
+                    OpenMIC = row.Field<string>("OpenMIC"),
+                    LocationID = row.Field<int>("LocationID"),
+                    Substation = row.Field<string>("Substation"),
+                    LocationKey = row.Field<string>("LocationKey"),
+                    LastGood = null,
+                    TSC = row.Field<string>("TSC"),
+                    Sector = row.Field<string>("Sector"),
+                    IP = row.Field<string>("IP"),
+                    BadDays = row.Field<int>("BadDays"),
+                    MiMDBadDays = row.Field<int>("MiMDBadDays"),
+                    MICStatus = null,
+                    MICBadDays = null,
+                    XDABadDays = row.Field<int>("XDABadDays"),
+                    MiMDStatus = row.Field<string>("MiMDStatus"),
+                    XDAStatus = row.Field<string>("XDAStatus"),
+                    // LastConfigChange = new DateTime(row.Field<string>("LastConfigChange")) 
+                }).ToArray();
 
             // get a list of meters to search for in open mic
-            string[] openMICMeters = systemCenterResult.AsEnumerable()
-                .Select(row => row.Field<string>("OpenMIC")).Where(openMIC => openMIC != "").ToArray();
+            string[] openMICMeters = deviceHealthReports
+                .Select(device => device.OpenMIC).Where(openMIC => openMIC != "").ToArray();
 
             SQLSearchFilter openMICMeterFilter = new()
             {
@@ -286,25 +308,29 @@ namespace SystemCenter.Model
             }
             catch (Exception e)
             {
-                return Ok(JsonConvert.SerializeObject(systemCenterResult)); // return just the system center stuff
+                return Ok(JsonConvert.SerializeObject(deviceHealthReports)); // return just the system center stuff
             }
-            
-            DataTable resultTable = CombineData(systemCenterResult, openMicStatistics, postData);
+
+            DeviceHealthReport[] combinedReport = CombineData(deviceHealthReports, openMicStatistics, postData).ToArray();
 
             foreach (SQLSearchFilter badDayFilter in badDayFilters)
             {
-                resultTable = FilterBadDays(resultTable, badDayFilter);
+                combinedReport = FilterBadDays(combinedReport, badDayFilter);
             }
 
             if (postData.OrderBy == "BadDays")
             {
-                DataView dataView = resultTable.DefaultView;
-                string asc = postData.Ascending ? "ASC" : "DESC";
-                dataView.Sort = $"BadDays {asc}";
-                resultTable = dataView.ToTable();
+                if (postData.Ascending)
+                {
+                    combinedReport = combinedReport.OrderBy(record => record.BadDays).ToArray();
+                }
+                else
+                {
+                    combinedReport = combinedReport.OrderByDescending(record => record.BadDays).ToArray();
+                }
             }
-           
-            return Ok(JsonConvert.SerializeObject(resultTable));
+
+            return Ok(JsonConvert.SerializeObject(combinedReport));
         }
 
         [HttpGet, Route("OpenMICStatus")]
@@ -543,151 +569,117 @@ namespace SystemCenter.Model
             }
         }
 
-        public static DataTable FilterBadDays(DataTable table, SQLSearchFilter badDayFilter)
+        private static DeviceHealthReport[] FilterBadDays(DeviceHealthReport[] reports, SQLSearchFilter badDayFilter)
         {
-            DataTable filteredTable;
-            DataRow[] filteredRows = [];
+            DeviceHealthReport[] filteredReports = [];
             // Bad Days can be =, <> (neq), <, <=, >, >=, with a number
             switch (badDayFilter.Operator)
             {
                 case "=":
-                    filteredRows = table.AsEnumerable()
-                        .Where(row => (row.Field<int?>("BadDays") ?? 0) == int.Parse(badDayFilter.SearchText)).ToArray();
+                    filteredReports = reports
+                        .Where(record => record.BadDays == int.Parse(badDayFilter.SearchText)).ToArray();
                     break;
                 case "<>":
-                    filteredRows = table.AsEnumerable()
-                        .Where(row => (row.Field<int?>("BadDays") ?? 0) != int.Parse(badDayFilter.SearchText)).ToArray();
+                    filteredReports = reports
+                        .Where(record => record.BadDays != int.Parse(badDayFilter.SearchText)).ToArray();
                     break;
                 case "<":
-                    filteredRows = table.AsEnumerable()
-                        .Where(row => (row.Field<int?>("BadDays") ?? 0) < int.Parse(badDayFilter.SearchText)).ToArray();
+                    filteredReports = reports
+                        .Where(record => record.BadDays < int.Parse(badDayFilter.SearchText)).ToArray();
                     break;
                 case "<=":
-                    filteredRows = table.AsEnumerable()
-                        .Where(row => (row.Field<int?>("BadDays") ?? 0) <= int.Parse(badDayFilter.SearchText)).ToArray();
+                    filteredReports = reports
+                        .Where(record => record.BadDays <= int.Parse(badDayFilter.SearchText)).ToArray();
                     break;
                 case ">":
-                    filteredRows = table.AsEnumerable()
-                        .Where(row => (row.Field<int?>("BadDays") ?? 0) > int.Parse(badDayFilter.SearchText)).ToArray();
+                    filteredReports = reports
+                        .Where(record => record.BadDays > int.Parse(badDayFilter.SearchText)).ToArray();
                     break;
                 case ">=":
-                    filteredRows = table.AsEnumerable()
-                        .Where(row => (row.Field<int?>("BadDays") ?? 0) >= int.Parse(badDayFilter.SearchText)).ToArray();
+                    filteredReports = reports
+                        .Where(record => record.BadDays >= int.Parse(badDayFilter.SearchText)).ToArray();
                     break;
                 default:
                     break;
             }
-            if (filteredRows.Length == 0)
-            {
-                filteredTable = table.Clone();
-            }
-            else
-            {
-                filteredTable = filteredRows.CopyToDataTable();
-            }
-            return filteredTable;
+            return filteredReports;
         }
 
-        public DataTable CombineData(DataTable systemCenterData, DailyStatisticsRecord[] openMicData, PostData postData)
+        private List<DeviceHealthReport> CombineData(DeviceHealthReport[] systemCenterData, DailyStatisticsRecord[] openMicData, PostData postData)
         {
-            DataTable resultTable = systemCenterData.Clone();
+            //Turn into Divtionary using ID
+            List<DeviceHealthReport> results = [];
+            HashSet<int> processedID = new();
 
-            bool openMICFiltered = (postData.Searches.Any(search => Equals(search.FieldName, "LastGood") || Equals(search.FieldName, "MICStatus")));
+            bool openMICFiltered = (postData.Searches.Any(search => string.Equals(search.FieldName, "LastGood", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(search.FieldName, "MICStatus", StringComparison.OrdinalIgnoreCase)));
 
-            bool openMICPrecedence = (postData.OrderBy == "LastGood" || postData.OrderBy == "MICStatus");
+            bool openMICOrdered = (postData.OrderBy == "LastGood" || postData.OrderBy == "MICStatus");
 
-            if (openMICPrecedence) // if sorted or filtered by openMICField
+            if (openMICOrdered) // if sorted or filtered by openMICField
             {
                 foreach (DailyStatisticsRecord record in openMicData)
                 {
-                    string openMICAcronym = record.Meter;
+                    DeviceHealthReport matchedReport = systemCenterData.FirstOrDefault(r => string.Equals(r.OpenMIC, record.Meter, StringComparison.OrdinalIgnoreCase));
 
-                    DataRow systemCenterRow = systemCenterData.AsEnumerable().FirstOrDefault(r => Equals(r.Field<string>("OpenMIC"), record.Meter));
-
-                    if (systemCenterRow is null) // could be possible due to filters
+                    if (matchedReport is not null)
                     {
-                        continue;
+                        results.Add(CombineReports(matchedReport, record));
+                        processedID.Add(matchedReport.ID);
                     }
-
-                    resultTable.ImportRow(CombineRow(systemCenterRow, record));
-
                 }
                 if (!openMICFiltered) // if not filtered by openMIC, add the rest of systemCenter below 
-                {
-                    foreach (DataRow systemCenterRow in systemCenterData.Rows)
-                    {
-                        DataRow existingRow = resultTable.AsEnumerable()
-                            .FirstOrDefault(resultRow => Equals(resultRow.Field<string>("Name"), systemCenterRow["Name"]));
-                        if (existingRow != null)
-                        {
-                            continue;
-                        }
-                        resultTable.ImportRow(CombineRow(systemCenterRow, null));
-                    }
-                }
+                    results.AddRange(systemCenterData.Where(record => !processedID.Contains(record.ID)));
+
             }
             else
             {
-                foreach (DataRow row in systemCenterData.Rows)
+                foreach (DeviceHealthReport record in systemCenterData)
                 {
-                    if (string.IsNullOrEmpty(row.ConvertField<string>("OpenMic")))
-                    {
-                        if (openMICFiltered) { continue; }
+                    DailyStatisticsRecord? openMicRecord = null;
 
-                        resultTable.ImportRow(CombineRow(row, null));
-                        continue;
-                    }
-                    
-                    DailyStatisticsRecord openMicRecord = openMicData.FirstOrDefault(record => Equals(record.Meter, row["OpenMic"]));
-                    
+                    if (!string.IsNullOrEmpty(record.OpenMIC))
+                        openMicRecord = openMicData.FirstOrDefault(r => string.Equals(r.Meter, record.OpenMIC, StringComparison.OrdinalIgnoreCase));
+
                     if (openMicRecord is null)
                     {
-                        if (openMICFiltered) { continue; }
-
-                        resultTable.ImportRow(CombineRow(row, null));
+                        if (!openMICFiltered)
+                            results.Add(record);
                         continue;
                     }
-                    resultTable.ImportRow(CombineRow(row, openMicRecord));
+
+                    results.Add(CombineReports(record, openMicRecord));
                 }
             }
 
-            return resultTable;
+            return results;
         }
 
-        public DataRow CombineRow(DataRow systemCenterRow, DailyStatisticsRecord? openMICRecord)
+        private DeviceHealthReport CombineReports(DeviceHealthReport systemCenterRecord, DailyStatisticsRecord? openMICRecord)
         {
             if (openMICRecord is null)
             {
-                return systemCenterRow;
+                return systemCenterRecord;
             }
 
-            int totalUnsuccessfulConnections = openMICRecord.TotalUnsuccessfulConnections;
-
-            systemCenterRow["MICStatus"] = "";
-
-            if (totalUnsuccessfulConnections > ErrorLevel)
+            switch (openMICRecord.TotalUnsuccessfulConnections)
             {
-                systemCenterRow["Status"] = "Error";
-
-            }
-            else if (totalUnsuccessfulConnections > WarningLevel)
-            {
-                systemCenterRow["Status"] = "Warning";
-            }
-
-            systemCenterRow["MICBadDays"] = openMICRecord.BadDays;
-
-            if (openMICRecord.BadDays > Convert.ToInt32(systemCenterRow["BadDays"]))
-            {
-                systemCenterRow["BadDays"] = openMICRecord.BadDays;
+                case int n when n > ErrorLevel:
+                    systemCenterRecord.MICStatus = "Error";
+                    break;
+                case int n when n > WarningLevel:
+                    systemCenterRecord.MICStatus = "Warning";
+                    break;
+                default:
+                    systemCenterRecord.MICStatus = "";
+                    break;
             }
 
-            if (openMICRecord.LastSuccessfulConnection != null)
-            {
-                systemCenterRow["LastGood"] = openMICRecord.LastSuccessfulConnection;
-            }
+            systemCenterRecord.MICBadDays = Math.Max(openMICRecord.BadDays, systemCenterRecord.BadDays);
 
-            return systemCenterRow;
+            systemCenterRecord.LastGood = openMICRecord.LastSuccessfulConnection;
+
+            return systemCenterRecord;
         }
 
         public int WarningLevel { get; set; } = 50;
