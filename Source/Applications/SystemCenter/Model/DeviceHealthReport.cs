@@ -342,48 +342,7 @@ namespace SystemCenter.Model
                 }
                 foreach (SQLSearchFilter badDayFilter in badDayFilters)
                 {
-                    DataTable filteredTable;
-                    DataRow[] filteredRows = [];
-                    // Bad Days can be =, <> (neq), <, <=, >, >=, with a number
-                    switch (badDayFilter.Operator)
-                    {
-                        case "=":
-                            filteredRows = resultTable.AsEnumerable()
-                                .Where(row => (row.Field<int?>("BadDays") ?? 0) == int.Parse(badDayFilter.SearchText)).ToArray();
-                            break;
-                        case "<>":
-                            filteredRows = resultTable.AsEnumerable()
-                                .Where(row => (row.Field<int?>("BadDays") ?? 0) != int.Parse(badDayFilter.SearchText)).ToArray();
-                            break;
-                        case "<":
-                            filteredRows = resultTable.AsEnumerable()
-                                .Where(row => (row.Field<int?>("BadDays") ?? 0) < int.Parse(badDayFilter.SearchText)).ToArray();
-                            break;
-                        case "<=":
-                            filteredRows = resultTable.AsEnumerable()
-                                .Where(row => (row.Field<int?>("BadDays") ?? 0) <= int.Parse(badDayFilter.SearchText)).ToArray();
-                            break;
-                        case ">":
-                            filteredRows = resultTable.AsEnumerable()
-                                .Where(row => (row.Field<int?>("BadDays") ?? 0) > int.Parse(badDayFilter.SearchText)).ToArray();
-                            break;
-                        case ">=":
-                            filteredRows = resultTable.AsEnumerable()
-                                .Where(row => (row.Field<int?>("BadDays") ?? 0) >= int.Parse(badDayFilter.SearchText)).ToArray();
-                            break;
-                        default:
-                            break;
-                    }
-                    if (filteredRows.Length == 0)
-                    {
-                        filteredTable = systemCenterResult.Clone();
-                        resultTable = filteredTable;
-                    }
-                    else
-                    {
-                        filteredTable = filteredRows.CopyToDataTable();
-                        resultTable = filteredTable;
-                    }
+                    resultTable = FilterBadDays(resultTable, badDayFilter);
                 }
                 return Ok(JsonConvert.SerializeObject(resultTable));
             }
@@ -429,48 +388,7 @@ namespace SystemCenter.Model
 
             foreach (SQLSearchFilter badDayFilter in badDayFilters)
             {
-                DataTable filteredTable;
-                DataRow[] filteredRows = [];
-                // Bad Days can be =, <> (neq), <, <=, >, >=, with a number
-                switch (badDayFilter.Operator)
-                {
-                    case "=":
-                        filteredRows = resultTable.AsEnumerable()
-                            .Where(row => (row.Field<int?>("BadDays") ?? 0) == int.Parse(badDayFilter.SearchText)).ToArray();
-                        break;
-                    case "<>":
-                        filteredRows = resultTable.AsEnumerable()
-                            .Where(row => (row.Field<int?>("BadDays") ?? 0) != int.Parse(badDayFilter.SearchText)).ToArray();
-                        break;
-                    case "<":
-                        filteredRows = resultTable.AsEnumerable()
-                            .Where(row => (row.Field<int?>("BadDays") ?? 0) < int.Parse(badDayFilter.SearchText)).ToArray();
-                        break;
-                    case "<=":
-                        filteredRows = resultTable.AsEnumerable()
-                            .Where(row => (row.Field<int?>("BadDays") ?? 0) <= int.Parse(badDayFilter.SearchText)).ToArray();
-                        break;
-                    case ">":
-                        filteredRows = resultTable.AsEnumerable()
-                            .Where(row => (row.Field<int?>("BadDays") ?? 0) > int.Parse(badDayFilter.SearchText)).ToArray();
-                        break;
-                    case ">=":
-                        filteredRows = resultTable.AsEnumerable()
-                            .Where(row => (row.Field<int?>("BadDays") ?? 0) >= int.Parse(badDayFilter.SearchText)).ToArray();
-                        break;
-                    default:
-                        break;
-                }
-                if (filteredRows.Length == 0)
-                {
-                    filteredTable = systemCenterResult.Clone();
-                    systemCenterResult = filteredTable;
-                }
-                else
-                {
-                    filteredTable = filteredRows.CopyToDataTable();
-                    systemCenterResult = filteredTable;
-                }
+                systemCenterResult = FilterBadDays(systemCenterResult, badDayFilter);
             }
             return Ok(JsonConvert.SerializeObject(systemCenterResult));
         }
@@ -707,6 +625,51 @@ namespace SystemCenter.Model
                 APIQuery query = new APIQuery(credential, password, url);
                 return query;
             }
+        }
+        
+        public static DataTable FilterBadDays(DataTable table, SQLSearchFilter badDayFilter)
+        {
+            DataTable filteredTable;
+            DataRow[] filteredRows = [];
+            // Bad Days can be =, <> (neq), <, <=, >, >=, with a number
+            switch (badDayFilter.Operator)
+            {
+                case "=":
+                    filteredRows = table.AsEnumerable()
+                        .Where(row => (row.Field<int?>("BadDays") ?? 0) == int.Parse(badDayFilter.SearchText)).ToArray();
+                    break;
+                case "<>":
+                    filteredRows = table.AsEnumerable()
+                        .Where(row => (row.Field<int?>("BadDays") ?? 0) != int.Parse(badDayFilter.SearchText)).ToArray();
+                    break;
+                case "<":
+                    filteredRows = table.AsEnumerable()
+                        .Where(row => (row.Field<int?>("BadDays") ?? 0) < int.Parse(badDayFilter.SearchText)).ToArray();
+                    break;
+                case "<=":
+                    filteredRows = table.AsEnumerable()
+                        .Where(row => (row.Field<int?>("BadDays") ?? 0) <= int.Parse(badDayFilter.SearchText)).ToArray();
+                    break;
+                case ">":
+                    filteredRows = table.AsEnumerable()
+                        .Where(row => (row.Field<int?>("BadDays") ?? 0) > int.Parse(badDayFilter.SearchText)).ToArray();
+                    break;
+                case ">=":
+                    filteredRows = table.AsEnumerable()
+                        .Where(row => (row.Field<int?>("BadDays") ?? 0) >= int.Parse(badDayFilter.SearchText)).ToArray();
+                    break;
+                default:
+                    break;
+            }
+            if (filteredRows.Length == 0)
+            {
+                filteredTable = table.Clone();
+            }
+            else
+            {
+                filteredTable = filteredRows.CopyToDataTable();
+            }
+            return filteredTable;
         }
     }
 }
