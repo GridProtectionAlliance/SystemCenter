@@ -276,7 +276,7 @@ namespace SystemCenter.Model
             }
             catch (Exception e)
             {
-                return Ok(systemCenterResult); // return just the system center stuff
+                return Ok(JsonConvert.SerializeObject(systemCenterResult)); // return just the system center stuff
             }
             
             DataTable resultTable = CombineData(systemCenterResult, openMicStatistics, postData);
@@ -592,7 +592,7 @@ namespace SystemCenter.Model
                 {
                     string openMICAcronym = record.Meter;
 
-                    DataRow systemCenterRow = systemCenterData.AsEnumerable().FirstOrDefault(r => String.Equals(r.Field<string>("OpenMIC"), record.Meter));
+                    DataRow systemCenterRow = systemCenterData.AsEnumerable().FirstOrDefault(r => Equals(r.Field<string>("OpenMIC"), record.Meter));
 
                     if (systemCenterRow is null) // could be possible due to filters
                     {
@@ -628,7 +628,7 @@ namespace SystemCenter.Model
                         continue;
                     }
                     
-                    DailyStatisticsRecord openMicRecord = openMicData.FirstOrDefault(record => String.Equals(record.Meter, row["OpenMic"]));
+                    DailyStatisticsRecord openMicRecord = openMicData.FirstOrDefault(record => Equals(record.Meter, row["OpenMic"]));
                     
                     if (openMicRecord is null)
                     {
