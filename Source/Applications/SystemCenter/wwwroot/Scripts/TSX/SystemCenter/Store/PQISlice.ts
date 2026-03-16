@@ -69,9 +69,9 @@ export const FetchPQICompanies = createAsyncThunk('PQI/FetchCompanies', async (_
 export const PQISlice = createSlice({
     name: 'PQI',
     initialState: {
-        StatusCompanies: 'unintiated' as Application.Types.Status,
-        StatusAddresses: 'unintiated' as Application.Types.Status,
-        StatusFacilites: 'unintiated' as Application.Types.Status,
+        StatusCompanies: 'uninitiated' as Application.Types.Status,
+        StatusAddresses: 'uninitiated' as Application.Types.Status,
+        StatusFacilites: 'uninitiated' as Application.Types.Status,
         Error: null,
         Facilities: [] as Facility[],
         Addresses: [] as Address[],
