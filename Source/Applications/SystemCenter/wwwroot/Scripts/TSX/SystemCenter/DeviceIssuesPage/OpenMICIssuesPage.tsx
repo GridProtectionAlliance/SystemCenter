@@ -64,7 +64,6 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
         setStatus('loading')
         const handle = getStatistics().done(result => {
             const data = JSON.parse(result as unknown as string);
-            console.log(data)
             setData(data);
             setStatus('idle')
         }).fail((d) => setStatus('error'));
