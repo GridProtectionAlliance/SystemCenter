@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { SystemCenter as SCGlobal } from '../global';
@@ -33,6 +33,13 @@ import moment from 'moment';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import AppStatus from './AppStatus'
 import { ToolTip } from '@gpa-gemstone/react-forms'
+
+interface IPagedResult {
+    Data: string,
+    NumberOfPages: number,
+    TotalRecords: number,
+    RecordsPerPage: number
+}
 
 const defaultSearchcols: Search.IField<SCGlobal.DeviceHealthReport>[] = [
     { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
@@ -66,19 +73,23 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
     const settings = useAppSelector(SystemCenterSettingSlice.Data);
     const settingStatus = useAppSelector(SystemCenterSettingSlice.Status);
     const [hovered, setHovered] = React.useState<number>(null);
+    const [pagedData, setPagedData] = React.useState<IPagedResult>(null);
+    const [page, setPage] = React.useState<number>(0);
 
     React.useEffect(() => {
         let handle = getMeters();
         handle.done((dt: string) => {
             setSearchState('Idle');
-            setData(JSON.parse(dt) as SCGlobal.DeviceHealthReport[]);
+            const pagedResults = JSON.parse(dt) as IPagedResult;
+            setPagedData(pagedResults);
+            setData(JSON.parse(pagedResults.Data) as SCGlobal.DeviceHealthReport[])
         }).fail((d) => setSearchState('Error'));
 
         return function cleanup() {
             if (handle.abort != null)
                 handle.abort();
         }
-    }, [sortKey, ascending, search]);
+    }, [sortKey, ascending, search, page]);
 
     React.useEffect(() => {
         let handle = getAdditionalFields();
@@ -98,7 +109,7 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
         let searches = search.map(s => { if (defaultSearchcols.findIndex(item => item.key == s.FieldName) == -1) return { ...s, IsPivotColumn: true }; else return s; })
         return $.ajax({
             type: "Post",
-            url: `${homePath}api/DeviceHealthReport/SearchableList`,
+            url: `${homePath}api/DeviceHealthReport/PagedList/${page}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             data: JSON.stringify({ Searches: searches, OrderBy: sortKey, Ascending: ascending }),
@@ -475,6 +486,12 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                         > DQ
                         </Column>
                     </Table>
+                </div>
+            </div>
+            <div className="row">
+                <div className="col">
+
+                {pagedData != null ? <Paging Current={page + 1} Total={Math.ceil(pagedData.TotalRecords / pagedData.RecordsPerPage)} SetPage={(p) => setPage(p - 1)} /> : null}
                 </div>
             </div>
         </div>

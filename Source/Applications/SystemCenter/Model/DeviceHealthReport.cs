@@ -110,6 +110,7 @@ namespace SystemCenter.Model
     [RoutePrefix("api/DeviceHealthReport")]
     public class DeviceHealthReportController : ModelController<DeviceHealthReport>
     {
+        public int PagingAmount { get; set; } = 3;
         public class DailyStatisticsRecord
         {
             [PrimaryKey(true)]
@@ -151,8 +152,13 @@ namespace SystemCenter.Model
 
         }
 
-        public override IHttpActionResult GetSearchableList([FromBody] PostData postData)
+        public override IHttpActionResult GetPagedList([FromBody] PostData postData, int page)
         {
+            PagedResults pagedReports = new()
+            {
+                RecordsPerPage = 50
+            };
+
             PostData openMicRequestBody = new()
             {
                 Searches = [],
@@ -308,7 +314,11 @@ namespace SystemCenter.Model
             }
             catch (Exception e)
             {
-                return Ok(JsonConvert.SerializeObject(deviceHealthReports)); // return just the system center stuff
+                pagedReports.TotalRecords = deviceHealthReports.Count();
+                pagedReports.NumberOfPages = (pagedReports.TotalRecords + pagedReports.RecordsPerPage - 1) / pagedReports.RecordsPerPage;
+                DeviceHealthReport[] pagedRecords = deviceHealthReports.Skip(page * pagedReports.RecordsPerPage).Take(pagedReports.RecordsPerPage).ToArray();
+                pagedReports.Data = JsonConvert.SerializeObject(pagedRecords);
+                return Ok(JsonConvert.SerializeObject(pagedReports)); // return just the system center stuff
             }
 
             DeviceHealthReport[] combinedReport = CombineData(deviceHealthReports, openMicStatistics, postData).ToArray();
@@ -330,7 +340,11 @@ namespace SystemCenter.Model
                 }
             }
 
-            return Ok(JsonConvert.SerializeObject(combinedReport));
+            pagedReports.TotalRecords = combinedReport.Count();
+            pagedReports.NumberOfPages = (pagedReports.TotalRecords + pagedReports.RecordsPerPage - 1) / pagedReports.RecordsPerPage;
+            DeviceHealthReport[] pageRecords = combinedReport.Skip(page * pagedReports.RecordsPerPage).Take(pagedReports.RecordsPerPage).ToArray();
+            pagedReports.Data = JsonConvert.SerializeObject(pageRecords);
+            return Ok(JsonConvert.SerializeObject(pagedReports));
         }
 
         [HttpGet, Route("OpenMICStatus")]
