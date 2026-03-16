@@ -21,6 +21,7 @@
 //
 //******************************************************************************************************
 
+using GSF;
 using GSF.Collections;
 using GSF.Data;
 using GSF.Data.Model;
@@ -181,17 +182,23 @@ public class LineSegmentWizardController : ApiController
     [HttpPost, Route("TestConnection")]
     public IHttpActionResult PostTestConnection()
     {
+
         FAWGStatus status = new()
         {
-            Status = "Success",
+            Status = "N/A",
             Details = new()
         };
+
+        if (!useFawg)
+            return Ok(status);
+
         try
         {
             using (AdoDataConnection connection = new(Connection))
             {
                 string query = "SELECT 0;";
                 int result = connection.ExecuteScalar<int>(query);
+                status.Status = "Success";
                 return Ok(status);
             }
         }

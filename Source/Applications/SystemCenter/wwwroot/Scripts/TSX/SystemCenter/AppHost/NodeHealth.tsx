@@ -33,9 +33,10 @@ const ExternalDBController = new GenericController<SystemCenter.Types.DetailedEx
 
 const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCenter' | 'MiMD' | 'XDA' }) => {
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
-    const [statusItems, setStatusItems] = React.useState<SC.StatusItem[]>([]);
+    const [extDBStatus, setExtDBStatus] = React.useState<SC.StatusItem[]>([]);
     const [hoveredItem, setHoveredItem] = React.useState<string>(null)
-    const [fawgStatus, setFawgStatus] = React.useState<SC.StatusItem>(null)
+    const [fawgStatus, setFawgStatus] = React.useState<SC.StatusItem>({ Name: "FAWG", Status: "Loading", Details: [] })
+    const [PQIStatus, setPQIStatus] = React.useState<SC.StatusItem>({ Name: "PQI", Status: "Loading", Details: [] })
 
     React.useEffect(() => {
         setStatus('loading');
@@ -43,6 +44,7 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
             case 'SystemCenter':
                 getExternalDBs()
                 testFAWG()
+                testPQI()
                 break;
             default:
                 setStatus('idle')
@@ -57,7 +59,7 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
         handle.done((dt) => {
             const externalDBs = JSON.parse(dt.Data as unknown as string)
             // first set them all as loading
-            setStatusItems(externalDBs.map((db) => {
+            setExtDBStatus(externalDBs.map((db) => {
                 return {
                     Name: db.Name,
                     Type: 'ExternalDB',
@@ -89,7 +91,7 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
         });
 
         h.done((d: SC.StatusItem) => {
-            setStatusItems(statusItems => statusItems.map((statusItem) => {
+            setExtDBStatus(statusItems => statusItems.map((statusItem) => {
                 if (db.Name !== statusItem.Name) {
                     return statusItem
                 }
@@ -120,8 +122,31 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
         });
 
         h.done((d: SC.StatusItem) => {
-            d.Name = 'fawgStatus'
+            d.Name = 'FAWG'
             setFawgStatus(d)
+        }).fail((d) => {
+            setStatus('error')
+        })
+
+        return function cleanup() {
+            if (h.abort != null)
+                h.abort();
+        }
+    }
+
+    function testPQI() {
+        const h = $.ajax({
+            type: "GET",
+            url: `${homePath}api/SystemCenter/PQI/Test`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true
+        });
+
+        h.done((d: SC.StatusItem) => {
+            d.Name = 'PQI'
+            setPQIStatus(d)
         }).fail((d) => {
             setStatus('error')
         })
@@ -136,9 +161,9 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
         props.ApplicationType === 'SystemCenter' ?
             <div className="row">
                 <fieldset className="border col-6" style={{ padding: '10px', height: '100%' }}>
-                    <legend className="w-auto" style={{ fontSize: 'large' }}>Database Connection Status:</legend>
+                    <legend className="w-auto" style={{ fontSize: 'large' }}>External Database Connections:</legend>
                     {status === 'loading' ? <ReactIcons.SpiningIcon /> :
-                        statusItems.map((statusItem, index) => (
+                        extDBStatus.map((statusItem, index) => (
                             <div className="row mb-2 mx-2"
                                 key={index}
                             >
@@ -176,60 +201,94 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
                     }
                 </fieldset>
                 <fieldset className="border col-6" style={{ padding: '10px', height: '100%' }}>
-                    <legend className="w-auto" style={{ fontSize: 'large' }}>FAWG Connection Status:</legend>
-                    {fawgStatus == null ? null :
-                        <div className="row mb-2 mx-2"
-                        >
-                            <div className={`col-12 d-flex alert-${GetStatusItemAlertClass(fawgStatus.Status)}`}>
-                                <span className={"my-3"}>{GetStatusSymbol(fawgStatus.Status)}</span>
-                                <h5
-                                    onMouseEnter={() => setHoveredItem(fawgStatus.Name)}
-                                    onMouseLeave={() => setHoveredItem(null)}
-                                    data-tooltip={`statusbutton${fawgStatus.Name}`}
-                                    className={"m-3"}
-                                >
-                                    {fawgStatus.Name}
-                                </h5>
-                                {fawgStatus.Status !== 'Error' ? null : <p className={"my-3 mx-2"}> {fawgStatus.Details.find((detail) => detail.Status === 'Error')?.Description} </p>}
-                                <ToolTip
-                                    Show={hoveredItem === fawgStatus.Name && status === 'idle' && (fawgStatus.Details.length ?? 0) > 0}
-                                    Position={'right'}
-                                    Target={`statusbutton${fawgStatus.Name}`}
-                                >
-                                    {fawgStatus.Details == null ? <ReactIcons.SpiningIcon /> :
-                                        fawgStatus.Details.map((data, index) => (
-                                            <div
-                                                className={'d-flex'}
-                                                key={index}
-                                            >
-                                                {GetDetailStatusSymbol(data.Status)}
-                                                <p> {data.Description} </p>
-                                            </div>
-                                        ))
-                                    }
-                                </ToolTip>
-                            </div>
+                    <legend className="w-auto" style={{ fontSize: 'large' }}>Other Connections:</legend>
+                    <div className="row mb-2 mx-2"
+                    >
+                        <div className={`col-12 d-flex alert-${GetStatusItemAlertClass(fawgStatus.Status)}`}>
+                            <span className={"my-3"}>{GetStatusSymbol(fawgStatus.Status)}</span>
+                            <h5
+                                onMouseEnter={() => setHoveredItem(fawgStatus.Name)}
+                                onMouseLeave={() => setHoveredItem(null)}
+                                data-tooltip={`statusbutton${fawgStatus.Name}`}
+                                className={"m-3"}
+                            >
+                                {fawgStatus.Name}
+                            </h5>
+                            {fawgStatus.Status === "N/A" ? <p className={"my-3 mx-2"}> FAWG is disabled. </p> : null}
+                            {fawgStatus.Status !== 'Error' ? null : <p className={"my-3 mx-2"}> {fawgStatus.Details.find((detail) => detail.Status === 'Error')?.Description} </p>}
+                            <ToolTip
+                                Show={hoveredItem === fawgStatus.Name && status === 'idle' && (fawgStatus.Details.length ?? 0) > 0}
+                                Position={'right'}
+                                Target={`statusbutton${fawgStatus.Name}`}
+                            >
+                                {fawgStatus.Details == null ? <ReactIcons.SpiningIcon /> :
+                                    fawgStatus.Details.map((data, index) => (
+                                        <div
+                                            className={'d-flex'}
+                                            key={index}
+                                        >
+                                            {GetDetailStatusSymbol(data.Status)}
+                                            <p> {data.Description} </p>
+                                        </div>
+                                    ))
+                                }
+                            </ToolTip>
                         </div>
-                    }
+                    </div>
+                    <div className="row mb-2 mx-2"
+                    >
+                        <div className={`col-12 d-flex alert-${GetStatusItemAlertClass(PQIStatus.Status)}`}>
+                            <span className={"my-3"}>{GetStatusSymbol(PQIStatus.Status)}</span>
+                            <h5
+                                onMouseEnter={() => setHoveredItem(PQIStatus.Name)}
+                                onMouseLeave={() => setHoveredItem(null)}
+                                data-tooltip={`statusbutton${PQIStatus.Name}`}
+                                className={"m-3"}
+                            >
+                                {PQIStatus.Name}
+                            </h5>
+                            {PQIStatus.Status === "N/A" ? <p className={"my-3 mx-2"}> PQI is disabled. </p> : null }
+                            {PQIStatus.Status !== 'Error' ? null : <p className={"my-3 mx-2"}> {PQIStatus.Details.find((detail) => detail.Status === 'Error')?.Description} </p>}
+                            <ToolTip
+                                Show={hoveredItem === PQIStatus.Name && status === 'idle' && (PQIStatus.Details.length ?? 0) > 0}
+                                Position={'right'}
+                                Target={`statusbutton${PQIStatus.Name}`}
+                            >
+                                {PQIStatus.Details == null ? <ReactIcons.SpiningIcon /> :
+                                    PQIStatus.Details.map((data, index) => (
+                                        <div
+                                            className={'d-flex'}
+                                            key={index}
+                                        >
+                                            {GetDetailStatusSymbol(data.Status)}
+                                            <p> {data.Description} </p>
+                                        </div>
+                                    ))
+                                }
+                            </ToolTip>
+                        </div>
+                    </div>
                 </fieldset>
             </div >
-        : null 
+            : null
     )
 }
 
 export default NodeHealth;
 
 // helper functions
-const GetStatusSymbol = (status: 'Success' | 'Error' | 'Warning' | 'Loading') => {
+const GetStatusSymbol = (status: 'Success' | 'Error' | 'Warning' | 'Loading' | 'N/A') => {
     switch (status) {
         case 'Success':
             return <ReactIcons.CircleCheckMark Color="var(--success)" />
         case 'Error':
-            return <ReactIcons.CircledX Color="var(--danger)"/>
+            return <ReactIcons.CircledX Color="var(--danger)" />
         case 'Warning':
             return <ReactIcons.QuestionMark />
         case 'Loading':
             return <ReactIcons.SpiningIcon />
+        case 'N/A':
+            return <ReactIcons.CrossMark />
         default:
             return <></>
     }
@@ -250,7 +309,7 @@ const GetDetailStatusSymbol = (status: 'Success' | 'Error' | 'Warning' | 'Loadin
     }
 }
 
-const GetStatusItemAlertClass = (status: 'Success' | 'Error' | 'Warning' | 'Loading') => {
+const GetStatusItemAlertClass = (status: 'Success' | 'Error' | 'Warning' | 'Loading' | 'N/A') => {
     switch (status) {
         case 'Success':
             return 'success'
@@ -259,6 +318,8 @@ const GetStatusItemAlertClass = (status: 'Success' | 'Error' | 'Warning' | 'Load
         case 'Warning':
             return 'warning'
         case 'Loading':
+            return 'secondary'
+        case 'N/A':
             return 'secondary'
     }
 }

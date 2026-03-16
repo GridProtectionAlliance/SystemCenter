@@ -21,13 +21,16 @@
 //
 //******************************************************************************************************
 
+using GSF.Data;
+using Microsoft.Graph;
+using openXDA.PQI;
 using System;
-using System.Data;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
-using GSF.Data;
-using openXDA.PQI;
+using static SystemCenter.Model.DeviceHealthReportController;
 
 namespace SystemCenter.Controllers
 {
@@ -133,6 +136,65 @@ namespace SystemCenter.Controllers
             {
                 return InternalServerError(ex);
             }
+        }
+
+        [Route("Test"), HttpGet]
+        public IHttpActionResult TestPQI()
+        {
+            AppStatus appStatus = new()
+            {
+                Status = "Error",
+                Details = []
+            };
+
+            string accessToken = "";
+            NetworkCredential clientCredential = new NetworkCredential(ClientID, ClientSecret);
+            NetworkCredential userCredential = new NetworkCredential(Username, Password);
+            PingClient pingClient = new PingClient(PingURL);
+            Task exchangeTask = pingClient.ExchangeAsync(clientCredential, userCredential);
+            try
+            { 
+                exchangeTask.GetAwaiter().GetResult();
+            }
+            catch (Exception)
+            {
+                appStatus.Details = 
+                [
+                    new StatusItem()
+                        { 
+                            Status = "Error",
+                            Description = "Authentication error. Check the PQI authentication settings in openXDA Settings."
+                        }
+                ];
+                return Ok(appStatus);
+            }
+
+            try
+            {
+                PQIWSClient pqiwsClient = new (BaseURL, () => (accessToken));
+
+                List<Company> result = pqiwsClient.GetAllCompanies().Result;
+            }
+            catch (Exception)
+            {
+                appStatus.Details = 
+                [
+                    new StatusItem()
+                    {
+                        Status = "Error",
+                        Description = "Could not connect to PQI Client. Check the PQI.Url setting in System Center Settings."
+                    }
+                ];
+                return Ok(appStatus);
+            }
+
+            appStatus.Status = "Success";
+            appStatus.Details.Append(new StatusItem()
+            {
+                Status = "Success",
+                Description = "Successfully connected to PQI Client."
+            });
+            return Ok(appStatus);
         }
 
         private string FetchAccessToken()
