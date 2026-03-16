@@ -110,7 +110,7 @@ namespace SystemCenter.Model
     [RoutePrefix("api/DeviceHealthReport")]
     public class DeviceHealthReportController : ModelController<DeviceHealthReport>
     {
-        public int PagingAmount { get; set; } = 3;
+        public int PagingAmount { get; set; } = 50;
         public class DailyStatisticsRecord
         {
             [PrimaryKey(true)]
