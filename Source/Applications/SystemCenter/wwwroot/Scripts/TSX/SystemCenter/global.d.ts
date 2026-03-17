@@ -70,7 +70,7 @@ export namespace SystemCenter {
 
     interface StatusItem {
         Name: string
-        Status: 'Error' | 'Success' | 'Warning' | 'Loading'
+        Status: 'Error' | 'Success' | 'Warning' | 'Loading' | 'N/A'
         Details: {
             Status: 'Success' | 'Error'
             Description: string

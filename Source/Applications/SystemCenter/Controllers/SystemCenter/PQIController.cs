@@ -143,9 +143,14 @@ namespace SystemCenter.Controllers
         {
             AppStatus appStatus = new()
             {
-                Status = "Error",
+                Status = "N/A",
                 Details = []
             };
+
+            if (String.IsNullOrEmpty(BaseURL))
+                return Ok(appStatus);
+
+            appStatus.Status = "Error";
 
             string accessToken = "";
             NetworkCredential clientCredential = new NetworkCredential(ClientID, ClientSecret);
