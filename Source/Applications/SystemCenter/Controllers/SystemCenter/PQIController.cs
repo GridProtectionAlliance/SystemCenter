@@ -178,7 +178,7 @@ namespace SystemCenter.Controllers
             {
                 PQIWSClient pqiwsClient = new (BaseURL, () => (accessToken));
 
-                List<Company> result = pqiwsClient.GetAllCompanies().Result;
+                Task<List<Company>> result = pqiwsClient.GetAllCompanies();
             }
             catch (Exception)
             {
