@@ -109,6 +109,7 @@ namespace SystemCenter.Controllers
                                 Value = connection.ExecuteScalar<int>("SELECT COUNT(ID) FROM Node WHERE HostRegistrationID = {0}", host.ID)
                                 .ToString()
                             },
+                            new AppProperty() { Name= "ID", Value = host.ID.ToString()},
                             new AppProperty() { Name= "Last Checkin", Value = host.CheckedIn.ToString() }
                         }
                     }));
