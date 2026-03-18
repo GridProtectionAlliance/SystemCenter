@@ -38,7 +38,7 @@ const AppHost: Application.Types.iByComponent = (props) => {
 
     const shouldHaveTwoRowsHeight = useMediaQuery('(max-height: 1000px)');
     const shouldHaveTwoCols = useMediaQuery('(max-width: 1750px)');
-    const shouldBeSmall = useMediaQuery('(max-width: 1200px)');
+    const shouldBeSmall = useMediaQuery('(max-width: 1300px)');
 
     React.useEffect(() => {
         if (status == 'changed' || status == 'uninitiated') {
@@ -84,6 +84,7 @@ const AppHost: Application.Types.iByComponent = (props) => {
                 Close={() => setStats(null)}
                 StatsURL={stats?.StatsURL}
                 ApplicationType={stats?.App ?? null}
+                Properties={stats?.Properties}
             />
          </>)
 }

@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react'
-import { Application, SystemCenter } from '@gpa-gemstone/application-typings'
+import { Application, SystemCenter, OpenXDA } from '@gpa-gemstone/application-typings'
 import { GenericController } from '@gpa-gemstone/react-interactive'
 import { ToolTip } from '@gpa-gemstone/react-forms'
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
@@ -31,9 +31,10 @@ import { SystemCenter as SC } from '../global'
 const controllerPath = `${homePath}api/SystemCenter/ExternalDatabases`
 const ExternalDBController = new GenericController<SystemCenter.Types.DetailedExternalDatabases>(controllerPath, "ID", true)
 
-const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCenter' | 'MiMD' | 'XDA' }) => {
+const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCenter' | 'MiMD' | 'XDA', Properties: { Name: string, Value: string }[] }) => {
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [extDBStatus, setExtDBStatus] = React.useState<SC.StatusItem[]>([]);
+    const [remoteXDAStatus, setRemoteXDAStatus] = React.useState<SC.StatusItem[]>([]);
     const [hoveredItem, setHoveredItem] = React.useState<string>(null)
     const [fawgStatus, setFawgStatus] = React.useState<SC.StatusItem>({ Name: "FAWG", Status: "Loading", Details: [] })
     const [PQIStatus, setPQIStatus] = React.useState<SC.StatusItem>({ Name: "PQI", Status: "Loading", Details: [] })
@@ -46,6 +47,8 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
                 testFAWG()
                 testPQI()
                 break;
+            case 'XDA':
+                getRemoteXDAs()
             default:
                 setStatus('idle')
                 break;
@@ -98,6 +101,72 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
                 else {
                     const status = d
                     status.Name = db.Name
+                    return status
+                }
+            }))
+        }).fail((d) => {
+            setStatus('error')
+        })
+
+        return function cleanup() {
+            if (h.abort != null)
+                h.abort();
+        }
+    }
+
+    function getRemoteXDAs() {
+        const h = $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/remoteXDAInstance/Get`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true
+        })
+
+        h.done((remoteXDAs: OpenXDA.Types.RemoteXDAInstance[]) => {
+            // first set them all as loading
+            setRemoteXDAStatus(remoteXDAs.map((xda) => {
+                return {
+                    Name: xda.Name,
+                    Type: 'RemoteXDA',
+                    Details: [],
+                    Status: 'Loading'
+                }
+            }))
+            remoteXDAs.map((remoteXDA) => {
+                 testRemoteXDA(remoteXDA)
+            })
+            setStatus('idle')
+        }).fail((d) => {
+            setStatus('error')
+        })
+
+        return function cleanup() {
+            if (h.abort != null)
+                h.abort();
+        }
+    }
+
+    function testRemoteXDA(remoteXDA) {
+        const h = $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/remoteXDAInstance/RemoteConnectionStatus/${props.Properties.find(prop => prop.Name === "ID").Value}/${remoteXDA.ID}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true
+        });
+
+        h.done((xda: SC.StatusItem) => {
+            console.log(xda);
+            setRemoteXDAStatus(statusItems => statusItems.map((statusItem) => {
+                if (remoteXDA.Name !== statusItem.Name) {
+                    return statusItem
+                }
+                else {
+                    const status = xda
+                    status.Name = remoteXDA.Name
                     return status
                 }
             }))
@@ -270,7 +339,50 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
                     </div>
                 </fieldset>
             </div >
-            : null
+            : props.ApplicationType === "XDA" ?
+                <div className="row">
+                    <fieldset className="border col-12" style={{ padding: '10px', height: '100%' }}>
+                        <legend className="w-auto" style={{ fontSize: 'large' }}>Remote XDA Connections:</legend>
+                        {status === 'loading' ? <ReactIcons.SpiningIcon /> :
+                            remoteXDAStatus.map((statusItem, index) => (
+                                <div className="row mb-2 mx-2"
+                                    key={index}
+                                >
+                                    <div className={`col-12 d-flex alert-${GetStatusItemAlertClass(statusItem.Status)}`}>
+                                        <span className={"my-3"}>{GetStatusSymbol(statusItem.Status)}</span>
+                                        <h5
+                                            onMouseEnter={() => setHoveredItem(statusItem.Name)}
+                                            onMouseLeave={() => setHoveredItem(null)}
+                                            data-tooltip={`statusbutton${statusItem.Name}`}
+                                            className={"m-3"}
+                                        >
+                                            {statusItem.Name}
+                                        </h5>
+                                        {statusItem.Status !== 'Error' ? null : <p className={"my-3 mx-2"}> {statusItem.Details.find((detail) => detail.Status === 'Error')?.Description} </p>}
+                                        <ToolTip
+                                            Show={hoveredItem === statusItem.Name && status === 'idle' && (statusItem.Details?.length ?? 0) > 0}
+                                            Position={'right'}
+                                            Target={`statusbutton${statusItem.Name}`}
+                                        >
+                                            {statusItem?.Details == null ? <ReactIcons.SpiningIcon /> :
+                                                statusItem.Details.map((data, index) => (
+                                                    <div
+                                                        className={'d-flex'}
+                                                        key={index}
+                                                    >
+                                                        {GetDetailStatusSymbol(data.Status)}
+                                                        <p> {data.Description} </p>
+                                                    </div>
+                                                ))
+                                            }
+                                        </ToolTip>
+                                    </div>
+                                </div>
+                            ))
+                        }
+                    </fieldset>
+                </div>
+                : null
     )
 }
 
