@@ -333,7 +333,6 @@ namespace SystemCenter.Controllers.OpenXDA
         }
     }
 
-
     [RoutePrefix("api/OpenXDA/ApplicationRole")]
     public class OpenXDAApplicationRoleController : ModelController<ApplicationRole> {}
 
@@ -394,6 +393,19 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA/remoteXDAInstance"), HttpEditionFilter(Edition.Enterprise)]
     public class RemoteXDAInstanceController : ModelController<RemoteXDAInstance>
     {
+        public class StatusItem
+        {
+            public string Status { get; set; }
+            public string Description { get; set; }
+        }
+
+        public class AppStatus
+        {
+            public string Status { get; set; }
+
+            public List<StatusItem> Details { get; set; }
+
+        }
         #region [Properties]
         private class Settings
         {
@@ -447,6 +459,65 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
 
+        [HttpGet, Route("RemoteConnectionStatus/{hostInstanceID}/{remoteInstanceID}")]
+        public IHttpActionResult GetRemoteConnectionStatus(int hostInstanceID, int remoteInstanceID)
+        {
+            AppStatus status = new()
+            {
+                Status = "Error",
+                Details = []
+            };
+            string hostUrl;
+            using (AdoDataConnection connection = CreateDbConnection())
+            {
+                hostUrl = new TableOperations<HostRegistration>(connection).QueryRecordWhere("ID = {0}", hostInstanceID)?.URL ?? "";
+            }
+
+            if (String.IsNullOrEmpty(hostUrl))
+            {
+                status.Details = status.Details.Append(new StatusItem()
+                {
+                    Status = "Error",
+                    Description = "Could not find URL for host instance."
+                }).ToList();
+                return Ok(status);
+            }
+
+            // first test the host instance
+            try
+            {
+                string hostResponse = SendGetRequest($"/api/SystemCenter/Alive", hostUrl).Result;
+            }
+            catch (Exception e)
+            {
+                status.Details = status.Details.Append(new StatusItem()
+                {
+                    Status = "Error",
+                    Description = "Could not establish connection with host instance."
+                }).ToList();
+                return Ok(status);
+            }
+
+            // then test the connection of the host instance to the remote instance
+            try
+            {
+                string response = SendGetRequest($"/api/DataPusher/TestConnection/{remoteInstanceID}", hostUrl).Result;
+            }
+            catch (Exception e)
+            {
+                return Ok(status);
+            }
+
+            status.Status = "Success";
+            status.Details = [new StatusItem()
+            {
+                Status = "Success",
+                Description = "Successfully connected to remote XDA instance."
+            }
+            ];
+            return Ok(status);
+        }
+
         // #ToDo check what ClienID is used for on the openXDA side.. most likely not necessary
         [HttpGet, Route("ConfigPush/{remoteInstanceID}")]
         public virtual IHttpActionResult PushRemoteConfig(int remoteInstanceID)
@@ -465,11 +536,11 @@ namespace SystemCenter.Controllers.OpenXDA
         }
 
         //Todo: Think about moving this into API Auth Module
-        public async Task<string> SendGetRequest(string requestURI)
+        public async Task<string> SendGetRequest(string requestURI, string? host = null)
         {
             APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).APISettings;
 
-            APIQuery query = new APIQuery(settings.Key, settings.Token, settings.Host.Split(';'));
+            APIQuery query = new APIQuery(settings.Key, settings.Token, host ?? settings.Host.Split(';')[0]);
             void ConfigureRequest(HttpRequestMessage request)
             {
                 request.Method = HttpMethod.Get;
