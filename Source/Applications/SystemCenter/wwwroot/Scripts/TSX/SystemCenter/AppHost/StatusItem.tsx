@@ -34,7 +34,7 @@ const StatusItem = (props: {StatusItem: SC.StatusItem, Status: Application.Types
 
         <div className="row mb-2 mx-2"
         >
-            <div className={`col-12 d-flex alert-${GetStatusItemAlertClass(props.StatusItem.Status)}`}>
+            <div className={`col-12 d-flex align-items-center alert-${GetStatusItemAlertClass(props.StatusItem.Status)}`}>
                 <span className={"my-3"}>{GetStatusSymbol(props.StatusItem.Status)}</span>
                 <h5
                     onMouseEnter={() => props.SetHoveredItem(props.StatusItem.Name)}
