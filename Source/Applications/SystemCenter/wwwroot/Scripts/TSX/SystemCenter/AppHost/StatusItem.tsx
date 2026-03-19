@@ -54,11 +54,11 @@ const StatusItem = (props: {StatusItem: SC.StatusItem, Status: Application.Types
                     {props.StatusItem.Details == null ? <ReactIcons.SpiningIcon /> :
                         props.StatusItem.Details.map((data, index) => (
                             <div
-                                className={'d-flex'}
+                                className={'d-flex align-items-center'}
                                 key={index}
                             >
-                                {GetDetailStatusSymbol(data.Status)}
-                                <p> {data.Description} </p>
+                                <span className={"my-1"}>{GetDetailStatusSymbol(data.Status)}</span>
+                                <p className="m-1"> {data.Description} </p>
                             </div>
                         ))
                     }
