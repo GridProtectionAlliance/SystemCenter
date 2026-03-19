@@ -28,7 +28,6 @@ import { SystemCenter as SC } from '../global';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import _ from 'lodash';
 import * as React from 'react';
-import { GenericController } from '@gpa-gemstone/react-interactive';
 import { ToolTip } from '@gpa-gemstone/react-forms';
 import { ConfigurableTable, ConfigurableColumn, Column } from '@gpa-gemstone/react-table';
 import { Plot, Line } from '@gpa-gemstone/react-graph';
@@ -37,7 +36,6 @@ import moment from 'moment';
 import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
 
-const OpenMICDailyStatisticController = new GenericController<SC.OpenMICDailyStatistic>(`${homePath}api/SystemCenter/Statistics/OpenMIC`, "LastSuccessfulConnection", false);
 
 function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: string }) {
     const [data, setData] = React.useState<SC.OpenMICDailyStatistic[]>([]);
@@ -51,16 +49,26 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
 
     const orderedData = React.useMemo(() => _.orderBy(data, [sortField], [ascending ? 'asc' : 'desc']),
     [data, sortField, ascending])
+    function getStatistics(): JQuery.jqXHR<string> {
+        return $.ajax({
+            type: "Get",
+            url: `${homePath}api/DeviceHealthReport/OpenMICMeterStatistics/?meter=${props.OpenMICAcronym}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true
+        });
+    }
 
     React.useEffect(() => {
         setStatus('loading')
-        const handle = OpenMICDailyStatisticController.PagedSearch([], undefined, undefined, 0, props.Meter.AssetKey).done(result => {
-            const data = JSON.parse(result.Data as unknown as string);
+        const handle = getStatistics().done(result => {
+            const data = JSON.parse(result as unknown as string);
             setData(data);
-        });
-        setStatus('idle')
+            setStatus('idle')
+        }).fail((d) => setStatus('error'));
 
-        return () => {
+        return function cleanup() {
             if (handle.abort != undefined) handle.abort();
         }
     }, [props.Meter.AssetKey]);

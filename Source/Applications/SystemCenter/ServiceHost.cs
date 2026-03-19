@@ -158,8 +158,6 @@ namespace SystemCenter
             systemSettings.Add("CompanyAcronym", "GPA", "The acronym representing the company who owns this instance of the SystemCenter.");
 
             systemSettings.Add("UserAccountMetaDataUpdater", (systemSettings["CompanyAcronym"].Value == "TVA" ? "0 0 * * *" : "never"), "Default frequency to run the user account meta-data updater");
-            systemSettings.Add("OpenMICStatisticOperation", (systemSettings["CompanyAcronym"].Value == "TVA" ? "* * * * *" : "never"), "Default frequency to run openmic statistics operation");
-
             // Attempt to set default culture
             string defaultCulture = systemSettings["DefaultCulture"].ValueAs("en-US");
             CultureInfo.DefaultThreadCurrentCulture = CultureInfo.CreateSpecificCulture(defaultCulture);     // Defaults for date formatting, etc.
@@ -263,8 +261,6 @@ namespace SystemCenter
 
             if (systemSettings["UserAccountMetaDataUpdater"].Value != "never")
                 m_serviceHelper.AddScheduledProcess(UserAccountMetaDataUpdaterHandler, "UserAccountMetaDataUpdater", systemSettings["UserAccountMetaDataUpdater"].Value);
-            if (systemSettings["OpenMICStatisticOperation"].Value != "never")
-                m_serviceHelper.AddScheduledProcess(OpenMICStatisticOperationHandler, "OpenMICStatisticOperation", systemSettings["OpenMICStatisticOperation"].Value);
 
             m_serviceHelper.ClientRequestHandlers.Add(new ClientRequestHandler("ReloadSystemSettings", "Reloads system settings from the database", ReloadSystemSettingsRequestHandler));
             m_serviceHelper.ClientRequestHandlers.Add(new ClientRequestHandler("EngineStatus", "Displays status information about the XDA engine", EngineStatusHandler));
@@ -623,12 +619,6 @@ namespace SystemCenter
         private void UserAccountMetaDataUpdaterHandler(string s, object[] args) {
             UserAccountMetaDataUpdater metaDataUpdater = new UserAccountMetaDataUpdater();
             metaDataUpdater.Update();
-        }
-
-        private void OpenMICStatisticOperationHandler(string s, object[] args)
-        {
-            OpenMICMeterStatisticOperation operation = new OpenMICMeterStatisticOperation();
-            operation.GetStatistics();
         }
 
         // Reloads system settings from the database.

@@ -302,7 +302,6 @@
     <Compile Include="Model\ChannelGroup.cs" />
     <Compile Include="Model\ValueList.cs" />
     <Compile Include="ScheduledProcesses\ScheduledExtDBTask.cs" />
-    <Compile Include="ScheduledProcesses\OpenMICMeterStatisticOperation.cs" />
     <Compile Include="ScheduledTasks\UserAccountMetaDataUpdater.cs" />
     <Compile Include="Controllers\OpenXDA\Assets\OpenXDALineSegmentController.cs" />
     <Compile Include="Controllers\OpenXDA\Assets\OpenXDALineController.cs" />

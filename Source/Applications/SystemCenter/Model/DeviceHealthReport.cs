@@ -25,20 +25,20 @@ using GSF.Data;
 using GSF.Data.Model;
 using GSF.Web.Model;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using openXDA.APIAuthentication;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Web.Http;
-using SystemCenter.Controllers;
-using System.Collections.Generic;
+using System.Windows.Forms.DataVisualization.Charting;
 
 namespace SystemCenter.Model
 {
-	[CustomView(@"
+    [CustomView(@"
 	SELECT 
 		Meter.ID,
 		Meter.Name,
@@ -51,9 +51,9 @@ namespace SystemCenter.Model
 		afvtsc.Value as TSC,
 		afvsector.Value as Sector,
 		afvip.Value as IP,
-		bds.BadDays,
-		mimdstat.BadDays as MiMDBadDays,
-		xdastat.BadDays as XDABadDays,
+		ISNULL(bds.BadDays, 0) as BadDays,
+		ISNULL(mimdstat.BadDays, 0) as MiMDBadDays,
+		ISNULL(xdastat.BadDays, 0) as XDABadDays,
 		mimdstat.[Status] as MiMDStatus,
 		xdastat.[Status] as XDAStatus,
 		dqstat.[Status] as DQStatus,
@@ -83,121 +83,302 @@ namespace SystemCenter.Model
 			SELECT TOP 1 BadDays FROM [MiMDDailyStatistic]  WHERE  Meter.AssetKey = [MiMDDailyStatistic].Meter  ORDER BY Cast([MiMDDailyStatistic].Date as date) DESC ) t
 		) as bds     
 	"), SettingsCategory("systemSettings"), ViewOnly, AllowSearch]
-	public class DeviceHealthReport
-	{
-		public int ID { get; set; }
-		public string Name { get; set; }
-		public string Model { get; set; }
-		public string TimeZone { get; set; }
-		public string OpenMIC { get; set; }
-		public int LocationID { get; set; }
-		public string Substation { get; set; }
-		public string LocationKey { get; set; }
-		public string TSC { get; set; }
-		public string Sector { get; set; }
-		public string IP { get; set; }
-		public DateTime LastGood { get; set; } // no longer gotten from table
-		public int BadDays { get; set; }
-		public int MiMDBadDays { get; set; }
-		public int MICBadDays { get; set; }  // no longer gotten from table
-		public int XDABadDays { get; set; }
-        public string MiMDStatus { get; set; } 
+    public class DeviceHealthReport
+    {
+        public int ID { get; set; }
+        public string Name { get; set; }
+        public string Model { get; set; }
+        public string TimeZone { get; set; }
+        public string OpenMIC { get; set; }
+        public int LocationID { get; set; }
+        public string Substation { get; set; }
+        public string LocationKey { get; set; }
+        public string TSC { get; set; }
+        public string Sector { get; set; }
+        public string IP { get; set; }
+        public DateTime? LastGood { get; set; } // no longer gotten from table
+        public int BadDays { get; set; }
+        public int MiMDBadDays { get; set; }
+        public int? MICBadDays { get; set; }  // no longer gotten from table
+        public int XDABadDays { get; set; }
+        public string MiMDStatus { get; set; }
         public string MICStatus { get; set; } // no longer gotten from table
-		public string XDAStatus { get; set; }
-		public DateTime LastConfigChange { get; set; }
-	}
+        public string XDAStatus { get; set; }
+        public DateTime? LastConfigChange { get; set; }
+    }
 
-	[RoutePrefix("api/DeviceHealthReport")]
-	public class DeviceHealthReportController : ModelController<DeviceHealthReport> 
-	{
-		public class StatusItem
-		{
-			public string Status { get; set; }
-			public string Description { get; set; }
-		}
-
-		public class AppStatus 
-		{
-			public string Status { get; set; }
-
-			public List<StatusItem> Details { get; set; }
-			
-		}
-
-        public override IHttpActionResult GetSearchableList([FromBody] PostData postData)
+    [RoutePrefix("api/DeviceHealthReport")]
+    public class DeviceHealthReportController : ModelController<DeviceHealthReport>
+    {
+        public int PagingAmount { get; set; } = 50;
+        public class DailyStatisticsRecord
         {
-            int warningLevel = 50;
-            int errorLevel = 100;
-            DataTable table = GetSearchResults(postData);
+            [PrimaryKey(true)]
+            public int ID { get; set; }
 
-			// add empty rows to table for openMIC info
-			table.Columns.Add("MICStatus");
-			table.Columns.Add("MICBadDays", Type.GetType("System.Int32"));
-			table.Columns.Add("LastGood");
-            foreach (DataRow devHealthReport in table.Rows)
-			{
-				if (string.IsNullOrEmpty(devHealthReport.ConvertField<string>("OpenMic")))
-				{
-					continue;
-				}
-				var rawResponse = ControllerHelpers.Get("OpenMIC", $"api/Operations/Statistics/{devHealthReport["OpenMIC"]}");
-				JObject? openMicResult = null;
-				try
-				{
-					openMicResult = JObject.Parse(rawResponse);
-				}
-				catch(JsonReaderException)
-				{
-					continue;
-				}
-                int totalUnsuccessfulConnections = openMicResult["TotalUnsuccessfulConnections"]?.ToObject<int>() ?? 0;
-                if (totalUnsuccessfulConnections > errorLevel)
-                {
-                    devHealthReport["Status"] = "Error";
+            public DateTime Timestamp { get; set; }
 
-                }
-                else if (totalUnsuccessfulConnections > warningLevel)
-                {
-                    devHealthReport["Status"] = "Warning";
-                }
-                devHealthReport["MICStatus"] = openMicResult["Status"];
-				devHealthReport["MICBadDays"] = 0; // just a placeholder for now.
+            public int BadDays { get; set; }
 
-				if (openMicResult["LastSuccessfulConnection"] != null)
-				{
-                    devHealthReport["LastGood"] = openMicResult["LastSuccessfulConnection"];
-                }
-			}
-			return Ok(JsonConvert.SerializeObject(table));
+            public string Meter { get; set; }
+
+            [FieldDataType(DbType.DateTime2, DatabaseType.SQLServer)]
+            public DateTime? LastSuccessfulConnection { get; set; }
+
+            [FieldDataType(DbType.DateTime2, DatabaseType.SQLServer)]
+            public DateTime? LastUnsuccessfulConnection { get; set; }
+
+            public string LastUnsuccessfulConnectionExplanation { get; set; }
+
+            [NonRecordField]
+            public int TotalConnections => TotalSuccessfulConnections + TotalUnsuccessfulConnections;
+
+            public int TotalUnsuccessfulConnections { get; set; }
+
+            public int TotalSuccessfulConnections { get; set; }
         }
 
-		[HttpGet, Route("OpenMICStatus")]
-        public IHttpActionResult GetOpenMICStatus()
-		{
-			AppStatus status = new AppStatus() 
-			{ 
-				Status ="Success",
-				Details = []
-			};
+        public class StatusItem
+        {
+            public string Status { get; set; }
+            public string Description { get; set; }
+        }
 
-			HttpResponseMessage? openMICResponse = null;
+        public class AppStatus
+        {
+            public string Status { get; set; }
 
+            public List<StatusItem> Details { get; set; }
+
+        }
+
+        public override IHttpActionResult GetPagedList([FromBody] PostData postData, int page)
+        {
+            PagedResults pagedReports = new()
+            {
+                RecordsPerPage = 50
+            };
+
+            PostData openMicRequestBody = new()
+            {
+                Searches = [],
+                Ascending = true,
+                OrderBy = "Timestamp"
+            };
+
+            PostData systemCenterRequestBody = new()
+            {
+                Searches = [],
+                Ascending = true,
+                OrderBy = "Name"
+            };
+
+            SQLSearchFilter[] badDayFilters = [];
+
+            // for each filter, add it to the request body that would use it
+            foreach (SQLSearchFilter filter in postData.Searches)
+            {
+                if (filter.FieldName == "LastGood")
+                {
+                    SQLSearchFilter newFilter = new()
+                    {
+                        FieldName = "LastSuccessfulConnection",
+                        SearchText = filter.SearchText,
+                        Operator = filter.Operator,
+                    };
+                    openMicRequestBody.Searches = openMicRequestBody.Searches.Append(newFilter);
+                    continue;
+                }
+                if (filter.FieldName == "MICStatus")
+                {
+                    if (filter.SearchText == "(Warning)")
+                    {
+                        SQLSearchFilter minFilter = new()
+                        {
+                            FieldName = "TotalUnsuccessfulConnections",
+                            Operator = ">=",
+                            SearchText = WarningLevel.ToString()
+                        };
+                        SQLSearchFilter maxFilter = new()
+                        {
+                            FieldName = "TotalUnsuccessfulConnections",
+                            Operator = "<",
+                            SearchText = ErrorLevel.ToString()
+                        };
+                        openMicRequestBody.Searches = openMicRequestBody.Searches.Append(minFilter);
+                        openMicRequestBody.Searches = openMicRequestBody.Searches.Append(maxFilter);
+                    }
+                    if (filter.SearchText == "(Error)")
+                    {
+
+                        SQLSearchFilter errorFilter = new()
+                        {
+                            FieldName = "TotalUnsuccessfulConnections",
+                            Operator = ">=",
+                            SearchText = ErrorLevel.ToString()
+                        };
+                        openMicRequestBody.Searches = openMicRequestBody.Searches.Append(errorFilter);
+                    }
+                    if (filter.SearchText == "(Warning,Error)")
+                    {
+                        SQLSearchFilter warningFilter = new()
+                        {
+                            FieldName = "TotalUnsuccessfulConnections",
+                            Operator = ">=",
+                            SearchText = WarningLevel.ToString()
+                        };
+                        openMicRequestBody.Searches = openMicRequestBody.Searches.Append(warningFilter);
+                    }
+                }
+                if (filter.FieldName == "BadDays")
+                {
+                    badDayFilters = badDayFilters.Append(filter).ToArray();
+                    continue;
+                }
+                systemCenterRequestBody.Searches = systemCenterRequestBody.Searches.Append(filter);
+            }
+
+            // pass the sorting argument to the correct application and sort the other by basic field
+            if (postData.OrderBy == "LastGood")
+            {
+                openMicRequestBody.OrderBy = "LastSuccessfulConnection";
+                openMicRequestBody.Ascending = postData.Ascending;
+            }
+            else if (postData.OrderBy == "MICStatus")
+            {
+                openMicRequestBody.OrderBy = "TotalSuccessfulConnections";
+                openMicRequestBody.Ascending = postData.Ascending;
+            }
+            else
+            {
+                systemCenterRequestBody.OrderBy = postData.OrderBy;
+                systemCenterRequestBody.Ascending = postData.Ascending;
+            }
+
+            DataTable systemCenterResult = GetSearchResults(systemCenterRequestBody);
+
+            //turn into array.
+            DeviceHealthReport[] deviceHealthReports = systemCenterResult.AsEnumerable()
+                .Select(row => new DeviceHealthReport()
+                {
+                    ID = row.Field<int>("ID"),
+                    Name = row.Field<string>("Name"),
+                    Model = row.Field<string>("Model"),
+                    TimeZone = row.Field<string>("TimeZone"),
+                    OpenMIC = row.Field<string>("OpenMIC"),
+                    LocationID = row.Field<int>("LocationID"),
+                    Substation = row.Field<string>("Substation"),
+                    LocationKey = row.Field<string>("LocationKey"),
+                    LastGood = null,
+                    TSC = row.Field<string>("TSC"),
+                    Sector = row.Field<string>("Sector"),
+                    IP = row.Field<string>("IP"),
+                    BadDays = row.Field<int>("BadDays"),
+                    MiMDBadDays = row.Field<int>("MiMDBadDays"),
+                    MICStatus = null,
+                    MICBadDays = null,
+                    XDABadDays = row.Field<int>("XDABadDays"),
+                    MiMDStatus = row.Field<string>("MiMDStatus"),
+                    XDAStatus = row.Field<string>("XDAStatus"),
+                    // LastConfigChange = new DateTime(row.Field<string>("LastConfigChange")) 
+                }).ToArray();
+
+            // get a list of meters to search for in open mic
+            string[] openMICMeters = deviceHealthReports
+                .Select(device => device.OpenMIC).Where(openMIC => openMIC != "").ToArray();
+
+            SQLSearchFilter openMICMeterFilter = new()
+            {
+                SearchText = $"({String.Join(",", openMICMeters)})",
+                Operator = "IN",
+                FieldName = "Meter"
+            };
+
+            openMicRequestBody.Searches.Append(openMICMeterFilter);
+
+            DailyStatisticsRecord[] openMicStatistics;
+
+            void ConfigureRequest(HttpRequestMessage request)
+            {
+                request.Method = HttpMethod.Post;
+                request.Content = new StringContent(JsonConvert.SerializeObject(openMicRequestBody), Encoding.UTF8, "application/json");
+            }
             try
-			{
-				openMICResponse = GetHealth("OpenMIC", $"api/health/getsystemstatus/");
-				
-			}
-			catch
-			{
-				status.Status = "Error";
-				status.Details.Add(new StatusItem()
-				{
-					Status = "Error",
-					Description = "Could not connect to openMIC. Check the OpenMIC.URL setting in System Center Settings."
+            {
+                APIQuery apiQuery = GetAPIQuery();
+                HttpResponseMessage response = apiQuery.SendWebRequestAsync(ConfigureRequest, $"api/DailyStatistics/SearchableList").Result;
+                string responseContent = response.Content.ReadAsStringAsync().Result;
+                string trimmedResponse = responseContent.Trim('"');
+                string unescapedResponse = Regex.Unescape(trimmedResponse);
+                openMicStatistics = JsonConvert.DeserializeObject<DailyStatisticsRecord[]>(unescapedResponse);
+            }
+            catch (Exception e)
+            {
+                pagedReports.TotalRecords = deviceHealthReports.Count();
+                pagedReports.NumberOfPages = (pagedReports.TotalRecords + pagedReports.RecordsPerPage - 1) / pagedReports.RecordsPerPage;
+                DeviceHealthReport[] pagedRecords = deviceHealthReports.Skip(page * pagedReports.RecordsPerPage).Take(pagedReports.RecordsPerPage).ToArray();
+                pagedReports.Data = JsonConvert.SerializeObject(pagedRecords);
+                return Ok(JsonConvert.SerializeObject(pagedReports)); // return just the system center stuff
+            }
+
+            DeviceHealthReport[] combinedReport = CombineData(deviceHealthReports, openMicStatistics, postData).ToArray();
+
+            foreach (SQLSearchFilter badDayFilter in badDayFilters)
+            {
+                combinedReport = FilterBadDays(combinedReport, badDayFilter);
+            }
+
+            if (postData.OrderBy == "BadDays")
+            {
+                if (postData.Ascending)
+                {
+                    combinedReport = combinedReport.OrderBy(record => record.BadDays).ToArray();
+                }
+                else
+                {
+                    combinedReport = combinedReport.OrderByDescending(record => record.BadDays).ToArray();
+                }
+            }
+
+            pagedReports.TotalRecords = combinedReport.Count();
+            pagedReports.NumberOfPages = (pagedReports.TotalRecords + pagedReports.RecordsPerPage - 1) / pagedReports.RecordsPerPage;
+            DeviceHealthReport[] pageRecords = combinedReport.Skip(page * pagedReports.RecordsPerPage).Take(pagedReports.RecordsPerPage).ToArray();
+            pagedReports.Data = JsonConvert.SerializeObject(pageRecords);
+            return Ok(JsonConvert.SerializeObject(pagedReports));
+        }
+
+        [HttpGet, Route("OpenMICStatus")]
+        public IHttpActionResult GetOpenMICStatus()
+        {
+
+            void ConfigureRequest(HttpRequestMessage request)
+            {
+                request.Method = HttpMethod.Get;
+            }
+
+            AppStatus status = new AppStatus()
+            {
+                Status = "Success",
+                Details = []
+            };
+
+            HttpResponseMessage? openMICResponse = null;
+            try
+            {
+                APIQuery apiQuery = GetAPIQuery();
+                openMICResponse = apiQuery.SendWebRequestAsync(ConfigureRequest, $"api/health/getsystemstatus/").Result;
+            }
+            catch
+            {
+                status.Status = "Error";
+                status.Details.Add(new StatusItem()
+                {
+                    Status = "Error",
+                    Description = "Could not connect to openMIC. Check the OpenMIC.URL setting in System Center Settings."
                 });
             }
 
-			if (openMICResponse is null)
+            if (openMICResponse is null)
                 return Ok(status);
 
             status.Details.Add(new StatusItem()
@@ -207,15 +388,15 @@ namespace SystemCenter.Model
             });
 
             if (openMICResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-			{
+            {
                 status.Status = "Error";
                 status.Details.Add(new StatusItem()
                 {
                     Status = "Error",
-					Description = "Could not authorize with openMIC. Check the OpenMIC.Credential and OpenMIC.Password settings in System Center Settings."
-				});
+                    Description = "Could not authorize with openMIC. Check the OpenMIC.Credential and OpenMIC.Password settings in System Center Settings."
+                });
 
-				return Ok(status);
+                return Ok(status);
             }
 
             if (openMICResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
@@ -248,54 +429,64 @@ namespace SystemCenter.Model
                 Description = "Successful authentication."
             });
 
-			string r = openMICResponse.Content.ReadAsStringAsync().Result;
+            string r = openMICResponse.Content.ReadAsStringAsync().Result;
 
-			StatusItem[] responseStatus = JsonConvert.DeserializeObject<StatusItem[]>(r);
+            StatusItem[] responseStatus = JsonConvert.DeserializeObject<StatusItem[]>(r);
 
             status.Details.AddRange(responseStatus);
 
-            if (status.Details.Any(item => item.Status == "Error")) {
-				status.Status = "Error";
-			}
+            if (status.Details.Any(item => item.Status == "Error"))
+            {
+                status.Status = "Error";
+            }
 
             return Ok(status);
         }
 
-		[HttpGet, Route("ScadaTriggerStatus")]
-		public IHttpActionResult GetScadaTriggerStatus()
-		{
+        [HttpGet, Route("ScadaTriggerStatus")]
+        public IHttpActionResult GetScadaTriggerStatus()
+        {
             AppStatus status = new AppStatus()
             {
                 Status = "Success",
                 Details = []
             };
-			HttpResponseMessage openMICResponse = null;
-			try
-			{
-                openMICResponse = GetHealth("OpenMIC", $"api/health/getsystemstatus/");
-			}
-			catch
-			{
-				status.Status = "N/A";
-				status.Details.Add(new StatusItem()
-				{
-					Status = "Error",
-					Description = "Could not connect to openMIC."
-				});
+            HttpResponseMessage openMICResponse = null;
+
+
+            void ConfigureRequest(HttpRequestMessage request)
+            {
+                request.Method = HttpMethod.Get;
             }
 
-			if (openMICResponse is null)
-			{
-				return Ok(status);
-			}
+            try
+            {
+                APIQuery apiQuery = GetAPIQuery();
+                openMICResponse = apiQuery.SendWebRequestAsync(ConfigureRequest, $"api/health/getsystemstatus/").Result;
+            }
+            catch
+            {
+                status.Status = "N/A";
+                status.Details.Add(new StatusItem()
+                {
+                    Status = "Error",
+                    Description = "Could not connect to openMIC."
+                });
+            }
 
-			HttpResponseMessage scadaTriggerResponse = null;
-			try
-			{
-				scadaTriggerResponse = GetHealth("OpenMIC", $"api/health/getscadatriggerhealth/");
-			}
-			catch
-			{
+            if (openMICResponse is null)
+            {
+                return Ok(status);
+            }
+
+            HttpResponseMessage scadaTriggerResponse = null;
+            try
+            {
+                APIQuery apiQuery = GetAPIQuery();
+                scadaTriggerResponse = apiQuery.SendWebRequestAsync(ConfigureRequest, $"api/health/getscadatriggerhealth/").Result;
+            }
+            catch
+            {
                 status.Status = "N/A";
                 status.Details.Add(new StatusItem()
                 {
@@ -304,60 +495,208 @@ namespace SystemCenter.Model
                 });
             }
 
-			if (scadaTriggerResponse is null) 
-			{
-				return Ok(status);
-			}
+            if (scadaTriggerResponse is null)
+            {
+                return Ok(status);
+            }
 
-			if (scadaTriggerResponse.StatusCode != System.Net.HttpStatusCode.OK)
-			{
-				status.Status = "N/A";
-				status.Details.Add(new StatusItem()
-				{
-					Status = "Error",
+            if (scadaTriggerResponse.StatusCode != System.Net.HttpStatusCode.OK)
+            {
+                status.Status = "N/A";
+                status.Details.Add(new StatusItem()
+                {
+                    Status = "Error",
                     Description = "Could not establish connection to Scada Trigger."
-				});
+                });
 
-				return Ok(status);
+                return Ok(status);
             }
 
             string r = scadaTriggerResponse.Content.ReadAsStringAsync().Result;
 
             StatusItem[] responseStatus = JsonConvert.DeserializeObject<StatusItem[]>(r);
 
-			status.Details.AddRange(responseStatus);
+            status.Details.AddRange(responseStatus);
 
-            if (status.Details.Any(item => item.Status == "Error")) {
+            if (status.Details.Any(item => item.Status == "Error"))
+            {
                 status.Status = "Error";
             }
 
-			return Ok(status);
-		}
+            return Ok(status);
+        }
 
-        /// <summary>
-        /// Processes Get request from an application using settings table parameters.
-        /// Exceptions are expected to be handled by the caller.
-        /// </summary>
-        /// <param name="application">Name of Application</param>
-        /// <param name="requestURI">Path to specific API request</param>
-        /// <returns>string</returns>
-        public static HttpResponseMessage GetHealth(string application, string requestURI)
+        [HttpGet, Route("OpenMICMeterStatistics")]
+        public IHttpActionResult GetOpenMICMeterStatistics([FromUri] string meter)
+        {
+            DailyStatisticsRecord[] meterStatistics = [];
+            OpenMICDailyStatistic[] micDailyStatistics = [];
+            void ConfigureRequest(HttpRequestMessage request)
+            {
+                request.Method = HttpMethod.Get;
+            }
+            try
+            {
+                APIQuery apiQuery = GetAPIQuery();
+                HttpResponseMessage response = apiQuery.SendWebRequestAsync(ConfigureRequest, $"api/DailyStatistics/Get/?meter={meter}").Result;
+                string responseContent = response.Content.ReadAsStringAsync().Result;
+                string trimmedResponse = responseContent.Trim('"');
+                string unescapedResponse = Regex.Unescape(trimmedResponse);
+                meterStatistics = JsonConvert.DeserializeObject<DailyStatisticsRecord[]>(unescapedResponse);
+                foreach (DailyStatisticsRecord record in meterStatistics)
+                {
+                    micDailyStatistics = micDailyStatistics.Append(new()
+                    {
+                        ID = record.ID,
+                        Date = record.Timestamp.ToString(),
+                        Meter = record.Meter,
+                        LastSuccessfulConnection = record.LastSuccessfulConnection,
+                        LastUnsuccessfulConnection = record.LastUnsuccessfulConnection,
+                        LastUnsuccessfulConnectionExplanation = record.LastUnsuccessfulConnectionExplanation,
+                        TotalConnections = record.TotalConnections,
+                        TotalSuccessfulConnections = record.TotalSuccessfulConnections,
+                        TotalUnsuccessfulConnections = record.TotalUnsuccessfulConnections,
+                        BadDays = record.BadDays,
+                        Status = (record.TotalUnsuccessfulConnections >= 50) ? (record.TotalUnsuccessfulConnections >= 100) ? "Error" : "Warning" : ""
+                    }).ToArray();
+                }
+            }
+            catch (Exception e)
+            {
+                return Ok();
+            }
+            return Ok(JsonConvert.SerializeObject(micDailyStatistics));
+        }
+
+        public static APIQuery GetAPIQuery()
         {
             using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
             {
-                string url = new TableOperations<Setting>(connection).QueryRecordWhere($"Name = '{application}.Url'")?.Value ?? "";
-                string credential = new TableOperations<Setting>(connection).QueryRecordWhere($"Name = '{application}.Credential'")?.Value ?? "";
-                string password = new TableOperations<Setting>(connection).QueryRecordWhere($"Name = '{application}.Password'")?.Value ?? "";
+                string url = new TableOperations<Setting>(connection).QueryRecordWhere($"Name = 'OpenMIC.Url'")?.Value ?? "";
+                string credential = new TableOperations<Setting>(connection).QueryRecordWhere($"Name = 'OpenMIC.Credential'")?.Value ?? "";
+                string password = new TableOperations<Setting>(connection).QueryRecordWhere($"Name = 'OpenMIC.Password'")?.Value ?? "";
 
-                void ConfigureRequest(HttpRequestMessage request)
-                {
-                    request.Method = HttpMethod.Get;
-                }
                 //string token = GenerateAntiForgeryToken(application);
                 //return Get(httpClient, url, requestURI, credential, password, token);
                 APIQuery query = new APIQuery(credential, password, url);
-                return query.SendWebRequestAsync(ConfigureRequest, requestURI).Result;
+                return query;
             }
         }
+
+        private static DeviceHealthReport[] FilterBadDays(DeviceHealthReport[] reports, SQLSearchFilter badDayFilter)
+        {
+            DeviceHealthReport[] filteredReports = [];
+            // Bad Days can be =, <> (neq), <, <=, >, >=, with a number
+            switch (badDayFilter.Operator)
+            {
+                case "=":
+                    filteredReports = reports
+                        .Where(record => record.BadDays == int.Parse(badDayFilter.SearchText)).ToArray();
+                    break;
+                case "<>":
+                    filteredReports = reports
+                        .Where(record => record.BadDays != int.Parse(badDayFilter.SearchText)).ToArray();
+                    break;
+                case "<":
+                    filteredReports = reports
+                        .Where(record => record.BadDays < int.Parse(badDayFilter.SearchText)).ToArray();
+                    break;
+                case "<=":
+                    filteredReports = reports
+                        .Where(record => record.BadDays <= int.Parse(badDayFilter.SearchText)).ToArray();
+                    break;
+                case ">":
+                    filteredReports = reports
+                        .Where(record => record.BadDays > int.Parse(badDayFilter.SearchText)).ToArray();
+                    break;
+                case ">=":
+                    filteredReports = reports
+                        .Where(record => record.BadDays >= int.Parse(badDayFilter.SearchText)).ToArray();
+                    break;
+                default:
+                    break;
+            }
+            return filteredReports;
+        }
+
+        private List<DeviceHealthReport> CombineData(DeviceHealthReport[] systemCenterData, DailyStatisticsRecord[] openMicData, PostData postData)
+        {
+            //Turn into Divtionary using ID
+            List<DeviceHealthReport> results = [];
+            HashSet<int> processedID = new();
+
+            bool openMICFiltered = (postData.Searches.Any(search => string.Equals(search.FieldName, "LastGood", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(search.FieldName, "MICStatus", StringComparison.OrdinalIgnoreCase)));
+
+            bool openMICOrdered = (postData.OrderBy == "LastGood" || postData.OrderBy == "MICStatus");
+
+            if (openMICOrdered) // if sorted or filtered by openMICField
+            {
+                foreach (DailyStatisticsRecord record in openMicData)
+                {
+                    DeviceHealthReport matchedReport = systemCenterData.FirstOrDefault(r => string.Equals(r.OpenMIC, record.Meter, StringComparison.OrdinalIgnoreCase));
+
+                    if (matchedReport is not null)
+                    {
+                        results.Add(CombineReports(matchedReport, record));
+                        processedID.Add(matchedReport.ID);
+                    }
+                }
+                if (!openMICFiltered) // if not filtered by openMIC, add the rest of systemCenter below 
+                    results.AddRange(systemCenterData.Where(record => !processedID.Contains(record.ID)));
+
+            }
+            else
+            {
+                foreach (DeviceHealthReport record in systemCenterData)
+                {
+                    DailyStatisticsRecord? openMicRecord = null;
+
+                    if (!string.IsNullOrEmpty(record.OpenMIC))
+                        openMicRecord = openMicData.FirstOrDefault(r => string.Equals(r.Meter, record.OpenMIC, StringComparison.OrdinalIgnoreCase));
+
+                    if (openMicRecord is null)
+                    {
+                        if (!openMICFiltered)
+                            results.Add(record);
+                        continue;
+                    }
+
+                    results.Add(CombineReports(record, openMicRecord));
+                }
+            }
+
+            return results;
+        }
+
+        private DeviceHealthReport CombineReports(DeviceHealthReport systemCenterRecord, DailyStatisticsRecord? openMICRecord)
+        {
+            if (openMICRecord is null)
+            {
+                return systemCenterRecord;
+            }
+
+            switch (openMICRecord.TotalUnsuccessfulConnections)
+            {
+                case int n when n > ErrorLevel:
+                    systemCenterRecord.MICStatus = "Error";
+                    break;
+                case int n when n > WarningLevel:
+                    systemCenterRecord.MICStatus = "Warning";
+                    break;
+                default:
+                    systemCenterRecord.MICStatus = "";
+                    break;
+            }
+
+            systemCenterRecord.MICBadDays = Math.Max(openMICRecord.BadDays, systemCenterRecord.BadDays);
+
+            systemCenterRecord.LastGood = openMICRecord.LastSuccessfulConnection;
+
+            return systemCenterRecord;
+        }
+
+        public int WarningLevel { get; set; } = 50;
+        public int ErrorLevel { get; set; } = 100;
     }
 }
