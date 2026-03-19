@@ -194,11 +194,11 @@ namespace SystemCenter.Controllers
             }
 
             appStatus.Status = "Success";
-            appStatus.Details.Append(new StatusItem()
+            appStatus.Details = appStatus.Details.Append(new StatusItem()
             {
                 Status = "Success",
                 Description = "Successfully connected to PQI Client."
-            });
+            }).ToList();
             return Ok(appStatus);
         }
 
