@@ -1,7 +1,7 @@
 //******************************************************************************************************
-//  NodeStatus.tsx - Gbtc
+//  NodeHealth.tsx - Gbtc
 //
-//  Copyright © 2023, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright © 2026, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -27,6 +27,7 @@ import { GenericController } from '@gpa-gemstone/react-interactive'
 import { ToolTip } from '@gpa-gemstone/react-forms'
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { SystemCenter as SC } from '../global'
+import StatusItem, { GetDetailStatusSymbol, GetStatusItemAlertClass, GetStatusSymbol }  from './StatusItem'
 
 const controllerPath = `${homePath}api/SystemCenter/ExternalDatabases`
 const ExternalDBController = new GenericController<SystemCenter.Types.DetailedExternalDatabases>(controllerPath, "ID", true)
@@ -233,110 +234,30 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
                     <legend className="w-auto" style={{ fontSize: 'large' }}>External Database Connections:</legend>
                     {status === 'loading' ? <ReactIcons.SpiningIcon /> :
                         extDBStatus.map((statusItem, index) => (
-                            <div className="row mb-2 mx-2"
+                            <StatusItem
+                                StatusItem={statusItem}
+                                Status={status}
+                                HoveredItem={hoveredItem}
+                                SetHoveredItem={setHoveredItem}
                                 key={index}
-                            >
-                                <div className={`col-12 d-flex alert-${GetStatusItemAlertClass(statusItem.Status)}`}>
-                                    <span className={"my-3"}>{GetStatusSymbol(statusItem.Status)}</span>
-                                    <h5
-                                        onMouseEnter={() => setHoveredItem(statusItem.Name)}
-                                        onMouseLeave={() => setHoveredItem(null)}
-                                        data-tooltip={`statusbutton${statusItem.Name}`}
-                                        className={"m-3"}
-                                    >
-                                        {statusItem.Name}
-                                    </h5>
-                                    {statusItem.Status !== 'Error' ? null : <p className={"my-3 mx-2"}> {statusItem.Details.find((detail) => detail.Status === 'Error')?.Description} </p>}
-                                    <ToolTip
-                                        Show={hoveredItem === statusItem.Name && status === 'idle' && (statusItem.Details?.length ?? 0) > 0}
-                                        Position={'right'}
-                                        Target={`statusbutton${statusItem.Name}`}
-                                    >
-                                        {statusItem?.Details == null ? <ReactIcons.SpiningIcon /> :
-                                            statusItem.Details.map((data, index) => (
-                                                <div
-                                                    className={'d-flex'}
-                                                    key={index}
-                                                >
-                                                    {GetDetailStatusSymbol(data.Status)}
-                                                    <p> {data.Description} </p>
-                                                </div>
-                                            ))
-                                        }
-                                    </ToolTip>
-                                </div>
-                            </div>
+                            />
                         ))
                     }
                 </fieldset>
                 <fieldset className="border col-6" style={{ padding: '10px', height: '100%' }}>
                     <legend className="w-auto" style={{ fontSize: 'large' }}>Other Connections:</legend>
-                    <div className="row mb-2 mx-2"
-                    >
-                        <div className={`col-12 d-flex alert-${GetStatusItemAlertClass(fawgStatus.Status)}`}>
-                            <span className={"my-3"}>{GetStatusSymbol(fawgStatus.Status)}</span>
-                            <h5
-                                onMouseEnter={() => setHoveredItem(fawgStatus.Name)}
-                                onMouseLeave={() => setHoveredItem(null)}
-                                data-tooltip={`statusbutton${fawgStatus.Name}`}
-                                className={"m-3"}
-                            >
-                                {fawgStatus.Name}
-                            </h5>
-                            {fawgStatus.Status === "N/A" ? <p className={"my-3 mx-2"}> FAWG is disabled. </p> : null}
-                            {fawgStatus.Status !== 'Error' ? null : <p className={"my-3 mx-2"}> {fawgStatus.Details.find((detail) => detail.Status === 'Error')?.Description} </p>}
-                            <ToolTip
-                                Show={hoveredItem === fawgStatus.Name && status === 'idle' && (fawgStatus.Details.length ?? 0) > 0}
-                                Position={'right'}
-                                Target={`statusbutton${fawgStatus.Name}`}
-                            >
-                                {fawgStatus.Details == null ? <ReactIcons.SpiningIcon /> :
-                                    fawgStatus.Details.map((data, index) => (
-                                        <div
-                                            className={'d-flex'}
-                                            key={index}
-                                        >
-                                            {GetDetailStatusSymbol(data.Status)}
-                                            <p> {data.Description} </p>
-                                        </div>
-                                    ))
-                                }
-                            </ToolTip>
-                        </div>
-                    </div>
-                    <div className="row mb-2 mx-2"
-                    >
-                        <div className={`col-12 d-flex alert-${GetStatusItemAlertClass(PQIStatus.Status)}`}>
-                            <span className={"my-3"}>{GetStatusSymbol(PQIStatus.Status)}</span>
-                            <h5
-                                onMouseEnter={() => setHoveredItem(PQIStatus.Name)}
-                                onMouseLeave={() => setHoveredItem(null)}
-                                data-tooltip={`statusbutton${PQIStatus.Name}`}
-                                className={"m-3"}
-                            >
-                                {PQIStatus.Name}
-                            </h5>
-                            {PQIStatus.Status === "N/A" ? <p className={"my-3 mx-2"}> PQI is disabled. </p> : null }
-                            {PQIStatus.Status !== 'Error' ? null : <p className={"my-3 mx-2"}> {PQIStatus.Details.find((detail) => detail.Status === 'Error')?.Description} </p>}
-                            <ToolTip
-                                Show={hoveredItem === PQIStatus.Name && status === 'idle' && (PQIStatus.Details.length ?? 0) > 0}
-                                Position={'right'}
-                                Target={`statusbutton${PQIStatus.Name}`}
-                            >
-                                {PQIStatus.Details == null ? <ReactIcons.SpiningIcon /> :
-                                    PQIStatus.Details.map((data, index) => (
-                                        <div
-                                            className={'d-flex'}
-                                            key={index}
-                                        >
-                                            {GetDetailStatusSymbol(data.Status)}
-                                            <p> {data.Description} </p>
-                                        </div>
-                                    ))
-                                }
-                            </ToolTip>
-                        </div>
-                    </div>
+                    <StatusItem
+                        StatusItem={fawgStatus}
+                        Status={status}
+                        HoveredItem={hoveredItem}
+                        SetHoveredItem={setHoveredItem}
+                    />
+                    <StatusItem
+                        StatusItem={PQIStatus}
+                        Status={status}
+                        HoveredItem={hoveredItem}
+                        SetHoveredItem={setHoveredItem}
+                    />
                 </fieldset>
             </div >
             : props.ApplicationType === "XDA" ?
@@ -345,39 +266,13 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
                         <legend className="w-auto" style={{ fontSize: 'large' }}>Remote XDA Connections:</legend>
                         {status === 'loading' ? <ReactIcons.SpiningIcon /> :
                             remoteXDAStatus.map((statusItem, index) => (
-                                <div className="row mb-2 mx-2"
+                                <StatusItem
+                                    StatusItem={statusItem}
+                                    Status={status}
+                                    HoveredItem={hoveredItem}
+                                    SetHoveredItem={setHoveredItem}
                                     key={index}
-                                >
-                                    <div className={`col-12 d-flex alert-${GetStatusItemAlertClass(statusItem.Status)}`}>
-                                        <span className={"my-3"}>{GetStatusSymbol(statusItem.Status)}</span>
-                                        <h5
-                                            onMouseEnter={() => setHoveredItem(statusItem.Name)}
-                                            onMouseLeave={() => setHoveredItem(null)}
-                                            data-tooltip={`statusbutton${statusItem.Name}`}
-                                            className={"m-3"}
-                                        >
-                                            {statusItem.Name}
-                                        </h5>
-                                        {statusItem.Status !== 'Error' ? null : <p className={"my-3 mx-2"}> {statusItem.Details.find((detail) => detail.Status === 'Error')?.Description} </p>}
-                                        <ToolTip
-                                            Show={hoveredItem === statusItem.Name && status === 'idle' && (statusItem.Details?.length ?? 0) > 0}
-                                            Position={'right'}
-                                            Target={`statusbutton${statusItem.Name}`}
-                                        >
-                                            {statusItem?.Details == null ? <ReactIcons.SpiningIcon /> :
-                                                statusItem.Details.map((data, index) => (
-                                                    <div
-                                                        className={'d-flex'}
-                                                        key={index}
-                                                    >
-                                                        {GetDetailStatusSymbol(data.Status)}
-                                                        <p> {data.Description} </p>
-                                                    </div>
-                                                ))
-                                            }
-                                        </ToolTip>
-                                    </div>
-                                </div>
+                                />
                             ))
                         }
                     </fieldset>
@@ -387,51 +282,3 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
 }
 
 export default NodeHealth;
-
-// helper functions
-const GetStatusSymbol = (status: 'Success' | 'Error' | 'Warning' | 'Loading' | 'N/A') => {
-    switch (status) {
-        case 'Success':
-            return <ReactIcons.CircleCheckMark Color="var(--success)" />
-        case 'Error':
-            return <ReactIcons.CircledX Color="var(--danger)" />
-        case 'Warning':
-            return <ReactIcons.QuestionMark />
-        case 'Loading':
-            return <ReactIcons.SpiningIcon />
-        case 'N/A':
-            return <ReactIcons.CrossMark />
-        default:
-            return <></>
-    }
-}
-
-const GetDetailStatusSymbol = (status: 'Success' | 'Error' | 'Warning' | 'Loading') => {
-    switch (status) {
-        case 'Success':
-            return <ReactIcons.CheckMark Color="var(--success)" />
-        case 'Error':
-            return <ReactIcons.CrossMark Color="var(--danger)" />
-        case 'Warning':
-            return <ReactIcons.QuestionMark />
-        case 'Loading':
-            return <ReactIcons.SpiningIcon />
-        default:
-            return <></>
-    }
-}
-
-const GetStatusItemAlertClass = (status: 'Success' | 'Error' | 'Warning' | 'Loading' | 'N/A') => {
-    switch (status) {
-        case 'Success':
-            return 'success'
-        case 'Error':
-            return 'danger'
-        case 'Warning':
-            return 'warning'
-        case 'Loading':
-            return 'secondary'
-        case 'N/A':
-            return 'secondary'
-    }
-}
