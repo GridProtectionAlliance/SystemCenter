@@ -22,8 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react'
-import { Application, SystemCenter, OpenXDA } from '@gpa-gemstone/application-typings'
-import { GenericController } from '@gpa-gemstone/react-interactive'
+import { Application } from '@gpa-gemstone/application-typings'
 import { ToolTip } from '@gpa-gemstone/react-forms'
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { SystemCenter as SC } from '../global'
@@ -45,7 +44,7 @@ const StatusItem = (props: {StatusItem: SC.StatusItem, Status: Application.Types
                 >
                     {props.StatusItem.Name}
                 </h5>
-                {props.StatusItem.Status === "N/A" ? <p className={"my-3 mx-2"}> PQI is disabled. </p> : null}
+                {props.StatusItem.Status === "N/A" ? <p className={"my-3 mx-2"}> {props.StatusItem.Name} is disabled. </p> : null}
                 {props.StatusItem.Status !== 'Error' ? null : <p className={"my-3 mx-2"}> {props.StatusItem.Details.find((detail) => detail.Status === 'Error')?.Description} </p>}
                 <ToolTip
                     Show={props.HoveredItem === props.StatusItem.Name && props.Status === 'idle' && (props.StatusItem.Details.length ?? 0) > 0}
