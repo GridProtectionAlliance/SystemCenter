@@ -160,7 +160,6 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
         });
 
         h.done((xda: SC.StatusItem) => {
-            console.log(xda);
             setRemoteXDAStatus(statusItems => statusItems.map((statusItem) => {
                 if (remoteXDA.Name !== statusItem.Name) {
                     return statusItem
