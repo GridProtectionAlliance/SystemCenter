@@ -76,7 +76,7 @@ const ApplicationCard = (props: IApplicationCard) => {
     return (
         props.IsSmall ?
                 <div className="d-flex h-100 flex-column position-relative">
-                    <img className="position-absolute" src={`../Images/NodeTiles/${props.App !== "XDA" ? props.App : "OpenXDA"}Icon.png`} alt={`${props.App} Icon`} style={{ width: '20%', top: '0', right: '0', zIndex: '1030'}} />
+                    <img className="position-absolute" src={`../Images/NodeTiles/${props.App !== "XDA" ? props.App : "OpenXDA"}Icon.png`} alt={`${props.App} Icon`} style={{ width: '80px', top: '0', right: '0', zIndex: '1030'}} />
                     <div className="card h-100 container">
                         <div className="card-body row">
                             <div className="col-12">
@@ -92,9 +92,9 @@ const ApplicationCard = (props: IApplicationCard) => {
                             </div>
                         </div>
                         <div className="card-footer row justify-content-between">
-                            <button className="btn btn-info col-5" onClick={() => props.OpenConsole()}>Console</button>
+                            <button className="btn btn-info col-4" onClick={() => props.OpenConsole()}>Console</button>
                             {props.App === 'MiMD' ? null :
-                                <button className="btn btn-info col-5" onClick={() => props.OpenStats()}>Status</button>
+                                <button className="btn btn-info col-4" onClick={() => props.OpenStats()}>Status</button>
                             }
                         </div>
                     </div>
@@ -104,7 +104,7 @@ const ApplicationCard = (props: IApplicationCard) => {
                 <div className="card h-100 container">
                     <div className="card-body row justify-content-around align-items-center">
                         <div className="col-3">
-                            <img className="img-fluid" src={props.Image} alt={props.App} style={{ maxWidth: '200px', width: '150%' }} />
+                            <img src={props.Image} alt={props.App} style={{ width: '200px' }} />
                         </div>
 
                         <div className="col-5">
