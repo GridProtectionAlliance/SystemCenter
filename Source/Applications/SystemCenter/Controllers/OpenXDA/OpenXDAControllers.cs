@@ -486,14 +486,29 @@ namespace SystemCenter.Controllers.OpenXDA
             // first test the host instance
             try
             {
-                string hostResponse = SendGetRequest($"/api/SystemCenter/Alive", hostUrl).Result;
+                string hostResponse = SendGetRequest($"/api/SystemCenter/Alive", hostUrl, true).Result;
+                status.Details = status.Details.Append(new StatusItem()
+                {
+                    Status = "Success",
+                    Description = "Connected to host instance."
+                }).ToList();
+                if (hostResponse == "Unauthorized")
+                {
+                    status.Details = status.Details.Append(new StatusItem()
+                    {
+                        Status = "Error",
+                        Description = "Request unauthorized for host instance. Check XDA settings in System Center settings."
+                    }).ToList();
+                    return Ok(status);
+                }
+                ;
             }
             catch (Exception e)
             {
                 status.Details = status.Details.Append(new StatusItem()
                 {
                     Status = "Error",
-                    Description = "Could not establish connection with host instance."
+                    Description = "Could not connect to host instance. Check XDA.Url in System Center settings."
                 }).ToList();
                 return Ok(status);
             }
@@ -501,20 +516,43 @@ namespace SystemCenter.Controllers.OpenXDA
             // then test the connection of the host instance to the remote instance
             try
             {
-                string response = SendGetRequest($"/api/DataPusher/TestConnection/{remoteInstanceID}", hostUrl).Result;
+                string remoteResponse = SendGetRequest($"/api/DataPusher/TestConnection/{remoteInstanceID}", hostUrl, true).Result;
+                JObject jsonResponse = JObject.Parse(remoteResponse);
+                if (!Boolean.Parse(jsonResponse["Success"].ToString()))
+                {
+                    status.Details = status.Details.Append(new StatusItem()
+                    {
+                        Status = "Error",
+                        Description = "Could not connect to remote instance. Check XDA.Url in System Center settings."
+                    }).ToList();
+                    return Ok(status);
+                }
+                status.Details = status.Details.Append(new StatusItem()
+                {
+                    Status = "Success",
+                    Description = "Connected to remote instance."
+                }).ToList();
+                if (remoteResponse == "Unauthorized")
+                {
+                    status.Details = status.Details.Append(new StatusItem()
+                    {
+                        Status = "Error",
+                        Description = "Request unauthorized for remote instance. Check XDA settings in System Center settings."
+                    }).ToList();
+                    return Ok(status);
+                }
             }
             catch (Exception e)
             {
+                status.Details = status.Details.Append(new StatusItem()
+                {
+                    Status = "Error",
+                    Description = "Could not connect to remote instance. Check the URL of the Remote Instance."
+                }).ToList();
                 return Ok(status);
             }
 
             status.Status = "Success";
-            status.Details = [new StatusItem()
-            {
-                Status = "Success",
-                Description = "Successfully connected to remote XDA instance."
-            }
-            ];
             return Ok(status);
         }
 
@@ -536,7 +574,7 @@ namespace SystemCenter.Controllers.OpenXDA
         }
 
         //Todo: Think about moving this into API Auth Module
-        public async Task<string> SendGetRequest(string requestURI, string? host = null)
+        public async Task<string> SendGetRequest(string requestURI, string? host = null, bool passResponse = false)
         {
             APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).APISettings;
 
@@ -548,6 +586,10 @@ namespace SystemCenter.Controllers.OpenXDA
             HttpResponseMessage responseMessage = await query.SendWebRequestAsync(ConfigureRequest, requestURI).ConfigureAwait(false);
             if (!responseMessage.IsSuccessStatusCode)
             {
+                if (passResponse)
+                {
+                    return responseMessage.StatusCode.ToString();
+                }
                 throw new Exception("Status code " + responseMessage.StatusCode + ": " + responseMessage.ReasonPhrase);
             }
 
