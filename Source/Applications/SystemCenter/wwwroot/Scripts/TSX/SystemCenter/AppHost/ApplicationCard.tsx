@@ -84,7 +84,7 @@ const ApplicationCard = (props: IApplicationCard) => {
                                     {status == 'Online' ? <li className="list-group-item" key={'status'}> <span className="badge badge-pill badge-success">Online</span> </li> : null}
                                     {status == 'Unknown' ? <li className="list-group-item" key={'status'}> <span className="badge badge-pill badge-danger">Offline</span> </li> : null}
                                     {status == 'Loading' ? <li className="list-group-item" key={'status'}> <span className="badge badge-pill badge-secondary">...Loading</span> </li> : null}
-                                    {props.Properties.map((p, i) => <li className="list-group-item" key={i}>
+                                    {props.Properties.map((p, i) => p.Name === "ID" ? null : <li className="list-group-item" key={i}>
                                         {p.Name}
                                         <span className="badge badge-info" style={{ marginLeft: 10 }}>{p.Value}</span>
                                     </li>)}
@@ -112,7 +112,7 @@ const ApplicationCard = (props: IApplicationCard) => {
                                 {status == 'Online' ? <li className="list-group-item" key={'status'}> <span className="badge badge-pill badge-success">Online</span> </li> : null}
                                 {status == 'Unknown' ? <li className="list-group-item" key={'status'}> <span className="badge badge-pill badge-danger">Offline</span> </li> : null}
                                 {status == 'Loading' ? <li className="list-group-item" key={'status'}> <span className="badge badge-pill badge-secondary">...Loading</span> </li> : null}
-                                {props.Properties.map((p, i) => <li className="list-group-item" key={i}>
+                                {props.Properties.map((p, i) => p.Name === "ID" ? null : <li className="list-group-item" key={i}>
                                     {p.Name}
                                     <span className="badge badge-info" style={{ marginLeft: 10 }}>{p.Value}</span>
                                 </li>)}

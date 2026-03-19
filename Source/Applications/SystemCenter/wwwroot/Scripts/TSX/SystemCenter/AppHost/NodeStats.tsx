@@ -40,7 +40,9 @@ export interface IProps {
 const statStyle: React.CSSProperties = {
     fontSize: "1em",
     display: 'inline-block',
-    overflow: 'auto'
+    overflow: 'auto',
+    whiteSpace: 'pre-wrap',
+    wordBreak: 'break-word'
 }
 
 const NodeStats = (props: IProps) => {
@@ -112,9 +114,11 @@ const NodeStats = (props: IProps) => {
                                 </div> :
                                 status === "loading" ?
                                     <ReactIcons.SpiningIcon /> :
-                                    <pre style={statStyle}>
-                                        {statInfo}
-                                    </pre>
+                                    <div className="w-100 h-100">
+                                        <pre style={statStyle}>
+                                            {statInfo}
+                                        </pre>
+                                    </div>
                         }
                     </fieldset>
                     <div className="col-6">
