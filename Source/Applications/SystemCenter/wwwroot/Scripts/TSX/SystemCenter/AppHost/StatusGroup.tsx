@@ -1,0 +1,49 @@
+//******************************************************************************************************
+//  StatusGroup.tsx - Gbtc
+//
+//  Copyright © 2026, Grid Protection Alliance.  All Rights Reserved.
+//
+//  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
+//  the NOTICE file distributed with this work for additional information regarding copyright ownership.
+//  The GPA licenses this file to you under the MIT License (MIT), the "License"; you may not use this
+//  file except in compliance with the License. You may obtain a copy of the License at:
+//
+//      http://opensource.org/licenses/MIT
+//
+//  Unless agreed to in writing, the subject software distributed under the License is distributed on an
+//  "AS-IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. Refer to the
+//  License for the specific language governing permissions and limitations.
+//
+//  Code Modification History:
+//  ----------------------------------------------------------------------------------------------------
+//  03/19/2026 - Natalie Beatty
+//       Generated original version of source code.
+//
+//******************************************************************************************************
+
+import * as React from 'react'
+import { Application } from '@gpa-gemstone/application-typings'
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { SystemCenter as SC } from '../global'
+import StatusItem from './StatusItem'
+
+const StatusGroup = (props: { Name: string, StatusItems: SC.StatusItem[], Status: Application.Types.Status, HoveredItem: String, SetHoveredItem: React.Dispatch<React.SetStateAction<String>> }) => {
+    return (
+        <fieldset className="border col-12" style={{ padding: '10px', height: '100%' }}>
+            <legend className="w-auto" style={{ fontSize: 'large' }}>{`${props.Name}:`}</legend>
+            {props.Status === 'loading' ? <span className={"mx-auto"}><ReactIcons.SpiningIcon /></span> :
+                props.StatusItems.map((statusItem, index) => (
+                    <StatusItem
+                        StatusItem={statusItem}
+                        Status={props.Status}
+                        HoveredItem={props.HoveredItem}
+                        SetHoveredItem={props.SetHoveredItem}
+                        key={index}
+                    />
+                ))
+            }
+        </fieldset>
+    )
+}
+
+export default StatusGroup;

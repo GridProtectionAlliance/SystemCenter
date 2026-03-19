@@ -24,10 +24,8 @@
 import * as React from 'react'
 import { Application, SystemCenter, OpenXDA } from '@gpa-gemstone/application-typings'
 import { GenericController } from '@gpa-gemstone/react-interactive'
-import { ToolTip } from '@gpa-gemstone/react-forms'
-import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { SystemCenter as SC } from '../global'
-import StatusItem, { GetDetailStatusSymbol, GetStatusItemAlertClass, GetStatusSymbol }  from './StatusItem'
+import StatusGroup from './StatusGroup'
 
 const controllerPath = `${homePath}api/SystemCenter/ExternalDatabases`
 const ExternalDBController = new GenericController<SystemCenter.Types.DetailedExternalDatabases>(controllerPath, "ID", true)
@@ -229,37 +227,36 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
     return (
         props.ApplicationType === 'SystemCenter' ?
             <div className="row">
-                <fieldset className="border col-6" style={{ padding: '10px', height: '100%' }}>
-                    <legend className="w-auto" style={{ fontSize: 'large' }}>External Database Connections:</legend>
-                    {status === 'loading' ? <ReactIcons.SpiningIcon /> :
-                        extDBStatus.map((statusItem, index) => (
-                            <StatusItem
-                                StatusItem={statusItem}
+                <div className="col-6">
+                    <StatusGroup
+                        StatusItems={extDBStatus}
                                 Status={status}
                                 HoveredItem={hoveredItem}
                                 SetHoveredItem={setHoveredItem}
-                                key={index}
+                        Name="External Database Connections"
                             />
-                        ))
-                    }
-                </fieldset>
-                <fieldset className="border col-6" style={{ padding: '10px', height: '100%' }}>
-                    <legend className="w-auto" style={{ fontSize: 'large' }}>Other Connections:</legend>
-                    <StatusItem
-                        StatusItem={fawgStatus}
+                </div>
+                <div className="col-6">
+                    <StatusGroup
+                        StatusItems={[fawgStatus, PQIStatus]}
                         Status={status}
                         HoveredItem={hoveredItem}
                         SetHoveredItem={setHoveredItem}
+                        Name="Other Connections"
                     />
-                    <StatusItem
-                        StatusItem={PQIStatus}
-                        Status={status}
-                        HoveredItem={hoveredItem}
-                        SetHoveredItem={setHoveredItem}
-                    />
-                </fieldset>
+                </div>
             </div >
             : props.ApplicationType === "XDA" ?
+                <div>
+                    <div className="row">
+                        <StatusGroup
+                            StatusItems={remoteXDAStatus}
+                        Status={status}
+                        HoveredItem={hoveredItem}
+                        SetHoveredItem={setHoveredItem}
+                            Name="Remote XDA Connections"
+                    />
+                    </div>
                 <div className="row">
                     <fieldset className="border col-12" style={{ padding: '10px', height: '100%' }}>
                         <legend className="w-auto" style={{ fontSize: 'large' }}>Remote XDA Connections:</legend>
@@ -272,9 +269,7 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
                                     SetHoveredItem={setHoveredItem}
                                     key={index}
                                 />
-                            ))
-                        }
-                    </fieldset>
+                    </div>
                 </div>
                 : null
     )
