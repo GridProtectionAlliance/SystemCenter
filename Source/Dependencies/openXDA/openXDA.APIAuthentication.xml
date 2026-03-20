@@ -106,6 +106,13 @@
             </summary>
             <returns> A flag indicating if the operation was successful. </returns>
         </member>
+        <member name="M:openXDA.APIAuthentication.IAPICredentialRetriever.TryRetrieveCustomer(System.Security.Claims.ClaimsPrincipal,System.String@)">
+            <summary>
+            Retrieves <see href="https://github.com/GridProtectionAlliance/openXDA/blob/master/Source/Libraries/openXDA.Model/SystemCenter/Customer.cs">customer</see> key from the claims principle.
+            </summary>
+            <remarks>A value of <see langword="null"/> signifies the current user is authorized to view any object the controller may retrieve.</remarks>
+            <returns> A flag indicating if the operation was successful. </returns>
+        </member>
         <member name="T:openXDA.APIAuthentication.XDAAPI">
             <summary>
             Helper class that provides openXDA API Calls.
@@ -145,6 +152,13 @@
             <summary>
             Recalls the setup settings function from <see cref="T:openXDA.APIAuthentication.IAPICredentialRetriever"/> to refetch settings.
             </summary>
+        </member>
+        <member name="M:openXDA.APIAuthentication.XDAAPI.TryRetrieveCustomer(System.Security.Claims.ClaimsPrincipal,System.String@)">
+            <summary>
+            Retrieves <see href="https://github.com/GridProtectionAlliance/openXDA/blob/master/Source/Libraries/openXDA.Model/SystemCenter/Customer.cs">customer</see> key from the claims principle.
+            </summary>
+            <remarks>A value of <see langword="null"/> signifies the current user is authorized to view any object the controller may retrieve.</remarks>
+            <returns> A flag indicating if the operation was successful. </returns>
         </member>
         <member name="M:openXDA.APIAuthentication.XDAAPI.GetResponseTask(System.String,System.Net.Http.HttpContent)">
             <summary>
@@ -228,18 +242,25 @@
         </member>
         <member name="P:openXDA.APIAuthentication.XDAAPIHelper.API">
             <summary>
-            Object that retireves the token,key, and host of the helper.
+            Object that retireves the token, key, and host of the helper.
             </summary>
         </member>
         <member name="M:openXDA.APIAuthentication.XDAAPIHelper.InitializeHelper(openXDA.APIAuthentication.IAPICredentialRetriever)">
             <summary>
-            Function for setup of static helper. This must be ran once and only once before using the helper.
+            Function for setup of static helper. This must be ran once before using the helper.
             </summary>
         </member>
         <member name="M:openXDA.APIAuthentication.XDAAPIHelper.TryRefreshSettings">
             <summary>
             Recalls the setup settings function from <see cref="M:openXDA.APIAuthentication.XDAAPIHelper.InitializeHelper(openXDA.APIAuthentication.IAPICredentialRetriever)"/> to refetch settings.
             </summary>
+        </member>
+        <member name="M:openXDA.APIAuthentication.XDAAPIHelper.TryRetrieveCustomer(System.Security.Claims.ClaimsPrincipal,System.String@)">
+            <summary>
+            Retrieves <see href="https://github.com/GridProtectionAlliance/openXDA/blob/master/Source/Libraries/openXDA.Model/SystemCenter/Customer.cs">customer</see> key from the claims principle.
+            </summary>
+            <remarks>A value of <see langword="null"/> signifies the current user is authorized to view any object the controller may retrieve.</remarks>
+            <returns> A flag indicating if the operation was successful. </returns>
         </member>
         <member name="M:openXDA.APIAuthentication.XDAAPIHelper.GetResponseTask(System.String,System.Net.Http.HttpContent)">
             <summary>
