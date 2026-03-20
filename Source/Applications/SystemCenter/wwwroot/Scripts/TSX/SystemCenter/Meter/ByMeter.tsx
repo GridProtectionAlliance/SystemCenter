@@ -56,7 +56,6 @@ const ByMeter: Application.Types.iByComponent = (props) => {
     }, [sortKey, ascending, page]);
 
     React.useEffect(() => {
-        console.log(`cstate has changed: ${cState}`)
         if (cState === 'uninitiated' || cState === 'changed')
             dispatch(ByMeterSlice.PagedSearch({ sortField: sortKey, ascending, page }));
     }, [cState]);
@@ -69,7 +68,6 @@ const ByMeter: Application.Types.iByComponent = (props) => {
     }
 
     function getAdditionalFields(setFields) {
-        console.log('getting addiotional fields')
 
         let handle = $.ajax({
             type: "GET",
@@ -91,13 +89,11 @@ const ByMeter: Application.Types.iByComponent = (props) => {
             let ordered = _.orderBy(d.filter(item => item.Searchable).map(item => (
                 { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type), isPivotField: true } as Search.IField<SystemCenter.Types.DetailedMeter>
             )), ['label'], ["asc"]);
-            console.log(ordered)
             setFields(ordered)
         });
 
         return () => {
             if (handle != null && handle.abort == null) {
-                console.log(handle)
                 handle.abort()
             };
         };
