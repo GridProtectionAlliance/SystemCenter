@@ -53,6 +53,8 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
     const [hasChanged, setHasChanged] = React.useState<boolean>(false);
 
+    const [filters, setFilters] = React.useState<Search.IFilter<SystemCenter.Types.Setting>[]>([]);
+
     const [errors, setErrors] = React.useState<string[]>([]);
     React.useEffect(() => {
         if (status === 'uninitiated' || status === 'changed')
@@ -79,6 +81,10 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
         setErrors(e)
     }, [editnewSetting])
 
+    React.useEffect(() => {
+        dispatch(props.SettingsSlice.DBSearch({ filter: filters, sortField, ascending }))
+    }, [filters])
+
     const searchFields: Search.IField<T>[] = [
         { key: 'Name', label: 'Setting Name', type: 'string', isPivotField: false },
         { key: 'DefaultValue', label: 'Default Value', type: 'string', isPivotField: false },
@@ -94,7 +100,7 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
         <>
             <LoadingScreen Show={status === 'loading'} />
             <div style={{ width: '100%', height: '100%' }}>
-                <SearchBar<T> CollumnList={searchFields} SetFilter={(flds) => dispatch(props.SettingsSlice.DBSearch({ filter: flds, sortField, ascending }))}
+                <SearchBar<T> CollumnList={searchFields} SetFilter={setFilters}
                     Direction={'left'} defaultCollumn={{ key: 'Name', label: 'Setting Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'} StorageID={`${props.SettingsSlice.Name}Filter`}
                     ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Setting(s)'}
                     GetEnum={() => {

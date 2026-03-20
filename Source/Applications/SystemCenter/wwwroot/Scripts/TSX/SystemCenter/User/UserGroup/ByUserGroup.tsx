@@ -63,6 +63,8 @@ const ByUser: Application.Types.iByComponent = (props) => {
 
     const [pageStatus, setPageStatus] = React.useState<Application.Types.Status>('uninitiated');
 
+    const [filters, setFilters] = React.useState<Search.IFilter<ISecurityGroup>[]>([])
+
     React.useEffect(() => {
         if (status === 'error')
             setPageStatus('error')
@@ -77,6 +79,10 @@ const ByUser: Application.Types.iByComponent = (props) => {
             dispatch(SecurityGroupSlice.DBSearch({ sortField, ascending, filter: search }))
     }, [searchStatus])
 
+    React.useEffect(() => {
+        dispatch(SecurityGroupSlice.DBSearch({ sortField, ascending, filter: filters }))
+    }, [filters])
+
     if (pageStatus === 'error')
         return <div style={{ width: '100%', height: '100%' }}>
             <ServerErrorIcon Show={true} Label={'A Server Error Occurred. Please Reload the Application.'} />
@@ -86,7 +92,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
         <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
             <LoadingScreen Show={pageStatus === 'loading'} />
             <div className="row">
-                <SearchBar<ISecurityGroup> CollumnList={defaultSearchcols} SetFilter={(flds) => dispatch(SecurityGroupSlice.DBSearch({ sortField, ascending, filter: flds }))}
+                <SearchBar<ISecurityGroup> CollumnList={defaultSearchcols} SetFilter={setFilters}
                     Direction={'left'} defaultCollumn={{ label: 'Name', key: 'DisplayName', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
                     ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' User Group(s)'}
                     StorageID="UsersGroupFilter"

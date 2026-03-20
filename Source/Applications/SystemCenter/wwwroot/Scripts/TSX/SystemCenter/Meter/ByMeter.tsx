@@ -56,6 +56,7 @@ const ByMeter: Application.Types.iByComponent = (props) => {
     }, [sortKey, ascending, page]);
 
     React.useEffect(() => {
+        console.log(`cstate has changed: ${cState}`)
         if (cState === 'uninitiated' || cState === 'changed')
             dispatch(ByMeterSlice.PagedSearch({ sortField: sortKey, ascending, page }));
     }, [cState]);
@@ -68,6 +69,8 @@ const ByMeter: Application.Types.iByComponent = (props) => {
     }
 
     function getAdditionalFields(setFields) {
+        console.log('getting addiotional fields')
+
         let handle = $.ajax({
             type: "GET",
             url: `${homePath}api/SystemCenter/AdditionalFieldView/ParentTable/Meter/FieldName/0`,
@@ -88,11 +91,15 @@ const ByMeter: Application.Types.iByComponent = (props) => {
             let ordered = _.orderBy(d.filter(item => item.Searchable).map(item => (
                 { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type), isPivotField: true } as Search.IField<SystemCenter.Types.DetailedMeter>
             )), ['label'], ["asc"]);
+            console.log(ordered)
             setFields(ordered)
         });
 
         return () => {
-            if (handle != null && handle.abort == null) handle.abort();
+            if (handle != null && handle.abort == null) {
+                console.log(handle)
+                handle.abort()
+            };
         };
     }
 
@@ -122,7 +129,7 @@ const ByMeter: Application.Types.iByComponent = (props) => {
             <LoadingScreen Show={cState === 'loading'} />
             <div className="container-fluid d-flex h-100 flex-column">
                 <div className="row">
-                    <DefaultSearch.Meter Slice={ByMeterSlice} GetEnum={getEnum} GetAddlFields={getAdditionalFields} StorageID="MetersFilter">
+                     <DefaultSearch.Meter Slice={ByMeterSlice} GetEnum={getEnum} GetAddlFields={getAdditionalFields} StorageID="MetersFilter">
                         <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
                             <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                                 <legend className="w-auto" style={{ fontSize: 'large' }}>Wizards:</legend>
