@@ -32,6 +32,7 @@ import { useNavigate } from "react-router-dom";
 import { ValueListSlice, ValueListGroupSlice, UserAdditionalFieldSlice, UserAccountSlice } from '../../Store/Store';
 import { IUserAccount } from '../Types';
 import moment from 'moment';
+import { useStringMemonization } from '@gpa-gemstone/helper-functions'
 
 const defaultSearchcols: Search.IField<Application.Types.iUserAccount>[] = [
     { label: 'Username', key: 'DisplayName', type: 'string', isPivotField: false },
@@ -92,7 +93,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
 
     const [pageStatus, setPageStatus] = React.useState<Application.Types.Status>('uninitiated');
 
-    const [filters, setFilters] = React.useState<Search.IFilter<IUserAccount>[]>([]);
+    const filter = useStringMemonization<Search.IFilter<IUserAccount>[] | undefined>(undefined);
 
     React.useEffect(() => {
         if (userStatus === 'error' || adlFieldStatus === 'error' || valueListItemStatus === 'error' || valueListGroupStatus === 'error')
@@ -137,9 +138,9 @@ const ByUser: Application.Types.iByComponent = (props) => {
         setFilterableList(ordered)
     }, [adlFields]);
 
-    React.useEffect(() => {
-        dispatch(UserAccountSlice.DBSearch({ sortField, ascending, filter: filters }))
-    }, [filters])
+    const setFilters = React.useCallback((filters: Search.IFilter<IUserAccount>[]) => {
+        dispatch(UserAccountSlice.DBSearch({ sortField, ascending, filter }))
+    }, [sortField, ascending, filter])
 
     if (pageStatus === 'error')
         return <div style={{ width: '100%', height: '100%' }}>
