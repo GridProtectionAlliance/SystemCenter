@@ -257,19 +257,6 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
                             Name="Remote XDA Connections"
                     />
                     </div>
-                <div className="row">
-                    <fieldset className="border col-12" style={{ padding: '10px', height: '100%' }}>
-                        <legend className="w-auto" style={{ fontSize: 'large' }}>Remote XDA Connections:</legend>
-                        {status === 'loading' ? <ReactIcons.SpiningIcon /> :
-                            remoteXDAStatus.map((statusItem, index) => (
-                                <StatusItem
-                                    StatusItem={statusItem}
-                                    Status={status}
-                                    HoveredItem={hoveredItem}
-                                    SetHoveredItem={setHoveredItem}
-                                    key={index}
-                                />
-                    </div>
                 </div>
                 : null
     )
