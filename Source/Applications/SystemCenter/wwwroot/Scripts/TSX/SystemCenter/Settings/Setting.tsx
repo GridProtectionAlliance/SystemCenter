@@ -27,6 +27,7 @@ import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Input, TextArea } from '@gpa-gemstone/react-forms';
+import { useStringMemonization } from '@gpa-gemstone/helper-functions'
 
 interface IProps<T extends SystemCenter.Types.Setting>  {
     SettingsSlice: GenericSlice<T>
@@ -53,9 +54,10 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
     const [hasChanged, setHasChanged] = React.useState<boolean>(false);
 
-    const [filters, setFilters] = React.useState<Search.IFilter<SystemCenter.Types.Setting>[]>([]);
-
     const [errors, setErrors] = React.useState<string[]>([]);
+
+    const filters = useStringMemonization<Search.IFilter<SystemCenter.Types.Setting>[]|undefined>(undefined)
+
     React.useEffect(() => {
         if (status === 'uninitiated' || status === 'changed')
             dispatch(props.SettingsSlice.Fetch());
@@ -66,9 +68,6 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
             dispatch(props.SettingsSlice.DBSearch({ filter: search, sortField, ascending }));
     }, [searchStatus]);
 
-    React.useEffect(() => {
-        dispatch(props.SettingsSlice.DBSearch({ filter: search, sortField, ascending }));
-    }, [ascending, sortField]);
 
     React.useEffect(() => { setHasChanged(false) }, [showModal]);
 
@@ -81,9 +80,9 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
         setErrors(e)
     }, [editnewSetting])
 
-    React.useEffect(() => {
+    const setFilters = React.useCallback((filters: Search.IFilter<SystemCenter.Types.Setting>[]) => {
         dispatch(props.SettingsSlice.DBSearch({ filter: filters, sortField, ascending }))
-    }, [filters])
+    }, [filters, sortField, ascending])
 
     const searchFields: Search.IField<T>[] = [
         { key: 'Name', label: 'Setting Name', type: 'string', isPivotField: false },
