@@ -139,7 +139,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
     }, [adlFields]);
 
     const setFilters = React.useCallback((filters: Search.IFilter<IUserAccount>[]) => {
-        dispatch(UserAccountSlice.DBSearch({ sortField, ascending, filter }))
+        dispatch(UserAccountSlice.DBSearch({ sortField, ascending, filter: filters }))
     }, [sortField, ascending, filter])
 
     if (pageStatus === 'error')
