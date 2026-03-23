@@ -22,17 +22,6 @@
 //******************************************************************************************************
 
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Web.Http;
-using System.Web.Http.Results;
 using GSF.Configuration;
 using GSF.Data;
 using GSF.Data.Model;
@@ -44,6 +33,18 @@ using openXDA.APIAuthentication;
 using openXDA.Configuration;
 using openXDA.Model;
 using PQView.Model;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Linq;
+using System.Net.Http;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Results;
 using SystemCenter.Model;
 using ConfigurationLoader = SystemCenter.Model.ConfigurationLoader;
 
@@ -103,10 +104,10 @@ namespace SystemCenter.Controllers.OpenXDA
     public class DataReaderController : ModelController<DataReader> { }
 
     [RoutePrefix("api/OpenXDA/AssetType")]
-    public class AssetTypeController : ModelController<AssetTypes> {}
+    public class AssetTypeController : ModelController<AssetTypes> { }
 
     [RoutePrefix("api/OpenXDA/Phase")]
-    public class PhaseController:ModelController<Phase> {}
+    public class PhaseController : ModelController<Phase> { }
 
     [RoutePrefix("api/OpenXDA/ByLineSegment")]
     public class ByLineSegmentController : ModelController<LineSegment> { }
@@ -197,10 +198,10 @@ namespace SystemCenter.Controllers.OpenXDA
     public class OpenXDAByMeterController : ExternalModelController<DetailedMeter> { }
 
     [RoutePrefix("api/OpenXDA/MeasurementType")]
-    public class MeasurementTypeController:ModelController<MeasurementType> {}
+    public class MeasurementTypeController : ModelController<MeasurementType> { }
 
     [RoutePrefix("api/OpenXDA/MeasurementCharacteristic")]
-    public class MeasurementCharacteristicController : ModelController<MeasurementCharacteristic> {}
+    public class MeasurementCharacteristicController : ModelController<MeasurementCharacteristic> { }
 
     [RoutePrefix("api/OpenXDA/AssetConnection")]
     public class OpenXDAAssetConnectionController : ModelController<AssetConnection> { }
@@ -209,7 +210,7 @@ namespace SystemCenter.Controllers.OpenXDA
     public class OpenXDAAssetConnectionTypeController : ModelController<AssetConnectionType> { }
 
     [RoutePrefix("api/OpenXDA/Note")]
-    public class NoteController : ModelController<Notes> 
+    public class NoteController : ModelController<Notes>
     {
         public override IHttpActionResult Post([FromBody] JObject record)
         {
@@ -265,7 +266,7 @@ namespace SystemCenter.Controllers.OpenXDA
     public class OpenXDADERController : ModelController<DER> { }
 
     [RoutePrefix("api/OpenXDA/NoteType")]
-    public class NoteTypeController : ModelController<NoteType> {}
+    public class NoteTypeController : ModelController<NoteType> { }
 
     [RoutePrefix("api/OpenXDA/NoteTag")]
     public class NoteTagController : ModelController<NoteTag> { }
@@ -301,11 +302,11 @@ namespace SystemCenter.Controllers.OpenXDA
                 MaskAPIToken(row);
             return table;
         }
-        protected override APIAccessKey QueryRecordWhere(string filterExpression, params object[] parameters) 
-        { 
+        protected override APIAccessKey QueryRecordWhere(string filterExpression, params object[] parameters)
+        {
             return MaskAPIToken(base.QueryRecordWhere(filterExpression, parameters));
         }
-        protected override IEnumerable<APIAccessKey> QueryRecordsWhere(string orderBy, bool ascending, string filterExpression, params object[] parameters) 
+        protected override IEnumerable<APIAccessKey> QueryRecordsWhere(string orderBy, bool ascending, string filterExpression, params object[] parameters)
         {
             return base.QueryRecordsWhere(orderBy, ascending, filterExpression, parameters).Select(MaskAPIToken);
         }
@@ -334,12 +335,12 @@ namespace SystemCenter.Controllers.OpenXDA
     }
 
     [RoutePrefix("api/OpenXDA/ApplicationRole")]
-    public class OpenXDAApplicationRoleController : ModelController<ApplicationRole> {}
+    public class OpenXDAApplicationRoleController : ModelController<ApplicationRole> { }
 
     [RoutePrefix("api/OpenXDA/ApplicationRoleUserAccount")]
     public class OpenXDAApplicationRoleUserAccountController : ModelController<ApplicationRoleUserAccount>
     {
-        
+
 
         [HttpPatch, Route("UpdateArray")]
         public IHttpActionResult PatchArray([FromBody] IEnumerable<ApplicationRoleUserAccount> records)
@@ -616,6 +617,21 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA")]
     public class GeneralController : ApiController
     {
+
+        public class StatusItem
+        {
+            public string Status { get; set; }
+            public string Description { get; set; }
+        }
+
+        public class AppStatus
+        {
+            public string Status { get; set; }
+
+            public List<StatusItem> Details { get; set; }
+
+        }
+
         [HttpGet, Route("Tiles/GetAll")]
         public IHttpActionResult GetAllTiles()
         {
@@ -657,7 +673,50 @@ namespace SystemCenter.Controllers.OpenXDA
                 response.EnsureSuccessStatusCode();
                 string result = await response.Content.ReadAsStringAsync();
                 return Ok(result);
+            }
+            ;
+        }
+
+        [Route("SCADAHealth"), HttpGet]
+        public IHttpActionResult GetScadaHealth()
+        {
+            AppStatus status = new()
+            {
+                Status = "Error",
+                Details = 
+                [ new StatusItem() 
+                    {
+                        Status= "Error",
+                        Description = "Cannot reach openXDA."
+                    }
+                ]
             };
+
+            if (!XDAAPIHelper.TryRefreshSettings())
+                throw new InvalidOperationException("Unable to refresh static XDA API object.");
+
+            AppStatus scadaStatus = null;
+
+            try
+            {
+                using (HttpResponseMessage response = XDAAPIHelper
+                    .GetResponseTask($"api/SystemCenter/SCADAPoint/Health")
+                    .Result)
+                {
+                    scadaStatus = JsonConvert.DeserializeObject<AppStatus>(response.Content.ReadAsStringAsync().Result);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Ok(status);
+            }
+
+            if (scadaStatus == null)
+            {
+                return Ok(status);
+            }
+
+            return Ok(scadaStatus);
         }
     }
 

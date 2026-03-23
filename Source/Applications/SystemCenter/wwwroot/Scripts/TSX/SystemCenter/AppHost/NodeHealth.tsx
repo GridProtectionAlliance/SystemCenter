@@ -37,6 +37,7 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
     const [hoveredItem, setHoveredItem] = React.useState<string>(null)
     const [fawgStatus, setFawgStatus] = React.useState<SC.StatusItem>({ Name: "FAWG", Status: "Loading", Details: [] })
     const [PQIStatus, setPQIStatus] = React.useState<SC.StatusItem>({ Name: "PQI", Status: "Loading", Details: [] })
+    const [SCADAStatus, setSCADAStatus] = React.useState<SC.StatusItem>({ Name: "SCADA Resource", Status: "Loading", Details: [] })
 
     React.useEffect(() => {
         setStatus('loading');
@@ -48,6 +49,8 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
                 break;
             case 'XDA':
                 getRemoteXDAs()
+                testSCADA()
+                break;
             default:
                 setStatus('idle')
                 break;
@@ -223,6 +226,28 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
                 h.abort();
         }
     }
+    function testSCADA() {
+        const h = $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/ScadaHealth`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true
+        });
+
+        h.done((d: SC.StatusItem) => {
+            d.Name = 'SCADA'
+            setSCADAStatus(d)
+        }).fail((d) => {
+            setStatus('error')
+        })
+
+        return function cleanup() {
+            if (h.abort != null)
+                h.abort();
+        }
+    }
 
     return (
         props.ApplicationType === 'SystemCenter' ?
@@ -256,6 +281,15 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
                         SetHoveredItem={setHoveredItem}
                             Name="Remote XDA Connections"
                     />
+                    </div>
+                    <div className="row">
+                        <StatusGroup
+                            StatusItems={[SCADAStatus]}
+                            Status={status}
+                            HoveredItem={hoveredItem}
+                            SetHoveredItem={setHoveredItem}
+                            Name="Other Connections"
+                        />
                     </div>
                 </div>
                 : null
