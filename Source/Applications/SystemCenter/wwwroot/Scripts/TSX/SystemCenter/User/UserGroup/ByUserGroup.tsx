@@ -32,7 +32,6 @@ import { SecurityGroupSlice } from '../../Store/Store';
 import { ISecurityGroup } from '../Types';
 import { useSelector } from 'react-redux';
 import GroupForm from './GroupForm';
-import { useStringMemonization } from '@gpa-gemstone/helper-functions'
 
 const defaultSearchcols: Search.IField<Application.Types.iSecurityGroup>[] = [
     { label: 'Name', key: 'DisplayName', type: 'string', isPivotField: false },
@@ -64,8 +63,6 @@ const ByUser: Application.Types.iByComponent = (props) => {
 
     const [pageStatus, setPageStatus] = React.useState<Application.Types.Status>('uninitiated');
 
-    const filters = useStringMemonization<Search.IFilter<ISecurityGroup>[] | undefined>(undefined)
-
     React.useEffect(() => {
         if (status === 'error')
             setPageStatus('error')
@@ -82,7 +79,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
 
     const setFilters = React.useCallback((filters: Search.IFilter<ISecurityGroup>[]) => {
         dispatch(SecurityGroupSlice.DBSearch({ sortField, ascending, filter: filters }))
-    }, [filters, sortField, ascending])
+    }, [sortField, ascending])
 
     if (pageStatus === 'error')
         return <div style={{ width: '100%', height: '100%' }}>
