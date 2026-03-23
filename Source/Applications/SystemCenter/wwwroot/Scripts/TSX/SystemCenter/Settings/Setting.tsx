@@ -54,6 +54,7 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
     const [hasChanged, setHasChanged] = React.useState<boolean>(false);
 
     const [errors, setErrors] = React.useState<string[]>([]);
+
     React.useEffect(() => {
         if (status === 'uninitiated' || status === 'changed')
             dispatch(props.SettingsSlice.Fetch());
@@ -64,9 +65,6 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
             dispatch(props.SettingsSlice.DBSearch({ filter: search, sortField, ascending }));
     }, [searchStatus]);
 
-    React.useEffect(() => {
-        dispatch(props.SettingsSlice.DBSearch({ filter: search, sortField, ascending }));
-    }, [ascending, sortField]);
 
     React.useEffect(() => { setHasChanged(false) }, [showModal]);
 
@@ -78,6 +76,10 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
             e.push('A Setting with this Name already exists.')
         setErrors(e)
     }, [editnewSetting])
+
+    const setFilters = React.useCallback((filters: Search.IFilter<SystemCenter.Types.Setting>[]) => {
+        dispatch(props.SettingsSlice.DBSearch({ filter: filters, sortField, ascending }))
+    }, [sortField, ascending])
 
     const searchFields: Search.IField<T>[] = [
         { key: 'Name', label: 'Setting Name', type: 'string', isPivotField: false },
@@ -94,7 +96,7 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
         <>
             <LoadingScreen Show={status === 'loading'} />
             <div style={{ width: '100%', height: '100%' }}>
-                <SearchBar<T> CollumnList={searchFields} SetFilter={(flds) => dispatch(props.SettingsSlice.DBSearch({ filter: flds, sortField, ascending }))}
+                <SearchBar<T> CollumnList={searchFields} SetFilter={setFilters}
                     Direction={'left'} defaultCollumn={{ key: 'Name', label: 'Setting Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'} StorageID={`${props.SettingsSlice.Name}Filter`}
                     ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Setting(s)'}
                     GetEnum={() => {

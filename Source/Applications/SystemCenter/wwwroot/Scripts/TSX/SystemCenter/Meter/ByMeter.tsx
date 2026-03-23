@@ -68,6 +68,7 @@ const ByMeter: Application.Types.iByComponent = (props) => {
     }
 
     function getAdditionalFields(setFields) {
+
         let handle = $.ajax({
             type: "GET",
             url: `${homePath}api/SystemCenter/AdditionalFieldView/ParentTable/Meter/FieldName/0`,
@@ -92,7 +93,9 @@ const ByMeter: Application.Types.iByComponent = (props) => {
         });
 
         return () => {
-            if (handle != null && handle.abort == null) handle.abort();
+            if (handle != null && handle.abort == null) {
+                handle.abort()
+            };
         };
     }
 
@@ -122,7 +125,7 @@ const ByMeter: Application.Types.iByComponent = (props) => {
             <LoadingScreen Show={cState === 'loading'} />
             <div className="container-fluid d-flex h-100 flex-column">
                 <div className="row">
-                    <DefaultSearch.Meter Slice={ByMeterSlice} GetEnum={getEnum} GetAddlFields={getAdditionalFields} StorageID="MetersFilter">
+                     <DefaultSearch.Meter Slice={ByMeterSlice} GetEnum={getEnum} GetAddlFields={getAdditionalFields} StorageID="MetersFilter">
                         <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
                             <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                                 <legend className="w-auto" style={{ fontSize: 'large' }}>Wizards:</legend>

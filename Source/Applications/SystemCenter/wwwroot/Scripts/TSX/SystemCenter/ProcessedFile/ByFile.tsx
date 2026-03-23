@@ -197,7 +197,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
             <LoadingScreen Show={warningModal.State === 'loading'} />
             <div className="container-fluid d-flex h-100 flex-column">
                 <div className="row">
-                    <SearchBar<OpenXDA.Types.DataFile> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={DefaultSearchField.DataFile as Search.IField<OpenXDA.Types.DataFile>} Width={'100%'} Label={'Search'} StorageID="DataFilesFilter"
+                    <SearchBar<OpenXDA.Types.DataFile> CollumnList={filterableList} SetFilter={setSearch} Direction={'left'} defaultCollumn={DefaultSearchField.DataFile as Search.IField<OpenXDA.Types.DataFile>} Width={'100%'} Label={'Search'} StorageID="DataFilesFilter"
                         ShowLoading={cState === 'loading'}
                         ResultNote={(cState === 'error') ? 'Could not complete Search' : ('Displaying  Data File(s) ' + (totalRecords > 0? (50 * page + 1): 0 ) + ' - ' + (50 * page + data.length)) + ' out of ' + totalRecords}
                         GetEnum={(setOptions, field) => {
