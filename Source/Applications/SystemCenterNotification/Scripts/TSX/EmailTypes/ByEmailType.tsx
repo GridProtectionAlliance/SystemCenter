@@ -54,7 +54,7 @@ const emptyEmail = {
 } as EmailType
 
 const ByEmailType = (props: IProps) => {
-    //const navigate = useNavigate();
+    const navigate = useNavigate();
     const dispatch = useAppDispatch();
 
     const search: Search.IFilter<EmailType>[] = useAppSelector(EmailTypeSlice.SearchFilters);
@@ -160,7 +160,7 @@ const ByEmailType = (props: IProps) => {
                         OnSort={(d) => {
                             dispatch(EmailTypeSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                         }}
-                        OnClick={(item) => /**navigate(`${homePath}EventEmail/${item.row.ID}`)*/''}
+                        OnClick={(item) => navigate(`${homePath}EventEmail/${item.row.ID}`)}
                         TableStyle={{
                             padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
                             tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
