@@ -31,6 +31,7 @@ using System.Web.Http;
 using System.Xml.Linq;
 using GSF.Configuration;
 using GSF.Data;
+using GSF.Data.Model;
 using GSF.Web.Model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -414,9 +415,14 @@ namespace SystemCenter.Notifications.Controllers
         }
     }
 
-    [RoutePrefix("api/OpenXDA/SentEmail")]
-    public class SentEmail : ModelController<SentEmail>
+    [RoutePrefix("api/OpenXDA/SentEmail"), ViewOnly]
+    public class SentEmailController : ModelController<SentEmail>
     {
+        [HttpPost, Route("{parentID?}/PagedList/{page}")]
+        public override IHttpActionResult GetPagedList([FromBody] PostData postData, int page, string parentID = null)
+        {
+            return base.GetPagedList(postData, page, parentID);
+        }
 
     }
 }
