@@ -32,13 +32,14 @@ import TriggerWindow from './TriggerUI/TriggerWindow';
 import DataSourceWindow from './DatasourceUI/DataSourceWindow';
 import Template from './Template';
 import TestEmail from './TestEmail';
+import History from './History'
 
 declare var homePath;
 declare var version;
 
 interface IProps { useParams: {id: string}}
 
-type tab = 'settings' | 'template' | 'dataSources' | 'subscriptions'  | 'trigger'
+type tab = 'settings' | 'template' | 'dataSources' | 'subscriptions'  | 'trigger' | 'history'
 
 
 const EmailPage = (props: IProps) => {
@@ -78,7 +79,8 @@ const EmailPage = (props: IProps) => {
                         { Label: ' Template', Id: 'template' },
                         { Label: ' Data Sources', Id: 'dataSources' },
                         { Label: ' Trigger', Id: 'trigger' },
-                        { Label: ' Subscriptions', Id: 'subscriptions' }
+                        { Label: ' Subscriptions', Id: 'subscriptions' },
+                        { Label: ' History', Id: 'history'}
                     ]} />
                 </div>
 
@@ -108,6 +110,11 @@ const EmailPage = (props: IProps) => {
                             {tab == "subscriptions" ?
                                 <div className="tab-pane active" style={{ height: 'inherit' }}>
                                     <Subscriptions Record={email} />
+                                </div>
+                                : <></>}
+                            {tab == "history" ?
+                                <div className="tab-pane active" style={{ height: 'inherit' }}>
+                                    <History Record={email} />
                                 </div>
                                 : <></>}
                         </div>
