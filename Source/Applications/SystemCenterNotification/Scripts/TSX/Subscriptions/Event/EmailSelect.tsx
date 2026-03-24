@@ -57,7 +57,7 @@ const EmailSelect = (props: IProps) => {
     const dispatch = useAppDispatch();
 
     const [emailCategories, setEmailCategories] = React.useState<EmailCategory[]>([]);
-    const [emailCategoryStatus, setEmailCategoryStatus] = React.useState<Application.Types.Status>('unintiated');
+    const [emailCategoryStatus, setEmailCategoryStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [selectedCategory, setSelectedCategory] = React.useState<EmailCategory>(emptyCategory);
 
     const emailTypeStatus = useAppSelector(EmailTypeSlice.Status);
@@ -95,7 +95,7 @@ const EmailSelect = (props: IProps) => {
     }, [emailCategories]);
 
     React.useEffect(() => {
-        if (selectedCategory.ID != emailTypeParentID || emailTypeStatus == 'unintiated' || emailTypeStatus == 'changed')
+        if (selectedCategory.ID != emailTypeParentID || emailTypeStatus == 'uninitiated' || emailTypeStatus == 'changed')
             dispatch(EmailTypeSlice.Fetch(selectedCategory.ID));
     }, [selectedCategory, emailTypeParentID, emailTypeStatus])
 

@@ -45,7 +45,7 @@ const ConfirmPhoneCarrier = (props: IProps) => {
     const carrierStatus = useAppSelector(CellCarrierSlice.Status);
 
     React.useEffect(() => {
-        if (carrierStatus == 'unintiated' || carrierStatus == 'changed')
+        if (carrierStatus == 'uninitiated' || carrierStatus == 'changed')
             dispatch(CellCarrierSlice.Fetch());
     }, [carrierStatus]);
 

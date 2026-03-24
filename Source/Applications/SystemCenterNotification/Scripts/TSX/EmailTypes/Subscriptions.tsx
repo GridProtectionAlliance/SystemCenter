@@ -52,7 +52,7 @@ const Subscriptions = (props: IProps) => {
     const [approvalStatus, setApprovalStatus] = React.useState<Application.Types.Status>('idle');
 
     React.useEffect(() => {
-        if (status == 'unintiated' || status == 'changed' || parentID != props.Record.ID)
+        if (status == 'uninitiated' || status == 'changed' || parentID != props.Record.ID)
             dispatch(EventSubscriptionSlice.Fetch(props.Record.ID))
     }, [props.Record, parentID, status])
 

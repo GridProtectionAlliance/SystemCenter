@@ -34,7 +34,7 @@ declare var version;
 const EmailConfirmed = (props: { useParams: { code: string } }) => {
 
     const [success, setSuccess] = React.useState<boolean>(false);
-    const [state, setState] = React.useState<Application.Types.Status>('unintiated');
+    const [state, setState] = React.useState<Application.Types.Status>('uninitiated');
     const [forceResend, setForceResend] = React.useState<number>(-1);
 
     const status = useAppSelector(UserInfoSlice.Status);

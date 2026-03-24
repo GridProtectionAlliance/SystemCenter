@@ -53,14 +53,14 @@ const EmailPage = (props: IProps) => {
     const [tab, setTab] = React.useState<tab>('settings');
 
     React.useEffect(() => {
-        if (status == 'unintiated' || status == 'changed')
+        if (status == 'uninitiated' || status == 'changed')
             dispatch(EmailTypeSlice.Fetch());
     }, [status]);
 
     return (
         <div className="container-fluid d-flex h-100 flex-column">
             <ServerErrorIcon Show={status == 'error'} Label={'An error occured. Please reload this page.'} />
-            <LoadingScreen Show={status == 'loading' || status == 'unintiated' || email == undefined} />
+            <LoadingScreen Show={status == 'loading' || status == 'uninitiated' || email == undefined} />
             {!email ? <></> : <>
                 <div className="row">
                     <div className="col-6 align-self-center">

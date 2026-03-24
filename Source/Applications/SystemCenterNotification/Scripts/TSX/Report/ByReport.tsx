@@ -72,17 +72,17 @@ const ByReport = (props: IProps) => {
 
 
     React.useEffect(() => {
-        if (categoryStatus == 'unintiated' || categoryStatus == 'changed')
+        if (categoryStatus == 'uninitiated' || categoryStatus == 'changed')
             dispatch(EmailCategorySlice.Fetch());
     }, [categoryStatus]);
 
     React.useEffect(() => {
-        if (status == 'unintiated' || status == 'changed' || parentID != null )
+        if (status == 'uninitiated' || status == 'changed' || parentID != null )
             dispatch(ScheduledEmailTypeSlice.Fetch());
     }, [status, parentID]);
 
     React.useEffect(() => {
-        if (searchStatus == 'unintiated' || searchStatus == 'changed')
+        if (searchStatus == 'uninitiated' || searchStatus == 'changed')
             dispatch(ScheduledEmailTypeSlice.DBSearch({ filter: search, sortField, ascending: asc }));
     }, [searchStatus])
 

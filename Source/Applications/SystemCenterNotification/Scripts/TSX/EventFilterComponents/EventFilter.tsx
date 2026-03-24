@@ -52,7 +52,7 @@ const EventFilter = (props: IProps) => {
     const portalContainer = (props.RenderPortalId === undefined || props.RenderPortalId === null) ? document.getElementById('baseEventFilterPortal') : document.getElementById(props.RenderPortalId);
 
     React.useEffect(() => {
-        if (eventTypeStatus == 'unintiated' || eventTypeStatus == 'changed')
+        if (eventTypeStatus == 'uninitiated' || eventTypeStatus == 'changed')
             dispatch(EventTypeSlice.Fetch());
     }, [eventTypeStatus]);
 

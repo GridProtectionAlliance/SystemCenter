@@ -54,7 +54,7 @@ const emptyEmail = {
 } as EmailType
 
 const ByEmailType = (props: IProps) => {
-    const navigate = useNavigate();
+    //const navigate = useNavigate();
     const dispatch = useAppDispatch();
 
     const search: Search.IFilter<EmailType>[] = useAppSelector(EmailTypeSlice.SearchFilters);
@@ -76,17 +76,17 @@ const ByEmailType = (props: IProps) => {
 
 
     React.useEffect(() => {
-        if (categoryStatus == 'unintiated' || categoryStatus == 'changed')
+        if (categoryStatus == 'uninitiated' || categoryStatus == 'changed')
             dispatch(EmailCategorySlice.Fetch());
     }, [categoryStatus]);
 
     React.useEffect(() => {
-        if (status == 'unintiated' || status == 'changed' || parentID != null )
+        if (status == 'uninitiated' || status == 'changed' || parentID != null )
             dispatch(EmailTypeSlice.Fetch());
     }, [status, parentID]);
 
     React.useEffect(() => {
-        if (searchStatus == 'unintiated' || searchStatus == 'changed')
+        if (searchStatus == 'uninitiated' || searchStatus == 'changed')
             dispatch(EmailTypeSlice.DBSearch({ filter: search, sortField, ascending: asc }));
     }, [searchStatus])
 
@@ -160,7 +160,7 @@ const ByEmailType = (props: IProps) => {
                         OnSort={(d) => {
                             dispatch(EmailTypeSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                         }}
-                        OnClick={(item) => navigate(`${homePath}EventEmail/${item.row.ID}`)}
+                        OnClick={(item) => /**navigate(`${homePath}EventEmail/${item.row.ID}`)*/''}
                         TableStyle={{
                             padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
                             tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'

@@ -59,12 +59,12 @@ const ByAllSubscription = (props: IProps) => {
     const [hover, setHover] = React.useState<string>('none');
 
     React.useEffect(() => {
-        if (status == 'unintiated' || status == 'changed' || parentID != null)
+        if (status == 'uninitiated' || status == 'changed' || parentID != null)
             dispatch(ActiveSubscriptionSlice.Fetch());
     }, [status, parentID]);
 
     React.useEffect(() => {
-        if (searchStatus === 'unintiated' || searchStatus === 'changed')
+        if (searchStatus === 'uninitiated' || searchStatus === 'changed')
             dispatch(ActiveSubscriptionSlice.DBSearch({ filter, sortField, ascending: asc }));
     }, [searchStatus]);
 

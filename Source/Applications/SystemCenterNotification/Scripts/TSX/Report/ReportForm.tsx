@@ -40,13 +40,13 @@ const ReportForm = (props: IProps) => {
 
 
     React.useEffect(() => {
-        if (categoryStatus == 'unintiated' || categoryStatus == 'changed')
+        if (categoryStatus == 'uninitiated' || categoryStatus == 'changed')
             dispatch(EmailCategorySlice.Fetch());
     }, [categoryStatus]);
 
 
     React.useEffect(() => {
-        if (status == 'unintiated' || status == 'changed')
+        if (status == 'uninitiated' || status == 'changed')
             dispatch(ScheduledEmailTypeSlice.Fetch());
     }, [status]);
 

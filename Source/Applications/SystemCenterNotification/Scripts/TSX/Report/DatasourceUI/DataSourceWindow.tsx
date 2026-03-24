@@ -49,7 +49,7 @@ const DataSourceWindow = (props: IProps) => {
     const [showDataSourceModal, setShowDataSourceModal] = React.useState<boolean>(false);
 
     React.useEffect(() => {
-        if (status == 'unintiated' || status == 'changed' || emailID !== props.Record.ID)
+        if (status == 'uninitiated' || status == 'changed' || emailID !== props.Record.ID)
             dispatch(ScheduledEmailDataSourceSlice.Fetch(props.Record.ID));
     }, [status, props.Record.ID, emailID]);
 

@@ -59,7 +59,7 @@ const MainPage = (props: {}) => {
     const [ackSetting, setAckSetting] = React.useState<string>('');
 
     React.useEffect(() => {
-        if (status == 'unintiated' || status == 'changed')
+        if (status == 'uninitiated' || status == 'changed')
             dispatch(UserInfoSlice.Fetch());
     }, [status])
 
