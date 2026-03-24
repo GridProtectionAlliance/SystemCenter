@@ -413,4 +413,10 @@ namespace SystemCenter.Notifications.Controllers
             return connection;
         }
     }
+
+    [RoutePrefix("api/OpenXDA/SentEmail")]
+    public class SentEmail : ModelController<SentEmail>
+    {
+
+    }
 }
