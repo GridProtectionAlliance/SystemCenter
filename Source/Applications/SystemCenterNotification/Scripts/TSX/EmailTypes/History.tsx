@@ -55,7 +55,7 @@ const History = (props: IProps) => {
             setPageStatus('idle');
         }).fail(() => setPageStatus('error'));
         return () => { if (handle != null && handle?.abort != null) handle.abort(); }
-    }, [sortKey, ascending, page]);
+    }, [props.Record.ID, sortKey, ascending, page]);
 
     return (
         <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
