@@ -39,7 +39,6 @@ const History = (props: IProps) => {
     const [pageInfo, setPageInfo] = React.useState<{ RecordsPerPage: number, NumberOfPages: number, TotalRecords: number }>({ RecordsPerPage: 0, NumberOfPages: 0, TotalRecords: 0 });
     const [page, setPage] = React.useState<number>(0);
     const [pageStatus, setPageStatus] = React.useState<Application.Types.Status>('idle');
-    console.log(`homePath: ${homePath}`)
     const controller = React.useMemo(() =>
         new GenericController<SentEmail>(`${homePath}api/OpenXDA/SentEmail`, sortKey, ascending ?? false)
         , [sortKey, ascending]);
