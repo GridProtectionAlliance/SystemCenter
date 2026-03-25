@@ -79,7 +79,8 @@ const History = (props: IProps) => {
                                         SortKey={sortKey.toString()}
                                         Ascending={ascending}
                                         OnSort={(d) => {
-                                            if (d.colKey === null) return;
+                                            if (d.colKey === sortKey) setAscending(a => !a);
+                                            else setSortKey(d.colField);
                                         }}
                                         TableStyle={{
                                             padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
