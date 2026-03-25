@@ -43,7 +43,6 @@ export type RootState = ReturnType<typeof store.getState>
 export const EmailCategorySlice = new GenericSlice<EmailCategory>("EmailCategory", `${homePath}api/OpenXDA/EmailCategory`, "Name", true);
 export const EmailTypeSlice = new GenericSlice<EmailType>("EmailType", `${homePath}api/OpenXDA/EmailType`, "Name", true);
 export const ScheduledEmailTypeSlice = new GenericSlice<ScheduledEmailType>("ScheduledEmailType", `${homePath}api/OpenXDA/ScheduledEmailType`, "Name", true);
-export const SentEmailSlice = new GenericSlice<SentEmail>("SentEmail", `${homePath}api/OpenXDA/SentEmail`, "EmailTypeID", true)
 export const AssetGroupSlice = new GenericSlice<OpenXDA.Types.AssetGroup>("AssetGroup", `${homePath}api/OpenXDA/AssetGroup`, "Name", true);
 export const SettingSlice = new GenericSlice<SystemCenter.Types.Setting>('Setting', `${homePath}api/Setting`, 'Name');
 export const EventSubscriptionSlice = new GenericSlice<SubscribeEmails>('EventSubscription', `${homePath}api/EventSubscription`, 'Email');
@@ -94,8 +93,7 @@ const reducer = {
     ReportSubscription: ReportSubscriptionSlice.Reducer,
     ScheduledDataSourceSetting: ScheduledDataSourceSettingSlice.Reducer,
     ScheduledDataSource: ScheduledDataSourceSlice.Reducer,
-    ScheduledEmailDataSourceEmailType: ScheduledEmailDataSourceSlice.Reducer,
-    SentEmail: SentEmailSlice.Reducer
+    ScheduledEmailDataSourceEmailType: ScheduledEmailDataSourceSlice.Reducer
 }
 
 const store = configureStore({ reducer });

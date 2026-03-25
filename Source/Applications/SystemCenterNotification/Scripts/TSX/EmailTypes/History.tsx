@@ -21,34 +21,42 @@
 //
 //******************************************************************************************************
 
-
-import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
 import { EmailType, SentEmail } from '../global';
-import { LoadingScreen } from '@gpa-gemstone/react-interactive'
-import { SentEmailSlice, EmailTypeSlice } from '../Store';
+import { LoadingScreen, GenericController } from '@gpa-gemstone/react-interactive'
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
+import { Application } from '@gpa-gemstone/application-typings';
+import moment from 'moment';
 
 interface IProps { Record: EmailType }
 
+declare var homePath;
+
 const History = (props: IProps) => {
-    const dispatch = useAppDispatch();
-
-    const sentEmails = useAppSelector(SentEmailSlice.Data);
-    const status = useAppSelector(SentEmailSlice.Status);
-    const parentID = useAppSelector(SentEmailSlice.ParentID);
-    const asc = useAppSelector(SentEmailSlice.Ascending);
-    const sortKey = useAppSelector(SentEmailSlice.SortField);
-
+    const [data, setData] = React.useState<SentEmail[]>([]);
+    const [ascending, setAscending] = React.useState<boolean>(false);
+    const [sortKey, setSortKey] = React.useState<keyof SentEmail>('TimeSent');
+    const [pageInfo, setPageInfo] = React.useState<{ RecordsPerPage: number, NumberOfPages: number, TotalRecords: number }>({ RecordsPerPage: 0, NumberOfPages: 0, TotalRecords: 0 });
+    const [page, setPage] = React.useState<number>(0);
+    const [pageStatus, setPageStatus] = React.useState<Application.Types.Status>('idle');
+    console.log(`homePath: ${homePath}`)
+    const controller = React.useMemo(() =>
+        new GenericController<SentEmail>(`${homePath}api/OpenXDA/SentEmail`, sortKey, ascending ?? false)
+        , [sortKey, ascending]);
 
     React.useEffect(() => {
-        if (status == 'uninitiated' || status == 'changed' || parentID != props.Record.ID) {
-
-            dispatch(SentEmailSlice.Fetch(props.Record.ID))
-            dispatch(SentEmailSlice.PagedSearch({ page: 1 }))
-        }
-    }, [props.Record, parentID, status])
-
+        setPageStatus('loading');
+        const handle = controller.PagedSearch([], sortKey, ascending, page, props.Record.ID).done((result) => {
+            setData(JSON.parse(result.Data as unknown as string));
+            setPageInfo({
+                RecordsPerPage: result.RecordsPerPage,
+                NumberOfPages: result.NumberOfPages,
+                TotalRecords: result.TotalRecords
+            });
+            setPageStatus('idle');
+        }).fail(() => setPageStatus('error'));
+        return () => { if (handle != null && handle?.abort != null) handle.abort(); }
+    }, [sortKey, ascending, page]);
 
     return (
         <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
@@ -65,15 +73,14 @@ const History = (props: IProps) => {
                         <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
                             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
                                 <div className="col-12" style={{ height: '100%', overflow: 'hidden' }}>
-                                    <LoadingScreen Show={status == 'loading'} />
+                                    <LoadingScreen Show={pageStatus == 'loading'} />
                                     <Table<SentEmail>
                                         TableClass="table table-hover"
-                                        Data={sentEmails}
+                                        Data={data}
                                         SortKey={sortKey.toString()}
-                                        Ascending={asc}
+                                        Ascending={ascending}
                                         OnSort={(d) => {
                                             if (d.colKey === null) return;
-                                            dispatch(SentEmailSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                                         }}
                                         TableStyle={{
                                             padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
@@ -86,20 +93,15 @@ const History = (props: IProps) => {
                                         KeySelector={(item) => item.ID}
                                     >
                                         <Column<SentEmail>
-                                            Key={'EmailTypeID'}
-                                            AllowSort={true}
-                                            Field={'EmailTypeID'}
-                                            HeaderStyle={{ width: 'auto' }}
-                                            RowStyle={{ width: 'auto' }}
-                                        > EmailTypeID
-                                        </Column>
-                                        <Column<SentEmail>
                                             Key={'TimeSent'}
                                             AllowSort={true}
                                             Field={'TimeSent'}
                                             HeaderStyle={{ width: 'auto' }}
                                             RowStyle={{ width: 'auto' }}
-                                        > TimeSent
+                                            Content={({ item, field }) => {
+                                                return <span className={`badge badge-pill badge-light`}>{moment(item[field]).format('MM/DD/YYYY HH:mm')}</span>
+                                            }}
+                                        > Time Sent
                                         </Column>
                                         <Column<SentEmail>
                                             Key={'ToLine'}
@@ -107,7 +109,7 @@ const History = (props: IProps) => {
                                             Field={'ToLine'}
                                             HeaderStyle={{ width: 'auto' }}
                                             RowStyle={{ width: 'auto' }}
-                                        > ToLine
+                                        > To Line
                                         </Column>
                                         <Column<SentEmail>
                                             Key={'Subject'}
@@ -122,6 +124,12 @@ const History = (props: IProps) => {
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+            <div className="row">
+                <div className="col">
+                    {data.length == 0 ? <div className="alert alert-warning"> The query succeeded, but no records were found. </div> : null}
+                    {data.length > 0 ? <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p - 1)} /> : null}
                 </div>
             </div>
         </div>
