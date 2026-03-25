@@ -28,7 +28,7 @@ import {
     ITriggeredEmailDataSourceSetting, SubscribeEmails,
     ICellCarrier, ScheduledEmailType, ActiveReportSubscription,
     IScheduledDataSource, IScheduledEmailDataSourceSetting, IDataSourceScheduledEmailType,
-    SubscribeScheduledEmails, SentEmail
+    SubscribeScheduledEmails
 } from './global';
 import { GenericSlice } from '@gpa-gemstone/react-interactive';
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
