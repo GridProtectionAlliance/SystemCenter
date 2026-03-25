@@ -128,7 +128,6 @@ const History = (props: IProps) => {
             </div>
             <div className="row">
                 <div className="col">
-                    {data.length == 0 ? <div className="alert alert-warning"> The query succeeded, but no records were found. </div> : null}
                     {data.length > 0 ? <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p - 1)} /> : null}
                 </div>
             </div>
