@@ -418,10 +418,5 @@ namespace SystemCenter.Notifications.Controllers
     [RoutePrefix("api/OpenXDA/SentEmail"), ViewOnly, AllowSearch]
     public class SentEmailController : ModelController<SentEmail>
     {
-        [HttpPost, Route("{parentID?}/PagedList/{page:int}")]
-        public override IHttpActionResult GetPagedList([FromBody] PostData postData, int page, string parentID = null)
-        {
-            return base.GetPagedList(postData, page, parentID);
-        }
     }
 }
