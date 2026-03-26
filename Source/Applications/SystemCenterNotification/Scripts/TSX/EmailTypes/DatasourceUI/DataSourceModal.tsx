@@ -75,14 +75,14 @@ const DataSourceModal = (props: IProps) => {
     }, [originalsettings, dataSourceUI]);
 
     React.useEffect(() => {
-        if (typeStatus == 'unintiated' || typeStatus == 'changed')
+        if (typeStatus == 'uninitiated' || typeStatus == 'changed')
             dispatch(TriggeredDataSourceSlice.Fetch());
     }, [typeStatus]);
 
     React.useEffect(() => {
         if (props.Record == null)
             return
-        if (settingStatus == 'unintiated' || settingStatus == 'changed' || settingsParentID != props.Record.ID)
+        if (settingStatus == 'uninitiated' || settingStatus == 'changed' || settingsParentID != props.Record.ID)
             dispatch(TriggeredDataSourceSettingSlice.Fetch(props.Record.ID));
     }, [settingStatus, props.Record]);
 

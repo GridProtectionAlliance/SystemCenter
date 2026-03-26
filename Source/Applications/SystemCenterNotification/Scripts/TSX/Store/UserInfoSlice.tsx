@@ -116,7 +116,7 @@ export default class UserInfoSlice {
     const slice = createSlice({
         name: this.Name,
         initialState: {
-            Status: 'unintiated',
+            Status: 'uninitiated',
             Error: null,
             Roles: [],
             UserAccountID: "",

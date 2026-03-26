@@ -55,12 +55,12 @@ const ByEmailCategory = (props: IProps) => {
     const asc = useAppSelector(EmailCategorySlice.Ascending);
 
     React.useEffect(() => {
-        if (status == 'unintiated' || status == 'changed')
+        if (status == 'uninitiated' || status == 'changed')
             dispatch(EmailCategorySlice.Fetch());
     }, [status]);
 
     React.useEffect(() => {
-        if (searchStatus == 'unintiated' || searchStatus == 'changed')
+        if (searchStatus == 'uninitiated' || searchStatus == 'changed')
             dispatch(EmailCategorySlice.DBSearch({ filter: search, sortField, ascending: asc }));
     }, [searchStatus])
 

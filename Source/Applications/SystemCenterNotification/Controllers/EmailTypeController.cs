@@ -31,6 +31,7 @@ using System.Web.Http;
 using System.Xml.Linq;
 using GSF.Configuration;
 using GSF.Data;
+using GSF.Data.Model;
 using GSF.Web.Model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -412,5 +413,10 @@ namespace SystemCenter.Notifications.Controllers
             connection.DefaultTimeout = DataExtensions.DefaultTimeoutDuration;
             return connection;
         }
+    }
+
+    [RoutePrefix("api/OpenXDA/SentEmail"), ViewOnly, AllowSearch]
+    public class SentEmailController : ModelController<SentEmail>
+    {
     }
 }

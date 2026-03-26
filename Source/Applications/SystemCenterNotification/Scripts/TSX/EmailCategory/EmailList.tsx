@@ -42,7 +42,7 @@ const EmailList = (props: IProps) => {
     const ascending = useAppSelector(EmailTypeSlice.Ascending);
 
     React.useEffect(() => {
-        if (props.CategoryID != parentID || status == 'unintiated' || status == 'changed')
+        if (props.CategoryID != parentID || status == 'uninitiated' || status == 'changed')
             dispatch(EmailTypeSlice.Fetch(props.CategoryID));
     }, [parentID, status, props.CategoryID])
 

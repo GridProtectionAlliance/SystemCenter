@@ -62,6 +62,15 @@ export interface ScheduledEmailType {
     RequireApproval: boolean
 }
 
+export interface SentEmail {
+    ID: number,
+    EmailTypeID: number,
+    TimeSent: string,
+    ToLine: string,
+    Subject: string,
+    Message: string
+}
+
 export interface SubscribeEmails {
     ID: number,
     Approved: boolean,

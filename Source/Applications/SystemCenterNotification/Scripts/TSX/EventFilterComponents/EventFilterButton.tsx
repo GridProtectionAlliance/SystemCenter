@@ -52,22 +52,22 @@ function EventFilterButton(props: IProps) {
     const groupStatus = useAppSelector(EventAssetGroupSlice.Status);
 
     React.useEffect(() => {
-        if (meterStatus == 'unintiated' || meterStatus == 'changed')
+        if (meterStatus == 'uninitiated' || meterStatus == 'changed')
             dispatch(EventMeterSlice.Fetch());
     }, [meterStatus]);
 
     React.useEffect(() => {
-        if (assetStatus == 'unintiated' || assetStatus == 'changed')
+        if (assetStatus == 'uninitiated' || assetStatus == 'changed')
             dispatch(EventAssetSlice.Fetch());
     }, [assetStatus]);
 
     React.useEffect(() => {
-        if (locationStatus == 'unintiated' || locationStatus == 'changed')
+        if (locationStatus == 'uninitiated' || locationStatus == 'changed')
             dispatch(EventLocationSlice.Fetch());
     }, [locationStatus]);
 
     React.useEffect(() => {
-        if (groupStatus == 'unintiated' || groupStatus == 'changed')
+        if (groupStatus == 'uninitiated' || groupStatus == 'changed')
             dispatch(EventAssetGroupSlice.Fetch());
     }, [groupStatus]);
 

@@ -32,13 +32,14 @@ import TriggerWindow from './TriggerUI/TriggerWindow';
 import DataSourceWindow from './DatasourceUI/DataSourceWindow';
 import Template from './Template';
 import TestEmail from './TestEmail';
+import History from './History'
 
 declare var homePath;
 declare var version;
 
 interface IProps { useParams: {id: string}}
 
-type tab = 'settings' | 'template' | 'dataSources' | 'subscriptions'  | 'trigger'
+type tab = 'settings' | 'template' | 'dataSources' | 'subscriptions'  | 'trigger' | 'history'
 
 
 const EmailPage = (props: IProps) => {
@@ -53,14 +54,14 @@ const EmailPage = (props: IProps) => {
     const [tab, setTab] = React.useState<tab>('settings');
 
     React.useEffect(() => {
-        if (status == 'unintiated' || status == 'changed')
+        if (status == 'uninitiated' || status == 'changed')
             dispatch(EmailTypeSlice.Fetch());
     }, [status]);
 
     return (
         <div className="container-fluid d-flex h-100 flex-column">
             <ServerErrorIcon Show={status == 'error'} Label={'An error occured. Please reload this page.'} />
-            <LoadingScreen Show={status == 'loading' || status == 'unintiated' || email == undefined} />
+            <LoadingScreen Show={status == 'loading' || status == 'uninitiated' || email == undefined} />
             {!email ? <></> : <>
                 <div className="row">
                     <div className="col-6 align-self-center">
@@ -78,7 +79,8 @@ const EmailPage = (props: IProps) => {
                         { Label: ' Template', Id: 'template' },
                         { Label: ' Data Sources', Id: 'dataSources' },
                         { Label: ' Trigger', Id: 'trigger' },
-                        { Label: ' Subscriptions', Id: 'subscriptions' }
+                        { Label: ' Subscriptions', Id: 'subscriptions' },
+                        { Label: ' History', Id: 'history'}
                     ]} />
                 </div>
 
@@ -108,6 +110,11 @@ const EmailPage = (props: IProps) => {
                             {tab == "subscriptions" ?
                                 <div className="tab-pane active" style={{ height: 'inherit' }}>
                                     <Subscriptions Record={email} />
+                                </div>
+                                : <></>}
+                            {tab == "history" ?
+                                <div className="tab-pane active" style={{ height: 'inherit' }}>
+                                    <History Record={email} />
                                 </div>
                                 : <></>}
                         </div>

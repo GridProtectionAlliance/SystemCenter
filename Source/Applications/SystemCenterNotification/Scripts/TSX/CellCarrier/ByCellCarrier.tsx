@@ -60,12 +60,12 @@ const ByCellCarrier = (props: IProps) => {
 
 
     React.useEffect(() => {
-        if (searchStatus == 'unintiated' || searchStatus == 'changed')
+        if (searchStatus == 'uninitiated' || searchStatus == 'changed')
             dispatch(CellCarrierSlice.DBSearch({ filter: filters, sortField, ascending: asc }));
     }, [searchStatus])
 
     React.useEffect(() => {
-        if (status == 'unintiated' || status == 'changed')
+        if (status == 'uninitiated' || status == 'changed')
             dispatch(CellCarrierSlice.Fetch());
     }, [status])
 

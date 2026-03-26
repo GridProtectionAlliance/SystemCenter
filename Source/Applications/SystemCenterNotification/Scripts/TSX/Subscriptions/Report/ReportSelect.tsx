@@ -54,7 +54,7 @@ const ReportSelect = (props: IProps) => {
     const dispatch = useAppDispatch();
 
     const [emailCategories, setEmailCategories] = React.useState<EmailCategory[]>([]);
-    const [emailCategoryStatus, setEmailCategoryStatus] = React.useState<Application.Types.Status>('unintiated');
+    const [emailCategoryStatus, setEmailCategoryStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [selectedCategory, setSelectedCategory] = React.useState<EmailCategory>(emptyCategory);
 
     const reportTypeStatus = useAppSelector(ScheduledEmailTypeSlice.Status);
@@ -91,7 +91,7 @@ const ReportSelect = (props: IProps) => {
     }, [emailCategories]);
 
     React.useEffect(() => {
-        if (selectedCategory.ID !== reportTypeParentID || reportTypeStatus == 'unintiated' || reportTypeStatus == 'changed')
+        if (selectedCategory.ID !== reportTypeParentID || reportTypeStatus == 'uninitiated' || reportTypeStatus == 'changed')
             dispatch(ScheduledEmailTypeSlice.Fetch(selectedCategory.ID));
     }, [selectedCategory, reportTypeParentID, reportTypeStatus])
 

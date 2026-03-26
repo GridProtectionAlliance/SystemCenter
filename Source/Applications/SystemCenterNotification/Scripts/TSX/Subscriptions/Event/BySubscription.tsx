@@ -52,7 +52,7 @@ const BySubscription = (props: IProps) => {
 
 
     React.useEffect(() => {
-        if (status == 'unintiated' || status == 'changed' || parentID != userID)
+        if (status == 'uninitiated' || status == 'changed' || parentID != userID)
             dispatch(ActiveSubscriptionSlice.Fetch(userID));
     }, [status, parentID, userID])
 

@@ -55,7 +55,7 @@ const EmailCategoryPage = (props: IProps) => {
     const [tab, setTab] = React.useState<Tab>(getTab());
 
     React.useEffect(() => {
-        if (status == 'unintiated' || status == 'changed')
+        if (status == 'uninitiated' || status == 'changed')
             dispatch(EmailCategorySlice.Fetch());
     }, [status]);
 

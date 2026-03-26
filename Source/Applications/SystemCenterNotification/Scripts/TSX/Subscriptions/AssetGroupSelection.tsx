@@ -51,7 +51,7 @@ interface IProps {
 const AssetGroupSelection = (props: IProps) => {
     const dispatch = useAppDispatch();
     const [parentGroups, setParentGroups] = React.useState<OpenXDA.Types.AssetGroup[]>([]);
-    const [parentGroupState, setParentGroupState] = React.useState<Application.Types.Status>('unintiated');
+    const [parentGroupState, setParentGroupState] = React.useState<Application.Types.Status>('uninitiated');
 
     const [selectedParent, setSelectedParent] = React.useState<OpenXDA.Types.AssetGroup>(otherParent);
     const assetGrpStatus = useAppSelector(AssetGroupSlice.Status);
@@ -92,7 +92,7 @@ const AssetGroupSelection = (props: IProps) => {
     }, [selectedParent]);
 
     React.useEffect(() => {
-        if (assetGrpStatus == 'unintiated' || assetGrpStatus == 'changed') {
+        if (assetGrpStatus == 'uninitiated' || assetGrpStatus == 'changed') {
             dispatch(AssetGroupSlice.Fetch());
         }
     }, [assetGrpStatus]);
