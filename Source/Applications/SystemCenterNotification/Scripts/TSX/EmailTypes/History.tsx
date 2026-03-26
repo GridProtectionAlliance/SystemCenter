@@ -99,7 +99,7 @@ const History = (props: IProps) => {
                                             HeaderStyle={{ width: 'auto' }}
                                             RowStyle={{ width: 'auto' }}
                                             Content={({ item, field }) => {
-                                                return <span className={`badge badge-pill badge-light`}>{moment(item[field]).format('MM/DD/YYYY HH:mm')}</span>
+                                                return <span className={`badge badge-pill badge-light`}>{moment(item[field]).format('MM/DD/YYYY HH:mm:ss')}</span>
                                             }}
                                         > Time Sent
                                         </Column>
