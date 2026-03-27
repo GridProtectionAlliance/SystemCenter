@@ -38,7 +38,9 @@ using Newtonsoft.Json.Linq;
 using openXDA.APIAuthentication;
 using openXDA.Model;
 using SystemCenter.Notifications.Model;
+using System.IO;
 using ConfigurationLoader = SystemCenter.Notifications.Model.ConfigurationLoader;
+using System.Reflection;
 
 namespace SystemCenter.Notifications.Controllers
 {
@@ -418,5 +420,118 @@ namespace SystemCenter.Notifications.Controllers
     [RoutePrefix("api/OpenXDA/SentEmail"), ViewOnly, AllowSearch]
     public class SentEmailController : ModelController<SentEmail>
     {
+        public class TimelineItem
+        {
+            public DateTime Timestamp { get; set; }
+            public string Description { get; set; }
+        }
+
+        [HttpPost, Route("Timeline/{SentEmailID:int}")]
+        public IHttpActionResult SentEmailTimeline([FromBody] PostData postData, int SentEmailID)
+        {
+            List<TimelineItem> timeline = [];
+
+            using (AdoDataConnection connection = CreateDbConnection())
+            {
+                TableOperations<SentEmail> sentEmailTbl = new TableOperations<SentEmail>(connection);
+                SentEmail sentEmailRecord = sentEmailTbl.QueryRecordWhere("ID = {0}", SentEmailID);
+                timeline = timeline.Append(new TimelineItem()
+                {
+                    Description = "Email Sent",
+                    Timestamp = sentEmailRecord.TimeSent
+                }).ToList();
+
+                TableOperations<EventSentEmail> eventSentTbl = new TableOperations<EventSentEmail>(connection);
+                EventSentEmail eventSentRecord = eventSentTbl.QueryRecordWhere("SentEmailID = {0}", SentEmailID);
+
+                TableOperations<Event> eventTbl = new TableOperations<Event>(connection);
+                Event eventRecord = eventTbl.QueryRecordWhere("ID = {0}", eventSentRecord.EventID);
+
+                TableOperations<FileGroup> fileGroupTbl = new TableOperations<FileGroup>(connection);
+                FileGroup fileGroupRecord = fileGroupTbl.QueryRecordWhere("ID = {0}", eventRecord.FileGroupID);
+
+                timeline = timeline.Append(new TimelineItem()
+                {
+                    Description = "File Group Data Start",
+                    Timestamp = fileGroupRecord.DataStartTime
+                }).ToList();
+
+                timeline = timeline.Append(new TimelineItem()
+                {
+                    Description = "File Group Data End",
+                    Timestamp = fileGroupRecord.DataEndTime
+                }).ToList();
+
+                timeline = timeline.Append(new TimelineItem()
+                {
+                    Description = "File Group Processing Start",
+                    Timestamp = fileGroupRecord.ProcessingStartTime
+                }).ToList();
+
+                timeline = timeline.Append(new TimelineItem()
+                {
+                    Description = "File Group Processing End",
+                    Timestamp = fileGroupRecord.ProcessingEndTime
+                }).ToList();
+
+                TableOperations<DataFile> dataFileTbl = new TableOperations<DataFile>(connection);
+                DataFile[] dataFileRecords = dataFileTbl.QueryRecordsWhere("FileGroupID = {0}", fileGroupRecord.ID).ToArray();
+
+                foreach (DataFile dataFile in dataFileRecords)
+                {
+                    string dataFileName = Path.GetFileName(dataFile.FilePath);
+                    timeline = timeline.Append(new TimelineItem()
+                    {
+                        Description = $"{dataFileName} Last Write Time",
+                        Timestamp = dataFile.LastWriteTime
+                    }).ToList();
+                }
+
+                TableOperations<DataOperationFailure> dataOperationFailureTbl = new TableOperations<DataOperationFailure>(connection);
+                DataOperationFailure[] dataOperationFailureRecords = dataOperationFailureTbl.QueryRecordsWhere("FileGroupID = {0}", fileGroupRecord.ID).ToArray();
+                foreach (DataOperationFailure dataOperationFailure in dataOperationFailureRecords)
+                {
+                    timeline = timeline.Append(new TimelineItem()
+                    {
+                        Description = dataOperationFailure.Log,
+                        Timestamp = dataOperationFailure.TimeOfFailure
+                    }).ToList();
+                }
+
+                List<TimelineItem> sortedTimeline;
+
+                if (postData.OrderBy == "Description")
+                {
+                    if (!postData.Ascending)
+                    {
+                        sortedTimeline = timeline.OrderBy(i => i.Description).ToList();
+                    }
+                    else
+                    {
+                        sortedTimeline = timeline.OrderByDescending(i => i.Description).ToList();
+                    }
+                }
+                else
+                {
+                    if (!postData.Ascending)
+                    {
+                        sortedTimeline = timeline.OrderBy(i => i.Timestamp).ToList();
+                    }
+                    else
+                    {
+                        sortedTimeline = timeline.OrderByDescending(i => i.Timestamp).ToList();
+                    }
+                }
+
+                return Ok(JsonConvert.SerializeObject(sortedTimeline));
+            }
+        }
+
+        private AdoDataConnection CreateDbConnection()
+        {
+            AdoDataConnection connection = new AdoDataConnection(Connection);
+            connection.DefaultTimeout = DataExtensions.DefaultTimeoutDuration;
+            return connection;
+        }
     }
 }
