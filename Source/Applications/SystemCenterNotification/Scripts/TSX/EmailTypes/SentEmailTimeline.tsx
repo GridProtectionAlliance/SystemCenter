@@ -32,7 +32,8 @@ import { Plot } from '@gpa-gemstone/react-graph'
 
 interface TimelineItem {
     Timestamp: string,
-    Description: string
+    Description: string,
+    ID: number
 }
 
 
@@ -95,7 +96,7 @@ const SentEmailTimeline = (props: IProps) => {
                         if (d.colKey === sortKey.toString()) setAscending(ascending => !ascending);
                         else setSortKey(d.colField);
                     }}
-                    KeySelector={(item) => item.Timestamp}
+                                KeySelector={(item) => item.ID}
                     TableStyle={{
                         padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
                         tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
