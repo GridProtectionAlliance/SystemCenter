@@ -20,26 +20,28 @@
 //       Generated original version of source code.
 //
 //******************************************************************************************************
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Linq;
-using System.Reflection;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Web.Http;
-using System.Xml.Linq;
 using GSF.Configuration;
 using GSF.Data;
 using GSF.Data.Model;
+using GSF.Units;
 using GSF.Web.Model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using openXDA.APIAuthentication;
 using openXDA.Model;
-using SystemCenter.Notifications.Model;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.EnterpriseServices;
 using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Reflection;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Xml.Linq;
+using SystemCenter.Notifications.Model;
 using ConfigurationLoader = SystemCenter.Notifications.Model.ConfigurationLoader;
 
 namespace SystemCenter.Notifications.Controllers
@@ -434,98 +436,70 @@ namespace SystemCenter.Notifications.Controllers
 
             int id = 0;
 
+            void AddTimelineItem(string description, DateTime timestamp)
+            {
+                timeline = timeline.Append(new TimelineItem()
+                {
+                    Description = description,
+                    Timestamp = timestamp,
+                    ID = id
+                }).ToList();
+
+                id++;
+            }
+
+            T GetTableRecord<T>(AdoDataConnection connection, string field, string pk) where T : class, new()
+            {
+                TableOperations<T> tbl = new TableOperations<T>(connection);
+                T record = tbl.QueryRecordWhere(field + " = {0}", pk);
+                return record;
+            }
+
+            T[] GetTableRecords<T>(AdoDataConnection connection, string field, string pk) where T : class, new()
+            {
+                TableOperations<T> tbl = new TableOperations<T>(connection);
+                T[] records = tbl.QueryRecordsWhere(field + " = {0}", pk).ToArray();
+                return records;
+            }
+
             using (AdoDataConnection connection = CreateDbConnection())
             {
-                TableOperations<SentEmail> sentEmailTbl = new TableOperations<SentEmail>(connection);
-                SentEmail sentEmailRecord = sentEmailTbl.QueryRecordWhere("ID = {0}", SentEmailID);
-                timeline = timeline.Append(new TimelineItem()
+                SentEmail sentEmail = GetTableRecord<SentEmail>(connection, "ID", SentEmailID.ToString());
+                AddTimelineItem("Email Sent", sentEmail.TimeSent);
+
+                EventSentEmail eventSentEmail = GetTableRecord<EventSentEmail>(connection, "SentEmailID", sentEmail.ID.ToString());
+
+                if (eventSentEmail == null)
                 {
-                    Description = "Email Sent",
-                    Timestamp = sentEmailRecord.TimeSent,
-                    ID = id
-                }).ToList();
-
-                id++;
-
-                TableOperations<EventSentEmail> eventSentTbl = new TableOperations<EventSentEmail>(connection);
-                EventSentEmail eventSentRecord = eventSentTbl.QueryRecordWhere("SentEmailID = {0}", SentEmailID);
-
-                if (eventSentRecord == null)
-                {
-                    return Ok(JsonConvert.SerializeObject(timeline)); // guards against potentially missing records
+                    return Ok(JsonConvert.SerializeObject(timeline));
                 }
 
-                TableOperations<Event> eventTbl = new TableOperations<Event>(connection);
-                Event eventRecord = eventTbl.QueryRecordWhere("ID = {0}", eventSentRecord.EventID);
+                Event eventRecord = GetTableRecord<Event>(connection, "ID", eventSentEmail.EventID.ToString());
 
-                TableOperations<FileGroup> fileGroupTbl = new TableOperations<FileGroup>(connection);
-                FileGroup fileGroupRecord = fileGroupTbl.QueryRecordWhere("ID = {0}", eventRecord.FileGroupID);
+                FileGroup fileGroupRecord = GetTableRecord<FileGroup>(connection, "ID", eventRecord.FileGroupID.ToString()); 
 
-                timeline = timeline.Append(new TimelineItem()
-                {
-                    Description = "File Group Data Start",
-                    Timestamp = fileGroupRecord.DataStartTime,
-                    ID = id
-                }).ToList();
+                AddTimelineItem("File Group Data Start", fileGroupRecord.DataStartTime);
 
-                id++;
+                AddTimelineItem("File Group Data End", fileGroupRecord.DataEndTime);
 
-                timeline = timeline.Append(new TimelineItem()
-                {
-                    Description = "File Group Data End",
-                    Timestamp = fileGroupRecord.DataEndTime,
-                    ID = id
-                }).ToList();
+                AddTimelineItem("File Group Processing Start", fileGroupRecord.ProcessingStartTime);
 
-                id++;
+                AddTimelineItem("File Group Processing End", fileGroupRecord.ProcessingEndTime);
 
-                timeline = timeline.Append(new TimelineItem()
-                {
-                    Description = "File Group Processing Start",
-                    Timestamp = fileGroupRecord.ProcessingStartTime,
-                    ID = id
-                }).ToList();
-
-                id++;
-
-                timeline = timeline.Append(new TimelineItem()
-                {
-                    Description = "File Group Processing End",
-                    Timestamp = fileGroupRecord.ProcessingEndTime,
-                    ID = id
-                }).ToList();
-
-                id++;
-
-                TableOperations<DataFile> dataFileTbl = new TableOperations<DataFile>(connection);
-                DataFile[] dataFileRecords = dataFileTbl.QueryRecordsWhere("FileGroupID = {0}", fileGroupRecord.ID).ToArray();
+                DataFile[] dataFileRecords = GetTableRecords<DataFile>(connection, "FileGroupID", fileGroupRecord.ID.ToString());
 
                 foreach (DataFile dataFile in dataFileRecords)
                 {
                     string dataFileName = Path.GetFileName(dataFile.FilePath);
-                    if (timeline.FirstOrDefault(item => String.Equals(item.Description, $"{dataFileName} Last Write Time")) != null) { continue; } // guards against bug where files are added during every call...
-                    timeline = timeline.Append(new TimelineItem()
-                    {
-                        Description = $"{dataFileName} Last Write Time",
-                        Timestamp = dataFile.LastWriteTime,
-                        ID = id
-                    }).ToList();
 
-                    id++;
+                    AddTimelineItem($"{dataFileName} Last Write Time", dataFile.LastWriteTime);
                 }
 
-                TableOperations<DataOperationFailure> dataOperationFailureTbl = new TableOperations<DataOperationFailure>(connection);
-                DataOperationFailure[] dataOperationFailureRecords = dataOperationFailureTbl.QueryRecordsWhere("FileGroupID = {0}", fileGroupRecord.ID).ToArray();
+                DataOperationFailure[] dataOperationFailureRecords = GetTableRecords<DataOperationFailure>(connection, "FileGroupID", fileGroupRecord.ID.ToString());
+
                 foreach (DataOperationFailure dataOperationFailure in dataOperationFailureRecords)
                 {
-                    timeline = timeline.Append(new TimelineItem()
-                    {
-                        Description = dataOperationFailure.Log,
-                        Timestamp = dataOperationFailure.TimeOfFailure,
-                        ID = id
-                    }).ToList();
-
-                    id++;
+                    AddTimelineItem(dataOperationFailure.Log, dataOperationFailure.TimeOfFailure);
                 }
 
                 List<TimelineItem> sortedTimeline;
