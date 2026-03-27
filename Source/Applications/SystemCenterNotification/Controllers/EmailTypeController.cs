@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -40,7 +41,6 @@ using openXDA.Model;
 using SystemCenter.Notifications.Model;
 using System.IO;
 using ConfigurationLoader = SystemCenter.Notifications.Model.ConfigurationLoader;
-using System.Reflection;
 
 namespace SystemCenter.Notifications.Controllers
 {
@@ -93,7 +93,7 @@ namespace SystemCenter.Notifications.Controllers
                 if (content.GroupIDs.Count > 0)
                 {
                     groupFilter = "AND (";
-                    groupFilter += $"E.AssetID IN (SELECT AssetID FROM AssetAssetGroup WHERE AssetGroupID IN ({string.Join(",",content.GroupIDs)}))";
+                    groupFilter += $"E.AssetID IN (SELECT AssetID FROM AssetAssetGroup WHERE AssetGroupID IN ({string.Join(",", content.GroupIDs)}))";
                     groupFilter += " OR ";
                     groupFilter += $"E.MeterID IN (SELECT MeterID FROM MeterAssetGroup WHERE AssetGroupID IN ({string.Join(",", content.GroupIDs)}))";
                     groupFilter += ")";
@@ -124,7 +124,7 @@ namespace SystemCenter.Notifications.Controllers
                     EventType ET ON E.EventTypeID = ET.ID CROSS APPLY  
                     ({string.Format(content.TriggerSQL, "E.ID")}) EmailTrigger(Value) 
                 WHERE E.StartTime BETWEEN {{0}} AND {{1}} 
-                    {(content.AssetIDs.Count > 0? $" AND E.AssetID IN ({string.Join(",",content.AssetIDs)})" : "")}
+                    {(content.AssetIDs.Count > 0 ? $" AND E.AssetID IN ({string.Join(",", content.AssetIDs)})" : "")}
                     {(content.MeterIDs.Count > 0 ? $" AND E.MeterID IN ({string.Join(",", content.MeterIDs)})" : "")}
                     {(content.EventTypes.Count > 0 ? $" AND ET.ID IN ({string.Join(",", content.EventTypes)})" : "")}
                     {groupFilter}
@@ -132,7 +132,7 @@ namespace SystemCenter.Notifications.Controllers
 
                 using (AdoDataConnection connection = CreateDbConnection())
                     return Ok(connection.RetrieveData(sql, content.Start, content.End));
-               
+
             }
             catch (Exception ex)
             {
@@ -178,7 +178,7 @@ namespace SystemCenter.Notifications.Controllers
         }
 
         [HttpGet, Route("Test/{eventID:int}/{emailID:int}/{recipient}")]
-        public IHttpActionResult Test(int eventID,int emailID, string recipient)
+        public IHttpActionResult Test(int eventID, int emailID, string recipient)
         {
             if (!PatchAuthCheck())
                 return Unauthorized();
@@ -233,7 +233,7 @@ namespace SystemCenter.Notifications.Controllers
 
                 JArray results = JArray.Parse(responseJSON);
 
-                for(int index = 0; index < results.Count(); index++)
+                for (int index = 0; index < results.Count(); index++)
                 {
                     XElement data = JsonConvert.DeserializeObject<XElement>(results[index]["Data"].ToString());
                     results[index]["Data"] = data?.ToString() ?? "";
@@ -500,27 +500,19 @@ namespace SystemCenter.Notifications.Controllers
 
                 List<TimelineItem> sortedTimeline;
 
-                if (postData.OrderBy == "Description")
+                PropertyInfo orderByProp = typeof(TimelineItem).GetProperty(postData.OrderBy);
+                if (orderByProp == null)
                 {
-                    if (!postData.Ascending)
-                    {
-                        sortedTimeline = timeline.OrderBy(i => i.Description).ToList();
-                    }
-                    else
-                    {
-                        sortedTimeline = timeline.OrderByDescending(i => i.Description).ToList();
-                    }
+                    orderByProp = typeof(TimelineItem).GetProperty("Timestamp");
+                }
+
+                if (!postData.Ascending)
+                {
+                    sortedTimeline = timeline.OrderBy(i => orderByProp.GetValue(i)).ToList();
                 }
                 else
                 {
-                    if (!postData.Ascending)
-                    {
-                        sortedTimeline = timeline.OrderBy(i => i.Timestamp).ToList();
-                    }
-                    else
-                    {
-                        sortedTimeline = timeline.OrderByDescending(i => i.Timestamp).ToList();
-                    }
+                    sortedTimeline = timeline.OrderByDescending(i => orderByProp.GetValue(i)).ToList();
                 }
 
                 return Ok(JsonConvert.SerializeObject(sortedTimeline));
