@@ -150,94 +150,96 @@ const ByEmailType = (props: IProps) => {
                     </SearchBar>
                 </div>
             </div>
-            <div className='row' style={{ flex: 1, overflow: 'hidden' }}>
-                <div className='col-12' style={{ height: '100%', overflow: 'hidden' }}>
-                    <Table<EmailType>
-                        TableClass="table table-hover"
-                        Data={data}
-                        SortKey={sortField}
-                        Ascending={asc}
-                        OnSort={(d) => {
-                            dispatch(EmailTypeSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
-                        }}
-                        OnClick={(item) => navigate(`${homePath}EventEmail/${item.row.ID}`)}
-                        TableStyle={{
-                            padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
-                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
-                        }}
-                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
-                        RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        Selected={(item) => false}
-                        KeySelector={(item) => item.ID}
-                    >
-                        <Column<EmailType>
-                            Key={'Name'}
-                            AllowSort={true}
-                            Field={'Name'}
-                            HeaderStyle={{ width: '30%' }}
-                            RowStyle={{ width: '30%' }}
-                        > Name
-                        </Column>
-                        <Column<EmailType>
-                            Key={'EmailCategoryID'}
-                            AllowSort={true}
-                            Field={'EmailCategoryID'}
-                            HeaderStyle={{ width: '10%' }}
-                            RowStyle={{ width: '10%' }}
-                            Content={({ item }) => categories.find(c => c.ID === item.EmailCategoryID).Name}
-                        > Category
-                        </Column>
-                        <Column<EmailType>
-                            Key={'MaxDelay'}
-                            AllowSort={true}
-                            Field={'MaxDelay'}
-                            HeaderStyle={{ width: '15%' }}
-                            RowStyle={{ width: '15%' }}
-                        > Maximum Delay (s)
-                        </Column>
-                        <Column<EmailType>
-                            Key={'MinDelay'}
-                            AllowSort={true}
-                            Field={'MinDelay'}
-                            HeaderStyle={{ width: '15%' }}
-                            RowStyle={{ width: '15%' }}
-                        > Minimum Delay (s)
-                        </Column>
-                        <Column<EmailType>
-                            Key={'SMS'}
-                            AllowSort={true}
-                            Field={'SMS'}
-                            HeaderStyle={{ width: '10%' }}
-                            RowStyle={{ width: '10%' }}
-                            Content={({ item }) => item.SMS ? <ReactIcons.CheckMark Color="var(--success)" /> : <ReactIcons.CrossMark Color="var(--danger)" />}
-                        > Text Message
-                        </Column>
-                        <Column<EmailType>
-                            Key={'ShowSubscription'}
-                            AllowSort={true}
-                            Field={'ShowSubscription'}
-                            HeaderStyle={{ width: '10%' }}
-                            RowStyle={{ width: '10%' }}
-                            Content={({ item }) =>
-                                item.ShowSubscription && (categories.find(category => category.ID === item.EmailCategoryID)?.SelfSubscribe ?? false) ?
-                                    <ReactIcons.CheckMark Color="var(--success)" /> :
-                                    <ReactIcons.CrossMark Color="var(--danger)" />
-                            }
-                        > Self Subscription
-                        </Column>
-                        <Column<EmailType>
-                            Key={'RequireApproval'}
-                            AllowSort={true}
-                            Field={'RequireApproval'}
-                            HeaderStyle={{ width: '10%' }}
-                            RowStyle={{ width: '10%' }}
-                            Content={({ item }) => item.RequireApproval ? <ReactIcons.CheckMark Color="var(--success)" /> : <ReactIcons.CrossMark Color="var(--danger)" />}
-                        > Requires Approval
-                        </Column>
-                    </Table>
+            {status !== 'idle' ? null :
+                <div className='row' style={{ flex: 1, overflow: 'hidden' }}>
+                    <div className='col-12' style={{ height: '100%', overflow: 'hidden' }}>
+                        <Table<EmailType>
+                            TableClass="table table-hover"
+                            Data={data}
+                            SortKey={sortField}
+                            Ascending={asc}
+                            OnSort={(d) => {
+                                dispatch(EmailTypeSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
+                            }}
+                            OnClick={(item) => navigate(`${homePath}EventEmail/${item.row.ID}`)}
+                            TableStyle={{
+                                padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                                tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
+                            }}
+                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                            RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            Selected={(item) => false}
+                            KeySelector={(item) => item.ID}
+                        >
+                            <Column<EmailType>
+                                Key={'Name'}
+                                AllowSort={true}
+                                Field={'Name'}
+                                HeaderStyle={{ width: '30%' }}
+                                RowStyle={{ width: '30%' }}
+                            > Name
+                            </Column>
+                            <Column<EmailType>
+                                Key={'EmailCategoryID'}
+                                AllowSort={true}
+                                Field={'EmailCategoryID'}
+                                HeaderStyle={{ width: '10%' }}
+                                RowStyle={{ width: '10%' }}
+                                Content={({ item }) => categories.find(c => c.ID === item.EmailCategoryID).Name}
+                            > Category
+                            </Column>
+                            <Column<EmailType>
+                                Key={'MaxDelay'}
+                                AllowSort={true}
+                                Field={'MaxDelay'}
+                                HeaderStyle={{ width: '15%' }}
+                                RowStyle={{ width: '15%' }}
+                            > Maximum Delay (s)
+                            </Column>
+                            <Column<EmailType>
+                                Key={'MinDelay'}
+                                AllowSort={true}
+                                Field={'MinDelay'}
+                                HeaderStyle={{ width: '15%' }}
+                                RowStyle={{ width: '15%' }}
+                            > Minimum Delay (s)
+                            </Column>
+                            <Column<EmailType>
+                                Key={'SMS'}
+                                AllowSort={true}
+                                Field={'SMS'}
+                                HeaderStyle={{ width: '10%' }}
+                                RowStyle={{ width: '10%' }}
+                                Content={({ item }) => item.SMS ? <ReactIcons.CheckMark Color="var(--success)" /> : <ReactIcons.CrossMark Color="var(--danger)" />}
+                            > Text Message
+                            </Column>
+                            <Column<EmailType>
+                                Key={'ShowSubscription'}
+                                AllowSort={true}
+                                Field={'ShowSubscription'}
+                                HeaderStyle={{ width: '10%' }}
+                                RowStyle={{ width: '10%' }}
+                                Content={({ item }) =>
+                                    item.ShowSubscription && (categories.find(category => category.ID === item.EmailCategoryID)?.SelfSubscribe ?? false) ?
+                                        <ReactIcons.CheckMark Color="var(--success)" /> :
+                                        <ReactIcons.CrossMark Color="var(--danger)" />
+                                }
+                            > Self Subscription
+                            </Column>
+                            <Column<EmailType>
+                                Key={'RequireApproval'}
+                                AllowSort={true}
+                                Field={'RequireApproval'}
+                                HeaderStyle={{ width: '10%' }}
+                                RowStyle={{ width: '10%' }}
+                                Content={({ item }) => item.RequireApproval ? <ReactIcons.CheckMark Color="var(--success)" /> : <ReactIcons.CrossMark Color="var(--danger)" />}
+                            > Requires Approval
+                            </Column>
+                        </Table>
+                    </div>
                 </div>
-            </div>
+            }
             <Modal Title={'Add New Email'}
                 Show={showModal} ShowX={true} Size={'lg'} ShowCancel={false} ConfirmText={'Add'}
                 CallBack={(conf, isBtn) => {
