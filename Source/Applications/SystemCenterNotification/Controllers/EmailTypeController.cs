@@ -424,12 +424,15 @@ namespace SystemCenter.Notifications.Controllers
         {
             public DateTime Timestamp { get; set; }
             public string Description { get; set; }
+            public int ID { get; set; }
         }
 
         [HttpPost, Route("Timeline/{SentEmailID:int}")]
         public IHttpActionResult SentEmailTimeline([FromBody] PostData postData, int SentEmailID)
         {
             List<TimelineItem> timeline = [];
+
+            int id = 0;
 
             using (AdoDataConnection connection = CreateDbConnection())
             {
@@ -438,11 +441,19 @@ namespace SystemCenter.Notifications.Controllers
                 timeline = timeline.Append(new TimelineItem()
                 {
                     Description = "Email Sent",
-                    Timestamp = sentEmailRecord.TimeSent
+                    Timestamp = sentEmailRecord.TimeSent,
+                    ID = id
                 }).ToList();
+
+                id++;
 
                 TableOperations<EventSentEmail> eventSentTbl = new TableOperations<EventSentEmail>(connection);
                 EventSentEmail eventSentRecord = eventSentTbl.QueryRecordWhere("SentEmailID = {0}", SentEmailID);
+
+                if (eventSentRecord == null)
+                {
+                    return Ok(JsonConvert.SerializeObject(timeline)); // guards against potentially missing records
+                }
 
                 TableOperations<Event> eventTbl = new TableOperations<Event>(connection);
                 Event eventRecord = eventTbl.QueryRecordWhere("ID = {0}", eventSentRecord.EventID);
@@ -453,26 +464,38 @@ namespace SystemCenter.Notifications.Controllers
                 timeline = timeline.Append(new TimelineItem()
                 {
                     Description = "File Group Data Start",
-                    Timestamp = fileGroupRecord.DataStartTime
+                    Timestamp = fileGroupRecord.DataStartTime,
+                    ID = id
                 }).ToList();
+
+                id++;
 
                 timeline = timeline.Append(new TimelineItem()
                 {
                     Description = "File Group Data End",
-                    Timestamp = fileGroupRecord.DataEndTime
+                    Timestamp = fileGroupRecord.DataEndTime,
+                    ID = id
                 }).ToList();
+
+                id++;
 
                 timeline = timeline.Append(new TimelineItem()
                 {
                     Description = "File Group Processing Start",
-                    Timestamp = fileGroupRecord.ProcessingStartTime
+                    Timestamp = fileGroupRecord.ProcessingStartTime,
+                    ID = id
                 }).ToList();
+
+                id++;
 
                 timeline = timeline.Append(new TimelineItem()
                 {
                     Description = "File Group Processing End",
-                    Timestamp = fileGroupRecord.ProcessingEndTime
+                    Timestamp = fileGroupRecord.ProcessingEndTime,
+                    ID = id
                 }).ToList();
+
+                id++;
 
                 TableOperations<DataFile> dataFileTbl = new TableOperations<DataFile>(connection);
                 DataFile[] dataFileRecords = dataFileTbl.QueryRecordsWhere("FileGroupID = {0}", fileGroupRecord.ID).ToArray();
@@ -480,11 +503,15 @@ namespace SystemCenter.Notifications.Controllers
                 foreach (DataFile dataFile in dataFileRecords)
                 {
                     string dataFileName = Path.GetFileName(dataFile.FilePath);
+                    if (timeline.FirstOrDefault(item => String.Equals(item.Description, $"{dataFileName} Last Write Time")) != null) { continue; } // guards against bug where files are added during every call...
                     timeline = timeline.Append(new TimelineItem()
                     {
                         Description = $"{dataFileName} Last Write Time",
-                        Timestamp = dataFile.LastWriteTime
+                        Timestamp = dataFile.LastWriteTime,
+                        ID = id
                     }).ToList();
+
+                    id++;
                 }
 
                 TableOperations<DataOperationFailure> dataOperationFailureTbl = new TableOperations<DataOperationFailure>(connection);
@@ -494,8 +521,11 @@ namespace SystemCenter.Notifications.Controllers
                     timeline = timeline.Append(new TimelineItem()
                     {
                         Description = dataOperationFailure.Log,
-                        Timestamp = dataOperationFailure.TimeOfFailure
+                        Timestamp = dataOperationFailure.TimeOfFailure,
+                        ID = id
                     }).ToList();
+
+                    id++;
                 }
 
                 List<TimelineItem> sortedTimeline;
