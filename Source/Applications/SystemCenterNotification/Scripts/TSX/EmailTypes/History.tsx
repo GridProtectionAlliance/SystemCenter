@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  History.tsx - Gbtc
 //
-//  Copyright © 2026, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright � 2026, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -23,10 +23,11 @@
 
 import * as React from 'react';
 import { EmailType, SentEmail } from '../global';
-import { LoadingScreen, GenericController } from '@gpa-gemstone/react-interactive'
+import { LoadingScreen, GenericController, Modal } from '@gpa-gemstone/react-interactive'
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { Application } from '@gpa-gemstone/application-typings';
 import moment from 'moment';
+import SentEmailTimeline from './SentEmailTimeline'
 
 interface IProps { Record: EmailType }
 
@@ -39,6 +40,8 @@ const History = (props: IProps) => {
     const [pageInfo, setPageInfo] = React.useState<{ RecordsPerPage: number, NumberOfPages: number, TotalRecords: number }>({ RecordsPerPage: 0, NumberOfPages: 0, TotalRecords: 0 });
     const [page, setPage] = React.useState<number>(0);
     const [pageStatus, setPageStatus] = React.useState<Application.Types.Status>('idle');
+    const [selectedEmail, setSelectedEmail] = React.useState<SentEmail>(null)
+
     const controller = React.useMemo(() =>
         new GenericController<SentEmail>(`${homePath}api/OpenXDA/SentEmail`, sortKey, ascending ?? false)
         , [sortKey, ascending]);
@@ -58,6 +61,12 @@ const History = (props: IProps) => {
     }, [props.Record.ID, sortKey, ascending, page]);
 
     return (
+        <>
+                <SentEmailTimeline
+                    Show={selectedEmail != null}
+                    CallBack={() => { setSelectedEmail(null) }}
+                    SentEmail={selectedEmail}
+                />
         <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
                 <div className="card" style={{ width: '100%', height: '100%' }}>
@@ -91,6 +100,7 @@ const History = (props: IProps) => {
                                         RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
                                         Selected={(item) => false}
                                         KeySelector={(item) => item.ID}
+                                        OnClick={(d) => setSelectedEmail(d.row)}
                                     >
                                         <Column<SentEmail>
                                             Key={'TimeSent'}
@@ -109,7 +119,7 @@ const History = (props: IProps) => {
                                             Field={'ToLine'}
                                             HeaderStyle={{ width: 'auto' }}
                                             RowStyle={{ width: 'auto' }}
-                                        > Recipient(s)
+                                        > Recipient
                                         </Column>
                                         <Column<SentEmail>
                                             Key={'Subject'}
@@ -131,7 +141,8 @@ const History = (props: IProps) => {
                     {data.length > 0 ? <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p - 1)} /> : null}
                 </div>
             </div>
-        </div>
+            </div>
+        </>
     )
 }
 
