@@ -74,59 +74,35 @@ const ApplicationCard = (props: IApplicationCard) => {
         return h;
     }
     return (
-        props.IsSmall ?
-                <div className="d-flex h-100 flex-column position-relative">
-                    <img className="position-absolute" src={`../Images/NodeTiles/${props.App !== "XDA" ? props.App : "OpenXDA"}Icon.png`} alt={`${props.App} Icon`} style={{ width: '80px', top: '0', right: '0', zIndex: '1030'}} />
-                    <div className="card h-100 container">
-                        <div className="card-body row">
-                            <div className="col-12">
-                                <ul className="list-group list-group-flush">
-                                    {status == 'Online' ? <li className="list-group-item" key={'status'}> <span className="badge badge-pill badge-success">Online</span> </li> : null}
-                                    {status == 'Unknown' ? <li className="list-group-item" key={'status'}> <span className="badge badge-pill badge-danger">Offline</span> </li> : null}
-                                    {status == 'Loading' ? <li className="list-group-item" key={'status'}> <span className="badge badge-pill badge-secondary">...Loading</span> </li> : null}
-                                    {props.Properties.map((p, i) => p.Name === "ID" ? null : <li className="list-group-item" key={i}>
-                                        {p.Name}
-                                        <span className="badge badge-info" style={{ marginLeft: 10 }}>{p.Value}</span>
-                                    </li>)}
-                                </ul>
-                            </div>
-                        </div>
-                        <div className="card-footer row justify-content-between">
-                            <button className="btn btn-info col-4" onClick={() => props.OpenConsole()}>Console</button>
-                            {props.App === 'MiMD' ? null :
-                                <button className="btn btn-info col-4" onClick={() => props.OpenStats()}>Status</button>
-                            }
-                        </div>
-                    </div>
-                </div>
-            :
-            <div className="d-flex h-100 flex-column">
-                <div className="card h-100 container">
-                    <div className="card-body row justify-content-around align-items-center">
+        <div className="d-flex h-100 flex-column position-relative">
+            {props.IsSmall ? <img className="position-absolute" src={`../Images/NodeTiles/${props.App !== "XDA" ? props.App : "OpenXDA"}Icon.png`} alt={`${props.App} Icon`} style={{ width: '80px', top: '0', right: '0', zIndex: '1030' }} /> : null}
+            <div className="card h-100 container">
+                <div className={`card-body row ${props.IsSmall ? '' : "justify-content-around align-items-center"}`}>
+                    {props.IsSmall ? null :
                         <div className="col-3">
                             <img src={props.Image} alt={props.App} style={{ width: '200px' }} />
-                        </div>
-
-                        <div className="col-5">
-                            <ul className="list-group list-group-flush">
-                                {status == 'Online' ? <li className="list-group-item" key={'status'}> <span className="badge badge-pill badge-success">Online</span> </li> : null}
-                                {status == 'Unknown' ? <li className="list-group-item" key={'status'}> <span className="badge badge-pill badge-danger">Offline</span> </li> : null}
-                                {status == 'Loading' ? <li className="list-group-item" key={'status'}> <span className="badge badge-pill badge-secondary">...Loading</span> </li> : null}
-                                {props.Properties.map((p, i) => p.Name === "ID" ? null : <li className="list-group-item" key={i}>
-                                    {p.Name}
-                                    <span className="badge badge-info" style={{ marginLeft: 10 }}>{p.Value}</span>
-                                </li>)}
-                            </ul>
-                        </div>
-                    </div>
-                    <div className="card-footer row justify-content-between">
-                        <button className="btn btn-info col-3" onClick={() => props.OpenConsole()}>Console</button>
-                        {props.App === 'MiMD' ? null :
-                            <button className="btn btn-info col-3" onClick={() => props.OpenStats()}>Status</button>
-                        }
+                        </div>}
+                    <div className={`col-${props.IsSmall ? 12 : 5}`}>
+                        <ul className="list-group list-group-flush">
+                            {status == 'Online' ? <li className="list-group-item" key={'status'}> <span className="badge badge-pill badge-success">Online</span> </li> : null}
+                            {status == 'Unknown' ? <li className="list-group-item" key={'status'}> <span className="badge badge-pill badge-danger">Offline</span> </li> : null}
+                            {status == 'Loading' ? <li className="list-group-item" key={'status'}> <span className="badge badge-pill badge-secondary">...Loading</span> </li> : null}
+                            {props.Properties.map((p, i) => p.Name === "ID" ? null : <li className="list-group-item" key={i}>
+                                {p.Name}
+                                <span className="badge badge-info" style={{ marginLeft: 10 }}>{p.Value}</span>
+                            </li>)}
+                        </ul>
                     </div>
                 </div>
+                <div className="card-footer row justify-content-between">
+                    <button className={`btn btn-info col-${props.IsSmall ? 4 : 3}`} onClick={() => props.OpenConsole()}>Console</button>
+                    {props.App === 'MiMD' ? null :
+                        <button className={`btn btn-info col-${props.IsSmall ? 4 : 3}`} onClick={() => props.OpenStats()}>Status</button>
+                    }
+                </div>
             </div>
+        </div>
+
     )
 }
 export default ApplicationCard;
