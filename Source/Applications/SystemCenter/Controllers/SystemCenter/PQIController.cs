@@ -187,7 +187,7 @@ namespace SystemCenter.Controllers
                     new StatusItem()
                     {
                         Status = "Error",
-                        Description = "Could not connect to PQI Client. Check the PQI.Url setting in System Center Settings."
+                        Description = "Could not connect to PQI Client. Check the PQI.Url setting in System Center."
                     }
                 ];
                 return Ok(appStatus);
