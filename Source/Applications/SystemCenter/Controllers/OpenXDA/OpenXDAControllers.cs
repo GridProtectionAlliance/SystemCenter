@@ -32,6 +32,7 @@ using Newtonsoft.Json.Linq;
 using openXDA.APIAuthentication;
 using openXDA.Configuration;
 using openXDA.Model;
+using openXDA.Model.SystemCenter;
 using PQView.Model;
 using System;
 using System.Collections;
@@ -394,19 +395,6 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA/remoteXDAInstance"), HttpEditionFilter(Edition.Enterprise)]
     public class RemoteXDAInstanceController : ModelController<RemoteXDAInstance>
     {
-        public class StatusItem
-        {
-            public string Status { get; set; }
-            public string Description { get; set; }
-        }
-
-        public class AppStatus
-        {
-            public string Status { get; set; }
-
-            public List<StatusItem> Details { get; set; }
-
-        }
         #region [Properties]
         private class Settings
         {
