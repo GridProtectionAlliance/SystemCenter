@@ -168,7 +168,7 @@ namespace SystemCenter.Controllers
                     new StatusItem()
                         { 
                             Status = "Error",
-                            Description = "Authentication error. Check the PQI authentication settings in openXDA Settings."
+                            Description = "Authentication error. Check the PQI authentication settings in openXDA."
                         }
                 ];
                 return Ok(appStatus);
