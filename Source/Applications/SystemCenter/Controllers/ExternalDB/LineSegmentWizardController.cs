@@ -29,6 +29,7 @@ using GSF.Security.Model;
 using GSF.Web.Model;
 using Newtonsoft.Json.Linq;
 using openXDA.Model;
+using openXDA.Model.SystemCenter;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -153,19 +154,6 @@ public class LineSegmentWizardController : ApiController
         public List<int> StationID;
     };
 
-    public class StatusItem
-    {
-        public string Status { get; set; }
-        public string Description { get; set; }
-    }
-
-    public class FAWGStatus
-    {
-        public string Status { get; set; }
-
-        public List<StatusItem> Details { get; set; }
-
-    }
     #endregion
 
     #region [ Statics ]
@@ -183,7 +171,7 @@ public class LineSegmentWizardController : ApiController
     public IHttpActionResult PostTestConnection()
     {
 
-        FAWGStatus status = new()
+        AppStatus status = new()
         {
             Status = "N/A",
             Details = new()
@@ -212,7 +200,6 @@ public class LineSegmentWizardController : ApiController
                     Status = "Error",
                     Description = "ConnectionString contains errors."
                 });
-                return Ok(status);
             }
             if (e.InnerException is FileNotFoundException)
             {
@@ -221,7 +208,6 @@ public class LineSegmentWizardController : ApiController
                     Status = "Error",
                     Description = "Missing file or dependency."
                 });
-                return Ok(status);
             }
             if (e.InnerException is NullReferenceException)
             {
@@ -230,7 +216,6 @@ public class LineSegmentWizardController : ApiController
                     Status = "Error",
                     Description = "Could not load connection settings from configuration file."
                 });
-                return Ok(status);
             }
             if (e.InnerException is SqlException s)
             {
@@ -259,7 +244,6 @@ public class LineSegmentWizardController : ApiController
                         Status = "Error",
                         Description = "Failed to reach the server. Check that the connection string is correct and the server is accessible over network."
                     });
-                    return Ok(status);
                 }
 
                 // failed for user permissions.
@@ -275,9 +259,7 @@ public class LineSegmentWizardController : ApiController
                         Status = "Error",
                         Description = "Failed to authenticate."
                     });
-                    return Ok(status);
                 }
-                return Ok(status);
             }
             return Ok(status);
         }
