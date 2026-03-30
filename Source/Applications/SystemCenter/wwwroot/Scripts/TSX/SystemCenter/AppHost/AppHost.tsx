@@ -37,7 +37,6 @@ const AppHost: Application.Types.iByComponent = (props) => {
     const [stats, setStats] = React.useState<IHost | null>(null);
 
     const shouldHaveTwoRowsHeight = useMediaQuery('(max-height: 1000px)');
-    const shouldHaveTwoCols = useMediaQuery('(max-width: 1750px)');
     const shouldBeSmall = useMediaQuery('(max-width: 1750px)');
 
     React.useEffect(() => {
@@ -65,11 +64,11 @@ const AppHost: Application.Types.iByComponent = (props) => {
             <div style={{ width: '100%', height: '100%', overflowY: 'auto' }}>
                 <LoadingScreen Show={status == 'loading'} />
                 <ServerErrorIcon Show={status == 'error'} />
-                <LayoutGrid RowsPerPage={shouldHaveTwoRowsHeight ? 2 : 3} ColMax={shouldHaveTwoCols ? 2 : 3 }>
-                    {hosts.map((h, i) => <ApplicationCard {...h}
+                <LayoutGrid RowsPerPage={shouldHaveTwoRowsHeight ? 2 : 3} ColMax={shouldBeSmall ? 2 : 3 }>
+                    {hosts.map((h) => <ApplicationCard {...h}
                         OpenConsole={() => setConsole(h)}
                         OpenStats={() => setStats(h)}
-                        key={i}
+                        key={h.PingURL}
                         IsSmall={shouldBeSmall}
                     />)}
                     </LayoutGrid>    
