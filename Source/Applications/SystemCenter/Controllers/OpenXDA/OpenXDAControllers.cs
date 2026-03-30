@@ -41,6 +41,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Net.Http;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -488,7 +489,6 @@ namespace SystemCenter.Controllers.OpenXDA
                         Status = "Error",
                         Description = "Request unauthorized for host instance. Check XDA settings in System Center settings."
                     }).ToList();
-                    return Ok(status);
                 }
                 ;
             }
@@ -514,13 +514,17 @@ namespace SystemCenter.Controllers.OpenXDA
                         Status = "Error",
                         Description = "Could not connect to remote instance. Check XDA.Url in System Center settings."
                     }).ToList();
-                    return Ok(status);
                 }
-                status.Details = status.Details.Append(new StatusItem()
+                else
                 {
-                    Status = "Success",
-                    Description = "Connected to remote instance."
-                }).ToList();
+                    status.Details = status.Details.Append(new StatusItem()
+                    {
+                        Status = "Success",
+                        Description = "Connected to remote instance."
+                    }).ToList();
+
+                    status.Status = "Success";
+                }
                 if (remoteResponse == "Unauthorized")
                 {
                     status.Details = status.Details.Append(new StatusItem()
@@ -528,7 +532,6 @@ namespace SystemCenter.Controllers.OpenXDA
                         Status = "Error",
                         Description = "Request unauthorized for remote instance. Check XDA settings in System Center settings."
                     }).ToList();
-                    return Ok(status);
                 }
             }
             catch (Exception e)
@@ -538,10 +541,8 @@ namespace SystemCenter.Controllers.OpenXDA
                     Status = "Error",
                     Description = "Could not connect to remote instance. Check the URL of the Remote Instance."
                 }).ToList();
-                return Ok(status);
             }
 
-            status.Status = "Success";
             return Ok(status);
         }
 
