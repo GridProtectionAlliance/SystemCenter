@@ -98,7 +98,7 @@ namespace SystemCenter.Controllers
                         ConsoleURL = $"./api/SystemCenter/AppHost/xdaConsole/{host.ID}",
                         StatsURL = $"./api/SystemCenter/AppHost/xdaStatistics/{host.ID}",
                         Name = "XDA - " + host.RegistrationKey,
-                        Image = "../Images/NodeTiles/OpenXDA.png",
+                        Image = "../Images/NodeTiles/XDA.png",
                         App = "XDA",
                         Properties = new AppProperty[]
                         {

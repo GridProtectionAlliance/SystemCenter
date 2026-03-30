@@ -75,7 +75,7 @@ const ApplicationCard = (props: IApplicationCard) => {
     }
     return (
         <div className="d-flex h-100 flex-column position-relative">
-            {props.IsSmall ? <img className="position-absolute" src={`../Images/NodeTiles/${props.App !== "XDA" ? props.App : "OpenXDA"}Icon.png`} alt={`${props.App} Icon`} style={{ width: '80px', top: '0', right: '0', zIndex: '1030' }} /> : null}
+            {props.IsSmall ? <img className="position-absolute" src={`../Images/NodeTiles/${props.App}Icon.png`} alt={`${props.App} Icon`} style={{ width: '80px', top: '0', right: '0', zIndex: '1030' }} /> : null}
             <div className="card h-100 container">
                 <div className={`card-body row ${props.IsSmall ? '' : "justify-content-around align-items-center"}`}>
                     {props.IsSmall ? null :
