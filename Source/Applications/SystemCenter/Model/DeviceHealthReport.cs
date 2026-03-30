@@ -26,17 +26,14 @@ using GSF.Data.Model;
 using GSF.Web.Model;
 using Newtonsoft.Json;
 using openXDA.APIAuthentication;
-using openXDA.PQI;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web.Http;
-using System.Windows.Forms.DataVisualization.Charting;
 
 namespace SystemCenter.Model
 {
