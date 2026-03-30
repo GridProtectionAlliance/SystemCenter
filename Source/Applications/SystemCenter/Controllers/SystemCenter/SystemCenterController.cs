@@ -44,6 +44,7 @@ using GSF.Web.Model;
 using Newtonsoft.Json.Linq;
 using openXDA.Configuration;
 using openXDA.Model;
+using openXDA.Model.SystemCenter;
 using SEBrowser.Model;
 using SystemCenter.Model;
 using SystemCenter.ScheduledProcesses;
@@ -1540,19 +1541,6 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/SystemCenter/ExternalDatabases")]
     public class ExternalDatabasesController : ModelController<DetailedExternalDatabases, ExternalDatabases>
     {
-        public class StatusItem
-        {
-            public string Status { get; set; }
-            public string Description { get; set; }
-        }
-
-        public class ExternalDatabaseStatus
-        {			
-            public string Status { get; set; }
-
-			public List<StatusItem> Details { get; set; }
-			
-        }
 
         private static ServiceHost Host = Program.Host;
 
@@ -1600,7 +1588,7 @@ namespace SystemCenter.Controllers
         [HttpPost, Route("TestConnection")]
         public IHttpActionResult TestConnection([FromBody] JObject record)
         {
-            ExternalDatabaseStatus testDatabaseStatus = new()
+            AppStatus testDatabaseStatus = new()
             {
                 Status = "Success",
                 Details = []
@@ -1629,13 +1617,11 @@ namespace SystemCenter.Controllers
                             Status = "Success",
                             Description = "Successfully connected to database."
                         });
-                        return Ok(testDatabaseStatus);
                     }
 
                     else
                     {
                         testDatabaseStatus.Status = "Warning";
-                        return Ok(testDatabaseStatus);
                     }
                 }
             }
@@ -1650,7 +1636,6 @@ namespace SystemCenter.Controllers
                         Status = "Error",
                         Description = "ConnectionString contains errors."
                     });
-                    return Ok(testDatabaseStatus);
                 }
                 if (e.InnerException is FileNotFoundException)
                 {
@@ -1659,7 +1644,6 @@ namespace SystemCenter.Controllers
                         Status = "Error",
                         Description = "Missing file or dependency."
                     });
-                    return Ok(testDatabaseStatus);
                 }
                 if (e.InnerException is NullReferenceException)
                 {
@@ -1668,7 +1652,6 @@ namespace SystemCenter.Controllers
                         Status="Error",
                         Description="Could not load connection settings from configuration file."
                     });
-                    return Ok(testDatabaseStatus);
                 }
                 if (e.InnerException is Oracle.ManagedDataAccess.Client.OracleException o)
                 {
@@ -1726,7 +1709,6 @@ namespace SystemCenter.Controllers
                             Description = "Invalid transport address syntax."
                         });
                     }
-                    return Ok(testDatabaseStatus);
                 }
                 if (e.InnerException is SqlException s)
                 {
@@ -1755,7 +1737,6 @@ namespace SystemCenter.Controllers
                             Status = "Error",
                             Description = "Failed to reach the server. Check that the connection string is correct and the server is accessible over network."
                         });
-                        return Ok(testDatabaseStatus);
                     }
 
                     // failed for user permissions.
@@ -1771,14 +1752,10 @@ namespace SystemCenter.Controllers
                             Status = "Error",
                             Description = "Failed to authenticate."
                         });
-                        return Ok(testDatabaseStatus);
                     }
-
-                    return Ok(testDatabaseStatus);
                 }
-
-                return Ok(testDatabaseStatus);
             }
+            return Ok(testDatabaseStatus);
         }
 
         [HttpPost, Route("UnscheduledUpdate")]
