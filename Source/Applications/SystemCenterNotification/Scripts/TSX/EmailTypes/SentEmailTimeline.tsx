@@ -41,7 +41,8 @@ interface Timestamp {
     Description: string,
     Timestamp: string
     TimelineID: number,
-    ID: number
+    ID: number,
+    Delta: number
 }
 
 interface IProps {
@@ -139,7 +140,7 @@ const SentEmailTimeline = (props: IProps) => {
                                             <VerticalMarker
                                                 key={i}
                                                 Value={moment(item.Start).valueOf()}
-                                                color={selectedID == item.ID ? "yellow" : "black"}
+                                                color={selectedID == item.ID ? "#ffc107" : "black"}
                                                 width={3}
                                                 lineStyle={'solid'}
                                             /> :
@@ -149,7 +150,8 @@ const SentEmailTimeline = (props: IProps) => {
                                                 XData={[moment(item.Start).valueOf(), moment(item.End).valueOf()]}
                                                 YData={[1,2]}
                                                 RadiusPX={200}
-                                                Color={selectedID == item.ID ? "yellow" : "green"}
+                                                Color={selectedID == item.ID ? "#ffc107" : "black"}
+                                                TextColor={selectedID == item.ID ? "black" : "white" }
                                                 Text={item.Description}
                                             />
                                     )
@@ -171,8 +173,8 @@ const SentEmailTimeline = (props: IProps) => {
                                 }}
                                 KeySelector={(item) => item.ID}
                                 TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                Selected={(item) => false}
+                                RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%'}}
+                                Selected={(item) => item.TimelineID == selectedID}
                                 OnClick={(data) => handleTableOnClick(data) }
                             >
                                 <Column<Timestamp>
@@ -190,7 +192,7 @@ const SentEmailTimeline = (props: IProps) => {
                                     HeaderStyle={{ width: 'auto' }}
                                     RowStyle={{ width: 'auto' }}
                                     Content={({ item, field }) => {
-                                        return <span className={`badge badge-pill badge-light`}>{moment(item[field]).format('MM/DD/YYYY HH:mm:ss')}</span>
+                                        return <span className={`badge badge-pill badge-${DeltaToClass(item.Delta)}`}>{moment(item[field]).format('MM/DD/YYYY HH:mm:ss')}</span>
                                     }}
                                 > Timestamp
                                 </Column>
@@ -206,29 +208,32 @@ export default SentEmailTimeline;
 const ToTimestamps = (timeline: TimelineItem[]): Timestamp[] => {
     let timestamps = []
     let index = 0
-    timeline.forEach((i) => {
-        if (i.End == null) {
+    timeline.forEach((e, i, a) => {
+        if (e.End == null) {
             timestamps.push({
-                Description: i.Description,
-                Timestamp: i.Start,
-                TimelineID: i.ID,
-                ID: index
+                Description: e.Description,
+                Timestamp: e.Start,
+                TimelineID: e.ID,
+                ID: index,
+                Delta: GetDelta(e, i, a)
             })
             index++
             return
         }
         timestamps.push({
-            Description: i.Description + ' Start',
-            Timestamp: i.Start,
-            TimelineID: i.ID,
-            ID: index
+            Description: e.Description + ' Start',
+            Timestamp: e.Start,
+            TimelineID: e.ID,
+            ID: index,
+            Delta: GetDelta(e, i, a)
         })
         index++
         timestamps.push({
-            Description: i.Description + ' End',
-            Timestamp: i.End,
-            TimelineID: i.ID,
-            ID: index
+            Description: e.Description + ' End',
+            Timestamp: e.End,
+            TimelineID: e.ID,
+            ID: index,
+            Delta: GetDelta(e, i, a, true)
         })
         index++
     })
@@ -248,4 +253,26 @@ const ThreeTimesDurationBeforeAndAfter = (item: TimelineItem): [number, number] 
     const newTimeframe = [start - duration * 3, end + duration * 3]
     console.log(`start: ${start}, end: ${end}, duration: ${duration}, newframe: ${newTimeframe}`)
     return newTimeframe as [number, number]
+}
+
+const DeltaToClass = (delta: number): string => {
+    if (delta >= 3600000) return 'danger'
+    if (delta >= 1800000) return 'warning'
+    return 'light'
+}
+
+const GetDelta = (e: TimelineItem, i: number, a: TimelineItem[], end: boolean = false) => {
+    if (i == 0) return 0
+    if (end) return moment(e.End).valueOf() - moment(e.Start).valueOf()
+    const previous = a[i - 1]
+    if (e.End == null) {
+        if (previous.End == null) {
+            return moment(e.Start).valueOf() - moment(previous.Start).valueOf()
+        }
+        return moment(e.Start).valueOf() - moment(previous.End).valueOf()
+    }
+    if (previous.End == null) {
+        return moment(e.Start).valueOf() - moment(previous.Start).valueOf()
+    }
+    return moment(e.Start).valueOf() - moment(previous.End).valueOf()
 }
