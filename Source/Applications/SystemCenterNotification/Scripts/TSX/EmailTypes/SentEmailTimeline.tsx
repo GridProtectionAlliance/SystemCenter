@@ -160,11 +160,9 @@ const SentEmailTimeline = (props: IProps) => {
                             </Plot>
                         </div>
                     </div>
-                    <div className="row h-90">
-                        <div className="col-12">
                             <Table<Timestamp>
                                 TableClass="table table-hover"
-                                Data={ToTimestamps(timeline)} 
+                                Data={ToTimestamps(timeline)}
                                 SortKey={sortKey.toString()}
                                 Ascending={ascending}
                                 OnSort={(d) => {
@@ -172,10 +170,8 @@ const SentEmailTimeline = (props: IProps) => {
                                     else setSortKey(d.colField);
                                 }}
                                 KeySelector={(item) => item.ID}
-                                TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%'}}
                                 Selected={(item) => item.TimelineID == selectedID}
-                                OnClick={(data) => handleTableOnClick(data) }
+                                OnClick={(data) => handleTableOnClick(data)}
                             >
                                 <Column<Timestamp>
                                     Key={'Description'}
@@ -197,8 +193,6 @@ const SentEmailTimeline = (props: IProps) => {
                                 > Timestamp
                                 </Column>
                             </Table>
-                        </div>
-                    </div>
                 </div>
             }</>)
 }
