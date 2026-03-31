@@ -74,35 +74,54 @@ const ApplicationCard = (props: IApplicationCard) => {
         return h;
     }
     return (
-        <div className="d-flex h-100 flex-column position-relative">
-            {props.IsSmall ? <img className="position-absolute" src={`../Images/NodeTiles/${props.App}Icon.png`} alt={`${props.App} Icon`} style={{ width: '80px', top: '0', right: '0', zIndex: '1030' }} /> : null}
-            <div className="card h-100 container">
-                <div className={`card-body row ${props.IsSmall ? '' : "justify-content-around align-items-center"}`}>
-                    {props.IsSmall ? null :
-                        <div className="col-3">
-                            <img src={props.Image} alt={props.App} style={{ width: '200px' }} />
-                        </div>}
-                    <div className={`col-${props.IsSmall ? 12 : 5}`}>
-                        <ul className="list-group list-group-flush">
-                            {status == 'Online' ? <li className="list-group-item" key={'status'}> <span className="badge badge-pill badge-success">Online</span> </li> : null}
-                            {status == 'Unknown' ? <li className="list-group-item" key={'status'}> <span className="badge badge-pill badge-danger">Offline</span> </li> : null}
-                            {status == 'Loading' ? <li className="list-group-item" key={'status'}> <span className="badge badge-pill badge-secondary">...Loading</span> </li> : null}
-                            {props.Properties.map((p, i) => p.Name === "ID" ? null : <li className="list-group-item" key={i}>
-                                {p.Name}
-                                <span className="badge badge-info" style={{ marginLeft: 10 }}>{p.Value}</span>
-                            </li>)}
-                        </ul>
+        <div className="d-flex h-100 flex-column container p-0">
+
+            <div className="card h-100 w-100">
+                <div className={`card-body`}>
+                    <div className={`row ${props.IsSmall ? '' : "justify-content-around h-100 align-items-center"}`}>
+                        {props.IsSmall ? null :
+                            <div className="col-3">
+                                <img src={props.Image} alt={props.App} style={{ width: '200px' }} />
+                            </div>}
+                        <div className={`col-${props.IsSmall ? 12 : 5}`}>
+                            <ul className="list-group list-group-flush">
+                                <li className="list-group-item d-flex flex-row justify-content-between align-items-end" key={'status'}> <span className={`badge badge-pill badge-${StatusToBadgeClass(status)}`}>{status == "Unknown" ? "Offline" : status}</span>
+                                    {props.IsSmall ? <img src={`../Images/NodeTiles/${props.App}Icon.png`} alt={`${props.App} Icon`} style={{ width: '50px' }} /> : null}
+                                </li> 
+                                {props.Properties.map((p, i) => p.Name === "ID" ? null : <li className="list-group-item" key={i}>
+                                    {p.Name}
+                                    <span className="badge badge-info" style={{ marginLeft: 10 }}>{p.Value}</span>
+                                </li>)}
+                            </ul>
+                        </div>
                     </div>
                 </div>
-                <div className="card-footer row justify-content-between">
-                    <button className={`btn btn-info col-${props.IsSmall ? 4 : 3}`} onClick={() => props.OpenConsole()}>Console</button>
-                    {props.App === 'MiMD' ? null :
-                        <button className={`btn btn-info col-${props.IsSmall ? 4 : 3}`} onClick={() => props.OpenStats()}>Status</button>
-                    }
+                <div className="card-footer">
+                    <div className="row justify-content-between">
+                        <div className={`col-3`}>
+                            <button className={`btn btn-info`} onClick={() => props.OpenConsole()}>Console</button>
+                        </div>
+                        <div className={`col-3`}>
+                            {props.App === 'MiMD' ? null :
+                                <button className={`btn btn-info`} onClick={() => props.OpenStats()}>Status</button>
+                            }
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
+        </div >
 
     )
 }
 export default ApplicationCard;
+
+const StatusToBadgeClass = (status: "Online" | "Unknown" | "Loading") => {
+    switch (status) {
+        case "Online":
+            return "success"
+        case "Unknown":
+            return "danger"
+        case "Loading":
+            return "secondary"
+    }
+}
