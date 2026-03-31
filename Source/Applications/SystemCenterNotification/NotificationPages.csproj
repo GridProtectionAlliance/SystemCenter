@@ -365,6 +365,10 @@
   <ItemGroup>
     <Content Include="Scripts\TSX\CommonComponents\TestEmailButton.tsx" />
   </ItemGroup>
+  <ItemGroup>
+    <TypeScriptCompile Include="Scripts\TSX\EmailTypes\History.tsx" />
+    <TypeScriptCompile Include="Scripts\TSX\EmailTypes\SentEmailTimeline.tsx" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

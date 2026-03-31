@@ -424,7 +424,8 @@ namespace SystemCenter.Notifications.Controllers
     {
         public class TimelineItem
         {
-            public DateTime Timestamp { get; set; }
+            public DateTime Start { get; set; }
+            public DateTime? End { get; set; }
             public string Description { get; set; }
             public int ID { get; set; }
         }
@@ -436,12 +437,13 @@ namespace SystemCenter.Notifications.Controllers
 
             int id = 0;
 
-            void AddTimelineItem(string description, DateTime timestamp)
+            void AddTimelineItem(string description, DateTime start, DateTime? end = null)
             {
                 timeline = timeline.Append(new TimelineItem()
                 {
                     Description = description,
-                    Timestamp = timestamp,
+                    Start = start,
+                    End = end,
                     ID = id
                 }).ToList();
 
@@ -478,13 +480,9 @@ namespace SystemCenter.Notifications.Controllers
 
                 FileGroup fileGroupRecord = GetTableRecord<FileGroup>(connection, "ID", eventRecord.FileGroupID.ToString()); 
 
-                AddTimelineItem("File Group Data Start", fileGroupRecord.DataStartTime);
+                AddTimelineItem("File Group Data", fileGroupRecord.DataStartTime, fileGroupRecord.DataEndTime);
 
-                AddTimelineItem("File Group Data End", fileGroupRecord.DataEndTime);
-
-                AddTimelineItem("File Group Processing Start", fileGroupRecord.ProcessingStartTime);
-
-                AddTimelineItem("File Group Processing End", fileGroupRecord.ProcessingEndTime);
+                AddTimelineItem("File Group Processing", fileGroupRecord.ProcessingStartTime, fileGroupRecord.ProcessingEndTime);
 
                 DataFile[] dataFileRecords = GetTableRecords<DataFile>(connection, "FileGroupID", fileGroupRecord.ID.ToString());
 
@@ -507,7 +505,7 @@ namespace SystemCenter.Notifications.Controllers
                 PropertyInfo orderByProp = typeof(TimelineItem).GetProperty(postData.OrderBy);
                 if (orderByProp == null)
                 {
-                    orderByProp = typeof(TimelineItem).GetProperty("Timestamp");
+                    orderByProp = typeof(TimelineItem).GetProperty("Start");
                 }
 
                 if (!postData.Ascending)
