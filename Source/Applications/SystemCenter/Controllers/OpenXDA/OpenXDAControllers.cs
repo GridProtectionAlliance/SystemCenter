@@ -48,6 +48,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
+using System.Windows.Forms;
 using SystemCenter.Model;
 using ConfigurationLoader = SystemCenter.Model.ConfigurationLoader;
 
@@ -653,40 +654,17 @@ namespace SystemCenter.Controllers.OpenXDA
         [Route("SCADAHealth"), HttpGet]
         public IHttpActionResult GetScadaHealth()
         {
-            AppStatus status = new()
-            {
-                Status = "Error",
-                Details = 
-                [ new StatusItem() 
-                    {
-                        Status= "Error",
-                        Description = "Cannot reach openXDA."
-                    }
-                ]
-            };
 
             if (!XDAAPIHelper.TryRefreshSettings())
                 throw new InvalidOperationException("Unable to refresh static XDA API object.");
 
             AppStatus scadaStatus = null;
 
-            try
+            using (HttpResponseMessage response = XDAAPIHelper
+                .GetResponseTask($"api/SystemCenter/SCADAPoint/Health")
+                .Result)
             {
-                using (HttpResponseMessage response = XDAAPIHelper
-                    .GetResponseTask($"api/SystemCenter/SCADAPoint/Health")
-                    .Result)
-                {
-                    scadaStatus = JsonConvert.DeserializeObject<AppStatus>(response.Content.ReadAsStringAsync().Result);
-                }
-            }
-            catch (Exception ex)
-            {
-                return Ok(status);
-            }
-
-            if (scadaStatus == null)
-            {
-                return Ok(status);
+                scadaStatus = JsonConvert.DeserializeObject<AppStatus>(response.Content.ReadAsStringAsync().Result);
             }
 
             return Ok(scadaStatus);
