@@ -97,13 +97,13 @@ const ApplicationCard = (props: IApplicationCard) => {
                     </div>
                 </div>
                 <div className="card-footer">
-                    <div className="row justify-content-between">
-                        <div className={`col-3`}>
+                    <div className="row">
+                        <div className={`col align-self-start`}>
                             <button className={`btn btn-info`} onClick={() => props.OpenConsole()}>Console</button>
                         </div>
-                        <div className={`col-3`}>
+                        <div className={`col align-self-end`}>
                             {props.App === 'MiMD' ? null :
-                                <button className={`btn btn-info`} onClick={() => props.OpenStats()}>Status</button>
+                                <button className={`btn btn-info float-right`} onClick={() => props.OpenStats()}>Status</button>
                             }
                         </div>
                     </div>
