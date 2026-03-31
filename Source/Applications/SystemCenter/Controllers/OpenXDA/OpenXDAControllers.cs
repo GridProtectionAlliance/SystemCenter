@@ -22,6 +22,7 @@
 //******************************************************************************************************
 
 
+using GSF.Annotations;
 using GSF.Configuration;
 using GSF.Data;
 using GSF.Data.Model;
@@ -406,7 +407,18 @@ namespace SystemCenter.Controllers.OpenXDA
             [SettingName("XDA")]
             public APIConfiguration APISettings { get; } = new APIConfiguration();
         }
+        
+        private class NamedAppStatus
+        {
+            public string Status { get; set; }
+
+            public string Name { get; set; }
+
+            public List<StatusItem> Details { get; set; }
+        }
         #endregion
+
+
 
         #region [HttpMethods]
         public override IHttpActionResult Patch(RemoteXDAInstance record)
@@ -449,102 +461,88 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
 
-        [HttpGet, Route("RemoteConnectionStatus/{hostInstanceID}/{remoteInstanceID}")]
-        public IHttpActionResult GetRemoteConnectionStatus(int hostInstanceID, int remoteInstanceID)
-        {
-            AppStatus status = new()
-            {
-                Status = "Error",
-                Details = []
-            };
+        [HttpGet, Route("RemoteConnectionStatus/{hostInstanceID}")]
+        public IHttpActionResult GetRemoteConnectionStatus(int hostInstanceID)
+        { 
+            
+            List<NamedAppStatus> statusList = new List<NamedAppStatus>();
+
             string hostUrl;
             using (AdoDataConnection connection = CreateDbConnection())
             {
                 hostUrl = new TableOperations<HostRegistration>(connection).QueryRecordWhere("ID = {0}", hostInstanceID)?.URL ?? "";
             }
 
-            if (String.IsNullOrEmpty(hostUrl))
+            NamedAppStatus getRemoteXDAStatus(RemoteXDAInstance remoteXDA)
             {
-                status.Details = status.Details.Append(new StatusItem()
+                AppStatus status = new()
                 {
                     Status = "Error",
-                    Description = "Could not find URL for host instance."
-                }).ToList();
-                return Ok(status);
-            }
+                    Details = []
+                };
 
-            // first test the host instance
-            try
-            {
-                string hostResponse = SendGetRequest($"/api/SystemCenter/Alive", hostUrl, true).Result;
-                status.Details = status.Details.Append(new StatusItem()
+                try
                 {
-                    Status = "Success",
-                    Description = "Connected to host instance."
-                }).ToList();
-                if (hostResponse == "Unauthorized")
+                    string remoteResponse = SendGetRequest($"/api/DataPusher/TestConnection/{remoteXDA.ID}", hostUrl, true).Result;
+                    JObject jsonResponse = JObject.Parse(remoteResponse);
+                    if (!Boolean.Parse(jsonResponse["Success"].ToString()))
+                    {
+                        status.Details = status.Details.Append(new StatusItem()
+                        {
+                            Status = "Error",
+                            Description = "Could not connect to remote instance. Check XDA.Url in System Center settings."
+                        }).ToList();
+                    }
+                    else
+                    {
+                        status.Details = status.Details.Append(new StatusItem()
+                        {
+                            Status = "Success",
+                            Description = "Connected to remote instance."
+                        }).ToList();
+
+                        status.Status = "Success";
+                    }
+                    if (remoteResponse == "Unauthorized")
+                    {
+                        status.Details = status.Details.Append(new StatusItem()
+                        {
+                            Status = "Error",
+                            Description = "Request unauthorized for remote instance. Check XDA settings in System Center settings."
+                        }).ToList();
+                    }
+                }
+                catch (Exception e)
                 {
                     status.Details = status.Details.Append(new StatusItem()
                     {
                         Status = "Error",
-                        Description = "Request unauthorized for host instance. Check XDA settings in System Center settings."
+                        Description = "Could not connect to remote instance. Check the URL of the Remote Instance."
                     }).ToList();
                 }
-                ;
-            }
-            catch (Exception e)
-            {
-                status.Details = status.Details.Append(new StatusItem()
+
+                return new NamedAppStatus()
                 {
-                    Status = "Error",
-                    Description = "Could not connect to host instance. Check XDA.Url in System Center settings."
-                }).ToList();
-                return Ok(status);
+                    Status = status.Status,
+                    Details = status.Details,
+                    Name = remoteXDA.Name
+                };
             }
 
-            // then test the connection of the host instance to the remote instance
-            try
-            {
-                string remoteResponse = SendGetRequest($"/api/DataPusher/TestConnection/{remoteInstanceID}", hostUrl, true).Result;
-                JObject jsonResponse = JObject.Parse(remoteResponse);
-                if (!Boolean.Parse(jsonResponse["Success"].ToString()))
-                {
-                    status.Details = status.Details.Append(new StatusItem()
-                    {
-                        Status = "Error",
-                        Description = "Could not connect to remote instance. Check XDA.Url in System Center settings."
-                    }).ToList();
-                }
-                else
-                {
-                    status.Details = status.Details.Append(new StatusItem()
-                    {
-                        Status = "Success",
-                        Description = "Connected to remote instance."
-                    }).ToList();
+            if (!GetAuthCheck())
+                return Unauthorized();
 
-                    status.Status = "Success";
-                }
-                if (remoteResponse == "Unauthorized")
-                {
-                    status.Details = status.Details.Append(new StatusItem()
-                    {
-                        Status = "Error",
-                        Description = "Request unauthorized for remote instance. Check XDA settings in System Center settings."
-                    }).ToList();
-                }
-            }
-            catch (Exception e)
+
+            IEnumerable<RemoteXDAInstance> remoteXDAInstances = QueryRecords();
+
+            foreach (RemoteXDAInstance remoteXDA in remoteXDAInstances)
             {
-                status.Details = status.Details.Append(new StatusItem()
-                {
-                    Status = "Error",
-                    Description = "Could not connect to remote instance. Check the URL of the Remote Instance."
-                }).ToList();
+                statusList = statusList.Append(getRemoteXDAStatus(remoteXDA)).ToList();
             }
 
-            return Ok(status);
+            return Ok(statusList);
         }
+
 
         // #ToDo check what ClienID is used for on the openXDA side.. most likely not necessary
         [HttpGet, Route("ConfigPush/{remoteInstanceID}")]
@@ -606,20 +604,6 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA")]
     public class GeneralController : ApiController
     {
-
-        public class StatusItem
-        {
-            public string Status { get; set; }
-            public string Description { get; set; }
-        }
-
-        public class AppStatus
-        {
-            public string Status { get; set; }
-
-            public List<StatusItem> Details { get; set; }
-
-        }
 
         [HttpGet, Route("Tiles/GetAll")]
         public IHttpActionResult GetAllTiles()

@@ -48,7 +48,7 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
                 testPQI()
                 break;
             case 'XDA':
-                getRemoteXDAs()
+                testRemoteXDAs()
                 testSCADA()
                 break;
             default:
@@ -116,65 +116,22 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
         }
     }
 
-    function getRemoteXDAs() {
+    function testRemoteXDAs() {
         const h = $.ajax({
             type: "GET",
-            url: `${homePath}api/OpenXDA/remoteXDAInstance/Get`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: false,
-            async: true
-        })
-
-        h.done((remoteXDAs: OpenXDA.Types.RemoteXDAInstance[]) => {
-            // first set them all as loading
-            setRemoteXDAStatus(remoteXDAs.map((xda) => {
-                return {
-                    Name: xda.Name,
-                    Type: 'RemoteXDA',
-                    Details: [],
-                    Status: 'Loading'
-                }
-            }))
-            remoteXDAs.map((remoteXDA) => {
-                 testRemoteXDA(remoteXDA)
-            })
-            setStatus('idle')
-        }).fail((d) => {
-            setStatus('error')
-        })
-
-        return function cleanup() {
-            if (h.abort != null)
-                h.abort();
-        }
-    }
-
-    function testRemoteXDA(remoteXDA) {
-        const h = $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/remoteXDAInstance/RemoteConnectionStatus/${props.Properties.find(prop => prop.Name === "ID").Value}/${remoteXDA.ID}`,
+            url: `${homePath}api/OpenXDA/remoteXDAInstance/RemoteConnectionStatus/${props.Properties.find(prop => prop.Name === "ID").Value}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
             async: true
         });
 
-        h.done((xda: SC.StatusItem) => {
-            setRemoteXDAStatus(statusItems => statusItems.map((statusItem) => {
-                if (remoteXDA.Name !== statusItem.Name) {
-                    return statusItem
-                }
-                else {
-                    const status = xda
-                    status.Name = remoteXDA.Name
-                    return status
-                }
-            }))
+        h.done((statuses: SC.StatusItem[]) => {
+            setRemoteXDAStatus(statuses)
+            setStatus('idle')
         }).fail((d) => {
             setStatus('error')
         })
-
         return function cleanup() {
             if (h.abort != null)
                 h.abort();

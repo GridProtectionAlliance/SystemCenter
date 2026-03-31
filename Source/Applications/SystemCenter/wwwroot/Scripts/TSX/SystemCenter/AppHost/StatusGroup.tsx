@@ -24,6 +24,7 @@
 import * as React from 'react'
 import { Application } from '@gpa-gemstone/application-typings'
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { ServerErrorIcon } from '@gpa-gemstone/react-interactive'
 import { SystemCenter as SC } from '../global'
 import StatusItem from './StatusItem'
 
@@ -31,7 +32,9 @@ const StatusGroup = (props: { Name: string, StatusItems: SC.StatusItem[], Status
     return (
         <fieldset className="border col-12" style={{ padding: '10px', height: '100%' }}>
             <legend className="w-auto" style={{ fontSize: 'large' }}>{`${props.Name}:`}</legend>
+            <ServerErrorIcon Show={props.Status === 'error'} />
             {props.Status === 'loading' ? <span className={"mx-auto"}><ReactIcons.SpiningIcon /></span> :
+                props.Status === 'error' ? null :
                 props.StatusItems.map((statusItem, index) => (
                     <StatusItem
                         StatusItem={statusItem}
