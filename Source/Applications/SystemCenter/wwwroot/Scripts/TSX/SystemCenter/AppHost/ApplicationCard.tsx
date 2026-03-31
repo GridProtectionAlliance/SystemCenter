@@ -99,11 +99,11 @@ const ApplicationCard = (props: IApplicationCard) => {
                 <div className="card-footer">
                     <div className="row">
                         <div className={`col align-self-start`}>
-                            <button className={`btn btn-info`} onClick={() => props.OpenConsole()}>Console</button>
+                            <button className={`btn btn-info`} onClick={() => props.OpenConsole()} disabled={status == "Loading" || status == "Unknown" }>Console</button>
                         </div>
                         <div className={`col align-self-end`}>
                             {props.App === 'MiMD' ? null :
-                                <button className={`btn btn-info float-right`} onClick={() => props.OpenStats()}>Status</button>
+                                <button className={`btn btn-info float-right`} onClick={() => props.OpenStats()} disabled={status == "Loading" || status == "Unknown"}>Status</button>
                             }
                         </div>
                     </div>
