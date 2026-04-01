@@ -88,7 +88,7 @@ const NodeStats = (props: IProps) => {
             CallBack={() => { props.Close(); setStatus('uninitiated'); setStatInfo('') }}
             Title={'Statistics - ' + props.ApplicationName}
         >
-            {props.StatsURL === "" || props.StatsURL == null ?
+            {(props.StatsURL ?? "") === "" ?
                 <div className="col-12">
                     <NodeHealth
                         ApplicationName={props.ApplicationName}
