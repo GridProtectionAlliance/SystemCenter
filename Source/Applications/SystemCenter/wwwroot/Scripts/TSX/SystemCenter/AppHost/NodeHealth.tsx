@@ -23,16 +23,13 @@
 
 import * as React from 'react'
 import { Application, SystemCenter, OpenXDA } from '@gpa-gemstone/application-typings'
-import { GenericController } from '@gpa-gemstone/react-interactive'
 import { SystemCenter as SC } from '../global'
 import StatusGroup from './StatusGroup'
 
-const controllerPath = `${homePath}api/SystemCenter/ExternalDatabases`
-
 const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCenter' | 'MiMD' | 'XDA', Properties: { Name: string, Value: string }[] }) => {
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
-    const [extDBStatus, setExtDBStatus] = React.useState<SC.StatusItem[]>([]);
-    const [remoteXDAStatus, setRemoteXDAStatus] = React.useState<SC.StatusItem[]>([]);
+    const [extDBStatus, setExtDBStatus] = React.useState<SC.StatusItem[]>([{Name: "Loading...", Status: "Loading", Details: [] }]);
+    const [remoteXDAStatus, setRemoteXDAStatus] = React.useState<SC.StatusItem[]>([{ Name: "Loading...", Status: "Loading", Details: [] }]);
     const [hoveredItem, setHoveredItem] = React.useState<string>(null)
     const [fawgStatus, setFawgStatus] = React.useState<SC.StatusItem>({ Name: "FAWG", Status: "Loading", Details: [] })
     const [PQIStatus, setPQIStatus] = React.useState<SC.StatusItem>({ Name: "PQI", Status: "Loading", Details: [] })
@@ -51,7 +48,6 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
                 testSCADA()
                 break;
             default:
-                setStatus('idle')
                 break;
         }
     }, [props.ApplicationName])
@@ -69,10 +65,10 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
 
         h.done((statuses: SC.StatusItem[]) => {
             setExtDBStatus(statuses)
-            setStatus('idle')
         }).fail((d) => {
-            setStatus('error')
+            setExtDBStatus([{ Status: 'Error', Name: 'External Database Connections', Details: [{ Status: "Error", Description: "Errors occured in retrieving External DB Connection status" }] }])
         })
+    
 
         return function cleanup() {
             if (h.abort != null)
@@ -92,9 +88,8 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
 
         h.done((statuses: SC.StatusItem[]) => {
             setRemoteXDAStatus(statuses)
-            setStatus('idle')
-        }).fail((d) => {
-            setStatus('error')
+        }).fail(() => {
+            setRemoteXDAStatus([{ Status: 'Error', Name: 'Remote XDA Connection', Details: [{ Status: "Error", Description: "Errors occured in retrieving Remote XDA Connection status" }] }])
         })
         return function cleanup() {
             if (h.abort != null)
@@ -115,8 +110,8 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
         h.done((d: SC.StatusItem) => {
             d.Name = 'FAWG'
             setFawgStatus(d)
-        }).fail((d) => {
-            setStatus('error')
+        }).fail(() => {
+            setFawgStatus({ Status: 'Error', Name: 'FAWG', Details: [{ Status: "Error", Description: "Errors occured in retrieving FAWG status" }] })
         })
 
         return function cleanup() {
@@ -138,8 +133,8 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
         h.done((d: SC.StatusItem) => {
             d.Name = 'PQI'
             setPQIStatus(d)
-        }).fail((d) => {
-            setStatus('error')
+        }).fail(() => {
+            setPQIStatus({ Status: 'Error', Name: 'PQI', Details: [{ Status: "Error", Description: "Errors occured in retrieving PQI status" }] })
         })
 
         return function cleanup() {
@@ -160,8 +155,8 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
         h.done((d: SC.StatusItem) => {
             d.Name = 'SCADA'
             setSCADAStatus(d)
-        }).fail((d) => {
-            setStatus('error')
+        }).fail(() => {
+            setSCADAStatus({ Status: 'Error', Name: 'SCADA Resource', Details: [{Status: "Error", Description: "Errors occured in retrieving SCADA Resource"}] })
         })
 
         return function cleanup() {

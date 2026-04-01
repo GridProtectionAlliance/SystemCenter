@@ -83,7 +83,7 @@ const NodeStats = (props: IProps) => {
 
     return (
         <Modal
-            Show={props.ApplicationName !== null ? true : false}
+            Show={props.ApplicationName !== '' ? true : false}
             ShowCancel={false} ShowConfirm={false} ShowX={true} Size={'xlg'}
             CallBack={() => { props.Close(); setStatus('uninitiated'); setStatInfo('') }}
             Title={'Statistics - ' + props.ApplicationName}

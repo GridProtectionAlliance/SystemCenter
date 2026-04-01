@@ -32,18 +32,14 @@ const StatusGroup = (props: { Name: string, StatusItems: SC.StatusItem[], Status
     return (
         <fieldset className="border col-12" style={{ padding: '10px', height: '100%' }}>
             <legend className="w-auto" style={{ fontSize: 'large' }}>{`${props.Name}:`}</legend>
-            <ServerErrorIcon Show={props.Status === 'error'} />
-            {props.Status === 'loading' ? <span className={"mx-auto"}><ReactIcons.SpiningIcon /></span> :
-                props.Status === 'error' ? null :
-                props.StatusItems.map((statusItem, index) => (
-                    <StatusItem
-                        StatusItem={statusItem}
-                        Status={props.Status}
-                        HoveredItem={props.HoveredItem}
-                        SetHoveredItem={props.SetHoveredItem}
-                        key={index}
-                    />
-                ))
+            {props.StatusItems.map((statusItem, index) => (
+                <StatusItem
+                    StatusItem={statusItem}
+                    HoveredItem={props.HoveredItem}
+                    SetHoveredItem={props.SetHoveredItem}
+                    key={index}
+                />
+            ))
             }
         </fieldset>
     )
