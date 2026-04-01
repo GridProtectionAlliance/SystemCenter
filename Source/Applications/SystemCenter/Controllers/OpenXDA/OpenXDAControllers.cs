@@ -488,38 +488,38 @@ namespace SystemCenter.Controllers.OpenXDA
                     JObject jsonResponse = JObject.Parse(remoteResponse);
                     if (!Boolean.Parse(jsonResponse["Success"].ToString()))
                     {
-                        status.Details = status.Details.Append(new StatusItem()
+                        status.Details.Add(new StatusItem()
                         {
                             Status = "Error",
                             Description = "Could not connect to remote instance. Check XDA.Url in System Center settings."
-                        }).ToList();
+                        });
                     }
                     else
                     {
-                        status.Details = status.Details.Append(new StatusItem()
+                        status.Details.Add(new StatusItem()
                         {
                             Status = "Success",
                             Description = "Connected to remote instance."
-                        }).ToList();
+                        });
 
                         status.Status = "Success";
                     }
                     if (remoteResponse == "Unauthorized")
                     {
-                        status.Details = status.Details.Append(new StatusItem()
+                        status.Details.Add(new StatusItem()
                         {
                             Status = "Error",
                             Description = "Request unauthorized for remote instance. Check XDA settings in System Center settings."
-                        }).ToList();
+                        });
                     }
                 }
                 catch (Exception e)
                 {
-                    status.Details = status.Details.Append(new StatusItem()
+                    status.Details.Add(new StatusItem()
                     {
                         Status = "Error",
                         Description = "Could not connect to remote instance. Check the URL of the Remote Instance."
-                    }).ToList();
+                    });
                 }
 
                 return new NamedAppStatus()
