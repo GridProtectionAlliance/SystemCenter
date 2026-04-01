@@ -23,7 +23,7 @@
 
 
 
-import { OpenXDA, Application} from '@gpa-gemstone/application-typings';
+import { OpenXDA, Application } from '@gpa-gemstone/application-typings';
 import { SystemCenter as SC } from '../global';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import _ from 'lodash';
@@ -31,6 +31,7 @@ import * as React from 'react';
 import { ToolTip } from '@gpa-gemstone/react-forms';
 import { ConfigurableTable, ConfigurableColumn, Column } from '@gpa-gemstone/react-table';
 import { Plot, Line } from '@gpa-gemstone/react-graph';
+import { ServerErrorIcon, LoadingScreen } from '@gpa-gemstone/react-interactive'
 import Reason from '../CommonComponents/Reason';
 import moment from 'moment';
 import { useAppSelector } from '../hooks';
@@ -45,10 +46,10 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
     const [plotHeight, setPlotHeight] = React.useState<number>(100);
     const [plotWidth, setPlotWidth] = React.useState<number>(100);
     const rowRef = React.useRef<HTMLDivElement>(null);
-    const timeFrame = [moment.utc().endOf('d').subtract(30, 'd').valueOf(), moment.utc().startOf('d').valueOf()] as[number, number] 
+    const timeFrame = [moment.utc().endOf('d').subtract(30, 'd').valueOf(), moment.utc().startOf('d').valueOf()] as [number, number]
 
     const orderedData = React.useMemo(() => _.orderBy(data, [sortField], [ascending ? 'asc' : 'desc']),
-    [data, sortField, ascending])
+        [data, sortField, ascending])
     function getStatistics(): JQuery.jqXHR<string> {
         return $.ajax({
             type: "Get",
@@ -66,7 +67,9 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
             const data = JSON.parse(result as unknown as string);
             setData(data);
             setStatus('idle')
-        }).fail((d) => setStatus('error'));
+        }).fail((d) => {
+            setStatus('error')
+        });
 
         return function cleanup() {
             if (handle.abort != undefined) handle.abort();
@@ -80,162 +83,171 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
     });
 
     return (
-    <div className="card" style={{ width: '100%', height: '100%' }}>
-        <div className="card-header">
-            <div className="row">
-                <div className="col">
-                    <h4>openMIC Daily Statistics:</h4> 
-                </div>
-                <div className="col">
-                    <Test {...props}/>
+        <div className="card" style={{ width: '100%', height: '100%' }}>
+            <div className="card-header">
+                <div className="row">
+                    <div className="col">
+                        <h4>openMIC Daily Statistics:</h4>
+                    </div>
+                    <div className="col">
+                        <Test {...props} />
+                    </div>
+
                 </div>
             </div>
-        </div>
-        <div className="row h-50" ref={rowRef}>
-                <div className="col">
-                    {status !== 'idle' ? <></> :
-                        <Plot
-                            defaultTdomain={timeFrame}
-                            height={plotHeight}
-                            width={plotWidth}
-                            showGrid={true}
-                            XAxisType='time'
-                            legend='bottom'
-                            Ylabel='Count'
-                            Tlabel='Date'
-                            pan={false}
-                            zoom={false}
-                            holdMenuOpen={false}
-                            yDomain={'HalfAutoValue'}
+            <div className="card-body d-flex flex-column" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
+                <div className={`row h-${status === 'error' || status === 'loading' ? '100 flex-grow-1' : '50'}`} ref={rowRef}>
+                    <div className="col-12">
+                        <ServerErrorIcon Show={status === "error"} Size={50} Label={"A server error occured. Please reload the application."} />
+                        <LoadingScreen Show={status === "loading"} />
+                        {status === 'error' || status === 'loading' ? null :
+                            <Plot
+                                defaultTdomain={timeFrame}
+                                height={plotHeight}
+                                width={plotWidth}
+                                showGrid={true}
+                                XAxisType='time'
+                                legend='bottom'
+                                Ylabel='Count'
+                                Tlabel='Date'
+                                pan={false}
+                                zoom={false}
+                                holdMenuOpen={false}
+                                yDomain={'HalfAutoValue'}
+                            >
+                                <Line
+                                    data={data.map(d => [moment(d.Date, "MM/DD/YYYY").valueOf(), d.TotalConnections])}
+                                    lineStyle={'solid'}
+                                    color={"#0029A3"}
+                                    legend={"Total Connections"}
+                                />
+                                <Line
+                                    data={data.map(d => [moment(d.Date, "MM/DD/YYYY").valueOf(), d.TotalSuccessfulConnections])}
+                                    lineStyle={'solid'}
+                                    color={"#007A29"}
+                                    legend={"Total Successful Connections"}
+                                />
+                                <Line
+                                    data={data.map(d => [moment(d.Date, "MM/DD/YYYY").valueOf(), d.TotalUnsuccessfulConnections])}
+                                    lineStyle={'solid'}
+                                    color={"#A30000"}
+                                    legend={"Total Unsuccessful Connections"}
+                                />
+                            </Plot>
+                        }
+                    </div>
+                </div>
+                { status === 'loading' || status === 'error' ? null : 
+                    <div className={'row h-50 flex-grow-1' }>
+                        <div className={'col-12 d-flex flex-column h-100' }>
+                        <ConfigurableTable<SC.OpenMICDailyStatistic>
+                            LocalStorageKey="MiMDIssuesConfigTable"
+                            TableClass="table table-hover"
+                            Data={orderedData}
+                            SortKey={sortField}
+                            Ascending={ascending}
+                            Selected={() => false}
+                            KeySelector={(item) => item.ID}
+                            TableStyle={{
+                                padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                                tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
+                            }}
+                            TheadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
+                            TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
+                            RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            OnSort={(d) => {
+                                if (d.colField == sortField) {
+                                    setAscending(!ascending);
+                                }
+                                else {
+                                    setAscending(true);
+                                    setSortField(d.colField);
+                                }
+                            }}
                         >
-                            <Line
-                                data={data.map(d => [moment(d.Date, "MM/DD/YYYY").valueOf(), d.TotalConnections])}
-                                lineStyle={'solid'}
-                                color={"#0029A3"}
-                                legend={"Total Connections"}
-                            />
-                            <Line
-                                data={data.map(d => [moment(d.Date, "MM/DD/YYYY").valueOf(), d.TotalSuccessfulConnections])}
-                                lineStyle={'solid'}
-                                color={"#007A29"}
-                                legend={"Total Successful Connections"}
-                            />
-                            <Line
-                                data={data.map(d => [moment(d.Date, "MM/DD/YYYY").valueOf(), d.TotalUnsuccessfulConnections])}
-                                lineStyle={'solid'}
-                                color={"#A30000"}
-                                legend={"Total Unsuccessful Connections"}
-                            />
-                        </Plot>
-                    }
+                            <Column<SC.OpenMICDailyStatistic>
+                                Key={'Date'}
+                                AllowSort={true}
+                                Field={'Date'}
+                                HeaderStyle={{ width: 'auto' }}
+                                Content={({ item, field }) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : ''}
+                                RowStyle={{ width: 'auto' }}
+                            >
+                                Date
+                            </Column>
+                            <ConfigurableColumn Key='LastSuccessfulConnection' Label='Last Succ Conn' Default={true}>
+                                <Column<SC.OpenMICDailyStatistic>
+                                    Key={'LastSuccessfulConnection'}
+                                    AllowSort={true}
+                                    Field={'LastSuccessfulConnection'}
+                                    Content={({ item, field }) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : ''}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                >
+                                    Last Succ Conn
+                                </Column>
+                            </ConfigurableColumn>
+                            <ConfigurableColumn Key='LastUnsuccessfulConnection' Label='Last Unsucc Conn' Default={true}>
+                                <Column<SC.OpenMICDailyStatistic>
+                                    Key={'LastUnsuccessfulConnection'}
+                                    AllowSort={true}
+                                    Field={'LastUnsuccessfulConnection'}
+                                    Content={({ item, field }) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : 'N/A'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                >
+                                    Last Unsucc Conn
+                                </Column>
+                                <Column<SC.OpenMICDailyStatistic>
+                                    Key={'LastUnsuccessfulConnectionExplanation'}
+                                    AllowSort={true}
+                                    Field={'LastUnsuccessfulConnectionExplanation'}
+                                    Content={({ item, field }) => <Reason ID={item.ID} Text={item[field]?.toString() ?? ''} />}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                >
+                                    Reason
+                                </Column>
+                            </ConfigurableColumn>
+                            <ConfigurableColumn Key='TotalConnections' Label='Total Conn' Default={true}>
+                                <Column<SC.OpenMICDailyStatistic>
+                                    Key={'TotalConnections'}
+                                    AllowSort={true}
+                                    Field={'TotalConnections'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                >
+                                    Total Conn
+                                </Column>
+                            </ConfigurableColumn>
+                            <ConfigurableColumn Key='TotalSuccessfulConnections' Label='Total Succ Conn' Default={true}>
+                                <Column<SC.OpenMICDailyStatistic>
+                                    Key={'TotalSuccessfulConnections'}
+                                    AllowSort={true}
+                                    Field={'TotalSuccessfulConnections'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                >
+                                    Total Succ Conn
+                                </Column>
+                            </ConfigurableColumn>
+                            <ConfigurableColumn Key='TotalUnsuccessfulConnections' Label='Total Unsucc Conn' Default={true}>
+                                <Column<SC.OpenMICDailyStatistic>
+                                    Key={'TotalUnsuccessfulConnections'}
+                                    AllowSort={true}
+                                    Field={'TotalUnsuccessfulConnections'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                >
+                                    Total Unsucc Conn
+                                </Column>
+                            </ConfigurableColumn>
+                        </ConfigurableTable>
+                    </div>
+                </div>
+                }
             </div>
         </div>
-        <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
-            <ConfigurableTable<SC.OpenMICDailyStatistic>
-                LocalStorageKey="MiMDIssuesConfigTable"
-                TableClass="table table-hover"
-                Data={orderedData}
-                SortKey={sortField}
-                Ascending={ascending}
-                Selected={() => false}
-                KeySelector={(item) => item.ID}
-                TableStyle={{
-                    padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
-                    tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
-                }}
-                TheadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
-                TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
-                RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                OnSort={(d) => {
-                    if (d.colField == sortField) {
-                        setAscending(!ascending);
-                    }
-                    else {
-                        setAscending(true);
-                        setSortField(d.colField);
-                    }
-                }}
-            >
-                <Column<SC.OpenMICDailyStatistic>
-                    Key={'Date'}
-                    AllowSort={true}
-                    Field={'Date'}
-                    HeaderStyle={{ width: 'auto' }}
-                    Content={({ item, field }) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : ''}
-                    RowStyle={{ width: 'auto' }}
-                >
-                    Date
-                </Column>
-                <ConfigurableColumn Key='LastSuccessfulConnection' Label='Last Succ Conn' Default={true}>
-                    <Column<SC.OpenMICDailyStatistic>
-                        Key={'LastSuccessfulConnection'}
-                        AllowSort={true}
-                        Field={'LastSuccessfulConnection'}
-                        Content={({ item, field }) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : ''}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                    >
-                        Last Succ Conn
-                    </Column>
-                </ConfigurableColumn>
-                <ConfigurableColumn Key='LastUnsuccessfulConnection' Label='Last Unsucc Conn' Default={true}>
-                    <Column<SC.OpenMICDailyStatistic>
-                        Key={'LastUnsuccessfulConnection'}
-                        AllowSort={true}
-                        Field={'LastUnsuccessfulConnection'}
-                        Content={({ item, field }) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : 'N/A'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                    >
-                        Last Unsucc Conn
-                    </Column>
-                    <Column<SC.OpenMICDailyStatistic>
-                        Key={'LastUnsuccessfulConnectionExplanation'}
-                        AllowSort={true}
-                        Field={'LastUnsuccessfulConnectionExplanation'}
-                        Content={({ item, field }) => <Reason ID={item.ID} Text={item[field]?.toString() ?? ''} /> }
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                    >
-                        Reason
-                    </Column>
-                </ConfigurableColumn>
-                <ConfigurableColumn Key='TotalConnections' Label='Total Conn' Default={true}>
-                    <Column<SC.OpenMICDailyStatistic>
-                        Key={'TotalConnections'}
-                        AllowSort={true}
-                        Field={'TotalConnections'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                    >
-                        Total Conn
-                    </Column>
-                </ConfigurableColumn>
-                <ConfigurableColumn Key='TotalSuccessfulConnections' Label='Total Succ Conn' Default={true}>
-                    <Column<SC.OpenMICDailyStatistic>
-                        Key={'TotalSuccessfulConnections'}
-                        AllowSort={true}
-                        Field={'TotalSuccessfulConnections'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                    >
-                        Total Succ Conn
-                    </Column>
-                </ConfigurableColumn>
-                <ConfigurableColumn Key='TotalUnsuccessfulConnections' Label='Total Unsucc Conn' Default={true}>
-                    <Column<SC.OpenMICDailyStatistic>
-                        Key={'TotalUnsuccessfulConnections'}
-                        AllowSort={true}
-                        Field={'TotalUnsuccessfulConnections'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                    >
-                        Total Unsucc Conn
-                    </Column>
-                </ConfigurableColumn>
-            </ConfigurableTable>
-        </div>
-    </div>
     )
 }
 
@@ -284,7 +296,7 @@ const Test = (props: { Meter: OpenXDA.Types.Meter }) => {
             return false;
         return true;
     }
-        
+
     return (
         <div className="col">
             <button className={"btn btn-info pull-right" + (hasPermissions() ? '' : 'disabled')} data-tooltip='PingDevice' onMouseEnter={() => setHover('ping')} onMouseLeave={() => setHover('none')}
@@ -292,7 +304,7 @@ const Test = (props: { Meter: OpenXDA.Types.Meter }) => {
             <ToolTip Show={hover == 'ping' && !hasPermissions()} Position={'top'} Target={"PingDevice"}>
                 <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
             </ToolTip>
-            <span style={{marginLeft: 20}}>{Flag()}</span>
+            <span style={{ marginLeft: 20 }}>{Flag()}</span>
         </div>
     );
 }
