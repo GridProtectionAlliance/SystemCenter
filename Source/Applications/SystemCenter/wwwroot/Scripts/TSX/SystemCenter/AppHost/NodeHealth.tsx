@@ -28,7 +28,6 @@ import { SystemCenter as SC } from '../global'
 import StatusGroup from './StatusGroup'
 
 const controllerPath = `${homePath}api/SystemCenter/ExternalDatabases`
-const ExternalDBController = new GenericController<SystemCenter.Types.DetailedExternalDatabases>(controllerPath, "ID", true)
 
 const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCenter' | 'MiMD' | 'XDA', Properties: { Name: string, Value: string }[] }) => {
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
@@ -43,7 +42,7 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
         setStatus('loading');
         switch (props.ApplicationType) {
             case 'SystemCenter':
-                getExternalDBs()
+                testDBs()
                 testFAWG()
                 testPQI()
                 break;
@@ -57,55 +56,20 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
         }
     }, [props.ApplicationName])
 
-    function getExternalDBs() {
-        setStatus('loading');
-        const handle = ExternalDBController.PagedSearch([]);
 
-        handle.done((dt) => {
-            const externalDBs = JSON.parse(dt.Data as unknown as string)
-            // first set them all as loading
-            setExtDBStatus(externalDBs.map((db) => {
-                return {
-                    Name: db.Name,
-                    Type: 'ExternalDB',
-                    Details: [],
-                    Status: 'Loading'
-                }
-            }))
-            externalDBs.map((db) => {
-                testDB(db)
-            })
-            setStatus('idle')
-        }).fail((d) => setStatus('error'));
-
-        return function cleanup() {
-            if (handle.abort != null)
-                handle.abort();
-        }
-    }
-
-    function testDB(db: SystemCenter.Types.DetailedExternalDatabases) {
+    function testDBs() {
         const h = $.ajax({
             type: "POST",
-            url: `${homePath}api/SystemCenter/ExternalDatabases/TestConnection`,
+            url: `${homePath}api/SystemCenter/ExternalDatabases/TestAllConnections`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify(db),
             cache: false,
             async: true
         });
 
-        h.done((d: SC.StatusItem) => {
-            setExtDBStatus(statusItems => statusItems.map((statusItem) => {
-                if (db.Name !== statusItem.Name) {
-                    return statusItem
-                }
-                else {
-                    const status = d
-                    status.Name = db.Name
-                    return status
-                }
-            }))
+        h.done((statuses: SC.StatusItem[]) => {
+            setExtDBStatus(statuses)
+            setStatus('idle')
         }).fail((d) => {
             setStatus('error')
         })
