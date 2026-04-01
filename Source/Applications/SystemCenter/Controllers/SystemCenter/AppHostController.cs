@@ -203,9 +203,7 @@ namespace SystemCenter.Controllers
             {
                 request.Method = HttpMethod.Get;
             }
-            HttpResponseMessage responseMessage = new();
-           
-                responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"api/SystemCenter/Alive").Result;
+            HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"api/SystemCenter/Alive").Result;
 
             return ResponseMessage(responseMessage);
         }
