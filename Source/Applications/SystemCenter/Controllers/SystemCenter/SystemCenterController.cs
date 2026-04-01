@@ -1542,6 +1542,11 @@ namespace SystemCenter.Controllers
     public class ExternalDatabasesController : ModelController<DetailedExternalDatabases, ExternalDatabases>
     {
 
+        private class NamedAppStatus : AppStatus
+        {
+            public string Name { get; set; }
+        }
+
         private static ServiceHost Host = Program.Host;
 
         public override IHttpActionResult Post([FromBody] JObject record)
@@ -1584,19 +1589,51 @@ namespace SystemCenter.Controllers
                 return Ok(result);
             }
         }
-
-        [HttpPost, Route("TestConnection")]
-        public IHttpActionResult TestConnection([FromBody] JObject record)
+        [HttpPost, Route("TestAllConnections")]
+        public IHttpActionResult TestAllConnections([FromBody] JObject record)
         {
-            AppStatus testDatabaseStatus = new()
-            {
-                Status = "Success",
-                Details = []
-            };
+
             if (!PostAuthCheck())
                 return Unauthorized();
 
-            ExternalDatabases extDB = record.ToObject<ExternalDatabases>();
+            IEnumerable<ExternalDatabases> externalDatabases = QueryRecords();
+
+            List<NamedAppStatus> statuses = [];
+
+            foreach (ExternalDatabases externalDatabase in externalDatabases)
+            {
+                AppStatus connectionStatus = GetConnectionStatus(externalDatabase);
+                statuses.Add(new NamedAppStatus()
+                {
+                    Name = externalDatabase.Name,
+                    Status = connectionStatus.Status,
+                    Details = connectionStatus.Details
+                });
+            }
+            return Ok(statuses);
+        }
+        [HttpPost, Route("TestConnection")]
+        public IHttpActionResult TestConnection([FromBody] JObject record)
+        {
+
+            if (!PostAuthCheck())
+                return Unauthorized();
+
+            ExternalDatabases externalDatabase = record.ToObject<ExternalDatabases>();
+
+            return Ok(GetConnectionStatus(externalDatabase));
+
+        }
+
+        private AppStatus GetConnectionStatus(ExternalDatabases extDB)
+            {
+
+
+            AppStatus testDatabaseStatus = new()
+                {
+                Status = "Success",
+                Details = []
+            };
             try
             {
                 using (AdoDataConnection extConn = ScheduledExtDBTask.GetExternalConnection(extDB))
@@ -1625,7 +1662,7 @@ namespace SystemCenter.Controllers
                     }
                 }
             }
-            catch(InvalidOperationException e)
+                catch (InvalidOperationException e)
             {
                 Type innerExceptionType = e.InnerException.GetType();
                 testDatabaseStatus.Status = "Error";
@@ -1649,8 +1686,8 @@ namespace SystemCenter.Controllers
                 {
                     testDatabaseStatus.Details.Add(new()
                     {
-                        Status="Error",
-                        Description="Could not load connection settings from configuration file."
+                            Status = "Error",
+                            Description = "Could not load connection settings from configuration file."
                     });
                 }
                 if (e.InnerException is Oracle.ManagedDataAccess.Client.OracleException o)
@@ -1754,9 +1791,9 @@ namespace SystemCenter.Controllers
                         });
                     }
                 }
+                }
+                return testDatabaseStatus;
             }
-            return Ok(testDatabaseStatus);
-        }
 
         [HttpPost, Route("UnscheduledUpdate")]
         public IHttpActionResult UnscheduledUpdate([FromBody] JObject record)
