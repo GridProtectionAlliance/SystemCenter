@@ -72,7 +72,7 @@ export default StatusItem;
 
 
 // helper functions
-export const GetStatusSymbol = (status: 'Success' | 'Error' | 'Warning' | 'Loading' | 'N/A') => {
+export const GetStatusSymbol = (status: Health) => {
     switch (status) {
         case 'Success':
             return <ReactIcons.CircleCheckMark Color="var(--success)" />
@@ -89,7 +89,7 @@ export const GetStatusSymbol = (status: 'Success' | 'Error' | 'Warning' | 'Loadi
     }
 }
 
-export const GetDetailStatusSymbol = (status: 'Success' | 'Error' | 'Warning' | 'Loading') => {
+export const GetDetailStatusSymbol = (status: Health) => {
     switch (status) {
         case 'Success':
             return <ReactIcons.CheckMark Color="var(--success)" />
@@ -104,7 +104,7 @@ export const GetDetailStatusSymbol = (status: 'Success' | 'Error' | 'Warning' | 
     }
 }
 
-export const GetStatusItemAlertClass = (status: 'Success' | 'Error' | 'Warning' | 'Loading' | 'N/A') => {
+export const GetStatusItemAlertClass = (status: Health) => {
     switch (status) {
         case 'Success':
             return 'success'
@@ -118,3 +118,5 @@ export const GetStatusItemAlertClass = (status: 'Success' | 'Error' | 'Warning' 
             return 'secondary'
     }
 }
+
+export type Health = 'Error' | 'N/A' | 'Success' | 'Warning' | 'Loading';
