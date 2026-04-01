@@ -568,7 +568,7 @@ namespace SystemCenter.Controllers
     [PostRoles("Administrator")]
     [TableName("MiMD.Setting")]
     [UseEscapedName]
-    public class MiMDSetting: openXDA.Model.Setting {};
+    public class MiMDSetting : openXDA.Model.Setting { };
 
 
     [RoutePrefix("api/OpenXDA/Setting")]
