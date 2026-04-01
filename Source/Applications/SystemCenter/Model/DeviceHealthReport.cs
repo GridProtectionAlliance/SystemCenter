@@ -534,35 +534,28 @@ namespace SystemCenter.Model
             {
                 request.Method = HttpMethod.Get;
             }
-            try
+            APIQuery apiQuery = GetAPIQuery();
+            HttpResponseMessage response = apiQuery.SendWebRequestAsync(ConfigureRequest, $"api/DailyStatistics/Get/?meter={meter}").Result;
+            string responseContent = response.Content.ReadAsStringAsync().Result;
+            string trimmedResponse = responseContent.Trim('"');
+            string unescapedResponse = Regex.Unescape(trimmedResponse);
+            meterStatistics = JsonConvert.DeserializeObject<DailyStatisticsRecord[]>(unescapedResponse);
+            foreach (DailyStatisticsRecord record in meterStatistics)
             {
-                APIQuery apiQuery = GetAPIQuery();
-                HttpResponseMessage response = apiQuery.SendWebRequestAsync(ConfigureRequest, $"api/DailyStatistics/Get/?meter={meter}").Result;
-                string responseContent = response.Content.ReadAsStringAsync().Result;
-                string trimmedResponse = responseContent.Trim('"');
-                string unescapedResponse = Regex.Unescape(trimmedResponse);
-                meterStatistics = JsonConvert.DeserializeObject<DailyStatisticsRecord[]>(unescapedResponse);
-                foreach (DailyStatisticsRecord record in meterStatistics)
+                micDailyStatistics = micDailyStatistics.Append(new()
                 {
-                    micDailyStatistics = micDailyStatistics.Append(new()
-                    {
-                        ID = record.ID,
-                        Date = record.Timestamp.ToString(),
-                        Meter = record.Meter,
-                        LastSuccessfulConnection = record.LastSuccessfulConnection,
-                        LastUnsuccessfulConnection = record.LastUnsuccessfulConnection,
-                        LastUnsuccessfulConnectionExplanation = record.LastUnsuccessfulConnectionExplanation,
-                        TotalConnections = record.TotalConnections,
-                        TotalSuccessfulConnections = record.TotalSuccessfulConnections,
-                        TotalUnsuccessfulConnections = record.TotalUnsuccessfulConnections,
-                        BadDays = record.BadDays,
-                        Status = (record.TotalUnsuccessfulConnections >= 50) ? (record.TotalUnsuccessfulConnections >= 100) ? "Error" : "Warning" : ""
-                    }).ToArray();
-                }
-            }
-            catch (Exception e)
-            {
-                return Ok();
+                    ID = record.ID,
+                    Date = record.Timestamp.ToString(),
+                    Meter = record.Meter,
+                    LastSuccessfulConnection = record.LastSuccessfulConnection,
+                    LastUnsuccessfulConnection = record.LastUnsuccessfulConnection,
+                    LastUnsuccessfulConnectionExplanation = record.LastUnsuccessfulConnectionExplanation,
+                    TotalConnections = record.TotalConnections,
+                    TotalSuccessfulConnections = record.TotalSuccessfulConnections,
+                    TotalUnsuccessfulConnections = record.TotalUnsuccessfulConnections,
+                    BadDays = record.BadDays,
+                    Status = (record.TotalUnsuccessfulConnections >= 50) ? (record.TotalUnsuccessfulConnections >= 100) ? "Error" : "Warning" : ""
+                }).ToArray();
             }
             return Ok(JsonConvert.SerializeObject(micDailyStatistics));
         }
