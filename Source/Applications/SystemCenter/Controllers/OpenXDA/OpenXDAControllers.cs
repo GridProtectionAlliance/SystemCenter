@@ -409,13 +409,9 @@ namespace SystemCenter.Controllers.OpenXDA
             public APIConfiguration APISettings { get; } = new APIConfiguration();
         }
         
-        private class NamedAppStatus
+        private class NamedAppStatus : AppStatus
         {
-            public string Status { get; set; }
-
             public string Name { get; set; }
-
-            public List<StatusItem> Details { get; set; }
         }
         #endregion
 
