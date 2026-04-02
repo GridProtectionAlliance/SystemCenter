@@ -46,24 +46,25 @@ interface Timestamp {
 }
 
 interface IProps {
-    SentEmail: SentEmail
+    SentEmailID: number
 }
 
 const SentEmailTimeline = (props: IProps) => {
-    const [timeline, setTimeline] = React.useState<TimelineItem[]>(null)
+    const [timeline, setTimeline] = React.useState<TimelineItem[]>([])
     const [state, setState] = React.useState<Application.Types.Status>("uninitiated")
     const [sortKey, setSortKey] = React.useState<keyof Timestamp>('Timestamp')
     const [ascending, setAscending] = React.useState<boolean>(false)
-    const [plotHeight, setPlotHeight] = React.useState<number>(100);
     const [plotWidth, setPlotWidth] = React.useState<number>(100);
     const [selectedID, setSelectedID] = React.useState<number>(null);
+
     const rowRef = React.useRef<HTMLDivElement>(null);
 
     const [timeframe, setTimeframe] = React.useState<[number, number]>([null, null]) 
 
+    const tblData = React.useMemo(() => ToTimestamps(timeline), [timeline])
 
     React.useEffect(() => {
-        if (props.SentEmail == null) return;
+        if (props.SentEmailID == null) return;
         let handle = getTimeline();
         handle.done((dt: string) => {
             const eventResults = JSON.parse(dt) as TimelineItem[];
@@ -75,20 +76,22 @@ const SentEmailTimeline = (props: IProps) => {
             if (handle.abort != null)
                 handle.abort();
         }
-    }, [props.SentEmail, sortKey, ascending])
+    }, [props.SentEmailID, sortKey, ascending])
 
     React.useEffect(() => {
-        const times = timeline?.map((i) => { return moment(i.Start).valueOf() })
-        const startTime = times != null ? Math.min(...times) : null
-        const endTime = times != null ? Math.max(...times) : null
+        if (timeline.length == 0)
+            return;
+        const startTime = Math.min(...timeline.map((i) => moment(i.Start).valueOf()))
+        const endTime = Math.max(...timeline?.map((i) => moment(i.End ?? i.Start).valueOf()))
         setTimeframe([startTime, endTime])
+
     }, [timeline])
 
 
     const getTimeline = () => {
         return $.ajax({
             type: "POST",
-            url: `${homePath}api/OpenXDA/SentEmail/Timeline/${props.SentEmail.ID}`,
+            url: `${homePath}api/OpenXDA/SentEmail/Timeline/${props.SentEmailID}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
@@ -99,27 +102,25 @@ const SentEmailTimeline = (props: IProps) => {
 
     // set plot dimensions
     React.useLayoutEffect(() => {
-        setPlotHeight(rowRef?.current?.offsetHeight ?? 100)
         setPlotWidth((rowRef?.current?.offsetWidth ?? 130) - 30)
     });
 
     const handleTableOnClick = (data) => {
         setSelectedID(data.row.TimelineID)
         const timelineItem = timeline.find((item) => item.ID == data.row.TimelineID)
-        timelineItem.End == null ? setTimeframe(TenMinutesBeforeAndAfter(timelineItem))
-            : setTimeframe(ThreeTimesDurationBeforeAndAfter(timelineItem))
+       setTimeframe(SetWithThresholds(timelineItem))
     }
 
     return (
         <>
             {state !== 'idle' ? <></> :
-                <div className="container-fluid d-flex h-100 flex-column">
+                <>
                     <div className="row h-10" ref={rowRef}>
                         <div className="col-12">
                             
                             <Plot
                                 defaultTdomain={timeframe}
-                                height={plotHeight}
+                                height={250}
                                 width={plotWidth}
                                 showGrid={true}
                                 XAxisType='time'
@@ -127,18 +128,18 @@ const SentEmailTimeline = (props: IProps) => {
                                 Ylabel=''
                                 Tlabel='Time'
                                 pan={false}
-                                zoom={false}
                                 holdMenuOpen={false}
-                                yDomain={'HalfAutoValue'}
+                                yDomain={'AutoValue'}
                                 showDateOnTimeAxis={true}
                                 hideYAxis={true}
+                                xZoom={false}
                                 
                             >
                                 {timeline.map((item, i) => {
                                     return (
                                         item.End == null ?
                                             <VerticalMarker
-                                                key={i}
+                                                key={item.ID}
                                                 Value={moment(item.Start).valueOf()}
                                                 color={selectedID == item.ID ? "#ffc107" : "black"}
                                                 width={3}
@@ -146,7 +147,7 @@ const SentEmailTimeline = (props: IProps) => {
                                             /> :
 
                                             <Pill
-                                                key={i}
+                                                key={item.ID}
                                                 XData={[moment(item.Start).valueOf(), moment(item.End).valueOf()]}
                                                 YData={[1,2]}
                                                 RadiusPX={200}
@@ -162,7 +163,7 @@ const SentEmailTimeline = (props: IProps) => {
                     </div>
                             <Table<Timestamp>
                                 TableClass="table table-hover"
-                                Data={ToTimestamps(timeline)}
+                                Data={tblData}
                                 SortKey={sortKey.toString()}
                                 Ascending={ascending}
                                 OnSort={(d) => {
@@ -193,7 +194,7 @@ const SentEmailTimeline = (props: IProps) => {
                                 > Timestamp
                                 </Column>
                             </Table>
-                </div>
+                </>
             }</>)
 }
 
@@ -234,19 +235,16 @@ const ToTimestamps = (timeline: TimelineItem[]): Timestamp[] => {
     return timestamps
 }
 
-const TenMinutesBeforeAndAfter = (item: TimelineItem): [number, number] => {
-    const newTimeframe = [moment(item.Start).valueOf() - 60000, moment(item.Start).valueOf() + 60000]
-    console.log(`start: ${moment(item.Start).valueOf()}, newframe: ${newTimeframe}`)
-    return newTimeframe as [number, number]
-}
+const SetWithThresholds = (item: TimelineItem): [number, number] => {
+    let buffer = 60000;
+    const start = moment(item.Start).valueOf();
+    const end = moment(item.End ?? item.Start).valueOf()
 
-const ThreeTimesDurationBeforeAndAfter = (item: TimelineItem): [number, number] => {
-    const start = moment(item.Start).valueOf()
-    const end = moment(item.End).valueOf()
-    const duration = end - start
-    const newTimeframe = [start - duration * 3, end + duration * 3]
-    console.log(`start: ${start}, end: ${end}, duration: ${duration}, newframe: ${newTimeframe}`)
-    return newTimeframe as [number, number]
+    if (item.End != null)
+       buffer = 3 * (end- start)
+
+    return [start - buffer, end + buffer]
+
 }
 
 const DeltaToClass = (delta: number): string => {
