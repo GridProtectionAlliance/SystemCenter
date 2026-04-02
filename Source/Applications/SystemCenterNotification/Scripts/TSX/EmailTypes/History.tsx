@@ -42,7 +42,7 @@ const History = (props: IProps) => {
     const [selectedEmailLabel, setSelectedEmailLabel] = React.useState<string | null>(null);
 
     const steps: IStep[] = React.useMemo(() => {
-        if ((selectedEmailLabel?.length ?? 0) == 0) 
+        if ((selectedEmailLabel?.length ?? 0) == 0)
             return []
         return [
             { Label: 'History', ID: "history", IsNavigable: true },
@@ -65,37 +65,31 @@ const History = (props: IProps) => {
 
     return (
         <>
-            <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
-                <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                    <div className="card" style={{ width: '100%', height: '100%' }}>
-                        <div className="card-header">
-                            <div className="row">
-                                {selectedEmailID == null ? < div className="col-6 align-self-center">
-                                    <h2>Email History:</h2>
-                                </div> :
-                                    <div className="col">
-                                        <Breadcrumb
-                                            Steps={steps}
-                                            CurrentStep={currentStep}
-                                            OnClick={resetToHistory}
-                                        />
-                                    </div>}
-                            </div>
-                        </div>
-                        <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
-                            <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
-                                {selectedEmailID == null ?
-                                    <SentEmailTable
-                                        EmailTypeID={props.Record?.ID}
-                                        OnClick={handleOnHistoryTableClick}
-                                    /> :
-                                    <SentEmailTimeline
-                                        SentEmailID={selectedEmailID}
-                                    />
-                                }
-                            </div>
-                        </div>
+            <div className="card d-flex flex-column flex-grow-1" style={{ width: '100%', height: '100%' , overflow: 'hidden'}}>
+                <div className="card-header">
+                    <div className="row">
+                        {selectedEmailID == null ? < div className="col-6 align-self-center">
+                            <h2>Email History:</h2>
+                        </div> :
+                            <div className="col">
+                                <Breadcrumb
+                                    Steps={steps}
+                                    CurrentStep={currentStep}
+                                    OnClick={resetToHistory}
+                                />
+                            </div>}
                     </div>
+                </div>
+                <div className="card-body d-flex flex-column h-100" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
+                    {selectedEmailID == null ?
+                        <SentEmailTable
+                            EmailTypeID={props.Record?.ID}
+                            OnClick={handleOnHistoryTableClick}
+                        /> :
+                        <SentEmailTimeline
+                            SentEmailID={selectedEmailID}
+                        />
+                    }
                 </div>
             </div>
         </>

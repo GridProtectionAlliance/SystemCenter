@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  SentEmailTable.tsx - Gbtc
 //
-//  Copyright © 2026, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright Â© 2026, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -60,8 +60,8 @@ const SentEmailTable = (props: IProps) => {
     return (
         <>
             <LoadingScreen Show={pageStatus == 'loading'} />
-            <div className="row flex-grow-1" style={{overflow: 'hidden'}}>
-                <div className="col h-100 d-flex flex-column" style={{ overflow: 'hidden' }}>
+            <div className="row" style={{ overflow: 'hidden', flex: '1 1 0%' }}>
+                <div className="col h-100" style={{ overflow: 'hidden' }}>
                     <Table<SentEmail>
                         TableClass="table table-hover"
                         Data={data}
@@ -71,13 +71,6 @@ const SentEmailTable = (props: IProps) => {
                             if (d.colKey === sortKey) setAscending(a => !a);
                             else setSortKey(d.colField);
                         }}
-                        TableStyle={{
-                            padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
-                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
-                        }}
-                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
-                        RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
                         OnClick={(data) => props.OnClick(data.row)}
