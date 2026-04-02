@@ -24,70 +24,43 @@
 import * as React from 'react';
 import { EmailType, SentEmail } from '../global';
 import { LoadingScreen, GenericController, Breadcrumb } from '@gpa-gemstone/react-interactive'
-import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { Application } from '@gpa-gemstone/application-typings';
 import moment from 'moment';
 import SentEmailTimeline from './SentEmailTimeline'
+import SentEmailTable from './SentEmailTable'
 
 interface IStep {
     Label: string,
     ID: string | number,
     IsNavigable?: boolean,
-    SentEmail? : SentEmail | null
 }
 
 interface IProps { Record: EmailType }
 
-declare var homePath;
-
 const History = (props: IProps) => {
-    const [data, setData] = React.useState<SentEmail[]>([]);
-    const [ascending, setAscending] = React.useState<boolean>(false);
-    const [sortKey, setSortKey] = React.useState<keyof SentEmail>('TimeSent');
-    const [pageInfo, setPageInfo] = React.useState<{ RecordsPerPage: number, NumberOfPages: number, TotalRecords: number }>({ RecordsPerPage: 0, NumberOfPages: 0, TotalRecords: 0 });
-    const [page, setPage] = React.useState<number>(0);
-    const [pageStatus, setPageStatus] = React.useState<Application.Types.Status>('idle');
-    const [selectedEmail, setSelectedEmail] = React.useState<SentEmail>(null)
-    const [steps, setSteps] = React.useState<IStep[]>([{ Label: 'History', ID: "0", IsNavigable: true }]);
-    const [currentStep, setCurrentStep] = React.useState<IStep>(steps[0]);
+    const [selectedEmailID, setSelectedEmailID] = React.useState<number | null>(null)
+    const [selectedEmailLabel, setSelectedEmailLabel] = React.useState<string | null>(null);
 
+    const steps: IStep[] = React.useMemo(() => {
+        if ((selectedEmailLabel?.length ?? 0) == 0) 
+            return []
+        return [
+            { Label: 'History', ID: "history", IsNavigable: true },
+            { Label: selectedEmailLabel, ID: 'timeLine', IsNavigable: false }
+        ]
+    }, [selectedEmailLabel])
 
+    const currentStep = { Label: '', ID: 'timeLine', IsNavigable: false }
 
-    const controller = React.useMemo(() =>
-        new GenericController<SentEmail>(`${homePath}api/OpenXDA/SentEmail`, sortKey, ascending ?? false)
-        , [sortKey, ascending]);
-
-    React.useEffect(() => {
-        setPageStatus('loading');
-        const handle = controller.PagedSearch([], sortKey, ascending, page, props.Record.ID).done((result) => {
-            setData(JSON.parse(result.Data as unknown as string));
-            setPageInfo({
-                RecordsPerPage: result.RecordsPerPage,
-                NumberOfPages: result.NumberOfPages,
-                TotalRecords: result.TotalRecords
-            });
-            setPageStatus('idle');
-        }).fail(() => setPageStatus('error'));
-        return () => { if (handle != null && handle?.abort != null) handle.abort(); }
-    }, [props.Record.ID, sortKey, ascending, page]);
-
-    const handleOnBreadCrumbClick = (newStep: IStep) => {
-        // if (selectedDeviceID == null && step.Label === 'Devices') return
-        if (newStep.SentEmail == null) {
-            setSteps([newStep])
-        }
-        setCurrentStep(newStep)
+    const resetToHistory = () => {
+        setSelectedEmailID(null);
+        setSelectedEmailLabel(null);
     }
 
-    const handleOnHistoryTableClick = (sentEmail: SentEmail) => {
-        const newStep = {
-            ID: sentEmail.ID,
-            Label:  sentEmail.Subject,
-            IsNavigable: true,
-            SentEmail: sentEmail
-        }
-        setSteps([...steps, newStep])
-        setCurrentStep(newStep);
+    const handleOnHistoryTableClick = (data: SentEmail) => {
+
+        setSelectedEmailID(data.ID);
+        setSelectedEmailLabel(`[${data.TimeSent}] ${data.Subject}`)
     }
 
     return (
@@ -97,82 +70,31 @@ const History = (props: IProps) => {
                     <div className="card" style={{ width: '100%', height: '100%' }}>
                         <div className="card-header">
                             <div className="row">
-                                <div className="col-6 align-self-center">
-                                    <Breadcrumb
-                                        Steps={steps}
-                                        CurrentStep={currentStep}
-                                        OnClick={handleOnBreadCrumbClick}
-                                    />
-                                </div>
+                                {selectedEmailID == null ? < div className="col-6 align-self-center">
+                                    <h2>Email History</h2>
+                                </div> :
+                                    <div className="col">
+                                        <Breadcrumb
+                                            Steps={steps}
+                                            CurrentStep={currentStep}
+                                            OnClick={resetToHistory}
+                                        />
+                                    </div>}
                             </div>
                         </div>
                         <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
                             <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
-                                <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                                    <div className="col-12" style={{ height: '100%', overflow: 'hidden' }}>
-                                        <LoadingScreen Show={pageStatus == 'loading'} />
-                                        {currentStep.SentEmail == null ?
-                                            <Table<SentEmail>
-                                                TableClass="table table-hover"
-                                                Data={data}
-                                                SortKey={sortKey.toString()}
-                                                Ascending={ascending}
-                                                OnSort={(d) => {
-                                                    if (d.colKey === sortKey) setAscending(a => !a);
-                                                    else setSortKey(d.colField);
-                                                }}
-                                                TableStyle={{
-                                                    padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
-                                                    tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
-                                                }}
-                                                TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                                TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
-                                                RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                                Selected={(item) => false}
-                                                KeySelector={(item) => item.ID}
-                                                OnClick={(d) => handleOnHistoryTableClick(d.row)}
-                                            >
-                                                <Column<SentEmail>
-                                                    Key={'TimeSent'}
-                                                    AllowSort={true}
-                                                    Field={'TimeSent'}
-                                                    HeaderStyle={{ width: 'auto' }}
-                                                    RowStyle={{ width: 'auto' }}
-                                                    Content={({ item, field }) => {
-                                                        return <span className={`badge badge-pill badge-light`}>{moment(item[field]).format('MM/DD/YYYY HH:mm:ss')}</span>
-                                                    }}
-                                                > Time Sent
-                                                </Column>
-                                                <Column<SentEmail>
-                                                    Key={'ToLine'}
-                                                    AllowSort={true}
-                                                    Field={'ToLine'}
-                                                    HeaderStyle={{ width: 'auto' }}
-                                                    RowStyle={{ width: 'auto' }}
-                                                > Recipient
-                                                </Column>
-                                                <Column<SentEmail>
-                                                    Key={'Subject'}
-                                                    AllowSort={true}
-                                                    Field={'Subject'}
-                                                    HeaderStyle={{ width: 'auto' }}
-                                                    RowStyle={{ width: 'auto' }}
-                                                > Subject
-                                                </Column>
-                                            </Table> :
-                                            <SentEmailTimeline
-                                                SentEmail={currentStep.SentEmail}
-                                            />
-                                        }
-                                    </div>
-                                </div>
+                                {selectedEmailID == null ?
+                                    <SentEmailTable
+                                        EmailTypeID={props.Record?.ID}
+                                        OnClick={handleOnHistoryTableClick}
+                                    /> :
+                                    <SentEmailTimeline
+                                        SentEmailID={selectedEmailID}
+                                    />
+                                }
                             </div>
                         </div>
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col">
-                        {data.length > 0 && currentStep.SentEmail == null ? <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p - 1)} /> : null}
                     </div>
                 </div>
             </div>
