@@ -71,7 +71,7 @@ const History = (props: IProps) => {
                         <div className="card-header">
                             <div className="row">
                                 {selectedEmailID == null ? < div className="col-6 align-self-center">
-                                    <h2>Email History</h2>
+                                    <h2>Email History:</h2>
                                 </div> :
                                     <div className="col">
                                         <Breadcrumb
