@@ -437,67 +437,81 @@ namespace SystemCenter.Notifications.Controllers
 
             int id = 0;
 
-            void AddTimelineItem(string description, DateTime start, DateTime? end = null)
-            {
-                timeline = timeline.Append(new TimelineItem()
-                {
-                    Description = description,
-                    Start = start,
-                    End = end,
-                    ID = id
-                }).ToList();
-
-                id++;
-            }
-
-            T GetTableRecord<T>(AdoDataConnection connection, string field, string pk) where T : class, new()
-            {
-                TableOperations<T> tbl = new TableOperations<T>(connection);
-                T record = tbl.QueryRecordWhere(field + " = {0}", pk);
-                return record;
-            }
-
-            T[] GetTableRecords<T>(AdoDataConnection connection, string field, string pk) where T : class, new()
-            {
-                TableOperations<T> tbl = new TableOperations<T>(connection);
-                T[] records = tbl.QueryRecordsWhere(field + " = {0}", pk).ToArray();
-                return records;
-            }
-
             using (AdoDataConnection connection = CreateDbConnection())
             {
-                SentEmail sentEmail = GetTableRecord<SentEmail>(connection, "ID", SentEmailID.ToString());
-                AddTimelineItem("Email Sent", sentEmail.TimeSent);
+                SentEmail sentEmail = new TableOperations<SentEmail>(connection).QueryRecordWhere("ID = {0}", SentEmailID);
 
-                EventSentEmail eventSentEmail = GetTableRecord<EventSentEmail>(connection, "SentEmailID", sentEmail.ID.ToString());
+                timeline.Add(new TimelineItem()
+                {
+                    Description = "Email Sent",
+                    Start = sentEmail.TimeSent,
+                    End = null,
+                    ID = id
+                });
+
+                id++;
+
+                EventSentEmail eventSentEmail = new TableOperations<EventSentEmail>(connection).QueryRecordWhere("SentEmailID = {0}", sentEmail.ID);
 
                 if (eventSentEmail == null)
-                {
+            {
                     return Ok(JsonConvert.SerializeObject(timeline));
-                }
+            }
 
-                Event eventRecord = GetTableRecord<Event>(connection, "ID", eventSentEmail.EventID.ToString());
+                Event eventRecord = new TableOperations<Event>(connection).QueryRecordWhere("ID = {0}", eventSentEmail.EventID);
 
-                FileGroup fileGroupRecord = GetTableRecord<FileGroup>(connection, "ID", eventRecord.FileGroupID.ToString()); 
+                FileGroup fileGroupRecord = new TableOperations<FileGroup>(connection).QueryRecordWhere("ID = {0}", eventRecord.FileGroupID);
 
-                AddTimelineItem("File Group Data", fileGroupRecord.DataStartTime, fileGroupRecord.DataEndTime);
+                timeline.Add(new TimelineItem()
+                {
+                    Description = "File Group Data",
+                    Start = fileGroupRecord.DataStartTime,
+                    End = fileGroupRecord.DataEndTime,
+                    ID = id
+                });
 
-                AddTimelineItem("File Group Processing", fileGroupRecord.ProcessingStartTime, fileGroupRecord.ProcessingEndTime);
+                id++;
 
-                DataFile[] dataFileRecords = GetTableRecords<DataFile>(connection, "FileGroupID", fileGroupRecord.ID.ToString());
+                timeline.Add(new TimelineItem()
+                {
+                    Description = "File Group Processing",
+                    Start = fileGroupRecord.ProcessingStartTime,
+                    End = fileGroupRecord.ProcessingEndTime,
+                    ID = id
+                });
+
+                id++;
+
+                DataFile[] dataFileRecords = new TableOperations<DataFile>(connection).QueryRecordsWhere("FileGroupID = {0}", fileGroupRecord.ID).ToArray();
 
                 foreach (DataFile dataFile in dataFileRecords)
                 {
                     string dataFileName = Path.GetFileName(dataFile.FilePath);
 
-                    AddTimelineItem($"{dataFileName} Last Write Time", dataFile.LastWriteTime);
+                    timeline.Add(new TimelineItem()
+                    {
+                        Description = $"{dataFileName} Last Write Time",
+                        Start = dataFile.LastWriteTime,
+                        End = null,
+                        ID = id
+                    });
+
+                    id++;
                 }
 
-                DataOperationFailure[] dataOperationFailureRecords = GetTableRecords<DataOperationFailure>(connection, "FileGroupID", fileGroupRecord.ID.ToString());
+                DataOperationFailure[] dataOperationFailureRecords = new TableOperations<DataOperationFailure>(connection).QueryRecordsWhere("FileGroupID = {0}", fileGroupRecord.ID).ToArray();
 
                 foreach (DataOperationFailure dataOperationFailure in dataOperationFailureRecords)
                 {
-                    AddTimelineItem(dataOperationFailure.Log, dataOperationFailure.TimeOfFailure);
+                    timeline.Add(new TimelineItem()
+                    {
+                        Description = dataOperationFailure.Log,
+                        Start = dataOperationFailure.TimeOfFailure,
+                        End = null,
+                        ID = id
+                    });
+
+                    id++;
                 }
 
                 List<TimelineItem> sortedTimeline;
