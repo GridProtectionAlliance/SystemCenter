@@ -20,23 +20,27 @@
 //       Generated original version of source code.
 //
 //******************************************************************************************************
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Web.Http;
-using System.Xml.Linq;
 using GSF.Configuration;
 using GSF.Data;
 using GSF.Data.Model;
+using GSF.Units;
 using GSF.Web.Model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using openXDA.APIAuthentication;
 using openXDA.Model;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.EnterpriseServices;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Reflection;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Xml.Linq;
 using SystemCenter.Notifications.Model;
 using ConfigurationLoader = SystemCenter.Notifications.Model.ConfigurationLoader;
 
@@ -91,7 +95,7 @@ namespace SystemCenter.Notifications.Controllers
                 if (content.GroupIDs.Count > 0)
                 {
                     groupFilter = "AND (";
-                    groupFilter += $"E.AssetID IN (SELECT AssetID FROM AssetAssetGroup WHERE AssetGroupID IN ({string.Join(",",content.GroupIDs)}))";
+                    groupFilter += $"E.AssetID IN (SELECT AssetID FROM AssetAssetGroup WHERE AssetGroupID IN ({string.Join(",", content.GroupIDs)}))";
                     groupFilter += " OR ";
                     groupFilter += $"E.MeterID IN (SELECT MeterID FROM MeterAssetGroup WHERE AssetGroupID IN ({string.Join(",", content.GroupIDs)}))";
                     groupFilter += ")";
@@ -122,7 +126,7 @@ namespace SystemCenter.Notifications.Controllers
                     EventType ET ON E.EventTypeID = ET.ID CROSS APPLY  
                     ({string.Format(content.TriggerSQL, "E.ID")}) EmailTrigger(Value) 
                 WHERE E.StartTime BETWEEN {{0}} AND {{1}} 
-                    {(content.AssetIDs.Count > 0? $" AND E.AssetID IN ({string.Join(",",content.AssetIDs)})" : "")}
+                    {(content.AssetIDs.Count > 0 ? $" AND E.AssetID IN ({string.Join(",", content.AssetIDs)})" : "")}
                     {(content.MeterIDs.Count > 0 ? $" AND E.MeterID IN ({string.Join(",", content.MeterIDs)})" : "")}
                     {(content.EventTypes.Count > 0 ? $" AND ET.ID IN ({string.Join(",", content.EventTypes)})" : "")}
                     {groupFilter}
@@ -130,7 +134,7 @@ namespace SystemCenter.Notifications.Controllers
 
                 using (AdoDataConnection connection = CreateDbConnection())
                     return Ok(connection.RetrieveData(sql, content.Start, content.End));
-               
+
             }
             catch (Exception ex)
             {
@@ -176,7 +180,7 @@ namespace SystemCenter.Notifications.Controllers
         }
 
         [HttpGet, Route("Test/{eventID:int}/{emailID:int}/{recipient}")]
-        public IHttpActionResult Test(int eventID,int emailID, string recipient)
+        public IHttpActionResult Test(int eventID, int emailID, string recipient)
         {
             if (!PatchAuthCheck())
                 return Unauthorized();
@@ -231,7 +235,7 @@ namespace SystemCenter.Notifications.Controllers
 
                 JArray results = JArray.Parse(responseJSON);
 
-                for(int index = 0; index < results.Count(); index++)
+                for (int index = 0; index < results.Count(); index++)
                 {
                     XElement data = JsonConvert.DeserializeObject<XElement>(results[index]["Data"].ToString());
                     results[index]["Data"] = data?.ToString() ?? "";
@@ -418,5 +422,124 @@ namespace SystemCenter.Notifications.Controllers
     [RoutePrefix("api/OpenXDA/SentEmail"), ViewOnly, AllowSearch]
     public class SentEmailController : ModelController<SentEmail>
     {
+        public class TimelineItem
+        {
+            public DateTime Start { get; set; }
+            public DateTime? End { get; set; }
+            public string Description { get; set; }
+            public int ID { get; set; }
+        }
+
+        [HttpPost, Route("Timeline/{SentEmailID:int}")]
+        public IHttpActionResult SentEmailTimeline([FromBody] PostData postData, int SentEmailID)
+        {
+            List<TimelineItem> timeline = [];
+
+            int id = 0;
+
+            using (AdoDataConnection connection = CreateDbConnection())
+            {
+                SentEmail sentEmail = new TableOperations<SentEmail>(connection).QueryRecordWhere("ID = {0}", SentEmailID);
+
+                timeline.Add(new TimelineItem()
+                {
+                    Description = "Email Sent",
+                    Start = sentEmail.TimeSent,
+                    End = null,
+                    ID = id
+                });
+
+                id++;
+
+                EventSentEmail eventSentEmail = new TableOperations<EventSentEmail>(connection).QueryRecordWhere("SentEmailID = {0}", sentEmail.ID);
+
+                if (eventSentEmail == null)
+            {
+                    return Ok(JsonConvert.SerializeObject(timeline));
+            }
+
+                Event eventRecord = new TableOperations<Event>(connection).QueryRecordWhere("ID = {0}", eventSentEmail.EventID);
+
+                FileGroup fileGroupRecord = new TableOperations<FileGroup>(connection).QueryRecordWhere("ID = {0}", eventRecord.FileGroupID);
+
+                timeline.Add(new TimelineItem()
+                {
+                    Description = "File Group Data",
+                    Start = fileGroupRecord.DataStartTime,
+                    End = fileGroupRecord.DataEndTime,
+                    ID = id
+                });
+
+                id++;
+
+                timeline.Add(new TimelineItem()
+                {
+                    Description = "File Group Processing",
+                    Start = fileGroupRecord.ProcessingStartTime,
+                    End = fileGroupRecord.ProcessingEndTime,
+                    ID = id
+                });
+
+                id++;
+
+                DataFile[] dataFileRecords = new TableOperations<DataFile>(connection).QueryRecordsWhere("FileGroupID = {0}", fileGroupRecord.ID).ToArray();
+
+                foreach (DataFile dataFile in dataFileRecords)
+                {
+                    string dataFileName = Path.GetFileName(dataFile.FilePath);
+
+                    timeline.Add(new TimelineItem()
+                    {
+                        Description = $"{dataFileName} Last Write Time",
+                        Start = dataFile.LastWriteTime,
+                        End = null,
+                        ID = id
+                    });
+
+                    id++;
+                }
+
+                DataOperationFailure[] dataOperationFailureRecords = new TableOperations<DataOperationFailure>(connection).QueryRecordsWhere("FileGroupID = {0}", fileGroupRecord.ID).ToArray();
+
+                foreach (DataOperationFailure dataOperationFailure in dataOperationFailureRecords)
+                {
+                    timeline.Add(new TimelineItem()
+                    {
+                        Description = dataOperationFailure.Log,
+                        Start = dataOperationFailure.TimeOfFailure,
+                        End = null,
+                        ID = id
+                    });
+
+                    id++;
+                }
+
+                List<TimelineItem> sortedTimeline;
+
+                PropertyInfo orderByProp = typeof(TimelineItem).GetProperty(postData.OrderBy);
+                if (orderByProp == null)
+                {
+                    orderByProp = typeof(TimelineItem).GetProperty("Start");
+                }
+
+                if (!postData.Ascending)
+                {
+                    sortedTimeline = timeline.OrderBy(i => orderByProp.GetValue(i)).ToList();
+                }
+                else
+                {
+                    sortedTimeline = timeline.OrderByDescending(i => orderByProp.GetValue(i)).ToList();
+                }
+
+                return Ok(JsonConvert.SerializeObject(sortedTimeline));
+            }
+        }
+
+        private AdoDataConnection CreateDbConnection()
+        {
+            AdoDataConnection connection = new AdoDataConnection(Connection);
+            connection.DefaultTimeout = DataExtensions.DefaultTimeoutDuration;
+            return connection;
+        }
     }
 }
