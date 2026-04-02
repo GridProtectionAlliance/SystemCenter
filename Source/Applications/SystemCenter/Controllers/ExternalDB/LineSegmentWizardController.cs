@@ -21,6 +21,7 @@
 //
 //******************************************************************************************************
 
+using GSF;
 using GSF.Collections;
 using GSF.Data;
 using GSF.Data.Model;
@@ -28,9 +29,12 @@ using GSF.Security.Model;
 using GSF.Web.Model;
 using Newtonsoft.Json.Linq;
 using openXDA.Model;
+using openXDA.Model.SystemCenter;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Web.Http;
@@ -149,6 +153,7 @@ public class LineSegmentWizardController : ApiController
         public string Name;
         public List<int> StationID;
     };
+
     #endregion
 
     #region [ Statics ]
@@ -161,6 +166,104 @@ public class LineSegmentWizardController : ApiController
 
 
     #region [ HttpFunctions ]
+
+    [HttpPost, Route("TestConnection")]
+    public IHttpActionResult PostTestConnection()
+    {
+
+        AppStatus status = new()
+        {
+            Status = "N/A",
+            Details = new()
+        };
+
+        if (!useFawg)
+            return Ok(status);
+
+        try
+        {
+            using (AdoDataConnection connection = new(Connection))
+            {
+                string query = "SELECT 0;";
+                int result = connection.ExecuteScalar<int>(query);
+                status.Status = "Success";
+                return Ok(status);
+            }
+        }
+        catch (InvalidOperationException e)
+        {
+            status.Status = "Error";
+            if (e.InnerException is ArgumentException)
+            {
+                status.Details.Add(new()
+                {
+                    Status = "Error",
+                    Description = "ConnectionString contains errors."
+                });
+            }
+            if (e.InnerException is FileNotFoundException)
+            {
+                status.Details.Add(new()
+                {
+                    Status = "Error",
+                    Description = "Missing file or dependency."
+                });
+            }
+            if (e.InnerException is NullReferenceException)
+            {
+                status.Details.Add(new()
+                {
+                    Status = "Error",
+                    Description = "Could not load connection settings from configuration file."
+                });
+            }
+            if (e.InnerException is SqlException s)
+            {
+                int number = s.Number;
+
+                // data provider string
+                if (number == 4060)
+                {
+                    status.Details.Add(new()
+                    {
+                        Status = "Success",
+                        Description = "Successfully reached SQL server."
+                    });
+                    status.Details.Add(new()
+                    {
+                        Status = "Error",
+                        Description = "Failed to open database."
+                    });
+                }
+
+                // failed to open an ADO connection - "a network-related or instance-specific error"
+                if (number == 53)
+                {
+                    status.Details.Add(new()
+                    {
+                        Status = "Error",
+                        Description = "Failed to reach the server. Check that the connection string is correct and the server is accessible over network."
+                    });
+                }
+
+                // failed for user permissions.
+                if (number == 18456)
+                {
+                    status.Details.Add(new()
+                    {
+                        Status = "Success",
+                        Description = "Successfully reached server."
+                    });
+                    status.Details.Add(new()
+                    {
+                        Status = "Error",
+                        Description = "Failed to authenticate."
+                    });
+                }
+            }
+            return Ok(status);
+        }
+    }
 
     [HttpPost, Route("Save/{id:int}")]
     public IHttpActionResult PostData(int id, [FromBody] LineConfiguration record)

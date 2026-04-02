@@ -34,7 +34,6 @@ using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web.Http;
-using System.Windows.Forms.DataVisualization.Charting;
 
 namespace SystemCenter.Model
 {

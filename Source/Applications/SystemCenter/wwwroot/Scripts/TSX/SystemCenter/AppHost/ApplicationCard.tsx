@@ -33,11 +33,16 @@ export interface IHost {
     StatsURL?: string,
     ConsoleURL: string,
     Name: string,
+    App: 'XDA' | 'MiMD' | 'SystemCenter',
     OpenConsole: () => void,
     OpenStats: () => void
 }
 
-const Applicationcard = (props: IHost) => {
+export interface IApplicationCard extends IHost {
+    IsSmall: boolean
+}
+
+const ApplicationCard = (props: IApplicationCard) => {
     const dispatch = useAppDispatch();
     const [status, setStatus] = React.useState<('Online' | 'Loading' | 'Unknown')>('Unknown');
     const [update, setUpdate] = React.useState<boolean>(false);
@@ -69,28 +74,54 @@ const Applicationcard = (props: IHost) => {
         return h;
     }
     return (
-        <>
-            <div className="card">
-                <img className="card-img-top" src={props.Image} alt="SystemCenter" />
-                <div className="card-body">
-                    {status == 'Online' ? <span className="badge badge-pill badge-success">Online</span> : null}
-                    {status == 'Unknown' ? <span className="badge badge-pill badge-danger">Offline</span> : null}
-                    {status == 'Loading' ? <span className="badge badge-pill badge-secondary">...Loading</span> : null}
-                    <ul className="list-group list-group-flush">
-                        {props.Properties.map((p) => <li className="list-group-item">
-                            {p.Name}
-                            <span className="badge badge-info" style={{ marginLeft: 10 }}>{p.Value}</span>
-                        </li>)} 
-                    </ul>
+        <div className="d-flex h-100 flex-column container p-0">
+
+            <div className="card h-100 w-100">
+                <div className={`card-body`}>
+                    <div className={`row ${props.IsSmall ? '' : "justify-content-around h-100 align-items-center"}`}>
+                        {props.IsSmall ? null :
+                            <div className="col-3">
+                                <img src={props.Image} alt={props.App} style={{ width: '200px' }} />
+                            </div>}
+                        <div className={`col-${props.IsSmall ? 12 : 5}`}>
+                            <ul className="list-group list-group-flush">
+                                <li className="list-group-item d-flex flex-row justify-content-between align-items-end" key={'status'}> <span className={`badge badge-pill badge-${StatusToBadgeClass(status)}`}>{status == "Unknown" ? "Offline" : status}</span>
+                                    {props.IsSmall ? <img src={`../Images/NodeTiles/${props.App}Icon.png`} alt={`${props.App} Icon`} style={{ width: '50px' }} /> : null}
+                                </li> 
+                                {props.Properties.map((p, i) => p.Name === "ID" ? null : <li className="list-group-item" key={i}>
+                                    {p.Name}
+                                    <span className="badge badge-info" style={{ marginLeft: 10 }}>{p.Value}</span>
+                                </li>)}
+                            </ul>
+                        </div>
+                    </div>
                 </div>
                 <div className="card-footer">
-                    <button className="btn btn-info" onClick={() => props.OpenConsole()}>Console</button>
-                    {
-                        props.StatsURL == null || props.StatsURL === "" ? null :
-                        <button className="btn btn-info pull-right" onClick={() => props.OpenStats()}>Status</button>
-                    }
+                    <div className="row">
+                        <div className={`col align-self-start`}>
+                            <button className={`btn btn-info`} onClick={() => props.OpenConsole()} disabled={status == "Loading" || status == "Unknown" }>Console</button>
+                        </div>
+                        <div className={`col align-self-end`}>
+                            {props.App === 'MiMD' ? null :
+                                <button className={`btn btn-info float-right`} onClick={() => props.OpenStats()} disabled={status == "Loading" || status == "Unknown"}>Status</button>
+                            }
+                        </div>
+                    </div>
                 </div>
             </div>
-         </>)
+        </div >
+
+    )
 }
-export default Applicationcard;
+export default ApplicationCard;
+
+const StatusToBadgeClass = (status: "Online" | "Unknown" | "Loading") => {
+    switch (status) {
+        case "Online":
+            return "success"
+        case "Unknown":
+            return "danger"
+        case "Loading":
+            return "secondary"
+    }
+}

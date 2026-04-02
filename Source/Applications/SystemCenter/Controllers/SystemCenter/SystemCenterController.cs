@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
 using System.Data;
+using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -43,6 +44,7 @@ using GSF.Web.Model;
 using Newtonsoft.Json.Linq;
 using openXDA.Configuration;
 using openXDA.Model;
+using openXDA.Model.SystemCenter;
 using SEBrowser.Model;
 using SystemCenter.Model;
 using SystemCenter.ScheduledProcesses;
@@ -566,7 +568,7 @@ namespace SystemCenter.Controllers
     [PostRoles("Administrator")]
     [TableName("MiMD.Setting")]
     [UseEscapedName]
-    public class MiMDSetting: openXDA.Model.Setting {};
+    public class MiMDSetting : openXDA.Model.Setting { };
 
 
     [RoutePrefix("api/OpenXDA/Setting")]
@@ -1539,7 +1541,14 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/SystemCenter/ExternalDatabases")]
     public class ExternalDatabasesController : ModelController<DetailedExternalDatabases, ExternalDatabases>
     {
+
+        private class NamedAppStatus : AppStatus
+        {
+            public string Name { get; set; }
+        }
+
         private static ServiceHost Host = Program.Host;
+
         public override IHttpActionResult Post([FromBody] JObject record)
         {
             if (!PostAuthCheck() || ViewOnly)
@@ -1580,24 +1589,211 @@ namespace SystemCenter.Controllers
                 return Ok(result);
             }
         }
-
-        [HttpPost, Route("TestConnection")]
-        public IHttpActionResult TestConnection([FromBody] JObject record)
+        [HttpPost, Route("TestAllConnections")]
+        public IHttpActionResult TestAllConnections([FromBody] JObject record)
         {
+
             if (!PostAuthCheck())
                 return Unauthorized();
 
-            ExternalDatabases extDB = record.ToObject<ExternalDatabases>();
-            using (AdoDataConnection extConn = ScheduledExtDBTask.GetExternalConnection(extDB))
+            IEnumerable<ExternalDatabases> externalDatabases = QueryRecords();
+
+            List<NamedAppStatus> statuses = [];
+
+            foreach (ExternalDatabases externalDatabase in externalDatabases)
             {
-                string query;
-                if (extConn.IsOracle)
-                    query = "SELECT 0 FROM dual"; // oracle adds the semicolon for you as a way to keep you from delimiting multiple statements.
-                else
-                    query = "SELECT 0;";
-                return Ok(extConn.ExecuteScalar<int>(query));
+                AppStatus connectionStatus = GetConnectionStatus(externalDatabase);
+                statuses.Add(new NamedAppStatus()
+                {
+                    Name = externalDatabase.Name,
+                    Status = connectionStatus.Status,
+                    Details = connectionStatus.Details
+                });
             }
+            return Ok(statuses);
         }
+        [HttpPost, Route("TestConnection")]
+        public IHttpActionResult TestConnection([FromBody] JObject record)
+        {
+
+            if (!PostAuthCheck())
+                return Unauthorized();
+
+            ExternalDatabases externalDatabase = record.ToObject<ExternalDatabases>();
+
+            return Ok(GetConnectionStatus(externalDatabase));
+
+        }
+
+        private AppStatus GetConnectionStatus(ExternalDatabases extDB)
+            {
+
+
+            AppStatus testDatabaseStatus = new()
+                {
+                Status = "Success",
+                Details = []
+            };
+            try
+            {
+                using (AdoDataConnection extConn = ScheduledExtDBTask.GetExternalConnection(extDB))
+                {
+                    string query;
+
+                    if (extConn.IsOracle)
+                        query = "SELECT 0 FROM dual"; // oracle adds the semicolon for you as a way to keep you from delimiting multiple statements.
+                    else
+                        query = "SELECT 0;";
+
+                    int result = extConn.ExecuteScalar<int>(query);
+
+                    if (result == 0)
+                    {
+                        testDatabaseStatus.Details.Add(new()
+                        {
+                            Status = "Success",
+                            Description = "Successfully connected to database."
+                        });
+                    }
+
+                    else
+                    {
+                        testDatabaseStatus.Status = "Warning";
+                    }
+                }
+            }
+                catch (InvalidOperationException e)
+            {
+                Type innerExceptionType = e.InnerException.GetType();
+                testDatabaseStatus.Status = "Error";
+                if (e.InnerException is ArgumentException)
+                {
+                    testDatabaseStatus.Details.Add(new()
+                    {
+                        Status = "Error",
+                        Description = "ConnectionString contains errors."
+                    });
+                }
+                if (e.InnerException is FileNotFoundException)
+                {
+                    testDatabaseStatus.Details.Add(new()
+                    {
+                        Status = "Error",
+                        Description = "Missing file or dependency."
+                    });
+                }
+                if (e.InnerException is NullReferenceException)
+                {
+                    testDatabaseStatus.Details.Add(new()
+                    {
+                            Status = "Error",
+                            Description = "Could not load connection settings from configuration file."
+                    });
+                }
+                if (e.InnerException is Oracle.ManagedDataAccess.Client.OracleException o)
+                {
+                    // authentication error
+                    if (o.Number == 1017)
+                    {
+                        testDatabaseStatus.Details.Add(new()
+                        {
+                            Status = "Success",
+                            Description = "Successfully reached SQL server."
+                        });
+                        testDatabaseStatus.Details.Add(new()
+                        {
+                            Status = "Error",
+                            Description = "Could not authenticate with the database. Please check username and password."
+                        });
+                    }
+
+                    // no listener - port 
+                    if (o.Number == 12541)
+                    {
+                        testDatabaseStatus.Details.Add(new()
+                        {
+                            Status = "Error",
+                            Description = "Found no listener on given port."
+                        });
+                    }
+
+                    // cannot resolve hostname
+                    if (o.Number == 12545)
+                    {
+                        testDatabaseStatus.Details.Add(new()
+                        {
+                            Status = "Error",
+                            Description = "Could not resolve hostname."
+                        });
+                    }
+
+                    // failed to connect to server or parse connection string
+                    if (o.Number == -6001)
+                    {
+                        testDatabaseStatus.Details.Add(new()
+                        {
+                            Status = "Error",
+                            Description = "Failed to connect to server or parse connection string."
+                        });
+                    }
+
+                    // invalid transport address (like 'TCAP')
+                    if (o.Number == 12533)
+                    {
+                        testDatabaseStatus.Details.Add(new()
+                        {
+                            Status = "Error",
+                            Description = "Invalid transport address syntax."
+                        });
+                    }
+                }
+                if (e.InnerException is SqlException s)
+                {
+                    int number = s.Number;
+
+                    // data provider string
+                    if (number == 4060)
+                    {
+                        testDatabaseStatus.Details.Add(new()
+                        {
+                            Status = "Success",
+                            Description = "Successfully reached SQL server."
+                        });
+                        testDatabaseStatus.Details.Add(new()
+                        {
+                            Status = "Error",
+                            Description = "Failed to open database."
+                        });
+                    }
+
+                    // failed to open an ADO connection - "a network-related or instance-specific error"
+                    if (number == 53)
+                    {
+                        testDatabaseStatus.Details.Add(new()
+                        {
+                            Status = "Error",
+                            Description = "Failed to reach the server. Check that the connection string is correct and the server is accessible over network."
+                        });
+                    }
+
+                    // failed for user permissions.
+                    if (number == 18456)
+                    {
+                        testDatabaseStatus.Details.Add(new()
+                        {
+                            Status = "Success",
+                            Description = "Successfully reached server."
+                        });
+                        testDatabaseStatus.Details.Add(new()
+                        {
+                            Status = "Error",
+                            Description = "Failed to authenticate."
+                        });
+                    }
+                }
+                }
+                return testDatabaseStatus;
+            }
 
         [HttpPost, Route("UnscheduledUpdate")]
         public IHttpActionResult UnscheduledUpdate([FromBody] JObject record)
@@ -1763,7 +1959,6 @@ namespace SystemCenter.Controllers
         }
 
     }
-
 
     [RoutePrefix("api/SEbrowser/Widget")]
     public class SEBrowserWidgetController : ModelController<SEBrowser.Model.Widget> {}

@@ -23,11 +23,11 @@
 
 import * as React from 'react';
 import { Application } from '@gpa-gemstone/application-typings';
-import { useAppDispatch } from '../hooks';
-import { LoadingScreen, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { LoadingScreen, ServerErrorIcon, LayoutGrid } from '@gpa-gemstone/react-interactive';
 import ApplicationCard, { IHost } from './ApplicationCard';
 import ConsoleWindow from './ConsoleWindow';
 import NodeStats from './NodeStats';
+import { useMediaQuery } from '@gpa-gemstone/helper-functions';
 
 
 const AppHost: Application.Types.iByComponent = (props) => {
@@ -35,6 +35,10 @@ const AppHost: Application.Types.iByComponent = (props) => {
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [console, setConsole] = React.useState<IHost | null>(null);
     const [stats, setStats] = React.useState<IHost | null>(null);
+
+    const shouldHaveTwoRowsHeight = useMediaQuery('(max-height: 1250px)');
+    const shouldBeSmall = useMediaQuery('(max-width: 1750px)');
+    const shouldHaveTwoColumns = useMediaQuery('(max-width: 750px)')
 
     React.useEffect(() => {
         if (status == 'changed' || status == 'uninitiated') {
@@ -57,16 +61,18 @@ const AppHost: Application.Types.iByComponent = (props) => {
     }
 
     return (
-        <>
+        <div className="w-100 h-100">
             <div style={{ width: '100%', height: '100%', overflowY: 'auto' }}>
                 <LoadingScreen Show={status == 'loading'} />
                 <ServerErrorIcon Show={status == 'error'} />
-                <div className="card-deck">
+                <LayoutGrid RowsPerPage={shouldHaveTwoRowsHeight ? 2 : 3} ColMax={shouldHaveTwoColumns ? 2 : 3}>
                     {hosts.map((h) => <ApplicationCard {...h}
                         OpenConsole={() => setConsole(h)}
                         OpenStats={() => setStats(h)}
+                        key={h.PingURL}
+                        IsSmall={shouldBeSmall}
                     />)}
-                </div>               
+                </LayoutGrid>
             </div>
             <ConsoleWindow
                 ApplicationName={console?.Name ?? ''}
@@ -77,7 +83,9 @@ const AppHost: Application.Types.iByComponent = (props) => {
                 ApplicationName={stats?.Name ?? ''}
                 Close={() => setStats(null)}
                 StatsURL={stats?.StatsURL}
+                ApplicationType={stats?.App ?? null}
+                Properties={stats?.Properties}
             />
-         </>)
+        </div>)
 }
 export default AppHost;

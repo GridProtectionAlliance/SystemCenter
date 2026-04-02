@@ -492,15 +492,24 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <Content Include="wwwroot\Images\GiantLogo.png" />
-    <Content Include="wwwroot\Images\NodeTiles\OpenXDA.png">
+		<Content Include="wwwroot\Images\NodeTiles\XDA.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="wwwroot\Images\NodeTiles\SystemCenter.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="wwwroot\Images\NodeTiles\MiMD.png">
+		<Content Include="wwwroot\Images\NodeTiles\miMD.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+		<Content Include="wwwroot\Images\NodeTiles\XDAIcon.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="wwwroot\Images\NodeTiles\SystemCenterIcon.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="wwwroot\Images\NodeTiles\miMDIcon.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
     <Content Include="wwwroot\index.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

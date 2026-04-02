@@ -22,17 +22,7 @@
 //******************************************************************************************************
 
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Web.Http;
-using System.Web.Http.Results;
+using GSF.Annotations;
 using GSF.Configuration;
 using GSF.Data;
 using GSF.Data.Model;
@@ -43,7 +33,22 @@ using Newtonsoft.Json.Linq;
 using openXDA.APIAuthentication;
 using openXDA.Configuration;
 using openXDA.Model;
+using openXDA.Model.SystemCenter;
 using PQView.Model;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Linq;
+using System.Net.Http;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Results;
+using System.Windows.Forms;
 using SystemCenter.Model;
 using ConfigurationLoader = SystemCenter.Model.ConfigurationLoader;
 
@@ -103,10 +108,10 @@ namespace SystemCenter.Controllers.OpenXDA
     public class DataReaderController : ModelController<DataReader> { }
 
     [RoutePrefix("api/OpenXDA/AssetType")]
-    public class AssetTypeController : ModelController<AssetTypes> {}
+    public class AssetTypeController : ModelController<AssetTypes> { }
 
     [RoutePrefix("api/OpenXDA/Phase")]
-    public class PhaseController:ModelController<Phase> {}
+    public class PhaseController : ModelController<Phase> { }
 
     [RoutePrefix("api/OpenXDA/ByLineSegment")]
     public class ByLineSegmentController : ModelController<LineSegment> { }
@@ -197,10 +202,10 @@ namespace SystemCenter.Controllers.OpenXDA
     public class OpenXDAByMeterController : ExternalModelController<DetailedMeter> { }
 
     [RoutePrefix("api/OpenXDA/MeasurementType")]
-    public class MeasurementTypeController:ModelController<MeasurementType> {}
+    public class MeasurementTypeController : ModelController<MeasurementType> { }
 
     [RoutePrefix("api/OpenXDA/MeasurementCharacteristic")]
-    public class MeasurementCharacteristicController : ModelController<MeasurementCharacteristic> {}
+    public class MeasurementCharacteristicController : ModelController<MeasurementCharacteristic> { }
 
     [RoutePrefix("api/OpenXDA/AssetConnection")]
     public class OpenXDAAssetConnectionController : ModelController<AssetConnection> { }
@@ -209,7 +214,7 @@ namespace SystemCenter.Controllers.OpenXDA
     public class OpenXDAAssetConnectionTypeController : ModelController<AssetConnectionType> { }
 
     [RoutePrefix("api/OpenXDA/Note")]
-    public class NoteController : ModelController<Notes> 
+    public class NoteController : ModelController<Notes>
     {
         public override IHttpActionResult Post([FromBody] JObject record)
         {
@@ -265,7 +270,7 @@ namespace SystemCenter.Controllers.OpenXDA
     public class OpenXDADERController : ModelController<DER> { }
 
     [RoutePrefix("api/OpenXDA/NoteType")]
-    public class NoteTypeController : ModelController<NoteType> {}
+    public class NoteTypeController : ModelController<NoteType> { }
 
     [RoutePrefix("api/OpenXDA/NoteTag")]
     public class NoteTagController : ModelController<NoteTag> { }
@@ -301,11 +306,11 @@ namespace SystemCenter.Controllers.OpenXDA
                 MaskAPIToken(row);
             return table;
         }
-        protected override APIAccessKey QueryRecordWhere(string filterExpression, params object[] parameters) 
-        { 
+        protected override APIAccessKey QueryRecordWhere(string filterExpression, params object[] parameters)
+        {
             return MaskAPIToken(base.QueryRecordWhere(filterExpression, parameters));
         }
-        protected override IEnumerable<APIAccessKey> QueryRecordsWhere(string orderBy, bool ascending, string filterExpression, params object[] parameters) 
+        protected override IEnumerable<APIAccessKey> QueryRecordsWhere(string orderBy, bool ascending, string filterExpression, params object[] parameters)
         {
             return base.QueryRecordsWhere(orderBy, ascending, filterExpression, parameters).Select(MaskAPIToken);
         }
@@ -333,14 +338,13 @@ namespace SystemCenter.Controllers.OpenXDA
         }
     }
 
-
     [RoutePrefix("api/OpenXDA/ApplicationRole")]
-    public class OpenXDAApplicationRoleController : ModelController<ApplicationRole> {}
+    public class OpenXDAApplicationRoleController : ModelController<ApplicationRole> { }
 
     [RoutePrefix("api/OpenXDA/ApplicationRoleUserAccount")]
     public class OpenXDAApplicationRoleUserAccountController : ModelController<ApplicationRoleUserAccount>
     {
-        
+
 
         [HttpPatch, Route("UpdateArray")]
         public IHttpActionResult PatchArray([FromBody] IEnumerable<ApplicationRoleUserAccount> records)
@@ -404,7 +408,14 @@ namespace SystemCenter.Controllers.OpenXDA
             [SettingName("XDA")]
             public APIConfiguration APISettings { get; } = new APIConfiguration();
         }
+        
+        private class NamedAppStatus : AppStatus
+        {
+            public string Name { get; set; }
+        }
         #endregion
+
+
 
         #region [HttpMethods]
         public override IHttpActionResult Patch(RemoteXDAInstance record)
@@ -447,6 +458,89 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
 
+        [HttpGet, Route("RemoteConnectionStatus/{hostInstanceID}")]
+        public IHttpActionResult GetRemoteConnectionStatus(int hostInstanceID)
+        { 
+            
+            List<NamedAppStatus> statusList = new List<NamedAppStatus>();
+
+            string hostUrl;
+            using (AdoDataConnection connection = CreateDbConnection())
+            {
+                hostUrl = new TableOperations<HostRegistration>(connection).QueryRecordWhere("ID = {0}", hostInstanceID)?.URL ?? "";
+            }
+
+            NamedAppStatus getRemoteXDAStatus(RemoteXDAInstance remoteXDA)
+            {
+                AppStatus status = new()
+                {
+                    Status = "Error",
+                    Details = []
+                };
+
+                try
+                {
+                    string remoteResponse = SendGetRequest($"/api/DataPusher/TestConnection/{remoteXDA.ID}", hostUrl, true).Result;
+                    JObject jsonResponse = JObject.Parse(remoteResponse);
+                    if (!Boolean.Parse(jsonResponse["Success"].ToString()))
+                    {
+                        status.Details.Add(new StatusItem()
+                        {
+                            Status = "Error",
+                            Description = "Could not connect to remote instance. Check XDA.Url in System Center settings."
+                        });
+                    }
+                    else
+                    {
+                        status.Details.Add(new StatusItem()
+                        {
+                            Status = "Success",
+                            Description = "Connected to remote instance."
+                        });
+
+                        status.Status = "Success";
+                    }
+                    if (remoteResponse == "Unauthorized")
+                    {
+                        status.Details.Add(new StatusItem()
+                        {
+                            Status = "Error",
+                            Description = "Request unauthorized for remote instance. Check XDA settings in System Center settings."
+                        });
+                    }
+                }
+                catch (Exception e)
+                {
+                    status.Details.Add(new StatusItem()
+                    {
+                        Status = "Error",
+                        Description = "Could not connect to remote instance. Check the URL of the Remote Instance."
+                    });
+                }
+
+                return new NamedAppStatus()
+                {
+                    Status = status.Status,
+                    Details = status.Details,
+                    Name = remoteXDA.Name
+                };
+            }
+
+            if (!GetAuthCheck())
+                return Unauthorized();
+
+
+            IEnumerable<RemoteXDAInstance> remoteXDAInstances = QueryRecords();
+
+            foreach (RemoteXDAInstance remoteXDA in remoteXDAInstances)
+            {
+                statusList = statusList.Append(getRemoteXDAStatus(remoteXDA)).ToList();
+            }
+
+            return Ok(statusList);
+        }
+
+
         // #ToDo check what ClienID is used for on the openXDA side.. most likely not necessary
         [HttpGet, Route("ConfigPush/{remoteInstanceID}")]
         public virtual IHttpActionResult PushRemoteConfig(int remoteInstanceID)
@@ -465,11 +559,11 @@ namespace SystemCenter.Controllers.OpenXDA
         }
 
         //Todo: Think about moving this into API Auth Module
-        public async Task<string> SendGetRequest(string requestURI)
+        public async Task<string> SendGetRequest(string requestURI, string? host = null, bool passResponse = false)
         {
             APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).APISettings;
 
-            APIQuery query = new APIQuery(settings.Key, settings.Token, settings.Host.Split(';'));
+            APIQuery query = new APIQuery(settings.Key, settings.Token, host ?? settings.Host.Split(';')[0]);
             void ConfigureRequest(HttpRequestMessage request)
             {
                 request.Method = HttpMethod.Get;
@@ -477,6 +571,10 @@ namespace SystemCenter.Controllers.OpenXDA
             HttpResponseMessage responseMessage = await query.SendWebRequestAsync(ConfigureRequest, requestURI).ConfigureAwait(false);
             if (!responseMessage.IsSuccessStatusCode)
             {
+                if (passResponse)
+                {
+                    return responseMessage.StatusCode.ToString();
+                }
                 throw new Exception("Status code " + responseMessage.StatusCode + ": " + responseMessage.ReasonPhrase);
             }
 
@@ -503,6 +601,7 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA")]
     public class GeneralController : ApiController
     {
+
         [HttpGet, Route("Tiles/GetAll")]
         public IHttpActionResult GetAllTiles()
         {
@@ -544,7 +643,27 @@ namespace SystemCenter.Controllers.OpenXDA
                 response.EnsureSuccessStatusCode();
                 string result = await response.Content.ReadAsStringAsync();
                 return Ok(result);
-            };
+            }
+            ;
+        }
+
+        [Route("SCADAHealth"), HttpGet]
+        public IHttpActionResult GetScadaHealth()
+        {
+
+            if (!XDAAPIHelper.TryRefreshSettings())
+                throw new InvalidOperationException("Unable to refresh static XDA API object.");
+
+            AppStatus scadaStatus = null;
+
+            using (HttpResponseMessage response = XDAAPIHelper
+                .GetResponseTask($"api/SystemCenter/SCADAPoint/Health")
+                .Result)
+            {
+                scadaStatus = JsonConvert.DeserializeObject<AppStatus>(response.Content.ReadAsStringAsync().Result);
+            }
+
+            return Ok(scadaStatus);
         }
     }
 

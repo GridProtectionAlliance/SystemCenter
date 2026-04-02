@@ -26,6 +26,7 @@ import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { Input, TextArea, CheckBox } from '@gpa-gemstone/react-forms';
 import { IsCron } from '@gpa-gemstone/helper-functions';
 import { LoadingScreen, Modal } from '@gpa-gemstone/react-interactive';
+import { SystemCenter as SC } from './../global'
 
 export default function ExternalDBForm(props: {
     Record: SystemCenter.Types.ExternalDatabases,
@@ -35,6 +36,7 @@ export default function ExternalDBForm(props: {
 }) {
 
     const [requestStatus, setRequestStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [connectionStatus, setConnectionStatus] = React.useState<SC.StatusItem>(null);
 
     function Valid(field: keyof (SystemCenter.Types.ExternalDatabases)): boolean {
         if (field == 'Name')
@@ -57,7 +59,8 @@ export default function ExternalDBForm(props: {
             cache: false,
             async: true
         });
-        handle.done(() => {
+        handle.done((response) => {
+            setConnectionStatus(response);
             setRequestStatus('idle');
         });
         handle.fail(() => {
@@ -81,9 +84,18 @@ export default function ExternalDBForm(props: {
             <button className="btn btn-info pull-left" hidden={!(props.ShowTestButton ?? false)}
                 onClick={TestExternal}>Test DB Connection</button>
             <Modal Title="Connection Test Results" Show={requestStatus === 'error' || requestStatus === 'idle'}
-                ConfirmBtnClass={requestStatus === 'idle' ? 'btn-success' : 'btn-danger'} ConfirmText={'Close'}
+                ConfirmBtnClass={connectionStatus?.Status === 'Success' ? 'btn-success' : 'btn-danger'} ConfirmText={'Close'}
                 ShowX={true} ShowCancel={false} Size={'sm'} CallBack={() => setRequestStatus('uninitiated')}>
-                <p>{requestStatus === 'idle' ? "Connection to database successful." : "Unable to connect to external database. Check connection settings."}</p>
+                {connectionStatus == null ? <></> :
+                    <div>
+                        {connectionStatus.Status === 'Success' ? <h2>"Connection to database successful."</h2> :
+                            <>
+                                <h2>Unable to connect to external database.</h2>
+                                <p>{connectionStatus.Details.length === 0 ? null : connectionStatus.Details.find((detail) => detail.Status === 'Error').Description}</p>
+                            </>
+                        }
+                    </div>
+                }
             </Modal>
             <LoadingScreen Show={requestStatus === 'loading'} />
         </>

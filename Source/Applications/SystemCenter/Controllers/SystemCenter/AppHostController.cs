@@ -56,6 +56,7 @@ namespace SystemCenter.Controllers
         public string ConsoleURL { get; set; }
         public string StatsURL { get; set; }
         public string Name { get; set; }
+        public string App { get; set; }
     }
 
     [RoutePrefix("api/SystemCenter/AppHost")]
@@ -97,7 +98,8 @@ namespace SystemCenter.Controllers
                         ConsoleURL = $"./api/SystemCenter/AppHost/xdaConsole/{host.ID}",
                         StatsURL = $"./api/SystemCenter/AppHost/xdaStatistics/{host.ID}",
                         Name = "XDA - " + host.RegistrationKey,
-                        Image = "../Images/NodeTiles/OpenXDA.png",
+                        Image = "../Images/NodeTiles/XDA.png",
+                        App = "XDA",
                         Properties = new AppProperty[]
                         {
                             new AppProperty() { Name= "Host", Value = host.URL },
@@ -107,6 +109,7 @@ namespace SystemCenter.Controllers
                                 Value = connection.ExecuteScalar<int>("SELECT COUNT(ID) FROM Node WHERE HostRegistrationID = {0}", host.ID)
                                 .ToString()
                             },
+                            new AppProperty() { Name= "ID", Value = host.ID.ToString()},
                             new AppProperty() { Name= "Last Checkin", Value = host.CheckedIn.ToString() }
                         }
                     }));
@@ -200,7 +203,6 @@ namespace SystemCenter.Controllers
             {
                 request.Method = HttpMethod.Get;
             }
-
             HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"api/SystemCenter/Alive").Result;
 
             return ResponseMessage(responseMessage);
@@ -321,7 +323,8 @@ namespace SystemCenter.Controllers
                 },
                 PingURL = "./api/SystemCenter/Ping",
                 ConsoleURL = "./api/SystemCenter/Console",
-                Name = "SystemCenter"
+                Name = "SystemCenter",
+                App = "SystemCenter"
             };
         }
 
@@ -336,7 +339,8 @@ namespace SystemCenter.Controllers
                 },
                 PingURL = "./api/SystemCenter/AppHost/MiMDConsole/Ping",
                 ConsoleURL = "./api/SystemCenter/AppHost/MiMDConsole",
-                Name = "MiMD"
+                Name = "MiMD",
+                App = "MiMD"
             };
         }
 

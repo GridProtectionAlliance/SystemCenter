@@ -22,28 +22,34 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { LoadingScreen, Modal, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { Modal, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { Application } from '@gpa-gemstone/application-typings';
+import NodeHealth from './NodeHealth';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 
 export interface IMessage { Message: string, Type: number }
 
 export interface IProps {
     StatsURL: string,
     ApplicationName: string,
+    ApplicationType: 'SystemCenter' | 'XDA' | 'MiMD',
     Close: () => void
+    Properties: { Name: string, Value: string }[]
 }
 
 const statStyle: React.CSSProperties = {
     fontSize: "1em",
     display: 'inline-block',
-    overflow: 'auto'
+    overflow: 'auto',
+    whiteSpace: 'pre-wrap',
+    wordBreak: 'break-word'
 }
 
-const ConsoleWindow = (props: IProps) => {
+const NodeStats = (props: IProps) => {
     const [statInfo, setStatInfo] = React.useState<string>('');
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [autoScroll, setAutoScroll] = React.useState<boolean>(true);
-    const [lastUpdate, setLastUpdate] = React.useState<string|null>('');
+    const [lastUpdate, setLastUpdate] = React.useState<string | null>('');
 
     React.useEffect(() => {
         if (props.StatsURL == null || props.StatsURL.length == 0) return;
@@ -73,27 +79,60 @@ const ConsoleWindow = (props: IProps) => {
             clearInterval(intervalHandle);
             if (statHandle != null && statHandle.abort != null) statHandle.abort();
         };
-    }, [props.StatsURL]);
+    }, [props.ApplicationName]);
 
     return (
         <Modal
-            Show={props.StatsURL != undefined && props.StatsURL.length > 0}
+            Show={props.ApplicationName !== '' ? true : false}
             ShowCancel={false} ShowConfirm={false} ShowX={true} Size={'xlg'}
             CallBack={() => { props.Close(); setStatus('uninitiated'); setStatInfo('') }}
             Title={'Statistics - ' + props.ApplicationName}
         >
-            <LoadingScreen Show={status === "loading"} />
-            {
-                status === "error" ?
-                    <ServerErrorIcon Show={true}
-                        Label={"An error has occurred. Please contact your administrator."}
-                        Size={50} /> :
-                    <pre style={statStyle}>
-                        {statInfo}
-                    </pre>
+            {(props.StatsURL ?? "") === "" ?
+                <div className="col-12">
+                    <NodeHealth
+                        ApplicationName={props.ApplicationName}
+                        ApplicationType={props.ApplicationType}
+                        Properties={props.Properties}
+                    />
+                </div> :
+                <div className="row">
+                    <fieldset className="border col-6" style={{ padding: '10px', height: '100%' }}>
+                        <legend className="w-auto" style={{ fontSize: 'large' }}>XDA Stats:</legend>
+                        {
+                            status === "error" ?
+
+                                <div className={`col-12 d-flex alert-danger`}>
+                                    <span className={"my-3"}>
+                                        <ReactIcons.CircledX Color="var(--danger)" />
+                                    </span>
+                                    <h5
+                                        className={"m-3"}
+                                    >
+                                       Failed to get openXDA stats.
+                                    </h5>
+                                </div> :
+                                status === "loading" ?
+                                    <ReactIcons.SpiningIcon /> :
+                                    <div className="w-100 h-100">
+                                        <pre style={statStyle}>
+                                            {statInfo}
+                                        </pre>
+                                    </div>
+                        }
+                    </fieldset>
+                    <div className="col-6">
+                        <NodeHealth
+                            ApplicationName={props.ApplicationName}
+                            ApplicationType={props.ApplicationType}
+                            Properties={props.Properties}
+                        />
+                    </div>
+                </div>
             }
+
         </Modal>);
 }
 
 
-export default ConsoleWindow;
+export default NodeStats;

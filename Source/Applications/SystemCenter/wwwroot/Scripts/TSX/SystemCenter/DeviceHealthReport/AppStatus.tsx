@@ -26,6 +26,7 @@ import { ToolTip } from '@gpa-gemstone/react-forms';
 import { Application } from '@gpa-gemstone/application-typings';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { ServerErrorIcon, LoadingIcon } from '@gpa-gemstone/react-interactive'
+import { GetStatusSymbol, GetStatusItemAlertClass } from '../AppHost/StatusItem'
 import { ErrorBoundary } from '@gpa-gemstone/common-pages'
 
 interface IOpenMICStatus {
@@ -74,7 +75,7 @@ const AppStatus = (props: { Name: string, Endpoint: string }) => {
                 data-tooltip={`statusbutton${props.Name}`}
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
-                className={`btn btn-${GetStatusClass(appStatusData.Status)} m-2`}
+                className={`btn btn-${GetStatusItemAlertClass(appStatusData.Status)} m-2`}
             >
                 {status === 'idle' ? props.Name : null}
                 <ServerErrorIcon Show={status == 'error'} />
@@ -102,28 +103,3 @@ const AppStatus = (props: { Name: string, Endpoint: string }) => {
 }
 
 export default AppStatus;
-
-// helper functions
-const GetStatusSymbol = (status:'Success' | 'Error') => {
-    switch (status) {
-        case 'Success':
-            return <ReactIcons.CheckMark Color="var(--success)" />
-        case 'Error':
-            return <ReactIcons.CrossMark Color="var(--danger)" />
-        default:
-            return <></>
-    }
-}
-
-const GetStatusClass = (status: 'Success' | 'Error' | 'N/A') => {
-    switch (status) {
-        case 'Success':
-            return 'success'
-        case 'Error':
-            return 'danger'
-        case 'N/A':
-            return 'secondary'
-        default:
-            return ''
-    }
-}
