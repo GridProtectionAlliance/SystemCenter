@@ -148,13 +148,6 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
                             Ascending={ascending}
                             Selected={() => false}
                             KeySelector={(item) => item.ID}
-                            TableStyle={{
-                                padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
-                                tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
-                            }}
-                            TheadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
-                            TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
-                            RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
                             OnSort={(d) => {
                                 if (d.colField == sortField) {
                                     setAscending(!ascending);
