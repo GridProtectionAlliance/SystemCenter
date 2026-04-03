@@ -25,7 +25,6 @@ import * as React from 'react';
 import { Application } from '@gpa-gemstone/application-typings';
 import { LoadingScreen, ServerErrorIcon, LayoutGrid } from '@gpa-gemstone/react-interactive';
 import ApplicationCard, { IHost } from './ApplicationCard';
-import ConsoleWindow from './ConsoleWindow';
 import NodeDetails from './NodeDetails';
 import { useMediaQuery } from '@gpa-gemstone/helper-functions';
 
@@ -74,17 +73,14 @@ const AppHost: Application.Types.iByComponent = (props) => {
                     />)}
                 </LayoutGrid>
             </div>
-            <ConsoleWindow
-                ApplicationName={console?.Name ?? ''}
-                Close={() => setConsole(null)}
-                ConsoleURL={console?.ConsoleURL}
-            />
             <NodeDetails
                 ApplicationName={details?.Name ?? ''}
-                Close={() => setDetails(null)}
                 StatsURL={details?.StatsURL}
                 ApplicationType={details?.App ?? null}
                 Properties={details?.Properties}
+                SetDetails={setDetails}
+                SetConsole={setConsole}
+                ConsoleURL={console?.ConsoleURL}
             />
         </div>)
 }
