@@ -67,7 +67,7 @@ const AppHost: Application.Types.iByComponent = (props) => {
                 <LayoutGrid RowsPerPage={shouldHaveTwoRowsHeight ? 2 : 3} ColMax={shouldHaveTwoColumns ? 2 : 3}>
                     {hosts.map((h) => <ApplicationCard {...h}
                         OpenConsole={() => setConsole(h)}
-                        OpenDetails={() => setDetails(h)}
+                        OpenDetails={() => { setDetails(h), setConsole(h) }}
                         key={h.PingURL}
                         IsSmall={shouldBeSmall}
                     />)}
