@@ -26,6 +26,7 @@ using GSF.Data.Model;
 using GSF.Web.Model;
 using Newtonsoft.Json;
 using openXDA.APIAuthentication;
+using openXDA.Model.SystemCenter;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -137,19 +138,6 @@ namespace SystemCenter.Model
             public int TotalSuccessfulConnections { get; set; }
         }
 
-        public class StatusItem
-        {
-            public string Status { get; set; }
-            public string Description { get; set; }
-        }
-
-        public class AppStatus
-        {
-            public string Status { get; set; }
-
-            public List<StatusItem> Details { get; set; }
-
-        }
 
         public override IHttpActionResult GetPagedList([FromBody] PostData postData, int page)
         {
