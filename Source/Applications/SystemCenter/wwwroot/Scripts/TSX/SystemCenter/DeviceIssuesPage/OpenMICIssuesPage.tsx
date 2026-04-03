@@ -48,7 +48,11 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
     const rowRef = React.useRef<HTMLDivElement>(null);
     const timeFrame = [moment.utc().endOf('d').subtract(30, 'd').valueOf(), moment.utc().startOf('d').valueOf()] as [number, number]
 
-    const orderedData = React.useMemo(() => _.orderBy(data, [sortField], [ascending ? 'asc' : 'desc']),
+    const orderedData = React.useMemo(() => {
+        const sortedData = _.sortBy(data, [(e) => { sortField == 'Date' ? moment(e['Date']) : e[sortField] }])
+        if (ascending) return sortedData
+        return sortedData.reverse()
+    },
         [data, sortField, ascending])
     function getStatistics(): JQuery.jqXHR<string> {
         return $.ajax({
@@ -163,7 +167,7 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
                                 AllowSort={true}
                                 Field={'Date'}
                                 HeaderStyle={{ width: 'auto' }}
-                                Content={({ item, field }) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : ''}
+                                Content={({ item, field }) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY') : ''}
                                 RowStyle={{ width: 'auto' }}
                             >
                                 Date

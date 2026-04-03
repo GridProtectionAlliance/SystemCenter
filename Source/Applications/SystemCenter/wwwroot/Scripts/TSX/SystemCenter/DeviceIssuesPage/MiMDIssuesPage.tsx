@@ -104,7 +104,7 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                 <Column<SC.MiMDDailyStatistic>
                     Key={'Date'}
                     AllowSort={true}
-                    Content={({ item, field }) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : ''}
+                    Content={({ item, field }) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY') : ''}
                     Field={'Date'}
                     HeaderStyle={{ width: 'auto' }}
                     RowStyle={{ width: 'auto' }}
