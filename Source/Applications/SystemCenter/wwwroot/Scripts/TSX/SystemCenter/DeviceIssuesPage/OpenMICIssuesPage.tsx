@@ -163,7 +163,7 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
                                 AllowSort={true}
                                 Field={'Date'}
                                 HeaderStyle={{ width: 'auto' }}
-                                Content={({ item, field }) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : ''}
+                                Content={({ item, field }) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY') : ''}
                                 RowStyle={{ width: 'auto' }}
                             >
                                 Date
