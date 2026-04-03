@@ -26,7 +26,7 @@ import { Application } from '@gpa-gemstone/application-typings';
 import { LoadingScreen, ServerErrorIcon, LayoutGrid } from '@gpa-gemstone/react-interactive';
 import ApplicationCard, { IHost } from './ApplicationCard';
 import ConsoleWindow from './ConsoleWindow';
-import NodeStats from './NodeDetails';
+import NodeDetails from './NodeDetails';
 import { useMediaQuery } from '@gpa-gemstone/helper-functions';
 
 
@@ -34,7 +34,7 @@ const AppHost: Application.Types.iByComponent = (props) => {
     const [hosts, setHosts] = React.useState<IHost[]>([]);
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [console, setConsole] = React.useState<IHost | null>(null);
-    const [stats, setStats] = React.useState<IHost | null>(null);
+    const [details, setDetails] = React.useState<IHost | null>(null);
 
     const shouldHaveTwoRowsHeight = useMediaQuery('(max-height: 1250px)');
     const shouldBeSmall = useMediaQuery('(max-width: 1750px)');
@@ -68,7 +68,7 @@ const AppHost: Application.Types.iByComponent = (props) => {
                 <LayoutGrid RowsPerPage={shouldHaveTwoRowsHeight ? 2 : 3} ColMax={shouldHaveTwoColumns ? 2 : 3}>
                     {hosts.map((h) => <ApplicationCard {...h}
                         OpenConsole={() => setConsole(h)}
-                        OpenStats={() => setStats(h)}
+                        OpenDetails={() => setDetails(h)}
                         key={h.PingURL}
                         IsSmall={shouldBeSmall}
                     />)}
@@ -79,12 +79,12 @@ const AppHost: Application.Types.iByComponent = (props) => {
                 Close={() => setConsole(null)}
                 ConsoleURL={console?.ConsoleURL}
             />
-            <NodeStats
-                ApplicationName={stats?.Name ?? ''}
-                Close={() => setStats(null)}
-                StatsURL={stats?.StatsURL}
-                ApplicationType={stats?.App ?? null}
-                Properties={stats?.Properties}
+            <NodeDetails
+                ApplicationName={details?.Name ?? ''}
+                Close={() => setDetails(null)}
+                StatsURL={details?.StatsURL}
+                ApplicationType={details?.App ?? null}
+                Properties={details?.Properties}
             />
         </div>)
 }
