@@ -31,6 +31,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -517,7 +518,7 @@ namespace SystemCenter.Model
         public IHttpActionResult GetOpenMICMeterStatistics([FromUri] string meter)
         {
             DailyStatisticsRecord[] meterStatistics = [];
-            OpenMICDailyStatistic[] micDailyStatistics = [];
+            List<OpenMICDailyStatistic> micDailyStatistics = [];
             void ConfigureRequest(HttpRequestMessage request)
             {
                 request.Method = HttpMethod.Get;
@@ -525,12 +526,16 @@ namespace SystemCenter.Model
             APIQuery apiQuery = GetAPIQuery();
             HttpResponseMessage response = apiQuery.SendWebRequestAsync(ConfigureRequest, $"api/DailyStatistics/Get/?meter={meter}").Result;
             string responseContent = response.Content.ReadAsStringAsync().Result;
+            if (!response.IsSuccessStatusCode) { 
+                
+                return StatusCode(HttpStatusCode.BadGateway);
+            }
             string trimmedResponse = responseContent.Trim('"');
             string unescapedResponse = Regex.Unescape(trimmedResponse);
             meterStatistics = JsonConvert.DeserializeObject<DailyStatisticsRecord[]>(unescapedResponse);
             foreach (DailyStatisticsRecord record in meterStatistics)
             {
-                micDailyStatistics = micDailyStatistics.Append(new()
+                micDailyStatistics.Add(new()
                 {
                     ID = record.ID,
                     Date = record.Timestamp.ToString(),
@@ -543,7 +548,7 @@ namespace SystemCenter.Model
                     TotalUnsuccessfulConnections = record.TotalUnsuccessfulConnections,
                     BadDays = record.BadDays,
                     Status = (record.TotalUnsuccessfulConnections >= 50) ? (record.TotalUnsuccessfulConnections >= 100) ? "Error" : "Warning" : ""
-                }).ToArray();
+                });
             }
             return Ok(JsonConvert.SerializeObject(micDailyStatistics));
         }
