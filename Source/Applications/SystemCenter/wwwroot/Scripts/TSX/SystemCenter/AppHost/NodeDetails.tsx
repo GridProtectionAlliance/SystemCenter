@@ -49,7 +49,7 @@ const statStyle: React.CSSProperties = {
     wordBreak: 'break-word'
 }
 
-const NodeStats = (props: IProps) => {
+const NodeDetails = (props: IProps) => {
     const [statInfo, setStatInfo] = React.useState<string>('');
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [autoScroll, setAutoScroll] = React.useState<boolean>(true);
@@ -139,4 +139,4 @@ const NodeStats = (props: IProps) => {
 }
 
 
-export default NodeStats;
+export default NodeDetails;
