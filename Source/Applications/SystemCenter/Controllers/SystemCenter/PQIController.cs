@@ -22,15 +22,13 @@
 //******************************************************************************************************
 
 using GSF.Data;
-using Microsoft.Graph;
 using openXDA.PQI;
+using openXDA.Model.SystemCenter;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
-using static SystemCenter.Model.DeviceHealthReportController;
 
 namespace SystemCenter.Controllers
 {
