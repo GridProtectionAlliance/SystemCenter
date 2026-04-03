@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  NodeStats.tsx - Gbtc
+//  NodeDetails.tsx - Gbtc
 //
 //  Copyright © 2023, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -18,14 +18,18 @@
 //  ----------------------------------------------------------------------------------------------------
 //  10/14/2024 - G. Santos
 //       Generated original version of source code.
+//  04/03/2026 - N. Beatty
+//       Renamed to NodeDetails.
 //
 //******************************************************************************************************
 
 import * as React from 'react';
-import { Modal, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { Modal, TabSelector } from '@gpa-gemstone/react-interactive';
 import { Application } from '@gpa-gemstone/application-typings';
 import NodeHealth from './NodeHealth';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+
+type tabs = 'Connections' | 'Health' | 'Console'
 
 export interface IMessage { Message: string, Type: number }
 
@@ -88,7 +92,7 @@ const NodeStats = (props: IProps) => {
             CallBack={() => { props.Close(); setStatus('uninitiated'); setStatInfo('') }}
             Title={'Statistics - ' + props.ApplicationName}
         >
-            {(props.StatsURL ?? "") === "" ?
+            {(props.StatsURL ?? "") === "" ? // only set if it's openXDA. certainly a better way to do this dear natalie. move XDA health into another component.
                 <div className="col-12">
                     <NodeHealth
                         ApplicationName={props.ApplicationName}
