@@ -108,3 +108,5 @@ const OpenXDAHealth = (props: IProps) => {
             </fieldset>
     )
 }
+
+export default OpenXDAHealth;
