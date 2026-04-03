@@ -40,7 +40,9 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
     const [ascending, setAscending] = React.useState<boolean>(false);
 
     const order = React.useCallback((data: SC.OpenXDADailyStatistic[]) => {
-        return _.orderBy(data, [sortField], [ascending ? 'asc' : 'desc'])
+        const sortedData = _.sortBy(data, [(e) => { sortField == 'Date' ? moment(e['Date']) : e[sortField] }])
+        if (ascending) return sortedData
+        return sortedData.reverse()
     }, [sortField, ascending]);
 
     React.useEffect(() => {
@@ -52,7 +54,7 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
         return () => {
             if (handle.abort != undefined) handle.abort();
         }
-    }, [props.Meter.AssetKey]);
+    }, [props.Meter.AssetKey, ascending, sortField]);
 
     React.useEffect(() => {
         if (data.length === 0) return;
