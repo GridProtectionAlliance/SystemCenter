@@ -26,37 +26,83 @@
 import * as React from 'react';
 import { Modal, TabSelector } from '@gpa-gemstone/react-interactive';
 import NodeConnections from './NodeConnections';
+import OpenXDAHealth from './OpenXDAHealth';
+import ConsoleWindow from './ConsoleWindow'
+import { IHost } from './ApplicationCard';
 
-type tabs = 'Connections' | 'Health' | 'Console'
+type tab = 'connections' | 'health' | 'console'
 
 export interface IMessage { Message: string, Type: number }
 
 export interface IProps {
     StatsURL: string,
+    ConsoleURL: string,
     ApplicationName: string,
     ApplicationType: 'SystemCenter' | 'XDA' | 'MiMD',
-    Close: () => void
-    Properties: { Name: string, Value: string }[]
+    Properties: { Name: string, Value: string }[],
+    SetDetails: React.Dispatch<React.SetStateAction<IHost | null>>
+    SetConsole: React.Dispatch<React.SetStateAction<IHost | null>>
 }
 
 
 const NodeDetails = (props: IProps) => {
 
+    const [tab, setTab] = React.useState<tab>('connections');
     return (
         <Modal
             Show={props.ApplicationName !== '' ? true : false}
             ShowCancel={false} ShowConfirm={false} ShowX={true} Size={'xlg'}
-            CallBack={() => { props.Close(); /**setStatus('uninitiated'); setStatInfo('')*/ }}
+            CallBack={() => { props.SetDetails(null); /**setStatus('uninitiated'); setStatInfo('')*/ }}
             Title={'Details - ' + props.ApplicationName}
         >
-            <div className="col-12">
-                <NodeConnections
-                    ApplicationName={props.ApplicationName}
-                    ApplicationType={props.ApplicationType}
-                    Properties={props.Properties}
-                />
+            <div className="row">
+                <TabSelector CurrentTab={tab} SetTab={(t: tab) => setTab(t)} Tabs={
+                    props.ApplicationType === 'SystemCenter' ?
+                        [
+                            { Label: 'Connections', Id: 'connections' },
+                            { Label: 'Console', Id: 'console' }
+                        ]
+                        : props.ApplicationType === 'XDA' ?
+                            [
+                                { Label: 'Connections', Id: 'connections' },
+                                { Label: 'Health', Id: 'health' },
+                                { Label: 'Console', Id: 'console' }
+                            ]
+                            : [{ Label: 'Console', Id: 'console' }]
+                } />
             </div>
-        </Modal>);
+            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="col-12" style={{ padding: 0, height: '100%' }}>
+                    <div className="tab-content" style={{ height: '100%' }}>
+                        {tab === "connections" ?
+                            <div className="tab-pane active" style={{ height: 'inherit' }}>
+                                <NodeConnections
+                                    ApplicationName={props.ApplicationName}
+                                    ApplicationType={props.ApplicationType}
+                                    Properties={props.Properties}
+                                />
+                            </div>
+                            : tab === "health" ? <div className="tab-pane active" style={{ height: 'inherit' }} >
+                                <OpenXDAHealth
+                                    StatsURL={props.StatsURL}
+                                    ApplicationName={props.ApplicationName}
+                                    ApplicationType={props.ApplicationType}
+                                    Close={() => props.SetDetails(null)}
+                                    Properties={props.Properties}
+                                />
+                            </div>
+                                : tab === "console" ? <div className="tab-pane active" style={{ height: 'inherit' }}>
+                                    <ConsoleWindow
+                                        ConsoleURL={props.ConsoleURL}
+                                        ApplicationName={props.ApplicationName}
+                                        Close={() => props.SetConsole(null)}
+                                    />
+                                </div>
+                                    : null}
+                    </div>
+                </div>
+            </div>
+        </Modal >);
 }
 
 
