@@ -98,7 +98,7 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
             <div className="card-body d-flex flex-column" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
                 <div className={`row h-${status === 'error' || status === 'loading' ? '100 flex-grow-1' : '50'}`} ref={rowRef}>
                     <div className="col-12">
-                        <ServerErrorIcon Show={status === "error"} Size={50} Label={"A server error occured. Please reload the application."} />
+                        <ServerErrorIcon Show={status === "error"} Size={50} Label={"A Server Error Occurred. Please Reload the Application."} />
                         <LoadingScreen Show={status === "loading"} />
                         {status === 'error' || status === 'loading' ? null :
                             <Plot
