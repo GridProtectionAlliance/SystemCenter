@@ -26,7 +26,7 @@ import { Application } from '@gpa-gemstone/application-typings';
 import { LoadingScreen, ServerErrorIcon, LayoutGrid } from '@gpa-gemstone/react-interactive';
 import ApplicationCard, { IHost } from './ApplicationCard';
 import ConsoleWindow from './ConsoleWindow';
-import NodeStats from './NodeStats';
+import NodeStats from './NodeDetails';
 import { useMediaQuery } from '@gpa-gemstone/helper-functions';
 
 
