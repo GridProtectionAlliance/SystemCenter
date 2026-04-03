@@ -31,7 +31,7 @@ import StatusGroup from './StatusGroup'
 
 const NodeConnections = (props: { ApplicationName: string, ApplicationType: 'SystemCenter' | 'MiMD' | 'XDA', Properties: { Name: string, Value: string }[] }) => {
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
-    const [extDBStatus, setExtDBStatus] = React.useState<SC.StatusItem[]>([{Name: "Loading...", Status: "Loading", Details: [] }]);
+    const [extDBStatus, setExtDBStatus] = React.useState<SC.StatusItem[]>([{ Name: "Loading...", Status: "Loading", Details: [] }]);
     const [remoteXDAStatus, setRemoteXDAStatus] = React.useState<SC.StatusItem[]>([{ Name: "Loading...", Status: "Loading", Details: [] }]);
     const [hoveredItem, setHoveredItem] = React.useState<string>(null)
     const [fawgStatus, setFawgStatus] = React.useState<SC.StatusItem>({ Name: "FAWG", Status: "Loading", Details: [] })
@@ -71,7 +71,7 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: 'Sys
         }).fail((d) => {
             setExtDBStatus([{ Status: 'Error', Name: 'External Database Connections', Details: [{ Status: "Error", Description: "Errors occured in retrieving External DB Connection status" }] }])
         })
-    
+
 
         return function cleanup() {
             if (h.abort != null)
@@ -159,7 +159,7 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: 'Sys
             d.Name = 'SCADA'
             setSCADAStatus(d)
         }).fail(() => {
-            setSCADAStatus({ Status: 'Error', Name: 'SCADA Resource', Details: [{Status: "Error", Description: "Errors occured in retrieving SCADA Resource"}] })
+            setSCADAStatus({ Status: 'Error', Name: 'SCADA Resource', Details: [{ Status: "Error", Description: "Errors occured in retrieving SCADA Resource" }] })
         })
 
         return function cleanup() {
@@ -174,11 +174,11 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: 'Sys
                 <div className="col-6">
                     <StatusGroup
                         StatusItems={extDBStatus}
-                                Status={status}
-                                HoveredItem={hoveredItem}
-                                SetHoveredItem={setHoveredItem}
+                        Status={status}
+                        HoveredItem={hoveredItem}
+                        SetHoveredItem={setHoveredItem}
                         Name="External Database Connections"
-                            />
+                    />
                 </div>
                 <div className="col-6">
                     <StatusGroup
@@ -191,17 +191,17 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: 'Sys
                 </div>
             </div >
             : props.ApplicationType === "XDA" ?
-                <div>
-                    <div className="row">
+                <div className="row">
+                    <div className="col-6">
                         <StatusGroup
                             StatusItems={remoteXDAStatus}
-                        Status={status}
-                        HoveredItem={hoveredItem}
-                        SetHoveredItem={setHoveredItem}
+                            Status={status}
+                            HoveredItem={hoveredItem}
+                            SetHoveredItem={setHoveredItem}
                             Name="Remote XDA Connections"
-                    />
+                        />
                     </div>
-                    <div className="row">
+                    <div className="col-6">
                         <StatusGroup
                             StatusItems={[SCADAStatus]}
                             Status={status}
