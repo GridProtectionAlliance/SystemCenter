@@ -25,7 +25,7 @@
 
 import * as React from 'react';
 import { Modal, TabSelector } from '@gpa-gemstone/react-interactive';
-import NodeHealth from './NodeHealth';
+import NodeConnections from './NodeConnections';
 
 type tabs = 'Connections' | 'Health' | 'Console'
 
@@ -50,7 +50,7 @@ const NodeDetails = (props: IProps) => {
             Title={'Details - ' + props.ApplicationName}
         >
             <div className="col-12">
-                <NodeHealth
+                <NodeConnections
                     ApplicationName={props.ApplicationName}
                     ApplicationType={props.ApplicationType}
                     Properties={props.Properties}

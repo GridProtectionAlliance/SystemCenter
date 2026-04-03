@@ -19,6 +19,9 @@
 //  02/26/2026 - Natalie Beatty
 //       Generated original version of source code.
 //
+//  04/03/2026 - Natalie Beatty
+//       Renamed to NodeConnections.tsx
+//
 //******************************************************************************************************
 
 import * as React from 'react'
@@ -26,7 +29,7 @@ import { Application, SystemCenter, OpenXDA } from '@gpa-gemstone/application-ty
 import { SystemCenter as SC } from '../global'
 import StatusGroup from './StatusGroup'
 
-const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCenter' | 'MiMD' | 'XDA', Properties: { Name: string, Value: string }[] }) => {
+const NodeConnections = (props: { ApplicationName: string, ApplicationType: 'SystemCenter' | 'MiMD' | 'XDA', Properties: { Name: string, Value: string }[] }) => {
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [extDBStatus, setExtDBStatus] = React.useState<SC.StatusItem[]>([{Name: "Loading...", Status: "Loading", Details: [] }]);
     const [remoteXDAStatus, setRemoteXDAStatus] = React.useState<SC.StatusItem[]>([{ Name: "Loading...", Status: "Loading", Details: [] }]);
@@ -212,4 +215,4 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
     )
 }
 
-export default NodeHealth;
+export default NodeConnections;
