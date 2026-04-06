@@ -1,5 +1,5 @@
 //******************************************************************************************************
-//  OpenXDAHealth.tsx - Gbtc
+//  NodeHealth.tsx - Gbtc
 //
 //  Copyright © 2026, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -19,7 +19,7 @@
 //  10/14/2024 - G. Santos
 //       Generated original version of source code.
 //  04/02/2026 - N. Beatty
-//       Moved from NodeStats.tsx to OpenXDAHealth.tsx
+//       Moved from NodeStats.tsx to NodeHealth.tsx
 //
 //******************************************************************************************************
 
@@ -44,7 +44,7 @@ export interface IProps {
     Properties: { Name: string, Value: string }[]
 }
 
-const OpenXDAHealth = (props: IProps) => {
+const NodeHealth = (props: IProps) => {
 
     const [statInfo, setStatInfo] = React.useState<string>('');
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
@@ -109,4 +109,4 @@ const OpenXDAHealth = (props: IProps) => {
     )
 }
 
-export default OpenXDAHealth;
+export default NodeHealth;
