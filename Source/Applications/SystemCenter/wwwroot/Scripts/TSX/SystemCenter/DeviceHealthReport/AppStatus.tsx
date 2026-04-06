@@ -31,17 +31,17 @@ import { ErrorBoundary } from '@gpa-gemstone/common-pages'
 
 interface IOpenMICStatus {
     Details: {
-        Status: 'Success' | 'Error' 
+        Status: 'Success' | 'Error'
         Description: string
     }[],
     Status: 'Success' | 'Error' | 'N/A'
 }
 
-const AppStatus = (props: { Name: string, Endpoint: string }) => {
+const AppStatus = (props: { Name: string, Endpoint: string, IsCondensed: boolean }) => {
 
     const [isHovered, setIsHovered] = React.useState<boolean>(false);
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
-    const [appStatusData, setAppStatusData] = React.useState<IOpenMICStatus>({Status: 'N/A', Details: []});
+    const [appStatusData, setAppStatusData] = React.useState<IOpenMICStatus>({ Status: 'N/A', Details: [] });
 
     React.useEffect(() => {
         let handle = getAppStatus();
@@ -79,21 +79,23 @@ const AppStatus = (props: { Name: string, Endpoint: string }) => {
             >
                 {status === 'idle' ? props.Name : null}
                 <ServerErrorIcon Show={status == 'error'} />
-                <LoadingIcon Show={status == 'loading' } />
+                <LoadingIcon Show={status == 'loading'} />
             </div>
             <ToolTip
                 Show={isHovered && status === 'idle' && appStatusData.Status !== 'N/A' && (appStatusData.Details?.length ?? 0) > 0}
                 Position={'bottom'}
                 Target={`statusbutton${props.Name}`}
             >
-                {appStatusData?.Details == null ? <></> :
-                   appStatusData.Details.map((data, index) => (
-                       <div key={index}
-                           className={'d-flex'}
-                       >
-                            {GetStatusSymbol(data.Status)}
-                            <p> {data.Description} </p>
-                        </div>
+                {appStatusData?.Details == null ? null
+                    : appStatusData.Details.map((data, index) => (
+                        appStatusData.Details.some(d => d.Status === 'Error') && data.Status === 'Success' && props.IsCondensed ? null // if there is an error, and this detail is a success, skip it.
+                            : !appStatusData.Details.some(d => d.Status === 'Error') && index !== appStatusData.Details.length - 1 && props.IsCondensed ? null // if there are no errors, and this detail is not the last, skip it.
+                                : <div key={index}
+                                    className={'d-flex'}
+                                >
+                                    {GetStatusSymbol(data.Status)}
+                                    <p> {data.Description} </p>
+                                </div>
                     ))
 
                 }
