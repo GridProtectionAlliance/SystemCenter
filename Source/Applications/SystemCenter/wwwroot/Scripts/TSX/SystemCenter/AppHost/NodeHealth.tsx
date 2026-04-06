@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  NodeHealth.tsx - Gbtc
 //
-//  Copyright © 2026, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright ï¿½ 2026, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -27,6 +27,8 @@
 import * as React from 'react';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
+import { SystemCenter as SC } from '../global'
+import StatusDetails from './StatusDetails'
 
 const statStyle: React.CSSProperties = {
     fontSize: "1em",
@@ -39,7 +41,7 @@ const statStyle: React.CSSProperties = {
 export interface IProps {
     StatsURL: string,
     ApplicationName: string,
-    ApplicationType: 'SystemCenter' | 'XDA' | 'MiMD',
+    ApplicationType: 'SystemCenter' | 'XDA' | 'MiMD' | 'openMIC',
     Close: () => void
     Properties: { Name: string, Value: string }[]
 }
@@ -48,10 +50,14 @@ const NodeHealth = (props: IProps) => {
 
     const [statInfo, setStatInfo] = React.useState<string>('');
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
-    const [autoScroll, setAutoScroll] = React.useState<boolean>(true);
-    const [lastUpdate, setLastUpdate] = React.useState<string | null>('');
+    const [openMICStatus, setOpenMICStatus] = React.useState<SC.StatusItem>({ Name: 'openMIC', Status: 'Loading', Details: [] });
 
     React.useEffect(() => {
+        if (props.ApplicationType === 'openMIC') {
+            GetOpenMICHealth()
+            return
+        }
+
         if (props.StatsURL == null || props.StatsURL.length == 0) return;
 
         setStatus('loading');
@@ -81,31 +87,59 @@ const NodeHealth = (props: IProps) => {
         };
     }, [props.ApplicationName]);
 
-    return (
-            <fieldset className="border col-6" style={{ padding: '10px', height: '100%' }}>
-                <legend className="w-auto" style={{ fontSize: 'large' }}>XDA Stats:</legend>
-                {
-                    status === "error" ?
+    const GetOpenMICHealth = () => {
+        const h = $.ajax({
+            type: "GET",
+            url: `${homePath}api/DeviceHealthReport/OpenMICStatus`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true
+        });
 
-                        <div className={`col-12 d-flex alert-danger`}>
-                            <span className={"my-3"}>
-                                <ReactIcons.CircledX Color="var(--danger)" />
-                            </span>
-                            <h5
-                                className={"m-3"}
-                            >
-                                Failed to get openXDA stats.
-                            </h5>
-                        </div> :
-                        status === "loading" ?
-                            <ReactIcons.SpiningIcon /> :
-                            <div className="w-100 h-100">
-                                <pre style={statStyle}>
-                                    {statInfo}
-                                </pre>
-                            </div>
-                }
-            </fieldset>
+        h.done((d: SC.StatusItem) => {
+            setOpenMICStatus(d)
+        }).fail(() => {
+            setOpenMICStatus({ Status: 'Error', Name: 'openMIC', Details: [{ Status: "Error", Description: "Errors occured in retrieving openMIC health." }] })
+        })
+
+        return function cleanup() {
+            if (h.abort != null)
+                h.abort();
+        }
+    }
+
+    return (
+        <fieldset className="border col-6" style={{ padding: '10px', height: '100%' }}>
+            <legend className="w-auto" style={{ fontSize: 'large' }}>{props.ApplicationType} Health:</legend>
+
+            {status === "error" ?
+
+                <div className={`col-12 d-flex alert-danger`}>
+                    <span className={"my-3"}>
+                        <ReactIcons.CircledX Color="var(--danger)" />
+                    </span>
+                    <h5
+                        className={"m-3"}
+                    >
+                        Failed to get {props.ApplicationType} health.
+                    </h5>
+                </div> :
+                status === "loading" ?
+                    <ReactIcons.SpiningIcon /> :
+                    props.ApplicationType === 'XDA' ?
+                        <div className="w-100 h-100">
+                            <pre style={statStyle}>
+                                {statInfo}
+                            </pre>
+                        </div>
+                        : props.ApplicationType === 'openMIC'
+                            ? <StatusDetails
+                                StatusItem={openMICStatus}
+                            /> :
+                            null}
+
+        </fieldset>
     )
 }
 
