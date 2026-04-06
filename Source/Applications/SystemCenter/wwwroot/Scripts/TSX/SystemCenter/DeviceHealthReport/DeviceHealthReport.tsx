@@ -192,10 +192,12 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                                 <AppStatus
                                     Name="openMIC"
                                     Endpoint="OpenMICStatus"
+                                    IsCondensed={true}
                                 />
                                 <AppStatus
                                     Name="Scada Trigger"
                                     Endpoint="ScadaTriggerStatus"
+                                    IsCondensed={false}
                                 />
 
                             </div>
