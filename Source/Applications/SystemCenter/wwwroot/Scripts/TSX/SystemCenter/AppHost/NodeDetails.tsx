@@ -26,7 +26,7 @@
 import * as React from 'react';
 import { Modal, TabSelector } from '@gpa-gemstone/react-interactive';
 import NodeConnections from './NodeConnections';
-import OpenXDAHealth from './OpenXDAHealth';
+import NodeHealth from './NodeHealth';
 import ConsoleWindow from './ConsoleWindow'
 import { IHost } from './ApplicationCard';
 
@@ -83,7 +83,7 @@ const NodeDetails = (props: IProps) => {
                                 />
                             </div>
                             : tab === "health" ? <div className="tab-pane active" style={{ height: 'inherit' }} >
-                                <OpenXDAHealth
+                                <NodeHealth
                                     StatsURL={props.StatsURL}
                                     ApplicationName={props.ApplicationName}
                                     ApplicationType={props.ApplicationType}
