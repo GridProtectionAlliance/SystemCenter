@@ -32,47 +32,46 @@ import { IHost } from './ApplicationCard';
 
 type tab = 'connections' | 'health' | 'console'
 
+interface ITab { Label: string, Id: string }
 export interface IMessage { Message: string, Type: number }
 
 export interface IProps {
     StatsURL: string,
     ConsoleURL: string,
     ApplicationName: string,
-    ApplicationType: 'SystemCenter' | 'XDA' | 'MiMD',
+    ApplicationType: 'SystemCenter' | 'XDA' | 'MiMD' | 'openMIC',
     Properties: { Name: string, Value: string }[],
     SetDetails: React.Dispatch<React.SetStateAction<IHost | null>>
     SetConsole: React.Dispatch<React.SetStateAction<IHost | null>>
 }
 
+const ApplicationTabs = {
+    '': '',
+    'SystemCenter': 'Connections,Console',
+    'XDA': 'Connections,Health,Console',
+    'MiMD': 'Console',
+    'openMIC': 'Health'
+}
 
 const NodeDetails = (props: IProps) => {
 
     const [tab, setTab] = React.useState<tab>('connections');
+    const availableTabs = ApplicationTabs[props.ApplicationType ?? ''].split(',').map((t) => { return t.toLowerCase() })
+    if (!availableTabs.includes(tab) && availableTabs.length != 0)
+        setTab(availableTabs[0] as tab)
+
     return (
         <Modal
             Show={props.ApplicationName !== '' ? true : false}
             ShowCancel={false} ShowConfirm={false} ShowX={true} Size={'xlg'}
-            CallBack={() => { props.SetDetails(null); /**setStatus('uninitiated'); setStatInfo('')*/ }}
+            CallBack={() => { props.SetDetails(null); setTab('connections') }}
             Title={'Details - ' + props.ApplicationName}
         >
             <div className="row">
-                <TabSelector CurrentTab={tab} SetTab={(t: tab) => setTab(t)} Tabs={
-                    props.ApplicationType === 'SystemCenter' ?
-                        [
-                            { Label: 'Connections', Id: 'connections' },
-                            { Label: 'Console', Id: 'console' }
-                        ]
-                        : props.ApplicationType === 'XDA' ?
-                            [
-                                { Label: 'Connections', Id: 'connections' },
-                                { Label: 'Health', Id: 'health' },
-                                { Label: 'Console', Id: 'console' }
-                            ]
-                            : [{ Label: 'Console', Id: 'console' }]
-                } />
+                <TabSelector CurrentTab={tab} SetTab={(t: tab) => setTab(t)} Tabs={ApplicationTabs[props.ApplicationType ?? ''].split(',').map<ITab>((t) => { return { Label: t, Id: t.toLowerCase() } })} />
             </div>
             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                <div className="col-12" style={{ padding: 0, height: '100%' }}>
+                <div className="col-12" style={{ height: '100%' }}>
                     <div className="tab-content" style={{ height: '100%' }}>
                         {tab === "connections" ?
                             <div className="tab-pane active" style={{ height: 'inherit' }}>
