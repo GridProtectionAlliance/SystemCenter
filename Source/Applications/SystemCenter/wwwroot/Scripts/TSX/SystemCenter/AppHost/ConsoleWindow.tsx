@@ -204,7 +204,7 @@ const ConsoleWindow = (props: IProps) => {
                 </div>
             </div>
             <div className="row">
-                <div className="col">
+                <div className="col-10">
                     <div className="input-group">
                         <input type="text" className="form-control"
                             placeholder="Server command..."
@@ -213,8 +213,8 @@ const ConsoleWindow = (props: IProps) => {
                         />
                     </div>
                 </div>
-                <div className="col">
-                    <button className="btn btn-primary" onClick={() => { sendCmd(cmd); setCMD('') } }> Send </button>
+                <div className="col-2">
+                    <button className="btn btn-primary" onClick={() => { sendCmd(cmd); setCMD('') }}> Send </button>
                 </div>
             </div>
         </div>
