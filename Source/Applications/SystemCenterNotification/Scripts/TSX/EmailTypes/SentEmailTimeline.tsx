@@ -131,7 +131,8 @@ const SentEmailTimeline = (props: IProps) => {
                                 showDateOnTimeAxis={true}
                                 hideYAxis={true}
                                 xZoom={false}
-                                
+                                Tmin={Math.min(...timeline.map((i) => moment(i.Start).valueOf())) - 3600000}
+                                Tmax={Math.max(...timeline?.map((i) => moment(i.End ?? i.Start).valueOf())) + 3600000}
                             >
                                 {timeline.map((item, i) => {
                                     return (
