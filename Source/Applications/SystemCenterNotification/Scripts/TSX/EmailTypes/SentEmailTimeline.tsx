@@ -148,6 +148,7 @@ const SentEmailTimeline = (props: IProps) => {
                                 Tmin={Math.min(...timeline.map((i) => moment(i.Start).valueOf())) - 3600000}
                                 Tmax={Math.max(...timeline?.map((i) => moment(i.End ?? i.Start).valueOf())) + 3600000}
                                 onSelect={handlePlotOnSelect}
+                                onTDomainChange={(t) => setTimeframe(t) }
                             >
                                 {timeline.map((item, i) => {
                                     return (
