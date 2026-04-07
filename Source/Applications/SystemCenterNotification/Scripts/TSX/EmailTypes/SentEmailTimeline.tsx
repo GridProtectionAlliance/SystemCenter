@@ -109,6 +109,21 @@ const SentEmailTimeline = (props: IProps) => {
        setTimeframe(SetWithThresholds(timelineItem))
     }
 
+    const handlePlotOnSelect = (x) => {
+        const foundDuration = timeline.find(item => moment(item.Start).valueOf() <= x && x <= (moment(item.End ?? item.Start).valueOf()))
+        if (foundDuration != null) {
+            setSelectedID(foundDuration.ID);
+            return
+        }
+        const buffer = (timeframe[1] - timeframe[0]) / 1000
+        const foundTimestamp = timeline.find(item => moment(item.Start).valueOf() - buffer <= x && x <= moment(item.Start).valueOf() + buffer)
+        if (foundTimestamp) {
+            setSelectedID(foundTimestamp.ID);
+            return
+        }
+        setSelectedID(null)
+    }
+
     return (
         <>
             {state !== 'idle' ? <></> :
@@ -132,6 +147,7 @@ const SentEmailTimeline = (props: IProps) => {
                                 hideYAxis={true}
                                 Tmin={Math.min(...timeline.map((i) => moment(i.Start).valueOf())) - 3600000}
                                 Tmax={Math.max(...timeline?.map((i) => moment(i.End ?? i.Start).valueOf())) + 3600000}
+                                onSelect={handlePlotOnSelect}
                             >
                                 {timeline.map((item, i) => {
                                     return (
