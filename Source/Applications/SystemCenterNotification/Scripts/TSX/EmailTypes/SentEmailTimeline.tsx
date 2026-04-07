@@ -109,6 +109,11 @@ const SentEmailTimeline = (props: IProps) => {
        setTimeframe(SetWithThresholds(timelineItem))
     }
 
+    const handlePlotOnSelect = (x) => {
+        const foundDuration = timeline.find(item => moment(item.Start).valueOf() <= x && x <= (moment(item.End ?? item.Start).valueOf())).ID
+        if (foundDuration) setSelectedID(foundDuration)
+    }
+
     return (
         <>
             {state !== 'idle' ? <></> :
@@ -130,6 +135,7 @@ const SentEmailTimeline = (props: IProps) => {
                                 yDomain={'AutoValue'}
                                 showDateOnTimeAxis={true}
                                 hideYAxis={true}
+                                onSelect={handlePlotOnSelect}
                                 Tmin={Math.min(...timeline.map((i) => moment(i.Start).valueOf())) - 3600000}
                                 Tmax={Math.max(...timeline?.map((i) => moment(i.End ?? i.Start).valueOf())) + 3600000}
                             >
