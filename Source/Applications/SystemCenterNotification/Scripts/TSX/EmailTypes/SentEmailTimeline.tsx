@@ -25,7 +25,7 @@ import * as React from 'react'
 import * as $ from 'jquery'
 import { Application } from '@gpa-gemstone/application-typings'
 import { Table, Column } from '@gpa-gemstone/react-table'
-import moment from 'moment';\
+import moment from 'moment';
 import { Pill, Plot, VerticalMarker } from '@gpa-gemstone/react-graph'
 
 interface TimelineItem {
@@ -131,7 +131,8 @@ const SentEmailTimeline = (props: IProps) => {
                                 showDateOnTimeAxis={true}
                                 hideYAxis={true}
                                 xZoom={false}
-                                
+                                Tmin={Math.min(...timeline.map((i) => moment(i.Start).valueOf())) - 3600000}
+                                Tmax={Math.max(...timeline?.map((i) => moment(i.End ?? i.Start).valueOf())) + 3600000}
                             >
                                 {timeline.map((item, i) => {
                                     return (
