@@ -110,7 +110,7 @@ const NodeHealth = (props: IProps) => {
     }
 
     return (
-        <fieldset className="border col-6" style={{ padding: '10px', height: '100%' }}>
+        <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
             <legend className="w-auto" style={{ fontSize: 'large' }}>{props.ApplicationType} Health:</legend>
 
             {status === "error" ?
