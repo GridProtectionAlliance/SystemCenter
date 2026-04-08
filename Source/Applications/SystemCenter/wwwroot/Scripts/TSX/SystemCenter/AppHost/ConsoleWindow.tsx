@@ -177,33 +177,36 @@ const ConsoleWindow = (props: IProps) => {
     }, [props.ConsoleURL]);
 
     return (
-        <div className="well" style={{ height: innerHeight - 400, display: 'flex', flexDirection: 'column' }}>
-            <div className="row">
-                <div className="col-6">
-                    <label className="small pull-left" >
-                        {lastUpdate !== null ? <small><em>Last update {lastUpdate}</em></small> :
-                            <small><em>Updating...</em></small>}
-                    </label>
+        <>
+            <div className="well" style={{ height: innerHeight - 400, display: 'flex', flexDirection: 'column' }}>
+                <div className="row">
+                    <div className="col-6">
+                        <label className="small pull-left" >
+                            {lastUpdate !== null ? <small><em>Last update {lastUpdate}</em></small> :
+                                <small><em>Updating...</em></small>}
+                        </label>
+                    </div>
+                    <div className="col-6">
+                        <label className="small pull-right" style={{ display: autoScroll ? 'none' : undefined }} >
+                            <small><em>Scrolling paused during mouse interaction...</em></small>
+                        </label>
+                    </div>
                 </div>
-                <div className="col-6">
-                    <label className="small pull-right" style={{ display: autoScroll ? 'none' : undefined }} >
-                        <small><em>Scrolling paused during mouse interaction...</em></small>
-                    </label>
+                <div className="row" style={{ flex: 1, overflow: "auto" }}>
+                    <div className="col">
+                        <pre className="small" style={remoteConsoleStyle} ref={consoleDiv}
+                            onMouseEnter={() => setAutoScroll(false)}
+                            onMouseLeave={() => setAutoScroll(true)}
+                        >
+                            {messages.map((m) => <span style={{ color: getColor(m.Type) }} >
+                                {m.Message}
+                            </span>)}
+                        </pre>
+                    </div>
                 </div>
             </div>
-            <div className="row" style={{ flex: 1, overflow: "auto" }}>
-                <div className="col">
-                    <pre className="small" style={remoteConsoleStyle} ref={consoleDiv}
-                        onMouseEnter={() => setAutoScroll(false)}
-                        onMouseLeave={() => setAutoScroll(true)}
-                    >
-                        {messages.map((m) => <span style={{ color: getColor(m.Type) }} >
-                            {m.Message}
-                        </span>)}
-                    </pre>
-                </div>
-            </div>
-            <div className="row">
+
+            <div className="row my-2">
                 <div className="col-10">
                     <div className="input-group">
                         <input type="text" className="form-control"
@@ -217,7 +220,7 @@ const ConsoleWindow = (props: IProps) => {
                     <button className="btn btn-primary" onClick={() => { sendCmd(cmd); setCMD('') }}> Send </button>
                 </div>
             </div>
-        </div>
+        </>
     )
 }
 
