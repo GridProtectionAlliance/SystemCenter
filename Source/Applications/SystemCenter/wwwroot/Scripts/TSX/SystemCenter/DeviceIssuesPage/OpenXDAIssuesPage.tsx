@@ -40,7 +40,7 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
     const [ascending, setAscending] = React.useState<boolean>(false);
 
     const order = React.useCallback((data: SC.OpenXDADailyStatistic[]) => {
-        const sortedData = _.sortBy(data, [(e) => { sortField == 'Date' ? moment(e['Date']) : e[sortField] }])
+        const sortedData = _.sortBy(data, [(e) => { return sortField == 'Date' ? moment(e['Date']) : e[sortField] }])
         if (ascending) return sortedData
         return sortedData.reverse()
     }, [sortField, ascending]);
