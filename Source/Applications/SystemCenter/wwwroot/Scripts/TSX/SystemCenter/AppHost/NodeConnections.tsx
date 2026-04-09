@@ -159,7 +159,7 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: 'Sys
             d.Name = 'SCADA'
             setSCADAStatus(d)
         }).fail(() => {
-            setSCADAStatus({ Status: 'Error', Name: 'SCADA Resource', Details: [{ Status: "Error", Description: "Errors occured in retrieving SCADA Resource" }] })
+            setSCADAStatus({ Status: 'Error', Name: 'SCADA Resource', Details: [{ Status: "Error", Description: "Errors occurred in retrieving SCADA Resource connection status." }] })
         })
 
         return function cleanup() {
