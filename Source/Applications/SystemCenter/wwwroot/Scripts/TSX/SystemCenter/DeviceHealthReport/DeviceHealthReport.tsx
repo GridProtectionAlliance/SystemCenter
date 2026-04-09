@@ -195,7 +195,7 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                                     IsCondensed={true}
                                 />
                                 <AppStatus
-                                    Name="Scada Trigger"
+                                    Name="SCADA Trigger"
                                     Endpoint="ScadaTriggerStatus"
                                     IsCondensed={false}
                                 />
