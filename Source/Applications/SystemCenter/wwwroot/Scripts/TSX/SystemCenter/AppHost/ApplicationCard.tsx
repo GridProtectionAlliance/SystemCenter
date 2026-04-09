@@ -23,6 +23,7 @@
 
 import * as React from 'react';
 import { useAppDispatch } from '../hooks';
+import { SystemCenter as SC } from '../global'
 
 export interface IHostProperties { Name: string, Value: string }
 
@@ -33,7 +34,7 @@ export interface IHost {
     StatsURL?: string,
     ConsoleURL: string,
     Name: string,
-    App: 'XDA' | 'MiMD' | 'SystemCenter',
+    App: SC.ApplicationType,
     OpenConsole: () => void,
     OpenDetails: () => void
 }

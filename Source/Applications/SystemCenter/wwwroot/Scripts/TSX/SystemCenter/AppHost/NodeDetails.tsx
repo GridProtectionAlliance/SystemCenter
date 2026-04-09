@@ -29,6 +29,7 @@ import NodeConnections from './NodeConnections';
 import NodeHealth from './NodeHealth';
 import ConsoleWindow from './ConsoleWindow'
 import { IHost } from './ApplicationCard';
+import { SystemCenter as SC } from '../global'
 
 type tab = 'connections' | 'health' | 'console'
 
@@ -39,7 +40,7 @@ export interface IProps {
     StatsURL: string,
     ConsoleURL: string,
     ApplicationName: string,
-    ApplicationType?: 'SystemCenter' | 'XDA' | 'MiMD' | 'openMIC',
+    ApplicationType: SC.ApplicationType,
     Properties: { Name: string, Value: string }[],
     SetDetails: React.Dispatch<React.SetStateAction<IHost | null>>
     SetConsole: React.Dispatch<React.SetStateAction<IHost | null>>
