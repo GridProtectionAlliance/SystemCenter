@@ -100,7 +100,7 @@ const NodeHealth = (props: IProps) => {
         h.done((d: SC.StatusItem) => {
             setOpenMICStatus(d)
         }).fail(() => {
-            setOpenMICStatus({ Status: 'Error', Name: 'openMIC', Details: [{ Status: "Error", Description: "Errors occured in retrieving openMIC health." }] })
+            setOpenMICStatus({ Status: 'Error', Name: 'openMIC', Details: [{ Status: "Error", Description: "Errors occurred in retrieving openMIC health." }] })
         })
 
         return function cleanup() {
