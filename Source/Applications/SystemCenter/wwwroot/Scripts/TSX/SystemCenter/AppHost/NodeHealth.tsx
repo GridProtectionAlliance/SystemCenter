@@ -54,8 +54,9 @@ const NodeHealth = (props: IProps) => {
 
     React.useEffect(() => {
         if (props.ApplicationType === 'openMIC') {
-            GetOpenMICHealth()
-            return
+            setStatus('loading')
+            const cleanup = GetOpenMICHealth()
+            return cleanup
         }
 
         if (props.StatsURL == null || props.StatsURL.length == 0) return;
