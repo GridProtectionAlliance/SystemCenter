@@ -57,9 +57,16 @@ const ApplicationTabs = {
 const NodeDetails = (props: IProps) => {
 
     const [tab, setTab] = React.useState<tab>('connections');
-    const availableTabs = ApplicationTabs[props.ApplicationType ?? ''].split(',').map((t) => { return t.toLowerCase() })
-    if (!availableTabs.includes(tab) && availableTabs.length != 0)
+    const [availableTabs, setAvailableTabs] = React.useState<string[]>([])
+
+    React.useEffect(() => {
+        if (props.ApplicationType === '') {
+            setAvailableTabs([])
+            return
+        }
+        setAvailableTabs(ApplicationTabs[props.ApplicationType ?? ''].split(',').map((t) => { return t.toLowerCase() }))
         setTab(availableTabs[0] as tab)
+    }, [props.ApplicationType])
 
     return (
         <Modal
