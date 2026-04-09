@@ -42,6 +42,7 @@ const AppStatus = (props: { Name: string, Endpoint: string, IsCondensed: boolean
     const [isHovered, setIsHovered] = React.useState<boolean>(false);
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [appStatusData, setAppStatusData] = React.useState<IOpenMICStatus>({ Status: 'N/A', Details: [] });
+    const [hasError, setHasError] = React.useState<boolean>(false);
 
     React.useEffect(() => {
         let handle = getAppStatus();
@@ -49,6 +50,7 @@ const AppStatus = (props: { Name: string, Endpoint: string, IsCondensed: boolean
         handle.done((dt) => {
             setStatus('idle')
             setAppStatusData(dt)
+            setHasError(dt.Details.some(d => d.Status === 'Error'))
         }).fail((d) => setStatus('error'));
 
         return function cleanup() {
@@ -88,8 +90,8 @@ const AppStatus = (props: { Name: string, Endpoint: string, IsCondensed: boolean
             >
                 {appStatusData?.Details == null ? null
                     : appStatusData.Details.map((data, index) => (
-                        appStatusData.Details.some(d => d.Status === 'Error') && data.Status === 'Success' && props.IsCondensed ? null // if there is an error, and this detail is a success, skip it.
-                            : !appStatusData.Details.some(d => d.Status === 'Error') && index !== appStatusData.Details.length - 1 && props.IsCondensed ? null // if there are no errors, and this detail is not the last, skip it.
+                        hasError && data.Status === 'Success' && props.IsCondensed ? null // if there is an error, and this detail is a success, skip it.
+                            : !hasError && index !== appStatusData.Details.length - 1 && props.IsCondensed ? null // if there are no errors, and this detail is not the last, skip it.
                                 : <div key={index}
                                     className={'d-flex'}
                                 >
