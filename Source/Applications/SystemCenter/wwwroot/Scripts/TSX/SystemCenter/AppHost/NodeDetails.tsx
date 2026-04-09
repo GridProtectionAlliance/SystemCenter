@@ -39,7 +39,7 @@ export interface IProps {
     StatsURL: string,
     ConsoleURL: string,
     ApplicationName: string,
-    ApplicationType: 'SystemCenter' | 'XDA' | 'MiMD' | 'openMIC',
+    ApplicationType?: 'SystemCenter' | 'XDA' | 'MiMD' | 'openMIC',
     Properties: { Name: string, Value: string }[],
     SetDetails: React.Dispatch<React.SetStateAction<IHost | null>>
     SetConsole: React.Dispatch<React.SetStateAction<IHost | null>>
