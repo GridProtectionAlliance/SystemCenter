@@ -1,5 +1,5 @@
 //******************************************************************************************************
-//  NodeHealth.tsx - Gbtc
+//  NodeConnections.tsx - Gbtc
 //
 //  Copyright © 2026, Grid Protection Alliance.  All Rights Reserved.
 //
