@@ -41,7 +41,7 @@ const statStyle: React.CSSProperties = {
 export interface IProps {
     StatsURL: string,
     ApplicationName: string,
-    ApplicationType: 'SystemCenter' | 'XDA' | 'MiMD' | 'openMIC',
+    ApplicationType: SC.ApplicationType,
     Close: () => void
     Properties: { Name: string, Value: string }[]
 }
