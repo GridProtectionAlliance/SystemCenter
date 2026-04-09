@@ -75,12 +75,12 @@ const AppHost: Application.Types.iByComponent = (props) => {
             </div>
             <NodeDetails
                 ApplicationName={details?.Name ?? ''}
-                StatsURL={details?.StatsURL}
+                StatsURL={details?.StatsURL ?? ''}
                 ApplicationType={details?.App ?? null}
-                Properties={details?.Properties}
+                Properties={details?.Properties ?? []}
                 SetDetails={setDetails}
                 SetConsole={setConsole}
-                ConsoleURL={console?.ConsoleURL}
+                ConsoleURL={console?.ConsoleURL ?? ''}
             />
         </div>)
 }
