@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  NodeHealth.tsx - Gbtc
 //
-//  Copyright © 2026, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright Â© 2026, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -198,7 +198,7 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: 'Sys
                             Status={status}
                             HoveredItem={hoveredItem}
                             SetHoveredItem={setHoveredItem}
-                            Name="Remote XDA Connections"
+                            Name="Remote openXDA Connections"
                         />
                     </div>
                     <div className="col-6">
