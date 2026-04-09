@@ -54,7 +54,7 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
         return () => {
             if (handle.abort != undefined) handle.abort();
         }
-    }, [props.Meter.AssetKey, ascending, sortField]);
+    }, [props.Meter.AssetKey]);
 
     React.useEffect(() => {
         if (data.length === 0) return;

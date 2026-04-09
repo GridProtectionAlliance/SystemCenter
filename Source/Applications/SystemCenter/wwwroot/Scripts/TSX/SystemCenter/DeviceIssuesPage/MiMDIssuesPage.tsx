@@ -60,7 +60,7 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
         return () => {
             if (handle != null || handle.abort != null) handle.abort();
         }
-    }, [props.Meter.AssetKey, sortField, ascending]);
+    }, [props.Meter.AssetKey]);
 
     React.useEffect(() => {
         if (data.length === 0) return;
