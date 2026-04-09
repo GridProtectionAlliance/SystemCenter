@@ -109,7 +109,7 @@ const SentEmailTimeline = (props: IProps) => {
        setTimeframe(SetWithThresholds(timelineItem))
     }
 
-    const handlePlotOnSelect = (x) => {
+    const handlePlotOnSelect = React.useCallback((x) => {
         const foundDuration = timeline.find(item => moment(item.Start).valueOf() <= x && x <= (moment(item.End ?? item.Start).valueOf()))
         if (foundDuration != null) {
             setSelectedID(foundDuration.ID);
@@ -122,7 +122,7 @@ const SentEmailTimeline = (props: IProps) => {
             return
         }
         setSelectedID(null)
-    }
+    },[timeline, timeframe])
 
     return (
         <>
