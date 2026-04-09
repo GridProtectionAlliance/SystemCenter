@@ -65,6 +65,8 @@ export namespace SystemCenter {
         Content?: (item: IColDatum<T>) => React.ReactNode;
     }
 
+    type ApplicationType = 'XDA' | 'MiMD' | 'SystemCenter' | 'openMIC' | ''
+
     // Todo: There is a pr for this in gemstone, when its merged and published, remove this and ues gemstone version
     interface SEBrowserSetting extends GemstoneSC.Types.Setting { ApplicationInstance: boolean, Scope: string, Roles: string }
 

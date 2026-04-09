@@ -29,7 +29,7 @@ import { Application, SystemCenter, OpenXDA } from '@gpa-gemstone/application-ty
 import { SystemCenter as SC } from '../global'
 import StatusGroup from './StatusGroup'
 
-const NodeConnections = (props: { ApplicationName: string, ApplicationType: 'SystemCenter' | 'MiMD' | 'XDA' | 'openMIC', Properties: { Name: string, Value: string }[] }) => {
+const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.ApplicationType, Properties: { Name: string, Value: string }[] }) => {
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [extDBStatus, setExtDBStatus] = React.useState<SC.StatusItem[]>([{ Name: "Loading...", Status: "Loading", Details: [] }]);
     const [remoteXDAStatus, setRemoteXDAStatus] = React.useState<SC.StatusItem[]>([{ Name: "Loading...", Status: "Loading", Details: [] }]);
