@@ -92,7 +92,7 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: 'Sys
         h.done((statuses: SC.StatusItem[]) => {
             setRemoteXDAStatus(statuses)
         }).fail(() => {
-            setRemoteXDAStatus([{ Status: 'Error', Name: 'Remote XDA Connection', Details: [{ Status: "Error", Description: "Errors occured in retrieving Remote XDA Connection status" }] }])
+            setRemoteXDAStatus([{ Status: 'Error', Name: 'Remote XDA Connection', Details: [{ Status: "Error", Description: "Errors occurred in retrieving Remote openXDA Connection status." }] }])
         })
         return function cleanup() {
             if (h.abort != null)
