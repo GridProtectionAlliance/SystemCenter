@@ -69,7 +69,7 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: 'Sys
         h.done((statuses: SC.StatusItem[]) => {
             setExtDBStatus(statuses)
         }).fail((d) => {
-            setExtDBStatus([{ Status: 'Error', Name: 'External Database Connections', Details: [{ Status: "Error", Description: "Errors occured in retrieving External DB Connection status" }] }])
+            setExtDBStatus([{ Status: 'Error', Name: 'External Database Connections', Details: [{ Status: "Error", Description: "Errors occurred in retrieving External DB Connection status." }] }])
         })
 
 
