@@ -114,7 +114,7 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: 'Sys
             d.Name = 'FAWG'
             setFawgStatus(d)
         }).fail(() => {
-            setFawgStatus({ Status: 'Error', Name: 'FAWG', Details: [{ Status: "Error", Description: "Errors occured in retrieving FAWG status" }] })
+            setFawgStatus({ Status: 'Error', Name: 'FAWG', Details: [{ Status: "Error", Description: "Errors occurred in retrieving FAWG connection status." }] })
         })
 
         return function cleanup() {
