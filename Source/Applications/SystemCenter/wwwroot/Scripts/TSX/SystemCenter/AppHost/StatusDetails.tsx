@@ -33,9 +33,9 @@ const StatusDetails = (props: IProps) => {
     return (
         <div>
             {props.StatusItem.Details.length == 0 ? <ReactIcons.SpiningIcon />
-                : props.StatusItem.Details.map((d) => {
+                : props.StatusItem.Details.map((d, i) => {
                     return (
-                        <div className={'row mb-2 mx-2'}>
+                        <div className={'row mb-2 mx-2'} key={i}> 
                             <div className={`col-12 d-flex align-items-center alert-${GetStatusItemAlertClass(d.Status)}`}>
                                 <span className={"my-3"}>{GetStatusSymbol(d.Status)}</span>
                                 <h5 className={"m-3"} >
