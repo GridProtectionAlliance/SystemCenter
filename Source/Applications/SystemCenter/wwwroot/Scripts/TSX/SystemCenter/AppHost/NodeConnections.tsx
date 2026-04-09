@@ -137,7 +137,7 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: 'Sys
             d.Name = 'PQI'
             setPQIStatus(d)
         }).fail(() => {
-            setPQIStatus({ Status: 'Error', Name: 'PQI', Details: [{ Status: "Error", Description: "Errors occured in retrieving PQI status" }] })
+            setPQIStatus({ Status: 'Error', Name: 'PQI', Details: [{ Status: "Error", Description: "Errors occurred in retrieving PQI connection status." }] })
         })
 
         return function cleanup() {
