@@ -119,7 +119,7 @@ const SentEmailTimeline = (props: IProps) => {
             setSelectedID(foundDuration.ID);
             return
         }
-        const buffer = (timeframe[1] - timeframe[0]) / 1000
+        const buffer = (timeframe[1] - timeframe[0]) / 800
         const foundTimestamp = timeline.find(item => moment(item.Start).valueOf() - buffer <= x && x <= moment(item.Start).valueOf() + buffer)
         if (foundTimestamp) {
             setSelectedID(foundTimestamp.ID);
