@@ -22,8 +22,6 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { Modal } from '@gpa-gemstone/react-interactive';
-
 export interface IMessage { Message: string, Type: number }
 
 export interface IProps {
@@ -103,7 +101,7 @@ const ConsoleWindow = (props: IProps) => {
 
 
     React.useEffect(() => {
-        if (props.ConsoleURL != undefined && props.ConsoleURL.length > 0) 
+        if (props.ConsoleURL != undefined && props.ConsoleURL.length > 0)
             document.addEventListener("keydown", handleKeyPress, false);
 
         return () => {
@@ -113,19 +111,19 @@ const ConsoleWindow = (props: IProps) => {
 
     React.useEffect(() => { cmdRef.current = cmd; }, [cmd]);
     React.useEffect(() => { lastCmdRef.current = lastCmd; }, [lastCmd]);
-    
+
     function handleKeyPress(event) {
 
         if (event.keyCode == 38 && cmd.length > 0) // arrow down key
         {
             event.preventDefault();
-            setCMD(lastCmdRef.current); 
+            setCMD(lastCmdRef.current);
         }
         else if (event.keyCode == 13)  // enter key
         {
             event.preventDefault();
             sendCmd(cmdRef.current);
-            setCMD(''); 
+            setCMD('');
         }
     }
 
@@ -180,54 +178,50 @@ const ConsoleWindow = (props: IProps) => {
 
     return (
         <>
-            <Modal
-                Show={props.ConsoleURL != undefined && props.ConsoleURL.length > 0}
-                CallBack={(_conf, button) => { if (!button) { props.Close(); sessionIDRef.current = ''; } else { sendCmd(cmd); setCMD(''); } }}
-                ShowCancel={false} Size={'xlg'}
-                Title={'Console - ' + props.ApplicationName}
-                ShowX={true}
-                ConfirmText={'Send'}
-            >
-                <div className="well" style={{ height: innerHeight - 400, display: 'flex', flexDirection: 'column' }}>
-                    <div className="row">
-                        <div className="col-6">
-                            <label className="small pull-left" >
-                                {lastUpdate !== null ? <small><em>Last update {lastUpdate}</em></small> : 
+            <div className="well" style={{ height: innerHeight - 400, display: 'flex', flexDirection: 'column' }}>
+                <div className="row">
+                    <div className="col-6">
+                        <label className="small pull-left" >
+                            {lastUpdate !== null ? <small><em>Last update {lastUpdate}</em></small> :
                                 <small><em>Updating...</em></small>}
-                            </label>
-                        </div>
-                        <div className="col-6">
-                            <label className="small pull-right" style={{ display: autoScroll ? 'none' : undefined }} >
-                                <small><em>Scrolling paused during mouse interaction...</em></small>
-                            </label>
-                        </div>
+                        </label>
                     </div>
-                    <div className="row" style={{ flex: 1, overflow: "auto" }}>
-                        <div className="col">
-                            <pre className="small" style={remoteConsoleStyle} ref={consoleDiv}
-                                onMouseEnter={() => setAutoScroll(false)}
-                                onMouseLeave={() => setAutoScroll(true)}
-                            >
-                                {messages.map((m) => <span style={{ color: getColor(m.Type) }} >
-                                    {m.Message}
-                                </span>)}
-                            </pre>
-                        </div>
+                    <div className="col-6">
+                        <label className="small pull-right" style={{ display: autoScroll ? 'none' : undefined }} >
+                            <small><em>Scrolling paused during mouse interaction...</em></small>
+                        </label>
                     </div>
-                    <div className="row">
-                        <div className="col">
-                            <div className="input-group">
-                                <input type="text" className="form-control"
-                                    placeholder="Server command..."
-                                    onChange={(evt) => setCMD(evt.target.value)}
-                                    value={cmd}
-                                />
-                            </div>
-                        </div>
-                    </div> 
                 </div>
-            </Modal>
-         </>)
+                <div className="row" style={{ flex: 1, overflow: "auto" }}>
+                    <div className="col">
+                        <pre className="small" style={remoteConsoleStyle} ref={consoleDiv}
+                            onMouseEnter={() => setAutoScroll(false)}
+                            onMouseLeave={() => setAutoScroll(true)}
+                        >
+                            {messages.map((m) => <span style={{ color: getColor(m.Type) }} >
+                                {m.Message}
+                            </span>)}
+                        </pre>
+                    </div>
+                </div>
+            </div>
+
+            <div className="row my-2">
+                <div className="col-10">
+                    <div className="input-group">
+                        <input type="text" className="form-control"
+                            placeholder="Server command..."
+                            onChange={(evt) => setCMD(evt.target.value)}
+                            value={cmd}
+                        />
+                    </div>
+                </div>
+                <div className="col-2">
+                    <button className="btn btn-primary" onClick={() => { sendCmd(cmd); setCMD('') }}> Send </button>
+                </div>
+            </div>
+        </>
+    )
 }
 
 
