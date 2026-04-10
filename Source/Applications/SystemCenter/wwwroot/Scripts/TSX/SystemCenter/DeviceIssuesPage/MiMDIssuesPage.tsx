@@ -46,7 +46,9 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
     const settingStatus = useAppSelector(SystemCenterSettingSlice.Status);
 
     const order = React.useCallback((data: SC.MiMDDailyStatistic[]) => {
-        return _.orderBy(data, [sortField], [ascending ? 'asc' : 'desc'])
+        const sortedData = _.sortBy(data, [(e) => { return sortField == 'Date' ? moment(e['Date']) : e[sortField] }])
+        if (ascending) return sortedData
+        return sortedData.reverse()
     }, [sortField, ascending]);
 
     React.useEffect(() => {
@@ -58,7 +60,7 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
         return () => {
             if (handle != null || handle.abort != null) handle.abort();
         }
-    }, [props.Meter.AssetKey, sortField, ascending]);
+    }, [props.Meter.AssetKey]);
 
     React.useEffect(() => {
         if (data.length === 0) return;
