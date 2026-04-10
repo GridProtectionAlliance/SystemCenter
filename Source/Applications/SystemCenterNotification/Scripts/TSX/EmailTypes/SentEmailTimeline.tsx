@@ -61,6 +61,9 @@ const SentEmailTimeline = (props: IProps) => {
 
     const tblData = React.useMemo(() => ToTimestamps(timeline), [timeline])
 
+    const tMin = React.useMemo(() => { return Math.min(...timeline.map((i) => moment(i.Start).valueOf())) - 3600000 }, [timeline])
+    const tMax = React.useMemo(() => { return Math.max(...timeline?.map((i) => moment(i.End ?? i.Start).valueOf())) + 3600000 }, [timeline])
+
     React.useEffect(() => {
         if (props.SentEmailID == null) return;
         let handle = getTimeline();
@@ -149,8 +152,8 @@ const SentEmailTimeline = (props: IProps) => {
                                 yDomain={'AutoValue'}
                                 showDateOnTimeAxis={true}
                                 hideYAxis={true}
-                                Tmin={Math.min(...timeline.map((i) => moment(i.Start).valueOf())) - 3600000}
-                                Tmax={Math.max(...timeline?.map((i) => moment(i.End ?? i.Start).valueOf())) + 3600000}
+                                Tmin={tMin}
+                                Tmax={tMax}
                                 onSelect={handlePlotOnSelect}
                                 onTDomainChange={setTimeframe}
                             >
