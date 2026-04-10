@@ -22,12 +22,10 @@
 //******************************************************************************************************
 
 import * as React from 'react'
-import { SentEmail } from '../global'
 import * as $ from 'jquery'
 import { Application } from '@gpa-gemstone/application-typings'
 import { Table, Column } from '@gpa-gemstone/react-table'
 import moment from 'moment';
-import { Modal } from '@gpa-gemstone/react-interactive'
 import { Pill, Plot, VerticalMarker } from '@gpa-gemstone/react-graph'
 
 interface TimelineItem {
@@ -62,6 +60,9 @@ const SentEmailTimeline = (props: IProps) => {
     const [timeframe, setTimeframe] = React.useState<[number, number]>([null, null]) 
 
     const tblData = React.useMemo(() => ToTimestamps(timeline), [timeline])
+
+    const tMin = React.useMemo(() => { return Math.min(...timeline.map((i) => moment(i.Start).valueOf())) - 3600000 }, [timeline])
+    const tMax = React.useMemo(() => { return Math.max(...timeline?.map((i) => moment(i.End ?? i.Start).valueOf())) + 3600000 }, [timeline])
 
     React.useEffect(() => {
         if (props.SentEmailID == null) return;
@@ -111,6 +112,25 @@ const SentEmailTimeline = (props: IProps) => {
        setTimeframe(SetWithThresholds(timelineItem))
     }
 
+    const handlePlotOnSelect = React.useCallback((x) => {
+        if (timeframe[0] == null || timeframe[1] == null) {
+            setSelectedID(null)
+            return
+        }
+        const foundDuration = timeline.find(item => moment(item.Start).valueOf() <= x && x <= (moment(item.End ?? item.Start).valueOf()))
+        if (foundDuration != null) {
+            setSelectedID(foundDuration.ID);
+            return
+        }
+        const buffer = (timeframe[1] - timeframe[0]) / 800
+        const foundTimestamp = timeline.find(item => moment(item.Start).valueOf() - buffer <= x && x <= moment(item.Start).valueOf() + buffer)
+        if (foundTimestamp) {
+            setSelectedID(foundTimestamp.ID);
+            return
+        }
+        setSelectedID(null)
+    },[timeline, timeframe])
+
     return (
         <>
             {state !== 'idle' ? <></> :
@@ -132,8 +152,10 @@ const SentEmailTimeline = (props: IProps) => {
                                 yDomain={'AutoValue'}
                                 showDateOnTimeAxis={true}
                                 hideYAxis={true}
-                                xZoom={false}
-                                
+                                Tmin={tMin}
+                                Tmax={tMax}
+                                onSelect={handlePlotOnSelect}
+                                onTDomainChange={setTimeframe}
                             >
                                 {timeline.map((item, i) => {
                                     return (
