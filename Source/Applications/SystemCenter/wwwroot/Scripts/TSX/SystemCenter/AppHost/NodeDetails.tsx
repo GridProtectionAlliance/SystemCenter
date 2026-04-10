@@ -57,16 +57,14 @@ const ApplicationTabs = {
 const NodeDetails = (props: IProps) => {
 
     const [tab, setTab] = React.useState<tab>('connections');
-    const [availableTabs, setAvailableTabs] = React.useState<string[]>([])
+
+    const availableTabs = React.useMemo(() => {
+        return ApplicationTabs[props.ApplicationType ?? ''].split(',').map<ITab>((t) => { return { Label: t, Id: t.toLowerCase() } })
+    }, [props.ApplicationType])
 
     React.useEffect(() => {
-        if (props.ApplicationType === '') {
-            setAvailableTabs([])
-            return
-        }
-        setAvailableTabs(ApplicationTabs[props.ApplicationType ?? ''].split(',').map((t) => { return t.toLowerCase() }))
-        setTab(availableTabs[0] as tab)
-    }, [props.ApplicationType])
+        setTab(availableTabs[0].Id as tab)
+    }, [availableTabs])
 
     return (
         <Modal
@@ -76,7 +74,7 @@ const NodeDetails = (props: IProps) => {
             Title={'Details - ' + props.ApplicationName}
         >
             <div className="row">
-                <TabSelector CurrentTab={tab} SetTab={(t: tab) => setTab(t)} Tabs={ApplicationTabs[props.ApplicationType ?? ''].split(',').map<ITab>((t) => { return { Label: t, Id: t.toLowerCase() } })} />
+                <TabSelector CurrentTab={tab} SetTab={(t: tab) => setTab(t)} Tabs={availableTabs} />
             </div>
             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
                 <div className="col-12" style={{ height: '100%' }}>
