@@ -72,6 +72,7 @@ const NodeDetails = (props: IProps) => {
             ShowCancel={false} ShowConfirm={false} ShowX={true} Size={'xlg'}
             CallBack={() => { props.SetDetails(null); setTab('connections') }}
             Title={'Details - ' + props.ApplicationName}
+            BodyStyle={{ overflow: 'hidden' } }
         >
             <div className="row">
                 <TabSelector CurrentTab={tab} SetTab={(t: tab) => setTab(t)} Tabs={availableTabs} />
