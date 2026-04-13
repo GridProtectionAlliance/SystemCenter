@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  OpenSEESetting.cs - Gbtc
+//  PQDigestSetting.cs - Gbtc
 //
 //  Copyright © 2016, Grid Protection Alliance.  All Rights Reserved.
 //
