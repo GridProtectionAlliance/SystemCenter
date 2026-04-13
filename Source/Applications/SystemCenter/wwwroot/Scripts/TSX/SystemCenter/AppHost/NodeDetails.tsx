@@ -72,12 +72,12 @@ const NodeDetails = (props: IProps) => {
             ShowCancel={false} ShowConfirm={false} ShowX={true} Size={'xlg'}
             CallBack={() => { props.SetDetails(null); setTab('connections') }}
             Title={'Details - ' + props.ApplicationName}
-            BodyStyle={{ overflow: 'hidden' } }
+            BodyStyle={{ overflow: 'hidden', height: 'calc(100vh - 210px)', display: 'flex', flexDirection: 'column'} }
         >
             <div className="row">
                 <TabSelector CurrentTab={tab} SetTab={(t: tab) => setTab(t)} Tabs={availableTabs} />
             </div>
-            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+            <div className="row" style={{ flex: '1 1 0%', overflow: 'hidden' }}>
                 <div className="col-12" style={{ height: '100%' }}>
                     <div className="tab-content" style={{ height: '100%' }}>
                         {tab === "connections" ?
