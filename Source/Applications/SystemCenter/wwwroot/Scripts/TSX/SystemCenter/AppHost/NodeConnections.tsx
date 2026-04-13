@@ -192,6 +192,7 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
             </div >
             : props.ApplicationType === "XDA" ?
                 <div className="row">
+                    {remoteXDAStatus.length == 0 ? null :
                     <div className="col-6">
                         <StatusGroup
                             StatusItems={remoteXDAStatus}
@@ -201,7 +202,8 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
                             Name="Remote openXDA Connections"
                         />
                     </div>
-                    <div className="col-6">
+                    }
+                    <div className={`col-${remoteXDAStatus.length == 0 ? 12 : 6}`}>
                         <StatusGroup
                             StatusItems={[SCADAStatus]}
                             Status={status}
