@@ -103,7 +103,32 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA/DataOperation")]
     public class DataOperationController : ModelController<DataOperation> { }
     [RoutePrefix("api/OpenXDA/DataOperationFailure")]
-    public class DataOperationFailureController : ModelController<DataOperationFailureDetails> { }
+    public class DataOperationFailureController : ModelController<DataOperationFailureDetails> {
+
+        [Route("RecentFailures"), HttpPost]
+        public IHttpActionResult RecentFailures([FromBody] PostData postData)
+        {
+            using DataTable value = GetSearchResults(postData, 0);
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                foreach (DataRow row in value.Rows)
+                {
+                    TableOperations<openXDA.Model.DataFile> dataFileTbl = new TableOperations<openXDA.Model.DataFile>(connection);
+                    openXDA.Model.DataFile dataFile = dataFileTbl.QueryRecordWhere("FileGroupID = {0}", row.Field<int>("FileGroupID"));
+                }
+            }
+            int num = CountSearchResults(postData);
+            int valueOrDefault = Take.GetValueOrDefault(50);
+            return Ok(new PagedResults
+            {
+                Data = JsonConvert.SerializeObject(value),
+                RecordsPerPage = valueOrDefault,
+                TotalRecords = num,
+                NumberOfPages = (num + valueOrDefault - 1) / valueOrDefault
+            });
+        }
+    
+    }
     [RoutePrefix("api/OpenXDA/DataReader")]
     public class DataReaderController : ModelController<DataReader> { }
 

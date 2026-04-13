@@ -28,10 +28,11 @@ import { Modal, TabSelector } from '@gpa-gemstone/react-interactive';
 import NodeConnections from './NodeConnections';
 import NodeHealth from './NodeHealth';
 import ConsoleWindow from './ConsoleWindow'
+import FileWatcher from './FileWatcher'
 import { IHost } from './ApplicationCard';
 import { SystemCenter as SC } from '../global'
 
-type tab = 'connections' | 'health' | 'console'
+type tab = 'connections' | 'health' | 'console' | 'filewatcher' 
 
 interface ITab { Label: string, Id: string }
 export interface IMessage { Message: string, Type: number }
@@ -49,7 +50,7 @@ export interface IProps {
 const ApplicationTabs = {
     '': '',
     'SystemCenter': 'Connections,Console',
-    'XDA': 'Connections,Health,Console',
+    'XDA': 'Connections,Health,Console,FileWatcher',
     'MiMD': 'Console',
     'openMIC': 'Health'
 }
@@ -104,6 +105,9 @@ const NodeDetails = (props: IProps) => {
                                         Close={() => props.SetConsole(null)}
                                     />
                                 </div>
+                                    : tab === 'filewatcher' ? <div className="tab-pane active" style={{ height: 'inherit' }}>
+                                        <FileWatcher />
+                                        </div>
                                     : null}
                     </div>
                 </div>
