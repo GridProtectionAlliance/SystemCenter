@@ -21,12 +21,8 @@
 //
 //******************************************************************************************************
 
-using System.Text;
 using System.Web.Http;
-using GSF.Data;
 using GSF.Data.Model;
-using GSF.Identity;
-using GSF.Web;
 using GSF.Web.Model;
 
 namespace SystemCenter.Model
