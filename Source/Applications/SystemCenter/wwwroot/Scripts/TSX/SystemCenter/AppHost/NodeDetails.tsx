@@ -80,7 +80,7 @@ const NodeDetails = (props: IProps) => {
             </div>
             <div className="row" style={{ flex: '1 1 0%', overflow: 'hidden' }}>
                 <div className="col-12" style={{ height: '100%' }}>
-                    <div className="tab-content" style={{ height: '100%' }}>
+                    <div className="tab-content m-3" style={{ height: '100%' }}>
                         {tab === "connections" ?
                             <div className="tab-pane active" style={{ height: 'inherit' }}>
                                 <NodeConnections
