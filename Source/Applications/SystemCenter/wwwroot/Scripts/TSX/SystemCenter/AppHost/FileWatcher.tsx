@@ -29,6 +29,9 @@ import StatusGroup from './StatusGroup'
 import { LoadingScreen } from '@gpa-gemstone/react-interactive';
 import moment from 'moment'
 
+interface INamedDataOperationFailure extends OpenXDA.Types.DataOperationFailure {
+    dataFileName: string
+}
 
 const FileWatcher = (props: {}) => {
 
@@ -41,10 +44,10 @@ const FileWatcher = (props: {}) => {
     const [totalPages, setTotalPages] = React.useState<number>()
     const [totalFailurePages, setTotalFailurePages] = React.useState<number>()
     const [dataFile, setDataFile] = React.useState<OpenXDA.Types.DataFile[]>([])
-    const [dataOperationFailure, setDataOperationFailure] = React.useState<OpenXDA.Types.DataOperationFailure[]>([])
+    const [dataOperationFailure, setDataOperationFailure] = React.useState<INamedDataOperationFailure[]>([])
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated')
     const [timeframe, setTimeframe] = React.useState<[number, number]>([null, null])
-
+    const [yRange, setYRange] = React.useState<[number, number]>([0, 50])
     const rowRef = React.useRef<HTMLDivElement>(null);
 
 
@@ -65,7 +68,7 @@ const FileWatcher = (props: {}) => {
             // add 1 to every timestamp from start to end, start inclusive, end exclusive
             timestamps.forEach((ts) => { moment(ts).valueOf() >= moment(df.DataStartTime).valueOf() && moment(ts).valueOf() < moment(df.ProcessingEndTime).valueOf() ? bars[ts]++ : null })
         })
-        console.log(bars)
+        setYRange([Math.min(...Object.values(bars) as number[]), Math.max(...Object.values(bars) as number[])])
         return bars
     }, [dataFile])
 
@@ -143,19 +146,21 @@ const FileWatcher = (props: {}) => {
 
     
     return (
-        <div className="row" style={{ height: 'inherit', overflowY: 'hidden'} }>
+        <div className="row h-100">
             <LoadingScreen Show={status === 'loading'} />
             {status === 'idle' && dataFile !== null ? <>
-                <div className="col-6">
-                    <div ref={rowRef}>
+                <div className="col-6 h-100">
+                    <div className="row h-50" ref={rowRef}>
                         <Plot
                             height={plotHeight}
                             width={plotWidth}
                             defaultTdomain={timeframe}
-                            defaultYdomain={[0, 50]}
+                            defaultYdomain={yRange}
                             onTDomainChange={setTimeframe}
                             zoom={true}
                             yZoom={true}
+                            Ymin={0}
+                            Ymax={100}
                             showDateOnTimeAxis={true}
                         >
                             {Object.keys(bars).sort((a, b) => { return moment(a).valueOf() - moment(b).valueOf()}).map((bar, i, array) => (
@@ -168,7 +173,7 @@ const FileWatcher = (props: {}) => {
                             ))}
                         </Plot>
                     </div>
-                    <div className="row d-flex flex-column" style={{ flex: '1, 1, 0%', overflowY: 'hidden' }}>
+                    <div className="row d-flex flex-column h-50" style={{ flex: '1, 1, 0%'}}>
                         <Table<OpenXDA.Types.DataFile>
                             Data={dataFile}
                             SortKey={sortField}
@@ -219,7 +224,7 @@ const FileWatcher = (props: {}) => {
                 <div className="col-6">
                     <StatusGroup
                         Status="idle"
-                        StatusItems={dataOperationFailure.map((d) => { return { Name: 'Failure:', Status: 'Error', Details: [{Status: 'Error', Description: d.Log}] }})}
+                        StatusItems={dataOperationFailure.map((d) => { return { Name: `${d.TimeOfFailure}: ${d.dataFileName}`, Status: 'Error', Details: [{Status: 'Error', Description: d.Log}] }})}
                         HoveredItem={hoveredItem}
                         SetHoveredItem={setHoveredItem}
                         Name={'events'}
