@@ -77,7 +77,6 @@ const NodeHealth = (props: IProps) => {
                 // Regex remove wrapping quotes, carriage return, and format \\ to \
                 setStatInfo(stat.replace(/^\"+|\"+$/g, '').replace(/\\r\\n/g, '\n').replace(/\\\\/g, '\\'));
             }).fail((_a, _b, e) => {
-                console.error(e);
                 setStatus('error');
             });
         }, 5000);
@@ -100,8 +99,10 @@ const NodeHealth = (props: IProps) => {
 
         h.done((d: SC.StatusItem) => {
             setOpenMICStatus(d)
+            setStatus('idle')
         }).fail(() => {
             setOpenMICStatus({ Status: 'Error', Name: 'openMIC', Details: [{ Status: "Error", Description: "Errors occurred in retrieving openMIC health." }] })
+            setStatus('error')
         })
 
         return function cleanup() {
@@ -130,10 +131,10 @@ const NodeHealth = (props: IProps) => {
                     <ReactIcons.SpiningIcon /> :
                     props.ApplicationType === 'XDA' ?
                         <div className="w-100 h-100">
-                            <pre style={statStyle}>
-                                {statInfo}
-                            </pre>
-                        </div>
+                                <pre style={statStyle}>
+                                    {statInfo}
+                                </pre>
+                            </div>
                         : props.ApplicationType === 'openMIC'
                             ? <StatusDetails
                                 StatusItem={openMICStatus}
