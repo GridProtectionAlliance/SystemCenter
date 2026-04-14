@@ -47,7 +47,6 @@ export interface IProps {
 }
 
 const ApplicationTabs = {
-    '': '',
     'SystemCenter': 'Connections,Console',
     'XDA': 'Connections,Health,Console',
     'MiMD': 'Console',
@@ -59,10 +58,12 @@ const NodeDetails = (props: IProps) => {
     const [tab, setTab] = React.useState<tab>('connections');
 
     const availableTabs = React.useMemo(() => {
+        if (!Object.keys(ApplicationTabs).includes(props.ApplicationType)) return []
         return ApplicationTabs[props.ApplicationType ?? ''].split(',').map<ITab>((t) => { return { Label: t, Id: t.toLowerCase() } })
     }, [props.ApplicationType])
 
     React.useEffect(() => {
+        if (availableTabs.length == 0) return
         setTab(availableTabs[0].Id as tab)
     }, [availableTabs])
 
