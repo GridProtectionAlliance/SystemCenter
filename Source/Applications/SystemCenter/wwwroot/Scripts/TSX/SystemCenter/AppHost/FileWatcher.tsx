@@ -161,6 +161,7 @@ const FileWatcher = (props: {}) => {
                             yZoom={true}
                             Ymin={0}
                             Ymax={100}
+                            Ylabel={'Files Queued' }
                             showDateOnTimeAxis={true}
                         >
                             {Object.keys(bars).sort((a, b) => { return moment(a).valueOf() - moment(b).valueOf()}).map((bar, i, array) => (
