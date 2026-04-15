@@ -46,8 +46,6 @@ function DeviceIssuesPage(props: IProps) {
 
     }, [props.MeterID]);
 
-    React.useEffect(() => { }, [])
-
     function getMeter(): JQuery.jqXHR<OpenXDA.Types.Meter> {
         if (props.MeterID == undefined) return null;
         return $.ajax({
