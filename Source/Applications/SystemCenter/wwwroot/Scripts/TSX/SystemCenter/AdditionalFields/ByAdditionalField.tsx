@@ -54,6 +54,7 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
     const parentID = useAppSelector(AdditionalFieldsSlice.ParentID);
     const currentPage = useAppSelector(AdditionalFieldsSlice.CurrentPage);
     const totalPages = useAppSelector(AdditionalFieldsSlice.TotalPages);
+    const totalRecords = useAppSelector(AdditionalFieldsSlice.TotalRecords);
 
     const valueListGroupData = useAppSelector(ValueListGroupSlice.Data);
     const valueListGroupStatus = useAppSelector(ValueListGroupSlice.Status);
@@ -135,7 +136,7 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
                         StorageID="AdditionalFieldsFilter"
                         Label={'Search'}
                         ShowLoading={status == 'loading'}
-                        ResultNote={status == 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Additional Field(s)'}
+                        ResultNote={status == 'error' ? 'Could not complete Search' : 'Found ' + totalRecords + ' Additional Field(s)'}
                     >
                         <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
                             <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
