@@ -21,7 +21,7 @@
 // ******************************************************************************************************
 
 import * as React from 'react';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { SearchBar, Search, Warning, LoadingScreen, ServerErrorIcon, GenericSlice, Modal } from '@gpa-gemstone/react-interactive';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { useAppDispatch, useAppSelector } from '../hooks';
@@ -42,6 +42,9 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
     const data: T[] = useAppSelector(props.SettingsSlice.SearchResults);
     const allSettings: T[] = useAppSelector(props.SettingsSlice.Data);
     const status: Application.Types.Status = useAppSelector(props.SettingsSlice.Status);
+    const currentPage = useAppSelector(props.SettingsSlice.CurrentPage);
+    const totalPages = useAppSelector(props.SettingsSlice.TotalPages);
+    const totalRecords = useAppSelector(props.SettingsSlice.TotalRecords);
 
     const [sortField, setSortField] = React.useState<keyof T>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
@@ -62,7 +65,7 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
 
     React.useEffect(() => {
         if (searchStatus === 'uninitiated' || searchStatus === 'changed')
-            dispatch(props.SettingsSlice.DBSearch({ filter: search, sortField, ascending }));
+            dispatch(props.SettingsSlice.PagedSearch({ filter: search, sortField, ascending, page: currentPage }));
     }, [searchStatus]);
 
 
@@ -78,8 +81,12 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
     }, [editnewSetting])
 
     const setFilters = React.useCallback((filters: Search.IFilter<SystemCenter.Types.Setting>[]) => {
-        dispatch(props.SettingsSlice.DBSearch({ filter: filters, sortField, ascending }))
-    }, [sortField, ascending])
+        dispatch(props.SettingsSlice.PagedSearch({ filter: filters, sortField, ascending, page: currentPage }))
+    }, [sortField, ascending, currentPage])
+
+    const setPage = React.useCallback((page) => {
+        dispatch(props.SettingsSlice.PagedSearch({ filter: search, sortField, ascending, page: page - 1 }))
+    }, [sortField, ascending, search])
 
     const searchFields: Search.IField<T>[] = [
         { key: 'Name', label: 'Setting Name', type: 'string', isPivotField: false },
@@ -93,9 +100,10 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
         </div>;
 
     return (
-        <>
+        <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
             <LoadingScreen Show={status === 'loading'} />
-            <div style={{ width: '100%', height: '100%' }}>
+            <div className="row">
+                <div className="col">
                 <SearchBar<T> CollumnList={searchFields} SetFilter={setFilters}
                     Direction={'left'} defaultCollumn={{ key: 'Name', label: 'Setting Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'} StorageID={`${props.SettingsSlice.Name}Filter`}
                     ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Setting(s)'}
@@ -112,8 +120,11 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
                         </fieldset>
                     </li>
                 </SearchBar>
+                </div>
+            </div >
 
-                <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
+            <div className='row' style={{ flex: 1, overflow: 'hidden' }}>
+                <div className='col-12' style={{ height: '100%', overflow: 'auto' }}>
                     <Table<T>
                         TableClass="table table-hover"
                         Data={data}
@@ -161,6 +172,15 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
                     </Table>
                 </div>
             </div>
+            <div className="row">
+                <div className="col">
+                    <Paging
+                        Current={currentPage + 1}
+                        SetPage={setPage}
+                        Total={totalPages}
+                    />
+                </div>
+            </div>
 
             <Modal Title={editNew === 'Edit' ? 'Edit ' + (editnewSetting?.Name ?? 'Setting') : 'Add New Setting'}
                 Show={showModal} ShowX={true} Size={'lg'} ShowCancel={editNew === 'Edit'} ConfirmText={'Save'} CancelText={'Delete'}
@@ -204,7 +224,7 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
             </Modal>
             <Warning Title={'Delete ' + (editnewSetting?.Name ?? 'Setting')} Message={'This will delete this Setting from the system. This can have unintended consequences and cause the system to crash. Are you sure you want to continue?'}
                 Show={showWarning} CallBack={(conf) => { if (conf) dispatch(props.SettingsSlice.DBAction({ verb: 'DELETE', record: editnewSetting })); setShowWarning(false); }} />
-        </>)
+        </div>)
 }
 
 export default Setting;
