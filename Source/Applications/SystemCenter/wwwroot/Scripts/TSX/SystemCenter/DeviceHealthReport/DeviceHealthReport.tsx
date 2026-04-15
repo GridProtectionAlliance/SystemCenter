@@ -333,7 +333,7 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                                 if (moment().diff(moment(item[field]), 'hours') > 4) className = 'info';
                                 if (moment().diff(moment(item[field]), 'hours') > 24) className = 'warning';
                                 else if (moment().diff(moment(item[field]), 'days') > 7) className = 'danger';
-                                return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=openmic`} target='_blank'>
+                                return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=openmic&OpenMICAcronym=${item.OpenMIC}`} target='_blank'>
                                     <span className={`badge badge-pill badge-${className}`}>{moment(item[field]).format('MM/DD/YYYY hh:mm')}</span></a>
                             }}
                         > Last Succ Conn
