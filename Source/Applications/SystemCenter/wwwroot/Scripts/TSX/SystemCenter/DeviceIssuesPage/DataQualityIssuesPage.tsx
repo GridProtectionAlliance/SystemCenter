@@ -24,7 +24,7 @@
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { SystemCenter as SC } from '../global';
 import * as React from 'react';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import moment from 'moment';
 import { GenericController } from '@gpa-gemstone/react-interactive';
@@ -35,26 +35,20 @@ function DataQualityIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
     const [data, setData] = React.useState<SC.MeterDataQualitySummary[]>([]);
     const [sortField, setSortField] = React.useState<keyof SC.MeterDataQualitySummary>('Date');
     const [ascending, setAscending] = React.useState<boolean>(false);
-
-    const order = React.useCallback((data: SC.MeterDataQualitySummary[]) => {
-        return _.orderBy(data, [sortField], [ascending ? 'asc' : 'desc'])
-    }, [sortField, ascending]);
+    const [currentPage, setCurrentPage] = React.useState<number>(0);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
 
     React.useEffect(() => {
-        const handle = MeterDataQualitySummaryController.PagedSearch([], undefined, undefined, 0, props.Meter.ID).done(result => {
+        const handle = MeterDataQualitySummaryController.PagedSearch([], sortField, ascending, currentPage, props.Meter.ID).done(result => {
             const data = JSON.parse(result.Data as unknown as string);
-            setData(order(data));
+            setData(data);
+            setTotalPages(result.NumberOfPages)
         });
 
         return () => {
             if (handle.abort != undefined) handle.abort();
         }
-    }, [props.Meter.ID]);
-
-    React.useEffect(() => {
-        if (data.length === 0) return;
-        setData(order(data));
-    }, [order]);
+    }, [props.Meter.ID, ascending, currentPage, sortField]);
 
     return <div className="card" style={{ width: '100%', height: '100%' }}>
         <div className="card-header">
@@ -65,6 +59,7 @@ function DataQualityIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
             </div>
         </div>
         <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
+            <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
             <Table<SC.MeterDataQualitySummary>
                 TableClass="table table-hover"
                 Data={data}
@@ -146,7 +141,17 @@ function DataQualityIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                     RowStyle={{ width: '15%' }}
                 > Duplicate Points
                 </Column>
-            </Table>
+                </Table>
+                <div className="row">
+                    <div className="col">
+                        <Paging
+                            Total={totalPages}
+                            SetPage={(page) => { setCurrentPage(page - 1) }}
+                            Current={currentPage + 1}
+                        />
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 }
