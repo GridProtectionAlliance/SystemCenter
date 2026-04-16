@@ -112,13 +112,17 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
             dispatch(ValueListGroupSlice.Fetch());
     }, [valueListGroupStatus]);
 
+    const setFilters = React.useCallback((filters: Search.IFilter<SystemCenter.Types.AdditionalField>[]) => {
+        dispatch(AdditionalFieldsSlice.DBSearch({ sortField, ascending, filter: filters }))
+    }, [sortField, ascending])
+
     return (
         <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit', padding: 0 }}>
             <div className="row">
                 <div className="col">
                     <SearchBar<SystemCenter.Types.AdditionalFieldView>
                         CollumnList={AdditionalFieldSearchField}
-                        SetFilter={(flds) => dispatch(AdditionalFieldsSlice.DBSearch({ filter: flds }))}
+                        SetFilter={setFilters}
                         Direction={'left'}
                         defaultCollumn={AdditionalFieldDefaultSearchField}
                         Width={'50%'}
