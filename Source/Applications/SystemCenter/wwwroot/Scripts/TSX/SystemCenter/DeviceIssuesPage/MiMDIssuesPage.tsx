@@ -47,14 +47,10 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
     const [currentPage, setCurrentPage] = React.useState<number>(0);
     const [totalPages, setTotalPages] = React.useState<number>(0);
 
-    const order = React.useCallback((data: SC.MiMDDailyStatistic[]) => {
-        return _.orderBy(data, [sortField], [ascending ? 'asc' : 'desc'])
-    }, [sortField, ascending]);
-
     React.useEffect(() => {
         const handle = MiMDDailyStatisticController.PagedSearch([], sortField, ascending, currentPage, props.Meter.AssetKey).done(result => {
             const data = JSON.parse(result.Data as unknown as string);
-            setData(order(data));
+            setData(data);
             setTotalPages(result.NumberOfPages)
         });
 
@@ -62,11 +58,6 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
             if (handle != null || handle.abort != null) handle.abort();
         }
     }, [props.Meter.AssetKey, sortField, ascending, currentPage]);
-
-    React.useEffect(() => {
-        if (data.length === 0) return;
-        setData(order(data));
-    }, [order]);
 
     React.useEffect(() => {
         if (settingStatus == 'uninitiated' || settingStatus == 'changed')
