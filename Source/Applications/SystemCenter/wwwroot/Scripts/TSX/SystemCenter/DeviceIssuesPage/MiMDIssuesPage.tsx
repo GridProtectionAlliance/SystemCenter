@@ -52,7 +52,7 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
     }, [sortField, ascending]);
 
     React.useEffect(() => {
-        const handle = MiMDDailyStatisticController.PagedSearch([], undefined, undefined, currentPage, props.Meter.AssetKey).done(result => {
+        const handle = MiMDDailyStatisticController.PagedSearch([], sortField, ascending, currentPage, props.Meter.AssetKey).done(result => {
             const data = JSON.parse(result.Data as unknown as string);
             setData(order(data));
             setTotalPages(result.NumberOfPages)
