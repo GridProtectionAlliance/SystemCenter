@@ -46,7 +46,7 @@ const StatusItem = (props: {StatusItem: SC.StatusItem, HoveredItem: String, SetH
                 {props.StatusItem.Status === "N/A" ? <p className={"my-3 mx-2"}> {props.StatusItem.Name} is disabled. </p> : null}
                 {props.StatusItem.Status !== 'Error' ? null : <p className={"my-3 mx-2"}> {props.StatusItem.Details.find((detail) => detail.Status === 'Error')?.Description} </p>}
                 <ToolTip
-                    Show={props.HoveredItem === props.StatusItem.Name && props.StatusItem.Status !== 'Loading' && (props.StatusItem.Details.length ?? 0) > 0}
+                    Show={props.HoveredItem === props.StatusItem.Name && props.StatusItem.Status !== 'Loading' && (props.StatusItem.Details ?? []).length > 0}
                     Position={'right'}
                     Target={`statusbutton${props.StatusItem.Name}`}
                 >
