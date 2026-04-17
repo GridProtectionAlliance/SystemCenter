@@ -179,7 +179,6 @@ const ConsoleWindow = (props: IProps) => {
     return (
         <div className="row">
             <div className="col">
-                <div className="well" style={{ height: innerHeight - 400, display: 'flex', flexDirection: 'column' }}>
                     <div className="row">
                         <div className="col-6">
                             <label className="small pull-left" >
@@ -195,6 +194,7 @@ const ConsoleWindow = (props: IProps) => {
                     </div>
                     <div className="row" style={{ flex: 1, overflow: "auto" }}>
                         <div className="col">
+                        <div className="well" style={{ height: innerHeight - 400, display: 'flex', flexDirection: 'column' }}>
                             <pre className="small" style={remoteConsoleStyle} ref={consoleDiv}
                                 onMouseEnter={() => setAutoScroll(false)}
                                 onMouseLeave={() => setAutoScroll(true)}
