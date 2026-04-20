@@ -100,7 +100,7 @@ const ApplicationCard = (props: IApplicationCard) => {
                 <div className="card-footer">
                     <div className="row">
                         <div className={`col`}>
-                                <button className={`btn btn-info`} onClick={() => props.OpenDetails()} disabled={status == "Loading" || status == "Unknown"}>Details</button>
+                            <button className={`btn btn-${status == "Loading" || status == "Unknown" ? 'secondary' : 'info' }`} onClick={() => props.OpenDetails()} disabled={status == "Loading" || status == "Unknown"}>Details</button>
                         </div>
                     </div>
                 </div>
