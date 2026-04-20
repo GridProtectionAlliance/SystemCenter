@@ -177,23 +177,23 @@ const ConsoleWindow = (props: IProps) => {
     }, [props.ConsoleURL]);
 
     return (
-        <div className="row">
-            <div className="col">
-                    <div className="row">
-                        <div className="col-6">
-                            <label className="small pull-left" >
-                                {lastUpdate !== null ? <small><em>Last update {lastUpdate}</em></small> :
-                                    <small><em>Updating...</em></small>}
-                            </label>
-                        </div>
-                        <div className="col-6">
-                            <label className="small pull-right" style={{ display: autoScroll ? 'none' : undefined }} >
-                                <small><em>Scrolling paused during mouse interaction...</em></small>
-                            </label>
-                        </div>
+        <div className="row h-100">
+            <div className="col h-100">
+                <div className="row">
+                    <div className="col-6">
+                        <label className="small pull-left" >
+                            {lastUpdate !== null ? <small><em>Last update {lastUpdate}</em></small> :
+                                <small><em>Updating...</em></small>}
+                        </label>
                     </div>
-                    <div className="row" style={{ flex: 1, overflow: "auto" }}>
-                        <div className="col">
+                    <div className="col-6">
+                        <label className="small pull-right" style={{ display: autoScroll ? 'none' : undefined }} >
+                            <small><em>Scrolling paused during mouse interaction...</em></small>
+                        </label>
+                    </div>
+                </div>
+                <div className="row" style={{ flex: 1, overflow: "auto" }}>
+                    <div className="col">
                         <div className="well" style={{ height: innerHeight - 400, display: 'flex', flexDirection: 'column' }}>
                             <pre className="small" style={remoteConsoleStyle} ref={consoleDiv}
                                 onMouseEnter={() => setAutoScroll(false)}

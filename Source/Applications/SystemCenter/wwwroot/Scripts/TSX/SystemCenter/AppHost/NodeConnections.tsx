@@ -69,7 +69,7 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
         h.done((statuses: SC.StatusItem[]) => {
             setExtDBStatus(statuses)
         }).fail((d) => {
-            setExtDBStatus([{ Status: 'Error', Name: 'External Database Connections', Details: [{ Status: "Error", Description: "Errors occurred in retrieving External DB Connection status." }] }])
+            setExtDBStatus([])
         })
 
 
@@ -92,7 +92,7 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
         h.done((statuses: SC.StatusItem[]) => {
             setRemoteXDAStatus(statuses)
         }).fail(() => {
-            setRemoteXDAStatus([{ Status: 'Error', Name: 'Remote XDA Connection', Details: [{ Status: "Error", Description: "Errors occurred in retrieving Remote openXDA Connection status." }] }])
+            setRemoteXDAStatus([])
         })
         return function cleanup() {
             if (h.abort != null)
@@ -170,8 +170,9 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
 
     return (
         props.ApplicationType === 'SystemCenter' ?
-            <div className="row">
-                <div className="col-6">
+            <div className="row h-100">
+                {extDBStatus.length == 0 ? null :
+                    <div className="col-6 h-100">
                     <StatusGroup
                         StatusItems={extDBStatus}
                         Status={status}
@@ -180,7 +181,8 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
                         Name="External Database Connections"
                     />
                 </div>
-                <div className="col-6">
+                }
+                <div className={`col-${extDBStatus.length == 0 ? 12 : 6} h-100`}>
                     <StatusGroup
                         StatusItems={[fawgStatus, PQIStatus]}
                         Status={status}
@@ -191,9 +193,9 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
                 </div>
             </div >
             : props.ApplicationType === "XDA" ?
-                <div className="row">
+                <div className="row h-100">
                     {remoteXDAStatus.length == 0 ? null :
-                    <div className="col-6">
+                        <div className="col-6 h-100">
                         <StatusGroup
                             StatusItems={remoteXDAStatus}
                             Status={status}
@@ -203,7 +205,7 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
                         />
                     </div>
                     }
-                    <div className={`col-${remoteXDAStatus.length == 0 ? 12 : 6}`}>
+                    <div className={`col-${remoteXDAStatus.length == 0 ? 12 : 6} h-100`}>
                         <StatusGroup
                             StatusItems={[SCADAStatus]}
                             Status={status}
