@@ -363,18 +363,18 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                                             Position={'bottom'}
                                             Target={`badDays${index}`}
                                         >
-                                            <ul> {item['MICBadDays'] == null ? null :
-                                                <li key={0}>
+                                            <div> {item['MICBadDays'] == null ? null :
+                                                <p key={0}>
                                                     {`openMIC: ${item['MICBadDays']}`}
-                                                </li>
+                                                </p>
                                             }
-                                                <li key={1}>
+                                                <p key={1}>
                                                     {`miMD: ${item['MiMDBadDays']}`}
-                                                </li>
-                                                <li key={2}>
+                                                </p>
+                                                <p key={2}>
                                                     {`openXDA: ${item['XDABadDays']}`}
-                                                </li>
-                                            </ul>
+                                                </p>
+                                            </div>
                                         </ToolTip>
                                     </>
                                 )
