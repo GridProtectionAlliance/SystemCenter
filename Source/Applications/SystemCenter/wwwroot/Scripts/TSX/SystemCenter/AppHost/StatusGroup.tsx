@@ -23,14 +23,12 @@
 
 import * as React from 'react'
 import { Application } from '@gpa-gemstone/application-typings'
-import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { ServerErrorIcon } from '@gpa-gemstone/react-interactive'
 import { SystemCenter as SC } from '../global'
 import StatusItem from './StatusItem'
 
 const StatusGroup = (props: { Name: string, StatusItems: SC.StatusItem[], Status: Application.Types.Status, HoveredItem: String, SetHoveredItem: React.Dispatch<React.SetStateAction<String>> }) => {
     return (
-        <fieldset className="border col-12" style={{ padding: '10px', height: '100%' }}>
+        <fieldset className="border h-100" style={{ padding: '10px', flex: '1 1 0%', display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
             <legend className="w-auto" style={{ fontSize: 'large' }}>{`${props.Name}:`}</legend>
             {props.StatusItems.map((statusItem, index) => (
                 <StatusItem
@@ -39,8 +37,7 @@ const StatusGroup = (props: { Name: string, StatusItems: SC.StatusItem[], Status
                     SetHoveredItem={props.SetHoveredItem}
                     key={index}
                 />
-            ))
-            }
+                ))}
         </fieldset>
     )
 }
