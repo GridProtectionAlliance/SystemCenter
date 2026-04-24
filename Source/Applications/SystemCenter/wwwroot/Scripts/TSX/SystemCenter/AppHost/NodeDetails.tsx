@@ -47,10 +47,10 @@ export interface IProps {
 }
 
 const ApplicationTabs = {
-    'SystemCenter': 'Connections,Console',
-    'XDA': 'Connections,Health,Console',
-    'MiMD': 'Console',
-    'openMIC': 'Health'
+    'SystemCenter': [{ Label: 'Connections', Id: 'connections' }, { Label: 'Console', Id: 'console' }],
+    'XDA': [{ Label: 'Connections', Id: 'connections' }, { Label: 'Health', Id: 'health' }, { Label: 'Console', Id: 'console' }],
+    'MiMD': [{ Label: 'Console', Id: 'console' }],
+    'openMIC': [{ Label: 'Health', Id: 'health' }]
 }
 
 const NodeDetails = (props: IProps) => {
@@ -59,7 +59,7 @@ const NodeDetails = (props: IProps) => {
 
     const availableTabs = React.useMemo(() => {
         if (!Object.keys(ApplicationTabs).includes(props.ApplicationType)) return []
-        return ApplicationTabs[props.ApplicationType ?? ''].split(',').map<ITab>((t) => { return { Label: t, Id: t.toLowerCase() } })
+        return ApplicationTabs[props.ApplicationType]
     }, [props.ApplicationType])
 
     React.useEffect(() => {
