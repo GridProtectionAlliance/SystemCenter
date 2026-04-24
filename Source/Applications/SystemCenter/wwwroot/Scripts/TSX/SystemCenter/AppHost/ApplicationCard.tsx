@@ -23,6 +23,7 @@
 
 import * as React from 'react';
 import { useAppDispatch } from '../hooks';
+import { SystemCenter as SC } from '../global'
 
 export interface IHostProperties { Name: string, Value: string }
 
@@ -33,9 +34,9 @@ export interface IHost {
     StatsURL?: string,
     ConsoleURL: string,
     Name: string,
-    App: 'XDA' | 'MiMD' | 'SystemCenter',
+    App: SC.ApplicationType,
     OpenConsole: () => void,
-    OpenStats: () => void
+    OpenDetails: () => void
 }
 
 export interface IApplicationCard extends IHost {
@@ -98,13 +99,8 @@ const ApplicationCard = (props: IApplicationCard) => {
                 </div>
                 <div className="card-footer">
                     <div className="row">
-                        <div className={`col align-self-start`}>
-                            <button className={`btn btn-info`} onClick={() => props.OpenConsole()} disabled={status == "Loading" || status == "Unknown" }>Console</button>
-                        </div>
-                        <div className={`col align-self-end`}>
-                            {props.App === 'MiMD' ? null :
-                                <button className={`btn btn-info float-right`} onClick={() => props.OpenStats()} disabled={status == "Loading" || status == "Unknown"}>Status</button>
-                            }
+                        <div className={`col`}>
+                            <button className={`btn btn-${status == "Loading" || status == "Unknown" ? 'secondary' : 'info' }`} onClick={() => props.OpenDetails()} disabled={status == "Loading" || status == "Unknown"}>Details</button>
                         </div>
                     </div>
                 </div>

@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  NodeHealth.tsx - Gbtc
 //
-//  Copyright © 2026, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright ï¿½ 2026, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -16,91 +16,81 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  02/26/2026 - Natalie Beatty
+//  10/14/2024 - G. Santos
 //       Generated original version of source code.
+//  04/02/2026 - N. Beatty
+//       Moved from NodeStats.tsx to NodeHealth.tsx
 //
 //******************************************************************************************************
 
-import * as React from 'react'
-import { Application, SystemCenter, OpenXDA } from '@gpa-gemstone/application-typings'
-import { SystemCenter as SC } from '../global'
-import StatusGroup from './StatusGroup'
 
-const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCenter' | 'MiMD' | 'XDA', Properties: { Name: string, Value: string }[] }) => {
+import * as React from 'react';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { Application } from '@gpa-gemstone/application-typings';
+import { SystemCenter as SC } from '../global'
+import StatusDetails from './StatusDetails'
+
+const statStyle: React.CSSProperties = {
+    fontSize: "1em",
+    display: 'inline-block',
+    overflow: 'auto',
+    whiteSpace: 'pre-wrap',
+    wordBreak: 'break-word'
+}
+
+export interface IProps {
+    StatsURL: string,
+    ApplicationName: string,
+    ApplicationType: SC.ApplicationType,
+    Close: () => void
+    Properties: { Name: string, Value: string }[]
+}
+
+const NodeHealth = (props: IProps) => {
+
+    const [statInfo, setStatInfo] = React.useState<string>('');
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
-    const [extDBStatus, setExtDBStatus] = React.useState<SC.StatusItem[]>([{Name: "Loading...", Status: "Loading", Details: [] }]);
-    const [remoteXDAStatus, setRemoteXDAStatus] = React.useState<SC.StatusItem[]>([{ Name: "Loading...", Status: "Loading", Details: [] }]);
-    const [hoveredItem, setHoveredItem] = React.useState<string>(null)
-    const [fawgStatus, setFawgStatus] = React.useState<SC.StatusItem>({ Name: "FAWG", Status: "Loading", Details: [] })
-    const [PQIStatus, setPQIStatus] = React.useState<SC.StatusItem>({ Name: "PQI", Status: "Loading", Details: [] })
-    const [SCADAStatus, setSCADAStatus] = React.useState<SC.StatusItem>({ Name: "SCADA Resource", Status: "Loading", Details: [] })
+    const [openMICStatus, setOpenMICStatus] = React.useState<SC.StatusItem>({ Name: 'openMIC', Status: 'Loading', Details: [] });
 
     React.useEffect(() => {
+        if (props.ApplicationType === 'openMIC') {
+            setStatus('loading')
+            const cleanup = GetOpenMICHealth()
+            return cleanup
+        }
+
+        if (props.StatsURL == null || props.StatsURL.length == 0) return;
+
         setStatus('loading');
-        switch (props.ApplicationType) {
-            case 'SystemCenter':
-                testDBs()
-                testFAWG()
-                testPQI()
-                break;
-            case 'XDA':
-                testRemoteXDAs()
-                testSCADA()
-                break;
-            default:
-                break;
-        }
-    }, [props.ApplicationName])
+        let statHandle: JQuery.jqXHR<string>;
+        const intervalHandle = setInterval(() => {
+            if (statHandle != null && statHandle?.abort != null) statHandle.abort();
 
+            statHandle = $.ajax({
+                type: "GET",
+                url: props.StatsURL,
+                dataType: 'text',
+                cache: false,
+                async: true
+            }).done((stat: string) => {
+                setStatus('idle');
+                // Regex remove wrapping quotes, carriage return, and format \\ to \
+                setStatInfo(stat.replace(/^\"+|\"+$/g, '').replace(/\\r\\n/g, '\n').replace(/\\\\/g, '\\'));
+            }).fail((_a, _b, e) => {
+                setStatus('error');
+            });
+        }, 5000);
 
-    function testDBs() {
-        const h = $.ajax({
-            type: "POST",
-            url: `${homePath}api/SystemCenter/ExternalDatabases/TestAllConnections`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: false,
-            async: true
-        });
+        return () => {
+            clearInterval(intervalHandle);
+            if (statHandle != null && statHandle.abort != null) statHandle.abort();
+        };
+    }, [props.ApplicationName]);
 
-        h.done((statuses: SC.StatusItem[]) => {
-            setExtDBStatus(statuses)
-        }).fail((d) => {
-            setExtDBStatus([{ Status: 'Error', Name: 'External Database Connections', Details: [{ Status: "Error", Description: "Errors occured in retrieving External DB Connection status" }] }])
-        })
-    
-
-        return function cleanup() {
-            if (h.abort != null)
-                h.abort();
-        }
-    }
-
-    function testRemoteXDAs() {
+    const GetOpenMICHealth = () => {
         const h = $.ajax({
             type: "GET",
-            url: `${homePath}api/OpenXDA/remoteXDAInstance/RemoteConnectionStatus/${props.Properties.find(prop => prop.Name === "ID").Value}`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: false,
-            async: true
-        });
-
-        h.done((statuses: SC.StatusItem[]) => {
-            setRemoteXDAStatus(statuses)
-        }).fail(() => {
-            setRemoteXDAStatus([{ Status: 'Error', Name: 'Remote XDA Connection', Details: [{ Status: "Error", Description: "Errors occured in retrieving Remote XDA Connection status" }] }])
-        })
-        return function cleanup() {
-            if (h.abort != null)
-                h.abort();
-        }
-    }
-
-    function testFAWG() {
-        const h = $.ajax({
-            type: "POST",
-            url: `${homePath}api/LineSegmentWizard/TestConnection`,
+            url: `${homePath}api/DeviceHealthReport/OpenMICStatus`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
@@ -108,55 +98,11 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
         });
 
         h.done((d: SC.StatusItem) => {
-            d.Name = 'FAWG'
-            setFawgStatus(d)
+            setOpenMICStatus(d)
+            setStatus('idle')
         }).fail(() => {
-            setFawgStatus({ Status: 'Error', Name: 'FAWG', Details: [{ Status: "Error", Description: "Errors occured in retrieving FAWG status" }] })
-        })
-
-        return function cleanup() {
-            if (h.abort != null)
-                h.abort();
-        }
-    }
-
-    function testPQI() {
-        const h = $.ajax({
-            type: "GET",
-            url: `${homePath}api/SystemCenter/PQI/Test`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: false,
-            async: true
-        });
-
-        h.done((d: SC.StatusItem) => {
-            d.Name = 'PQI'
-            setPQIStatus(d)
-        }).fail(() => {
-            setPQIStatus({ Status: 'Error', Name: 'PQI', Details: [{ Status: "Error", Description: "Errors occured in retrieving PQI status" }] })
-        })
-
-        return function cleanup() {
-            if (h.abort != null)
-                h.abort();
-        }
-    }
-    function testSCADA() {
-        const h = $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/ScadaHealth`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: false,
-            async: true
-        });
-
-        h.done((d: SC.StatusItem) => {
-            d.Name = 'SCADA'
-            setSCADAStatus(d)
-        }).fail(() => {
-            setSCADAStatus({ Status: 'Error', Name: 'SCADA Resource', Details: [{Status: "Error", Description: "Errors occured in retrieving SCADA Resource"}] })
+            setOpenMICStatus({ Status: 'Error', Name: 'openMIC', Details: [{ Status: "Error", Description: "Errors occurred in retrieving openMIC health." }] })
+            setStatus('error')
         })
 
         return function cleanup() {
@@ -166,49 +112,36 @@ const NodeHealth = (props: { ApplicationName: string, ApplicationType: 'SystemCe
     }
 
     return (
-        props.ApplicationType === 'SystemCenter' ?
-            <div className="row">
-                <div className="col-6">
-                    <StatusGroup
-                        StatusItems={extDBStatus}
-                                Status={status}
-                                HoveredItem={hoveredItem}
-                                SetHoveredItem={setHoveredItem}
-                        Name="External Database Connections"
-                            />
-                </div>
-                <div className="col-6">
-                    <StatusGroup
-                        StatusItems={[fawgStatus, PQIStatus]}
-                        Status={status}
-                        HoveredItem={hoveredItem}
-                        SetHoveredItem={setHoveredItem}
-                        Name="Other Connections"
-                    />
-                </div>
-            </div >
-            : props.ApplicationType === "XDA" ?
-                <div>
-                    <div className="row">
-                        <StatusGroup
-                            StatusItems={remoteXDAStatus}
-                        Status={status}
-                        HoveredItem={hoveredItem}
-                        SetHoveredItem={setHoveredItem}
-                            Name="Remote XDA Connections"
-                    />
-                    </div>
-                    <div className="row">
-                        <StatusGroup
-                            StatusItems={[SCADAStatus]}
-                            Status={status}
-                            HoveredItem={hoveredItem}
-                            SetHoveredItem={setHoveredItem}
-                            Name="Other Connections"
-                        />
-                    </div>
-                </div>
-                : null
+        <fieldset className="border h-100" style={{ padding: '10px', flex: '1 1 0%', display: 'flex', flexDirection: 'column', overflow: 'auto'}}>
+            <legend className="w-auto" style={{ fontSize: 'large' }}>{props.ApplicationType} Health:</legend>
+
+            {status === "error" ?
+
+                <div className={`col-12 d-flex alert-danger`}>
+                    <span className={"my-3"}>
+                        <ReactIcons.CircledX Color="var(--danger)" />
+                    </span>
+                    <h5
+                        className={"m-3"}
+                    >
+                        Failed to get {props.ApplicationType} health.
+                    </h5>
+                </div> :
+                status === "loading" ?
+                    <ReactIcons.SpiningIcon /> :
+                    props.ApplicationType === 'XDA' ?
+                        <div className="w-100 h-100">
+                                <pre style={statStyle}>
+                                    {statInfo}
+                                </pre>
+                            </div>
+                        : props.ApplicationType === 'openMIC'
+                            ? <StatusDetails
+                                StatusItem={openMICStatus}
+                            /> :
+                            null}
+
+        </fieldset>
     )
 }
 

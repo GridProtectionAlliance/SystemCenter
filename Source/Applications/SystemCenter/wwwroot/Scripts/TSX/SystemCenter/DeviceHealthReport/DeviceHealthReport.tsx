@@ -73,7 +73,7 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
     const settings = useAppSelector(SystemCenterSettingSlice.Data);
     const settingStatus = useAppSelector(SystemCenterSettingSlice.Status);
     const [hovered, setHovered] = React.useState<number>(null);
-    const [pagedData, setPagedData] = React.useState<IPagedResult>(null);
+    const [pagedData, setPagedData] = React.useState<IPagedResult>({TotalRecords: 0, NumberOfPages: 0, Data: '', RecordsPerPage: 0});
     const [page, setPage] = React.useState<number>(0);
 
     React.useEffect(() => {
@@ -165,7 +165,7 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
         <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
             <div className="row">
                 <SearchBar<SCGlobal.DeviceHealthReport> CollumnList={filterableList} SetFilter={setSearch} Direction={'left'} defaultCollumn={standardSearch} Width={'50%'} Label={'Search'} StorageID="DeviceHealthReportFilter"
-                    ShowLoading={searchState == 'Loading'} ResultNote={searchState == 'Error' ? 'Could not complete Search' : 'Found ' + data.length + ' Meter(s)'}
+                    ShowLoading={searchState == 'Loading'} ResultNote={searchState == 'Error' ? 'Could not complete Search' : ('Displaying Device Health Report(s) ' + (pagedData.TotalRecords > 0 ? (pagedData.RecordsPerPage * page + 1) : 0) + ' - ' + (pagedData.RecordsPerPage * page + data.length)) + ' out of ' + pagedData.TotalRecords}
                     GetEnum={(setOptions, field) => {
                         let handle = null;
                         if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
@@ -192,10 +192,12 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                                 <AppStatus
                                     Name="openMIC"
                                     Endpoint="OpenMICStatus"
+                                    IsCondensed={true}
                                 />
                                 <AppStatus
-                                    Name="Scada Trigger"
+                                    Name="SCADA Trigger"
                                     Endpoint="ScadaTriggerStatus"
+                                    IsCondensed={false}
                                 />
 
                             </div>
@@ -361,18 +363,18 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                                             Position={'bottom'}
                                             Target={`badDays${index}`}
                                         >
-                                            <ul> {item['MICBadDays'] == null ? null :
-                                                <li key={0}>
+                                            <div> {item['MICBadDays'] == null ? null :
+                                                <p key={0}>
                                                     {`openMIC: ${item['MICBadDays']}`}
-                                                </li>
+                                                </p>
                                             }
-                                                <li key={1}>
+                                                <p key={1}>
                                                     {`miMD: ${item['MiMDBadDays']}`}
-                                                </li>
-                                                <li key={2}>
+                                                </p>
+                                                <p key={2}>
                                                     {`openXDA: ${item['XDABadDays']}`}
-                                                </li>
-                                            </ul>
+                                                </p>
+                                            </div>
                                         </ToolTip>
                                     </>
                                 )

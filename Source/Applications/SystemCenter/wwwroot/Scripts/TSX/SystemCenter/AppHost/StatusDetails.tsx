@@ -1,5 +1,5 @@
 //******************************************************************************************************
-//  StatusGroup.tsx - Gbtc
+//  StatusDetails.tsx - Gbtc
 //
 //  Copyright © 2026, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -16,30 +16,37 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  03/19/2026 - Natalie Beatty
-//       Generated original version of source code.
+//  04/06/2026 - Natalie Beatty
+//      Generated original version of source code.
 //
 //******************************************************************************************************
-
 import * as React from 'react'
-import { Application } from '@gpa-gemstone/application-typings'
-import { SystemCenter as SC } from '../global'
-import StatusItem from './StatusItem'
+import { SystemCenter } from '../global'
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols'
+import { GetStatusSymbol, GetStatusItemAlertClass } from './StatusItem'
 
-const StatusGroup = (props: { Name: string, StatusItems: SC.StatusItem[], Status: Application.Types.Status, HoveredItem: String, SetHoveredItem: React.Dispatch<React.SetStateAction<String>> }) => {
+interface IProps {
+    StatusItem: SystemCenter.StatusItem
+}
+
+const StatusDetails = (props: IProps) => {
     return (
-        <fieldset className="border h-100" style={{ padding: '10px', flex: '1 1 0%', display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
-            <legend className="w-auto" style={{ fontSize: 'large' }}>{`${props.Name}:`}</legend>
-            {props.StatusItems.map((statusItem, index) => (
-                <StatusItem
-                    StatusItem={statusItem}
-                    HoveredItem={props.HoveredItem}
-                    SetHoveredItem={props.SetHoveredItem}
-                    key={index}
-                />
-                ))}
-        </fieldset>
+        <div>
+            {props.StatusItem.Details.length == 0 ? <ReactIcons.SpiningIcon />
+                : props.StatusItem.Details.map((d, i) => {
+                    return (
+                        <div className={'row mb-2 mx-2'} key={i}> 
+                            <div className={`col-12 d-flex align-items-center alert-${GetStatusItemAlertClass(d.Status)}`}>
+                                <span className={"my-3"}>{GetStatusSymbol(d.Status)}</span>
+                                <h5 className={"m-3"} >
+                                    {d.Description}
+                                </h5>
+                            </div>
+                        </div>
+                    )
+                })}
+        </div>
     )
 }
 
-export default StatusGroup;
+export default StatusDetails;

@@ -26,8 +26,8 @@ using GSF.Data;
 using GSF.Data.Model;
 using GSF.Reflection;
 using Newtonsoft.Json;
-using openXDA.APIMiddleware;
 using openXDA.APIAuthentication;
+using openXDA.APIMiddleware;
 using openXDA.Model;
 using System;
 using System.Collections.Generic;
@@ -87,6 +87,8 @@ namespace SystemCenter.Controllers
 
             // Add MiMD
             hosts.Add(GetMiMD());
+
+            hosts.Add(GetOpenMIC());
 
             // Add XDA Nodes
             using (AdoDataConnection connection = CreateDbConnection())
@@ -208,6 +210,28 @@ namespace SystemCenter.Controllers
             return ResponseMessage(responseMessage);
         }
 
+        [Route("openMIC/Ping"), HttpGet]
+        public IHttpActionResult openMICPing()
+        {
+            using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+            {
+                string url = new TableOperations<SystemCenter.Model.Setting>(connection).QueryRecordWhere($"Name = 'OpenMIC.Url'")?.Value ?? "";
+                string credential = new TableOperations<SystemCenter.Model.Setting>(connection).QueryRecordWhere($"Name = 'OpenMIC.Credential'")?.Value ?? "";
+                string password = new TableOperations<SystemCenter.Model.Setting>(connection).QueryRecordWhere($"Name = 'OpenMIC.Password'")?.Value ?? "";
+
+                //string token = GenerateAntiForgeryToken(application);
+                //return Get(httpClient, url, requestURI, credential, password, token);
+                APIQuery query = new APIQuery(credential, password, url); 
+                void ConfigureRequest(HttpRequestMessage request)
+                {
+                    request.Method = HttpMethod.Get;
+                }
+                HttpResponseMessage response = query.SendWebRequestAsync(ConfigureRequest, $"api/health").Result;
+                if (response.IsSuccessStatusCode) return Ok(1);
+                return ResponseMessage(response);
+            }
+        }
+
         [Route("MiMDConsole/Ping"), HttpGet]
         public IHttpActionResult MiMDPing()
         {
@@ -299,6 +323,14 @@ namespace SystemCenter.Controllers
             }
         }
 
+        private string GetOpenMICBaseURL()
+        {
+            using (AdoDataConnection connection = CreateDbConnection())
+            {
+                return connection.ExecuteScalar("", "SELECT Value FROM [SystemCenter.Setting] WHERE Name = {0}", "OpenMIC.Url");
+            }
+        }
+
         private AdoDataConnection CreateDbConnection()
         {
             AdoDataConnection connection = new AdoDataConnection("systemSettings");
@@ -341,6 +373,21 @@ namespace SystemCenter.Controllers
                 ConsoleURL = "./api/SystemCenter/AppHost/MiMDConsole",
                 Name = "MiMD",
                 App = "MiMD"
+            };
+        }
+
+        private AppHost GetOpenMIC()
+        {
+            return new AppHost()
+            {
+                Name = "openMIC",
+                App = "openMIC",
+                PingURL = "./api/SystemCenter/AppHost/openMIC/Ping",
+                Properties = new AppProperty[]
+                {
+                    new AppProperty() { Name= "Host", Value = GetOpenMICBaseURL() }
+                },
+                Image = "../Images/NodeTiles/openMIC.png"
             };
         }
 
