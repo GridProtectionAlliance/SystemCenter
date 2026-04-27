@@ -28,11 +28,11 @@ import { Modal, TabSelector } from '@gpa-gemstone/react-interactive';
 import NodeConnections from './NodeConnections';
 import NodeHealth from './NodeHealth';
 import ConsoleWindow from './ConsoleWindow'
-import FileWatcher from './FileWatcher'
+import FilesProcessed from './FilesProcessed'
 import { IHost } from './ApplicationCard';
 import { SystemCenter as SC } from '../global'
 
-type tab = 'connections' | 'health' | 'console' | 'filewatcher' 
+type tab = 'connections' | 'health' | 'console' | 'filesprocessed' 
 
 interface ITab { Label: string, Id: string }
 export interface IMessage { Message: string, Type: number }
@@ -48,11 +48,10 @@ export interface IProps {
 }
 
 const ApplicationTabs = {
-    '': '',
-    'SystemCenter': 'Connections,Console',
-    'XDA': 'Connections,Health,Console,FileWatcher',
-    'MiMD': 'Console',
-    'openMIC': 'Health'
+    'SystemCenter': [{ Label: 'Connections', Id: 'connections' }, { Label: 'Console', Id: 'console' }],
+    'XDA': [{ Label: 'Connections', Id: 'connections' }, { Label: 'Health', Id: 'health' }, { Label: 'Console', Id: 'console' }, { Label: 'Files Processed', Id: 'filesprocessed' }],
+    'MiMD': [{ Label: 'Console', Id: 'console' }],
+    'openMIC': [{Label: 'Health', Id: 'health'}]
 }
 
 const NodeDetails = (props: IProps) => {
@@ -60,10 +59,12 @@ const NodeDetails = (props: IProps) => {
     const [tab, setTab] = React.useState<tab>('connections');
 
     const availableTabs = React.useMemo(() => {
-        return ApplicationTabs[props.ApplicationType ?? ''].split(',').map<ITab>((t) => { return { Label: t, Id: t.toLowerCase() } })
+        if (!Object.keys(ApplicationTabs).includes(props.ApplicationType)) return []
+        return ApplicationTabs[props.ApplicationType]  
     }, [props.ApplicationType])
 
     React.useEffect(() => {
+        if (availableTabs.length == 0) return
         setTab(availableTabs[0].Id as tab)
     }, [availableTabs])
 
@@ -105,8 +106,8 @@ const NodeDetails = (props: IProps) => {
                                         Close={() => props.SetConsole(null)}
                                     />
                                 </div>
-                                    : tab === 'filewatcher' ? <div className="tab-pane active" style={{ height: 'inherit' }}>
-                                        <FileWatcher />
+                                    : tab === 'filesprocessed' ? <div className="tab-pane active" style={{ height: 'inherit' }}>
+                                        <FilesProcessed />
                                         </div>
                                     : null}
                     </div>

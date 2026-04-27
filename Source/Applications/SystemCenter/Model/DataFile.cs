@@ -25,6 +25,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -47,6 +48,7 @@ namespace SystemCenter.Model
         SELECT
 	        DataFile.*,
 	        FileGroup.DataStartTime,
+            FileGroup.ProcessingStartTime,
 	        FileGroup.ProcessingEndTime,
 	        FileGroup.MeterID,
             FileGroup.ProcessingStatus AS ProcessingState
@@ -59,6 +61,7 @@ namespace SystemCenter.Model
     {
         [ParentKey(typeof(Meter))]
         public int MeterID { get; set; }
+        public DateTime ProcessingStartTime { get; set; }
         [DefaultSortOrder(false)]
         public DateTime ProcessingEndTime { get; set; }
         public DateTime DataStartTime { get; set; }
@@ -206,7 +209,25 @@ namespace SystemCenter.Model
             }
         }
 
- 
+        [Route("AggregateRecentlyProcessedFiles"), HttpGet]
+        public IHttpActionResult AggregateRecentlyProcessedFiles()
+        {
+            String sqlQuery = @"
+            SELECT
+	            FORMAT (FileGroup.ProcessingStartTime, 'yyyy-MM-dd HH') AS Hour,
+	            COUNT(DataFile.ID) as Count
+            FROM
+	            openXDA.dbo.DataFile JOIN openXDA.dbo.FileGroup ON DataFile.FileGroupID = FileGroup.ID
+            WHERE
+	            FileGroup.ProcessingStartTime > DATEADD(HOUR, DATEDIFF(HOUR, 0, GETDATE()) - 48, 0)
+	            GROUP BY FORMAT (FileGroup.ProcessingStartTime, 'yyyy-MM-dd HH');";
+            DataTable result;
+            using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+            {
+                result = connection.RetrieveData(sqlQuery);
+            }
+            return Ok(result);
+        }
     }
 
 }
