@@ -110,14 +110,14 @@ namespace SystemCenter.Controllers.OpenXDA
         public IHttpActionResult RecentFailures([FromBody] PostData postData)
         {
             using DataTable value = GetSearchResults(postData, 0);
-            value.Columns.Add("dataFileName", typeof(String));
+            value.Columns.Add("DataFileName", typeof(String));
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
                 foreach (DataRow row in value.Rows)
                 {
                     TableOperations<openXDA.Model.DataFile> dataFileTbl = new TableOperations<openXDA.Model.DataFile>(connection);
                     openXDA.Model.DataFile dataFile = dataFileTbl.QueryRecordWhere("FileGroupID = {0}", row.Field<int>("FileGroupID"));
-                    row["dataFileName"] = Path.GetFileName(dataFile.FilePath);
+                    row["DataFileName"] = Path.GetFileName(dataFile.FilePath);
                 }
             }
             int num = CountSearchResults(postData);
