@@ -48,6 +48,7 @@ export namespace SystemCenter {
         MICStatus: 'Error' | 'Warning' | '', MiMDStatus: 'Error' | 'Warning' | '', LastConfigChange: string, DQStatus: 'Error' | 'Warning' | ''
     }
 
+    interface DataFile extends GemstoneXDA.Types.DataFile { ProcessingStartTime: string, FileName: string }
     interface OpenMICDailyStatistic { ID: number, Date: string, Meter: string, LastSuccessfulConnection: string, LastUnsuccessfulConnection: string, LastUnsuccessfulConnectionExplanation: string, TotalConnections: number, TotalUnsuccessfulConnections: number, TotalSuccessfulConnections: number }
     interface MiMDDailyStatistic { ID: number, Date: string, Meter: string, LastSuccessfulFileProcessed: string, LastUnsuccessfulFileProcessed: string, LastUnsuccessfulFileProcessedExplanation: string, TotalFilesProcessed: number, TotalUnsuccessfulFilesProcessed: number, TotalSuccessfulFilesProcessed: number, ConfigChanges: number, DiagnosticAlarms: number, ComplianceIssues: number, LastConfigFileChange: string }
     interface OpenXDADailyStatistic { ID: number, Date: string, Meter: string, LastSuccessfulFileProcessed: string, LastUnsuccessfulFileProcessed: string, LastUnsuccessfulFileProcessedExplanation: string, TotalFilesProcessed: number, TotalUnsuccessfulFilesProcessed: number, TotalSuccessfulFilesProcessed: number, TotalEmailsSent: number, AverageDownloadLatency: number, AverageProcessingStartLatency: number, AverageProcessingEndLatency: number, AverageEmailLatency: number, AverageTotalProcessingLatency: number, AverageTotalEmailLatency: number }
