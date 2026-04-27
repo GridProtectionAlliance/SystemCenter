@@ -33,7 +33,12 @@ interface INamedDataOperationFailure extends OpenXDA.Types.DataOperationFailure 
     dataFileName: string
 }
 
-const FileWatcher = (props: {}) => {
+interface IAggregateProcessedFile {
+    Hour: string,
+    Count: number
+}
+
+const FilesProcessed = (props: {}) => {
 
     const [sortField, setSortField] = React.useState<keyof OpenXDA.Types.DataFile>('ID')
     const [ascending, setAscending] = React.useState<boolean>(false)
@@ -46,31 +51,10 @@ const FileWatcher = (props: {}) => {
     const [dataFile, setDataFile] = React.useState<OpenXDA.Types.DataFile[]>([])
     const [dataOperationFailure, setDataOperationFailure] = React.useState<INamedDataOperationFailure[]>([])
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated')
-    const [timeframe, setTimeframe] = React.useState<[number, number]>([null, null])
-    const [yRange, setYRange] = React.useState<[number, number]>([0, 50])
+    const [timeframe, setTimeframe] = React.useState<[number, number]>([moment().subtract(48, 'hour').startOf('hour').valueOf(), moment().add(1, 'hour').startOf('hour').valueOf()])
+    const [yMax, setYMax] = React.useState<number>(0)
     const rowRef = React.useRef<HTMLDivElement>(null);
-
-
-    const bars = React.useMemo(() => {
-        const timestamps = []
-        dataFile.forEach((df) => {
-            if (!(timestamps.includes(df.DataStartTime))) {
-                timestamps.push(df.DataStartTime)
-            }
-            if (!(timestamps.includes(df.ProcessingEndTime))) {
-                timestamps.push(df.ProcessingEndTime)
-            }
-        })
-        timestamps.sort((a, b) => { return moment(a).valueOf() - moment(b).valueOf()})
-        const bars = {}
-        timestamps.forEach((ts) => { bars[ts] = 0 })
-        dataFile.forEach((df) => {
-            // add 1 to every timestamp from start to end, start inclusive, end exclusive
-            timestamps.forEach((ts) => { moment(ts).valueOf() >= moment(df.DataStartTime).valueOf() && moment(ts).valueOf() < moment(df.ProcessingEndTime).valueOf() ? bars[ts]++ : null })
-        })
-        setYRange([Math.min(...Object.values(bars) as number[]), Math.max(...Object.values(bars) as number[])])
-        return bars
-    }, [dataFile])
+    const [aggregateProcessedFiles, setAggregateProcessedFiles] = React.useState<IAggregateProcessedFile[]>([])
 
     // set plot dimensions
     React.useLayoutEffect(() => {
@@ -78,21 +62,36 @@ const FileWatcher = (props: {}) => {
         setPlotWidth((rowRef?.current?.offsetWidth ?? 130) - 30)
     });
 
-
-    React.useEffect(() => {
-        if (dataFile.length == 0)
-            return;
-        const startTime = Math.min(...dataFile.map((i) => moment(i.DataStartTime).valueOf()))
-        const endTime = moment.now().valueOf()
-        setTimeframe([startTime, endTime])
-    }, [dataFile])
-
     React.useEffect(() => {
         setStatus('loading')
         getFileGroups()
         getDataOperationFailure()
+        getAggregateRecentlyProcessedFiles()
         setStatus('idle')
     }, [sortField, ascending, page])
+
+    function getAggregateRecentlyProcessedFiles() {
+        const h = $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/DataFile/AggregateRecentlyProcessedFiles`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true,
+        })
+
+        h.done((d) => {
+            setAggregateProcessedFiles(d)
+            setYMax(Math.max(...d?.map((c) => {return c.Count})))
+        }).fail(() => {
+            setStatus('error')
+        })
+        return function cleanup() {
+            if (h.abort != null)
+                h.abort();
+
+        }
+    }
 
     function getFileGroups() {
         const h = $.ajax({
@@ -102,7 +101,7 @@ const FileWatcher = (props: {}) => {
             dataType: 'json',
             cache: false,
             async: true,
-            data: JSON.stringify({ Searches: [], OrderBy: sortField, Ascending: ascending }),
+            data: JSON.stringify({ Searches: [{ FieldName: 'ProcessingStartTime', SearchText: moment().subtract(48, 'hour').startOf('hour').format('YYYY-MM-DD HH:mm:ss.SSS'), Operator: '>', Type: 'datetime' }], OrderBy: sortField, Ascending: ascending }),
         });
 
         h.done((d) => {
@@ -127,7 +126,7 @@ const FileWatcher = (props: {}) => {
             dataType: 'json',
             cache: false,
             async: true,
-            data: JSON.stringify({ Searches: [], OrderBy: 'TimeOfFailure', Ascending: false }),
+            data: JSON.stringify({ Searches: [{ FieldName: 'TimeOfFailure', SearchText: moment().subtract(48, 'hour').startOf('hour').format('YYYY-MM-DD HH:mm:ss.SSS'), Operator: '>', Type: 'datetime' }], OrderBy: 'TimeOfFailure', Ascending: false }),
         });
 
         h.done((d) => {
@@ -155,23 +154,27 @@ const FileWatcher = (props: {}) => {
                             height={plotHeight}
                             width={plotWidth}
                             defaultTdomain={timeframe}
-                            defaultYdomain={yRange}
+                            defaultYdomain={[0, yMax]}
                             onTDomainChange={setTimeframe}
-                            zoom={true}
-                            yZoom={true}
+                            zoom={false}
+                            yZoom={false}
+                            xZoom={false}
+                            Tmin={timeframe[0]}
+                            Tmax={timeframe[1]}
                             Ymin={0}
-                            Ymax={100}
-                            Ylabel={'Files Queued' }
-                            showDateOnTimeAxis={true}
+                            Ymax={yMax} // should be dynamic
+                            Ylabel={'Files Queued'}
                         >
-                            {Object.keys(bars).sort((a, b) => { return moment(a).valueOf() - moment(b).valueOf()}).map((bar, i, array) => (
-                                <Bar
-                                    Data={[moment(bars[bar as string]).valueOf()]}
-                                    BarOrigin={moment(bar).valueOf()}
-                                    BarWidth={(moment(array[i + 1]).valueOf() - moment(bar).valueOf())}
-                                    Color={'green'}
-                                />
-                            ))}
+                            {aggregateProcessedFiles.length == 0 ? null :
+                                aggregateProcessedFiles.map((a, i) => {
+                                    return <Bar
+                                        Data={[a.Count]}
+                                        BarOrigin={moment(a.Hour).valueOf()}
+                                        BarWidth={3600000}
+                                        Color={'black'}
+                                        >
+                                    </Bar>
+                                })}
                         </Plot>
                     </div>
                     <div className="row d-flex flex-column h-50" style={{ flex: '1, 1, 0%'}}>
@@ -209,6 +212,15 @@ const FileWatcher = (props: {}) => {
                                 Data Start Time
                             </Column>
                             <Column<OpenXDA.Types.DataFile>
+                                Key={'ProcessingStartTime'}
+                                AllowSort={true}
+                                Field={'ProcessingStartTime'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            >
+                                Processing Start Time
+                            </Column>
+                            <Column<OpenXDA.Types.DataFile>
                                 Key={'ProcessingEndTime'}
                                 AllowSort={true}
                                 Field={'ProcessingEndTime'}
@@ -223,12 +235,12 @@ const FileWatcher = (props: {}) => {
                     </div>
                 </div>
                 <div className="col-6">
-                    <StatusGroup
+                    <StatusGroup // now not status group
                         Status="idle"
                         StatusItems={dataOperationFailure.map((d) => { return { Name: `${d.TimeOfFailure}: ${d.dataFileName}`, Status: 'Error', Details: [{Status: 'Error', Description: d.Log}] }})}
                         HoveredItem={hoveredItem}
                         SetHoveredItem={setHoveredItem}
-                        Name={'events'}
+                        Name={'Data Operation Failures'}
                     />
                 </div>
             </>
@@ -237,4 +249,4 @@ const FileWatcher = (props: {}) => {
 }
 
 
-export default FileWatcher
+export default FilesProcessed
