@@ -22,15 +22,15 @@
 //******************************************************************************************************
 
 import * as React from 'react'
-import { OpenXDA, Application , SystemCenter as SC} from '@gpa-gemstone/application-typings';
+import { OpenXDA, Application} from '@gpa-gemstone/application-typings';
 import { Table, Paging, Column } from '@gpa-gemstone/react-table'
 import { Plot, Bar } from '@gpa-gemstone/react-graph'
-import StatusGroup from './StatusGroup'
 import { LoadingScreen } from '@gpa-gemstone/react-interactive';
+import { SystemCenter as SC } from '../global';
 import moment from 'moment'
 
 interface INamedDataOperationFailure extends OpenXDA.Types.DataOperationFailure {
-    dataFileName: string
+    DataFileName: string
 }
 
 interface IAggregateProcessedFile {
@@ -40,15 +40,14 @@ interface IAggregateProcessedFile {
 
 const FilesProcessed = (props: {}) => {
 
-    const [sortField, setSortField] = React.useState<keyof OpenXDA.Types.DataFile>('ID')
+    const [sortField, setSortField] = React.useState<keyof SC.DataFile>('ID')
     const [ascending, setAscending] = React.useState<boolean>(false)
     const [plotWidth, setPlotWidth] = React.useState<number>(100);
     const [plotHeight, setPlotHeight] = React.useState<number>(400);
-    const [hoveredItem, setHoveredItem] = React.useState<string>(null)
     const [page, setPage] = React.useState<number>(0);
     const [totalPages, setTotalPages] = React.useState<number>()
     const [totalFailurePages, setTotalFailurePages] = React.useState<number>()
-    const [dataFile, setDataFile] = React.useState<OpenXDA.Types.DataFile[]>([])
+    const [dataFile, setDataFile] = React.useState<SC.DataFile[]>([])
     const [dataOperationFailure, setDataOperationFailure] = React.useState<INamedDataOperationFailure[]>([])
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated')
     const [timeframe, setTimeframe] = React.useState<[number, number]>([moment().subtract(48, 'hour').startOf('hour').valueOf(), moment().add(1, 'hour').startOf('hour').valueOf()])
@@ -178,7 +177,7 @@ const FilesProcessed = (props: {}) => {
                         </Plot>
                     </div>
                     <div className="row d-flex flex-column h-50" style={{ flex: '1, 1, 0%'}}>
-                        <Table<OpenXDA.Types.DataFile>
+                        <Table<SC.DataFile>
                             Data={dataFile}
                             SortKey={sortField}
                             Ascending={ascending}
@@ -193,39 +192,48 @@ const FilesProcessed = (props: {}) => {
                                 }
                             }}
                         >
-                            <Column<OpenXDA.Types.DataFile>
-                                Key={'FilePath'}
+                            <Column<SC.DataFile>
+                                Key={'FileName'}
                                 AllowSort={true}
-                                Field={'FilePath'}
+                                Field={'FileName'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                             >
-                                FilePath
+                                File Name
                             </Column>
-                            <Column<OpenXDA.Types.DataFile>
+                            <Column<SC.DataFile>
                                 Key={'DataStartTime'}
                                 AllowSort={true}
                                 Field={'DataStartTime'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
+                                Content={({ item, field }) => {
+                                    return <span className={`badge badge-pill badge-info`}>{moment(item[field]).format('MM/DD/YYYY hh:mm')}</span>
+                                }}
                             >
                                 Data Start Time
                             </Column>
-                            <Column<OpenXDA.Types.DataFile>
+                            <Column<SC.DataFile>
                                 Key={'ProcessingStartTime'}
                                 AllowSort={true}
                                 Field={'ProcessingStartTime'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
+                                Content={({ item, field }) => {
+                                    return <span className={`badge badge-pill badge-info`}>{moment(item[field]).format('MM/DD/YYYY hh:mm')}</span>
+                                }}
                             >
                                 Processing Start Time
                             </Column>
-                            <Column<OpenXDA.Types.DataFile>
+                            <Column<SC.DataFile>
                                 Key={'ProcessingEndTime'}
                                 AllowSort={true}
                                 Field={'ProcessingEndTime'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
+                                Content={({ item, field }) => {
+                                    return <span className={`badge badge-pill badge-info`}>{moment(item[field]).format('MM/DD/YYYY hh:mm')}</span>
+                                }}
                             >
                                 Processing End Time
                             </Column>
@@ -235,13 +243,15 @@ const FilesProcessed = (props: {}) => {
                     </div>
                 </div>
                 <div className="col-6">
-                    <StatusGroup // now not status group
-                        Status="idle"
-                        StatusItems={dataOperationFailure.map((d) => { return { Name: `${d.TimeOfFailure}: ${d.dataFileName}`, Status: 'Error', Details: [{Status: 'Error', Description: d.Log}] }})}
-                        HoveredItem={hoveredItem}
-                        SetHoveredItem={setHoveredItem}
-                        Name={'Data Operation Failures'}
-                    />
+                    {dataOperationFailure.map((e, i) => {
+                        return <div className={'row alert-danger'}>
+                            <p className={'col'}>{e.DataFileName}</p>
+                            <p className={'col'}>{e.TimeOfFailure}</p>
+                            <p className={'col'}>{e.Log}</p>
+                            <p className={'col'}>{e.StackTrace}</p>
+                            </div>
+                    })
+                    }
                 </div>
             </>
                 : null}

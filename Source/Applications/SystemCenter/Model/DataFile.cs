@@ -27,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -66,6 +67,8 @@ namespace SystemCenter.Model
         public DateTime ProcessingEndTime { get; set; }
         public DateTime DataStartTime { get; set; }
         public int ProcessingState { get; set; }
+        [NonRecordField]
+        public string FileName => Path.GetFileName(FilePath);
     }
 
     [RoutePrefix("api/OpenXDA/DataFile")]
@@ -228,6 +231,43 @@ namespace SystemCenter.Model
             }
             return Ok(result);
         }
+       
+        [Route("PagedResults"), HttpPost]
+        public override IHttpActionResult GetPagedList([FromBody] PostData postData, int page)
+        {
+            if (!GetAuthCheck())
+                return Unauthorized();
+
+            using DataTable table = GetSearchResults(postData, page);
+            DataFile[] results = table
+                .AsEnumerable()
+                .Select(row => new DataFile() 
+            { 
+                CreationTime = row.Field<DateTime>("CreationTime"),
+                ID = row.Field<int>("ID"),
+                FileGroupID = row.Field<int>("FileGroupID"),
+                FilePath = row.Field<string>("FilePath"),
+                FilePathHash = row.Field<int>("FilePathHash"),
+                FileSize = row.Field<long>("FileSize"),
+                LastWriteTime = row.Field<DateTime>("LastWriteTime"),
+                LastAccessTime = row.Field<DateTime>("LastAccessTime"),
+                MeterID = row.Field<int>("MeterID"),
+                DataStartTime = row.Field<DateTime>("DataStartTime"),
+                ProcessingEndTime = row.Field<DateTime>("ProcessingEndTime"),
+                ProcessingState = row.Field<int>("ProcessingState"),
+                ProcessingStartTime = row.Field<DateTime>("ProcessingStartTime")
+        }).ToArray();
+            int recordCount = CountSearchResults(postData);
+            int recordPerPage = Take ?? 50;
+            return Ok(new PagedResults()
+            {
+                Data = JsonConvert.SerializeObject(results),
+                RecordsPerPage = recordPerPage,
+                TotalRecords = recordCount,
+                NumberOfPages = (recordCount + recordPerPage - 1) / recordPerPage
+            });
+        }
+
     }
 
 }
