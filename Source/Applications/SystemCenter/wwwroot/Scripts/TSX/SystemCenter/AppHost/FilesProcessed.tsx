@@ -27,6 +27,7 @@ import { Table, Paging, Column } from '@gpa-gemstone/react-table'
 import { Plot, Bar } from '@gpa-gemstone/react-graph'
 import { LoadingScreen } from '@gpa-gemstone/react-interactive';
 import { SystemCenter as SC } from '../global';
+import Reason from '../CommonComponents/Reason';
 import moment from 'moment'
 
 interface INamedDataOperationFailure extends OpenXDA.Types.DataOperationFailure {
@@ -243,12 +244,28 @@ const FilesProcessed = (props: {}) => {
                     </div>
                 </div>
                 <div className="col-6">
+                    <fieldset className="border h-100" style={{ padding: '10px', flex: '1 1 0%', display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
+                        <legend className="w-auto" style={{ fontSize: 'large' }}> Data Operation Failures :</legend>
                     {dataOperationFailure.map((e, i) => {
-                        return <div className={'row alert-danger'}>
-                            <p className={'col'}>{e.DataFileName}</p>
-                            <p className={'col'}>{e.TimeOfFailure}</p>
-                            <p className={'col'}>{e.Log}</p>
-                            <p className={'col'}>{e.StackTrace}</p>
+                                return <div className={'row alert-danger m-2'}>
+                            <div className={'col-4 d-flex justify-content-center align-items-center'}>{e.DataFileName}</div>
+                            <div className={'col-4 d-flex justify-content-center align-items-center'}>
+                                <span className={`badge badge-pill badge-secondary`}>{moment(e.TimeOfFailure).format('MM/DD/YYYY hh:mm')}</span>
+                            </div>
+                            <div className={'col-2 d-flex justify-content-around align-items-center'}>
+                                Log:
+                                <Reason
+                                    ID={i}
+                                    Text={e.Log}
+                                />
+                            </div>
+                            <div className={'col-2 d-flex justify-content-around align-items-center'}>
+                                Stack Trace:
+                                <Reason
+                                    ID={i}
+                                    Text={e.StackTrace}
+                                />
+                            </div>
                             </div>
                     })
                     }
