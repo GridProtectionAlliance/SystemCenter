@@ -22,12 +22,12 @@
 //******************************************************************************************************
 
 import * as React from 'react'
-import { OpenXDA, Application} from '@gpa-gemstone/application-typings';
+import { OpenXDA, Application } from '@gpa-gemstone/application-typings';
 import { Table, Paging, Column } from '@gpa-gemstone/react-table'
 import { Plot, Bar } from '@gpa-gemstone/react-graph'
-import { LoadingScreen } from '@gpa-gemstone/react-interactive';
+import { LoadingScreen, Modal } from '@gpa-gemstone/react-interactive';
+import { ToolTip } from '@gpa-gemstone/react-forms';
 import { SystemCenter as SC } from '../global';
-import Reason from '../CommonComponents/Reason';
 import moment from 'moment'
 
 interface INamedDataOperationFailure extends OpenXDA.Types.DataOperationFailure {
@@ -48,6 +48,7 @@ const FilesProcessed = (props: {}) => {
     const [page, setPage] = React.useState<number>(0);
     const [totalPages, setTotalPages] = React.useState<number>()
     const [totalFailurePages, setTotalFailurePages] = React.useState<number>()
+    const [hovered, setHovered] = React.useState<string>('')
     const [dataFile, setDataFile] = React.useState<SC.DataFile[]>([])
     const [dataOperationFailure, setDataOperationFailure] = React.useState<INamedDataOperationFailure[]>([])
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated')
@@ -55,6 +56,8 @@ const FilesProcessed = (props: {}) => {
     const [yMax, setYMax] = React.useState<number>(0)
     const rowRef = React.useRef<HTMLDivElement>(null);
     const [aggregateProcessedFiles, setAggregateProcessedFiles] = React.useState<IAggregateProcessedFile[]>([])
+    const [detailModalContent, setDetailModalContent] = React.useState<string>('')
+    const [showDetailModal, setShowDetailModal] = React.useState<boolean>(false)
 
     // set plot dimensions
     React.useLayoutEffect(() => {
@@ -82,7 +85,7 @@ const FilesProcessed = (props: {}) => {
 
         h.done((d) => {
             setAggregateProcessedFiles(d)
-            setYMax(Math.max(...d?.map((c) => {return c.Count})))
+            setYMax(Math.max(...d?.map((c) => { return c.Count })))
         }).fail(() => {
             setStatus('error')
         })
@@ -143,6 +146,10 @@ const FilesProcessed = (props: {}) => {
         }
     }
 
+    function handleViewMoreClick(event: React.MouseEvent, message: string) {
+        setDetailModalContent(message)
+        setShowDetailModal(true)
+    }
     
     return (
         <div className="row h-100">
@@ -177,7 +184,7 @@ const FilesProcessed = (props: {}) => {
                                 })}
                         </Plot>
                     </div>
-                    <div className="row d-flex flex-column h-50" style={{ flex: '1, 1, 0%'}}>
+                    <div className="row d-flex flex-column h-50" style={{ flex: '1, 1, 0%' }}>
                         <Table<SC.DataFile>
                             Data={dataFile}
                             SortKey={sortField}
@@ -248,23 +255,52 @@ const FilesProcessed = (props: {}) => {
                         <legend className="w-auto" style={{ fontSize: 'large' }}> Data Operation Failures :</legend>
                     {dataOperationFailure.map((e, i) => {
                                 return <div className={'row alert-danger m-2'}>
-                            <div className={'col-4 d-flex justify-content-center align-items-center'}>{e.DataFileName}</div>
-                            <div className={'col-4 d-flex justify-content-center align-items-center'}>
+                                <div className={'col-2 d-flex justify-content-center align-items-center'}>
                                 <span className={`badge badge-pill badge-secondary`}>{moment(e.TimeOfFailure).format('MM/DD/YYYY hh:mm')}</span>
                             </div>
+                                <div className={'col-3 d-flex justify-content-center align-items-center'}>
+                                    <h6>{e.DataOperationTypeName.split('.')[e.DataOperationTypeName.split('.').length - 1]}</h6>
+                                </div>
+                                <div className={'col-3 d-flex justify-content-center align-items-center'}>{e.DataFileName}</div>
                             <div className={'col-2 d-flex justify-content-around align-items-center'}>
-                                Log:
-                                <Reason
-                                    ID={i}
-                                    Text={e.Log}
-                                />
+                                    <div className={'btn btn-primary'}
+                                        onMouseEnter={() => setHovered(`failurelog${e.ID.toString()}`)}
+                                        onMouseLeave={() => setHovered('')}
+                                        data-tooltip={`failurelog${e.ID.toString()}`}
+                                    >
+                                        View Log
                             </div>
+                                    <ToolTip
+                                        Show={hovered === `failurelog${e.ID.toString()}`}
+                                        Target={`failurelog${e.ID.toString()}`}
+                                    >
+                                        {e.Log.length > 100
+                                            ? <>
+                                                <p>{`${e.Log.slice(0, 100)}...`}</p>
+                                                <a href="#" onClick={(ev) => { handleViewMoreClick(ev, e.Log) }}>View more</a>
+                                            </>
+                                            : <p>{e.Log}</p>}
+                                    </ToolTip>
+                                </div>
                             <div className={'col-2 d-flex justify-content-around align-items-center'}>
-                                Stack Trace:
-                                <Reason
-                                    ID={i}
-                                    Text={e.StackTrace}
-                                />
+                                    <div className={'btn btn-primary'}
+                                        onMouseEnter={() => setHovered(`failurestacktrace${e.ID.toString()}`)}
+                                        onMouseLeave={() => setHovered('')}
+                                        data-tooltip={`failurestacktrace${e.ID.toString()}`}
+                                    >
+                                        View Stack Trace
+                                    </div>
+                                    <ToolTip
+                                        Show={hovered === `failurestacktrace${e.ID.toString()}`}
+                                        Target={`failurestacktrace${e.ID.toString()}`}
+                                    >
+                                        {e.StackTrace.length > 100
+                                            ? <>
+                                                <p>{`${e.StackTrace.slice(0, 100)}...`}</p>
+                                                <a href="#" onClick={(ev) => {handleViewMoreClick(ev,e.StackTrace)}}>View more</a>
+                                            </>
+                                            : <p>{e.StackTrace}</p>}
+                                    </ToolTip>
                             </div>
                             </div>
                     })
