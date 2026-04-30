@@ -58,7 +58,9 @@ const FilesProcessed = (props: {}) => {
     const [aggregateProcessedFiles, setAggregateProcessedFiles] = React.useState<IAggregateProcessedFile[]>([])
     const [detailModalContent, setDetailModalContent] = React.useState<string>('')
     const [showDetailModal, setShowDetailModal] = React.useState<boolean>(false)
+    const [selectedFile, setSelectedFile] = React.useState<string>(null)
     const [filteredHour, setFilteredHour] = React.useState<string>(null)
+    const [selectedTime, setSelectedTime] = React.useState<string>(null)
 
     // set plot dimensions
     React.useLayoutEffect(() => {
@@ -67,6 +69,8 @@ const FilesProcessed = (props: {}) => {
     });
 
     React.useEffect(() => {
+        setSelectedTime(null)
+        setSelectedFile(null)
         setStatus('loading')
         getFileGroups()
         getDataOperationFailure()
@@ -195,11 +199,22 @@ const FilesProcessed = (props: {}) => {
         setDetailModalContent(message)
         setShowDetailModal(true)
     }
-    
+
     const handleOnPlotSelect = React.useCallback((x: number, y: number[]) => {
         const selectedHour = aggregateProcessedFiles.find(a => moment(a.Hour).valueOf() < x && (moment(a.Hour).valueOf() + 3600000) > x && y[0] < a.Count)
         setFilteredHour(selectedHour?.Hour ?? null)
     }, [aggregateProcessedFiles])
+
+    function handleOnTableClick(data, event: React.MouseEvent) {
+        setSelectedFile(data.row.FileName)
+        setSelectedTime(data.row.ProcessingStartTime)
+    }
+
+    function handleDataOperationFailureClick(data: INamedDataOperationFailure, event: React.MouseEvent) {
+        setSelectedFile(data.DataFileName)
+        setSelectedTime(data.TimeOfFailure)
+    }
+
     return (
         <div className="row h-100">
             <LoadingScreen Show={status === 'loading'} />
@@ -221,6 +236,8 @@ const FilesProcessed = (props: {}) => {
                             Ymax={yMax} // should be dynamic
                             Ylabel={'Files Queued'}
                             onSelect={handleOnPlotSelect}
+                            pan={false}
+                            defaultMouseMode={'select'}
                         >
                             {aggregateProcessedFiles.length == 0 ? null :
                                 aggregateProcessedFiles.map((a, i) => {
@@ -228,9 +245,9 @@ const FilesProcessed = (props: {}) => {
                                         Data={[a.Count]}
                                         BarOrigin={moment(a.Hour).valueOf()}
                                         BarWidth={3600000}
-                                        Color={'black'}
+                                        Color={a.Hour === filteredHour ? 'yellow' : moment(selectedTime).hour() === moment(a.Hour).hour()  && selectedTime !== null ? 'green' : 'black'}
                                         key={a.Hour}
-                                        >
+                                    >
                                     </Bar>
                                 })}
                         </Plot>
@@ -250,6 +267,8 @@ const FilesProcessed = (props: {}) => {
                                     setSortField(d.colField);
                                 }
                             }}
+                            OnClick={handleOnTableClick}
+                            Selected={(item) => item.FileName == selectedFile}
                         >
                             <Column<SC.DataFile>
                                 Key={'FileName'}
@@ -298,30 +317,31 @@ const FilesProcessed = (props: {}) => {
                             </Column>
 
                         </Table>
-                            <Paging Current={page + 1} Total={totalPages} SetPage={(p) => setPage(p - 1)} />
+                        <Paging Current={page + 1} Total={totalPages} SetPage={(p) => setPage(p - 1)} />
                     </div>
                 </div>
                 <div className="col-6">
                     <fieldset className="border h-100" style={{ padding: '10px', flex: '1 1 0%', display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
                         <legend className="w-auto" style={{ fontSize: 'large' }}> Data Operation Failures :</legend>
                         {dataOperationFailure.map((e) => {
-                            return <div className={'row alert-danger m-2'}
+                            return <div className={`row alert-${e.DataFileName === selectedFile ? 'warning' : 'danger'} m-2`}
                                 key={e.ID}
+                                onClick={(evt) => { handleDataOperationFailureClick(e, evt) }}>
                                 <div className={'col-2 d-flex justify-content-center align-items-center'}>
-                                <span className={`badge badge-pill badge-secondary`}>{moment(e.TimeOfFailure).format('MM/DD/YYYY hh:mm')}</span>
-                            </div>
+                                    <span className={`badge badge-pill badge-secondary`}>{moment(e.TimeOfFailure).format('MM/DD/YYYY hh:mm')}</span>
+                                </div>
                                 <div className={'col-3 d-flex justify-content-center align-items-center'}>
                                     <h6>{e.DataOperationTypeName.split('.')[e.DataOperationTypeName.split('.').length - 1]}</h6>
                                 </div>
                                 <div className={'col-3 d-flex justify-content-center align-items-center'}>{e.DataFileName}</div>
-                            <div className={'col-2 d-flex justify-content-around align-items-center'}>
+                                <div className={'col-2 d-flex justify-content-around align-items-center'}>
                                     <div className={'btn btn-primary'}
                                         onMouseEnter={() => setHovered(`failurelog${e.ID.toString()}`)}
                                         onMouseLeave={() => setHovered('')}
                                         data-tooltip={`failurelog${e.ID.toString()}`}
                                     >
                                         View Log
-                            </div>
+                                    </div>
                                     <ToolTip
                                         Show={hovered === `failurelog${e.ID.toString()}`}
                                         Target={`failurelog${e.ID.toString()}`}
@@ -334,7 +354,7 @@ const FilesProcessed = (props: {}) => {
                                             : <p>{e.Log}</p>}
                                     </ToolTip>
                                 </div>
-                            <div className={'col-2 d-flex justify-content-around align-items-center'}>
+                                <div className={'col-2 d-flex justify-content-around align-items-center'}>
                                     <div className={'btn btn-primary'}
                                         onMouseEnter={() => setHovered(`failurestacktrace${e.ID.toString()}`)}
                                         onMouseLeave={() => setHovered('')}
@@ -353,10 +373,10 @@ const FilesProcessed = (props: {}) => {
                                             </>
                                             : <p>{e.StackTrace}</p>}
                                     </ToolTip>
+                                </div>
                             </div>
-                            </div>
-                    })
-                    }
+                        })
+                        }
                     </fieldset>
                 </div>
             </>
