@@ -58,6 +58,7 @@ const FilesProcessed = (props: {}) => {
     const [aggregateProcessedFiles, setAggregateProcessedFiles] = React.useState<IAggregateProcessedFile[]>([])
     const [detailModalContent, setDetailModalContent] = React.useState<string>('')
     const [showDetailModal, setShowDetailModal] = React.useState<boolean>(false)
+    const [filteredHour, setFilteredHour] = React.useState<string>(null)
 
     // set plot dimensions
     React.useLayoutEffect(() => {
@@ -69,9 +70,12 @@ const FilesProcessed = (props: {}) => {
         setStatus('loading')
         getFileGroups()
         getDataOperationFailure()
-        getAggregateRecentlyProcessedFiles()
         setStatus('idle')
-    }, [sortField, ascending, page])
+    }, [sortField, ascending, page, filteredHour])
+
+    React.useEffect(() => {
+        getAggregateRecentlyProcessedFiles()
+    }, [])
 
     function getAggregateRecentlyProcessedFiles() {
         const h = $.ajax({
@@ -97,6 +101,26 @@ const FilesProcessed = (props: {}) => {
     }
 
     function getFileGroups() {
+        const filters = filteredHour === null ? [{
+            FieldName: 'ProcessingStartTime',
+            Operator: '>',
+            Type: 'datetime',
+            SearchText: moment().subtract(48, 'hour').startOf('hour').format('YYYY-MM-DD HH:mm:ss.SSS')
+        }]
+            : [
+                {
+                    FieldName: 'ProcessingStartTime',
+                    Operator: '>=',
+                    Type: 'datetime',
+                    SearchText: moment(filteredHour).format('YYYY-MM-DD HH:mm:ss.SSS')
+},
+                {
+                    FieldName: 'ProcessingStartTime',
+                    Operator: '<',
+                    Type: 'datetime',
+                    SearchText: moment(filteredHour).add(1, 'hour').format('YYYY-MM-DD HH:mm:ss.SSS')
+}
+        ]
         const h = $.ajax({
             type: "POST",
             url: `${homePath}api/OpenXDA/DataFile/PagedList/${page}`,
@@ -104,7 +128,7 @@ const FilesProcessed = (props: {}) => {
             dataType: 'json',
             cache: false,
             async: true,
-            data: JSON.stringify({ Searches: [{ FieldName: 'ProcessingStartTime', SearchText: moment().subtract(48, 'hour').startOf('hour').format('YYYY-MM-DD HH:mm:ss.SSS'), Operator: '>', Type: 'datetime' }], OrderBy: sortField, Ascending: ascending }),
+            data: JSON.stringify({ Searches: filters, OrderBy: sortField, Ascending: ascending }),
         });
 
         h.done((d) => {
@@ -122,6 +146,27 @@ const FilesProcessed = (props: {}) => {
     }
 
     function getDataOperationFailure() {
+        const filters = filteredHour === null ? [{
+            FieldName: 'TimeOfFailure',
+            Operator: '>',
+            Type: 'datetime',
+            SearchText: moment().subtract(48, 'hour').startOf('hour').format('YYYY-MM-DD HH:mm:ss.SSS')
+        }]
+            : [
+                {
+                    FieldName: 'TimeOfFailure',
+                    Operator: '>=',
+                    Type: 'datetime',
+                    SearchText: moment(filteredHour).format('YYYY-MM-DD HH:mm:ss.SSS')
+},
+                {
+                    FieldName: 'TimeOfFailure',
+                    Operator: '<',
+                    Type: 'datetime',
+                    SearchText: moment(filteredHour).add(1, 'hour').format('YYYY-MM-DD HH:mm:ss.SSS')
+}
+            ]
+
         const h = $.ajax({
             type: "POST",
             url: `${homePath}api/OpenXDA/DataOperationFailure/RecentFailures`,
@@ -129,7 +174,7 @@ const FilesProcessed = (props: {}) => {
             dataType: 'json',
             cache: false,
             async: true,
-            data: JSON.stringify({ Searches: [{ FieldName: 'TimeOfFailure', SearchText: moment().subtract(48, 'hour').startOf('hour').format('YYYY-MM-DD HH:mm:ss.SSS'), Operator: '>', Type: 'datetime' }], OrderBy: 'TimeOfFailure', Ascending: false }),
+            data: JSON.stringify({ Searches: filters, OrderBy: 'TimeOfFailure', Ascending: false }),
         });
 
         h.done((d) => {
@@ -151,6 +196,10 @@ const FilesProcessed = (props: {}) => {
         setShowDetailModal(true)
     }
     
+    const handleOnPlotSelect = React.useCallback((x: number, y: number[]) => {
+        const selectedHour = aggregateProcessedFiles.find(a => moment(a.Hour).valueOf() < x && (moment(a.Hour).valueOf() + 3600000) > x && y[0] < a.Count)
+        setFilteredHour(selectedHour?.Hour ?? null)
+    }, [aggregateProcessedFiles])
     return (
         <div className="row h-100">
             <LoadingScreen Show={status === 'loading'} />
@@ -171,6 +220,7 @@ const FilesProcessed = (props: {}) => {
                             Ymin={0}
                             Ymax={yMax} // should be dynamic
                             Ylabel={'Files Queued'}
+                            onSelect={handleOnPlotSelect}
                         >
                             {aggregateProcessedFiles.length == 0 ? null :
                                 aggregateProcessedFiles.map((a, i) => {
@@ -179,6 +229,7 @@ const FilesProcessed = (props: {}) => {
                                         BarOrigin={moment(a.Hour).valueOf()}
                                         BarWidth={3600000}
                                         Color={'black'}
+                                        key={a.Hour}
                                         >
                                     </Bar>
                                 })}
@@ -253,8 +304,9 @@ const FilesProcessed = (props: {}) => {
                 <div className="col-6">
                     <fieldset className="border h-100" style={{ padding: '10px', flex: '1 1 0%', display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
                         <legend className="w-auto" style={{ fontSize: 'large' }}> Data Operation Failures :</legend>
-                    {dataOperationFailure.map((e, i) => {
-                                return <div className={'row alert-danger m-2'}>
+                        {dataOperationFailure.map((e) => {
+                            return <div className={'row alert-danger m-2'}
+                                key={e.ID}
                                 <div className={'col-2 d-flex justify-content-center align-items-center'}>
                                 <span className={`badge badge-pill badge-secondary`}>{moment(e.TimeOfFailure).format('MM/DD/YYYY hh:mm')}</span>
                             </div>
@@ -305,9 +357,20 @@ const FilesProcessed = (props: {}) => {
                             </div>
                     })
                     }
+                    </fieldset>
                 </div>
             </>
                 : null}
+            <Modal
+                Title={'Log'}
+                CallBack={() => { setShowDetailModal(false) }}
+                Show={showDetailModal}
+                ShowCancel={false}
+                ShowX={true}
+                ShowConfirm={false }
+            >
+                {detailModalContent}
+            </Modal>
         </div>)
 }
 
