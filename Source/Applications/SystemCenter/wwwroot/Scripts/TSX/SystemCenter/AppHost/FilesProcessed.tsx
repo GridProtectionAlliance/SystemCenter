@@ -27,6 +27,7 @@ import { Table, Paging, Column } from '@gpa-gemstone/react-table'
 import { Plot, Bar } from '@gpa-gemstone/react-graph'
 import { LoadingScreen, Modal } from '@gpa-gemstone/react-interactive';
 import { ToolTip } from '@gpa-gemstone/react-forms';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols'
 import { SystemCenter as SC } from '../global';
 import moment from 'moment'
 
@@ -40,14 +41,13 @@ interface IAggregateProcessedFile {
 }
 
 const FilesProcessed = (props: {}) => {
-
     const [sortField, setSortField] = React.useState<keyof SC.DataFile>('ID')
     const [ascending, setAscending] = React.useState<boolean>(false)
     const [plotWidth, setPlotWidth] = React.useState<number>(100);
     const [plotHeight, setPlotHeight] = React.useState<number>(400);
     const [page, setPage] = React.useState<number>(0);
-    const [totalPages, setTotalPages] = React.useState<number>()
-    const [totalFailurePages, setTotalFailurePages] = React.useState<number>()
+    const [totalPages, setTotalPages] = React.useState<number>(0)
+    const [totalFailurePages, setTotalFailurePages] = React.useState<number>(0)
     const [hovered, setHovered] = React.useState<string>('')
     const [dataFile, setDataFile] = React.useState<SC.DataFile[]>([])
     const [dataOperationFailure, setDataOperationFailure] = React.useState<INamedDataOperationFailure[]>([])
@@ -138,6 +138,8 @@ const FilesProcessed = (props: {}) => {
         h.done((d) => {
             setDataFile(JSON.parse(d.Data))
             setTotalPages(d.NumberOfPages)
+            if (page - 1 >= d.NumberOfPages)
+                setPage(d.NumberOfPages - 1)
             setStatus('idle')
         }).fail(() => {
             setStatus('error')
@@ -245,7 +247,7 @@ const FilesProcessed = (props: {}) => {
                                         Data={[a.Count]}
                                         BarOrigin={moment(a.Hour).valueOf()}
                                         BarWidth={3600000}
-                                        Color={a.Hour === filteredHour ? 'yellow' : moment(selectedTime).hour() === moment(a.Hour).hour()  && selectedTime !== null ? 'green' : 'black'}
+                                        Color={a.Hour === filteredHour ? 'yellow' : moment(a.Hour).startOf('hour').valueOf() === moment(selectedTime).startOf('hour').valueOf() && selectedTime !== null ? 'green' : 'black'}
                                         key={a.Hour}
                                     >
                                     </Bar>
@@ -272,7 +274,7 @@ const FilesProcessed = (props: {}) => {
                         >
                             <Column<SC.DataFile>
                                 Key={'FileName'}
-                                AllowSort={true}
+                                AllowSort={false}
                                 Field={'FileName'}
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
@@ -286,6 +288,8 @@ const FilesProcessed = (props: {}) => {
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                                 Content={({ item, field }) => {
+                                    if (item[field] == "0001-01-01T00:00:00")
+                                        return 'N/A'
                                     return <span className={`badge badge-pill badge-info`}>{moment(item[field]).format('MM/DD/YYYY hh:mm')}</span>
                                 }}
                             >
@@ -298,6 +302,8 @@ const FilesProcessed = (props: {}) => {
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                                 Content={({ item, field }) => {
+                                    if (item[field] == null || item[field] == undefined)
+                                        return 'N/A'
                                     return <span className={`badge badge-pill badge-info`}>{moment(item[field]).format('MM/DD/YYYY hh:mm')}</span>
                                 }}
                             >
@@ -310,12 +316,24 @@ const FilesProcessed = (props: {}) => {
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                                 Content={({ item, field }) => {
+                                    if (item[field] == "0001-01-01T00:00:00")
+                                        return 'N/A'
                                     return <span className={`badge badge-pill badge-info`}>{moment(item[field]).format('MM/DD/YYYY hh:mm')}</span>
                                 }}
                             >
                                 Processing End Time
                             </Column>
-
+                            <Column<SC.DataFile>
+                                Key={'ProcessingState'}
+                                AllowSort={true}
+                                Field={'ProcessingState'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                                Content={({ item, field }) => {
+                                    return processingStateToSymbol(item[field] as number)
+                                }}
+                            >
+                            </Column>
                         </Table>
                         <Paging Current={page + 1} Total={totalPages} SetPage={(p) => setPage(p - 1)} />
                     </div>
@@ -395,4 +413,18 @@ const FilesProcessed = (props: {}) => {
 }
 
 
-export default FilesProcessed
+const processingStateToSymbol = (processingState: number) => {
+    if (processingState == 0) //Added - Unknown
+        return <ReactIcons.Warning Size={15} />;
+    if (processingState == 1) //Queued
+        return <ReactIcons.Document Size={15} />;
+    if (processingState == 2) // Processing
+        return <ReactIcons.SpiningIcon Size={15} />;
+    if (processingState == 3) // Processed
+        return <ReactIcons.CircleCheckMark Size={15} />
+    if (processingState == 4) // Error
+        return <ReactIcons.CircledX Size={15} />;
+    if (processingState == 5) // Partial Success
+        return <ReactIcons.Alert Size={15} />;
+    return <ReactIcons.Warning Size={15} />
+}
