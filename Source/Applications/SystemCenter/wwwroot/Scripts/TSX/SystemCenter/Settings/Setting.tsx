@@ -88,6 +88,12 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
         dispatch(props.SettingsSlice.PagedSearch({ filter: search, sortField, ascending, page: page - 1 }))
     }, [sortField, ascending, search])
 
+    React.useEffect(() => {
+        if (currentPage >= totalPages) {
+            setPage(totalPages)
+        }
+    }, [totalPages])
+
     const searchFields: Search.IField<T>[] = [
         { key: 'Name', label: 'Setting Name', type: 'string', isPivotField: false },
         { key: 'DefaultValue', label: 'Default Value', type: 'string', isPivotField: false },
