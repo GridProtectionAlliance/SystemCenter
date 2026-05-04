@@ -109,6 +109,10 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
             dispatch(AdditionalFieldsSlice.PagedSearch({ filter: search, sortField, ascending, page: currentPage }));
     }, [status]);
 
+    React.useEffect(() => {
+        if (currentPage >= totalPages) { }
+            setPage(totalPages)
+    }, [totalPages])
 
     React.useEffect(() => {
         if (valueListGroupStatus == 'uninitiated' || valueListGroupStatus == 'changed')
