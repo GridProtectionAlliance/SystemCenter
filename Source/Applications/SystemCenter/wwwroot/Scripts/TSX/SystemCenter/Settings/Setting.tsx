@@ -112,7 +112,7 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
                 <div className="col">
                 <SearchBar<T> CollumnList={searchFields} SetFilter={setFilters}
                     Direction={'left'} defaultCollumn={{ key: 'Name', label: 'Setting Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'} StorageID={`${props.SettingsSlice.Name}Filter`}
-                    ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Setting(s)'}
+                    ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + totalRecords + ' Setting(s)'}
                     GetEnum={() => {
                         return () => { }
                     }}
