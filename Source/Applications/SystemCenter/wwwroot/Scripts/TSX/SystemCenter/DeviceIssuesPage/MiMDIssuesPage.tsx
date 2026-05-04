@@ -28,7 +28,7 @@ import { SystemCenter as SC } from '../global';
 import _ from 'lodash';
 import * as React from 'react';
 import { GenericController } from '@gpa-gemstone/react-interactive';
-import { ConfigurableTable, ConfigurableColumn, Column } from '@gpa-gemstone/react-table';
+import { ConfigurableTable, ConfigurableColumn, Column, Paging } from '@gpa-gemstone/react-table';
 import Reason from '../CommonComponents/Reason';
 import moment from 'moment';
 import { useAppDispatch, useAppSelector } from '../hooks';
@@ -44,26 +44,20 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
     const [ascending, setAscending] = React.useState<boolean>(false);
     const settings = useAppSelector(SystemCenterSettingSlice.Data);
     const settingStatus = useAppSelector(SystemCenterSettingSlice.Status);
-
-    const order = React.useCallback((data: SC.MiMDDailyStatistic[]) => {
-        return _.orderBy(data, [sortField], [ascending ? 'asc' : 'desc'])
-    }, [sortField, ascending]);
+    const [currentPage, setCurrentPage] = React.useState<number>(0);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
 
     React.useEffect(() => {
-        const handle = MiMDDailyStatisticController.PagedSearch([], undefined, undefined, 0, props.Meter.AssetKey).done(result => {
+        const handle = MiMDDailyStatisticController.PagedSearch([], sortField, ascending, currentPage, props.Meter.AssetKey).done(result => {
             const data = JSON.parse(result.Data as unknown as string);
-            setData(order(data));
+            setData(data);
+            setTotalPages(result.NumberOfPages)
         });
 
         return () => {
             if (handle != null || handle.abort != null) handle.abort();
         }
-    }, [props.Meter.AssetKey, sortField, ascending]);
-
-    React.useEffect(() => {
-        if (data.length === 0) return;
-        setData(order(data));
-    }, [order]);
+    }, [props.Meter.AssetKey, sortField, ascending, currentPage]);
 
     React.useEffect(() => {
         if (settingStatus == 'uninitiated' || settingStatus == 'changed')
@@ -79,6 +73,7 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
             </div>
         </div>
         <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
+            <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
             <ConfigurableTable<SC.MiMDDailyStatistic>
                 LocalStorageKey="MiMDIssuesConfigTable"
                 TableClass="table table-hover"
@@ -219,7 +214,18 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         Compliance Issues
                     </Column>
                 </ConfigurableColumn>
-            </ConfigurableTable>
+                </ConfigurableTable>
+
+                <div className="row">
+                    <div className="col">
+                        <Paging
+                            Total={totalPages}
+                            SetPage={(page) => { setCurrentPage(page - 1) }}
+                            Current={currentPage + 1}
+                        />
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 }
