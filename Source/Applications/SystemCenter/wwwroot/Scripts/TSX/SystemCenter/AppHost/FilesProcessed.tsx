@@ -100,14 +100,17 @@ const FilesProcessed = () => {
     }
 
     function getFileGroups() {
-        const filters = filteredHour === null ? [{
+        let filters = []
+        if (filteredHour === null) {
+            filters.concat({
             FieldName: 'ProcessingStartTime',
             Operator: '>',
             Type: 'datetime',
             SearchText: moment().subtract(48, 'hour').startOf('hour').format('YYYY-MM-DD HH:mm:ss.SSS')
-        }]
-            : [
-                {
+            })
+        }
+        else {
+            filters.concat([{
                     FieldName: 'ProcessingStartTime',
                     Operator: '>=',
                     Type: 'datetime',
@@ -119,7 +122,9 @@ const FilesProcessed = () => {
                     Type: 'datetime',
                     SearchText: moment(filteredHour).add(1, 'hour').format('YYYY-MM-DD HH:mm:ss.SSS')
                 }
-            ]
+            ])
+        }
+           
         const h = $.ajax({
             type: "POST",
             url: `${homePath}api/OpenXDA/DataFile/PagedList/${page}`,
@@ -148,13 +153,17 @@ const FilesProcessed = () => {
     }
 
     function getDataOperationFailure() {
-        const filters = filteredHour === null ? [{
+        let filters = []
+        if (filteredHour === null) {
+            filters.concat({
             FieldName: 'TimeOfFailure',
             Operator: '>',
             Type: 'datetime',
             SearchText: moment().subtract(48, 'hour').startOf('hour').format('YYYY-MM-DD HH:mm:ss.SSS')
-        }]
-            : [
+            })
+        }
+        else {
+            filters.concat([
                 {
                     FieldName: 'TimeOfFailure',
                     Operator: '>=',
@@ -167,7 +176,8 @@ const FilesProcessed = () => {
                     Type: 'datetime',
                     SearchText: moment(filteredHour).add(1, 'hour').format('YYYY-MM-DD HH:mm:ss.SSS')
                 }
-            ]
+            ])
+        }
 
         const h = $.ajax({
             type: "POST",
