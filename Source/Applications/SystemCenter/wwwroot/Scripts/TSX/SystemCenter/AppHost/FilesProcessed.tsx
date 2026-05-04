@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react'
-import { OpenXDA, Application } from '@gpa-gemstone/application-typings';
+import { Application } from '@gpa-gemstone/application-typings';
 import { Table, Paging, Column } from '@gpa-gemstone/react-table'
 import { Plot, Bar } from '@gpa-gemstone/react-graph'
 import { LoadingScreen, Modal } from '@gpa-gemstone/react-interactive';
@@ -30,10 +30,7 @@ import { ToolTip } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols'
 import { SystemCenter as SC } from '../global';
 import moment from 'moment'
-
-interface INamedDataOperationFailure extends OpenXDA.Types.DataOperationFailure {
-    DataFileName: string
-}
+import DataOperationFailure, { INamedDataOperationFailure} from './DataOperationFailure'
 
 interface IAggregateProcessedFile {
     Hour: string,
@@ -197,8 +194,8 @@ const FilesProcessed = (props: {}) => {
         }
     }
 
-    function handleViewMoreClick(event: React.MouseEvent, message: string) {
-        setDetailModalContent(message)
+    function handleViewMoreClick(info: string, event: React.MouseEvent) {
+        setDetailModalContent(info)
         setShowDetailModal(true)
     }
 
@@ -338,61 +335,19 @@ const FilesProcessed = (props: {}) => {
                         <Paging Current={page + 1} Total={totalPages} SetPage={(p) => setPage(p - 1)} />
                     </div>
                 </div>
-                <div className="col-6">
+                <div className="col-6 h-100">
                     <fieldset className="border h-100" style={{ padding: '10px', flex: '1 1 0%', display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
                         <legend className="w-auto" style={{ fontSize: 'large' }}> Data Operation Failures :</legend>
                         {dataOperationFailure.map((e) => {
-                            return <div className={`row alert-${e.DataFileName === selectedFile ? 'warning' : 'danger'} m-2`}
-                                key={e.ID}
-                                onClick={(evt) => { handleDataOperationFailureClick(e, evt) }}>
-                                <div className={'col-2 d-flex justify-content-center align-items-center'}>
-                                    <span className={`badge badge-pill badge-secondary`}>{moment(e.TimeOfFailure).format('MM/DD/YYYY hh:mm')}</span>
-                                </div>
-                                <div className={'col-3 d-flex justify-content-center align-items-center'}>
-                                    <h6>{e.DataOperationTypeName.split('.')[e.DataOperationTypeName.split('.').length - 1]}</h6>
-                                </div>
-                                <div className={'col-3 d-flex justify-content-center align-items-center'}>{e.DataFileName}</div>
-                                <div className={'col-2 d-flex justify-content-around align-items-center'}>
-                                    <div className={'btn btn-primary'}
-                                        onMouseEnter={() => setHovered(`failurelog${e.ID.toString()}`)}
-                                        onMouseLeave={() => setHovered('')}
-                                        data-tooltip={`failurelog${e.ID.toString()}`}
-                                    >
-                                        View Log
-                                    </div>
-                                    <ToolTip
-                                        Show={hovered === `failurelog${e.ID.toString()}`}
-                                        Target={`failurelog${e.ID.toString()}`}
-                                    >
-                                        {e.Log.length > 100
-                                            ? <>
-                                                <p>{`${e.Log.slice(0, 100)}...`}</p>
-                                                <a href="#" onClick={(ev) => { handleViewMoreClick(ev, e.Log) }}>View more</a>
-                                            </>
-                                            : <p>{e.Log}</p>}
-                                    </ToolTip>
-                                </div>
-                                <div className={'col-2 d-flex justify-content-around align-items-center'}>
-                                    <div className={'btn btn-primary'}
-                                        onMouseEnter={() => setHovered(`failurestacktrace${e.ID.toString()}`)}
-                                        onMouseLeave={() => setHovered('')}
-                                        data-tooltip={`failurestacktrace${e.ID.toString()}`}
-                                    >
-                                        View Stack Trace
-                                    </div>
-                                    <ToolTip
-                                        Show={hovered === `failurestacktrace${e.ID.toString()}`}
-                                        Target={`failurestacktrace${e.ID.toString()}`}
-                                    >
-                                        {e.StackTrace.length > 100
-                                            ? <>
-                                                <p>{`${e.StackTrace.slice(0, 100)}...`}</p>
-                                                <a href="#" onClick={(ev) => {handleViewMoreClick(ev,e.StackTrace)}}>View more</a>
-                                            </>
-                                            : <p>{e.StackTrace}</p>}
-                                    </ToolTip>
-                                </div>
-                            </div>
+                            return <DataOperationFailure
+                                NamedDataOperationFailure={e}
+                                SelectedFile={selectedFile}
+                                HandleViewMoreClick={handleViewMoreClick}
+                                HandleDataOperationFailureClick={handleDataOperationFailureClick}
+                                SetHovered={setHovered}
+                                Hovered={hovered}
+
+                            />
                         })
                         }
                     </fieldset>
@@ -412,6 +367,7 @@ const FilesProcessed = (props: {}) => {
         </div>)
 }
 
+export default FilesProcessed
 
 const processingStateToSymbol = (processingState: number) => {
     if (processingState == 0) //Added - Unknown
