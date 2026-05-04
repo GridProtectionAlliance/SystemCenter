@@ -106,10 +106,10 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA/DataOperationFailure")]
     public class DataOperationFailureController : ModelController<DataOperationFailureDetails> {
 
-        [Route("RecentFailures"), HttpPost]
-        public IHttpActionResult RecentFailures([FromBody] PostData postData)
+        [Route("RecentFailures/{page}"), HttpPost]
+        public IHttpActionResult RecentFailures([FromBody] PostData postData, [FromUri] int page)
         {
-            using DataTable value = GetSearchResults(postData, 0);
+            using DataTable value = GetSearchResults(postData, page);
             value.Columns.Add("DataFileName", typeof(String));
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
