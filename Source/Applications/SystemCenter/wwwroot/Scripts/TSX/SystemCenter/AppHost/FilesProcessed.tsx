@@ -26,23 +26,23 @@ import { Application } from '@gpa-gemstone/application-typings';
 import { Table, Paging, Column } from '@gpa-gemstone/react-table'
 import { Plot, Bar } from '@gpa-gemstone/react-graph'
 import { LoadingScreen, Modal } from '@gpa-gemstone/react-interactive';
-import { ToolTip } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols'
 import { SystemCenter as SC } from '../global';
 import moment from 'moment'
-import DataOperationFailure, { INamedDataOperationFailure} from './DataOperationFailure'
+import DataOperationFailure, { INamedDataOperationFailure } from './DataOperationFailure'
 
 interface IAggregateProcessedFile {
     Hour: string,
     Count: number
 }
 
-const FilesProcessed = (props: {}) => {
+const FilesProcessed = () => {
     const [sortField, setSortField] = React.useState<keyof SC.DataFile>('ID')
     const [ascending, setAscending] = React.useState<boolean>(false)
     const [plotWidth, setPlotWidth] = React.useState<number>(100);
     const [plotHeight, setPlotHeight] = React.useState<number>(400);
     const [page, setPage] = React.useState<number>(0);
+    const [failurePage, setFailurePage] = React.useState<number>(0)
     const [totalPages, setTotalPages] = React.useState<number>(0)
     const [totalFailurePages, setTotalFailurePages] = React.useState<number>(0)
     const [hovered, setHovered] = React.useState<string>('')
@@ -66,13 +66,11 @@ const FilesProcessed = (props: {}) => {
     });
 
     React.useEffect(() => {
-        setSelectedTime(null)
-        setSelectedFile(null)
         setStatus('loading')
         getFileGroups()
         getDataOperationFailure()
         setStatus('idle')
-    }, [sortField, ascending, page, filteredHour])
+    }, [sortField, ascending, page, filteredHour, failurePage])
 
     React.useEffect(() => {
         getAggregateRecentlyProcessedFiles()
@@ -114,14 +112,14 @@ const FilesProcessed = (props: {}) => {
                     Operator: '>=',
                     Type: 'datetime',
                     SearchText: moment(filteredHour).format('YYYY-MM-DD HH:mm:ss.SSS')
-},
+                },
                 {
                     FieldName: 'ProcessingStartTime',
                     Operator: '<',
                     Type: 'datetime',
                     SearchText: moment(filteredHour).add(1, 'hour').format('YYYY-MM-DD HH:mm:ss.SSS')
-}
-        ]
+                }
+            ]
         const h = $.ajax({
             type: "POST",
             url: `${homePath}api/OpenXDA/DataFile/PagedList/${page}`,
@@ -137,6 +135,7 @@ const FilesProcessed = (props: {}) => {
             setTotalPages(d.NumberOfPages)
             if (page - 1 >= d.NumberOfPages)
                 setPage(d.NumberOfPages - 1)
+            // if datafile not in there, set it to null
             setStatus('idle')
         }).fail(() => {
             setStatus('error')
@@ -161,18 +160,18 @@ const FilesProcessed = (props: {}) => {
                     Operator: '>=',
                     Type: 'datetime',
                     SearchText: moment(filteredHour).format('YYYY-MM-DD HH:mm:ss.SSS')
-},
+                },
                 {
                     FieldName: 'TimeOfFailure',
                     Operator: '<',
                     Type: 'datetime',
                     SearchText: moment(filteredHour).add(1, 'hour').format('YYYY-MM-DD HH:mm:ss.SSS')
-}
+                }
             ]
 
         const h = $.ajax({
             type: "POST",
-            url: `${homePath}api/OpenXDA/DataOperationFailure/RecentFailures`,
+            url: `${homePath}api/OpenXDA/DataOperationFailure/RecentFailures/${failurePage}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
@@ -183,6 +182,8 @@ const FilesProcessed = (props: {}) => {
         h.done((d) => {
             setDataOperationFailure(JSON.parse(d.Data))
             setTotalFailurePages(d.NumberOfPages)
+            if (failurePage - 1 >= d.NumberOfPages)
+                setPage(d.NumberOfPages - 1)
             setStatus('idle')
         }).fail(() => {
             setStatus('error')
@@ -338,18 +339,27 @@ const FilesProcessed = (props: {}) => {
                 <div className="col-6 h-100">
                     <fieldset className="border h-100" style={{ padding: '10px', flex: '1 1 0%', display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
                         <legend className="w-auto" style={{ fontSize: 'large' }}> Data Operation Failures :</legend>
-                        {dataOperationFailure.map((e) => {
-                            return <DataOperationFailure
-                                NamedDataOperationFailure={e}
-                                SelectedFile={selectedFile}
-                                HandleViewMoreClick={handleViewMoreClick}
-                                HandleDataOperationFailureClick={handleDataOperationFailureClick}
-                                SetHovered={setHovered}
-                                Hovered={hovered}
+                        <div className="row d-flex flex-column h-100" style={{ overflow: 'hidden' }}>
+                            <div className="col h-100" style={{ overflow: 'auto' }}>
+                                {dataOperationFailure.map((e) => {
+                                    return <DataOperationFailure
+                                        NamedDataOperationFailure={e}
+                                        SelectedFile={selectedFile}
+                                        HandleViewMoreClick={handleViewMoreClick}
+                                        HandleDataOperationFailureClick={handleDataOperationFailureClick}
+                                        SetHovered={setHovered}
+                                        Hovered={hovered}
 
-                            />
-                        })
-                        }
+                                    />
+                                })
+                                }
+                            </div>
+                        </div>
+                        <div className="row">
+                            <div className="col">
+                                <Paging Current={failurePage + 1} Total={totalFailurePages} SetPage={(p) => setFailurePage(p - 1)} />
+                            </div>
+                        </div>
                     </fieldset>
                 </div>
             </>
@@ -360,7 +370,7 @@ const FilesProcessed = (props: {}) => {
                 Show={showDetailModal}
                 ShowCancel={false}
                 ShowX={true}
-                ShowConfirm={false }
+                ShowConfirm={false}
             >
                 {detailModalContent}
             </Modal>
