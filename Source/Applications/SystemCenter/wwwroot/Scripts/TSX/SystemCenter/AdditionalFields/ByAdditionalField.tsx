@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { Modal, Search, SearchBar } from '@gpa-gemstone/react-interactive';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
@@ -52,6 +52,9 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
     const sortField = useAppSelector(AdditionalFieldsSlice.SortField);
     const ascending = useAppSelector(AdditionalFieldsSlice.Ascending);
     const parentID = useAppSelector(AdditionalFieldsSlice.ParentID);
+    const currentPage = useAppSelector(AdditionalFieldsSlice.CurrentPage);
+    const totalPages = useAppSelector(AdditionalFieldsSlice.TotalPages);
+    const totalRecords = useAppSelector(AdditionalFieldsSlice.TotalRecords);
 
     const valueListGroupData = useAppSelector(ValueListGroupSlice.Data);
     const valueListGroupStatus = useAppSelector(ValueListGroupSlice.Status);
@@ -103,9 +106,13 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
 
     React.useEffect(() => {
         if (status === 'uninitiated' || status === 'changed')
-            dispatch(AdditionalFieldsSlice.DBSearch({ filter: search }));
+            dispatch(AdditionalFieldsSlice.PagedSearch({ filter: search, sortField, ascending, page: currentPage }));
     }, [status]);
 
+    React.useEffect(() => {
+        if (currentPage >= totalPages) { }
+            setPage(totalPages)
+    }, [totalPages])
 
     React.useEffect(() => {
         if (valueListGroupStatus == 'uninitiated' || valueListGroupStatus == 'changed')
@@ -113,8 +120,12 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
     }, [valueListGroupStatus]);
 
     const setFilters = React.useCallback((filters: Search.IFilter<SystemCenter.Types.AdditionalField>[]) => {
-        dispatch(AdditionalFieldsSlice.DBSearch({ sortField, ascending, filter: filters }))
-    }, [sortField, ascending])
+        dispatch(AdditionalFieldsSlice.PagedSearch({ sortField, ascending, filter: filters, page: currentPage }))
+    }, [sortField, ascending, currentPage])
+
+    const setPage = React.useCallback((page: number) => {
+        dispatch(AdditionalFieldsSlice.PagedSearch({ filter: search, sortField, ascending, page: page - 1}))
+    },[search, sortField, ascending]) 
 
     return (
         <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit', padding: 0 }}>
@@ -129,7 +140,7 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
                         StorageID="AdditionalFieldsFilter"
                         Label={'Search'}
                         ShowLoading={status == 'loading'}
-                        ResultNote={status == 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Additional Field(s)'}
+                        ResultNote={status == 'error' ? 'Could not complete Search' : 'Found ' + totalRecords + ' Additional Field(s)'}
                     >
                         <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
                             <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
@@ -249,7 +260,15 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
                     </Table>
                 </div>
             </div>
-
+            <div className="row">
+                <div className="col">
+                    <Paging
+                        Current={currentPage + 1}
+                        Total={totalPages}
+                        SetPage={setPage}
+                    />
+                </div>
+            </div>
             <Modal Title={mode === 'Add' ? 'Add New Additional Field' : 'Edit ' + record.FieldName}
                 CallBack={(conf, isBtn) => {
                     if (conf)
