@@ -21,7 +21,7 @@
 // ******************************************************************************************************
 
 import * as React from 'react';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { SearchBar, Search, Modal, ServerErrorIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
 import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
@@ -73,6 +73,9 @@ const ByUser: Application.Types.iByComponent = (props) => {
 
     const sortField = useAppSelector(UserAccountSlice.SortField)
     const ascending = useAppSelector(UserAccountSlice.Ascending)
+    const currentPage = useAppSelector(UserAccountSlice.CurrentPage);
+    const totalPages = useAppSelector(UserAccountSlice.TotalPages);
+    const totalRecords = useAppSelector(UserAccountSlice.TotalRecords);
 
     const adlFields: Application.Types.iAdditionalUserField[] = useAppSelector(UserAdditionalFieldSlice.Fields)
     const adlFieldStatus: Application.Types.Status = useAppSelector(UserAdditionalFieldSlice.FieldStatus)
@@ -103,7 +106,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
 
     React.useEffect(() => {
         if (searchStatus === 'uninitiated' || searchStatus === 'changed')
-            dispatch(UserAccountSlice.DBSearch({ filter: search, sortField, ascending }));
+            dispatch(UserAccountSlice.PagedSearch({ filter: search, sortField: sortField ?? "ID", ascending: ascending, page: currentPage}));
     }, [searchStatus]);
 
     React.useEffect(() => {
@@ -111,7 +114,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
             dispatch(UserAdditionalFieldSlice.FetchField());
     }, [adlFieldStatus]);
 
-     React.useEffect(() => {
+    React.useEffect(() => {
         if (valueListItemStatus === 'uninitiated' || valueListItemStatus === 'changed')
             dispatch(ValueListSlice.Fetch());
     }, [valueListItemStatus]);
@@ -121,6 +124,15 @@ const ByUser: Application.Types.iByComponent = (props) => {
             dispatch(ValueListGroupSlice.Fetch());
     }, [valueListGroupStatus]);
 
+    const setPage = React.useCallback((page) => {
+        dispatch(UserAccountSlice.PagedSearch({ filter: search, sortField: sortField ?? "ID", ascending: ascending, page: page - 1 }))
+    }, [sortField, ascending, search])
+
+    React.useEffect(() => {
+        if (currentPage >= totalPages) {
+            setPage(totalPages)
+        }
+    }, [totalPages])
 
     React.useEffect(() => {
         function ConvertType(type: string) {
@@ -136,20 +148,26 @@ const ByUser: Application.Types.iByComponent = (props) => {
     }, [adlFields]);
 
     const setFilters = React.useCallback((filters: Search.IFilter<IUserAccount>[]) => {
-        dispatch(UserAccountSlice.DBSearch({ sortField, ascending, filter: filters }))
-    }, [sortField, ascending])
+        dispatch(UserAccountSlice.PagedSearch({ sortField: sortField ?? "ID", ascending: ascending, filter: filters, page: currentPage }))
+    }, [sortField, ascending, currentPage])
+
+    React.useEffect(() => {
+        if (currentPage >= totalPages) {
+            setPage(totalPages)
+        }
+    }, [totalPages])
 
     if (pageStatus === 'error')
         return <div style={{ width: '100%', height: '100%' }}>
             <ServerErrorIcon Show={true} Label={'A Server Error Occurred. Please Reload the Application.'} />
         </div>;
 
-     return (
-         <div className="container-fluid d-flex h-100 flex-column">
+    return (
+        <div className="container-fluid d-flex h-100 flex-column">
             <LoadingScreen Show={pageStatus === 'loading'} />
-             <SearchBar<IUserAccount> CollumnList={filterableList} SetFilter={setFilters}
+            <SearchBar<IUserAccount> CollumnList={filterableList} SetFilter={setFilters}
                 Direction={'left'} defaultCollumn={{ label: 'Username', key: 'DisplayName', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
-                ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' User Account(s)'}
+                ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + totalRecords + ' User Account(s)'}
                 StorageID="UsersFilter"
                 GetEnum={(setOptions, field) => {
 
@@ -176,78 +194,89 @@ const ByUser: Application.Types.iByComponent = (props) => {
                 </li>
             </SearchBar>
 
-             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                 <Table<IUserAccount>
-                     TableClass="table table-hover"
-                     Data={data}
-                     SortKey={sortField}
-                     Ascending={ascending}
-                     OnSort={(d) => {
-                         dispatch(UserAccountSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
-                     }}
-                     OnClick={(d) => navigate(`${homePath}index.cshtml?name=User&UserAccountID=${d.row.ID}`)}
-                     TableStyle={{
-                         padding: 0, width: '100%', height: '100%',
-                         tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column', marginBottom: 0
-                     }}
-                     TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                     TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
-                     RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                     Selected={(item) => false}
-                     KeySelector={(item) => item.ID}
-                 >
-                     <Column<IUserAccount>
-                         Key={'DisplayName'}
-                         AllowSort={true}
-                         Field={'DisplayName'}
-                         HeaderStyle={{ width: 'auto' }}
-                         RowStyle={{ width: 'auto' }}
-                     > Username
-                     </Column>
-                     <Column<IUserAccount>
-                         Key={'FirstName'}
-                         AllowSort={true}
-                         Field={'FirstName'}
-                         HeaderStyle={{ width: 'auto' }}
-                         RowStyle={{ width: 'auto' }}
-                     > First Name
-                     </Column>
-                     <Column<IUserAccount>
-                         Key={'LastName'}
-                         AllowSort={true}
-                         Field={'LastName'}
-                         HeaderStyle={{ width: 'auto' }}
-                         RowStyle={{ width: 'auto' }}
-                     > Last Name
-                     </Column>
-                     <Column<IUserAccount>
-                         Key={'Phone'}
-                         AllowSort={true}
-                         Field={'Phone'}
-                         HeaderStyle={{ width: 'auto' }}
-                         RowStyle={{ width: 'auto' }}
-                     > Phone
-                     </Column>
-                     <Column<IUserAccount>
-                         Key={'Email'}
-                         AllowSort={true}
-                         Field={'Email'}
-                         HeaderStyle={{ width: 'auto' }}
-                         RowStyle={{ width: 'auto' }}
-                     > Email
-                     </Column>
-                     <Column<IUserAccount>
-                         Key={'Type'}
-                         AllowSort={true}
-                         Field={'Type'}
-                         HeaderStyle={{ width: 'auto' }}
-                         RowStyle={{ width: 'auto' }}
-                     > Type
-                     </Column>
-                 </Table>
+            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="col">
+                    <Table<IUserAccount>
+                        TableClass="table table-hover"
+                        Data={data}
+                        SortKey={sortField}
+                        Ascending={ascending}
+                        OnSort={(d) => {
+                            dispatch(UserAccountSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
+                        }}
+                        OnClick={(d) => navigate(`${homePath}index.cshtml?name=User&UserAccountID=${d.row.ID}`)}
+                        TableStyle={{
+                            padding: 0, width: '100%', height: '100%',
+                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column', marginBottom: 0
+                        }}
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        Selected={(item) => false}
+                        KeySelector={(item) => item.ID}
+                    >
+                        <Column<IUserAccount>
+                            Key={'DisplayName'}
+                            AllowSort={true}
+                            Field={'DisplayName'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Username
+                        </Column>
+                        <Column<IUserAccount>
+                            Key={'FirstName'}
+                            AllowSort={true}
+                            Field={'FirstName'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > First Name
+                        </Column>
+                        <Column<IUserAccount>
+                            Key={'LastName'}
+                            AllowSort={true}
+                            Field={'LastName'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Last Name
+                        </Column>
+                        <Column<IUserAccount>
+                            Key={'Phone'}
+                            AllowSort={true}
+                            Field={'Phone'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Phone
+                        </Column>
+                        <Column<IUserAccount>
+                            Key={'Email'}
+                            AllowSort={true}
+                            Field={'Email'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Email
+                        </Column>
+                        <Column<IUserAccount>
+                            Key={'Type'}
+                            AllowSort={true}
+                            Field={'Type'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Type
+                        </Column>
+                    </Table>
+                </div>
+            </div>
+            <div className="row">
+                <div className="col">
+                    <Paging
+                        Current={currentPage + 1}
+                        SetPage={setPage}
+                        Total={totalPages}
+                    />
+                </div>
             </div>
             <Modal Show={showModal} Size={'lg'} ShowCancel={false} ShowX={true} ConfirmText={'Save'}
-                 Title={'Add New User'} CallBack={(confirm) => {
+                Title={'Add New User'} CallBack={(confirm) => {
                     if (confirm)
                         dispatch(UserAccountSlice.DBAction({ verb: 'POST', record: act }))
                     setAct(newAcct);
@@ -261,8 +290,8 @@ const ByUser: Application.Types.iByComponent = (props) => {
             >
                 <UserForm
                     UserAccount={act} Setter={setAct}
-                    Edit={false} SetErrors={setUserError} 
-                /> 
+                    Edit={false} SetErrors={setUserError}
+                />
             </Modal>
         </div>
     )
