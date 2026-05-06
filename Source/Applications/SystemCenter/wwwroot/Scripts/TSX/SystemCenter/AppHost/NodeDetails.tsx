@@ -30,8 +30,9 @@ import NodeHealth from './NodeHealth';
 import ConsoleWindow from './ConsoleWindow'
 import { IHost } from './ApplicationCard';
 import { SystemCenter as SC } from '../global'
+import FilesProcessed from './FilesProcessed'
 
-type tab = 'connections' | 'health' | 'console'
+type tab = 'connections' | 'health' | 'console' | 'filesprocessed'
 
 interface ITab { Label: string, Id: string }
 export interface IMessage { Message: string, Type: number }
@@ -48,7 +49,7 @@ export interface IProps {
 
 const ApplicationTabs = {
     'SystemCenter': [{ Label: 'Connections', Id: 'connections' }, { Label: 'Console', Id: 'console' }],
-    'XDA': [{ Label: 'Connections', Id: 'connections' }, { Label: 'Health', Id: 'health' }, { Label: 'Console', Id: 'console' }],
+    'XDA': [{ Label: 'Connections', Id: 'connections' }, { Label: 'Health', Id: 'health' }, { Label: 'Console', Id: 'console' }, { Label: 'Files Processed', Id: 'filesprocessed' }],
     'MiMD': [{ Label: 'Console', Id: 'console' }],
     'openMIC': [{ Label: 'Health', Id: 'health' }]
 }
@@ -105,6 +106,9 @@ const NodeDetails = (props: IProps) => {
                                         Close={() => props.SetConsole(null)}
                                     />
                                 </div>
+                                    : tab === "filesprocessed" ? <div className="tab-pane active" style={{ height: 'inherit' }}>
+                                        <FilesProcessed/>
+                                    </div>
                                     : null}
                     </div>
                 </div>
