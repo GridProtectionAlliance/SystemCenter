@@ -89,9 +89,8 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
     }, [sortField, ascending, search])
 
     React.useEffect(() => {
-        if (currentPage >= totalPages) {
+        if (currentPage >= totalPages && totalPages > 0)
             setPage(totalPages)
-        }
     }, [totalPages])
 
     const searchFields: Search.IField<T>[] = [

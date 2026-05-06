@@ -110,7 +110,7 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
     }, [status]);
 
     React.useEffect(() => {
-        if (currentPage >= totalPages) { }
+        if (currentPage >= totalPages && totalPages > 0)
             setPage(totalPages)
     }, [totalPages])
 
