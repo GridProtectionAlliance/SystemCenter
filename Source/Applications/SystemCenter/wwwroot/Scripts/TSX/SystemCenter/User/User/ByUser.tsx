@@ -152,9 +152,8 @@ const ByUser: Application.Types.iByComponent = (props) => {
     }, [sortField, ascending, currentPage])
 
     React.useEffect(() => {
-        if (currentPage >= totalPages) {
+        if (currentPage >= totalPages && totalPages > 0)
             setPage(totalPages)
-        }
     }, [totalPages])
 
     if (pageStatus === 'error')
