@@ -155,7 +155,7 @@ namespace SystemCenter.Model.Security
 
         }
 
-        protected override int CountSearchResults(PostData postData)
+        private DataTable GetSearchTable(PostData postData)
         {
             string orderBy = postData.OrderBy;
             if (!IsInDatabase(orderBy))
@@ -206,7 +206,13 @@ namespace SystemCenter.Model.Security
                 }
             }
             dataTable = filteredRows.CopyToDataTable();
-            return dataTable.Rows.Count;
+            return dataTable;
+        }
+
+        protected override int CountSearchResults(PostData postData)
+        {
+           
+            return GetSearchTable(postData).Rows.Count;
         }
 
         protected override DataTable GetSearchResults(PostData postData, int? page)
@@ -215,52 +221,7 @@ namespace SystemCenter.Model.Security
             if (!IsInDatabase(orderBy))
                 orderBy = "Name";
 
-            PostData filteredPostData = new ModelController<UserAccount>.PostData()
-            {
-                Ascending = postData.Ascending,
-                OrderBy = orderBy,
-                Searches = postData.Searches.Where(flt => IsInDatabase(flt.FieldName)),
-            };
-
-            DataTable dataTable = base.GetSearchResults(filteredPostData);
-            dataTable.Columns.Add("DisplayName", typeof(string));
-            dataTable.Columns.Add("Type", typeof(string));
-
-            foreach (DataRow row in dataTable.Rows)
-            {
-                UserAccount group = ExtendAcct(TableOperations<UserAccount>.LoadRecordFunction()(row));
-                row["Type"] = group.Type;
-                row["DisplayName"] = group.DisplayName;
-            }
-            
-            // Todo: This code is used in Secruity Group as well, maybe we should create a shared helper function?
-
-            IEnumerable<DataRow> filteredRows = dataTable.AsEnumerable();
-            IEnumerable<SQLSearchFilter> searchesToApply = postData.Searches.Where(flt => !IsInDatabase(flt.FieldName));
-            foreach (SQLSearchFilter search in searchesToApply)
-            {
-                string wildcardPattern = Regex.Escape(search.SearchText.ToLower()).Replace(@"\*", ".*");
-                switch (search.Operator)
-                {
-                    case "=":
-                        filteredRows = filteredRows.Where((row) => row.Field<string>(search.FieldName).ToLower() == search.SearchText.ToLower());
-                        break;
-                    case "LIKE":
-                        filteredRows = filteredRows.Where((row) => Regex.IsMatch(row.Field<string>(search.FieldName).ToLower(), wildcardPattern));
-                        break;
-                    case "NOT LIKE":
-                        filteredRows = filteredRows.Where((row) => !Regex.IsMatch(row.Field<string>(search.FieldName).ToLower(), wildcardPattern));
-                        break;
-                    case "IN":
-                        List<string> groupTypes = search.SearchText.Trim('(', ')').Split(',').ToList();
-                        filteredRows = filteredRows.Where((row) => groupTypes.Contains(row.Field<string>(search.FieldName)));
-                        break;
-                    default:
-                        throw new Exception("Operator not found for Filter.");
-                }
-            }
-
-            dataTable = filteredRows.CopyToDataTable();
+            DataTable dataTable = GetSearchTable(postData);
 
             if (!IsInDatabase(orderBy))
             {
