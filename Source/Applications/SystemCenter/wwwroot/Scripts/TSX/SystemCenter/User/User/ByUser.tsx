@@ -27,7 +27,7 @@ import { SearchBar, Search, Modal, ServerErrorIcon, LoadingScreen } from '@gpa-g
 import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
 import * as _ from 'lodash';
 import UserForm from './UserForm';
-import { useAppDispatch, useAppSelector } from '../../hooks';
+import { useAppDispatch, useAppSelector, useBoundPaging } from '../../hooks';
 import { useNavigate } from "react-router-dom";
 import { ValueListSlice, ValueListGroupSlice, UserAdditionalFieldSlice, UserAccountSlice } from '../../Store/Store';
 import { IUserAccount } from '../Types';
@@ -128,12 +128,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
         dispatch(UserAccountSlice.PagedSearch({ filter: search, sortField: sortField ?? "ID", ascending: ascending, page: page - 1 }))
     }, [sortField, ascending, search])
 
-    React.useEffect(() => {
-        if (currentPage >= totalPages)
-            setPage(totalPages)
-        else
-            setPage(1)
-    }, [totalPages])
+    useBoundPaging(currentPage, totalPages, setPage)
 
     React.useEffect(() => {
         function ConvertType(type: string) {
