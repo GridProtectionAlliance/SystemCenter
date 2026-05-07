@@ -30,10 +30,12 @@ export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 
 export const useBoundPaging = (currentPage: number, totalPages: number, setPage: (number) => void): void => {
     React.useEffect(() => {
-        if (currentPage >= totalPages && totalPages > 0)
+        if (currentPage >= totalPages && totalPages > 0) {
             setPage(totalPages)
-        else
+        }
+        if (currentPage < 1) {
             setPage(1)
+        }
     }, [totalPages, currentPage])
 
 }
