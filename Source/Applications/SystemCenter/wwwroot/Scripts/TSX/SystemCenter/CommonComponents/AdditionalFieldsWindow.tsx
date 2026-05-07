@@ -104,7 +104,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
             <div className="card-header">
                 <h4>Additional Fields:</h4>
             </div>
-            <div className="card-body" style={{ flex: 1, overflow: 'hidden', display: 'flex' }}>
+            <div className="card-body flex-column" style={{ flex: 1, overflow: 'hidden', display: 'flex' }}>
                 <AdditionalFieldsTable
                     ID={props.ID}
                     Type={props.Type}
