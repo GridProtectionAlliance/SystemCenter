@@ -21,7 +21,7 @@
 // ******************************************************************************************************
 
 import * as React from 'react';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { SearchBar, Search, Modal, ServerErrorIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
 import { Application } from '@gpa-gemstone/application-typings';
@@ -48,7 +48,9 @@ const ByUser: Application.Types.iByComponent = (props) => {
 
     const search = useSelector(SecurityGroupSlice.SearchFilters);
     const data = useSelector(SecurityGroupSlice.SearchResults);
-    const allGroups = useSelector(SecurityGroupSlice.Data);
+    const currentPage = useSelector(SecurityGroupSlice.CurrentPage);
+    const totalPages = useSelector(SecurityGroupSlice.TotalPages);
+    const totalRecords = useSelector(SecurityGroupSlice.TotalRecords);
 
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const searchStatus = useSelector(SecurityGroupSlice.SearchStatus);
@@ -74,12 +76,23 @@ const ByUser: Application.Types.iByComponent = (props) => {
 
     React.useEffect(() => {
         if (searchStatus == 'uninitiated' || searchStatus == 'changed')
-            dispatch(SecurityGroupSlice.DBSearch({ sortField, ascending, filter: search }))
+            dispatch(SecurityGroupSlice.PagedSearch({ sortField, ascending, filter: search, page: currentPage - 1 }))
     }, [searchStatus])
 
     const setFilters = React.useCallback((filters: Search.IFilter<ISecurityGroup>[]) => {
-        dispatch(SecurityGroupSlice.DBSearch({ sortField, ascending, filter: filters }))
-    }, [sortField, ascending])
+        dispatch(SecurityGroupSlice.PagedSearch({ sortField, ascending, filter: filters, page: currentPage - 1 }))
+    }, [sortField, ascending, currentPage])
+
+    const setPage = React.useCallback((page) => {
+        dispatch(SecurityGroupSlice.PagedSearch({ filter: search, sortField: sortField ?? "ID", ascending: ascending, page: page - 1 }))
+    }, [sortField, ascending, search])
+
+    React.useEffect(() => {
+        if (currentPage >= totalPages)
+            setPage(totalPages)
+        else
+            setPage(1)
+    }, [totalPages])
 
     if (pageStatus === 'error')
         return <div style={{ width: '100%', height: '100%' }}>
@@ -92,7 +105,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
             <div className="row">
                 <SearchBar<ISecurityGroup> CollumnList={defaultSearchcols} SetFilter={setFilters}
                     Direction={'left'} defaultCollumn={{ label: 'Name', key: 'DisplayName', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
-                    ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' User Group(s)'}
+                    ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + totalRecords + ' User Group(s)'}
                     StorageID="UsersGroupFilter"
                     GetEnum={() => {
                         return () => { }
@@ -171,6 +184,15 @@ const ByUser: Application.Types.iByComponent = (props) => {
                         > Type
                         </Column>
                     </Table>
+                </div>
+            </div>
+            <div className="row">
+                <div className="col">
+                    <Paging
+                        Current={currentPage + 1}
+                        SetPage={setPage}
+                        Total={totalPages}
+                    />
                 </div>
             </div>
             <Modal Show={showModal} Size={'lg'} ShowCancel={false} ShowX={true} ConfirmText={'Save'}
