@@ -27,7 +27,7 @@ import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { Modal, Search, SearchBar } from '@gpa-gemstone/react-interactive';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import AdditionalFieldForm from './AdditionalFieldForm';
-import { useAppDispatch, useAppSelector } from '../hooks';
+import { useAppDispatch, useAppSelector, useBoundPaging } from '../hooks';
 import { AdditionalFieldsSlice, ValueListGroupSlice } from '../Store/Store';
 
 const AdditionalFieldDefaultSearchField: Search.IField<SystemCenter.Types.AdditionalFieldView> = { label: 'Name', key: 'FieldName', type: 'string', isPivotField: false };
@@ -110,11 +110,6 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
     }, [status]);
 
     React.useEffect(() => {
-        if (currentPage >= totalPages && totalPages > 0)
-            setPage(totalPages)
-    }, [totalPages])
-
-    React.useEffect(() => {
         if (valueListGroupStatus == 'uninitiated' || valueListGroupStatus == 'changed')
             dispatch(ValueListGroupSlice.Fetch());
     }, [valueListGroupStatus]);
@@ -125,7 +120,9 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
 
     const setPage = React.useCallback((page: number) => {
         dispatch(AdditionalFieldsSlice.PagedSearch({ filter: search, sortField, ascending, page: page - 1}))
-    },[search, sortField, ascending]) 
+    }, [search, sortField, ascending]) 
+
+    useBoundPaging(currentPage, totalPages, setPage)
 
     return (
         <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit', padding: 0 }}>

@@ -26,7 +26,7 @@ import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { SearchBar, Search, Modal, ServerErrorIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
 import { Application } from '@gpa-gemstone/application-typings';
 import * as _ from 'lodash';
-import { useAppDispatch, useAppSelector } from '../../hooks';
+import { useAppDispatch, useBoundPaging } from '../../hooks';
 import { useNavigate } from "react-router-dom";
 import { SecurityGroupSlice } from '../../Store/Store';
 import { ISecurityGroup } from '../Types';
@@ -87,17 +87,12 @@ const ByUser: Application.Types.iByComponent = (props) => {
         dispatch(SecurityGroupSlice.PagedSearch({ filter: search, sortField: sortField ?? "ID", ascending: ascending, page: page - 1 }))
     }, [sortField, ascending, search])
 
-    React.useEffect(() => {
-        if (currentPage >= totalPages)
-            setPage(totalPages)
-        else
-            setPage(1)
-    }, [totalPages])
-
     if (pageStatus === 'error')
         return <div style={{ width: '100%', height: '100%' }}>
             <ServerErrorIcon Show={true} Label={'A Server Error Occurred. Please Reload the Application.'} />
         </div>;
+
+    useBoundPaging(currentPage, totalPages, setPage)
 
     return (
         <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
