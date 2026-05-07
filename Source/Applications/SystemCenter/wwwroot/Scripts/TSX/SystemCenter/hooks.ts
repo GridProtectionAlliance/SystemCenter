@@ -34,6 +34,6 @@ export const useBoundPaging = (currentPage: number, totalPages: number, setPage:
             setPage(totalPages)
         else
             setPage(1)
-    }, [totalPages])
+    }, [totalPages, currentPage])
 
 }
