@@ -25,13 +25,10 @@ import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { ToolTip } from '@gpa-gemstone/react-forms';
 import { LoadingScreen, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
-import { Column, Table } from '@gpa-gemstone/react-table';
+import { Column, Table, Paging } from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import * as React from 'react';
-import { AssetAttributes } from '../AssetAttribute/Asset';
 import { OpenXDA as LocalXDA } from '../global';
-import { useAppSelector } from '../hooks';
-import { SelectRoles } from '../Store/UserSettings';
 import AdditionalFieldsKeyModal from './AdditionalFieldsKeyModal';
 import AdditionalFieldsValueField from './AdditionalFieldsValueField';
 
@@ -48,15 +45,14 @@ interface IProps {
 
 function AdditionalFieldsTable(props: IProps): JSX.Element {
     const [additionalFields, setAdditionalFields] = React.useState<Array<SystemCenter.Types.AdditionalFieldView>>([]);
-
     const [sortKey, setSortKey] = React.useState<string>('FieldName');
     const [ascending, setAscending] = React.useState<boolean>(true);
-
     const [hover, setHover] = React.useState<string>('None');
-    const [fieldState, setFieldState] = React.useState < Application.Types.Status>('idle')
+    const [fieldState, setFieldState] = React.useState<Application.Types.Status>('idle')
     const [keyField, setKeyField] = React.useState<SystemCenter.Types.AdditionalFieldView>(undefined);
     const [showModal, setShowModal] = React.useState<boolean>(false);
-
+    const [page, setPage] = React.useState<number>(0);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
 
     const keyModalCallback = React.useCallback((newValue: string) => {
         let val = props.FieldValues.find(field => field.AdditionalFieldID == keyField.ID);
@@ -72,23 +68,27 @@ function AdditionalFieldsTable(props: IProps): JSX.Element {
 
         const fieldHandle = $.ajax({
             type: "GET",
-            url: `${homePath}api/SystemCenter/AdditionalFieldView/ParentTable/${props.Type}/${sortKey}/${(ascending ? '1' : '0')}`,
+            url: `${homePath}api/SystemCenter/AdditionalFieldView/ParentTable/${props.Type}/${sortKey}/${(ascending ? '1' : '0')}/${page}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
             async: true
         });
 
-        fieldHandle.done((data: Array<SystemCenter.Types.AdditionalFieldView>) => {
+        fieldHandle.done((d) => {
             setFieldState('idle')
+            const data = JSON.parse(d.Data)
             if (props.HideExternal ?? false)
                 setAdditionalFields(data.filter(item => item.ExternalDB == null || item.ExternalDB == '' || item.IsKey));
             else
                 setAdditionalFields(data);
+            setTotalPages(d.NumberOfPages);
+            if (page >= d.NumberOfPages)
+                setPage(d.NumberOfPages)
         }).fail(() => setFieldState('error'));
 
         return () => { if (fieldHandle != null && fieldHandle.abort != null) fieldHandle.abort(); }
-    }, [sortKey, ascending, props.Type, props.HideExternal]);
+    }, [sortKey, ascending, props.Type, props.HideExternal, page]);
 
 
     if (props.LoadState === 'error' || fieldState === 'error')
@@ -97,6 +97,8 @@ function AdditionalFieldsTable(props: IProps): JSX.Element {
     return (
         <>
             <LoadingScreen Show={props.LoadState === 'loading' || fieldState === 'loading'} />
+            <div className="row d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="col" style={{ overflow: 'auto' }}>
             <Table<SystemCenter.Types.AdditionalFieldView>
                 TableClass="table table-hover"
                 Data={additionalFields}
@@ -196,6 +198,18 @@ function AdditionalFieldsTable(props: IProps): JSX.Element {
                 > <p></p>
                 </Column>
             </Table>
+                </div>
+            </div>
+            <div className="row">
+                <div className="col">
+                    <Paging
+                        Current={page + 1}
+                        Total={totalPages}
+                        SetPage={(p) => setPage(p - 1)}
+                    >
+                    </Paging>
+                </div>
+            </div>
             <AdditionalFieldsKeyModal KeyField={keyField} SetKeyFieldValue={keyModalCallback} Show={showModal} SetShow={setShowModal} />
             <ToolTip Show={hover.match(/_edit$/) != null} Position={'left'} Target={hover}>
                 Select Key Field Value
