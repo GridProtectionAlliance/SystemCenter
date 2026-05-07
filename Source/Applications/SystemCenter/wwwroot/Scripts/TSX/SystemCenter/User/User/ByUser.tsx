@@ -107,7 +107,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
     React.useEffect(() => {
         if (searchStatus === 'uninitiated' || searchStatus === 'changed')
             dispatch(UserAccountSlice.PagedSearch({ filter: search, sortField: sortField ?? "ID", ascending: ascending, page: currentPage}));
-    }, [searchStatus]);
+    }, [searchStatus, search, sortField, ascending, currentPage]);
 
     React.useEffect(() => {
         if (adlFieldStatus === 'uninitiated' || adlFieldStatus === 'changed')

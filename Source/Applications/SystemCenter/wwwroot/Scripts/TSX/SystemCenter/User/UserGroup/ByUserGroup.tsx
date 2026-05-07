@@ -77,7 +77,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
     React.useEffect(() => {
         if (searchStatus == 'uninitiated' || searchStatus == 'changed')
             dispatch(SecurityGroupSlice.PagedSearch({ sortField, ascending, filter: search, page: currentPage - 1 }))
-    }, [searchStatus])
+    }, [searchStatus, sortField, ascending, search, currentPage])
 
     const setFilters = React.useCallback((filters: Search.IFilter<ISecurityGroup>[]) => {
         dispatch(SecurityGroupSlice.PagedSearch({ sortField, ascending, filter: filters, page: currentPage - 1 }))

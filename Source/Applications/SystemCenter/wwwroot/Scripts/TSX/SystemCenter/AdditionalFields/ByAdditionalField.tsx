@@ -107,7 +107,7 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
     React.useEffect(() => {
         if (status === 'uninitiated' || status === 'changed')
             dispatch(AdditionalFieldsSlice.PagedSearch({ filter: search, sortField, ascending, page: currentPage }));
-    }, [status]);
+    }, [status, search, sortField, ascending, currentPage]);
 
     React.useEffect(() => {
         if (valueListGroupStatus == 'uninitiated' || valueListGroupStatus == 'changed')

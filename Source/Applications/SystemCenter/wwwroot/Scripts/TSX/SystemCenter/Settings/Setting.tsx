@@ -66,7 +66,7 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
     React.useEffect(() => {
         if (searchStatus === 'uninitiated' || searchStatus === 'changed')
             dispatch(props.SettingsSlice.PagedSearch({ filter: search, sortField, ascending, page: currentPage }));
-    }, [searchStatus]);
+    }, [searchStatus, search, sortField, ascending, currentPage]);
 
 
     React.useEffect(() => { setHasChanged(false) }, [showModal]);
