@@ -147,11 +147,6 @@ const ByUser: Application.Types.iByComponent = (props) => {
         dispatch(UserAccountSlice.PagedSearch({ sortField: sortField ?? "ID", ascending: ascending, filter: filters, page: currentPage }))
     }, [sortField, ascending, currentPage])
 
-    React.useEffect(() => {
-        if (currentPage >= totalPages && totalPages > 0)
-            setPage(totalPages)
-    }, [totalPages])
-
     if (pageStatus === 'error')
         return <div style={{ width: '100%', height: '100%' }}>
             <ServerErrorIcon Show={true} Label={'A Server Error Occurred. Please Reload the Application.'} />
