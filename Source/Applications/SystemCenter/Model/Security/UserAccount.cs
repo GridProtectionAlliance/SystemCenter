@@ -184,7 +184,12 @@ namespace SystemCenter.Model.Security
             IEnumerable<DataRow> filteredRows = dataTable.AsEnumerable();
             IEnumerable<SQLSearchFilter> searchesToApply = postData.Searches.Where(flt => !IsInDatabase(flt.FieldName));
             filteredRows = ApplySearches(filteredRows, searchesToApply);
-            dataTable = filteredRows.CopyToDataTable();
+            DataTable searchedTable = dataTable.Clone();
+
+            foreach (DataRow row in filteredRows)
+                searchedTable.ImportRow(row);
+
+            dataTable = searchedTable;
             return dataTable;
         }
 

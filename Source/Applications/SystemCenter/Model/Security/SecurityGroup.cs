@@ -325,7 +325,12 @@ namespace SystemCenter.Model.Security
 
             filteredRows = UserAccountController.ApplySearches(filteredRows, searchesToApply);
 
-            dataTable = filteredRows.CopyToDataTable();
+            DataTable searchedTable = dataTable.Clone();
+
+            foreach (DataRow row in filteredRows)
+                searchedTable.ImportRow(row);
+
+            dataTable = searchedTable;
             return dataTable;
         }
 
