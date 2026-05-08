@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  FileWatcher.tsx - Gbtc
+//  DataOperationFailure.tsx - Gbtc
 //
 //  Copyright © 2026, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -25,23 +25,21 @@ import moment from 'moment'
 import { ToolTip } from '@gpa-gemstone/react-forms'
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 
-
 export interface INamedDataOperationFailure extends OpenXDA.Types.DataOperationFailure {
     DataFileName: string
 }
 interface IProps {
     NamedDataOperationFailure: INamedDataOperationFailure
-    SelectedFile: string
+    SelectedFile: number
     Hovered: string
     HandleViewMoreClick: (info: string, evt: React.MouseEvent) => void
-    HandleDataOperationFailureClick: (dataOperationFailure: INamedDataOperationFailure, evt: React.MouseEvent) => void
     SetHovered: React.Dispatch<React.SetStateAction<string>>
 }
 
 const DataOperationFailure = (props: IProps) => {
-    return <div className={`row alert-${props.NamedDataOperationFailure.DataFileName === props.SelectedFile ? 'warning' : 'danger'} m-2`}
+    return <div className={`row alert-${props.NamedDataOperationFailure.FileGroupID === props.SelectedFile ? 'warning' : 'danger'} m-2`}
         key={props.NamedDataOperationFailure.ID}
-        onClick={(evt) => { props.HandleDataOperationFailureClick(props.NamedDataOperationFailure, evt) }}>
+        >
         <div className={'col-2 d-flex justify-content-center align-items-center'}>
             <span className={`badge badge-pill badge-secondary`}>{moment(props.NamedDataOperationFailure.TimeOfFailure).format('MM/DD/YYYY hh:mm')}</span>
         </div>
