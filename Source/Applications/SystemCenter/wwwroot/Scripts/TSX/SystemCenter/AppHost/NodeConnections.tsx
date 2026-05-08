@@ -205,6 +205,7 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
                         />
                     </div>
                     }
+                    {SCADAStatus.Status === null ? null :
                     <div className={`col-${remoteXDAStatus.length == 0 ? 12 : 6} h-100`}>
                         <StatusGroup
                             StatusItems={[SCADAStatus]}
@@ -214,6 +215,12 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
                             Name="Other Connections"
                         />
                     </div>
+                    }
+                    {remoteXDAStatus.length === 0 && SCADAStatus.Status === null ?
+                        <div className={`col-12`}>
+                            <h5>No connections configured.</h5>
+                        </div>
+                        : null}
                 </div>
                 : null
     )
