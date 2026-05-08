@@ -183,6 +183,13 @@ namespace SystemCenter.Model.Security
 
             IEnumerable<DataRow> filteredRows = dataTable.AsEnumerable();
             IEnumerable<SQLSearchFilter> searchesToApply = postData.Searches.Where(flt => !IsInDatabase(flt.FieldName));
+            filteredRows = ApplySearches(filteredRows, searchesToApply);
+            dataTable = filteredRows.CopyToDataTable();
+            return dataTable;
+        }
+
+        public static IEnumerable<DataRow> ApplySearches(IEnumerable<DataRow> filteredRows, IEnumerable<SQLSearchFilter> searchesToApply)
+        {
             foreach (SQLSearchFilter search in searchesToApply)
             {
                 string wildcardPattern = Regex.Escape(search.SearchText.ToLower()).Replace(@"\*", ".*");
@@ -205,8 +212,7 @@ namespace SystemCenter.Model.Security
                         throw new Exception("Operator not found for Filter.");
                 }
             }
-            dataTable = filteredRows.CopyToDataTable();
-            return dataTable;
+            return filteredRows;
         }
 
         protected override int CountSearchResults(PostData postData)
