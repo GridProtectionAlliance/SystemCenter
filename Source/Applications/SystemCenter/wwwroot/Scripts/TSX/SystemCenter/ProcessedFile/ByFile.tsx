@@ -22,10 +22,7 @@
 //******************************************************************************************************
 
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { CreateGuid } from '@gpa-gemstone/helper-functions';
 import { LoadingIcon, LoadingScreen, Modal, Search, SearchBar, Warning } from '@gpa-gemstone/react-interactive';
-import { ToolTip } from '@gpa-gemstone/react-forms';
 import { Column, Paging, Table } from '@gpa-gemstone/react-table';
 import moment from 'moment';
 import * as React from 'react';
@@ -35,6 +32,7 @@ import { OpenXDA as GlobalXDA } from '../global';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { DataFileSlice } from '../Store/Store';
 import EditionLockModal from '../CommonComponents/Restrictions/EditionLockModal';
+import ProcessingStatus from '../CommonComponents/ProcessingStatus'
 
 const filterableList: Search.IField<OpenXDA.Types.DataFile>[] = [
     { isPivotField: false, key: 'FilePath', label: 'File Path', type: 'string' },
@@ -356,7 +354,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
                         Field={'ProcessingState'}
                         HeaderStyle={{ width: '10%' }}
                         RowStyle={{ width: '10%' }}
-                        Content={({ item }) => <ProcessingStatus Status={item.ProcessingState} FileGroupID={item.FileGroupID} />}
+                        Content={({ item }) => <ProcessingStatus Status={item.ProcessingState} FileGroupID={item.FileGroupID} Interactive={true} />}
                     > Status
                     </Column>
                 </Table>
@@ -448,101 +446,6 @@ const ByFile: Application.Types.iByComponent = (props) => {
             />
         </div>
     )
-}
-
-interface IStatusProps {
-    Status: number;
-    FileGroupID: number;
-}
-
-const ProcessingStatus = (props: IStatusProps) => {
-    const [message, setMessage] = React.useState<string | undefined>(undefined);
-    const [hover, setHover] = React.useState<boolean>(false);
-    const [guid, _setGuid] = React.useState<string>(CreateGuid());
-
-    React.useEffect(() => {
-        switch (props.Status) {
-            case 5:
-                setMessage("Click to see issues.");
-                break;
-            default:
-                setMessage(undefined);
-        }
-    }, [props.Status]);
-
-    const onClick = React.useCallback((event: React.MouseEvent<HTMLElement>) => {
-        event.stopPropagation();
-        if (props.Status === 5)
-            window.location.href = `${homePath}index.cshtml?name=DataOperationsFailures&FileGroupID=${props.FileGroupID}`;
-    }, [props.Status, props.FileGroupID]);
-
-    const visual = React.useMemo(() => {
-        if (props.Status == 0) //Added - Unknown
-            return "badge-light";
-        if (props.Status == 1) //Queued
-            return "badge-info";
-        if (props.Status == 2) // Processing
-            return "badge-primary";
-        if (props.Status == 3) // Processed
-            return "badge-success";
-        if (props.Status == 4) // Error
-            return "badge-danger";
-        if (props.Status == 5) // Partial Success
-            return "badge-warning";
-        return "badge-warning";
-    }, [props.Status]);
-
-    const text = React.useMemo(() => {
-        if (props.Status == 0) //Added - Unknown
-            return "Unknown";
-        if (props.Status == 1) //Queued
-            return "Queued";
-        if (props.Status == 2) // Processing
-            return "Processing";
-        if (props.Status == 3) // Processed
-            return "Processed";
-        if (props.Status == 4) // Error
-            return "Failure";
-        if (props.Status == 5) // Partial Success
-            return "Warning";
-        return "Unknwown";
-    }, [props.Status]);
-
-    const Symbol = React.useMemo(() => {
-        if (props.Status == 0) //Added - Unknown
-            return <ReactIcons.Warning Size={15} />;
-        if (props.Status == 1) //Queued
-            return <ReactIcons.Document Size={15} />;
-        if (props.Status == 2) // Processing
-            return <ReactIcons.SpiningIcon Size={15} />;
-        if (props.Status == 3) // Processed
-            return <ReactIcons.CircleCheckMark Size={15} />
-        if (props.Status == 4) // Error
-            return <ReactIcons.CircledX Size={15} />;
-        if (props.Status == 5) // Partial Success
-            return <ReactIcons.Alert Size={15} />;
-        return <ReactIcons.Warning Size={15} />;
-    }, [props.Status]);
-
-    return (
-        <>
-            <span
-                className={`"badge badge-pill ${visual}`}
-                data-tooltip={guid}
-                onMouseEnter={() => setHover(true)}
-                onMouseLeave={() => setHover(false)}
-                onClick={onClick}
-            >
-                {Symbol}  {text}
-            </span>
-            {
-                message === undefined ? null :
-                    <ToolTip Show={hover} Target={guid} Position={'top'}>
-                        {message}
-                    </ToolTip>
-            }
-        </>
-    );
 }
 
 export default ByFile;
