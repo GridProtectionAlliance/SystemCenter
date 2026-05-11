@@ -26,25 +26,32 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { Modal, LayoutGrid } from '@gpa-gemstone/react-interactive';
+import { Paging } from '@gpa-gemstone/react-table'
 declare var homePath: string;
 
 const LocationImagesWindow = (props: { Location: OpenXDA.Types.Location }) => {
     const [images, setImages] = React.useState<string[]>([]);
     const [image, setImage] = React.useState<string>('');
+    const [page, setPage] = React.useState<number>(0);
+    const [totalPages, setTotalPages] = React.useState<number>(1)
 
     React.useEffect(() => {
         let handle = getImages();
-        handle.done(i => {setImages(i)});
+        handle.done(i => {
+            setImages(JSON.parse(i.Data))
+            setTotalPages(i.NumberOfPages)
+        }
+        );
 
         return () => {
             if (handle.abort != undefined) handle.abort();
         };
-    }, [props.Location.ID]);
+    }, [props.Location.ID, page]);
 
     function getImages(): JQuery.jqXHR {
         return $.ajax({
             type: "GET",
-            url: `${homePath}api/OpenXDA/Location/${props.Location.ID}/Images`,
+            url: `${homePath}api/OpenXDA/Location/${props.Location.ID}/Images/${page}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
@@ -83,6 +90,14 @@ const LocationImagesWindow = (props: { Location: OpenXDA.Types.Location }) => {
                     : <div className="alert alert-info block">No images to display.</div>
                     }
                 </LayoutGrid>
+            </div>
+            <div className="card-footer">
+                <Paging
+                    SetPage={(page) => { setPage(page - 1) }}
+                    Current={page + 1}
+                    Total={totalPages}
+                >
+                </Paging>
             </div>
             <Modal
                 Show={image.length > 0} ShowCancel={false} ShowX={true} ShowConfirm={false} Title={image}
