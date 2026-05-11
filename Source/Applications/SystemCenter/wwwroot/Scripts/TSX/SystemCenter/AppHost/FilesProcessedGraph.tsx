@@ -90,7 +90,7 @@ const FilesProcessedGraph = (props: IProps) => {
         Tmax={timeframe[1]}
         Ymin={0}
         Ymax={yMax}
-        Ylabel={'Files Queued'}
+        Ylabel={'Files Began Processing'}
         onSelect={handleOnPlotSelect}
         pan={false}
         defaultMouseMode={'select'}
