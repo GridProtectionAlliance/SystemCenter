@@ -178,6 +178,7 @@ const FilesProcessedTable = (props: IProps) => {
                     return <ProcessingStatus Status={item[field] as number} FileGroupID={item.FileGroupID} Interactive={false} />
                 }}
             >
+                Processing State
             </Column>
         </Table>
         <Paging Current={page + 1} Total={totalPages} SetPage={(p) => setPage(p - 1)} />
