@@ -301,8 +301,8 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
 
-        [HttpGet, Route("{locationID:int}/Images")]
-        public IHttpActionResult GetImagesForLocation(int locationID)
+        [HttpGet, Route("{locationID:int}/Images/{page:int}")]
+        public IHttpActionResult GetImagesForLocation(int locationID, int page)
         {
             try
             {
@@ -315,7 +315,12 @@ namespace SystemCenter.Controllers.OpenXDA
                         if (path == null) return BadRequest("ImageDirectory.Path not set in settings table.");
 
                         if (Directory.Exists(Path.Combine(path, key)))
-                            return Ok(Directory.GetFiles(Path.Combine(path, key)).Select(fp => new FileInfo(fp).Name));
+                        {
+                            IEnumerable<string> imagePaths = Directory.GetFiles(Path.Combine(path, key)).Select(fp => new FileInfo(fp).Name);
+                            return Ok(PageImagePaths(imagePaths, page));
+                        }
+
+
                         else
                             return Ok(new string[] { });
                     }
@@ -326,7 +331,27 @@ namespace SystemCenter.Controllers.OpenXDA
             {
                 return InternalServerError(ex);
             }
+        }
 
+
+
+public static PagedResults PageImagePaths(IEnumerable<string> imagePaths, int page)
+        {
+            int recordsPerPage = 48;
+            int totalImages = imagePaths.Count();
+
+            IEnumerable<string> pagedImagePaths = imagePaths
+                .OrderBy(fp => fp)
+                .Skip((page) * recordsPerPage)
+                .Take(recordsPerPage);
+
+            return new PagedResults()
+            {
+                Data = JsonConvert.SerializeObject(pagedImagePaths),
+                TotalRecords = totalImages,
+                NumberOfPages = (totalImages + recordsPerPage - 1) / recordsPerPage,
+                RecordsPerPage = recordsPerPage
+            };
         }
 
         [HttpGet, Route("{locationID:int}/Images/{file}")]
