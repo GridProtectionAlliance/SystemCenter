@@ -157,9 +157,10 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
             async: true
         });
 
-        h.done((d: SC.StatusItem) => {
-            d.Name = 'SCADA'
-            setSCADAStatus(d)
+        h.done((d: string) => {
+            const statusItem = JSON.parse(d)
+            statusItem.Name = 'SCADA Resource'
+            setMaximoStructureQueryStatus(statusItem)
         }).fail(() => {
             setSCADAStatus({ Status: 'Error', Name: 'SCADA Resource', Details: [{ Status: "Error", Description: "Errors occurred in retrieving SCADA Resource connection status." }] })
         })
@@ -180,9 +181,10 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
             async: true
         });
 
-        h.done((d: SC.StatusItem) => {
-            d.Name = 'MaximoStructureQuery'
-            setMaximoStructureQueryStatus(d)
+        h.done((d: string) => {
+            const statusItem = JSON.parse(d)
+            statusItem.Name = 'MaximoStructureQuery'
+            setMaximoStructureQueryStatus(statusItem)
         }).fail(() => {
             setMaximoStructureQueryStatus({ Status: 'Error', Name: 'Maximo Structure Query', Details: [{ Status: "Error", Description: "Errors occurred in retrieving Maximo Structure Query connection status." }] })
         })
