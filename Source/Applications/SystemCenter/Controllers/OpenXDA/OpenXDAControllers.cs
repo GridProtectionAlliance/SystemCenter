@@ -733,7 +733,6 @@ namespace SystemCenter.Controllers.OpenXDA
         [Route("SCADAHealth"), HttpGet]
         public IHttpActionResult GetScadaHealth()
         {
-
             if (!XDAAPIHelper.TryRefreshSettings())
                 throw new InvalidOperationException("Unable to refresh static XDA API object.");
 
@@ -741,6 +740,24 @@ namespace SystemCenter.Controllers.OpenXDA
 
             using (HttpResponseMessage response = XDAAPIHelper
                 .GetResponseTask($"api/SystemCenter/SCADAPoint/Health")
+                .Result)
+            {
+                scadaStatus = JsonConvert.DeserializeObject<AppStatus>(response.Content.ReadAsStringAsync().Result);
+            }
+
+            return Ok(scadaStatus);
+        }
+
+        [Route("MaximoStructureQueryHealth"), HttpGet]
+        public IHttpActionResult GetMaximoStructureQueryHealth()
+        {
+            if (!XDAAPIHelper.TryRefreshSettings())
+                throw new InvalidOperationException("Unable to refresh static XDA API object.");
+
+            AppStatus scadaStatus = null;
+
+            using (HttpResponseMessage response = XDAAPIHelper
+                .GetResponseTask($"api/SystemCenter/MaximoStructureQuery/Health")
                 .Result)
             {
                 scadaStatus = JsonConvert.DeserializeObject<AppStatus>(response.Content.ReadAsStringAsync().Result);
