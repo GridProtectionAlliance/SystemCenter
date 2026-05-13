@@ -829,7 +829,7 @@
           </CustomServerUrl>
           <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
           <servers defaultServer="SelfHostServer">
-            <server name="SelfHostServer" exePath="" cmdArgs="" url="http://localhost:8988/" workingDir="" />
+            <server name="SelfHostServer" exePath="" cmdArgs="" url="http://localhost:8987/" workingDir="" />
           </servers>
         </WebProjectProperties>
       </FlavorProperties>
