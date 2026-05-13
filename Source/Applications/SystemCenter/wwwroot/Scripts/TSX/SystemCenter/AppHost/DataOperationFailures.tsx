@@ -41,62 +41,14 @@ const DataOperationFailures = (props: IProps) => {
 
 
     React.useEffect(() => {
-        setStatus('loading')
-        getDataOperationFailure()
-        setStatus('idle')
-    }, [page, props.FilteredHour, props.SelectedFile])
-
-    function getDataOperationFailure() {
-        let filters = []
-        if (props.SelectedFile !== null) {
-            filters = [{
-                FieldName: 'FileGroupID',
-                Operator: '=',
-                Type: 'number',
-                SearchText: props.SelectedFile
-            }]
-        }
-        else if (props.FilteredHour !== null) {
-            filters = [
-                {
-                    FieldName: 'TimeOfFailure',
-                    Operator: '>=',
-                    Type: 'datetime',
-                    SearchText: moment(props.FilteredHour).format('YYYY-MM-DD HH:mm:ss.SSS')
-                },
-                {
-                    FieldName: 'TimeOfFailure',
-                    Operator: '<',
-                    Type: 'datetime',
-                    SearchText: moment(props.FilteredHour).add(1, 'hour').format('YYYY-MM-DD HH:mm:ss.SSS')
-                }
-            ]
-        }
-        else {
-            filters = [{
-                FieldName: 'TimeOfFailure',
-                Operator: '>',
-                Type: 'datetime',
-                SearchText: moment().subtract(48, 'hour').startOf('hour').format('YYYY-MM-DD HH:mm:ss.SSS')
-            }]
-        }
-
-        const h = $.ajax({
-            type: "POST",
-            url: `${homePath}api/OpenXDA/DataOperationFailure/RecentFailures/${page}`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: false,
-            async: true,
-            data: JSON.stringify({ Searches: filters, OrderBy: 'TimeOfFailure', Ascending: false }),
-        });
-
+        const h = getDataOperationFailure(props.SelectedFile, props.FilteredHour, page)
         h.done((d) => {
+        setStatus('loading')
             setDataOperationFailures(JSON.parse(d.Data))
             setTotalPages(d.NumberOfPages)
             if (page >= d.NumberOfPages && d.NumberOfPages > 0)
                 setPage(d.NumberOfPages - 1)
-            setStatus('idle')
+        setStatus('idle')
         }).fail(() => {
             setStatus('error')
         })
@@ -105,7 +57,9 @@ const DataOperationFailures = (props: IProps) => {
             if (h.abort != null)
                 h.abort();
         }
-    }
+    }, [page, props.FilteredHour, props.SelectedFile, setStatus, setDataOperationFailures, setTotalPages])
+
+  
     return <fieldset className="border h-100" style={{ padding: '10px', flex: '1 1 0%', display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
         <legend className="w-auto" style={{ fontSize: 'large' }}> Data Operation Failures :</legend>
         <div className="row d-flex flex-column h-100" style={{ overflow: 'hidden' }}>
@@ -117,7 +71,6 @@ const DataOperationFailures = (props: IProps) => {
                         HandleViewMoreClick={props.HandleViewMoreClick}
                         SetHovered={setHovered}
                         Hovered={hovered}
-
                     />
                 })
                 }
@@ -132,3 +85,49 @@ const DataOperationFailures = (props: IProps) => {
 }
 
 export default DataOperationFailures
+
+function getDataOperationFailure(selectedFile: number, filteredHour: string, page: number) {
+        let filters = []
+    if (selectedFile !== null) {
+            filters = [{
+                FieldName: 'FileGroupID',
+                Operator: '=',
+                Type: 'number',
+            SearchText: selectedFile
+            }]
+        }
+    else if (filteredHour !== null) {
+            filters = [
+                {
+                    FieldName: 'TimeOfFailure',
+                    Operator: '>=',
+                    Type: 'datetime',
+                SearchText: moment(filteredHour).format('YYYY-MM-DD HH:mm:ss.SSS')
+                },
+                {
+                    FieldName: 'TimeOfFailure',
+                    Operator: '<',
+                    Type: 'datetime',
+                SearchText: moment(filteredHour).add(1, 'hour').format('YYYY-MM-DD HH:mm:ss.SSS')
+                }
+            ]
+        }
+        else {
+            filters = [{
+                FieldName: 'TimeOfFailure',
+                Operator: '>',
+                Type: 'datetime',
+                SearchText: moment().subtract(48, 'hour').startOf('hour').format('YYYY-MM-DD HH:mm:ss.SSS')
+            }]
+        }
+
+    return $.ajax({
+            type: "POST",
+            url: `${homePath}api/OpenXDA/DataOperationFailure/RecentFailures/${page}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true,
+            data: JSON.stringify({ Searches: filters, OrderBy: 'TimeOfFailure', Ascending: false }),
+        });
+    }
