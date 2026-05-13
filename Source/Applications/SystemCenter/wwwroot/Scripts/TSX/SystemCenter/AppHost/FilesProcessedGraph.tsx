@@ -49,8 +49,10 @@ const FilesProcessedGraph = (props: IProps) => {
         const h = getAggregateRecentlyProcessedFiles()
 
         h.done((d) => {
+            setStatus('loading')
             setAggregateProcessedFiles(d)
             setYMax(Math.max(...d?.map((c) => { return c.Count })))
+            setStatus('idle')
         }).fail(() => {
             setStatus('error')
         })
