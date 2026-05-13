@@ -37,6 +37,7 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
     const [fawgStatus, setFawgStatus] = React.useState<SC.StatusItem>({ Name: "FAWG", Status: "Loading", Details: [] })
     const [PQIStatus, setPQIStatus] = React.useState<SC.StatusItem>({ Name: "PQI", Status: "Loading", Details: [] })
     const [SCADAStatus, setSCADAStatus] = React.useState<SC.StatusItem>({ Name: "SCADA Resource", Status: "Loading", Details: [] })
+    const [maximoStructureQueryStatus, setMaximoStructureQueryStatus] = React.useState<SC.StatusItem>({ Name: "Maximo Structure Query", Status: "Loading", Details: []})
 
     React.useEffect(() => {
         setStatus('loading');
@@ -49,6 +50,7 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
             case 'XDA':
                 testRemoteXDAs()
                 testSCADA()
+                testMaximoStructureQuery()
                 break;
             default:
                 break;
@@ -168,6 +170,29 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
         }
     }
 
+    function testMaximoStructureQuery() {
+        const h = $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/MaximoStructureQueryHealth`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true
+        });
+
+        h.done((d: SC.StatusItem) => {
+            d.Name = 'MaximoStructureQuery'
+            setMaximoStructureQueryStatus(d)
+        }).fail(() => {
+            setMaximoStructureQueryStatus({ Status: 'Error', Name: 'Maximo Structure Query', Details: [{ Status: "Error", Description: "Errors occurred in retrieving Maximo Structure Query connection status." }] })
+        })
+
+        return function cleanup() {
+            if (h.abort != null)
+                h.abort();
+        }
+    }
+
     return (
         props.ApplicationType === 'SystemCenter' ?
             <div className="row h-100">
@@ -207,7 +232,7 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
                     }
                     <div className={`col-${remoteXDAStatus.length == 0 ? 12 : 6} h-100`}>
                         <StatusGroup
-                            StatusItems={[SCADAStatus]}
+                            StatusItems={[SCADAStatus, maximoStructureQueryStatus]}
                             Status={status}
                             HoveredItem={hoveredItem}
                             SetHoveredItem={setHoveredItem}
