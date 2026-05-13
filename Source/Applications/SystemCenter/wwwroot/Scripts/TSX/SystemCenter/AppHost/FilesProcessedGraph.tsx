@@ -46,18 +46,7 @@ const FilesProcessedGraph = (props: IProps) => {
     const [aggregateProcessedFiles, setAggregateProcessedFiles] = React.useState<IAggregateProcessedFile[]>([])
 
     React.useEffect(() => {
-        getAggregateRecentlyProcessedFiles()
-    }, [])
-
-    function getAggregateRecentlyProcessedFiles() {
-        const h = $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/DataFile/AggregateRecentlyProcessedFiles`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: false,
-            async: true,
-        })
+        const h = getAggregateRecentlyProcessedFiles()
 
         h.done((d) => {
             setAggregateProcessedFiles(d)
@@ -65,12 +54,13 @@ const FilesProcessedGraph = (props: IProps) => {
         }).fail(() => {
             setStatus('error')
         })
+
         return function cleanup() {
             if (h.abort != null)
                 h.abort();
 
         }
-    }
+    }, [getAggregateRecentlyProcessedFiles, setYMax, setAggregateProcessedFiles, setStatus])
 
     const handleOnPlotSelect = React.useCallback((x: number, y: number[]) => {
         const selectedHour = aggregateProcessedFiles.find(a => moment(a.Hour).valueOf() < x && (moment(a.Hour).valueOf() + 3600000) > x && y[0] < a.Count)
@@ -109,3 +99,14 @@ const FilesProcessedGraph = (props: IProps) => {
 }
 
 export default FilesProcessedGraph
+
+function getAggregateRecentlyProcessedFiles() {
+    return $.ajax({
+        type: "GET",
+        url: `${homePath}api/OpenXDA/DataFile/AggregateRecentlyProcessedFiles`,
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        cache: false,
+        async: true,
+    })
+}
