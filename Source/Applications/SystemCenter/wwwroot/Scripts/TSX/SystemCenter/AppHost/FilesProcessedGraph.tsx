@@ -25,6 +25,8 @@ import * as React from 'react'
 import moment from 'moment'
 import { Application } from '@gpa-gemstone/application-typings';
 import { Plot, Bar } from '@gpa-gemstone/react-graph'
+import { LoadingScreen } from '@gpa-gemstone/react-interactive'
+import { ErrorBoundary } from '@gpa-gemstone/common-pages'
 
 export interface IAggregateProcessedFile {
     Hour: string,
@@ -69,7 +71,9 @@ const FilesProcessedGraph = (props: IProps) => {
         props.SetFilteredHour(selectedHour?.Hour ?? null)
     }, [aggregateProcessedFiles])
 
-    return <Plot
+    return <ErrorBoundary>
+        <LoadingScreen Show={status === "loading"} />
+            <Plot
         height={props.OffsetHeight}
         width={props.OffsetWidth}
         defaultTdomain={timeframe}
@@ -98,8 +102,8 @@ const FilesProcessedGraph = (props: IProps) => {
                 </Bar>
             })}
     </Plot>
+        </ErrorBoundary>
 }
-
 export default FilesProcessedGraph
 
 function getAggregateRecentlyProcessedFiles() {
