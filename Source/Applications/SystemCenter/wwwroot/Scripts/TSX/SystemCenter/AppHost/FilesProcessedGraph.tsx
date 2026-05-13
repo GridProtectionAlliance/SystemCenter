@@ -95,8 +95,7 @@ const FilesProcessedGraph = (props: IProps) => {
         pan={false}
         defaultMouseMode={'select'}
     >
-        {aggregateProcessedFiles.length == 0 ? null :
-            aggregateProcessedFiles.map((a) => {
+        {aggregateProcessedFiles.map((a) => {
                 return <Bar
                     Data={[a.Count]}
                     BarOrigin={moment(a.Hour).valueOf()}
