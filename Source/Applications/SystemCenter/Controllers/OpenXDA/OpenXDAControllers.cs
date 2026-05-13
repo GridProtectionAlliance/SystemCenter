@@ -736,39 +736,25 @@ namespace SystemCenter.Controllers.OpenXDA
         }
 
         [Route("SCADAHealth"), HttpGet]
-        public IHttpActionResult GetScadaHealth()
+        public HttpResponseMessage GetScadaHealth()
         {
             if (!XDAAPIHelper.TryRefreshSettings())
                 Log.Warn("Unable to refresh static XDA API object.");
 
-            string scadaStatus = null;
-
-            using (HttpResponseMessage response = XDAAPIHelper
+            return XDAAPIHelper
                 .GetResponseTask($"api/SystemCenter/SCADAPoint/Health")
-                .Result)
-            {
-                scadaStatus = response.Content.ReadAsStringAsync().Result;
-            }
-
-            return Ok(scadaStatus);
+                .Result;
         }
 
         [Route("MaximoStructureQueryHealth"), HttpGet]
-        public IHttpActionResult GetMaximoStructureQueryHealth()
+        public HttpResponseMessage GetMaximoStructureQueryHealth()
         {
             if (!XDAAPIHelper.TryRefreshSettings())
                 Log.Warn("Unable to refresh static XDA API object.");
 
-            string scadaStatus = null;
-
-            using (HttpResponseMessage response = XDAAPIHelper
+            return XDAAPIHelper
                 .GetResponseTask($"api/SystemCenter/MaximoStructureQuery/Health")
-                .Result)
-            {
-                scadaStatus = response.Content.ReadAsStringAsync().Result;
-            }
-
-            return Ok(scadaStatus);
+                .Result;
         }
     }
 
