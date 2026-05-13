@@ -28,6 +28,7 @@ using GSF.Data;
 using GSF.Data.Model;
 using GSF.Security.Model;
 using GSF.Web.Model;
+using log4net;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using openXDA.APIAuthentication;
@@ -685,6 +686,10 @@ namespace SystemCenter.Controllers.OpenXDA
     public class GeneralController : ApiController
     {
 
+        #region [ Static ]
+        private static readonly ILog Log = LogManager.GetLogger(typeof(GeneralController));
+        #endregion
+
         [HttpGet, Route("Tiles/GetAll")]
         public IHttpActionResult GetAllTiles()
         {
@@ -734,15 +739,15 @@ namespace SystemCenter.Controllers.OpenXDA
         public IHttpActionResult GetScadaHealth()
         {
             if (!XDAAPIHelper.TryRefreshSettings())
-                throw new InvalidOperationException("Unable to refresh static XDA API object.");
+                Log.Warn("Unable to refresh static XDA API object.");
 
-            AppStatus scadaStatus = null;
+            string scadaStatus = null;
 
             using (HttpResponseMessage response = XDAAPIHelper
                 .GetResponseTask($"api/SystemCenter/SCADAPoint/Health")
                 .Result)
             {
-                scadaStatus = JsonConvert.DeserializeObject<AppStatus>(response.Content.ReadAsStringAsync().Result);
+                scadaStatus = response.Content.ReadAsStringAsync().Result;
             }
 
             return Ok(scadaStatus);
@@ -752,15 +757,15 @@ namespace SystemCenter.Controllers.OpenXDA
         public IHttpActionResult GetMaximoStructureQueryHealth()
         {
             if (!XDAAPIHelper.TryRefreshSettings())
-                throw new InvalidOperationException("Unable to refresh static XDA API object.");
+                Log.Warn("Unable to refresh static XDA API object.");
 
-            AppStatus scadaStatus = null;
+            string scadaStatus = null;
 
             using (HttpResponseMessage response = XDAAPIHelper
                 .GetResponseTask($"api/SystemCenter/MaximoStructureQuery/Health")
                 .Result)
             {
-                scadaStatus = JsonConvert.DeserializeObject<AppStatus>(response.Content.ReadAsStringAsync().Result);
+                scadaStatus = response.Content.ReadAsStringAsync().Result;
             }
 
             return Ok(scadaStatus);
