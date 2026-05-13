@@ -26,8 +26,18 @@ import { CreateGuid } from '@gpa-gemstone/helper-functions';
 import * as React from 'react';
 import { ToolTip } from '@gpa-gemstone/react-forms';
 
+
+enum ProcessingStatusEnum {
+    Unknown = 1,
+    Queued = 2,
+    Processing = 3,
+    Processed = 4,
+    Error = 5,
+    PartialSuccess = 6
+}
+
 interface IStatusProps {
-    Status: number;
+    Status: ProcessingStatusEnum;
     FileGroupID: number;
     Interactive: boolean;
 }
@@ -58,49 +68,49 @@ const ProcessingStatus = (props: IStatusProps) => {
     }, [props.Status, props.FileGroupID, props.Interactive]);
 
     const visual = React.useMemo(() => {
-        if (props.Status == 0) //Added - Unknown
+        if (props.Status == ProcessingStatusEnum.Unknown) //Added - Unknown
             return "badge-light";
-        if (props.Status == 1) //Queued
+        if (props.Status == ProcessingStatusEnum.Queued) //Queued
             return "badge-info";
-        if (props.Status == 2) // Processing
+        if (props.Status == ProcessingStatusEnum.Processing) // Processing
             return "badge-primary";
-        if (props.Status == 3) // Processed
+        if (props.Status == ProcessingStatusEnum.Processed) // Processed
             return "badge-success";
-        if (props.Status == 4) // Error
+        if (props.Status == ProcessingStatusEnum.Error) // Error
             return "badge-danger";
-        if (props.Status == 5) // Partial Success
+        if (props.Status == ProcessingStatusEnum.PartialSuccess) // Partial Success
             return "badge-warning";
         return "badge-warning";
     }, [props.Status]);
 
     const text = React.useMemo(() => {
-        if (props.Status == 0) //Added - Unknown
+        if (props.Status == ProcessingStatusEnum.Unknown) //Added - Unknown
             return "Unknown";
-        if (props.Status == 1) //Queued
+        if (props.Status == ProcessingStatusEnum.Queued) //Queued
             return "Queued";
-        if (props.Status == 2) // Processing
+        if (props.Status == ProcessingStatusEnum.Processing) // Processing
             return "Processing";
-        if (props.Status == 3) // Processed
+        if (props.Status == ProcessingStatusEnum.Processed) // Processed
             return "Processed";
-        if (props.Status == 4) // Error
+        if (props.Status == ProcessingStatusEnum.Error) // Error
             return "Failure";
-        if (props.Status == 5) // Partial Success
+        if (props.Status == ProcessingStatusEnum.PartialSuccess) // Partial Success
             return "Warning";
         return "Unknwown";
     }, [props.Status]);
 
     const Symbol = React.useMemo(() => {
-        if (props.Status == 0) //Added - Unknown
+        if (props.Status == ProcessingStatusEnum.Unknown) //Added - Unknown
             return <ReactIcons.Warning Size={15} />;
-        if (props.Status == 1) //Queued
+        if (props.Status == ProcessingStatusEnum.Queued) //Queued
             return <ReactIcons.Document Size={15} />;
-        if (props.Status == 2) // Processing
+        if (props.Status == ProcessingStatusEnum.Processing) // Processing
             return <ReactIcons.SpiningIcon Size={15} />;
-        if (props.Status == 3) // Processed
+        if (props.Status == ProcessingStatusEnum.Processed) // Processed
             return <ReactIcons.CircleCheckMark Size={15} />
-        if (props.Status == 4) // Error
+        if (props.Status == ProcessingStatusEnum.Error) // Error
             return <ReactIcons.CircledX Size={15} />;
-        if (props.Status == 5) // Partial Success
+        if (props.Status == ProcessingStatusEnum.PartialSuccess) // Partial Success
             return <ReactIcons.Alert Size={15} />;
         return <ReactIcons.Warning Size={15} />;
     }, [props.Status]);
