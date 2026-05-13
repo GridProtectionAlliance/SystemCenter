@@ -24,7 +24,7 @@ import * as React from 'react';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { SearchBar, Search, Warning, LoadingScreen, ServerErrorIcon, GenericSlice, Modal } from '@gpa-gemstone/react-interactive';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
-import { useAppDispatch, useAppSelector } from '../hooks';
+import { useAppDispatch, useAppSelector, useBoundPaging } from '../hooks';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Input, TextArea } from '@gpa-gemstone/react-forms';
 
@@ -66,7 +66,7 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
     React.useEffect(() => {
         if (searchStatus === 'uninitiated' || searchStatus === 'changed')
             dispatch(props.SettingsSlice.PagedSearch({ filter: search, sortField, ascending, page: currentPage }));
-    }, [searchStatus]);
+    }, [searchStatus, search, sortField, ascending, currentPage]);
 
 
     React.useEffect(() => { setHasChanged(false) }, [showModal]);
@@ -88,11 +88,7 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
         dispatch(props.SettingsSlice.PagedSearch({ filter: search, sortField, ascending, page: page - 1 }))
     }, [sortField, ascending, search])
 
-    React.useEffect(() => {
-        if (currentPage >= totalPages) {
-            setPage(totalPages)
-        }
-    }, [totalPages])
+    useBoundPaging(currentPage, totalPages, setPage)
 
     const searchFields: Search.IField<T>[] = [
         { key: 'Name', label: 'Setting Name', type: 'string', isPivotField: false },

@@ -155,7 +155,7 @@ namespace SystemCenter.Model.Security
 
         }
 
-        protected override DataTable GetSearchResults(PostData postData, int? page)
+        private DataTable GetSearchTable(PostData postData)
         {
             string orderBy = postData.OrderBy;
             if (!IsInDatabase(orderBy))
@@ -183,6 +183,18 @@ namespace SystemCenter.Model.Security
 
             IEnumerable<DataRow> filteredRows = dataTable.AsEnumerable();
             IEnumerable<SQLSearchFilter> searchesToApply = postData.Searches.Where(flt => !IsInDatabase(flt.FieldName));
+            filteredRows = ApplySearches(filteredRows, searchesToApply);
+            DataTable searchedTable = dataTable.Clone();
+
+            foreach (DataRow row in filteredRows)
+                searchedTable.ImportRow(row);
+
+            dataTable = searchedTable;
+            return dataTable;
+        }
+
+        public static IEnumerable<DataRow> ApplySearches(IEnumerable<DataRow> filteredRows, IEnumerable<SQLSearchFilter> searchesToApply)
+        {
             foreach (SQLSearchFilter search in searchesToApply)
             {
                 string wildcardPattern = Regex.Escape(search.SearchText.ToLower()).Replace(@"\*", ".*");
@@ -205,8 +217,22 @@ namespace SystemCenter.Model.Security
                         throw new Exception("Operator not found for Filter.");
                 }
             }
+            return filteredRows;
+        }
 
-            dataTable = filteredRows.CopyToDataTable();
+        protected override int CountSearchResults(PostData postData)
+        {
+           
+            return GetSearchTable(postData).Rows.Count;
+        }
+
+        protected override DataTable GetSearchResults(PostData postData, int? page)
+        {
+            string orderBy = postData.OrderBy;
+            if (!IsInDatabase(orderBy))
+                orderBy = "Name";
+
+            DataTable dataTable = GetSearchTable(postData);
 
             if (!IsInDatabase(orderBy))
             {
@@ -214,6 +240,21 @@ namespace SystemCenter.Model.Security
                 dataTable = dataTable.DefaultView.ToTable();
             }
 
+            if (page is int p)// page manually, because filtering post-search requires it.
+            {
+                int recordsPerPage = Take ?? 50;
+                DataRow[] rows = dataTable.AsEnumerable()
+                    .Skip((p) * recordsPerPage)
+                    .Take(recordsPerPage)
+                    .ToArray();
+
+                DataTable pagedTable = dataTable.Clone();
+
+                foreach (DataRow row in rows)
+                    pagedTable.ImportRow(row);
+
+                dataTable = pagedTable;
+            }
             return dataTable;
         }
 
