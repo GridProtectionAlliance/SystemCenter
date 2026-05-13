@@ -43,47 +43,10 @@ const FilesProcessedTable = (props: IProps) => {
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated')
 
     React.useEffect(() => {
-        setStatus('loading')
-        getFileGroups()
-        setStatus('idle')
-    }, [sortField, ascending, page, props.FilteredHour])
-
-    function getFileGroups() {
-        let filters = []
-        if (props.FilteredHour === null) {
-            filters = [{
-                FieldName: 'ProcessingStartTime',
-                Operator: '>',
-                Type: 'datetime',
-                SearchText: moment().subtract(48, 'hour').startOf('hour').format('YYYY-MM-DD HH:mm:ss.SSS')
-            }]
-        }
-        else {
-            filters = [{
-                FieldName: 'ProcessingStartTime',
-                Operator: '>=',
-                Type: 'datetime',
-                SearchText: moment(props.FilteredHour).format('YYYY-MM-DD HH:mm:ss.SSS')
-            },
-            {
-                FieldName: 'ProcessingStartTime',
-                Operator: '<',
-                Type: 'datetime',
-                SearchText: moment(props.FilteredHour).add(1, 'hour').format('YYYY-MM-DD HH:mm:ss.SSS')
-            }
-            ]
-        }
-        const h = $.ajax({
-            type: "POST",
-            url: `${homePath}api/OpenXDA/DataFile/PagedList/${page}`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: false,
-            async: true,
-            data: JSON.stringify({ Searches: filters, OrderBy: sortField, Ascending: ascending }),
-        });
+        const h = getFileGroups(props.FilteredHour, sortField, ascending, page)
 
         h.done((d) => {
+            setStatus('loading')
             setDataFile(JSON.parse(d.Data))
             setTotalPages(d.NumberOfPages)
             if (page >= d.NumberOfPages && d.NumberOfPages > 0)
@@ -97,7 +60,7 @@ const FilesProcessedTable = (props: IProps) => {
             if (h.abort != null)
                 h.abort();
         }
-    }
+    }, [sortField, ascending, page, props.FilteredHour, setStatus, setDataFile, setTotalPages])
 
     return <>
         <Table<SC.DataFile>
@@ -186,3 +149,40 @@ const FilesProcessedTable = (props: IProps) => {
 }
 
 export default FilesProcessedTable
+
+function getFileGroups(filteredHour: string, sortField: string, ascending: boolean, page: number) {
+    let filters = []
+    if (filteredHour === null) {
+        filters = [{
+            FieldName: 'ProcessingStartTime',
+            Operator: '>',
+            Type: 'datetime',
+            SearchText: moment().subtract(48, 'hour').startOf('hour').format('YYYY-MM-DD HH:mm:ss.SSS')
+        }]
+    }
+    else {
+        filters = [{
+            FieldName: 'ProcessingStartTime',
+            Operator: '>=',
+            Type: 'datetime',
+            SearchText: moment(filteredHour).format('YYYY-MM-DD HH:mm:ss.SSS')
+        },
+        {
+            FieldName: 'ProcessingStartTime',
+            Operator: '<',
+            Type: 'datetime',
+            SearchText: moment(filteredHour).add(1, 'hour').format('YYYY-MM-DD HH:mm:ss.SSS')
+        }
+        ]
+    }
+    return $.ajax({
+        type: "POST",
+        url: `${homePath}api/OpenXDA/DataFile/PagedList/${page}`,
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        cache: false,
+        async: true,
+        data: JSON.stringify({ Searches: filters, OrderBy: sortField, Ascending: ascending }),
+    });
+
+}
