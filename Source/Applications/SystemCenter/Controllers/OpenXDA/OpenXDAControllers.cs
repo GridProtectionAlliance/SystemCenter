@@ -109,25 +109,42 @@ namespace SystemCenter.Controllers.OpenXDA
         [Route("RecentFailures/{page}"), HttpPost]
         public IHttpActionResult RecentFailures([FromBody] PostData postData, [FromUri] int page)
         {
-            using DataTable value = GetSearchResults(postData, page);
-            value.Columns.Add("DataFileName", typeof(String));
-            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            int recordsPerPage = Take ?? 50;
+
+            List<object> param = new();
+
+            string conditions = BuildWhereClause(postData.Searches, param);
+
+            //using DataTable value = GetSearchResults(postData, page);
+            string sql = $@" 
+                SELECT * ,
+                (SELECT dataFile.FilePath FROM DataFile dataFile WHERE dataFile.FileGroupID = DetailedDataOperationFailure.FileGroupID) as FilePath
+                FROM({CustomView}) DetailedDataOperationFailure
+                WHERE {conditions}
+                ORDER BY {postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")}
+                OFFSET {page * recordsPerPage} ROWS FETCH NEXT {recordsPerPage} ROWS ONLY";
+
+            DataTable table;
+
+            using (AdoDataConnection connection = ConnectionFactory())
             {
-                foreach (DataRow row in value.Rows)
+                object[] paramArray = param.ToArray();
+                table = connection.RetrieveData(sql, paramArray);
+                table.Columns.Add("DataFileName", typeof(string));
+                foreach (DataRow row in table.Rows)
                 {
-                    TableOperations<openXDA.Model.DataFile> dataFileTbl = new TableOperations<openXDA.Model.DataFile>(connection);
-                    openXDA.Model.DataFile dataFile = dataFileTbl.QueryRecordWhere("FileGroupID = {0}", row.Field<int>("FileGroupID"));
-                    row["DataFileName"] = Path.GetFileName(dataFile.FilePath);
+                    row["DataFileName"] = Path.GetFileName(row.Field<string>("FilePath"));
                 }
             }
-            int num = CountSearchResults(postData);
-            int valueOrDefault = Take.GetValueOrDefault(50);
+
+            int searchResultsCount = CountSearchResults(postData); 
+
             return Ok(new PagedResults
             {
-                Data = JsonConvert.SerializeObject(value),
-                RecordsPerPage = valueOrDefault,
-                TotalRecords = num,
-                NumberOfPages = (num + valueOrDefault - 1) / valueOrDefault
+                Data = JsonConvert.SerializeObject(table),
+                RecordsPerPage = recordsPerPage,
+                TotalRecords = searchResultsCount,
+                NumberOfPages = (searchResultsCount + recordsPerPage - 1) / recordsPerPage
             });
         }
     
