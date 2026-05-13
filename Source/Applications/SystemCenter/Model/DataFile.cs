@@ -220,7 +220,7 @@ namespace SystemCenter.Model
 	            FORMAT (FileGroup.ProcessingStartTime, 'yyyy-MM-dd HH') AS Hour,
 	            COUNT(DataFile.ID) as Count
             FROM
-	            openXDA.dbo.DataFile JOIN openXDA.dbo.FileGroup ON DataFile.FileGroupID = FileGroup.ID
+	            DataFile JOIN FileGroup ON DataFile.FileGroupID = FileGroup.ID
             WHERE
 	            FileGroup.ProcessingStartTime > DATEADD(HOUR, DATEDIFF(HOUR, 0, GETDATE()) - 48, 0)
 	            GROUP BY FORMAT (FileGroup.ProcessingStartTime, 'yyyy-MM-dd HH');";
