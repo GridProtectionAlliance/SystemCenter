@@ -109,6 +109,9 @@ namespace SystemCenter.Controllers.OpenXDA
         [Route("RecentFailures/{page}"), HttpPost]
         public IHttpActionResult RecentFailures([FromBody] PostData postData, [FromUri] int page)
         {
+            if (!GetAuthCheck())
+                return Unauthorized();
+
             int recordsPerPage = Take ?? 50;
 
             List<object> param = new();
