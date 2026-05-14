@@ -50,7 +50,7 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
             case 'XDA':
                 testRemoteXDAs()
                 testSCADA()
-                testMaximoStructureQuery()
+                testStructureCrawler()
                 break;
             default:
                 break;
@@ -181,7 +181,7 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
         });
 
         h.done((d: SC.StatusItem) => {
-            d.Name = 'StructureCrawler'
+            d.Name = 'Structure Crawler'
             setStructureCrawlerStatus(d)
         }).fail(() => {
             setStructureCrawlerStatus({ Status: 'Error', Name: 'Structure Crawler', Details: [{ Status: "Error", Description: "Errors occurred in retrieving Structure Crawler connection status." }] })
