@@ -215,6 +215,9 @@ namespace SystemCenter.Model
         [Route("AggregateRecentlyProcessedFiles"), HttpGet]
         public IHttpActionResult AggregateRecentlyProcessedFiles()
         {
+            if (!GetAuthCheck())
+                return Unauthorized();
+
             String sqlQuery = @"
             SELECT
 	            FORMAT (FileGroup.ProcessingStartTime, 'yyyy-MM-dd HH') AS Hour,
