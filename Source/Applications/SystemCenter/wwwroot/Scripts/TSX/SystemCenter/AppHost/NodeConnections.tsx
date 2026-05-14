@@ -37,7 +37,7 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
     const [fawgStatus, setFawgStatus] = React.useState<SC.StatusItem>({ Name: "FAWG", Status: "Loading", Details: [] })
     const [PQIStatus, setPQIStatus] = React.useState<SC.StatusItem>({ Name: "PQI", Status: "Loading", Details: [] })
     const [SCADAStatus, setSCADAStatus] = React.useState<SC.StatusItem>({ Name: "SCADA Resource", Status: "Loading", Details: [] })
-    const [maximoStructureQueryStatus, setMaximoStructureQueryStatus] = React.useState<SC.StatusItem>({ Name: "Maximo Structure Query", Status: "Loading", Details: []})
+    const [structureCrawlerStatus, setStructureCrawlerStatus] = React.useState<SC.StatusItem>({ Name: "Structure Crawler", Status: "Loading", Details: []})
 
     React.useEffect(() => {
         setStatus('loading');
@@ -159,7 +159,7 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
 
         h.done((d: SC.StatusItem) => {
             d.Name = 'SCADA Resource'
-            setMaximoStructureQueryStatus(d)
+            setSCADAStatus(d)
         }).fail(() => {
             setSCADAStatus({ Status: 'Error', Name: 'SCADA Resource', Details: [{ Status: "Error", Description: "Errors occurred in retrieving SCADA Resource connection status." }] })
         })
@@ -170,10 +170,10 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
         }
     }
 
-    function testMaximoStructureQuery() {
+    function testStructureCrawler() {
         const h = $.ajax({
             type: "GET",
-            url: `${homePath}api/OpenXDA/MaximoStructureQueryHealth`,
+            url: `${homePath}api/OpenXDA/StructureCrawlerHealth`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
@@ -181,10 +181,10 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
         });
 
         h.done((d: SC.StatusItem) => {
-            d.Name = 'MaximoStructureQuery'
-            setMaximoStructureQueryStatus(d)
+            d.Name = 'StructureCrawler'
+            setStructureCrawlerStatus(d)
         }).fail(() => {
-            setMaximoStructureQueryStatus({ Status: 'Error', Name: 'Maximo Structure Query', Details: [{ Status: "Error", Description: "Errors occurred in retrieving Maximo Structure Query connection status." }] })
+            setStructureCrawlerStatus({ Status: 'Error', Name: 'Structure Crawler', Details: [{ Status: "Error", Description: "Errors occurred in retrieving Structure Crawler connection status." }] })
         })
 
         return function cleanup() {
@@ -232,7 +232,7 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
                     }
                     <div className={`col-${remoteXDAStatus.length == 0 ? 12 : 6} h-100`}>
                         <StatusGroup
-                            StatusItems={[SCADAStatus, maximoStructureQueryStatus]}
+                            StatusItems={[SCADAStatus, structureCrawlerStatus]}
                             Status={status}
                             HoveredItem={hoveredItem}
                             SetHoveredItem={setHoveredItem}

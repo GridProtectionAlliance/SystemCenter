@@ -743,14 +743,14 @@ namespace SystemCenter.Controllers.OpenXDA
                 .Result;
         }
 
-        [Route("MaximoStructureQueryHealth"), HttpGet]
-        public HttpResponseMessage GetMaximoStructureQueryHealth()
+        [Route("StructureCrawlerHealth"), HttpGet]
+        public HttpResponseMessage GetStructureCrawlerHealth()
         {
             if (!XDAAPIHelper.TryRefreshSettings())
                 Log.Warn("Unable to refresh static XDA API object.");
 
             return XDAAPIHelper
-                .GetResponseTask($"api/SystemCenter/MaximoStructureQuery/Health")
+                .GetResponseTask($"api/SystemCenter/StructureCrawler/Health")
                 .Result;
         }
     }
