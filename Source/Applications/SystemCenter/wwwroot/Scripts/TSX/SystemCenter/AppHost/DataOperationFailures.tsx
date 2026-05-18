@@ -71,7 +71,6 @@ const DataOperationFailures = (props: IProps) => {
                 Size={40}
             /> : 
         <fieldset className="border h-100" style={{ padding: '10px', flex: '1 1 0%', display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
-            <LoadingScreen Show={status === "loading"} />
         <legend className="w-auto" style={{ fontSize: 'large' }}> Data Operation Failures :</legend>
         <div className="row d-flex flex-column h-100" style={{ overflow: 'hidden' }}>
             <div className="col h-100" style={{ overflow: 'auto' }}>
