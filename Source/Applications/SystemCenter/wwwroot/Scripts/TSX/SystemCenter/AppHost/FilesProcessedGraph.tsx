@@ -25,8 +25,8 @@ import * as React from 'react'
 import moment from 'moment'
 import { Application } from '@gpa-gemstone/application-typings';
 import { Plot, Bar } from '@gpa-gemstone/react-graph'
-import { LoadingScreen } from '@gpa-gemstone/react-interactive'
 import { ErrorBoundary } from '@gpa-gemstone/common-pages'
+import { LoadingIcon } from '@gpa-gemstone/react-interactive'
 
 export interface IAggregateProcessedFile {
     Hour: string,
@@ -48,10 +48,11 @@ const FilesProcessedGraph = (props: IProps) => {
     const [aggregateProcessedFiles, setAggregateProcessedFiles] = React.useState<IAggregateProcessedFile[]>([])
 
     React.useEffect(() => {
+        setStatus('loading')
+
         const h = getAggregateRecentlyProcessedFiles()
 
         h.done((d) => {
-            setStatus('loading')
             setAggregateProcessedFiles(d)
             setYMax(Math.max(...d?.map((c) => { return c.Count })))
             setStatus('idle')
@@ -72,7 +73,11 @@ const FilesProcessedGraph = (props: IProps) => {
     }, [aggregateProcessedFiles])
 
     return <ErrorBoundary>
-        <LoadingScreen Show={status === "loading"} />
+        {  status === "loading" ?
+            <LoadingIcon
+                Show={true}
+                Size={40}
+            /> : 
             <Plot
         height={props.OffsetHeight}
         width={props.OffsetWidth}
@@ -102,6 +107,7 @@ const FilesProcessedGraph = (props: IProps) => {
                 </Bar>
             })}
     </Plot>
+        }
         </ErrorBoundary>
 }
 export default FilesProcessedGraph

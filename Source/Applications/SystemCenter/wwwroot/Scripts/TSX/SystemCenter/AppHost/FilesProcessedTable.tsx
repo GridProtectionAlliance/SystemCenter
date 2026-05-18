@@ -27,7 +27,7 @@ import { SystemCenter as SC } from '../global';
 import moment from 'moment'
 import { Application } from '@gpa-gemstone/application-typings';
 import ProcessingStatus from '../CommonComponents/ProcessingStatus'
-import { LoadingScreen } from '@gpa-gemstone/react-interactive'
+import { LoadingIcon } from '@gpa-gemstone/react-interactive'
 import { ErrorBoundary } from '@gpa-gemstone/common-pages'
 interface IProps {
     FilteredHour: string
@@ -45,9 +45,9 @@ const FilesProcessedTable = (props: IProps) => {
 
     React.useEffect(() => {
         const h = getFileGroups(props.FilteredHour, sortField, ascending, page)
+        setStatus('loading')
 
         h.done((d) => {
-            setStatus('loading')
             setDataFile(JSON.parse(d.Data))
             setTotalPages(d.NumberOfPages)
             if (page >= d.NumberOfPages && d.NumberOfPages > 0)
@@ -64,7 +64,12 @@ const FilesProcessedTable = (props: IProps) => {
     }, [sortField, ascending, page, props.FilteredHour, setStatus, setDataFile, setTotalPages])
 
     return <ErrorBoundary>
-        <LoadingScreen Show={status === "loading"} />
+        {status === "loading" ?
+                <LoadingIcon
+                    Show={true}
+                    Size={40}
+                />
+            : <>
         <Table<SC.DataFile>
             Data={dataFile}
             SortKey={sortField}
@@ -147,6 +152,8 @@ const FilesProcessedTable = (props: IProps) => {
             </Column>
         </Table>
         <Paging Current={page + 1} Total={totalPages} SetPage={(p) => setPage(p - 1)} />
+            </>
+        }
     </ErrorBoundary>
 }
 

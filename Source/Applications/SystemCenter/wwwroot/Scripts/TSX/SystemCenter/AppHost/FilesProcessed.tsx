@@ -35,7 +35,7 @@ const FilesProcessed = () => {
     const [selectedFile, setSelectedFile] = React.useState<number | null>(null)
     const [filteredHour, setFilteredHour] = React.useState<string | null>(null)
     const [selectedTime, setSelectedTime] = React.useState<string | null>(null)
-    const {offsetWidth, offsetHeight} = useGetContainerPosition(rowRef)
+    const { offsetWidth, offsetHeight } = useGetContainerPosition(rowRef)
 
     function handleViewMoreClick(info: string, event: React.MouseEvent) {
         setDetailModalContent(info)
@@ -55,7 +55,7 @@ const FilesProcessed = () => {
     return (
         <div className="row h-100">
                 <div className="col-6 h-100">
-                    <div className="row h-50" ref={rowRef}>
+                <div className="row h-50" ref={rowRef} style={{ justifyContent: 'center' }}>
                         <FilesProcessedGraph
                             OffsetHeight={offsetHeight}
                             OffsetWidth={offsetWidth}
