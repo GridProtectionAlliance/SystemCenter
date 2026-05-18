@@ -209,7 +209,7 @@ export default function VirtualChannelModal(props: IProps) {
                 <div className='row' style={{height: '50%', overflowY: 'auto'}}>
                     <div className={'col-12 h-100 px-0'}>
                         <ConfigurableTable<OpenXDA.Types.Channel>
-                            // LocalStorageKey='ChannelPageConfigTable'
+                            LocalStorageKey='ChannelPageConfigTable'
                             Data={props.CurrentChannels}
                             SortKey={props.SortKey}
                             Ascending={props.Ascending}
