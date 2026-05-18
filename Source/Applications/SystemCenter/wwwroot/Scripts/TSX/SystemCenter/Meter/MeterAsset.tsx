@@ -148,6 +148,7 @@ const MeterAssetWindow = (props: IProps) => {
                 <div className="card-body" style={{ paddingBottom: 0,  display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
                     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
                         <ConfigurableTable<OpenXDA.Types.MeterAsset>
+                            LocalStorageKey="MeterAssetConfigTable"
                             TableClass="table table-hover"
                             Data={data}
                             SortKey={sortKey}
