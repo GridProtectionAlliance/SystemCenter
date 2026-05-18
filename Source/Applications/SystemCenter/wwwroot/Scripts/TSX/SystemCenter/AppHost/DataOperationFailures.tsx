@@ -24,8 +24,8 @@ import * as React from 'react'
 import { Application } from '@gpa-gemstone/application-typings';
 import moment from 'moment'
 import DataOperationFailure, { INamedDataOperationFailure } from './DataOperationFailure'
-import { LoadingScreen } from '@gpa-gemstone/react-interactive'
 import { ErrorBoundary } from '@gpa-gemstone/common-pages'
+import { LoadingIcon } from '@gpa-gemstone/react-interactive'
 import { Paging } from '@gpa-gemstone/react-table'
 
 interface IProps {
@@ -44,8 +44,10 @@ const DataOperationFailures = (props: IProps) => {
 
     React.useEffect(() => {
         const h = getDataOperationFailure(props.SelectedFile, props.FilteredHour, page)
-        h.done((d) => {
+
         setStatus('loading')
+
+        h.done((d) => {
             setDataOperationFailures(JSON.parse(d.Data))
             setTotalPages(d.NumberOfPages)
             if (page >= d.NumberOfPages && d.NumberOfPages > 0)
@@ -63,6 +65,11 @@ const DataOperationFailures = (props: IProps) => {
 
   
     return <ErrorBoundary>
+        { status === "loading" ?
+            <LoadingIcon
+                Show={true}
+                Size={40}
+            /> : 
         <fieldset className="border h-100" style={{ padding: '10px', flex: '1 1 0%', display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
             <LoadingScreen Show={status === "loading"} />
         <legend className="w-auto" style={{ fontSize: 'large' }}> Data Operation Failures :</legend>
@@ -86,6 +93,7 @@ const DataOperationFailures = (props: IProps) => {
             </div>
         </div>
     </fieldset>
+        }
     </ErrorBoundary>
 }
 
