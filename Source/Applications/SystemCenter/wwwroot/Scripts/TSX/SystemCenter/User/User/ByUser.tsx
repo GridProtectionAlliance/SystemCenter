@@ -69,10 +69,10 @@ const ByUser: Application.Types.iByComponent = (props) => {
 
     const data = useAppSelector(UserAccountSlice.SearchResults);
     const userStatus: Application.Types.Status = useAppSelector(UserAccountSlice.Status);
-    const searchStatus: Application.Types.Status = useAppSelector(UserAccountSlice.SearchStatus);
+    const searchStatus: Application.Types.Status = useAppSelector(UserAccountSlice.PagedStatus);
 
-    const sortField = useAppSelector(UserAccountSlice.SortField)
-    const ascending = useAppSelector(UserAccountSlice.Ascending)
+    const [sortField, setSortField] = React.useState<keyof IUserAccount>("DisplayName");
+    const [ascending, setAscending] = React.useState<boolean>(false);
     const currentPage = useAppSelector(UserAccountSlice.CurrentPage);
     const totalPages = useAppSelector(UserAccountSlice.TotalPages);
     const totalRecords = useAppSelector(UserAccountSlice.TotalRecords);
@@ -129,6 +129,21 @@ const ByUser: Application.Types.iByComponent = (props) => {
     }, [sortField, ascending, search])
 
     useBoundPaging(currentPage, totalPages, setPage)
+
+    const sort = React.useCallback((d) => {
+        let asc = ascending
+        let sort = d.colField
+        if (sortField === d.colField) {
+            setAscending(!ascending)
+            asc = !ascending
+        }
+        else {
+            setSortField(d.colField)
+            setAscending(false)
+            asc = false
+        }
+        dispatch(UserAccountSlice.PagedSearch({ filter: search, sortField: sort, ascending: asc, page: 0 }))
+    }, [search, ascending, sortField])
 
     React.useEffect(() => {
         function ConvertType(type: string) {
@@ -191,9 +206,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
                         Data={data}
                         SortKey={sortField}
                         Ascending={ascending}
-                        OnSort={(d) => {
-                            dispatch(UserAccountSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
-                        }}
+                        OnSort={sort}
                         OnClick={(d) => navigate(`${homePath}index.cshtml?name=User&UserAccountID=${d.row.ID}`)}
                         TableStyle={{
                             padding: 0, width: '100%', height: '100%',
