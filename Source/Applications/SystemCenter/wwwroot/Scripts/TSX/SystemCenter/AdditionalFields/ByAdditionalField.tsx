@@ -47,10 +47,8 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
     const dispatch = useAppDispatch();
 
     const data = useAppSelector(AdditionalFieldsSlice.SearchResults);
-    const status = useAppSelector(AdditionalFieldsSlice.SearchStatus);
+    const status = useAppSelector(AdditionalFieldsSlice.PagedStatus);
     const search = useAppSelector(AdditionalFieldsSlice.SearchFilters);
-    const sortField = useAppSelector(AdditionalFieldsSlice.SortField);
-    const ascending = useAppSelector(AdditionalFieldsSlice.Ascending);
     const parentID = useAppSelector(AdditionalFieldsSlice.ParentID);
     const currentPage = useAppSelector(AdditionalFieldsSlice.CurrentPage);
     const totalPages = useAppSelector(AdditionalFieldsSlice.TotalPages);
@@ -59,6 +57,9 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
     const valueListGroupData = useAppSelector(ValueListGroupSlice.Data);
     const valueListGroupStatus = useAppSelector(ValueListGroupSlice.Status);
 
+
+    const [sortField, setSortField] = React.useState<keyof SystemCenter.Types.AdditionalFieldView>("FieldName")
+    const [ascending, setAscending] = React.useState<boolean>(false)
     const [errors, setErrors] = React.useState<string[]>([]);
     const [warnings, setWarnings] = React.useState<string[]>([]);
     const [mode, setMode] = React.useState<'View' | 'Add' | 'Edit'>('View');
@@ -122,6 +123,21 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
         dispatch(AdditionalFieldsSlice.PagedSearch({ filter: search, sortField, ascending, page: page - 1}))
     }, [search, sortField, ascending]) 
 
+    const sort = React.useCallback((d) => {
+        let asc = ascending
+        let sort = d.colField
+        if (sortField === d.colField) {
+            setAscending(!ascending)
+            asc = !ascending
+        }
+        else {
+            setSortField(d.colField)
+            setAscending(false)
+            asc = false
+        }
+        dispatch(AdditionalFieldsSlice.PagedSearch({ filter: search, sortField: sort, ascending: asc, page: 0 }))
+    }, [search, ascending, sortField])
+
     useBoundPaging(currentPage, totalPages, setPage)
 
     return (
@@ -162,10 +178,7 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
                         Data={data}
                         SortKey={sortField as string}
                         Ascending={ascending}
-                        OnSort={(d) => {
-                            if (d.colKey === null) return;
-                            dispatch(AdditionalFieldsSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
-                        }}
+                        OnSort={sort}
                         OnClick={(item) => { setRecord(item.row); setMode('Edit'); }}
                         TableStyle={{
                             padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
