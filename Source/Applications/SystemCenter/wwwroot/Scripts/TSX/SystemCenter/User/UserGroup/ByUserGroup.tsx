@@ -55,8 +55,8 @@ const ByUser: Application.Types.iByComponent = (props) => {
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const searchStatus = useSelector(SecurityGroupSlice.SearchStatus);
 
-    const sortField = useSelector(SecurityGroupSlice.SortField);
-    const ascending = useSelector(SecurityGroupSlice.Ascending);
+    const [sortField, setSortField] = React.useState<keyof ISecurityGroup>('DisplayName');
+    const [ascending, setAscending] = React.useState<boolean>(false);
 
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [groupError, setGroupError] = React.useState<string[]>([]);
@@ -86,6 +86,21 @@ const ByUser: Application.Types.iByComponent = (props) => {
     const setPage = React.useCallback((page) => {
         dispatch(SecurityGroupSlice.PagedSearch({ filter: search, sortField: sortField ?? "ID", ascending: ascending, page: page - 1 }))
     }, [sortField, ascending, search])
+
+    const sort = React.useCallback((d) => {
+        let asc = ascending
+        let sort = d.colField
+        if (sortField === d.colField) {
+            setAscending(!ascending)
+            asc = !ascending
+        }
+        else {
+            setSortField(d.colField)
+            setAscending(false)
+            asc = false
+        }
+        dispatch(SecurityGroupSlice.PagedSearch({ filter: search, sortField: sort, ascending: asc, page: 0 }))
+    }, [search, ascending, sortField])
 
     if (pageStatus === 'error')
         return <div style={{ width: '100%', height: '100%' }}>
@@ -124,9 +139,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
                         Data={data}
                         SortKey={sortField}
                         Ascending={ascending}
-                        OnSort={(d) => {
-                            dispatch(SecurityGroupSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
-                        }}
+                        OnSort={sort}
                         OnClick={(d) => navigate(`${homePath}index.cshtml?name=Group&GroupID=${d.row.ID}`)}
                         TableStyle={{
                             padding: 0, width: '100%', height: '100%',
