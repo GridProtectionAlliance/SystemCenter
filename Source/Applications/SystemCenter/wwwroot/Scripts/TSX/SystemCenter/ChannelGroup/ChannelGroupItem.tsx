@@ -24,10 +24,10 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
-import { useAppSelector, useAppDispatch } from '../hooks';
+import { useAppSelector, useAppDispatch, useBoundPaging } from '../hooks';
 import { ChannelGroupDetailsSlice } from '../Store/Store';
 import ChannelGroupItemForm from './ChannelGroupItemForm';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Modal, Warning } from '@gpa-gemstone/react-interactive';
 
@@ -35,11 +35,11 @@ interface IProps { Record: SystemCenter.Types.ChannelGroup }
 export default function ChannelGroupDetails(props: IProps) {
     const dispatch = useAppDispatch();
 
-    const data = useAppSelector(ChannelGroupDetailsSlice.Data);
-    const sortKey = useAppSelector(ChannelGroupDetailsSlice.SortField);
-    const asc = useAppSelector(ChannelGroupDetailsSlice.Ascending);
+    const data = useAppSelector(ChannelGroupDetailsSlice.SearchResults);
     const status = useAppSelector(ChannelGroupDetailsSlice.Status);
-    const parentID= useAppSelector(ChannelGroupDetailsSlice.ParentID);
+    const parentID = useAppSelector(ChannelGroupDetailsSlice.ParentID);
+    const currentPage = useAppSelector(ChannelGroupDetailsSlice.CurrentPage);
+    const totalPages = useAppSelector(ChannelGroupDetailsSlice.TotalPages);
 
     const emptyRecord: SystemCenter.Types.ChannelGroupDetails =
     {
@@ -57,6 +57,8 @@ export default function ChannelGroupDetails(props: IProps) {
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [errors, setErrors] = React.useState<string[]>([]);
+    const [sortField, setSortField] = React.useState<keyof SystemCenter.Types.ChannelGroupDetails>('DisplayName');
+    const [ascending, setAscending] = React.useState<boolean>(false);
 
     React.useEffect(() => {
         if (status == 'uninitiated' || status == 'changed' || parentID != props.Record.ID)
@@ -68,6 +70,29 @@ export default function ChannelGroupDetails(props: IProps) {
         setShowWarning(false);
         setRecord(emptyRecord);
     }
+
+    const setPage = React.useCallback((page) => {
+        dispatch(ChannelGroupDetailsSlice.PagedSearch({ filter: [], sortField: sortField ?? "ID", ascending: ascending, page: page - 1 }))
+    }, [sortField, ascending])
+
+    useBoundPaging(currentPage, totalPages, setPage)
+
+    const sort = React.useCallback((d) => {
+        if (d.colField === 'btns')
+            return
+        let asc = ascending
+        let sort = d.colField
+        if (sortField === d.colField) {
+            setAscending(!ascending)
+            asc = !ascending
+        }
+        else {
+            setSortField(d.colField)
+            setAscending(false)
+            asc = false
+        }
+        dispatch(ChannelGroupDetailsSlice.PagedSearch({ filter: [], sortField: sort, ascending: asc, page: 0 }))
+    }, [ascending, sortField])
 
     return (
         <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -84,13 +109,9 @@ export default function ChannelGroupDetails(props: IProps) {
                         <Table<SystemCenter.Types.ChannelGroupDetails>
                             TableClass="table table-hover"
                             Data={data}
-                            SortKey={sortKey}
-                            Ascending={asc}
-                            OnSort={(d) => {
-                                if (d.colKey == 'btns')
-                                    return;
-                                dispatch(ChannelGroupDetailsSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
-                            }}
+                            SortKey={sortField}
+                            Ascending={ascending}
+                            OnSort={sort}
                             TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
                             TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                             TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1, width: '100%' }}
