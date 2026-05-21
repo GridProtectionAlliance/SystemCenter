@@ -62,6 +62,7 @@ const FilesProcessed = () => {
                             SelectedTime={selectedTime}
                             FilteredHour={filteredHour}
                             SetFilteredHour={setFilteredHour}
+                        SetSelectedFile={setSelectedFile}
                         />
                     </div>
                     <div className="row d-flex flex-column h-75" style={{ flex: '1 1 0%' }}>
