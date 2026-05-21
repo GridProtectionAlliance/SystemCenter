@@ -29,6 +29,7 @@ import { Application } from '@gpa-gemstone/application-typings';
 import ProcessingStatus from '../CommonComponents/ProcessingStatus'
 import { LoadingIcon } from '@gpa-gemstone/react-interactive'
 import { ErrorBoundary } from '@gpa-gemstone/common-pages'
+import { ToolTip } from '@gpa-gemstone/react-forms'
 interface IProps {
     FilteredHour: string
     SelectedFile: number
@@ -42,6 +43,7 @@ const FilesProcessedTable = (props: IProps) => {
     const [totalPages, setTotalPages] = React.useState<number>(0)
     const [page, setPage] = React.useState<number>(0);
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated')
+    const [hovered, setHovered] = React.useState<string>('')
 
     React.useEffect(() => {
         const h = getFileGroups(props.FilteredHour, sortField, ascending, page)
@@ -61,7 +63,7 @@ const FilesProcessedTable = (props: IProps) => {
             if (h.abort != null)
                 h.abort();
         }
-    }, [sortField, ascending, page, props.FilteredHour, setStatus, setDataFile, setTotalPages])
+    }, [sortField, ascending, page, props.FilteredHour])
 
     return <ErrorBoundary>
         {status === "loading" ?
@@ -93,6 +95,23 @@ const FilesProcessedTable = (props: IProps) => {
                 Field={'FileName'}
                 HeaderStyle={{ width: 'auto' }}
                 RowStyle={{ width: 'auto' }}
+                        Content={({ item, field }) => {
+                            return <>
+                                <p
+                                    onMouseEnter={() => setHovered(`${item.ID.toString()}`)}
+                                    onMouseLeave={() => setHovered('')}
+                                    data-tooltip={`datafile${item.ID.toString()}`}
+                                >
+                                    {item[field]}
+                                </p>
+                                <ToolTip
+                                    Show={hovered === `${item.ID.toString()}`}
+                                    Target={`datafile${item.ID.toString()}`}
+                                >
+                                    {item.FilePath}
+                                </ToolTip>
+                            </>
+                        }}
             >
                 File Name
             </Column>
