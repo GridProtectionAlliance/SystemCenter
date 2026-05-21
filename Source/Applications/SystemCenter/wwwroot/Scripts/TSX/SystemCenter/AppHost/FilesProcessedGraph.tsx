@@ -80,6 +80,14 @@ const FilesProcessedGraph = (props: IProps) => {
                 Show={true}
                 Size={40}
             /> : 
+            <>
+                <div className="row">
+                    <div className="col">
+                        <h6>File Processing Initialized Over Last 48 Hours</h6>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col">
             <Plot
         height={props.OffsetHeight}
         width={props.OffsetWidth}
@@ -93,11 +101,12 @@ const FilesProcessedGraph = (props: IProps) => {
         Tmax={timeframe[1]}
         Ymin={0}
         Ymax={yMax}
-        Ylabel={'Files Began Processing'}
+                Ylabel={'Files'}
         onSelect={handleOnPlotSelect}
         pan={false}
         defaultMouseMode={'select'}
                 useUTC={false}
+                        Tlabel={''}
     >
         {aggregateProcessedFiles.map((a) => {
                 return <Bar
@@ -110,6 +119,10 @@ const FilesProcessedGraph = (props: IProps) => {
                 </Bar>
             })}
     </Plot>
+                    </div>
+                </div>
+            
+            </>
         }
         </ErrorBoundary>
 }
