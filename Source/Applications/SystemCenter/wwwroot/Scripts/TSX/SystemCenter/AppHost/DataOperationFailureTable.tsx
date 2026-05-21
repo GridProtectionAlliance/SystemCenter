@@ -79,6 +79,7 @@ const DataOperationFailureTable = (props: IProps) => {
                 Show={true}
                 Size={40}
             /> : 
+            dataOperationFailures.length == 0 ? <h6 style={{ justifySelf: 'center' }}>No Data Operation Failures over the past 48 hours.</h6> :
             <fieldset className="border h-100" style={{ padding: '10px', flex: '1 1 0%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <legend className="w-auto" style={{ fontSize: 'large' }}> Data Operation Failures :</legend>
                 <div className="row h-100" style={{ overflow: 'hidden'}}>
