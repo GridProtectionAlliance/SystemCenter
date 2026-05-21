@@ -121,7 +121,7 @@ const FilesProcessedTable = (props: IProps) => {
                 AllowSort={true}
                 Field={'DataStartTime'}
                 HeaderStyle={{ width: 'auto' }}
-                RowStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto', textAlign: 'center' }}
                 Content={({ item, field }) => {
                     if (item[field] == "0001-01-01T00:00:00")
                         return 'N/A'
@@ -135,7 +135,7 @@ const FilesProcessedTable = (props: IProps) => {
                 AllowSort={true}
                 Field={'ProcessingStartTime'}
                 HeaderStyle={{ width: 'auto' }}
-                RowStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto', textAlign: 'center' }}
                 Content={({ item, field }) => {
                     if (item[field] == null || item[field] == undefined)
                         return 'N/A'
@@ -149,7 +149,7 @@ const FilesProcessedTable = (props: IProps) => {
                 AllowSort={true}
                 Field={'ProcessingEndTime'}
                 HeaderStyle={{ width: 'auto' }}
-                RowStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto', textAlign: 'center' }}
                 Content={({ item, field }) => {
                     if (item[field] == "0001-01-01T00:00:00")
                         return 'N/A'
@@ -163,7 +163,7 @@ const FilesProcessedTable = (props: IProps) => {
                 AllowSort={true}
                 Field={'ProcessingState'}
                 HeaderStyle={{ width: 'auto' }}
-                RowStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto', textAlign: 'center' }}
                 Content={({ item, field }) => {
                     return <ProcessingStatus Status={item[field] as number} FileGroupID={item.FileGroupID} Interactive={false} />
                 }}

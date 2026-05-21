@@ -105,7 +105,7 @@ const DataOperationFailureTable = (props: IProps) => {
                                 AllowSort={true}
                                 Field={'TimeOfFailure'}
                                 HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto', textAlign: 'center' }}
                                 Content={({ item, field }) => {
                                     if (item[field] == null || item[field] == undefined)
                                         return 'N/A'
@@ -154,7 +154,7 @@ const DataOperationFailureTable = (props: IProps) => {
                                 AllowSort={false}
                                 Field={"Log"}
                                 HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto', textAlign: 'center' }}
                                 Content={({ item, field }) => {
                                     return <><div className={'btn btn-primary'}
                                         onMouseEnter={() => setHovered(`failurelog${item['ID']}`)}
