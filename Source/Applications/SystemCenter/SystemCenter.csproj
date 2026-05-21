@@ -346,7 +346,6 @@
     <Compile Include="WebClients\HIDSClient.cs" />
     <Compile Include="WebClients\HttpClient.cs" />
     <Compile Include="WebClients\XDANodeClient.cs" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AppHost\DataOperationFailure.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AppHost\FilesProcessed.tsx" />
   </ItemGroup>
   <ItemGroup>

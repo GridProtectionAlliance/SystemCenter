@@ -85,6 +85,7 @@ const FilesProcessedTable = (props: IProps) => {
                     setAscending(true);
                     setSortField(d.colField);
                 }
+                setPage(0)
             }}
             OnClick={props.HandleOnTableClick}
             Selected={(item) => item.FileGroupID === props.SelectedFile}
