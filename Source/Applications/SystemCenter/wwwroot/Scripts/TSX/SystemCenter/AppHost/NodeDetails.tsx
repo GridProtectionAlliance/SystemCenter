@@ -49,7 +49,7 @@ export interface IProps {
 
 const ApplicationTabs = {
     'SystemCenter': [{ Label: 'Connections', Id: 'connections' }, { Label: 'Console', Id: 'console' }],
-    'XDA': [{ Label: 'Connections', Id: 'connections' }, { Label: 'Health', Id: 'health' }, { Label: 'Console', Id: 'console' }, { Label: 'Files Processed', Id: 'filesprocessed' }],
+    'XDA': [{ Label: 'Health', Id: 'health' }, { Label: 'Files Processed', Id: 'filesprocessed' }, { Label: 'Connections', Id: 'connections' }, { Label: 'Console', Id: 'console' }],
     'MiMD': [{ Label: 'Console', Id: 'console' }],
     'openMIC': [{ Label: 'Health', Id: 'health' }]
 }
