@@ -39,6 +39,7 @@ interface IProps {
     FilteredHour: string
     SelectedTime: string
     SetFilteredHour: React.Dispatch<React.SetStateAction<string>>
+    SetSelectedFile: React.Dispatch<React.SetStateAction<number>>
 }
 
 const FilesProcessedGraph = (props: IProps) => {
@@ -70,6 +71,7 @@ const FilesProcessedGraph = (props: IProps) => {
     const handleOnPlotSelect = React.useCallback((x: number, y: number[]) => {
         const selectedHour = aggregateProcessedFiles.find(a => moment(a.Hour).valueOf() < x && (moment(a.Hour).valueOf() + 3600000) > x && y[0] < a.Count)
         props.SetFilteredHour(selectedHour?.Hour ?? null)
+        props.SetSelectedFile(null)
     }, [aggregateProcessedFiles])
 
     return <ErrorBoundary>
@@ -101,7 +103,7 @@ const FilesProcessedGraph = (props: IProps) => {
                     Data={[a.Count]}
                     BarOrigin={moment(a.Hour).valueOf()}
                     BarWidth={3600000}
-                    Color={a.Hour === props.FilteredHour ? 'yellow' : moment(a.Hour).startOf('hour').valueOf() === moment(props.SelectedTime).startOf('hour').valueOf() && props.SelectedTime !== null ? 'green' : 'black'}
+                    Color={a.Hour === props.FilteredHour ? 'yellow' : 'black'}
                     key={a.Hour}
                 >
                 </Bar>
