@@ -144,7 +144,7 @@ const DataOperationFailureTable = (props: IProps) => {
                                 HeaderStyle={{ width: 'auto' }}
                                 RowStyle={{ width: 'auto' }}
                                 Content={({ item, field }) => {
-                                    return <h5>{item[field]}</h5>
+                                    return <h6>{item[field]}</h6>
                                 }}
                             >
                                 Data Operation
