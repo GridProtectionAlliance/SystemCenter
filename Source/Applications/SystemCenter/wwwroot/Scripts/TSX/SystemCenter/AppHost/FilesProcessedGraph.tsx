@@ -97,6 +97,7 @@ const FilesProcessedGraph = (props: IProps) => {
         onSelect={handleOnPlotSelect}
         pan={false}
         defaultMouseMode={'select'}
+                useUTC={false}
     >
         {aggregateProcessedFiles.map((a) => {
                 return <Bar
