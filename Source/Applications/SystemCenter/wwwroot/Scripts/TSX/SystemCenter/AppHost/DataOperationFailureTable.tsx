@@ -23,7 +23,7 @@
 //       Renamed to DataOperationFailureTable
 //******************************************************************************************************
 import * as React from 'react'
-import { Application } from '@gpa-gemstone/application-typings';
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import moment from 'moment'
 import { ToolTip } from '@gpa-gemstone/react-forms'
 import { ErrorBoundary } from '@gpa-gemstone/common-pages'
@@ -96,6 +96,7 @@ const DataOperationFailureTable = (props: IProps) => {
                                     setAscending(true);
                                     setSortField(d.colField);
                                 }
+                                setPage(0)
                             }}
                         >
                             <Column<INamedDataOperationFailure>

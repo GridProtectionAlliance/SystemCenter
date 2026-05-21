@@ -133,7 +133,7 @@ namespace SystemCenter.Controllers.OpenXDA
                 FROM({CustomView}) DetailedDataOperationFailure
                 WHERE {conditions}
                 ORDER BY {postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")}
-                {(problemOrderBy == "" ? "" : $@"OFFSET {page * recordsPerPage} ROWS FETCH NEXT {recordsPerPage} ROWS ONLY")}";
+                {(problemOrderBy.Length > 0 ? "" : $@"OFFSET {page * recordsPerPage} ROWS FETCH NEXT {recordsPerPage} ROWS ONLY")}";
 
             DataTable table;
 
