@@ -26,19 +26,19 @@ import { Modal } from '@gpa-gemstone/react-interactive';
 import { useGetContainerPosition } from '@gpa-gemstone/helper-functions'
 import FilesProcessedGraph from './FilesProcessedGraph'
 import FilesProcessedTable from './FilesProcessedTable'
-import DataOperationFailures from './DataOperationFailures'
+import DataOperationFailureTable, { INamedDataOperationFailure } from './DataOperationFailureTable'
 
 const FilesProcessed = () => {
     const rowRef = React.useRef<HTMLDivElement>(null);
-    const [detailModalContent, setDetailModalContent] = React.useState<string>('')
+    const [detailModalFailure, setDetailModalFailure] = React.useState<INamedDataOperationFailure>()
     const [showDetailModal, setShowDetailModal] = React.useState<boolean>(false)
     const [selectedFile, setSelectedFile] = React.useState<number | null>(null)
     const [filteredHour, setFilteredHour] = React.useState<string | null>(null)
     const [selectedTime, setSelectedTime] = React.useState<string | null>(null)
     const { offsetWidth, offsetHeight } = useGetContainerPosition(rowRef)
 
-    function handleViewMoreClick(info: string, event: React.MouseEvent) {
-        setDetailModalContent(info)
+    function handleViewMoreClick(info: INamedDataOperationFailure, event: React.MouseEvent) {
+        setDetailModalFailure(info)
         setShowDetailModal(true)
     }
 
@@ -73,7 +73,7 @@ const FilesProcessed = () => {
                     </div>
                 </div>
                 <div className="col-6 h-100">
-                    <DataOperationFailures
+                    <DataOperationFailureTable
                         FilteredHour={filteredHour}
                         SelectedFile={selectedFile}
                         HandleViewMoreClick={handleViewMoreClick}
@@ -88,7 +88,11 @@ const FilesProcessed = () => {
                 ShowConfirm={false}
                 Size={'lg'}
             >
-                {detailModalContent}
+                <h3>
+                    {detailModalFailure?.Log}
+                </h3>
+                <hr />
+                {detailModalFailure?.StackTrace}
             </Modal>
         </div>
     )
