@@ -55,7 +55,7 @@ const FilesProcessed = () => {
     return (
         <div className="row h-100">
                 <div className="col-6 h-100">
-                <div className="row h-50" ref={rowRef} style={{ justifyContent: 'center' }}>
+                <div className="row h-25" ref={rowRef} style={{ justifyContent: 'center' }}>
                         <FilesProcessedGraph
                             OffsetHeight={offsetHeight}
                             OffsetWidth={offsetWidth}
@@ -64,7 +64,7 @@ const FilesProcessed = () => {
                             SetFilteredHour={setFilteredHour}
                         />
                     </div>
-                    <div className="row d-flex flex-column h-50" style={{ flex: '1, 1, 0%' }}>
+                    <div className="row d-flex flex-column h-75" style={{ flex: '1 1 0%' }}>
                         <FilesProcessedTable
                             FilteredHour={filteredHour}
                             SelectedFile={selectedFile}
