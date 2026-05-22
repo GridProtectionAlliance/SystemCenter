@@ -156,6 +156,7 @@ const SentEmailTimeline = (props: IProps) => {
                                 Tmax={tMax}
                                 onSelect={handlePlotOnSelect}
                                 onTDomainChange={setTimeframe}
+                                useUTC={false}
                             >
                                 {timeline.map((item, i) => {
                                     return (
