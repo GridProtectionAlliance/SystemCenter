@@ -88,7 +88,7 @@ export default function ValueListGroupItems(props: IProps) {
     }, [props.Record?.Name]);
 
     return (
-        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <div className="card h-100">
             <div className="card-header">
                 <div className="row">
                     <div className="col">
@@ -96,8 +96,9 @@ export default function ValueListGroupItems(props: IProps) {
                     </div>
                 </div>
             </div>
-            <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
-                <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', padding: 0 }}>
+            <div className="card-body d-flex flex-column" style={{ flex: '1 1 0%', overflow: 'hidden' }}>
+                <div className="row d-flex flex-column" style={{ flex: '1 1 0%', overflow: 'hidden' }}>
+                    <div className="col d-flex flex-column" style={{ overflow: 'hidden' }}>
                     <Table<SystemCenter.Types.ValueListItem>
                         TableClass="table table-hover"
                         Data={data}
