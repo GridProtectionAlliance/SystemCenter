@@ -74,15 +74,15 @@ const DataOperationFailureTable = (props: IProps) => {
 
   
     return <ErrorBoundary>
+        <fieldset className="border h-100" style={{ padding: '10px', flex: '1 1 0%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <legend className="w-auto" style={{ fontSize: 'large' }}> Data Operation Failures :</legend>
         {status === "loading" ?
             <LoadingIcon
                 Show={true}
                 Size={40}
             /> : 
-            dataOperationFailures.length == 0 ? <h6 style={{ justifySelf: 'center' }}>No Data Operation Failures found.</h6> :
-            <fieldset className="border h-100" style={{ padding: '10px', flex: '1 1 0%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        <legend className="w-auto" style={{ fontSize: 'large' }}> Data Operation Failures :</legend>
-                <div className="row h-100" style={{ overflow: 'hidden'}}>
+                dataOperationFailures.length == 0 ? <div className="row alert-success"><div className="col"><h3 style={{ justifySelf: 'center' }}>No Data Operation Failures found.</h3></div></div> : <>
+                    <div className="row h-100" style={{ overflow: 'hidden' }}>
                     <div className="col h-100 d-flex flex-column " style={{ overflow: 'auto', flex: '1 1 0%' }}>
                         <Table<INamedDataOperationFailure>
                             Data={dataOperationFailures}
@@ -184,8 +184,9 @@ const DataOperationFailureTable = (props: IProps) => {
                 <Paging Current={page + 1} Total={totalPages} SetPage={(p) => setPage(p - 1)} />
             </div>
         </div>
+                </>
+            }
     </fieldset>
-        }
     </ErrorBoundary>
 }
 export default DataOperationFailureTable
