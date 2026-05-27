@@ -65,37 +65,39 @@ const FilesProcessedTable = (props: IProps) => {
         }
     }, [sortField, ascending, page, props.FilteredHour])
 
-    return <ErrorBoundary>
+    return <ErrorBoundary
+        ErrorMessage={"Files Processed Table has encountered an error."}
+    >
         {status === "loading" ?
-                <LoadingIcon
-                    Show={true}
-                    Size={40}
-                />
+            <LoadingIcon
+                Show={true}
+                Size={40}
+            />
             : <>
-        <Table<SC.DataFile>
-            Data={dataFile}
-            SortKey={sortField}
-            Ascending={ascending}
-            KeySelector={(item) => item.ID}
-            OnSort={(d) => {
-                if (d.colField == sortField) {
-                    setAscending(!ascending);
-                }
-                else {
-                    setAscending(true);
-                    setSortField(d.colField);
-                }
-                setPage(0)
-            }}
-            OnClick={props.HandleOnTableClick}
-            Selected={(item) => item.FileGroupID === props.SelectedFile}
-        >
-            <Column<SC.DataFile>
-                Key={'FileName'}
-                AllowSort={false}
-                Field={'FileName'}
-                HeaderStyle={{ width: 'auto' }}
-                RowStyle={{ width: 'auto' }}
+                <Table<SC.DataFile>
+                    Data={dataFile}
+                    SortKey={sortField}
+                    Ascending={ascending}
+                    KeySelector={(item) => item.ID}
+                    OnSort={(d) => {
+                        if (d.colField == sortField) {
+                            setAscending(!ascending);
+                        }
+                        else {
+                            setAscending(true);
+                            setSortField(d.colField);
+                        }
+                        setPage(0)
+                    }}
+                    OnClick={props.HandleOnTableClick}
+                    Selected={(item) => item.FileGroupID === props.SelectedFile}
+                >
+                    <Column<SC.DataFile>
+                        Key={'FileName'}
+                        AllowSort={false}
+                        Field={'FileName'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
                         Content={({ item, field }) => {
                             return <>
                                 <p
@@ -113,65 +115,65 @@ const FilesProcessedTable = (props: IProps) => {
                                 </ToolTip>
                             </>
                         }}
-            >
-                File Name
-            </Column>
-            <Column<SC.DataFile>
-                Key={'DataStartTime'}
-                AllowSort={true}
-                Field={'DataStartTime'}
-                HeaderStyle={{ width: 'auto' }}
+                    >
+                        File Name
+                    </Column>
+                    <Column<SC.DataFile>
+                        Key={'DataStartTime'}
+                        AllowSort={true}
+                        Field={'DataStartTime'}
+                        HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto', textAlign: 'center' }}
-                Content={({ item, field }) => {
-                    if (item[field] == "0001-01-01T00:00:00")
-                        return 'N/A'
-                    return <span className={`badge badge-pill badge-info`}>{moment(item[field]).format('MM/DD/YYYY hh:mm')}</span>
-                }}
-            >
-                Data Start Time
-            </Column>
-            <Column<SC.DataFile>
-                Key={'ProcessingStartTime'}
-                AllowSort={true}
-                Field={'ProcessingStartTime'}
-                HeaderStyle={{ width: 'auto' }}
+                        Content={({ item, field }) => {
+                            if (item[field] == "0001-01-01T00:00:00")
+                                return 'N/A'
+                            return <span className={`badge badge-pill badge-info`}>{moment(item[field]).format('MM/DD/YYYY hh:mm')}</span>
+                        }}
+                    >
+                        Data Start Time
+                    </Column>
+                    <Column<SC.DataFile>
+                        Key={'ProcessingStartTime'}
+                        AllowSort={true}
+                        Field={'ProcessingStartTime'}
+                        HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto', textAlign: 'center' }}
-                Content={({ item, field }) => {
-                    if (item[field] == null || item[field] == undefined)
-                        return 'N/A'
-                    return <span className={`badge badge-pill badge-info`}>{moment(item[field]).format('MM/DD/YYYY hh:mm')}</span>
-                }}
-            >
-                Processing Start Time
-            </Column>
-            <Column<SC.DataFile>
-                Key={'ProcessingEndTime'}
-                AllowSort={true}
-                Field={'ProcessingEndTime'}
-                HeaderStyle={{ width: 'auto' }}
+                        Content={({ item, field }) => {
+                            if (item[field] == null || item[field] == undefined)
+                                return 'N/A'
+                            return <span className={`badge badge-pill badge-info`}>{moment(item[field]).format('MM/DD/YYYY hh:mm')}</span>
+                        }}
+                    >
+                        Processing Start Time
+                    </Column>
+                    <Column<SC.DataFile>
+                        Key={'ProcessingEndTime'}
+                        AllowSort={true}
+                        Field={'ProcessingEndTime'}
+                        HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto', textAlign: 'center' }}
-                Content={({ item, field }) => {
-                    if (item[field] == "0001-01-01T00:00:00")
-                        return 'N/A'
-                    return <span className={`badge badge-pill badge-info`}>{moment(item[field]).format('MM/DD/YYYY hh:mm')}</span>
-                }}
-            >
-                Processing End Time
-            </Column>
-            <Column<SC.DataFile>
-                Key={'ProcessingState'}
-                AllowSort={true}
-                Field={'ProcessingState'}
-                HeaderStyle={{ width: 'auto' }}
+                        Content={({ item, field }) => {
+                            if (item[field] == "0001-01-01T00:00:00")
+                                return 'N/A'
+                            return <span className={`badge badge-pill badge-info`}>{moment(item[field]).format('MM/DD/YYYY hh:mm')}</span>
+                        }}
+                    >
+                        Processing End Time
+                    </Column>
+                    <Column<SC.DataFile>
+                        Key={'ProcessingState'}
+                        AllowSort={true}
+                        Field={'ProcessingState'}
+                        HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto', textAlign: 'center' }}
-                Content={({ item, field }) => {
-                    return <ProcessingStatus Status={item[field] as number} FileGroupID={item.FileGroupID} Interactive={false} />
-                }}
-            >
-                Processing State
-            </Column>
-        </Table>
-        <Paging Current={page + 1} Total={totalPages} SetPage={(p) => setPage(p - 1)} />
+                        Content={({ item, field }) => {
+                            return <ProcessingStatus Status={item[field] as number} FileGroupID={item.FileGroupID} Interactive={false} />
+                        }}
+                    >
+                        Processing State
+                    </Column>
+                </Table>
+                <Paging Current={page + 1} Total={totalPages} SetPage={(p) => setPage(p - 1)} />
             </>
         }
     </ErrorBoundary>

@@ -74,12 +74,14 @@ const FilesProcessedGraph = (props: IProps) => {
         props.SetSelectedFile(null)
     }, [aggregateProcessedFiles])
 
-    return <ErrorBoundary>
-        {  status === "loading" ?
+    return <ErrorBoundary
+        ErrorMessage={"Files Processed Graph has encountered an error."}
+    >
+        {status === "loading" ?
             <LoadingIcon
                 Show={true}
                 Size={40}
-            /> : 
+            /> :
             <>
                 <div className="row">
                     <div className="col">
@@ -88,43 +90,43 @@ const FilesProcessedGraph = (props: IProps) => {
                 </div>
                 <div className="row">
                     <div className="col">
-            <Plot
-        height={props.OffsetHeight}
-        width={props.OffsetWidth}
-        defaultTdomain={timeframe}
-        defaultYdomain={[0, yMax]}
-        onTDomainChange={setTimeframe}
-        zoom={false}
-        yZoom={false}
-        xZoom={false}
-        Tmin={timeframe[0]}
-        Tmax={timeframe[1]}
-        Ymin={0}
-        Ymax={yMax}
-                Ylabel={'Files'}
-        onSelect={handleOnPlotSelect}
-        pan={false}
-        defaultMouseMode={'select'}
-                useUTC={false}
-                        Tlabel={''}
-    >
-        {aggregateProcessedFiles.map((a) => {
-                return <Bar
-                    Data={[a.Count]}
-                    BarOrigin={moment(a.Hour).valueOf()}
-                    BarWidth={3600000}
-                    Color={a.Hour === props.FilteredHour ? 'yellow' : 'black'}
-                    key={a.Hour}
-                >
-                </Bar>
-            })}
-    </Plot>
+                        <Plot
+                            height={props.OffsetHeight}
+                            width={props.OffsetWidth}
+                            defaultTdomain={timeframe}
+                            defaultYdomain={[0, yMax]}
+                            onTDomainChange={setTimeframe}
+                            zoom={false}
+                            yZoom={false}
+                            xZoom={false}
+                            Tmin={timeframe[0]}
+                            Tmax={timeframe[1]}
+                            Ymin={0}
+                            Ymax={yMax}
+                            Ylabel={'Files'}
+                            onSelect={handleOnPlotSelect}
+                            pan={false}
+                            defaultMouseMode={'select'}
+                            useUTC={false}
+                            Tlabel={''}
+                        >
+                            {aggregateProcessedFiles.map((a) => {
+                                return <Bar
+                                    Data={[a.Count]}
+                                    BarOrigin={moment(a.Hour).valueOf()}
+                                    BarWidth={3600000}
+                                    Color={a.Hour === props.FilteredHour ? 'yellow' : 'black'}
+                                    key={a.Hour}
+                                >
+                                </Bar>
+                            })}
+                        </Plot>
                     </div>
                 </div>
-            
+
             </>
         }
-        </ErrorBoundary>
+    </ErrorBoundary>
 }
 export default FilesProcessedGraph
 
