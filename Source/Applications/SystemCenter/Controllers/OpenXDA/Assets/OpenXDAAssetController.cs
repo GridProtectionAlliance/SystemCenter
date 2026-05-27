@@ -575,13 +575,8 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
 
-        [HttpGet, Route("{assetID:int}/ConnectedChannels")]
-        public IHttpActionResult GetAssetChannels(int assetID)
+        public IEnumerable<ChannelDetail> GetAssetChannels(int assetID)
         {
-            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
-            {
-                try
-                {
                     using (AdoDataConnection connection = new AdoDataConnection(Connection))
                     {
                         Asset asset = new TableOperations<Asset>(connection).QueryRecordWhere("ID={0}", assetID);
@@ -601,20 +596,51 @@ namespace SystemCenter.Controllers.OpenXDA
                             .QueryRecordsWhere($"ID in ({string.Join(", ", connectedChannels.Select(channels => channels.ID))})")
                             .DistinctBy(c => c.ID);
 
-                            return Ok(uniqueChannels);
+                    return uniqueChannels;
                         }
                         else
                         {
-                            return Ok(new List<ChannelDetail>());
+                    return new List<ChannelDetail>();
                         }
+
                     }
-                } catch (Exception ex)
+        }
+
+        [HttpPost, Route("{assetID:int}/ConnectedChannels/{page:int}")]
+        public IHttpActionResult GetPagedList([FromBody] PostData postData, [FromUri] int assetID, [FromUri] int page)
                 {
-                    return InternalServerError(ex);
-                }
-            }
-            else
+            if (!GetAuthCheck())
                 return Unauthorized();
+
+            int recordsPerPage = Take ?? 50;
+
+            IEnumerable<ChannelDetail> uniqueChannels = GetAssetChannels(assetID);
+
+            int totalRecords = uniqueChannels.Count();
+
+            BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance;
+
+            if (postData.OrderBy == "Phase" || postData.OrderBy == "MeasurementType")
+                bindingFlags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly;
+
+            if (postData.Ascending)
+                uniqueChannels = uniqueChannels.OrderBy(item => item.GetType().GetProperty(postData.OrderBy, bindingFlags).GetValue(item));
+            else
+                uniqueChannels = uniqueChannels.OrderByDescending(item => item.GetType().GetProperty(postData.OrderBy, bindingFlags).GetValue(item));
+
+            uniqueChannels = uniqueChannels
+                .Skip(recordsPerPage * page)
+                .Take(recordsPerPage);
+
+            PagedResults pagedResults = new PagedResults()
+            {
+                Data = JsonConvert.SerializeObject(uniqueChannels),
+                RecordsPerPage = recordsPerPage,
+                TotalRecords = totalRecords,
+                NumberOfPages = (totalRecords + recordsPerPage - 1) / recordsPerPage
+            };
+
+            return Ok(pagedResults);
         }
 
 
