@@ -61,7 +61,7 @@ const DataOperationFailureTable = (props: IProps) => {
             setTotalPages(d.NumberOfPages)
             if (page >= d.NumberOfPages && d.NumberOfPages > 0)
                 setPage(d.NumberOfPages - 1)
-        setStatus('idle')
+            setStatus('idle')
         }).fail(() => {
             setStatus('error')
         })
@@ -72,167 +72,168 @@ const DataOperationFailureTable = (props: IProps) => {
         }
     }, [page, props.FilteredHour, props.SelectedFile, ascending, sortField])
 
-  
-    return <ErrorBoundary>
+    return <ErrorBoundary
+        ErrorMessage={"Data Operation Failure Table has encountered an error."}
+    >
         <fieldset className="border h-100" style={{ padding: '10px', flex: '1 1 0%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <legend className="w-auto" style={{ fontSize: 'large' }}> Data Operation Failures :</legend>
-        {status === "loading" ?
-            <LoadingIcon
-                Show={true}
-                Size={40}
-            /> : 
+            {status === "loading" ?
+                <LoadingIcon
+                    Show={true}
+                    Size={40}
+                /> :
                 dataOperationFailures.length == 0 ? <div className="row alert-success"><div className="col"><h3 style={{ justifySelf: 'center' }}>No Data Operation Failures found.</h3></div></div> : <>
                     <div className="row h-100" style={{ overflow: 'hidden' }}>
-                    <div className="col h-100 d-flex flex-column " style={{ overflow: 'auto', flex: '1 1 0%' }}>
-                        <Table<INamedDataOperationFailure>
-                            Data={dataOperationFailures}
-                            SortKey={sortField}
-                            Ascending={ascending}
-                            KeySelector={(item) => item.ID}
-                            OnSort={(d) => {
-                                if (d.colField == sortField) {
-                                    setAscending(!ascending);
-                }
-                                else {
-                                    setAscending(true);
-                                    setSortField(d.colField);
-                                }
-                                setPage(0)
-                            }}
-                        >
-                            <Column<INamedDataOperationFailure>
-                                Key={'TimeOfFailure'}
-                                AllowSort={true}
-                                Field={'TimeOfFailure'}
-                                HeaderStyle={{ width: 'auto' }}
+                        <div className="col h-100 d-flex flex-column " style={{ overflow: 'auto', flex: '1 1 0%' }}>
+                            <Table<INamedDataOperationFailure>
+                                Data={dataOperationFailures}
+                                SortKey={sortField}
+                                Ascending={ascending}
+                                KeySelector={(item) => item.ID}
+                                OnSort={(d) => {
+                                    if (d.colField == sortField) {
+                                        setAscending(!ascending);
+                                    }
+                                    else {
+                                        setAscending(true);
+                                        setSortField(d.colField);
+                                    }
+                                    setPage(0)
+                                }}
+                            >
+                                <Column<INamedDataOperationFailure>
+                                    Key={'TimeOfFailure'}
+                                    AllowSort={true}
+                                    Field={'TimeOfFailure'}
+                                    HeaderStyle={{ width: 'auto' }}
                                     RowStyle={{ width: 'auto', textAlign: 'center' }}
-                                Content={({ item, field }) => {
-                                    if (item[field] == null || item[field] == undefined)
-                                        return 'N/A'
-                                    return <span className={`badge badge-pill badge-info`}>{moment(item[field]).format('MM/DD/YYYY hh:mm')}</span>
-                                }}
-                            >
-                                Time Of Failure
-                            </Column>
-                            <Column<INamedDataOperationFailure>
-                                Key={"DataFileName"}
-                                AllowSort={true}
-                                Field={'DataFileName'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                                Content={({ item, field }) => {
-                                    return <><p
-                                        onMouseEnter={() => setHovered(`datafilename${item['ID']}`)}
-                                        onMouseLeave={() => setHovered('')}
-                                        data-tooltip={`datafilename${item['ID']}`}
-                                    >{item[field]}</p>
-                                        <ToolTip
-                                            Show={hovered === `datafilename${item['ID']}`}
-                                            Target={`datafilename${item['ID']}`}
-                                        >
-                                            {item['FilePath']}
-                                        </ToolTip>
-                                    </>
-                                }}
-                            >
-                                File Name
-                            </Column>
-                            <Column<INamedDataOperationFailure>
-                                Key={"DataOperation"}
-                                AllowSort={true}
-                                Field={"DataOperation"}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                                Content={({ item, field }) => {
-                                    return <h6>{item[field]}</h6>
-                                }}
-                            >
-                                Data Operation
-                            </Column>
-                            <Column<INamedDataOperationFailure>
-                                Key={"Log"}
-                                AllowSort={false}
-                                Field={"Log"}
-                                HeaderStyle={{ width: 'auto' }}
+                                    Content={({ item, field }) => {
+                                        if (item[field] == null || item[field] == undefined)
+                                            return 'N/A'
+                                        return <span className={`badge badge-pill badge-info`}>{moment(item[field]).format('MM/DD/YYYY hh:mm')}</span>
+                                    }}
+                                >
+                                    Time Of Failure
+                                </Column>
+                                <Column<INamedDataOperationFailure>
+                                    Key={"DataFileName"}
+                                    AllowSort={true}
+                                    Field={'DataFileName'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                    Content={({ item, field }) => {
+                                        return <><p
+                                            onMouseEnter={() => setHovered(`datafilename${item['ID']}`)}
+                                            onMouseLeave={() => setHovered('')}
+                                            data-tooltip={`datafilename${item['ID']}`}
+                                        >{item[field]}</p>
+                                            <ToolTip
+                                                Show={hovered === `datafilename${item['ID']}`}
+                                                Target={`datafilename${item['ID']}`}
+                                            >
+                                                {item['FilePath']}
+                                            </ToolTip>
+                                        </>
+                                    }}
+                                >
+                                    File Name
+                                </Column>
+                                <Column<INamedDataOperationFailure>
+                                    Key={"DataOperation"}
+                                    AllowSort={true}
+                                    Field={"DataOperation"}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                    Content={({ item, field }) => {
+                                        return <h6>{item[field]}</h6>
+                                    }}
+                                >
+                                    Data Operation
+                                </Column>
+                                <Column<INamedDataOperationFailure>
+                                    Key={"Log"}
+                                    AllowSort={false}
+                                    Field={"Log"}
+                                    HeaderStyle={{ width: 'auto' }}
                                     RowStyle={{ width: 'auto', textAlign: 'center' }}
-                                Content={({ item, field }) => {
-                                    return <><div className={'btn btn-primary'}
-                                        onMouseEnter={() => setHovered(`failurelog${item['ID']}`)}
-                                        onMouseLeave={() => setHovered('')}
-                                        data-tooltip={`failurelog${item['ID']}`}
-                                    >Details</div>
-                                        <ToolTip
-                                            Show={hovered === `failurelog${item['ID']}`}
-                                            Target={`failurelog${item['ID']}`}
-                                        >
-                                            {item[field].toString().length > 100
-                                                ? <>
-                                                    <p>{`${item[field].toString().slice(0, 100)}...`}</p>
-                                                    <a href="#" onClick={(evt) => { props.HandleViewMoreClick(item, evt) }}>View more</a>
-                                                </>
-                                                : <p>{item[field]}</p>}
-                                        </ToolTip>
-                                    </>
-                                }}
-                            >
-                            </Column>
-                        </Table>
-            </div>
-        </div>
-        <div className="row">
-            <div className="col">
-                <Paging Current={page + 1} Total={totalPages} SetPage={(p) => setPage(p - 1)} />
-            </div>
-        </div>
+                                    Content={({ item, field }) => {
+                                        return <><div className={'btn btn-primary'}
+                                            onMouseEnter={() => setHovered(`failurelog${item['ID']}`)}
+                                            onMouseLeave={() => setHovered('')}
+                                            data-tooltip={`failurelog${item['ID']}`}
+                                        >Details</div>
+                                            <ToolTip
+                                                Show={hovered === `failurelog${item['ID']}`}
+                                                Target={`failurelog${item['ID']}`}
+                                            >
+                                                {item[field].toString().length > 100
+                                                    ? <>
+                                                        <p>{`${item[field].toString().slice(0, 100)}...`}</p>
+                                                        <a href="#" onClick={(evt) => { props.HandleViewMoreClick(item, evt) }}>View more</a>
+                                                    </>
+                                                    : <p>{item[field]}</p>}
+                                            </ToolTip>
+                                        </>
+                                    }}
+                                >
+                                </Column>
+                            </Table>
+                        </div>
+                    </div>
+                    <div className="row">
+                        <div className="col">
+                            <Paging Current={page + 1} Total={totalPages} SetPage={(p) => setPage(p - 1)} />
+                        </div>
+                    </div>
                 </>
             }
-    </fieldset>
+        </fieldset>
     </ErrorBoundary>
 }
 export default DataOperationFailureTable
 
 function getDataOperationFailure(selectedFile: number, filteredHour: string, page: number, ascending, sortField) {
-        let filters = []
+    let filters = []
     if (selectedFile !== null) {
-            filters = [{
-                FieldName: 'FileGroupID',
-                Operator: '=',
-                Type: 'number',
+        filters = [{
+            FieldName: 'FileGroupID',
+            Operator: '=',
+            Type: 'number',
             SearchText: selectedFile
-            }]
-        }
+        }]
+    }
     else if (filteredHour !== null) {
-            filters = [
-                {
-                    FieldName: 'TimeOfFailure',
-                    Operator: '>=',
-                    Type: 'datetime',
-                SearchText: moment(filteredHour).format('YYYY-MM-DD HH:mm:ss.SSS')
-                },
-                {
-                    FieldName: 'TimeOfFailure',
-                    Operator: '<',
-                    Type: 'datetime',
-                SearchText: moment(filteredHour).add(1, 'hour').format('YYYY-MM-DD HH:mm:ss.SSS')
-                }
-            ]
-        }
-        else {
-            filters = [{
+        filters = [
+            {
                 FieldName: 'TimeOfFailure',
-                Operator: '>',
+                Operator: '>=',
                 Type: 'datetime',
-                SearchText: moment().subtract(48, 'hour').startOf('hour').format('YYYY-MM-DD HH:mm:ss.SSS')
-            }]
-        }
+                SearchText: moment(filteredHour).format('YYYY-MM-DD HH:mm:ss.SSS')
+            },
+            {
+                FieldName: 'TimeOfFailure',
+                Operator: '<',
+                Type: 'datetime',
+                SearchText: moment(filteredHour).add(1, 'hour').format('YYYY-MM-DD HH:mm:ss.SSS')
+            }
+        ]
+    }
+    else {
+        filters = [{
+            FieldName: 'TimeOfFailure',
+            Operator: '>',
+            Type: 'datetime',
+            SearchText: moment().subtract(48, 'hour').startOf('hour').format('YYYY-MM-DD HH:mm:ss.SSS')
+        }]
+    }
 
     return $.ajax({
-            type: "POST",
-            url: `${homePath}api/OpenXDA/DataOperationFailure/RecentFailures/${page}`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: false,
-            async: true,
+        type: "POST",
+        url: `${homePath}api/OpenXDA/DataOperationFailure/RecentFailures/${page}`,
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        cache: false,
+        async: true,
         data: JSON.stringify({ Searches: filters, OrderBy: sortField, Ascending: ascending }),
-        });
-    }
+    });
+}
