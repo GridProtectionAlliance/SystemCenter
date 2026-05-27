@@ -36,6 +36,7 @@ using openXDA.Model;
 using openXDA.Model.SystemCenter;
 using PQView.Model;
 using System;
+using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -103,7 +104,89 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA/DataOperation")]
     public class DataOperationController : ModelController<DataOperation> { }
     [RoutePrefix("api/OpenXDA/DataOperationFailure")]
-    public class DataOperationFailureController : ModelController<DataOperationFailureDetails> { }
+    public class DataOperationFailureController : ModelController<DataOperationFailureDetails>
+    {
+
+        [Route("RecentFailures/{page}"), HttpPost]
+        public IHttpActionResult RecentFailures([FromBody] PostData postData, [FromUri] int page)
+        {
+            if (!GetAuthCheck())
+                return Unauthorized();
+
+            int recordsPerPage = Take ?? 50;
+
+            List<object> param = new();
+
+            string conditions = BuildWhereClause(postData.Searches, param);
+
+            string problemOrderBy = "";
+
+            if (postData.OrderBy == "DataFileName" || postData.OrderBy == "DataOperation")
+            {
+                problemOrderBy = postData.OrderBy;
+                postData.OrderBy = "ID";
+            }
+
+            string sql = $@" 
+                SELECT * ,
+                (SELECT dataFile.FilePath FROM DataFile dataFile WHERE dataFile.FileGroupID = DetailedDataOperationFailure.FileGroupID) as FilePath
+                FROM({CustomView}) DetailedDataOperationFailure
+                WHERE {conditions}
+                ORDER BY {postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")}
+                {(problemOrderBy.Length > 0 ? "" : $@"OFFSET {page * recordsPerPage} ROWS FETCH NEXT {recordsPerPage} ROWS ONLY")}";
+
+            DataTable table;
+
+            using (AdoDataConnection connection = ConnectionFactory())
+            {
+                object[] paramArray = param.ToArray();
+                table = connection.RetrieveData(sql, paramArray);
+                table.Columns.Add("DataFileName", typeof(string));
+                table.Columns.Add("DataOperation", typeof(string));
+                foreach (DataRow row in table.Rows)
+                {
+                    row["DataFileName"] = Path.GetFileName(row.Field<string>("FilePath"));
+                    row["DataOperation"] = row.Field<string>("DataOperationTypeName").Split('.').Last();
+                }
+            }
+
+            int searchResultsCount = CountSearchResults(postData); 
+
+            if (problemOrderBy != "")
+            {
+                DataTable pagedTable = table.Clone();
+                IEnumerable<DataRow> pagedRows;
+                if (postData.Ascending)
+                {
+                    pagedRows = table.AsEnumerable()
+                        .OrderBy(row => row.Field<string>(problemOrderBy));
+                }
+                else
+                {
+                    pagedRows = table.AsEnumerable()
+                        .OrderByDescending(row => row.Field<string>(problemOrderBy));
+                }
+
+                pagedRows = pagedRows
+                    .Skip(recordsPerPage * page)
+                    .Take(recordsPerPage);
+
+                foreach (DataRow row in pagedRows)
+                    pagedTable.ImportRow(row);
+
+                table = pagedTable;
+            }
+
+            return Ok(new PagedResults
+            {
+                Data = JsonConvert.SerializeObject(table),
+                RecordsPerPage = recordsPerPage,
+                TotalRecords = searchResultsCount,
+                NumberOfPages = (searchResultsCount + recordsPerPage - 1) / recordsPerPage
+            });
+        }
+    
+    }
     [RoutePrefix("api/OpenXDA/DataReader")]
     public class DataReaderController : ModelController<DataReader> { }
 

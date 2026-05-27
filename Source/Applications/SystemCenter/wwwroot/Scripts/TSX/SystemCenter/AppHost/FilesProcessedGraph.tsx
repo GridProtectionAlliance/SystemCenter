@@ -1,0 +1,142 @@
+﻿//******************************************************************************************************
+//  FilesProcessedGraph.tsx - Gbtc
+//
+//  Copyright © 2026, Grid Protection Alliance.  All Rights Reserved.
+//
+//  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
+//  the NOTICE file distributed with this work for additional information regarding copyright ownership.
+//  The GPA licenses this file to you under the MIT License (MIT), the "License"; you may not use this
+//  file except in compliance with the License. You may obtain a copy of the License at:
+//
+//      http://opensource.org/licenses/MIT
+//
+//  Unless agreed to in writing, the subject software distributed under the License is distributed on an
+//  "AS-IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. Refer to the
+//  License for the specific language governing permissions and limitations.
+//
+//  Code Modification History:
+//  ----------------------------------------------------------------------------------------------------
+//  05/07/2026 - Natalie Beatty
+//       Generated original version of source code.
+//
+//******************************************************************************************************
+
+import * as React from 'react'
+import moment from 'moment'
+import { Application } from '@gpa-gemstone/application-typings';
+import { Plot, Bar } from '@gpa-gemstone/react-graph'
+import { ErrorBoundary } from '@gpa-gemstone/common-pages'
+import { LoadingIcon } from '@gpa-gemstone/react-interactive'
+
+export interface IAggregateProcessedFile {
+    Hour: string,
+    Count: number
+}
+
+interface IProps {
+    OffsetHeight: number
+    OffsetWidth: number
+    FilteredHour: string
+    SelectedTime: string
+    SetFilteredHour: React.Dispatch<React.SetStateAction<string>>
+    SetSelectedFile: React.Dispatch<React.SetStateAction<number>>
+}
+
+const FilesProcessedGraph = (props: IProps) => {
+    const [yMax, setYMax] = React.useState<number>(0)
+    const [timeframe, setTimeframe] = React.useState<[number, number]>([moment().subtract(48, 'hour').startOf('hour').valueOf(), moment().add(1, 'hour').startOf('hour').valueOf()])
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated')
+    const [aggregateProcessedFiles, setAggregateProcessedFiles] = React.useState<IAggregateProcessedFile[]>([])
+
+    React.useEffect(() => {
+        setStatus('loading')
+
+        const h = getAggregateRecentlyProcessedFiles()
+
+        h.done((d) => {
+            setAggregateProcessedFiles(d)
+            setYMax(Math.max(...d?.map((c) => { return c.Count })))
+            setStatus('idle')
+        }).fail(() => {
+            setStatus('error')
+        })
+
+        return function cleanup() {
+            if (h.abort != null)
+                h.abort();
+
+        }
+    }, [getAggregateRecentlyProcessedFiles, setYMax, setAggregateProcessedFiles, setStatus])
+
+    const handleOnPlotSelect = React.useCallback((x: number, y: number[]) => {
+        const selectedHour = aggregateProcessedFiles.find(a => moment(a.Hour).valueOf() < x && (moment(a.Hour).valueOf() + 3600000) > x && y[0] < a.Count)
+        props.SetFilteredHour(selectedHour?.Hour ?? null)
+        props.SetSelectedFile(null)
+    }, [aggregateProcessedFiles])
+
+    return <ErrorBoundary
+        ErrorMessage={"Files Processed Graph has encountered an error."}
+    >
+        {status === "loading" ?
+            <LoadingIcon
+                Show={true}
+                Size={40}
+            /> :
+            <>
+                <div className="row">
+                    <div className="col">
+                        <h6>File Processing Initialized Over Last 48 Hours</h6>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <Plot
+                            height={props.OffsetHeight}
+                            width={props.OffsetWidth}
+                            defaultTdomain={timeframe}
+                            defaultYdomain={[0, yMax]}
+                            onTDomainChange={setTimeframe}
+                            zoom={false}
+                            yZoom={false}
+                            xZoom={false}
+                            Tmin={timeframe[0]}
+                            Tmax={timeframe[1]}
+                            Ymin={0}
+                            Ymax={yMax}
+                            Ylabel={'Files'}
+                            onSelect={handleOnPlotSelect}
+                            pan={false}
+                            defaultMouseMode={'select'}
+                            useUTC={false}
+                            Tlabel={''}
+                        >
+                            {aggregateProcessedFiles.map((a) => {
+                                return <Bar
+                                    Data={[a.Count]}
+                                    BarOrigin={moment(a.Hour).valueOf()}
+                                    BarWidth={3600000}
+                                    Color={a.Hour === props.FilteredHour ? 'yellow' : 'black'}
+                                    key={a.Hour}
+                                >
+                                </Bar>
+                            })}
+                        </Plot>
+                    </div>
+                </div>
+
+            </>
+        }
+    </ErrorBoundary>
+}
+export default FilesProcessedGraph
+
+function getAggregateRecentlyProcessedFiles() {
+    return $.ajax({
+        type: "GET",
+        url: `${homePath}api/OpenXDA/DataFile/AggregateRecentlyProcessedFiles`,
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        cache: false,
+        async: true,
+    })
+}

@@ -25,7 +25,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -47,6 +49,7 @@ namespace SystemCenter.Model
         SELECT
 	        DataFile.*,
 	        FileGroup.DataStartTime,
+            FileGroup.ProcessingStartTime,
 	        FileGroup.ProcessingEndTime,
 	        FileGroup.MeterID,
             FileGroup.ProcessingStatus AS ProcessingState
@@ -59,10 +62,13 @@ namespace SystemCenter.Model
     {
         [ParentKey(typeof(Meter))]
         public int MeterID { get; set; }
+        public DateTime ProcessingStartTime { get; set; }
         [DefaultSortOrder(false)]
         public DateTime ProcessingEndTime { get; set; }
         public DateTime DataStartTime { get; set; }
         public int ProcessingState { get; set; }
+        [NonRecordField]
+        public string FileName => Path.GetFileName(FilePath);
     }
 
     [RoutePrefix("api/OpenXDA/DataFile")]
@@ -206,7 +212,65 @@ namespace SystemCenter.Model
             }
         }
 
- 
+        [Route("AggregateRecentlyProcessedFiles"), HttpGet]
+        public IHttpActionResult AggregateRecentlyProcessedFiles()
+        {
+            if (!GetAuthCheck())
+                return Unauthorized();
+
+            String sqlQuery = @"
+            SELECT
+	            FORMAT (FileGroup.ProcessingStartTime, 'yyyy-MM-dd HH') AS Hour,
+	            COUNT(DataFile.ID) as Count
+            FROM
+	            DataFile JOIN FileGroup ON DataFile.FileGroupID = FileGroup.ID
+            WHERE
+	            FileGroup.ProcessingStartTime > DATEADD(HOUR, DATEDIFF(HOUR, 0, GETDATE()) - 48, 0)
+	            GROUP BY FORMAT (FileGroup.ProcessingStartTime, 'yyyy-MM-dd HH');";
+            DataTable result;
+            using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+            {
+                result = connection.RetrieveData(sqlQuery);
+            }
+            return Ok(result);
+        }
+       
+        [Route("PagedResults"), HttpPost]
+        public override IHttpActionResult GetPagedList([FromBody] PostData postData, int page)
+        {
+            if (!GetAuthCheck())
+                return Unauthorized();
+
+            using DataTable table = GetSearchResults(postData, page);
+            DataFile[] results = table
+                .AsEnumerable()
+                .Select(row => new DataFile() 
+            { 
+                CreationTime = row.Field<DateTime>("CreationTime"),
+                ID = row.Field<int>("ID"),
+                FileGroupID = row.Field<int>("FileGroupID"),
+                FilePath = row.Field<string>("FilePath"),
+                FilePathHash = row.Field<int>("FilePathHash"),
+                FileSize = row.Field<long>("FileSize"),
+                LastWriteTime = row.Field<DateTime>("LastWriteTime"),
+                LastAccessTime = row.Field<DateTime>("LastAccessTime"),
+                MeterID = row.Field<int>("MeterID"),
+                DataStartTime = row.Field<DateTime>("DataStartTime"),
+                ProcessingEndTime = row.Field<DateTime>("ProcessingEndTime"),
+                ProcessingState = row.Field<int>("ProcessingState"),
+                ProcessingStartTime = row.Field<DateTime>("ProcessingStartTime")
+        }).ToArray();
+            int recordCount = CountSearchResults(postData);
+            int recordPerPage = Take ?? 50;
+            return Ok(new PagedResults()
+            {
+                Data = JsonConvert.SerializeObject(results),
+                RecordsPerPage = recordPerPage,
+                TotalRecords = recordCount,
+                NumberOfPages = (recordCount + recordPerPage - 1) / recordPerPage
+            });
+        }
+
     }
 
 }
