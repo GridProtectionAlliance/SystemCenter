@@ -25,13 +25,11 @@
 //******************************************************************************************************
 
 import * as React from 'react'
-import { Application } from '@gpa-gemstone/application-typings'
 import { SystemCenter as SC } from '../global'
 import StatusGroup from './StatusGroup'
 import { INamedStatusItem } from './StatusItem'
 
 const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.ApplicationType, Properties: { Name: string, Value: string }[] }) => {
-    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [extDBStatus, setExtDBStatus] = React.useState<INamedStatusItem[]>([{ Name: "Loading...", Status: "Loading", Details: [] }]);
     const [remoteXDAStatus, setRemoteXDAStatus] = React.useState<INamedStatusItem[]>([{ Name: "Loading...", Status: "Loading", Details: [] }]);
     const [hoveredItem, setHoveredItem] = React.useState<string>(null)
@@ -41,7 +39,6 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
     const [structureCrawlerStatus, setStructureCrawlerStatus] = React.useState<INamedStatusItem>({ Name: "Structure Crawler", Status: "Loading", Details: []})
 
     React.useEffect(() => {
-        setStatus('loading');
         switch (props.ApplicationType) {
             case 'SystemCenter':
                 const dbs = testDBs()
@@ -116,7 +113,6 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
                     <div className="col-6 h-100">
                     <StatusGroup
                         StatusItems={extDBStatus}
-                        Status={status}
                         HoveredItem={hoveredItem}
                         SetHoveredItem={setHoveredItem}
                         Name="External Database Connections"
@@ -126,7 +122,6 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
                 <div className={`col-${extDBStatus.length == 0 ? 12 : 6} h-100`}>
                     <StatusGroup
                         StatusItems={[fawgStatus, PQIStatus]}
-                        Status={status}
                         HoveredItem={hoveredItem}
                         SetHoveredItem={setHoveredItem}
                         Name="Other Connections"
@@ -139,7 +134,6 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
                         <div className="col-6 h-100">
                         <StatusGroup
                             StatusItems={remoteXDAStatus}
-                            Status={status}
                             HoveredItem={hoveredItem}
                             SetHoveredItem={setHoveredItem}
                             Name="Remote openXDA Connections"
@@ -149,7 +143,6 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
                     <div className={`col-${remoteXDAStatus.length == 0 ? 12 : 6} h-100`}>
                         <StatusGroup
                             StatusItems={[SCADAStatus, structureCrawlerStatus]}
-                            Status={status}
                             HoveredItem={hoveredItem}
                             SetHoveredItem={setHoveredItem}
                             Name="Other Connections"
