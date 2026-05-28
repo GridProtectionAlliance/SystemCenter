@@ -346,6 +346,7 @@
     <Compile Include="WebClients\HIDSClient.cs" />
     <Compile Include="WebClients\HttpClient.cs" />
     <Compile Include="WebClients\XDANodeClient.cs" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AppHost\DataOperationFailureTable.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AppHost\FilesProcessed.tsx" />
   </ItemGroup>
   <ItemGroup>
@@ -555,6 +556,8 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AdditionalFields\ByAdditionalField.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AppHost\ConsoleWindow.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\LineSegment\ByLineSegment.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AppHost\FilesProcessedGraph.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AppHost\FilesProcessedTable.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AppHost\NodeConnections.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AppHost\NodeDetails.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AppHost\NodeHealth.tsx" />
