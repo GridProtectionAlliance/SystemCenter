@@ -96,7 +96,7 @@ const ProcessingStatus = (props: IStatusProps) => {
             return "Failure";
         if (props.Status == ProcessingStatusEnum.PartialSuccess) // Partial Success
             return "Warning";
-        return "Unknwown";
+        return "Unknown";
     }, [props.Status]);
 
     const Symbol = React.useMemo(() => {
