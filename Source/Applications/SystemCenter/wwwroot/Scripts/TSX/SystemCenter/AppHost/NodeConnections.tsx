@@ -44,151 +44,70 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
         setStatus('loading');
         switch (props.ApplicationType) {
             case 'SystemCenter':
-                testDBs()
-                testFAWG()
-                testPQI()
-                break;
-            case 'XDA':
-                testRemoteXDAs()
-                testSCADA()
-                testStructureCrawler()
-                break;
-            default:
-                break;
-        }
-    }, [props.ApplicationName])
-
-
-    function testDBs() {
-        const h = $.ajax({
-            type: "POST",
-            url: `${homePath}api/SystemCenter/ExternalDatabases/TestAllConnections`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: false,
-            async: true
-        });
-
-        h.done((statuses: INamedStatusItem[]) => {
+                const dbs = testDBs()
+                dbs.done((statuses: INamedStatusItem[]) => {
             setExtDBStatus(statuses)
-        }).fail((d) => {
+                }).fail(() => {
             setExtDBStatus([])
         })
 
-
-        return function cleanup() {
-            if (h.abort != null)
-                h.abort();
-        }
-    }
-
-    function testRemoteXDAs() {
-        const h = $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/remoteXDAInstance/RemoteConnectionStatus/${props.Properties.find(prop => prop.Name === "ID").Value}`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: false,
-            async: true
-        });
-
-        h.done((statuses: INamedStatusItem[]) => {
-            setRemoteXDAStatus(statuses)
+                const fawg = testFAWG()
+                fawg.done((d: SC.StatusItem) => {
+                    setFawgStatus({ Status: d.Status, Name: "FAWG", Details: d.Details })
         }).fail(() => {
-            setRemoteXDAStatus([])
+                    setFawgStatus({ Status: 'Error', Name: 'FAWG', Details: [{ Status: "Error", Description: "Errors occurred in retrieving FAWG connection status." }] })
         })
-        return function cleanup() {
-            if (h.abort != null)
-                h.abort();
-        }
-    }
 
-    function testFAWG() {
-        const h = $.ajax({
-            type: "POST",
-            url: `${homePath}api/LineSegmentWizard/TestConnection`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: false,
-            async: true
-        });
-
-        h.done((d: SC.StatusItem) => {
-            setFawgStatus({Status: d.Status, Name: "FAWG", Details: d.Details})
+                const pqi = testPQI()
+                pqi.done((d: SC.StatusItem) => {
+                    setPQIStatus({ Status: d.Status, Name: "PQI", Details: d.Details })
         }).fail(() => {
-            setFawgStatus({ Status: 'Error', Name: 'FAWG', Details: [{ Status: "Error", Description: "Errors occurred in retrieving FAWG connection status." }] })
+                    setPQIStatus({ Status: 'Error', Name: 'PQI', Details: [{ Status: "Error", Description: "Errors occurred in retrieving PQI connection status." }] })
         })
 
         return function cleanup() {
-            if (h.abort != null)
-                h.abort();
-        }
+                    if (dbs.abort != null)
+                        dbs.abort();
+                    if (fawg.abort != null)
+                        fawg.abort()
+                    if (pqi.abort != null)
+                        pqi.abort()
     }
 
-    function testPQI() {
-        const h = $.ajax({
-            type: "GET",
-            url: `${homePath}api/SystemCenter/PQI/Test`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: false,
-            async: true
-        });
-
-        h.done((d: SC.StatusItem) => {
-            setPQIStatus({Status: d.Status, Name: "PQI", Details: d.Details})
+            case 'XDA':
+                const rxdas = testRemoteXDAs(props.Properties)
+                rxdas.done((statuses: INamedStatusItem[]) => {
+                    setRemoteXDAStatus(statuses)
         }).fail(() => {
-            setPQIStatus({ Status: 'Error', Name: 'PQI', Details: [{ Status: "Error", Description: "Errors occurred in retrieving PQI connection status." }] })
+                    setRemoteXDAStatus([])
         })
 
-        return function cleanup() {
-            if (h.abort != null)
-                h.abort();
-        }
-    }
-    function testSCADA() {
-        const h = $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/ScadaHealth`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: false,
-            async: true
-        });
-
-        h.done((d: SC.StatusItem) => {
-            setSCADAStatus({ Status: d.Status, Name: 'SCADA Resource', Details: d.Details})
+                const scada = testSCADA()
+                scada.done((d: SC.StatusItem) => {
+                    setSCADAStatus({ Status: d.Status, Name: 'SCADA Resource', Details: d.Details })
         }).fail(() => {
             setSCADAStatus({ Status: 'Error', Name: 'SCADA Resource', Details: [{ Status: "Error", Description: "Errors occurred in retrieving SCADA Resource connection status." }] })
         })
 
-        return function cleanup() {
-            if (h.abort != null)
-                h.abort();
-        }
-    }
-
-    function testStructureCrawler() {
-        const h = $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/StructureCrawlerHealth`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: false,
-            async: true
-        });
-
-        h.done((d: SC.StatusItem) => {
-            setStructureCrawlerStatus({ Status: d.Status, Name: "Structure Crawler", Details: d.Details})
+                const crawler = testStructureCrawler()
+                crawler.done((d: SC.StatusItem) => {
+                    setStructureCrawlerStatus({ Status: d.Status, Name: "Structure Crawler", Details: d.Details })
         }).fail(() => {
             setStructureCrawlerStatus({ Status: 'Error', Name: 'Structure Crawler', Details: [{ Status: "Error", Description: "Errors occurred in retrieving Structure Crawler connection status." }] })
         })
 
         return function cleanup() {
-            if (h.abort != null)
-                h.abort();
+                    if (rxdas.abort != null)
+                        rxdas.abort()
+                    if (scada.abort != null)
+                        scada.abort()
+                    if (crawler.abort != null)
+                        crawler.abort()
         }
+            default:
+                return;
     }
+    }, [props.ApplicationName])
 
     return (
         props.ApplicationType === 'SystemCenter' ?
@@ -242,3 +161,69 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
 }
 
 export default NodeConnections;
+
+
+function testDBs() {
+    return $.ajax({
+        type: "POST",
+        url: `${homePath}api/SystemCenter/ExternalDatabases/TestAllConnections`,
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        cache: false,
+        async: true
+    });
+}
+
+function testFAWG() {
+    return $.ajax({
+        type: "POST",
+        url: `${homePath}api/LineSegmentWizard/TestConnection`,
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        cache: false,
+        async: true
+    });
+}
+
+function testPQI() {
+    return $.ajax({
+        type: "GET",
+        url: `${homePath}api/SystemCenter/PQI/Test`,
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        cache: false,
+        async: true
+    });
+}
+function testRemoteXDAs(properties: { Name: string, Value: string }[]) {
+    return $.ajax({
+        type: "GET",
+        url: `${homePath}api/OpenXDA/remoteXDAInstance/RemoteConnectionStatus/${properties.find(prop => prop.Name === "ID").Value}`,
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        cache: false,
+        async: true
+    });
+}
+
+function testSCADA() {
+    return $.ajax({
+        type: "GET",
+        url: `${homePath}api/OpenXDA/ScadaHealth`,
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        cache: false,
+        async: true
+    });
+}
+
+function testStructureCrawler() {
+    return $.ajax({
+        type: "GET",
+        url: `${homePath}api/OpenXDA/StructureCrawlerHealth`,
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        cache: false,
+        async: true
+    });
+}
