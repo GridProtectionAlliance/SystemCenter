@@ -28,12 +28,12 @@ import { ToolTip } from '@gpa-gemstone/react-forms';
 
 
 enum ProcessingStatusEnum {
-    Unknown = 1,
-    Queued = 2,
-    Processing = 3,
-    Processed = 4,
-    Error = 5,
-    PartialSuccess = 6
+    Unknown = 0,
+    Queued = 1,
+    Processing = 2,
+    Processed = 3,
+    Error = 4,
+    PartialSuccess = 5
 }
 
 interface IStatusProps {
@@ -96,7 +96,7 @@ const ProcessingStatus = (props: IStatusProps) => {
             return "Failure";
         if (props.Status == ProcessingStatusEnum.PartialSuccess) // Partial Success
             return "Warning";
-        return "Unknwown";
+        return "Unknown";
     }, [props.Status]);
 
     const Symbol = React.useMemo(() => {
