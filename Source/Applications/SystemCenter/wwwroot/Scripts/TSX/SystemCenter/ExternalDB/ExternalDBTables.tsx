@@ -25,10 +25,10 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { useNavigate } from "react-router-dom";
 import { SystemCenter } from '@gpa-gemstone/application-typings';
-import { useAppSelector, useAppDispatch } from '../hooks';
+import { useAppSelector, useAppDispatch, useBoundPaging } from '../hooks';
 import { ExternalDBTablesSlice } from '../Store/Store';
 import ExternalDBTableForm from './ExternalDBTableForm';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Modal, Warning } from '@gpa-gemstone/react-interactive';
 
@@ -36,17 +36,20 @@ export default function ExternalDBTables(props: { ID: number }) {
     let navigate = useNavigate();
     const dispatch = useAppDispatch();
 
-    const data = useAppSelector(ExternalDBTablesSlice.Data);
-    const sortKey = useAppSelector(ExternalDBTablesSlice.SortField);
-    const asc = useAppSelector(ExternalDBTablesSlice.Ascending);
+    const data = useAppSelector(ExternalDBTablesSlice.SearchResults);
     const status = useAppSelector(ExternalDBTablesSlice.Status);
     const parentID = useAppSelector(ExternalDBTablesSlice.ParentID);
+    const currentPage = useAppSelector(ExternalDBTablesSlice.CurrentPage);
+    const totalPages = useAppSelector(ExternalDBTablesSlice.TotalPages);
 
     const emptyRecord: SystemCenter.Types.extDBTables = { ID: 0, TableName: '', ExtDBID: 0, Query: '' };
     const [record, setRecord] = React.useState<SystemCenter.Types.extDBTables>(emptyRecord);
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [errors, setErrors] = React.useState<string[]>([]);
+    const [sortField, setSortField] = React.useState<keyof SystemCenter.Types.extDBTables>('ID');
+    const [ascending, setAscending] = React.useState<boolean>(true);
+
 
     React.useEffect(() => {
         if (status == 'uninitiated' || status == 'changed' || parentID != props.ID)
@@ -75,6 +78,27 @@ export default function ExternalDBTables(props: { ID: number }) {
             navigate(`${homePath}index.cshtml?name=ExternalTable&ID=${item.row.ID}`);
     }
 
+    const setPage = React.useCallback((page) => {
+        dispatch(ExternalDBTablesSlice.PagedSearch({ filter: [], sortField, ascending, page: page - 1 }))
+    }, [sortField, ascending])
+
+    const sort = React.useCallback((d) => {
+        let asc = ascending
+        let sort = d.colField
+        if (sortField === d.colField) {
+            setAscending(!ascending)
+            asc = !ascending
+        }
+        else {
+            setSortField(d.colField)
+            setAscending(false)
+            asc = false
+        }
+        dispatch(ExternalDBTablesSlice.PagedSearch({ filter: [], sortField: sort, ascending: asc, page: 0 }))
+    }, [ascending, sortField])
+
+    useBoundPaging(currentPage, totalPages, setPage)
+
     return (
         <div className="container-fluid d-flex h-100 flex-column">
             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
@@ -93,12 +117,9 @@ export default function ExternalDBTables(props: { ID: number }) {
                                     <Table<SystemCenter.Types.DetailedExtDBTables>
                                         TableClass="table table-hover"
                                         Data={data}
-                                        SortKey={sortKey.toString()}
-                                        Ascending={asc}
-                                        OnSort={(d) => {
-                                            if (d.colKey == 'btns') return;
-                                            dispatch(ExternalDBTablesSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
-                                        }}
+                                        SortKey={sortField}
+                                        Ascending={ascending}
+                                        OnSort={sort}
                                         OnClick={handleSelect}
                                         TableStyle={{ padding: 0, width: '100%', height: '100%', tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
                                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
@@ -139,6 +160,15 @@ export default function ExternalDBTables(props: { ID: number }) {
                                         > <p></p>
                                         </Column>
                                     </Table>
+                                </div>
+                            </div>
+                            <div className="row">
+                                <div className="col">
+                                    <Paging
+                                        SetPage={setPage}
+                                        Current={currentPage + 1}
+                                        Total={totalPages}
+                                    />
                                 </div>
                             </div>
                         </div>
