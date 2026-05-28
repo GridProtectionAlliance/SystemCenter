@@ -72,7 +72,6 @@ export namespace SystemCenter {
     interface SEBrowserSetting extends GemstoneSC.Types.Setting { ApplicationInstance: boolean, Scope: string, Roles: string }
 
     interface StatusItem {
-        Name: string
         Status: 'Error' | 'Success' | 'Warning' | 'Loading' | 'N/A'
         Details: {
             Status: 'Success' | 'Error'
