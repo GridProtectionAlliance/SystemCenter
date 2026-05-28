@@ -29,6 +29,7 @@ import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
 import { SystemCenter as SC } from '../global'
 import StatusDetails from './StatusDetails'
+import { INamedStatusItem } from './StatusItem'
 
 const statStyle: React.CSSProperties = {
     fontSize: "1em",
@@ -50,7 +51,7 @@ const NodeHealth = (props: IProps) => {
 
     const [statInfo, setStatInfo] = React.useState<string>('');
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
-    const [openMICStatus, setOpenMICStatus] = React.useState<SC.StatusItem>({ Name: 'openMIC', Status: 'Loading', Details: [] });
+    const [openMICStatus, setOpenMICStatus] = React.useState<INamedStatusItem>({ Name: 'openMIC', Status: 'Loading', Details: [] });
 
     React.useEffect(() => {
         if (props.ApplicationType === 'openMIC') {
@@ -97,7 +98,7 @@ const NodeHealth = (props: IProps) => {
             async: true
         });
 
-        h.done((d: SC.StatusItem) => {
+        h.done((d: INamedStatusItem) => {
             setOpenMICStatus(d)
             setStatus('idle')
         }).fail(() => {

@@ -25,19 +25,20 @@
 //******************************************************************************************************
 
 import * as React from 'react'
-import { Application, SystemCenter, OpenXDA } from '@gpa-gemstone/application-typings'
+import { Application } from '@gpa-gemstone/application-typings'
 import { SystemCenter as SC } from '../global'
 import StatusGroup from './StatusGroup'
+import { INamedStatusItem } from './StatusItem'
 
 const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.ApplicationType, Properties: { Name: string, Value: string }[] }) => {
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
-    const [extDBStatus, setExtDBStatus] = React.useState<SC.StatusItem[]>([{ Name: "Loading...", Status: "Loading", Details: [] }]);
-    const [remoteXDAStatus, setRemoteXDAStatus] = React.useState<SC.StatusItem[]>([{ Name: "Loading...", Status: "Loading", Details: [] }]);
+    const [extDBStatus, setExtDBStatus] = React.useState<INamedStatusItem[]>([{ Name: "Loading...", Status: "Loading", Details: [] }]);
+    const [remoteXDAStatus, setRemoteXDAStatus] = React.useState<INamedStatusItem[]>([{ Name: "Loading...", Status: "Loading", Details: [] }]);
     const [hoveredItem, setHoveredItem] = React.useState<string>(null)
-    const [fawgStatus, setFawgStatus] = React.useState<SC.StatusItem>({ Name: "FAWG", Status: "Loading", Details: [] })
-    const [PQIStatus, setPQIStatus] = React.useState<SC.StatusItem>({ Name: "PQI", Status: "Loading", Details: [] })
-    const [SCADAStatus, setSCADAStatus] = React.useState<SC.StatusItem>({ Name: "SCADA Resource", Status: "Loading", Details: [] })
-    const [structureCrawlerStatus, setStructureCrawlerStatus] = React.useState<SC.StatusItem>({ Name: "Structure Crawler", Status: "Loading", Details: []})
+    const [fawgStatus, setFawgStatus] = React.useState<INamedStatusItem>({ Name: "FAWG", Status: "Loading", Details: [] })
+    const [PQIStatus, setPQIStatus] = React.useState<INamedStatusItem>({ Name: "PQI", Status: "Loading", Details: [] })
+    const [SCADAStatus, setSCADAStatus] = React.useState<INamedStatusItem>({ Name: "SCADA Resource", Status: "Loading", Details: [] })
+    const [structureCrawlerStatus, setStructureCrawlerStatus] = React.useState<INamedStatusItem>({ Name: "Structure Crawler", Status: "Loading", Details: []})
 
     React.useEffect(() => {
         setStatus('loading');
@@ -68,7 +69,7 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
             async: true
         });
 
-        h.done((statuses: SC.StatusItem[]) => {
+        h.done((statuses: INamedStatusItem[]) => {
             setExtDBStatus(statuses)
         }).fail((d) => {
             setExtDBStatus([])
@@ -91,7 +92,7 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
             async: true
         });
 
-        h.done((statuses: SC.StatusItem[]) => {
+        h.done((statuses: INamedStatusItem[]) => {
             setRemoteXDAStatus(statuses)
         }).fail(() => {
             setRemoteXDAStatus([])
@@ -113,8 +114,7 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
         });
 
         h.done((d: SC.StatusItem) => {
-            d.Name = 'FAWG'
-            setFawgStatus(d)
+            setFawgStatus({Status: d.Status, Name: "FAWG", Details: d.Details})
         }).fail(() => {
             setFawgStatus({ Status: 'Error', Name: 'FAWG', Details: [{ Status: "Error", Description: "Errors occurred in retrieving FAWG connection status." }] })
         })
@@ -136,8 +136,7 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
         });
 
         h.done((d: SC.StatusItem) => {
-            d.Name = 'PQI'
-            setPQIStatus(d)
+            setPQIStatus({Status: d.Status, Name: "PQI", Details: d.Details})
         }).fail(() => {
             setPQIStatus({ Status: 'Error', Name: 'PQI', Details: [{ Status: "Error", Description: "Errors occurred in retrieving PQI connection status." }] })
         })
@@ -158,8 +157,7 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
         });
 
         h.done((d: SC.StatusItem) => {
-            d.Name = 'SCADA Resource'
-            setSCADAStatus(d)
+            setSCADAStatus({ Status: d.Status, Name: 'SCADA Resource', Details: d.Details})
         }).fail(() => {
             setSCADAStatus({ Status: 'Error', Name: 'SCADA Resource', Details: [{ Status: "Error", Description: "Errors occurred in retrieving SCADA Resource connection status." }] })
         })
@@ -181,8 +179,7 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
         });
 
         h.done((d: SC.StatusItem) => {
-            d.Name = 'Structure Crawler'
-            setStructureCrawlerStatus(d)
+            setStructureCrawlerStatus({ Status: d.Status, Name: "Structure Crawler", Details: d.Details})
         }).fail(() => {
             setStructureCrawlerStatus({ Status: 'Error', Name: 'Structure Crawler', Details: [{ Status: "Error", Description: "Errors occurred in retrieving Structure Crawler connection status." }] })
         })
