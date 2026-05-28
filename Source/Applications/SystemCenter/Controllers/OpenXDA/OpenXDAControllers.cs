@@ -127,7 +127,7 @@ namespace SystemCenter.Controllers.OpenXDA
 
             string sql = $@" 
                 SELECT * ,
-                (SELECT dataFile.FilePath FROM DataFile dataFile WHERE dataFile.FileGroupID = DetailedDataOperationFailure.FileGroupID) as FilePath
+                (SELECT TOP 1 dataFile.FilePath FROM DataFile dataFile WHERE dataFile.FileGroupID = DetailedDataOperationFailure.FileGroupID ORDER BY dataFile.FileSize DESC) as FilePath
                 FROM({CustomView}) DetailedDataOperationFailure
                 WHERE {conditions}
                 ORDER BY {postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")}
