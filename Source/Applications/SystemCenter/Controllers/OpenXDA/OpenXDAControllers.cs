@@ -22,12 +22,12 @@
 //******************************************************************************************************
 
 
-using GSF.Annotations;
 using GSF.Configuration;
 using GSF.Data;
 using GSF.Data.Model;
 using GSF.Security.Model;
 using GSF.Web.Model;
+using log4net;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using openXDA.APIAuthentication;
@@ -43,13 +43,11 @@ using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Net.Http;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
-using System.Windows.Forms;
 using SystemCenter.Model;
 using ConfigurationLoader = SystemCenter.Model.ConfigurationLoader;
 
@@ -685,6 +683,10 @@ namespace SystemCenter.Controllers.OpenXDA
     public class GeneralController : ApiController
     {
 
+        #region [ Static ]
+        private static readonly ILog Log = LogManager.GetLogger(typeof(GeneralController));
+        #endregion
+
         [HttpGet, Route("Tiles/GetAll")]
         public IHttpActionResult GetAllTiles()
         {
@@ -731,22 +733,25 @@ namespace SystemCenter.Controllers.OpenXDA
         }
 
         [Route("SCADAHealth"), HttpGet]
-        public IHttpActionResult GetScadaHealth()
+        public HttpResponseMessage GetScadaHealth()
         {
-
             if (!XDAAPIHelper.TryRefreshSettings())
-                throw new InvalidOperationException("Unable to refresh static XDA API object.");
+                Log.Warn("Unable to refresh static XDA API object.");
 
-            AppStatus scadaStatus = null;
-
-            using (HttpResponseMessage response = XDAAPIHelper
+            return XDAAPIHelper
                 .GetResponseTask($"api/SystemCenter/SCADAPoint/Health")
-                .Result)
-            {
-                scadaStatus = JsonConvert.DeserializeObject<AppStatus>(response.Content.ReadAsStringAsync().Result);
-            }
+                .Result;
+        }
 
-            return Ok(scadaStatus);
+        [Route("StructureCrawlerHealth"), HttpGet]
+        public HttpResponseMessage GetStructureCrawlerHealth()
+        {
+            if (!XDAAPIHelper.TryRefreshSettings())
+                Log.Warn("Unable to refresh static XDA API object.");
+
+            return XDAAPIHelper
+                .GetResponseTask($"api/SystemCenter/StructureCrawler/Health")
+                .Result;
         }
     }
 

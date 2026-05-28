@@ -26,9 +26,11 @@ import { ToolTip } from '@gpa-gemstone/react-forms'
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { SystemCenter as SC } from '../global'
 
+export interface INamedStatusItem extends SC.StatusItem {
+    Name: string
+}
 
-
-const StatusItem = (props: {StatusItem: SC.StatusItem, HoveredItem: String, SetHoveredItem: React.Dispatch<React.SetStateAction<String>>}) => {
+const StatusItem = (props: { StatusItem: INamedStatusItem, HoveredItem: String, SetHoveredItem: React.Dispatch<React.SetStateAction<String>>}) => {
     return (
 
         <div className="row mb-2 mx-2"
