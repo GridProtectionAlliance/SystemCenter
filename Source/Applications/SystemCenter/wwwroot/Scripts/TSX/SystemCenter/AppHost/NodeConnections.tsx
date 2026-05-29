@@ -36,74 +36,74 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
     const [fawgStatus, setFawgStatus] = React.useState<INamedStatusItem>({ Name: "FAWG", Status: "Loading", Details: [] })
     const [PQIStatus, setPQIStatus] = React.useState<INamedStatusItem>({ Name: "PQI", Status: "Loading", Details: [] })
     const [SCADAStatus, setSCADAStatus] = React.useState<INamedStatusItem>({ Name: "SCADA Resource", Status: "Loading", Details: [] })
-    const [structureCrawlerStatus, setStructureCrawlerStatus] = React.useState<INamedStatusItem>({ Name: "Structure Crawler", Status: "Loading", Details: []})
+    const [structureCrawlerStatus, setStructureCrawlerStatus] = React.useState<INamedStatusItem>({ Name: "Structure Crawler", Status: "Loading", Details: [] })
 
     React.useEffect(() => {
         switch (props.ApplicationType) {
             case 'SystemCenter':
                 const dbs = testDBs()
                 dbs.done((statuses: INamedStatusItem[]) => {
-            setExtDBStatus(statuses)
+                    setExtDBStatus(statuses)
                 }).fail(() => {
-            setExtDBStatus([])
-        })
+                    setExtDBStatus([])
+                })
 
                 const fawg = testFAWG()
                 fawg.done((d: SC.StatusItem) => {
                     setFawgStatus({ Status: d.Status, Name: "FAWG", Details: d.Details })
-        }).fail(() => {
+                }).fail(() => {
                     setFawgStatus({ Status: 'Error', Name: 'FAWG', Details: [{ Status: "Error", Description: "Errors occurred in retrieving FAWG connection status." }] })
-        })
+                })
 
                 const pqi = testPQI()
                 pqi.done((d: SC.StatusItem) => {
                     setPQIStatus({ Status: d.Status, Name: "PQI", Details: d.Details })
-        }).fail(() => {
+                }).fail(() => {
                     setPQIStatus({ Status: 'Error', Name: 'PQI', Details: [{ Status: "Error", Description: "Errors occurred in retrieving PQI connection status." }] })
-        })
+                })
 
-        return function cleanup() {
+                return function cleanup() {
                     if (dbs.abort != null)
                         dbs.abort();
                     if (fawg.abort != null)
                         fawg.abort()
                     if (pqi.abort != null)
                         pqi.abort()
-    }
+                }
 
             case 'XDA':
                 const rxdas = testRemoteXDAs(props.Properties)
                 rxdas.done((statuses: INamedStatusItem[]) => {
                     setRemoteXDAStatus(statuses)
-        }).fail(() => {
+                }).fail(() => {
                     setRemoteXDAStatus([])
-        })
+                })
 
                 const scada = testSCADA()
                 scada.done((d: SC.StatusItem) => {
                     setSCADAStatus({ Status: d.Status, Name: 'SCADA Resource', Details: d.Details })
-        }).fail(() => {
-            setSCADAStatus({ Status: 'Error', Name: 'SCADA Resource', Details: [{ Status: "Error", Description: "Errors occurred in retrieving SCADA Resource connection status." }] })
-        })
+                }).fail(() => {
+                    setSCADAStatus({ Status: 'Error', Name: 'SCADA Resource', Details: [{ Status: "Error", Description: "Errors occurred in retrieving SCADA Resource connection status." }] })
+                })
 
                 const crawler = testStructureCrawler()
                 crawler.done((d: SC.StatusItem) => {
                     setStructureCrawlerStatus({ Status: d.Status, Name: "Structure Crawler", Details: d.Details })
-        }).fail(() => {
-            setStructureCrawlerStatus({ Status: 'Error', Name: 'Structure Crawler', Details: [{ Status: "Error", Description: "Errors occurred in retrieving Structure Crawler connection status." }] })
-        })
+                }).fail(() => {
+                    setStructureCrawlerStatus({ Status: 'Error', Name: 'Structure Crawler', Details: [{ Status: "Error", Description: "Errors occurred in retrieving Structure Crawler connection status." }] })
+                })
 
-        return function cleanup() {
+                return function cleanup() {
                     if (rxdas.abort != null)
                         rxdas.abort()
                     if (scada.abort != null)
                         scada.abort()
                     if (crawler.abort != null)
                         crawler.abort()
-        }
+                }
             default:
                 return;
-    }
+        }
     }, [props.ApplicationName])
 
     return (
@@ -111,13 +111,13 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
             <div className="row h-100">
                 {extDBStatus.length == 0 ? null :
                     <div className="col-6 h-100">
-                    <StatusGroup
-                        StatusItems={extDBStatus}
-                        HoveredItem={hoveredItem}
-                        SetHoveredItem={setHoveredItem}
-                        Name="External Database Connections"
-                    />
-                </div>
+                        <StatusGroup
+                            StatusItems={extDBStatus}
+                            HoveredItem={hoveredItem}
+                            SetHoveredItem={setHoveredItem}
+                            Name="External Database Connections"
+                        />
+                    </div>
                 }
                 <div className={`col-${extDBStatus.length == 0 ? 12 : 6} h-100`}>
                     <StatusGroup
@@ -132,13 +132,13 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
                 <div className="row h-100">
                     {remoteXDAStatus.length == 0 ? null :
                         <div className="col-6 h-100">
-                        <StatusGroup
-                            StatusItems={remoteXDAStatus}
-                            HoveredItem={hoveredItem}
-                            SetHoveredItem={setHoveredItem}
-                            Name="Remote openXDA Connections"
-                        />
-                    </div>
+                            <StatusGroup
+                                StatusItems={remoteXDAStatus}
+                                HoveredItem={hoveredItem}
+                                SetHoveredItem={setHoveredItem}
+                                Name="Remote openXDA Connections"
+                            />
+                        </div>
                     }
                     <div className={`col-${remoteXDAStatus.length == 0 ? 12 : 6} h-100`}>
                         <StatusGroup
