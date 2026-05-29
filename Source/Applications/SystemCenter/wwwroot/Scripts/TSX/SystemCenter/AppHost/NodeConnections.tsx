@@ -41,6 +41,7 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
     React.useEffect(() => {
         switch (props.ApplicationType) {
             case 'SystemCenter':
+                setExtDBStatus([{ Name: "Loading...", Status: "Loading", Details: [] }])
                 const dbs = testDBs()
                 dbs.done((statuses: INamedStatusItem[]) => {
                     setExtDBStatus(statuses)
@@ -48,6 +49,7 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
                     setExtDBStatus([])
                 })
 
+                setFawgStatus({ Name: "FAWG", Status: "Loading", Details: [] })
                 const fawg = testFAWG()
                 fawg.done((d: SC.StatusItem) => {
                     setFawgStatus({ Status: d.Status, Name: "FAWG", Details: d.Details })
@@ -55,6 +57,7 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
                     setFawgStatus({ Status: 'Error', Name: 'FAWG', Details: [{ Status: "Error", Description: "Errors occurred in retrieving FAWG connection status." }] })
                 })
 
+                setPQIStatus({ Name: "PQI", Status: "Loading", Details: [] })
                 const pqi = testPQI()
                 pqi.done((d: SC.StatusItem) => {
                     setPQIStatus({ Status: d.Status, Name: "PQI", Details: d.Details })
@@ -72,6 +75,7 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
                 }
 
             case 'XDA':
+                setRemoteXDAStatus([{ Name: "Loading...", Status: "Loading", Details: [] }])
                 const rxdas = testRemoteXDAs(props.Properties)
                 rxdas.done((statuses: INamedStatusItem[]) => {
                     setRemoteXDAStatus(statuses)
@@ -79,6 +83,7 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
                     setRemoteXDAStatus([])
                 })
 
+                setSCADAStatus({ Name: "SCADA Resource", Status: "Loading", Details: [] })
                 const scada = testSCADA()
                 scada.done((d: SC.StatusItem) => {
                     setSCADAStatus({ Status: d.Status, Name: 'SCADA Resource', Details: d.Details })
@@ -86,6 +91,7 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
                     setSCADAStatus({ Status: 'Error', Name: 'SCADA Resource', Details: [{ Status: "Error", Description: "Errors occurred in retrieving SCADA Resource connection status." }] })
                 })
 
+                setStructureCrawlerStatus({ Name: "Structure Crawler", Status: "Loading", Details: [] })
                 const crawler = testStructureCrawler()
                 crawler.done((d: SC.StatusItem) => {
                     setStructureCrawlerStatus({ Status: d.Status, Name: "Structure Crawler", Details: d.Details })
