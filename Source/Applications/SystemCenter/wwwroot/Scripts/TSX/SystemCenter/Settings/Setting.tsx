@@ -59,14 +59,9 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
     const [errors, setErrors] = React.useState<string[]>([]);
 
     React.useEffect(() => {
-        if (status === 'uninitiated' || status === 'changed')
-            dispatch(props.SettingsSlice.Fetch());
-    }, [status]);
-
-    React.useEffect(() => {
-        if (searchStatus === 'uninitiated' || searchStatus === 'changed')
+        if (searchStatus === 'uninitiated' || searchStatus === 'changed' || status === 'changed')
             dispatch(props.SettingsSlice.PagedSearch({ filter: search, sortField, ascending, page: currentPage }));
-    }, [searchStatus, search, sortField, ascending, currentPage]);
+    }, [searchStatus, search, sortField, ascending, currentPage, status]);
 
 
     React.useEffect(() => { setHasChanged(false) }, [showModal]);
