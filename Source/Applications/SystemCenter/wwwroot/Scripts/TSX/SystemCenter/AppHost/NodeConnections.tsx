@@ -37,6 +37,8 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
     const [PQIStatus, setPQIStatus] = React.useState<INamedStatusItem>({ Name: "PQI", Status: "Loading", Details: [] })
     const [SCADAStatus, setSCADAStatus] = React.useState<INamedStatusItem>({ Name: "SCADA Resource", Status: "Loading", Details: [] })
     const [structureCrawlerStatus, setStructureCrawlerStatus] = React.useState<INamedStatusItem>({ Name: "Structure Crawler", Status: "Loading", Details: [] })
+    const [lightningRealTimeStatus, setLightningRealTimeStatus] = React.useState<INamedStatusItem>({ Name: "Lightning Real Time Data", Status: "Loading", Details: [] })
+    const [lightningStructureStatus, setLightningStructureStatus] = React.useState<INamedStatusItem>({ Name: "Lightning Structure Data", Status: "Loading", Details: [] })
 
     React.useEffect(() => {
         switch (props.ApplicationType) {
@@ -99,6 +101,21 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
                     setStructureCrawlerStatus({ Status: 'Error', Name: 'Structure Crawler', Details: [{ Status: "Error", Description: "Errors occurred in retrieving Structure Crawler connection status." }] })
                 })
 
+                const lightningRealTime = testLightningRealTimeData()
+                lightningRealTime.done((d: SC.StatusItem) => {
+                    setLightningRealTimeStatus({ Status: d.Status, Name: 'Lightning Real Time Data', Details: d.Details })
+                }).fail(() => {
+                    setLightningRealTimeStatus({ Status: 'Error', Name: 'Lightning Real Time Data', Details: [{ Status: "Error", Description: "Errors occurred in retrieving Lightning Real Time Data connection status." }] })
+                })
+
+                const lightningStructure = testLightningStructureData()
+                lightningStructure.done((d: SC.StatusItem) => {
+                    setLightningStructureStatus({ Status: d.Status, Name: 'Lightning Structure Data', Details: d.Details })
+                }).fail(() => {
+                    setLightningStructureStatus({ Status: 'Error', Name: 'Lightning Structure Data', Details: [{ Status: "Error", Description: "Errors occurred in retrieving Lightning Structure Data connection status." }] })
+                })
+
+
                 return function cleanup() {
                     if (rxdas.abort != null)
                         rxdas.abort()
@@ -106,10 +123,14 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
                         scada.abort()
                     if (crawler.abort != null)
                         crawler.abort()
+                    if (lightningRealTime.abort != null)
+                        lightningRealTime.abort()
+                    if (lightningStructure.abort != null)
+                        lightningStructure.abort()
                 }
             default:
                 return;
-        }
+    }
     }, [props.ApplicationName])
 
     return (
@@ -148,7 +169,7 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
                     }
                     <div className={`col-${remoteXDAStatus.length == 0 ? 12 : 6} h-100`}>
                         <StatusGroup
-                            StatusItems={[SCADAStatus, structureCrawlerStatus]}
+                            StatusItems={[SCADAStatus, structureCrawlerStatus, lightningRealTimeStatus, lightningStructureStatus]}
                             HoveredItem={hoveredItem}
                             SetHoveredItem={setHoveredItem}
                             Name="Other Connections"
@@ -217,12 +238,33 @@ function testSCADA() {
 }
 
 function testStructureCrawler() {
+        return $.ajax({
+            type: "GET",
+        url: `${homePath}api/OpenXDA/StructureCrawlerHealth`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true
+    });
+    }
+
+function testLightningRealTimeData() {
     return $.ajax({
         type: "GET",
-        url: `${homePath}api/OpenXDA/StructureCrawlerHealth`,
+        url: `${homePath}api/OpenXDA/LightningRealTimeDataHealth`,
         contentType: "application/json; charset=utf-8",
         dataType: 'json',
         cache: false,
         async: true
-    });
+    })
+}
+function testLightningStructureData() {
+    return $.ajax({
+        type: "GET",
+        url: `${homePath}api/OpenXDA/LightningStructureDataHealth`,
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        cache: false,
+        async: true
+    })
 }
