@@ -771,8 +771,6 @@ namespace SystemCenter.Controllers.OpenXDA
             if (!XDAAPIHelper.TryRefreshSettings())
                 Log.Warn("Unable to refresh static XDA API object.");
 
-
-
             return XDAAPIHelper
                 .GetResponseTask($"api/SystemCenter/LightningStructureData/Health")
                 .Result;
