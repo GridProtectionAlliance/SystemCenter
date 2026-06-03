@@ -84,10 +84,15 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
     }, [sortField, ascending, currentPage])
 
     const setPage = React.useCallback((page) => {
-        dispatch(props.SettingsSlice.PagedSearch({ filter: search, sortField, ascending, page: page - 1 }))
+        let pageToSet = page - 1
+        if (currentPage >= totalPages && totalPages > 0) {
+            pageToSet = totalPages - 1
+        }
+        if (currentPage < 1) {
+            pageToSet = 0
+        }
+        dispatch(props.SettingsSlice.PagedSearch({ filter: search, sortField, ascending, page: pageToSet}))
     }, [sortField, ascending, search])
-
-    useBoundPaging(currentPage, totalPages, setPage)
 
     const searchFields: Search.IField<T>[] = [
         { key: 'Name', label: 'Setting Name', type: 'string', isPivotField: false },
