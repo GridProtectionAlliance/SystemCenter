@@ -22,33 +22,23 @@
 
 import * as React from 'react';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
-import { SearchBar, Search, Warning, LoadingScreen, ServerErrorIcon, GenericSlice, Modal } from '@gpa-gemstone/react-interactive';
+import { SearchBar, Search, Warning, LoadingScreen, ServerErrorIcon, GenericController, Modal } from '@gpa-gemstone/react-interactive';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
-import { useAppDispatch, useAppSelector, useBoundPaging } from '../hooks';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Input, TextArea } from '@gpa-gemstone/react-forms';
 
+export type System = 'SystemCenter' | 'MiMD' | 'OpenXDA' | 'OpenSEE' | 'SEBrowser' | 'PQDigest'
 interface IProps<T extends SystemCenter.Types.Setting>  {
-    SettingsSlice: GenericSlice<T>
+    SettingSystem: System
     DefaultSetting?: T
 }
 
 function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
-    const dispatch = useAppDispatch();
-
-    const search: Search.IFilter<T>[] = useAppSelector(props.SettingsSlice.SearchFilters);
-    const searchStatus: Application.Types.Status = useAppSelector(props.SettingsSlice.SearchStatus);
-
-    const data: T[] = useAppSelector(props.SettingsSlice.SearchResults);
-    const allSettings: T[] = useAppSelector(props.SettingsSlice.Data);
-    const status: Application.Types.Status = useAppSelector(props.SettingsSlice.Status);
-    const currentPage = useAppSelector(props.SettingsSlice.CurrentPage);
-    const totalPages = useAppSelector(props.SettingsSlice.TotalPages);
-    const totalRecords = useAppSelector(props.SettingsSlice.TotalRecords);
-
-    const [sortField, setSortField] = React.useState<keyof T>('Name');
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated')
+    const [filters, setFilters] = React.useState<Search.IFilter<T>[]>([])
+    const [sortField, setSortField] = React.useState<keyof T>("Name");
     const [ascending, setAscending] = React.useState<boolean>(true);
-
+    const [data, setData] = React.useState<T[]>([])
     const [editnewSetting, setEditNewSetting] = React.useState<T>(props.DefaultSetting);
     const [editNew, setEditNew] = React.useState<Application.Types.NewEdit>('New');
 
@@ -58,15 +48,51 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
 
     const [errors, setErrors] = React.useState<string[]>([]);
 
-    React.useEffect(() => {
-        if (status === 'uninitiated' || status === 'changed')
-            dispatch(props.SettingsSlice.Fetch());
-    }, [status]);
+    const [currentPage, setCurrentPage] = React.useState<number>(0);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [totalRecords, setTotalRecords] = React.useState<number>(0);
+    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
+    const [allSettings, setAllSettings] = React.useState<T[]>([])
+
+    const genericController = React.useMemo(() => 
+        new GenericController<T>(`${homePath}api/${props.SettingSystem === 'SystemCenter' ? '' : props.SettingSystem + '/'}Setting`, 'Name')
+    , [props.SettingSystem])
+
+    const pagedSearch = React.useCallback(() => {
+        setStatus('loading')
+        const h = genericController.PagedSearch(filters, sortField, ascending, currentPage);
+        h.done((d) => {
+            setData(JSON.parse(d.Data as unknown as string))
+            setTotalPages(d.NumberOfPages)
+            setRecordsPerPage(d.RecordsPerPage)
+            setTotalRecords(d.TotalRecords)
+            setStatus('idle')
+            if (d.NumberOfPages <= currentPage)
+                setCurrentPage(d.NumberOfPages > 0 ? d.NumberOfPages - 1 : 0)
+        }).fail(() => setStatus('error'))
+
+        return () => {
+            if (h.abort != undefined) h.abort();
+        }
+    }, [genericController.PagedSearch, filters, sortField, ascending, currentPage])
 
     React.useEffect(() => {
-        if (status === 'changed')
-            dispatch(props.SettingsSlice.PagedSearch({ filter: search, sortField, ascending, page: currentPage }));
-    }, [search, sortField, ascending, currentPage, status]);
+        if (status === 'uninitiated' || status === 'changed') {
+            const h = genericController.Fetch();
+            h.done((d: T[]) => {
+                setAllSettings(d)
+                setStatus('idle')
+            }).fail(() => setStatus('error'))
+            return () => {
+                if (h.abort != undefined) h.abort();
+            }
+        }
+    }, [status, genericController.Fetch]);
+
+    React.useEffect(() => {
+        if (allSettings.length > 0)
+            pagedSearch()
+    }, [pagedSearch, allSettings.length])
 
     React.useEffect(() => { setHasChanged(false) }, [showModal]);
 
@@ -79,27 +105,12 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
         setErrors(e)
     }, [editnewSetting])
 
-    const setFilters = React.useCallback((filters: Search.IFilter<SystemCenter.Types.Setting>[]) => {
-        dispatch(props.SettingsSlice.PagedSearch({ filter: filters, sortField, ascending, page: currentPage }))
-    }, [sortField, ascending, currentPage])
-
-    const setPage = React.useCallback((page) => {
-        let pageToSet = page - 1
-        if (currentPage >= totalPages && totalPages > 0) {
-            pageToSet = totalPages - 1
-        }
-        if (currentPage < 1) {
-            pageToSet = 0
-        }
-        dispatch(props.SettingsSlice.PagedSearch({ filter: search, sortField, ascending, page: pageToSet}))
-    }, [sortField, ascending, search])
-
     const searchFields: Search.IField<T>[] = [
         { key: 'Name', label: 'Setting Name', type: 'string', isPivotField: false },
         { key: 'DefaultValue', label: 'Default Value', type: 'string', isPivotField: false },
         { key: 'Value', label: 'Current Value', type: 'string', isPivotField: false }
     ]
-
+    
     if (status === 'error')
         return <div style={{ width: '100%', height: '100%' }}>
             <ServerErrorIcon Show={true} Label={'A Server Error Occurred. Please Reload the Application.'} />
@@ -110,9 +121,9 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
             <LoadingScreen Show={status === 'loading'} />
             <div className="row">
                 <div className="col">
-                <SearchBar<T> CollumnList={searchFields} SetFilter={setFilters}
-                    Direction={'left'} defaultCollumn={{ key: 'Name', label: 'Setting Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'} StorageID={`${props.SettingsSlice.Name}Filter`}
-                    ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + totalRecords + ' Setting(s)'}
+                    <SearchBar<T> CollumnList={searchFields} SetFilter={setFilters}
+                    Direction={'left'} defaultCollumn={{ key: 'Name', label: 'Setting Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'} StorageID={`${props.SettingSystem}SettingsFilter`}
+                        ShowLoading={status === 'loading'} ResultNote={'Displaying  Setting(s) ' + (totalRecords > 0 ? (recordsPerPage * currentPage + 1) : 0) + ' - ' + (recordsPerPage * currentPage + data.length) + ' out of ' + totalRecords}
                     GetEnum={() => {
                         return () => { }
                     }}
@@ -182,7 +193,7 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
                 <div className="col">
                     <Paging
                         Current={currentPage + 1}
-                        SetPage={setPage}
+                        SetPage={(page) => setCurrentPage(page - 1) } 
                         Total={totalPages}
                     />
                 </div>
@@ -192,9 +203,9 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
                 Show={showModal} ShowX={true} Size={'lg'} ShowCancel={editNew === 'Edit'} ConfirmText={'Save'} CancelText={'Delete'}
                 CallBack={(conf, isBtn) => {
                     if (conf && editNew === 'New')
-                        dispatch(props.SettingsSlice.DBAction({ verb: 'POST', record: editnewSetting }))
+                        genericController.DBAction('POST', editnewSetting)
                     if (conf && editNew === 'Edit')
-                        dispatch(props.SettingsSlice.DBAction({ verb: 'PATCH', record: editnewSetting }))
+                        genericController.DBAction('PATCH', editnewSetting)
                     if (!conf && isBtn)
                         setShowWarning(true);
                     setShowModal(false);
@@ -208,7 +219,7 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
                 <div className="row">
                     <div className="col">
                         <Input<T> Record={editnewSetting} Field={'Name'} Label='Setting Name' Feedback={'A unique Setting Name is required.'}
-                            Valid={field => editnewSetting.Name != null && editnewSetting.Name.length > 0 && allSettings.findIndex(s => s.Name === editnewSetting.Name && s.ID !== editnewSetting.ID) < 0}
+                            Valid={field => editnewSetting.Name != null && editnewSetting.Name.length > 0 && data.findIndex(s => s.Name === editnewSetting.Name && s.ID !== editnewSetting.ID) < 0}
                             Setter={(record) => { setEditNewSetting(record); setHasChanged(true); }}
                         />
                         <TextArea<T> Record={editnewSetting} Field={'Value'} Label='Current Value' Valid={field => true}
@@ -229,7 +240,11 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
                 </div>
             </Modal>
             <Warning Title={'Delete ' + (editnewSetting?.Name ?? 'Setting')} Message={'This will delete this Setting from the system. This can have unintended consequences and cause the system to crash. Are you sure you want to continue?'}
-                Show={showWarning} CallBack={(conf) => { if (conf) dispatch(props.SettingsSlice.DBAction({ verb: 'DELETE', record: editnewSetting })); setShowWarning(false); }} />
+                Show={showWarning}
+                CallBack={(conf) => {
+                    if (conf)
+                        genericController.DBAction('DELETE', editnewSetting); setShowWarning(false);
+                }} />
         </div>)
 }
 
