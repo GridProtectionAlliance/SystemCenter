@@ -219,7 +219,7 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
                 <div className="row">
                     <div className="col">
                         <Input<T> Record={editnewSetting} Field={'Name'} Label='Setting Name' Feedback={'A unique Setting Name is required.'}
-                            Valid={field => editnewSetting.Name != null && editnewSetting.Name.length > 0 && data.findIndex(s => s.Name === editnewSetting.Name && s.ID !== editnewSetting.ID) < 0}
+                            Valid={field => editnewSetting.Name != null && editnewSetting.Name.length > 0 && allSettings.findIndex(s => s.Name === editnewSetting.Name && s.ID !== editnewSetting.ID) < 0}
                             Setter={(record) => { setEditNewSetting(record); setHasChanged(true); }}
                         />
                         <TextArea<T> Record={editnewSetting} Field={'Value'} Label='Current Value' Valid={field => true}
