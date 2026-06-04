@@ -92,7 +92,7 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
     React.useEffect(() => {
         if (allSettings.length > 0)
             pagedSearch()
-    }, [pagedSearch, allSettings.length])
+    }, [pagedSearch, allSettings])
 
     React.useEffect(() => { setHasChanged(false) }, [showModal]);
 
@@ -203,9 +203,9 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
                 Show={showModal} ShowX={true} Size={'lg'} ShowCancel={editNew === 'Edit'} ConfirmText={'Save'} CancelText={'Delete'}
                 CallBack={(conf, isBtn) => {
                     if (conf && editNew === 'New')
-                        genericController.DBAction('POST', editnewSetting)
+                        genericController.DBAction('POST', editnewSetting); setStatus('changed');
                     if (conf && editNew === 'Edit')
-                        genericController.DBAction('PATCH', editnewSetting)
+                        genericController.DBAction('PATCH', editnewSetting); setStatus('changed');
                     if (!conf && isBtn)
                         setShowWarning(true);
                     setShowModal(false);
@@ -243,7 +243,7 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
                 Show={showWarning}
                 CallBack={(conf) => {
                     if (conf)
-                        genericController.DBAction('DELETE', editnewSetting); setShowWarning(false);
+                        genericController.DBAction('DELETE', editnewSetting); setShowWarning(false); setStatus('changed');
                 }} />
         </div>)
 }
