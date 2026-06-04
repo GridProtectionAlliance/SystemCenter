@@ -22,7 +22,6 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { MiMDSettingSlice, OpenSEESettingSlice, OpenXDASettingSlice, SystemCenterSettingSlice, SEBrowserSettingSlice, PQDigestSettingSlice } from '../Store/Store';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { SystemCenter as LocalSC } from '../global';
 import Setting from './Setting';
@@ -37,16 +36,16 @@ const emptySetting: SystemCenter.Types.Setting = { ID: 0, Name: '', Value: null,
 
 const BySetting = (props: IProps) => {
     if (props.System == 'SystemCenter')
-        return <Setting SettingsSlice={SystemCenterSettingSlice} DefaultSetting={emptySetting} key='SystemCenter' />
+        return <Setting SettingSystem={'SystemCenter'} DefaultSetting={emptySetting} key='SystemCenter' />
     if (props.System == 'MiMD')
-        return <Setting SettingsSlice={MiMDSettingSlice} DefaultSetting={emptySetting} key='MiMD' />
+        return <Setting SettingSystem={'MiMD'} DefaultSetting={emptySetting} key='MiMD' />
     if (props.System == 'OpenSEE')
-        return <Setting SettingsSlice={OpenSEESettingSlice} DefaultSetting={emptySetting} key='OpenSEE' />
+        return <Setting SettingSystem={'OpenSEE'} DefaultSetting={emptySetting} key='OpenSEE' />
     if (props.System == 'SEBrowser')
-        return <Setting SettingsSlice={SEBrowserSettingSlice} DefaultSetting={emptySEBSetting} key='SEBrowser' />
+        return <Setting SettingSystem={'SEBrowser'} DefaultSetting={emptySEBSetting} key='SEBrowser' />
     if (props.System == 'PQDigest')
-        return <Setting SettingsSlice={PQDigestSettingSlice} DefaultSetting={emptySetting} key='PQDigest' />
-    return <Setting SettingsSlice={OpenXDASettingSlice} DefaultSetting={emptySetting} key='OpenXDA' />
+        return <Setting SettingSystem={'PQDigest'} DefaultSetting={emptySetting} key='PQDigest' />
+    return <Setting SettingSystem={'OpenXDA'} DefaultSetting={emptySetting} key='OpenXDA' />
 }
 export default BySetting;
 
