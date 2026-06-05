@@ -108,9 +108,9 @@ const ByUser: Application.Types.iByComponent = (props) => {
             setPageStatus('idle');
     }, [userStatus, adlFieldStatus, valueListItemStatus, valueListGroupStatus])
 
-    React.useEffect(() => {
+    const pagedSearch = React.useCallback(() => {
         setUserStatus('loading')
-        const h = userAccountController.PagedSearch(filters, "DisplayName", ascending, page); // TODO remove hard code displayname -- what's with the type error?
+        const h = userAccountController.PagedSearch(filters, sortField as "DisplayName", ascending, page);
         h.done((d) => {
             setUsers(JSON.parse(d.Data as unknown as string))
             setTotalPages(d.NumberOfPages)
@@ -123,8 +123,16 @@ const ByUser: Application.Types.iByComponent = (props) => {
         return () => {
             if (h.abort != undefined) h.abort();
         }
-    }, [filters, sortField, ascending, page]);
+    }, [filters, sortField, ascending, page, userAccountController.PagedSearch])
 
+    React.useEffect(() => {
+        pagedSearch()
+    }, [filters, sortField, ascending, page, pagedSearch]);
+
+    React.useEffect(() => {
+        if (userStatus === 'uninitiated' || userStatus === 'changed')
+            pagedSearch()
+    }, [userStatus, pagedSearch])
     
     React.useEffect(() => {
         if (adlFieldStatus === 'uninitiated' || adlFieldStatus === 'changed') {
@@ -186,7 +194,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
             <LoadingScreen Show={pageStatus === 'loading'} />
             <SearchBar<IUserAccount> CollumnList={filterableList} SetFilter={setFilters}
                 Direction={'left'} defaultCollumn={{ label: 'Username', key: 'DisplayName', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
-                ShowLoading={userStatus === 'loading'} ResultNote={userStatus === 'error' ? 'Could not complete Search' : 'Found ' + totalRecords + ' User Account(s)'}
+                ShowLoading={userStatus === 'loading'} ResultNote={'Displaying  User(s) ' + (totalRecords > 0 ? (recordsPerPage * page + 1) : 0) + ' - ' + (recordsPerPage * page + users.length) + ' out of ' + totalRecords}
                 StorageID="UsersFilter"
                 GetEnum={(setOptions, field) => {
 
@@ -214,7 +222,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
             </SearchBar>
 
             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                <div className="col">
+                <div className="col" style={{ height: '100%', overflow: 'hidden' }} >
                     <Table<IUserAccount>
                         TableClass="table table-hover"
                         Data={users}
@@ -301,8 +309,10 @@ const ByUser: Application.Types.iByComponent = (props) => {
             </div>
             <Modal Show={showModal} Size={'lg'} ShowCancel={false} ShowX={true} ConfirmText={'Save'}
                 Title={'Add New User'} CallBack={(confirm) => {
-                    if (confirm)
+                    if (confirm) {
                         userAccountController.DBAction('POST', act)
+                        setUserStatus('changed');
+                    }
                     setAct(newAcct);
                     setShowModal(false);
                 }}
