@@ -625,7 +625,7 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/SystemCenter/AdditionalFieldView")]
     public class AdditionalFieldViewController : ModelController<AdditionalFieldView, AdditionalField>
     {
-        [HttpGet, Route("ParentTable/{openXDAParentTable}/{sort}/{ascending:int}/{page}")]
+        [HttpGet, Route("ParentTable/{openXDAParentTable}/{sort}/{ascending:int}/{page:int?}")]
         public IHttpActionResult GetAdditionalFieldsForTable(string openXDAParentTable, string sort, int ascending, int? page = null)
         {
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
