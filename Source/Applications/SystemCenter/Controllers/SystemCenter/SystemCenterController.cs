@@ -648,16 +648,18 @@ namespace SystemCenter.Controllers
                         ORDER BY {orderByExpression}";
                     DataTable dataTable = connection.RetrieveData(sqlFormat, openXDAParentTable);
 
-                    PagedResults result = new()
+
+                    if (page is int p) // page manually
                     {
+
+                        PagedResults pagedResult = new()
+                        {
                         Data = JsonConvert.SerializeObject(dataTable),
                         TotalRecords = dataTable.Rows.Count,
                         RecordsPerPage = recordsPerPage,
                         NumberOfPages = ((dataTable.Rows.Count + recordsPerPage - 1) / recordsPerPage)
                     };
 
-                    if (page is int p) // page manually
-                    {
                         DataRow[] rows = dataTable.AsEnumerable()
                             .Skip((p) * recordsPerPage)
                             .Take(recordsPerPage)
@@ -668,10 +670,12 @@ namespace SystemCenter.Controllers
                         foreach (DataRow row in rows)
                             pagedTable.ImportRow(row);
 
-                        result.Data = JsonConvert.SerializeObject(pagedTable);
+                        pagedResult.Data = JsonConvert.SerializeObject(pagedTable);
+
+                        return Ok(pagedResult);
                     }
 
-                    return Ok(result);
+                    return Ok(dataTable);
                 }
             }
             else
