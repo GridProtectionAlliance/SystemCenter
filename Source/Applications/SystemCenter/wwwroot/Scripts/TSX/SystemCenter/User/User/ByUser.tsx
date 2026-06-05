@@ -152,7 +152,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
             return { type: 'enum', enum: [{ Label: type, Value: type }] }
         }
         const ordered = _.orderBy(defaultSearchcols.concat(adlFields.map(item => (
-            { label: `[AF] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type) } as Search.IField<IUserAccount>
+            { label: `[AF] ${item.FieldName}`, key: item.FieldName, isPivotField: true, ...ConvertType(item.Type) } as Search.IField<IUserAccount>
         ))), ['label'], ["asc"]);
 
         setFilterableList(ordered)
