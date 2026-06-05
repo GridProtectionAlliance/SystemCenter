@@ -23,13 +23,11 @@
 import * as React from 'react';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { SearchBar, Search, Modal, ServerErrorIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
+import { SearchBar, Search, Modal, ServerErrorIcon, LoadingScreen, GenericController } from '@gpa-gemstone/react-interactive';
 import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
 import * as _ from 'lodash';
 import UserForm from './UserForm';
-import { useAppDispatch, useAppSelector, useBoundPaging } from '../../hooks';
 import { useNavigate } from "react-router-dom";
-import { ValueListSlice, ValueListGroupSlice, UserAdditionalFieldSlice, UserAccountSlice } from '../../Store/Store';
 import { IUserAccount } from '../Types';
 import moment from 'moment';
 
@@ -62,34 +60,40 @@ const newAcct: IUserAccount = {
 }
 
 const ByUser: Application.Types.iByComponent = (props) => {
+
+    const userAccountController = React.useMemo(() => new GenericController(`${homePath}api/SystemCenter/UserAccount`, "DisplayName", true), [])
+    const userAdditionalFieldController = React.useMemo(() => new GenericController(`${homePath}api/SystemCenter/AdditionalUserField`, "User"), [])
+    const valueListController = React.useMemo(() => new GenericController(`${homePath}api/ValueList`, 'SortOrder'), [])
+    const valueListGroupController = React.useMemo(() => new GenericController(`${homePath}api/ValueListGroup`, 'Name'), [])
+
     let navigate = useNavigate();
-    const dispatch = useAppDispatch();
 
-    const search = useAppSelector(UserAccountSlice.SearchFilters);
+    const [filters, setFilters] = React.useState<Search.IFilter<IUserAccount>[]>([]);
 
-    const data = useAppSelector(UserAccountSlice.SearchResults);
-    const userStatus: Application.Types.Status = useAppSelector(UserAccountSlice.Status);
-    const searchStatus: Application.Types.Status = useAppSelector(UserAccountSlice.PagedStatus);
+    const [users, setUsers] = React.useState<IUserAccount[]>([]);
+    const [userStatus, setUserStatus] = React.useState<Application.Types.Status>('uninitiated');
 
     const [sortField, setSortField] = React.useState<keyof IUserAccount>("DisplayName");
     const [ascending, setAscending] = React.useState<boolean>(false);
-    const currentPage = useAppSelector(UserAccountSlice.CurrentPage);
-    const totalPages = useAppSelector(UserAccountSlice.TotalPages);
-    const totalRecords = useAppSelector(UserAccountSlice.TotalRecords);
 
-    const adlFields: Application.Types.iAdditionalUserField[] = useAppSelector(UserAdditionalFieldSlice.Fields)
-    const adlFieldStatus: Application.Types.Status = useAppSelector(UserAdditionalFieldSlice.FieldStatus)
+    const [page, setPage] = React.useState<number>(0);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [totalRecords, setTotalRecords] = React.useState<number>(0);
+    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
+
+    const [adlFields, setAdlFields] = React.useState<Application.Types.iAdditionalUserField[]>([]) 
+    const [adlFieldStatus, setAdlFieldStatus] = React.useState<Application.Types.Status>('uninitiated');
 
     const [filterableList, setFilterableList] = React.useState<Search.IField<IUserAccount>[]>(defaultSearchcols);
 
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [userError, setUserError] = React.useState<string[]>([]);
 
-    const valueListItems: SystemCenter.Types.ValueListItem[] = useAppSelector(ValueListSlice.Data);
-    const valueListItemStatus: Application.Types.Status = useAppSelector(ValueListSlice.Status);
+    const [valueListItems, setValueListItems] = React.useState<SystemCenter.Types.ValueListItem[]>([]);
+    const [valueListItemStatus, setValueListItemStatus] = React.useState<Application.Types.Status>('uninitiated');
 
-    const valueListGroups: SystemCenter.Types.ValueListGroup[] = useAppSelector(ValueListGroupSlice.Data);
-    const valueListGroupStatus: Application.Types.Status = useAppSelector(ValueListGroupSlice.Status);
+    const [valueListGroups, setValueListGroups] = React.useState<SystemCenter.Types.ValueListGroup[]>([]);
+    const [valueListGroupStatus, setValueListGroupStatus] = React.useState<Application.Types.Status>('uninitiated');
 
     const [act, setAct] = React.useState<IUserAccount>(newAcct)
 
@@ -105,46 +109,60 @@ const ByUser: Application.Types.iByComponent = (props) => {
     }, [userStatus, adlFieldStatus, valueListItemStatus, valueListGroupStatus])
 
     React.useEffect(() => {
-        if (searchStatus === 'uninitiated' || searchStatus === 'changed')
-            dispatch(UserAccountSlice.PagedSearch({ filter: search, sortField: sortField ?? "ID", ascending: ascending, page: currentPage}));
-    }, [searchStatus, search, sortField, ascending, currentPage]);
+        setUserStatus('loading')
+        const h = userAccountController.PagedSearch(filters, "DisplayName", ascending, page); // TODO remove hard code displayname -- what's with the type error?
+        h.done((d) => {
+            setUsers(JSON.parse(d.Data as unknown as string))
+            setTotalPages(d.NumberOfPages)
+            setRecordsPerPage(d.RecordsPerPage)
+            setTotalRecords(d.TotalRecords)
+            if (d.NumberOfPages <= page)
+                setPage(d.NumberOfPages > 0 ? d.NumberOfPages - 1 : 0)
+            setUserStatus('idle')
+        }).fail(() => setUserStatus('error'))
+        return () => {
+            if (h.abort != undefined) h.abort();
+        }
+    }, [filters, sortField, ascending, page]);
 
+    
     React.useEffect(() => {
-        if (adlFieldStatus === 'uninitiated' || adlFieldStatus === 'changed')
-            dispatch(UserAdditionalFieldSlice.FetchField());
+        if (adlFieldStatus === 'uninitiated' || adlFieldStatus === 'changed') {
+            const h = userAdditionalFieldController.Fetch();
+            h.done((d) => {
+                setAdlFields(d as unknown as Application.Types.iAdditionalUserField[])
+                setAdlFieldStatus('idle')
+            }).fail((d) => {
+                setAdlFieldStatus('error')
+            })
+        } 
     }, [adlFieldStatus]);
-
+   
     React.useEffect(() => {
-        if (valueListItemStatus === 'uninitiated' || valueListItemStatus === 'changed')
-            dispatch(ValueListSlice.Fetch());
+        if (valueListItemStatus === 'uninitiated' || valueListItemStatus === 'changed') {
+            const h = valueListController.Fetch();
+            h.done((d) => {
+                setValueListItems(d as unknown as SystemCenter.Types.ValueListItem[])
+                setValueListItemStatus('idle')
+            }).fail((d) => {
+                setValueListItemStatus('error')
+            })
+        }
     }, [valueListItemStatus]);
 
+     
     React.useEffect(() => {
-        if (valueListGroupStatus === 'uninitiated' || valueListGroupStatus === 'changed')
-            dispatch(ValueListGroupSlice.Fetch());
+        if (valueListGroupStatus === 'uninitiated' || valueListGroupStatus === 'changed') {
+            const h = valueListGroupController.Fetch();
+            h.done((d) => {
+                setValueListGroups(d as unknown as SystemCenter.Types.ValueListGroup[])
+                setValueListGroupStatus('idle')
+            }).fail((d) => {
+                setValueListGroupStatus('error')
+            })
+        }
     }, [valueListGroupStatus]);
-
-    const setPage = React.useCallback((page) => {
-        dispatch(UserAccountSlice.PagedSearch({ filter: search, sortField: sortField ?? "ID", ascending: ascending, page: page - 1 }))
-    }, [sortField, ascending, search])
-
-    useBoundPaging(currentPage, totalPages, setPage)
-
-    const sort = React.useCallback((d) => {
-        let asc = ascending
-        let sort = d.colField
-        if (sortField === d.colField) {
-            setAscending(!ascending)
-            asc = !ascending
-        }
-        else {
-            setSortField(d.colField)
-            setAscending(false)
-            asc = false
-        }
-        dispatch(UserAccountSlice.PagedSearch({ filter: search, sortField: sort, ascending: asc, page: 0 }))
-    }, [search, ascending, sortField])
-
+    
     React.useEffect(() => {
         function ConvertType(type: string) {
             if (type === 'string' || type === 'integer' || type === 'number' || type === 'datetime' || type === 'boolean')
@@ -158,10 +176,6 @@ const ByUser: Application.Types.iByComponent = (props) => {
         setFilterableList(ordered)
     }, [adlFields]);
 
-    const setFilters = React.useCallback((filters: Search.IFilter<IUserAccount>[]) => {
-        dispatch(UserAccountSlice.PagedSearch({ sortField: sortField ?? "ID", ascending: ascending, filter: filters, page: currentPage }))
-    }, [sortField, ascending, currentPage])
-
     if (pageStatus === 'error')
         return <div style={{ width: '100%', height: '100%' }}>
             <ServerErrorIcon Show={true} Label={'A Server Error Occurred. Please Reload the Application.'} />
@@ -172,7 +186,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
             <LoadingScreen Show={pageStatus === 'loading'} />
             <SearchBar<IUserAccount> CollumnList={filterableList} SetFilter={setFilters}
                 Direction={'left'} defaultCollumn={{ label: 'Username', key: 'DisplayName', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
-                ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + totalRecords + ' User Account(s)'}
+                ShowLoading={userStatus === 'loading'} ResultNote={userStatus === 'error' ? 'Could not complete Search' : 'Found ' + totalRecords + ' User Account(s)'}
                 StorageID="UsersFilter"
                 GetEnum={(setOptions, field) => {
 
@@ -203,10 +217,17 @@ const ByUser: Application.Types.iByComponent = (props) => {
                 <div className="col">
                     <Table<IUserAccount>
                         TableClass="table table-hover"
-                        Data={data}
+                        Data={users}
                         SortKey={sortField}
                         Ascending={ascending}
-                        OnSort={sort}
+                        OnSort={(d) => {
+                            if (d.colField === sortField)
+                                setAscending(!ascending);
+                            else {
+                                setAscending(true);
+                                setSortField(d.colField);
+                            }
+                        }}
                         OnClick={(d) => navigate(`${homePath}index.cshtml?name=User&UserAccountID=${d.row.ID}`)}
                         TableStyle={{
                             padding: 0, width: '100%', height: '100%',
@@ -272,8 +293,8 @@ const ByUser: Application.Types.iByComponent = (props) => {
             <div className="row">
                 <div className="col">
                     <Paging
-                        Current={currentPage + 1}
-                        SetPage={setPage}
+                        Current={page + 1}
+                        SetPage={(page) => setPage(page - 1)}
                         Total={totalPages}
                     />
                 </div>
@@ -281,7 +302,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
             <Modal Show={showModal} Size={'lg'} ShowCancel={false} ShowX={true} ConfirmText={'Save'}
                 Title={'Add New User'} CallBack={(confirm) => {
                     if (confirm)
-                        dispatch(UserAccountSlice.DBAction({ verb: 'POST', record: act }))
+                        userAccountController.DBAction('POST', act)
                     setAct(newAcct);
                     setShowModal(false);
                 }}
