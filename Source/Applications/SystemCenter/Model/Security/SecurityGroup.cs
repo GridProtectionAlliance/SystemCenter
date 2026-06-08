@@ -101,6 +101,55 @@ namespace SystemCenter.Model.Security
         }
 
         [HttpPost]
+        [Route("Users/PagedList/{groupID}/{page:int}")]
+        public IHttpActionResult GetPagedUsers([FromBody] PostData postData, [FromUri] String groupID, [FromUri] int page)
+        {
+            if (!GetAuthCheck())
+                return Unauthorized();
+
+            string orderBySwitch(string orderBy)
+            {
+                String[] valid = ["Phone", "Email", "FirstName", "LastName"];
+                if (valid.Contains(orderBy))
+                    return orderBy;
+                else
+                    return "Name";
+            }
+
+            PagedResults pagedResults = new PagedResults();
+
+            int recordsPerPage = Take ?? 50;
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                string sql = $"SELECT UserAccount.*, UserAccount.Name as AccountName FROM SecurityGroupUserAccount JOIN UserAccount ON UserAccountID = UserAccount.ID WHERE SecurityGroupID = {{0}} ORDER BY {orderBySwitch(postData.OrderBy)} {(postData.Ascending ? "ASC" : "DESC")}";
+                string countSql = "SELECT COUNT(*) FROM SecurityGroupUserAccount JOIN UserAccount ON UserAccountID = UserAccount.ID WHERE SecurityGroupID = {0}";
+
+                DataTable results = connection.RetrieveData(sql, groupID.ToString());
+                int count = connection.ExecuteScalar<int>(countSql, groupID);
+
+                DataRow[] rows = results.AsEnumerable()
+                    .Skip((page) * recordsPerPage)
+                    .Take(recordsPerPage)
+                    .ToArray();
+
+                DataTable pagedTable = results.Clone();
+
+                foreach (DataRow row in rows)
+                    pagedTable.ImportRow(row);
+
+                results = pagedTable;
+
+                // paged results setting
+                pagedResults.Data = JsonConvert.SerializeObject(results);
+                pagedResults.TotalRecords = count;
+                pagedResults.NumberOfPages = (count + recordsPerPage - 1) / recordsPerPage;
+            }
+
+            return Ok(pagedResults);
+        }
+
+        [HttpPost]
         [Route("{groupID}/PostRoles")]
         public IHttpActionResult PostGroupRoles([FromBody] IEnumerable<JObject> record, string groupID)
         {

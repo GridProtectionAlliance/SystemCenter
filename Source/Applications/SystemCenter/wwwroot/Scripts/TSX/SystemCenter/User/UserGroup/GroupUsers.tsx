@@ -26,25 +26,23 @@ import * as _ from 'lodash';
 import { LoadingScreen } from '@gpa-gemstone/react-interactive';
 import { UserAccountSliceRemote } from '../../Store/Store';
 import { ISecurityGroup } from '../Types';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
 
-const GroupUser = (props: {Group: ISecurityGroup}) => {
+const GroupUser = (props: { Group: ISecurityGroup }) => {
 
     const [showSelect, setShowSelect] = React.useState<boolean>(false);
     const [users, setUsers] = React.useState<Application.Types.iUserAccount[]>([]);
     const [asc, setAsc] = React.useState<boolean>(true);
     const [sortField, setSortField] = React.useState<keyof Application.Types.iUserAccount>('AccountName');
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [page, setPage] = React.useState<number>(0);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
 
     React.useEffect(() => {
         const handle = getUsers();
         return () => { if (handle != null && handle.abort != null) handle.abort(); }
-    }, [props.Group.ID, props.Group.Type])
-
-    React.useEffect(() => {
-        setUsers((u) => _.orderBy(u, [sortField], asc ? 'asc' : 'desc'));
-    }, [asc, sortField])
+    }, [props.Group.ID, props.Group.Type, asc, sortField, page])
 
     function getUsers() {
         if (props.Group.Type != 'Database')
@@ -52,22 +50,22 @@ const GroupUser = (props: {Group: ISecurityGroup}) => {
 
         setStatus('loading')
         return $.ajax({
-            type: "GET",
-            url: `${homePath}api/SystemCenter/FullSecurityGroup/Users/${props.Group.ID}`,
+            type: "POST",
+            url: `${homePath}api/SystemCenter/FullSecurityGroup/Users/PagedList/${props.Group.ID}/${page}`,
             contentType: "application/json; charset=utf-8",
             cache: false,
-            async: true
+            async: true,
+            data: JSON.stringify({OrderBy: sortField, Ascending: asc})
         }).done((d) => {
-            setUsers(_.orderBy(d, [sortField], asc ? 'asc' : 'desc'));
+            setTotalPages(d.NumberOfPages);
+            setUsers(JSON.parse(d.Data));
             setStatus('idle');
-    }, () => setStatus('error'));
+        }, () => setStatus('error'));
     }
 
     function saveUser(u) {
         if (props.Group.Type != 'Database')
             return;
-
-        setStatus('loading');
 
         return $.ajax({
             type: "POST",
@@ -77,8 +75,7 @@ const GroupUser = (props: {Group: ISecurityGroup}) => {
             cache: false,
             async: true
         }).done((d) => {
-            setUsers(_.orderBy(d, [sortField], asc ? 'asc' : 'desc'));
-            setStatus('idle');
+            getUsers()
         }, () => setStatus('error'));
     }
 
@@ -98,71 +95,86 @@ const GroupUser = (props: {Group: ISecurityGroup}) => {
                 {props.Group.Type == 'Azure' ? <div className="alert alert-info">
                     Users in an Azure Group cannot be edited in System Center. To add or remove Users, please contact your Azure Administrator.
                 </div> : null}
-                {props.Group.Type == 'AD'? <div className="alert alert-info">
+                {props.Group.Type == 'AD' ? <div className="alert alert-info">
                     Users in an Active Directory Group cannot be edited in System Center. To add or remove Users, please contact your AD Administrator.
                 </div> : null}
                 {props.Group.Type == 'Database' ?
-                    <Table<Application.Types.iUserAccount>
-                        TableClass="table table-hover"
-                        Data={users}
-                        SortKey={sortField}
-                        Ascending={asc}
-                        OnSort={(d) => {
-                            if (d.colField === sortField)
-                                setAsc(!asc);
-                            else {
-                                setAsc(true);
-                                setSortField(d.colField);
-                            }
-                        }}
-                        TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
-                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1, width: '100%' }}
-                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        Selected={(item) => false}
-                        KeySelector={(item) => item.ID}
-                    >
-                        <Column<Application.Types.iUserAccount>
-                            Key={'AccountName'}
-                            AllowSort={true}
-                            Field={'AccountName'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Username
-                        </Column>
-                        <Column<Application.Types.iUserAccount>
-                            Key={'FirstName'}
-                            AllowSort={true}
-                            Field={'FirstName'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > First Name
-                        </Column>
-                        <Column<Application.Types.iUserAccount>
-                            Key={'LastName'}
-                            AllowSort={true}
-                            Field={'LastName'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Last Name
-                        </Column>
-                        <Column<Application.Types.iUserAccount>
-                            Key={'Phone'}
-                            AllowSort={true}
-                            Field={'Phone'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Phone
-                        </Column>
-                        <Column<Application.Types.iUserAccount>
-                            Key={'Email'}
-                            AllowSort={true}
-                            Field={'Email'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Email
-                        </Column>
-                    </Table>
+                    <>
+                    <div className='row d-flex flex-column' style={{ flex: 1, overflow: 'hidden' }}>
+                        <div className='col-12 d-flex flex-column' style={{ height: '100%', overflow: 'hidden' }}>
+                            <Table<Application.Types.iUserAccount>
+                                TableClass="table table-hover"
+                                Data={users}
+                                SortKey={sortField}
+                                Ascending={asc}
+                                OnSort={(d) => {
+                                    if (d.colField === sortField)
+                                        setAsc(!asc);
+                                    else {
+                                        setAsc(true);
+                                        setSortField(d.colField);
+                                    }
+                                }}
+                                TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+                                TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1, width: '100%' }}
+                                RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                Selected={(item) => false}
+                                KeySelector={(item) => item.ID}
+                            >
+                                <Column<Application.Types.iUserAccount>
+                                    Key={'AccountName'}
+                                    AllowSort={true}
+                                    Field={'AccountName'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                > Username
+                                </Column>
+                                <Column<Application.Types.iUserAccount>
+                                    Key={'FirstName'}
+                                    AllowSort={true}
+                                    Field={'FirstName'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                > First Name
+                                </Column>
+                                <Column<Application.Types.iUserAccount>
+                                    Key={'LastName'}
+                                    AllowSort={true}
+                                    Field={'LastName'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                > Last Name
+                                </Column>
+                                <Column<Application.Types.iUserAccount>
+                                    Key={'Phone'}
+                                    AllowSort={true}
+                                    Field={'Phone'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                > Phone
+                                </Column>
+                                <Column<Application.Types.iUserAccount>
+                                    Key={'Email'}
+                                    AllowSort={true}
+                                    Field={'Email'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                > Email
+                                </Column>
+                            </Table>
+                        </div>
+                    </div>
+                        <div className="row">
+                            <div className="col">
+                                <Paging
+                                    Current={page + 1}
+                                    SetPage={(page) => {setPage(page - 1)}}
+                                    Total={totalPages}
+                                />
+                            </div>
+                        </div>
+                    </>
 
                     : null}
             </div>
