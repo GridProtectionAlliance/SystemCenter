@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { useNavigate } from "react-router-dom";
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
@@ -31,7 +31,7 @@ import { CheckBox, Input } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { AssetGroupSlice, ByAssetSlice, ByMeterSlice, AssetTypeSlice } from '../Store/Store';
 import { DefaultSearch, DefaultSelects } from '@gpa-gemstone/common-pages';
-import { useAppDispatch, useAppSelector } from '../hooks';
+import { useAppDispatch, useAppSelector, useBoundPaging } from '../hooks';
 import AssetSelect from '../Asset/AssetSelect';
 
 declare var homePath: string;
@@ -48,8 +48,6 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
     let navigate = useNavigate();
     const dispatch = useAppDispatch();
     const data = useAppSelector(AssetGroupSlice.SearchResults);
-    const sortKey = useAppSelector(AssetGroupSlice.SortField);
-    const ascending = useAppSelector(AssetGroupSlice.Ascending);
     const searchStatus = useAppSelector(AssetGroupSlice.SearchStatus);
     const searchFields = useAppSelector(AssetGroupSlice.SearchFilters)
     const status = useAppSelector(AssetGroupSlice.Status);
@@ -57,22 +55,39 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
 
     const assetType = useAppSelector(AssetTypeSlice.Data);
     const assetTypeStatus = useAppSelector(AssetTypeSlice.Status);
-
+    const currentPage = useAppSelector(AssetGroupSlice.CurrentPage);
+    const totalPages = useAppSelector(AssetGroupSlice.TotalPages);
     const [showFilter, setFilter] = React.useState<('None' | 'Meter' | 'Asset' | 'Asset Group' | 'Station')>('None');
 
     const [newAssetGroup, setNewAssetGroup] = React.useState<extendedAssetGroup>(_.cloneDeep(emptyAssetGroup));
     const [showNewGroup, setShowNewGroup] = React.useState<boolean>(false);
     const [assetGrpErrors, setAssetGrpErrors] = React.useState<string[]>([]);
+    const [sortKey, setSortKey] = React.useState<keyof OpenXDA.Types.AssetGroup>('Name')
+    const [ascending, setAscending] = React.useState<boolean>(false)
+    const [page, setPage] = React.useState<number>(currentPage);
 
     React.useEffect(() => {
         if (status == 'changed' || status == 'uninitiated')
             dispatch(AssetGroupSlice.Fetch());
     }, [status]);
 
+    const pagedSearch = React.useCallback((searches?: Search.IFilter<extendedAssetGroup>[], sortfield?: keyof OpenXDA.Types.AssetGroup, asc?: boolean, page?: number) => {
+        const searchToUse = searches ?? searchFields;
+        const sortKeyToUse = sortfield ?? sortKey;
+        const ascendingToUse = asc ?? ascending;
+        const pageToUse = page ?? currentPage;
+        dispatch(AssetGroupSlice.PagedSearch({filter: searchToUse, sortField: sortKeyToUse, ascending: ascendingToUse, page: pageToUse }));
+
+    }, [searchFields, currentPage, ascending, sortKey, AssetGroupSlice.PagedSearch])
+
+    React.useEffect(() => {
+        pagedSearch(undefined, sortKey, ascending, page)
+    }, [sortKey, ascending, page, pagedSearch])
+
     React.useEffect(() => {
         if (searchStatus == 'changed' || searchStatus == 'uninitiated')
-            dispatch(AssetGroupSlice.DBSearch({ filter: searchFields }));
-    }, [searchStatus]);
+            pagedSearch();
+    }, [searchStatus, pagedSearch]);
 
     React.useEffect(() => {
         if (assetTypeStatus == 'changed' || assetTypeStatus == 'uninitiated')
@@ -261,9 +276,10 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
                         Ascending={ascending}
                         OnSort={(d) => {
                             if (d.colKey === sortKey)
-                                dispatch(AssetGroupSlice.Sort({ SortField: sortKey, Ascending: ascending }));
+                                setAscending(a => !a)
                             else {
-                                dispatch(AssetGroupSlice.Sort({ SortField: d.colField as keyof OpenXDA.Types.AssetGroup, Ascending: true }));
+                                setAscending(true);
+                                setSortKey(d.colField);
                             }
                         }}
                         OnClick={handleSelect}
@@ -319,6 +335,15 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
                         > Show in PQ Dashboard
                         </Column>
                     </Table>
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <Paging
+                            Current={currentPage + 1}
+                            Total={totalPages}
+                            SetPage={(page) => {setPage(page - 1)} }
+                        />
+                    </div>
                 </div>
             </div>
             <Modal Size='xlg' Show={showNewGroup} Title={'Add New Asset Group'} ShowX={true}
