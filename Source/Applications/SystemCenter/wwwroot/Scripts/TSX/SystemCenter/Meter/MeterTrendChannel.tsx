@@ -94,7 +94,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
 
     React.useEffect(() => {
         if (status == 'uninitiated' || status == 'changed' || meterID !== props.Meter.ID)
-            pagedSearch(); // left in because it sets the parent ID
+            pagedSearch();
     }, [props.Meter, status, pagedSearch]);
 
     React.useEffect(() => {
