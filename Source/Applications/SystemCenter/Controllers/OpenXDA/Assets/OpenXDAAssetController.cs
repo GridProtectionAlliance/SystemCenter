@@ -152,6 +152,33 @@ namespace SystemCenter.Controllers.OpenXDA
             }
             return Unauthorized();
         }
+        [HttpPost, Route("{assetID:int}/Meters/{page:int}")]
+        public IHttpActionResult GetAssetMetersPaged([FromBody] PostData postData, [FromUri] int assetID, [FromUri] int page)
+        {
+            if (!GetAuthCheck())
+                return Unauthorized();
+
+            int recordsPerPage = Take ?? 50;
+
+            PagedResults results = new PagedResults();
+
+            results.RecordsPerPage = recordsPerPage;
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                IEnumerable<Meter> records = new TableOperations<Meter>(connection).QueryRecordsWhere("ID IN (SELECT MeterID FROM MeterAsset WHERE AssetID = {0})", assetID);
+
+                if (postData.Ascending)
+                    records = records.OrderBy(record => record.GetType().GetProperty(postData.OrderBy).GetValue(record));
+                else
+                    records = records.OrderByDescending(record => record.GetType().GetProperty(postData.OrderBy).GetValue(record));
+
+                results.TotalRecords = records.Count();
+                results.NumberOfPages = (records.Count() + recordsPerPage - 1) / recordsPerPage;
+                results.Data = JsonConvert.SerializeObject(records.Skip(page * recordsPerPage).Take(recordsPerPage));
+            }
+            return Ok(results);
+        }
 
         [HttpGet, Route("{assetID:int}/AssetConnections")]
         public IHttpActionResult GetAssetAssetConnections(int assetID)
