@@ -27,7 +27,7 @@ import { PQView, OpenXDA as LocalXDA } from '../global';
 import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { ByMeterSlice, CustomerMeterSlice } from '../Store/Store'
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { LoadingIcon, Search, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
 import { ToolTip } from '@gpa-gemstone/react-forms';
@@ -42,8 +42,10 @@ const CustomerMeterWindow = (props: IProps) => {
     const status = useAppSelector(CustomerMeterSlice.SearchStatus);
     const [showAdd, setShowAdd] = React.useState<boolean>(false);
 
-    const sortField = useAppSelector(CustomerMeterSlice.SortField);
-    const ascending = useAppSelector(CustomerMeterSlice.Ascending);
+    const [sortField, setSortField] = React.useState<keyof LocalXDA.CustomerMeter>('MeterName')
+    const [ascending, setAscending] = React.useState<boolean>(true)
+    const totalPages = useAppSelector(CustomerMeterSlice.TotalPages);
+    const [page, setPage] = React.useState<number>(0);
 
     const [removeRecord, setRemoveRecord] = React.useState<LocalXDA.CustomerMeter | null>(null);
 
@@ -57,17 +59,17 @@ const CustomerMeterWindow = (props: IProps) => {
 
     React.useEffect(() => {
         getData();
-    }, [props.Customer.ID])
+    }, [props.Customer.ID, sortField, ascending, page])
 
     function getData() {
-        dispatch(CustomerMeterSlice.DBSearch({
+        dispatch(CustomerMeterSlice.PagedSearch({
             filter: [{
                 FieldName: 'CustomerID',
                 SearchText: props.Customer.ID.toString(),
                 Operator: '=',
                 Type: 'number',
                 IsPivotColumn: false
-            }], sortField, ascending
+            }], sortField, ascending, page
         }));
     }
 
@@ -180,82 +182,95 @@ const CustomerMeterWindow = (props: IProps) => {
         </div>
 
     return <>
-    <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        <div className="card-header">
-            <div className="row">
-                <div className="col">
-                    <h4>Assigned Meters:</h4>
+        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <div className="card-header">
+                <div className="row">
+                    <div className="col">
+                        <h4>Assigned Meters:</h4>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
-            <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-                <Table<LocalXDA.CustomerMeter>
-                    TableClass="table table-hover"
-                    Data={data}
-                    SortKey={sortField}
-                    Ascending={ascending}
-                    OnSort={(d) => {
-                        if (d.colKey == 'Remove')
-                            return;
-                        dispatch(CustomerMeterSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
+            <div className="card-body d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="row d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
+                    <Table<LocalXDA.CustomerMeter>
+                        TableClass="table table-hover"
+                        Data={data}
+                        SortKey={sortField}
+                        Ascending={ascending}
+                        OnSort={(d) => {
+                            if (d.colKey == sortField) {
+                                setAscending(a => !a);
+                            }
+                            else {
+                                setSortField(d.colField);
+                            }
                         }}
-                    TheadStyle={{ fontSize: 'smaller' }}
-                    RowStyle={{ fontSize: 'smaller' }}
-                    Selected={(item) => false}
-                    KeySelector={(item) => item.ID}
-                >
-                    <Column<LocalXDA.CustomerMeter>
-                        Key={'MeterName'}
-                        AllowSort={true}
-                        Field={'MeterName'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                    > Name
-                    </Column>
-                    <Column<LocalXDA.CustomerMeter>
-                        Key={'MeterKey'}
-                        AllowSort={true}
-                        Field={'MeterKey'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                    > Key
-                    </Column>
-                    <Column<LocalXDA.CustomerMeter>
-                        Key={'MeterLocation'}
-                        AllowSort={true}
-                        Field={'MeterLocation'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                    > Substation
-                    </Column>
-                    <Column<LocalXDA.CustomerMeter>
-                        Key={'Remove'}
-                        AllowSort={false}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                        Content={({ item }) =>
-                            <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
-                                onClick={(e) => { if (hasPermissions()) setRemoveRecord(item) }}>
-                                <span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span>
-                            </button>
-                        }
-                    > <p></p>
-                    </Column>
-                </Table>
+                        TheadStyle={{ fontSize: 'smaller' }}
+                        RowStyle={{ fontSize: 'smaller' }}
+                        Selected={(item) => false}
+                        KeySelector={(item) => item.ID}
+                    >
+                        <Column<LocalXDA.CustomerMeter>
+                            Key={'MeterName'}
+                            AllowSort={true}
+                            Field={'MeterName'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Name
+                        </Column>
+                        <Column<LocalXDA.CustomerMeter>
+                            Key={'MeterKey'}
+                            AllowSort={true}
+                            Field={'MeterKey'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Key
+                        </Column>
+                        <Column<LocalXDA.CustomerMeter>
+                            Key={'MeterLocation'}
+                            AllowSort={true}
+                            Field={'MeterLocation'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Substation
+                        </Column>
+                        <Column<LocalXDA.CustomerMeter>
+                            Key={'Remove'}
+                            AllowSort={false}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={({ item }) =>
+                                <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
+                                    onClick={(e) => { if (hasPermissions()) setRemoveRecord(item) }}>
+                                    <span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span>
+                                </button>
+                            }
+                        > <p></p>
+                        </Column>
+                    </Table>
+                    <div className="row">
+                        <div className="col">
+                            <Paging
+                                Total={totalPages}
+                                SetPage={(page) => setPage(page - 1)}
+                                Current={page + 1}
+                            />
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div className="card-footer">
-            <div className="btn-group mr-2">
+            <div className="card-footer">
+                <div className="btn-group mr-2">
                     <button className={"btn btn-info pull-right" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='Meters'
-                        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (hasPermissions())
-                        setShowAdd(true);
-                }}>Add Meters</button>
-            </div>
+                        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => {
+                            if (hasPermissions())
+                                setShowAdd(true);
+                        }}>Add Meters</button>
+                </div>
                 <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Target={"Meters"}>
                     <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                 </ToolTip>
-        </div>
+            </div>
         </div>
         <Warning Message={'This will permanently remove the Meter from this Customer and can affect PQ Digest, PQI results and LSCVS logic.'} Show={removeRecord != null} Title={'Remove ' + (removeRecord?.MeterName ?? 'Meter') + ' from ' + (props.Customer?.Name ?? 'Customer')} CallBack={(c) => { if (c) dispatch(CustomerMeterSlice.DBAction({ record: removeRecord, verb: 'DELETE' })); setRemoveRecord(null); }} />
         <DefaultSelects.Meter
