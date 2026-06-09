@@ -25,6 +25,8 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
+using Newtonsoft.Json;
+using System.Reflection;
 using System.Linq;
 using System.Transactions;
 using System.Web.Http;
@@ -63,6 +65,34 @@ namespace SystemCenter.Controllers.OpenXDA
             }
             else
                 return Unauthorized();
+        }
+
+        [HttpPost, Route("{assetID:int}/Locations/{page:int}")]
+        public IHttpActionResult GetAssetLocationsPaged([FromBody] PostData postData, [FromUri] int assetID, [FromUri] int page)
+        {
+            if (!GetAuthCheck())
+                return Unauthorized();
+
+            int recordsPerPage = Take ?? 50;
+
+            PagedResults results = new PagedResults();
+
+            results.RecordsPerPage = recordsPerPage;
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                IEnumerable<Location> records = new TableOperations<Location>(connection).QueryRecordsWhere("ID IN (SELECT LocationID FROM AssetLocation WHERE AssetID = {0})", assetID);
+
+                if (postData.Ascending)
+                    records = records.OrderBy(record => record.GetType().GetProperty(postData.OrderBy).GetValue(record));
+                else
+                    records = records.OrderByDescending(record => record.GetType().GetProperty(postData.OrderBy).GetValue(record));
+
+                results.TotalRecords = records.Count();
+                results.NumberOfPages = (records.Count() + recordsPerPage - 1) / recordsPerPage;
+                results.Data = JsonConvert.SerializeObject(records.Skip(page * recordsPerPage).Take(recordsPerPage));
+            }
+            return Ok(results);
         }
 
         [HttpGet, Route("{assetID:int}/AssetLocations")]
