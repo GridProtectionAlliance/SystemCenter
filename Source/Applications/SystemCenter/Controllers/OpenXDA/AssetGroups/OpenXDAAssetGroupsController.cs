@@ -269,6 +269,68 @@ namespace SystemCenter.Controllers.OpenXDA
                 return Unauthorized();
         }
 
+        [HttpPost, Route("{assetGroupID:int}/Meters/{page:int}")]
+        public IHttpActionResult GetMetersPaged([FromBody] PostData postData, [FromUri] int assetGroupID, [FromUri] int page)
+        {
+            if (!GetAuthCheck())
+                return Unauthorized();
+
+            int recordsPerPage = Take ?? 50;
+
+            PagedResults results = new PagedResults();
+            results.RecordsPerPage = recordsPerPage;
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                string sql = $@"SELECT DISTINCT
+                            Meter.ID,
+                            MeterAssetGroup.AssetGroupID,
+                            Meter.AssetKey,
+                            Meter.Name,
+                            Meter.Make,
+                            Meter.Model,
+                            Location.Name as Location,
+                            COUNT(DISTINCT MeterAsset.AssetID)  as MappedAssets
+                        FROM
+                            Meter LEFT JOIN
+                            Location ON Meter.LocationID = Location.ID LEFT JOIN
+                            MeterAsset ON Meter.ID = MeterAsset.MeterID LEFT JOIN
+                            Asset ON MeterAsset.AssetID = Asset.ID LEFT JOIN
+                            MeterAssetGroup ON Meter.ID = MeterAssetGroup.MeterID
+                        GROUP BY
+                            Meter.ID,
+                            Meter.AssetKey,
+                            Meter.Name,
+                            Meter.Make,
+                            Meter.Model,
+                            Location.Name,
+                            MeterAssetGroup.AssetGroupID
+                        HAVING MeterAssetGroup.AssetGroupID = {{0}}
+                        ORDER BY {postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")}
+                ";
+
+                DataTable records = connection.RetrieveData(sql, assetGroupID);
+
+                int totalRecords = records.Rows.Count;
+
+                DataRow[] rows = records.AsEnumerable()
+                    .Skip((page) * recordsPerPage)
+                    .Take(recordsPerPage)
+                    .ToArray();
+
+                DataTable pagedTable = records.Clone();
+
+                foreach (DataRow row in rows)
+                    pagedTable.ImportRow(row);
+
+                results.TotalRecords = totalRecords;
+                results.NumberOfPages = (totalRecords + recordsPerPage - 1) / recordsPerPage;
+                results.Data = JsonConvert.SerializeObject(pagedTable);
+            }
+
+            return Ok(results);
+        }
+
         [HttpPost, Route("{assetGroupID:int}/AddMeters")]
         public IHttpActionResult AddMeters(int assetGroupID, [FromBody] IEnumerable<int> meters)
         {
