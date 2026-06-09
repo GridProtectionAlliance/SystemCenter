@@ -31,17 +31,15 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
-using System.Net.Http;
-using System.Transactions;
+using System.Reflection;
 using System.Web.Http;
 using GSF.Data;
 using GSF.Data.Model;
 using GSF.Web.Model;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using openXDA.Model;
-using SystemCenter.Model;
 
 namespace SystemCenter.Controllers.OpenXDA
 {
@@ -293,7 +291,6 @@ namespace SystemCenter.Controllers.OpenXDA
                     try
                     {
                         IEnumerable<AssetGroupView> records = new TableOperations<AssetGroupView>(connection).QueryRecordsWhere("ID in (SELECT ChildAssetGroupID FROM AssetGroupAssetGroupView WHERE ParentAssetGroupID = {0})", assetGroupID);
-
                         return Ok(records);
                     }
                     catch (Exception ex)
@@ -304,6 +301,33 @@ namespace SystemCenter.Controllers.OpenXDA
             }
             else
                 return Unauthorized();
+        }
+
+        [HttpPost, Route("{assetGroupID:int}/AssetGroups/{page:int}")] 
+        public IHttpActionResult GetSubGroupsPaged([FromBody] PostData postData, [FromUri] int assetGroupID, [FromUri] int page)
+        {
+            if (!GetAuthCheck())
+                return Unauthorized();
+
+            int recordsPerPage = Take ?? 50;
+
+            PagedResults results = new PagedResults();
+            results.RecordsPerPage = recordsPerPage;
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                IEnumerable<AssetGroupView> records = new TableOperations<AssetGroupView>(connection).QueryRecordsWhere("ID in (SELECT ChildAssetGroupID FROM AssetGroupAssetGroupView WHERE ParentAssetGroupID = {0})", assetGroupID);
+                if (postData.Ascending)
+                    records = records.OrderBy(record => record.GetType().GetProperty(postData.OrderBy).GetValue(record));
+                else
+                    records = records.OrderByDescending(record => record.GetType().GetProperty(postData.OrderBy).GetValue(record));
+
+                results.TotalRecords = records.Count();
+                results.NumberOfPages = (records.Count() + recordsPerPage - 1) / recordsPerPage;
+                results.Data = JsonConvert.SerializeObject(records.Skip(page * recordsPerPage).Take(recordsPerPage));
+            }
+
+            return Ok(results);
         }
 
         [HttpPost, Route("{assetGroupID:int}/AddAssetGroups")]
