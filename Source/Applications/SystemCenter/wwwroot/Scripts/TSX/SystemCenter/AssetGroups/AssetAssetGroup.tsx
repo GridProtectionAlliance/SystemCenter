@@ -25,7 +25,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { useNavigate } from 'react-router-dom';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { AssetGroupSlice, AssetTypeSlice } from '../Store/Store';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { Warning } from '@gpa-gemstone/react-interactive';
@@ -37,7 +37,7 @@ import { SelectRoles } from '../Store/UserSettings';
 
 declare var homePath: string;
 
-function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
+function AssetAssetGroupWindow(props: { AssetGroupID: number }) {
     let navigate = useNavigate();
     const [assetList, setAssetList] = React.useState<Array<SystemCenter.Types.DetailedAsset>>([]);
     const [sortKey, setSortKey] = React.useState<string>('AssetName');
@@ -45,6 +45,8 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
     const [showAdd, setShowAdd] = React.useState<boolean>(false);
     const [counter, setCounter] = React.useState<number>(0);
     const [removeAsset, setRemoveAsset] = React.useState<number>(-1);
+    const [page, setPage] = React.useState<number>(0);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
 
     const assetType = useAppSelector(AssetTypeSlice.Data);
     const assetTypeStatus = useAppSelector(AssetTypeSlice.Status);
@@ -63,32 +65,34 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
             dispatch(AssetTypeSlice.Fetch());
     }, [assetTypeStatus]);
 
+
+    React.useEffect(() => {
+        return getData();
+    }, [ascending, sortKey, page])
+
     function getData() {
         if (props.AssetGroupID == null)
             return () => { };
 
         let handle = $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/AssetGroup/${props.AssetGroupID}/Assets`,
+            type: "POST",
+            url: `${homePath}api/OpenXDA/AssetGroup/${props.AssetGroupID}/Assets/${page}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
-            async: true
+            async: true,
+            data: JSON.stringify({ OrderBy: sortKey, Ascending: ascending })
         })
 
-        handle.done((data: Array<SystemCenter.Types.DetailedAsset>) => {
-            const sortedData = sortData(sortKey, ascending, data);
-            setAssetList(sortedData);
+        handle.done((r) => {
+            setAssetList(JSON.parse(r.Data));
+            setTotalPages(r.NumberOfPages);
         });
-      
+
         return function cleanup() {
             if (handle.abort != null)
                 handle.abort();
         }
-    }
-
-    function sortData(key: string, ascending: boolean, data: SystemCenter.Types.DetailedAsset[]) {
-        return _.orderBy(data, [key], [(ascending ? "asc" : "desc")]);
     }
 
     function saveItems(items: SystemCenter.Types.DetailedAsset[]) {
@@ -133,99 +137,104 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
 
     return (
         <>
-        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            <div className="card-header">
-                <div className="row">
-                    <div className="col">
-                        <h4>Transmission Assets:</h4>
-                    </div>
-                    
-                </div>
-            </div>
-            <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
-                <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-                    <Table<SystemCenter.Types.DetailedAsset>
-                        TableClass="table table-hover"
-                        Data={assetList}
-                        SortKey={sortKey}
-                        Ascending={ascending}
-                        OnSort={(d) => {
-                            if (d.colKey === "Remove")
-                                return;
+            <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                <div className="card-header">
+                    <div className="row">
+                        <div className="col">
+                            <h4>Transmission Assets:</h4>
+                        </div>
 
-                            if (d.colKey === sortKey) {
-                                setAscending(!ascending);
-                                const ordered = _.orderBy(assetList, [d.colKey], [(!ascending ? "asc" : "desc")]);
-                                setAssetList(ordered);
-                            }
-                            else {
-                                setAscending(true);
-                                setSortKey(d.colKey);
-                                const ordered = _.orderBy(assetList, [d.colKey], ["asc"]);
-                                setAssetList(ordered);
-                            }
-                        }}
-                        OnClick={handleSelect}
-                        TheadStyle={{ fontSize: 'smaller' }}
-                        RowStyle={{ fontSize: 'smaller' }}
-                        Selected={(item) => false}
-                        KeySelector={(item) => item.ID}
-                    >
-                        <Column<SystemCenter.Types.DetailedAsset>
-                            Key={'AssetName'}
-                            AllowSort={true}
-                            Field={'AssetName'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Name
-                        </Column>
-                        <Column<SystemCenter.Types.DetailedAsset>
-                            Key={'AssetKey'}
-                            AllowSort={true}
-                            Field={'AssetKey'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Key
-                        </Column>
-                        <Column<SystemCenter.Types.DetailedAsset>
-                            Key={'AssetType'}
-                            AllowSort={true}
-                            Field={'AssetType'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Type
-                        </Column>
-                        <Column<SystemCenter.Types.DetailedAsset>
-                            Key={'Remove'}
-                            AllowSort={false}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                            Content={({ item }) => <>
-                                <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
-                                    onClick={(e) => {
-                                        if (hasPermissions()) {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                            setRemoveAsset(item.ID);
-                                        }
-                                    }}>
-                                    <span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span>
-                                </button>
-                            </> }
-                        > <p></p>
-                        </Column>
-                    </Table>
+                    </div>
                 </div>
-            </div>
-            <div className="card-footer">
-                <div className="btn-group mr-2">
+                <div className="card-body d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
+                    <div className="row d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
+                        <Table<SystemCenter.Types.DetailedAsset>
+                            TableClass="table table-hover"
+                            Data={assetList}
+                            SortKey={sortKey}
+                            Ascending={ascending}
+                            OnSort={(d) => {
+                                if (d.colKey === "Remove")
+                                    return;
+
+                                if (d.colKey === sortKey) {
+                                    setAscending(!ascending);
+                                }
+                                else {
+                                    setAscending(true);
+                                    setSortKey(d.colKey);
+                                }
+                            }}
+                            OnClick={handleSelect}
+                            TheadStyle={{ fontSize: 'smaller' }}
+                            RowStyle={{ fontSize: 'smaller' }}
+                            Selected={(item) => false}
+                            KeySelector={(item) => item.ID}
+                        >
+                            <Column<SystemCenter.Types.DetailedAsset>
+                                Key={'AssetName'}
+                                AllowSort={true}
+                                Field={'AssetName'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Name
+                            </Column>
+                            <Column<SystemCenter.Types.DetailedAsset>
+                                Key={'AssetKey'}
+                                AllowSort={true}
+                                Field={'AssetKey'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Key
+                            </Column>
+                            <Column<SystemCenter.Types.DetailedAsset>
+                                Key={'AssetType'}
+                                AllowSort={true}
+                                Field={'AssetType'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Type
+                            </Column>
+                            <Column<SystemCenter.Types.DetailedAsset>
+                                Key={'Remove'}
+                                AllowSort={false}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                                Content={({ item }) => <>
+                                    <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
+                                        onClick={(e) => {
+                                            if (hasPermissions()) {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                setRemoveAsset(item.ID);
+                                            }
+                                        }}>
+                                        <span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span>
+                                    </button>
+                                </>}
+                            > <p></p>
+                            </Column>
+                        </Table>
+                    </div>
+                    <div className="row">
+                        <div className="col">
+                            <Paging
+                                Total={totalPages}
+                                Current={page + 1}
+                                SetPage={(page) => setPage(page -1)}
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div className="card-footer">
+                    <div className="btn-group mr-2">
                         <button className={"btn btn-info pull-right" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='AddAsset'
                             onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (hasPermissions()) setShowAdd(true) }}>Add Assets</button>
-                </div>
+                    </div>
                     <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Target={"AddAsset"}>
                         <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                     </ToolTip>
-            </div>
+                </div>
             </div>
             <AssetSelect Type='multiple' StorageID='AssetAssetGroup' Title={'Add Transmission Assets to Asset Group'} ShowModal={showAdd} SelectedAssets={assetList}
                 OnCloseFunction={(selected, conf) => {
@@ -234,7 +243,7 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                     saveItems(selected.filter(items => assetList.findIndex(g => g.ID == items.ID) < 0))
                 }} />
             <Warning Show={removeAsset > -1} Title={'Remove Asset from Asset Group'} Message={'This will remove the Transmission Asset from this Asset Group.'} CallBack={(c) => { if (c) removeItem(removeAsset); setRemoveAsset(-1); }} />
-            </>
+        </>
     )
 }
 

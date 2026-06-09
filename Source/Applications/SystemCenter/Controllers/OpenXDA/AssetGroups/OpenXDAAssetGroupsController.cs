@@ -31,6 +31,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Web.Http;
@@ -101,6 +102,71 @@ namespace SystemCenter.Controllers.OpenXDA
             }
             else
                 return Unauthorized();
+        }
+
+        [HttpPost, Route("{assetGroupID:int}/Assets/{page:int}")]
+        public IHttpActionResult GetAssetsPaged([FromBody] PostData postData, [FromUri] int assetGroupID, [FromUri] int page)
+        {
+            
+            if (!GetAuthCheck())
+                return Unauthorized();
+
+            int recordsPerPage = Take ?? 50;
+
+            PagedResults results = new PagedResults();
+            results.RecordsPerPage = recordsPerPage;
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                string sql = $@"SELECT   
+                            DISTINCT
+                                Asset.ID,
+                                AssetAssetGroup.AssetGroupID,
+                                Asset.AssetKey,
+                                Asset.AssetName,
+                                Asset.VoltageKV,
+                                AssetType.Name as AssetType,
+                                COUNT(DISTINCT Meter.ID) as Meters,
+                                COUNT(DISTINCT Location.ID) as Locations
+                            FROM
+                                Asset Join
+                                AssetType ON Asset.AssetTypeID = AssetType.ID LEFT JOIN
+                                MeterAsset ON MeterAsset.AssetID = Asset.ID LEFT JOIN
+                                Meter ON MeterAsset.MeterID = Meter.ID LEFT JOIN
+                                AssetLocation ON AssetLocation.AssetID = Asset.ID LEFT JOIN
+                                Location ON AssetLocation.LocationID = Location.ID LEFT JOIN
+                                AssetAssetGroup ON Asset.ID = AssetAssetGroup.AssetID
+                            GROUP BY
+                                Asset.ID,
+                                Asset.AssetKey, 
+                                Asset.AssetName,
+                                Asset.VoltageKV,
+                                AssetType.Name,
+                                AssetAssetGroup.AssetGroupID
+                            HAVING AssetAssetGroup.AssetGroupID = {{0}}
+                            ORDER BY {postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")}
+                            ";
+
+                DataTable records = connection.RetrieveData(sql, assetGroupID);
+
+                int totalRecords = records.Rows.Count;
+
+                DataRow[] rows = records.AsEnumerable()
+                    .Skip((page) * recordsPerPage)
+                    .Take(recordsPerPage)
+                    .ToArray();
+
+                DataTable pagedTable = records.Clone();
+
+                foreach (DataRow row in rows)
+                    pagedTable.ImportRow(row);
+
+                results.TotalRecords = totalRecords;
+                results.NumberOfPages = (totalRecords + recordsPerPage - 1) / recordsPerPage;
+                results.Data = JsonConvert.SerializeObject(pagedTable);
+            }
+
+            return Ok(results);
         }
 
         [HttpPost, Route("{assetGroupID:int}/AddAssets")]
