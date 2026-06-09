@@ -25,7 +25,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { useNavigate } from 'react-router-dom';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ByMeterSlice } from '../Store/Store';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { Search, Warning } from '@gpa-gemstone/react-interactive';
@@ -36,10 +36,9 @@ import { SelectRoles } from '../Store/UserSettings';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { AssetGroupSlice } from '../Store/Store';
 
-
 declare var homePath: string;
 
-function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
+function MeterAssetGroupWindow(props: { AssetGroupID: number }) {
 
     let navigate = useNavigate();
     const dispatch = useAppDispatch();
@@ -50,6 +49,8 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
     const [counter, setCounter] = React.useState<number>(0);
     const [removeMeter, setRemoveMeter] = React.useState<number>(-1);
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
+    const [page, setPage] = React.useState<number>(0);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
     const roles = useAppSelector(SelectRoles);
 
     React.useEffect(() => {
@@ -57,32 +58,34 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
         return getData();
     }, [props.AssetGroupID, counter])
 
+
+    React.useEffect(() => {
+        return getData();
+    }, [ascending, sortField, page])
+
     function getData() {
         if (props.AssetGroupID == null)
             return () => { };
 
         let handle = $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/AssetGroup/${props.AssetGroupID}/Meters`,
+            type: "POST",
+            url: `${homePath}api/OpenXDA/AssetGroup/${props.AssetGroupID}/Meters/${page}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
-            async: true
+            async: true,
+            data: JSON.stringify({ OrderBy: sortField, Ascending: ascending })
         });
 
-        handle.done((data: Array<SystemCenter.Types.DetailedMeter>) => {
-            const sortedData = sortData(sortField, ascending, data);
-            setMeterList(sortedData);
+        handle.done((d) => {
+            setMeterList(JSON.parse(d.Data));
+            setTotalPages(d.NumberOfPages);
         });
-      
+
         return function cleanup() {
             if (handle.abort != null)
                 handle.abort();
         }
-    }
-
-    function sortData(key: string, ascending: boolean, data: SystemCenter.Types.DetailedMeter[]) {
-        return _.orderBy(data, [key], [(ascending ? "asc" : "desc")]);
     }
 
     function getEnum(setOptions, field) {
@@ -174,89 +177,93 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
 
     return (
         <>
-        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            <div className="card-header">
-                <div className="row">
-                    <div className="col">
-                        <h4>Meters in Asset Group:</h4>
+            <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                <div className="card-header">
+                    <div className="row">
+                        <div className="col">
+                            <h4>Meters in Asset Group:</h4>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
-                <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-                    <Table<SystemCenter.Types.DetailedMeter>
-                        TableClass="table table-hover"
-                        Data={meterList}
-                        SortKey={sortField}
-                        Ascending={ascending}
-                        OnSort={(d) => {
-                            if (d.colKey == 'Remove') return;
-                            if (d.colKey == sortField) {
-                                setAscending(!ascending);
-                                const ordered = _.orderBy(meterList, [d.colKey], [(!ascending ? "asc" : "desc")]);
-                                setMeterList(ordered);
-                            }
-                            else {
-                                setAscending(true);
-                                setSortField(d.colField);
-                                const ordered = _.orderBy(meterList, [d.colKey], ["asc"]);
-                                setMeterList(ordered);
-                            }
-                        }}
-                        OnClick={handleSelect}
-                        TheadStyle={{ fontSize: 'smaller' }}
-                        RowStyle={{ fontSize: 'smaller' }}
-                        Selected={(item) => false}
-                        KeySelector={(item) => item.ID}
-                    >
-                        <Column<SystemCenter.Types.DetailedMeter>
-                            Key={'Name'}
-                            AllowSort={true}
-                            Field={'Name'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Name
-                        </Column>
-                        <Column<SystemCenter.Types.DetailedMeter>
-                            Key={'Location'}
-                            AllowSort={true}
-                            Field={'Location'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Substation
-                        </Column>
-                        <Column<SystemCenter.Types.DetailedMeter>
-                            Key={'Remove'}
-                            AllowSort={false}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                            Content={({ item }) =>
-                                <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
-                                    onClick={(e) => {
-                                        if (hasPermissions()) {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                            setRemoveMeter(item.ID);
-                                        }
-                                    }}>
-                                    <span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span>
-                                </button>
-                            }
-                        > <p></p>
-                        </Column>
-                    </Table>
+                <div className="card-body d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
+                    <div className="row d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
+                        <Table<SystemCenter.Types.DetailedMeter>
+                            TableClass="table table-hover"
+                            Data={meterList}
+                            SortKey={sortField}
+                            Ascending={ascending}
+                            OnSort={(d) => {
+                                if (d.colKey == 'Remove') return;
+                                if (d.colKey == sortField) {
+                                    setAscending(!ascending);
+                                }
+                                else {
+                                    setAscending(true);
+                                    setSortField(d.colField);
+                                }
+                            }}
+                            OnClick={handleSelect}
+                            TheadStyle={{ fontSize: 'smaller' }}
+                            RowStyle={{ fontSize: 'smaller' }}
+                            Selected={(item) => false}
+                            KeySelector={(item) => item.ID}
+                        >
+                            <Column<SystemCenter.Types.DetailedMeter>
+                                Key={'Name'}
+                                AllowSort={true}
+                                Field={'Name'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Name
+                            </Column>
+                            <Column<SystemCenter.Types.DetailedMeter>
+                                Key={'Location'}
+                                AllowSort={true}
+                                Field={'Location'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Substation
+                            </Column>
+                            <Column<SystemCenter.Types.DetailedMeter>
+                                Key={'Remove'}
+                                AllowSort={false}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                                Content={({ item }) =>
+                                    <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
+                                        onClick={(e) => {
+                                            if (hasPermissions()) {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                setRemoveMeter(item.ID);
+                                            }
+                                        }}>
+                                        <span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span>
+                                    </button>
+                                }
+                            > <p></p>
+                            </Column>
+                        </Table>
+                    </div>
+                    <div>
+                        <div>
+                            <Paging
+                                Total={totalPages}
+                                Current={page + 1}
+                                SetPage={(page) => setPage(page - 1)}
+                            />
+                        </div>
+                    </div>
                 </div>
-                
-            </div>
-            <div className="card-footer">
-                <div className="btn-group mr-2">
+                <div className="card-footer">
+                    <div className="btn-group mr-2">
                         <button className={"btn btn-info pull-right" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='AddMeters'
                             onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (hasPermissions()) setShowAdd(true) }}>Add Meters</button>
                     </div>
                     <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Target={"AddMeters"}>
                         <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                     </ToolTip>
-            </div>
+                </div>
 
             </div>
             <DefaultSelects.Meter
@@ -286,7 +293,7 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
                 <Column Key="Model" Field="Model" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
                 >Model</Column>
             </DefaultSelects.Meter>
-            <Warning Show={removeMeter > -1} Title={'Remove Meter from Asset Group'} Message={'This will remove the Meter from this Asset Group.'} CallBack={(c) => { if (c) removeItem(removeMeter); setRemoveMeter(-1);  }} />
+            <Warning Show={removeMeter > -1} Title={'Remove Meter from Asset Group'} Message={'This will remove the Meter from this Asset Group.'} CallBack={(c) => { if (c) removeItem(removeMeter); setRemoveMeter(-1); }} />
         </>
     );
 }
