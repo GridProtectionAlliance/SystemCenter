@@ -220,6 +220,59 @@ namespace SystemCenter.Controllers.OpenXDA
             return Unauthorized();
         }
 
+        [HttpPost, Route("{assetID:int}/AssetConnections/{page:int}")]
+        public IHttpActionResult GetAssetAssetConnectionsPaged([FromBody] PostData postData, [FromUri] int assetID, [FromUri] int page)
+        {
+            if (!GetAuthCheck())
+                return Unauthorized();
+
+            int recordsPerPage = Take ?? 50;
+
+            PagedResults results = new PagedResults();
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                DataTable records = connection.RetrieveData(@$"
+                        SELECT
+	                        AssetRelationship.AssetRelationshipTypeID,
+	                        AssetRelationshipType.Name,
+	                        Asset.ID as AssetID,
+	                        Asset.AssetKey,
+                            Asset.AssetName
+                        FROM
+	                        AssetRelationship JOIN
+	                        AssetRelationshipType ON AssetRelationship.AssetRelationshipTypeID = AssetRelationshipType.ID JOIN
+	                        ASset ON Asset.ID = (
+		                        CASE 
+			                        WHEN ParentID = {{0}} THEN AssetRelationship.ChildID
+			                        ELSE AssetRelationship.ParentID
+		                        END
+	                        )
+                        WHERE
+	                        ParentID = {{0}} OR ChildID = {{0}}
+                        ORDER BY {postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")}
+                    ", assetID);
+
+                int totalRecords = records.Rows.Count;
+
+                DataRow[] rows = records.AsEnumerable()
+                    .Skip((page) * recordsPerPage)
+                    .Take(recordsPerPage)
+                    .ToArray();
+
+                DataTable pagedTable = records.Clone();
+
+                foreach (DataRow row in rows)
+                    pagedTable.ImportRow(row);
+
+                results.TotalRecords = totalRecords;
+                results.NumberOfPages = (totalRecords + recordsPerPage - 1) / recordsPerPage;
+                results.Data = JsonConvert.SerializeObject(pagedTable);
+            }
+
+            return Ok(results);
+        }
+
         [HttpGet, Route("{assetID:int}/OtherLocations")]
         public IHttpActionResult GetOtherLocations(int assetID)
         {
@@ -664,7 +717,7 @@ namespace SystemCenter.Controllers.OpenXDA
         }
 
         [HttpPost, Route("{assetID:int}/ConnectedChannels/{page:int}")]
-        public IHttpActionResult GetPagedList([FromBody] PostData postData, [FromUri] int assetID, [FromUri] int page)
+        public IHttpActionResult GetConnectedChannelsPaged([FromBody] PostData postData, [FromUri] int assetID, [FromUri] int page)
                 {
             if (!GetAuthCheck())
                 return Unauthorized();

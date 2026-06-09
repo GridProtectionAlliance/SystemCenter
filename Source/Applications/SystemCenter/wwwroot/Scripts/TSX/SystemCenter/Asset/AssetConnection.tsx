@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import _ from 'lodash';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { useNavigate } from "react-router-dom";
 import { LoadingIcon, Modal, Search, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { ToolTip } from '@gpa-gemstone/react-forms';
@@ -62,12 +62,14 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
     const [trigger, setTrigger] = React.useState<number>(0);
 
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
+    const [page, setPage] = React.useState<number>(0);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
     const roles = useAppSelector(SelectRoles);
 
     React.useEffect(() => {
         let handle = getAssetConnections();
         return () => { if (handle != null || handle.abort != null) handle.abort();}
-    }, [props.ID, trigger])
+    }, [props.ID, trigger, page, sortKey, ascending])
 
     React.useEffect(() => {
         if (props.ID > 0) {
@@ -111,21 +113,18 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
     function getAssetConnections(): JQuery.jqXHR<OpenXDA.Types.AssetConnection> {
         setStatus('loading');
         return $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/Asset/${props.ID}/AssetConnections`,
+            type: "POST",
+            url: `${homePath}api/OpenXDA/Asset/${props.ID}/AssetConnections/${page}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
-            async: true
+            async: true,
+            data: JSON.stringify({ OrderBy: sortKey, Ascending: ascending })
         }).done((d) => {
             setStatus('idle')
-            const sortedConnections = sortData(sortKey, ascending, d);
-            setAssetConnections(sortedConnections)
+            setAssetConnections(JSON.parse(d.Data));
+            setTotalPages(d.NumberOfPages);
         }).fail(() => setStatus('error'));
-    }
-
-    function sortData(key: string, ascending: boolean, data: AssetConnection[]) {
-        return _.orderBy(data, [key], [(ascending ? "asc" : "desc")]);
     }
 
     function getAssets(): JQuery.jqXHR<string> {
@@ -239,7 +238,8 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                     </div>
                 </div>
             </div>
-            <div className="card-body" style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+            <div className="card-body d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="row d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
                 <Table<AssetConnection>
                     TableClass="table table-hover"
                     Data={assetConnections}
@@ -251,14 +251,10 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
 
                         if (d.colKey === sortKey) {
                             setAscending(!ascending);
-                            const ordered = _.orderBy(assetConnections, [d.colKey], [(!ascending ? "asc" : "desc")]);
-                            setAssetConnections(ordered);
                         }
                         else {
                             setAscending(true);
                             setSortKey(d.colKey);
-                            const ordered = _.orderBy(assetConnections, [d.colKey], ["asc"]);
-                            setAssetConnections(ordered);
                         }
                     }}
                     TableStyle={{ height: '100%' }}
@@ -306,7 +302,17 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                         </> }
                     > <p></p>
                     </Column>
-                </Table>
+                    </Table>
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <Paging
+                            Total={totalPages}
+                            Current={page + 1}
+                            SetPage={(page) => setPage(page - 1)}
+                        />
+                    </div>
+                </div>
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
