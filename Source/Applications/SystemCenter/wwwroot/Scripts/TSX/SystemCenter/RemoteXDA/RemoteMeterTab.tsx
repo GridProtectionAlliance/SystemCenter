@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { SystemCenter, Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { RemoteXDAMeterSlice, ByMeterSlice, RemoteXDAAssetSlice } from '../Store/Store';
 import { LoadingScreen, Modal, Search, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
@@ -45,6 +45,8 @@ const RemoteMeterTab = (props: IProps) => {
     const remoteMeterStatus = useAppSelector(RemoteXDAMeterSlice.Status) as Application.Types.Status;
     const searchResults = useAppSelector(RemoteXDAMeterSlice.SearchResults);
     const searchState = useAppSelector(RemoteXDAMeterSlice.SearchStatus);
+    const [page, setPage] = React.useState<number>(0)
+    const totalPages = useAppSelector(RemoteXDAMeterSlice.TotalPages);
 
     const searchFilters: Search.IFilter<OpenXDA.Types.RemoteXDAMeter>[] =
         [{
@@ -83,6 +85,10 @@ const RemoteMeterTab = (props: IProps) => {
     const roles = useAppSelector(SelectRoles);
     const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
 
+    const pagedSearch = React.useCallback(() => {
+        dispatch(RemoteXDAMeterSlice.PagedSearch({ filter: searchFilters, ascending: ascending, sortField: sortKey, page }))
+    }, [page, sortKey, searchFilters, ascending])
+
     React.useEffect(() => {
         if (remoteMeterStatus === 'uninitiated' || remoteMeterStatus === 'changed')
             dispatch(RemoteXDAMeterSlice.Fetch());
@@ -95,12 +101,12 @@ const RemoteMeterTab = (props: IProps) => {
 
     React.useEffect(() => {
         if (searchState === 'uninitiated' || searchState === 'changed')
-            dispatch(RemoteXDAMeterSlice.DBSearch({ filter: searchFilters, ascending: ascending, sortField: sortKey }));
+            pagedSearch()
     }, [dispatch, searchState]);
 
     React.useEffect(() => {
-        dispatch(RemoteXDAMeterSlice.DBSearch({ sortField: sortKey, ascending, filter: searchFilters }))
-    }, [ascending, sortKey]);
+        pagedSearch()
+    }, [ascending, sortKey, page]);
 
     function isEditable(item: OpenXDA.Types.RemoteXDAMeter): boolean {
         return item.RemoteXDAMeterID <= 0;
@@ -141,137 +147,150 @@ const RemoteMeterTab = (props: IProps) => {
         cardBody = <LoadingScreen Show={true} />
     } else {
         cardBody =
-            <Table<OpenXDA.Types.RemoteXDAMeter>
-                TableClass="table table-hover"
-                Data={searchResults}
-                SortKey={sortKey}
-                Ascending={ascending}
-                OnSort={(d) => {
-                    if (d.colKey == 'Edit' || d.colKey == 'Delete') return;
-                    if (d.colKey === sortKey)
-                        setAscending(!ascending);
-                    else {
-                        setAscending(true);
-                        setSortKey(d.colField);
-                    }
-                }}
-                TheadStyle={{ fontSize: 'smaller' }}
-                RowStyle={{ fontSize: 'smaller' }}
-                Selected={(item) => false}
-                KeySelector={(item) => item.ID}
-            >
-                <Column<OpenXDA.Types.RemoteXDAMeter>
-                    Key={'LocalMeterName'}
-                    AllowSort={true}
-                    Field={'LocalMeterName'}
-                    HeaderStyle={{ width: 'auto' }}
-                    RowStyle={{ width: 'auto' }}
-                > Local Name
-                </Column>
-                <Column<OpenXDA.Types.RemoteXDAMeter>
-                    Key={'LocalAssetKey'}
-                    AllowSort={true}
-                    Field={'LocalAssetKey'}
-                    HeaderStyle={{ width: 'auto' }}
-                    RowStyle={{ width: 'auto' }}
-                > Local Key
-                </Column>
-                <Column<OpenXDA.Types.RemoteXDAMeter>
-                    Key={'LocalAlias'}
-                    AllowSort={true}
-                    Field={'LocalAlias'}
-                    HeaderStyle={{ width: 'auto' }}
-                    RowStyle={{ width: 'auto' }}
-                > Local Alias
-                </Column>
-                <Column<OpenXDA.Types.RemoteXDAMeter>
-                    Key={'RemoteXDAName'}
-                    AllowSort={true}
-                    Field={'RemoteXDAName'}
-                    HeaderStyle={{ width: 'auto' }}
-                    RowStyle={{ width: 'auto' }}
-                    Content={({ item }) => item.Obsfucate ? item.RemoteXDAName : item.LocalMeterName}
-                > Remote Name
-                </Column>
-                <Column<OpenXDA.Types.RemoteXDAMeter>
-                    Key={'RemoteXDAAssetKey'}
-                    AllowSort={true}
-                    Field={'RemoteXDAAssetKey'}
-                    HeaderStyle={{ width: 'auto' }}
-                    RowStyle={{ width: 'auto' }}
-                > Remote Key
-                </Column>
-                <Column<OpenXDA.Types.RemoteXDAMeter>
-                    Key={'RemoteAlias'}
-                    AllowSort={true}
-                    Field={'RemoteAlias'}
-                    HeaderStyle={{ width: 'auto' }}
-                    RowStyle={{ width: 'auto' }}
-                > Remote Alias
-                </Column>
-                <Column<OpenXDA.Types.RemoteXDAMeter>
-                    Key={'Obsfucate'}
-                    AllowSort={true}
-                    Field={'Obsfucate'}
-                    HeaderStyle={{ width: 'auto' }}
-                    RowStyle={{ width: 'auto' }}
-                    Content={({ item }) => item.Obsfucate ? <ReactIcons.CheckMark Color="var(--success)" /> : null }
-                > Obfuscated
-                </Column>
-                <Column<OpenXDA.Types.RemoteXDAMeter>
-                    Key={'Synced'}
-                    AllowSort={true}
-                    Field={'Synced'}
-                    HeaderStyle={{ width: 'auto' }}
-                    RowStyle={{ width: 'auto' }}
-                    Content={({ item }) => item.Synced ? <ReactIcons.CheckMark Color="var(--success)" /> : null }
-                > Synced
-                </Column>
-                <Column<OpenXDA.Types.RemoteXDAMeter>
-                    Key={'Edit'}
-                    AllowSort={false}
-                    HeaderStyle={{ width: '10%' }}
-                    RowStyle={{ width: '10%' }}
-                    Content={({ item }) => (isEditable(item) ?
-                        <button
-                            className={"btn btn-edit" + (isEditable(item) ? '' : ' disabled') + (hasPermissions() ? '' : ' disabled')}
-                            onClick={(e) => {
-                                if (hasPermissions()) {
-                                    e.preventDefault();
-                                    if (isEditable(item)) {
-                                        setSelectedMeter(item);
-                                        setShowEdit(true);
-                                    }
-                                }
-                            }}>
-                            <span><ReactIcons.Pencil Color="var(--warning)" Size={20} /></span>
-                        </button> : null)
-                    }
-                > <p></p>
-                </Column>
-                <Column<OpenXDA.Types.RemoteXDAMeter>
-                    Key={'Delete'}
-                    AllowSort={false}
-                    HeaderStyle={{ width: '10%' }}
-                    RowStyle={{ width: '10%' }}
-                    Content={({ item }) => (isEditable(item) ?
-                        <button
-                            className={"btn btn-delete" + (isEditable(item) ? '' : ' disabled') + (hasPermissions() ? '' : ' disabled')}
-                            onClick={(e) => {
-                                if (hasPermissions()) {
-                                    e.preventDefault();
-                                    if (isEditable(item)) {
-                                        setSelectedMeter(item);
-                                        setShowDelete(true);
-                                    }
-                                }
-                            }}>
-                            <span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span>
-                        </button> : null)
-                    }
-                > <p></p>
-                </Column>
-            </Table>
+            <>
+            <div className="row d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
+                    <Table<OpenXDA.Types.RemoteXDAMeter>
+                        TableClass="table table-hover"
+                        Data={searchResults}
+                        SortKey={sortKey}
+                        Ascending={ascending}
+                        OnSort={(d) => {
+                            if (d.colKey == 'Edit' || d.colKey == 'Delete') return;
+                            if (d.colKey === sortKey)
+                                setAscending(!ascending);
+                            else {
+                                setAscending(true);
+                                setSortKey(d.colField);
+                            }
+                        }}
+                        TheadStyle={{ fontSize: 'smaller' }}
+                        RowStyle={{ fontSize: 'smaller' }}
+                        Selected={(item) => false}
+                        KeySelector={(item) => item.ID}
+                    >
+                        <Column<OpenXDA.Types.RemoteXDAMeter>
+                            Key={'LocalMeterName'}
+                            AllowSort={true}
+                            Field={'LocalMeterName'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Local Name
+                        </Column>
+                        <Column<OpenXDA.Types.RemoteXDAMeter>
+                            Key={'LocalAssetKey'}
+                            AllowSort={true}
+                            Field={'LocalAssetKey'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Local Key
+                        </Column>
+                        <Column<OpenXDA.Types.RemoteXDAMeter>
+                            Key={'LocalAlias'}
+                            AllowSort={true}
+                            Field={'LocalAlias'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Local Alias
+                        </Column>
+                        <Column<OpenXDA.Types.RemoteXDAMeter>
+                            Key={'RemoteXDAName'}
+                            AllowSort={true}
+                            Field={'RemoteXDAName'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={({ item }) => item.Obsfucate ? item.RemoteXDAName : item.LocalMeterName}
+                        > Remote Name
+                        </Column>
+                        <Column<OpenXDA.Types.RemoteXDAMeter>
+                            Key={'RemoteXDAAssetKey'}
+                            AllowSort={true}
+                            Field={'RemoteXDAAssetKey'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Remote Key
+                        </Column>
+                        <Column<OpenXDA.Types.RemoteXDAMeter>
+                            Key={'RemoteAlias'}
+                            AllowSort={true}
+                            Field={'RemoteAlias'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Remote Alias
+                        </Column>
+                        <Column<OpenXDA.Types.RemoteXDAMeter>
+                            Key={'Obsfucate'}
+                            AllowSort={true}
+                            Field={'Obsfucate'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={({ item }) => item.Obsfucate ? <ReactIcons.CheckMark Color="var(--success)" /> : null}
+                        > Obfuscated
+                        </Column>
+                        <Column<OpenXDA.Types.RemoteXDAMeter>
+                            Key={'Synced'}
+                            AllowSort={true}
+                            Field={'Synced'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={({ item }) => item.Synced ? <ReactIcons.CheckMark Color="var(--success)" /> : null}
+                        > Synced
+                        </Column>
+                        <Column<OpenXDA.Types.RemoteXDAMeter>
+                            Key={'Edit'}
+                            AllowSort={false}
+                            HeaderStyle={{ width: '10%' }}
+                            RowStyle={{ width: '10%' }}
+                            Content={({ item }) => (isEditable(item) ?
+                                <button
+                                    className={"btn btn-edit" + (isEditable(item) ? '' : ' disabled') + (hasPermissions() ? '' : ' disabled')}
+                                    onClick={(e) => {
+                                        if (hasPermissions()) {
+                                            e.preventDefault();
+                                            if (isEditable(item)) {
+                                                setSelectedMeter(item);
+                                                setShowEdit(true);
+                                            }
+                                        }
+                                    }}>
+                                    <span><ReactIcons.Pencil Color="var(--warning)" Size={20} /></span>
+                                </button> : null)
+                            }
+                        > <p></p>
+                        </Column>
+                        <Column<OpenXDA.Types.RemoteXDAMeter>
+                            Key={'Delete'}
+                            AllowSort={false}
+                            HeaderStyle={{ width: '10%' }}
+                            RowStyle={{ width: '10%' }}
+                            Content={({ item }) => (isEditable(item) ?
+                                <button
+                                    className={"btn btn-delete" + (isEditable(item) ? '' : ' disabled') + (hasPermissions() ? '' : ' disabled')}
+                                    onClick={(e) => {
+                                        if (hasPermissions()) {
+                                            e.preventDefault();
+                                            if (isEditable(item)) {
+                                                setSelectedMeter(item);
+                                                setShowDelete(true);
+                                            }
+                                        }
+                                    }}>
+                                    <span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span>
+                                </button> : null)
+                            }
+                        > <p></p>
+                        </Column>
+                    </Table>
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <Paging
+                            Current={page + 1}
+                            SetPage={(page) => setPage(page - 1)}
+                            Total={totalPages}
+                        />
+                    </div>
+                </div>
+            </>
     }
 
     return (
@@ -308,7 +327,7 @@ const RemoteMeterTab = (props: IProps) => {
                 CallBack={(conf) => {
                     if (conf) dispatch(RemoteXDAMeterSlice.DBAction({ verb: 'DELETE', record: selectedMeter }));
                     setShowDelete(false);
-                }}/>
+                }} />
             <Modal Show={showEdit} Title={'Edit ' + (selectedMeter?.LocalMeterName ?? 'Remote Meter')}
                 ShowCancel={true}
                 CallBack={(conf) => {
@@ -344,7 +363,7 @@ const RemoteMeterTab = (props: IProps) => {
                 ShowX={true} Size={"sm"}
                 ConfirmText={"Yes"}
                 CancelText={"No"}>
-                <p>Add { assetCount } Associated Assets?</p>
+                <p>Add {assetCount} Associated Assets?</p>
             </Modal>
             <DefaultSelects.Meter
                 Slice={ByMeterSlice}
