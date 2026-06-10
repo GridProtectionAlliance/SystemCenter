@@ -23,28 +23,77 @@
 
 
 
-import { createSlice, createAsyncThunk, PayloadAction, SerializedError } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, PayloadAction, SerializedError, AsyncThunk } from '@reduxjs/toolkit';
 import { Application } from '@gpa-gemstone/application-typings';
 import { OpenXDA } from '../global';
 
 let fetchHandle = null;
 let pagedHandle = null;
 
-interface PagedResults {
-    Data: string,
-    NumberOfPages: number
+const initialState: IEventChannelState = {
+    Status: 'uninitiated',
+    Error: null,
+    Data: [],
+    ActiveFetchID: [],
+    Asc: true,
+    Sort: 'Name',
+    ParentID: null,
+    NumberOfPages: 0,
+    PagedData: []
 }
 
-export const FetchChannels = createAsyncThunk('EventChannels/FetchChannels', async (args: {
+type Verb = 'POST' | 'DELETE' | 'PATCH' | 'SEARCH'
+
+interface IError {
+    Message: string,
+    Verb: Verb,
+    Time: string
+}
+
+interface IEventChannelState {
+    Status: Application.Types.Status,
+    Error: IError | null,
+    Data: OpenXDA.EventChannel[],
+    ActiveFetchID: string[],
+    Asc: boolean,
+    Sort: keyof OpenXDA.EventChannel,
+    ParentID: string | number | null,
+    NumberOfPages: number,
+    PagedData: OpenXDA.EventChannel[]
+}
+
+interface IPagedResults {
+    Data: string,
+    NumberOfPages: number,
+    RecordsPerPage: number,
+    TotalRecords: number
+}
+
+interface IFetchArgs {
     sortField?: keyof OpenXDA.EventChannel,
-    ascending?: boolean, meterId: number
-}, { getState, signal }) => {
+    ascending?: boolean,
+    meterId: number,
+}
+
+interface IActionArgs {
+    verb: Verb,
+    record: OpenXDA.EventChannel
+}
+
+interface IPagedSearchArgs extends IFetchArgs {
+    page: number
+}
+
+type ThunkState = Record<string, IEventChannelState>;
+
+
+export const FetchChannels = createAsyncThunk<string, IFetchArgs, {state: ThunkState}>('EventChannels/FetchChannels', async (args: IFetchArgs, { getState, signal }) => {
 
     let sortfield = args.sortField;
     let asc = args.ascending;
 
-    sortfield = sortfield === undefined ? ((getState() as any).EventChannels).Sort : sortfield;
-    asc = asc === undefined ? (getState() as any).EventChannels.Ascending : asc;
+    sortfield = sortfield === undefined ? ((getState()).EventChannels).Sort : sortfield;
+    asc = asc === undefined ? (getState()).EventChannels.Asc : asc;
 
     if (fetchHandle != null && fetchHandle.abort != null)
         fetchHandle.abort('Prev');
@@ -59,7 +108,7 @@ export const FetchChannels = createAsyncThunk('EventChannels/FetchChannels', asy
     return await handle;
 });
 
-export const dBAction = createAsyncThunk(`EventChannels/DBAction`, async (args: { verb: 'POST' | 'DELETE' | 'PATCH', record: OpenXDA.EventChannel }, { signal }) => {
+export const dBAction = createAsyncThunk(`EventChannels/DBAction`, async (args: IActionArgs, { signal }) => {
     const handle = Action(args.verb, args.record);
     signal.addEventListener('abort', () => {
         if (handle.abort !== undefined) handle.abort();
@@ -67,18 +116,13 @@ export const dBAction = createAsyncThunk(`EventChannels/DBAction`, async (args: 
     return await handle
 });
 
-export const PagedSearch = createAsyncThunk('EventChannels/PagedSearch', async (args: {
-    sortField?: keyof OpenXDA.EventChannel,
-    ascending?: boolean,
-    meterId: number,
-    page: number
-}, { getState, signal }) => {
+export const PagedSearch = createAsyncThunk<IPagedResults, IPagedSearchArgs, { state: ThunkState }>('EventChannels/PagedSearch', async (args: IPagedSearchArgs, { getState, signal }) => {
 
     let sortfield = args.sortField;
     let asc = args.ascending;
 
-    sortfield = sortfield === undefined ? ((getState() as any).EventChannels).Sort : sortfield;
-    asc = asc === undefined ? (getState() as any).EventChannels.Ascending : asc;
+    sortfield = sortfield === undefined ? ((getState()).EventChannels).Sort : sortfield;
+    asc = asc === undefined ? (getState()).EventChannels.Asc : asc;
 
     if (pagedHandle != null && pagedHandle.abort != null)
         fetchHandle.abort('Prev');
@@ -91,21 +135,11 @@ export const PagedSearch = createAsyncThunk('EventChannels/PagedSearch', async (
     });
 
     return await handle;
-})
+});
 
 export const EventChannelSlice = createSlice({
     name: 'EventChannel',
-    initialState: {
-        Status: 'unintiated' as Application.Types.Status,
-        Error: null,
-        Data: [] as OpenXDA.EventChannel[],
-        ActiveFetchID: [] as string[],
-        Asc: true as boolean,
-        Sort: 'Name' as keyof (OpenXDA.EventChannel),
-        ParentID: null,
-        NumberOfPages: 0,
-        PagedData: [] as OpenXDA.EventChannel[]
-    },
+    initialState,
     reducers: {
         SetChanged: (state) => {
             state.Status = "changed";
@@ -130,7 +164,7 @@ export const EventChannelSlice = createSlice({
             }
 
         });
-        builder.addCase(FetchChannels.fulfilled, (state, action: PayloadAction<string, string, { arg: { meterId: number, sortField?: keyof OpenXDA.EventChannel, ascending?: boolean }, requestId: string }, never>) => {
+        builder.addCase(FetchChannels.fulfilled, (state, action: PayloadAction<string, string, { arg: IFetchArgs, requestId: string }, never>) => {
             state.ActiveFetchID = state.ActiveFetchID.filter(id => id !== action.meta.requestId);
             state.Status = 'idle';
             state.Data = JSON.parse(action.payload);
@@ -141,14 +175,13 @@ export const EventChannelSlice = createSlice({
         builder.addCase(dBAction.pending, (state) => {
             state.Status = 'loading';
         });
-        builder.addCase(dBAction.rejected, (state, action: PayloadAction<unknown, string, { arg: { verb: 'POST' | 'DELETE' | 'PATCH', record: OpenXDA.EventChannel } }, SerializedError>) => {
+        builder.addCase(dBAction.rejected, (state, action: PayloadAction<unknown, string, { arg: IActionArgs }, SerializedError>) => {
             state.Status = 'error';
             state.Error = {
                 Message: (action.error.message == null ? '' : action.error.message),
                 Verb: action.meta.arg.verb,
                 Time: new Date().toString()
             }
-
         });
         builder.addCase(dBAction.fulfilled, (state) => {
             state.Status = 'changed';
@@ -169,7 +202,7 @@ export const EventChannelSlice = createSlice({
                 Time: new Date().toString()
             }
         });
-        builder.addCase(PagedSearch.fulfilled, (state, action: PayloadAction<any, string, { arg: { meterId: number, sortField?: keyof OpenXDA.EventChannel, ascending?: boolean, page: number }, requestId: string }, never>) => {
+        builder.addCase(PagedSearch.fulfilled, (state, action: PayloadAction<IPagedResults, string, { arg: IPagedSearchArgs, requestId: string }, never>) => {
             state.ActiveFetchID = state.ActiveFetchID.filter(id => id !== action.meta.requestId);
             state.Status = 'idle';
             state.PagedData = JSON.parse(action.payload.Data);
@@ -203,7 +236,7 @@ function GetRecords(ascending: (boolean | undefined), sortField: keyof OpenXDA.E
     });
 }
 
-function GetPagedRecords(ascending: (boolean | undefined), sortField: keyof OpenXDA.EventChannel, parentID: number | void, page: number): JQuery.jqXHR<string> {
+function GetPagedRecords(ascending: (boolean | undefined), sortField: keyof OpenXDA.EventChannel, parentID: number | void, page: number): JQuery.jqXHR<IPagedResults> {
     return $.ajax({
         type: "POST",
         url: `${homePath}api/OpenXDA/EventChannel${(parentID != null ? '/' + parentID : '')}/PagedList/${page}`,
@@ -211,13 +244,13 @@ function GetPagedRecords(ascending: (boolean | undefined), sortField: keyof Open
         dataType: 'json',
         cache: false,
         async: true,
-        data: JSON.stringify({OrderBy: sortField, Ascending: ascending, Searches: []})
+        data: JSON.stringify({ OrderBy: sortField, Ascending: ascending, Searches: [] })
     });
 }
 
-function Action(verb: 'POST' | 'DELETE' | 'PATCH', record: OpenXDA.EventChannel): JQuery.jqXHR<string> {
+function Action(verb: Verb, record: OpenXDA.EventChannel): JQuery.jqXHR<string> {
     let action = '';
-    if(verb === 'POST') action = 'Add';
+    if (verb === 'POST') action = 'Add';
     else if (verb === 'DELETE') action = 'Delete';
     else if (verb === 'PATCH') action = 'Update';
 
