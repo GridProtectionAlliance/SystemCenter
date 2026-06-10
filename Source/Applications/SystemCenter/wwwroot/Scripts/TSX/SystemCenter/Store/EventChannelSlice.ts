@@ -28,6 +28,12 @@ import { Application } from '@gpa-gemstone/application-typings';
 import { OpenXDA } from '../global';
 
 let fetchHandle = null;
+let pagedHandle = null;
+
+interface PagedResults {
+    Data: string,
+    NumberOfPages: number
+}
 
 export const FetchChannels = createAsyncThunk('EventChannels/FetchChannels', async (args: {
     sortField?: keyof OpenXDA.EventChannel,
@@ -61,6 +67,32 @@ export const dBAction = createAsyncThunk(`EventChannels/DBAction`, async (args: 
     return await handle
 });
 
+export const PagedSearch = createAsyncThunk('EventChannels/PagedSearch', async (args: {
+    sortField?: keyof OpenXDA.EventChannel,
+    ascending?: boolean,
+    meterId: number,
+    page: number
+}, { getState, signal }) => {
+
+    let sortfield = args.sortField;
+    let asc = args.ascending;
+
+    sortfield = sortfield === undefined ? ((getState() as any).EventChannels).Sort : sortfield;
+    asc = asc === undefined ? (getState() as any).EventChannels.Ascending : asc;
+
+    if (pagedHandle != null && pagedHandle.abort != null)
+        fetchHandle.abort('Prev');
+
+    const handle = GetPagedRecords(asc, sortfield, args.meterId, args.page);
+    pagedHandle = handle;
+
+    signal.addEventListener('abort', () => {
+        if (handle.abort !== undefined) handle.abort();
+    });
+
+    return await handle;
+})
+
 export const EventChannelSlice = createSlice({
     name: 'EventChannel',
     initialState: {
@@ -70,7 +102,9 @@ export const EventChannelSlice = createSlice({
         ActiveFetchID: [] as string[],
         Asc: true as boolean,
         Sort: 'Name' as keyof (OpenXDA.EventChannel),
-        ParentID: null
+        ParentID: null,
+        NumberOfPages: 0,
+        PagedData: [] as OpenXDA.EventChannel[]
     },
     reducers: {
         SetChanged: (state) => {
@@ -120,6 +154,30 @@ export const EventChannelSlice = createSlice({
             state.Status = 'changed';
             state.Error = null;
         });
+        builder.addCase(PagedSearch.pending, (state, action: PayloadAction<undefined, string, { requestId: string }, never>) => {
+            state.Status = 'loading';
+            state.ActiveFetchID.push(action.meta.requestId);
+        });
+        builder.addCase(PagedSearch.rejected, (state, action: PayloadAction<unknown, string, { requestId: string }, SerializedError>) => {
+            state.ActiveFetchID = state.ActiveFetchID.filter(id => id !== action.meta.requestId);
+            if (state.ActiveFetchID.length > 0)
+                return;
+            state.Status = 'error';
+            state.Error = {
+                Message: (action.error.message == null ? '' : action.error.message),
+                Verb: 'SEARCH',
+                Time: new Date().toString()
+            }
+        });
+        builder.addCase(PagedSearch.fulfilled, (state, action: PayloadAction<any, string, { arg: { meterId: number, sortField?: keyof OpenXDA.EventChannel, ascending?: boolean, page: number }, requestId: string }, never>) => {
+            state.ActiveFetchID = state.ActiveFetchID.filter(id => id !== action.meta.requestId);
+            state.Status = 'idle';
+            state.PagedData = JSON.parse(action.payload.Data);
+            state.ParentID = action.meta.arg.meterId;
+            state.Sort = action.meta.arg.sortField ?? state.Sort;
+            state.Asc = action.meta.arg.ascending ?? state.Asc;
+            state.NumberOfPages = action.payload.NumberOfPages;
+        });
     }
 
 });
@@ -131,6 +189,8 @@ export const SelectEventChannelStatus = (state) => state.EventChannels.Status as
 export const SelectMeterID = (state) => state.EventChannels.ParentID as number;
 export const SelectAscending = (state) => state.EventChannels.Asc as boolean;
 export const SelectSortKey = (state) => state.EventChannels.Sort as keyof OpenXDA.EventChannel;
+export const SelectNumberOfPages = (state) => state.EventChannels.NumberOfPages as number;
+export const SelectPagedData = (state) => state.EventChannels.PagedData as OpenXDA.EventChannel[];
 
 function GetRecords(ascending: (boolean | undefined), sortField: keyof OpenXDA.EventChannel, parentID: number | void,): JQuery.jqXHR<string> {
     return $.ajax({
@@ -140,6 +200,18 @@ function GetRecords(ascending: (boolean | undefined), sortField: keyof OpenXDA.E
         dataType: 'json',
         cache: false,
         async: true
+    });
+}
+
+function GetPagedRecords(ascending: (boolean | undefined), sortField: keyof OpenXDA.EventChannel, parentID: number | void, page: number): JQuery.jqXHR<string> {
+    return $.ajax({
+        type: "POST",
+        url: `${homePath}api/OpenXDA/EventChannel${(parentID != null ? '/' + parentID : '')}/PagedList/${page}`,
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        cache: false,
+        async: true,
+        data: JSON.stringify({OrderBy: sortField, Ascending: ascending, Searches: []})
     });
 }
 
