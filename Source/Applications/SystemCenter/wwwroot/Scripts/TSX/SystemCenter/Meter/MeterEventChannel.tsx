@@ -91,6 +91,11 @@ const MeterEventChannelWindow = (props: IProps) => {
     }, [props.Meter, status])
 
     React.useEffect(() => {
+        if (status == 'uninitiated' || meterID !== props.Meter.ID || status == 'changed')
+            dispatch(PagedSearch({ meterId: props.Meter.ID, page: page, ascending: ascending, sortField: sortKey }));
+    }, [props.Meter, status])
+
+    React.useEffect(() => {
         if (!props.IsVisible)
             return;
         let assetHandle = getAssets();
