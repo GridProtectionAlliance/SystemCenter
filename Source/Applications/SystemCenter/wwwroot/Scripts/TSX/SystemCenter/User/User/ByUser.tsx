@@ -61,7 +61,7 @@ const newAcct: IUserAccount = {
 
 const ByUser: Application.Types.iByComponent = (props) => {
 
-    const userAccountController = React.useMemo(() => new GenericController(`${homePath}api/SystemCenter/UserAccount`, "DisplayName", true), [])
+    const userAccountController = React.useMemo(() => new GenericController(`${homePath}api/SystemCenter/UserAccount`, "DisplayName" as keyof IUserAccount, true), [])
     const userAdditionalFieldController = React.useMemo(() => new GenericController(`${homePath}api/SystemCenter/AdditionalUserField`, "User"), [])
     const valueListController = React.useMemo(() => new GenericController(`${homePath}api/ValueList`, 'SortOrder'), [])
     const valueListGroupController = React.useMemo(() => new GenericController(`${homePath}api/ValueListGroup`, 'Name'), [])
@@ -74,7 +74,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
     const [userStatus, setUserStatus] = React.useState<Application.Types.Status>('uninitiated');
 
     const [sortField, setSortField] = React.useState<keyof IUserAccount>("DisplayName");
-    const [ascending, setAscending] = React.useState<boolean>(false);
+    const [ascending, setAscending] = React.useState<boolean>(true);
 
     const [page, setPage] = React.useState<number>(0);
     const [totalPages, setTotalPages] = React.useState<number>(0);
@@ -110,7 +110,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
 
     const pagedSearch = React.useCallback(() => {
         setUserStatus('loading')
-        const h = userAccountController.PagedSearch(filters, sortField as "DisplayName", ascending, page);
+        const h = userAccountController.PagedSearch(filters, sortField, ascending, page);
         h.done((d) => {
             setUsers(JSON.parse(d.Data as unknown as string))
             setTotalPages(d.NumberOfPages)
@@ -126,14 +126,9 @@ const ByUser: Application.Types.iByComponent = (props) => {
     }, [filters, sortField, ascending, page, userAccountController.PagedSearch])
 
     React.useEffect(() => {
-        pagedSearch()
+        return pagedSearch()
     }, [filters, sortField, ascending, page, pagedSearch]);
 
-    React.useEffect(() => {
-        if (userStatus === 'uninitiated' || userStatus === 'changed')
-            pagedSearch()
-    }, [userStatus, pagedSearch])
-    
     React.useEffect(() => {
         if (adlFieldStatus === 'uninitiated' || adlFieldStatus === 'changed') {
             const h = userAdditionalFieldController.Fetch();
@@ -312,6 +307,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
                     if (confirm) {
                         userAccountController.DBAction('POST', act)
                         setUserStatus('changed');
+                        pagedSearch();
                     }
                     setAct(newAcct);
                     setShowModal(false);
