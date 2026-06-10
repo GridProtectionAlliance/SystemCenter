@@ -41,7 +41,7 @@ const emptyGroup: ISecurityGroup = { Name: "", CreatedBy: "", CreatedOn: new Dat
 
 const ByUser: Application.Types.iByComponent = (props) => {
     let navigate = useNavigate();
-    const securityGroupController = React.useMemo(() => new GenericController(`${homePath}api/SystemCenter/FullSecurityGroup`, "DisplayName" as keyof ISecurityGroup),[])
+    const securityGroupController = React.useMemo(() => new GenericController<ISecurityGroup>(`${homePath}api/SystemCenter/FullSecurityGroup`, "DisplayName" as keyof ISecurityGroup),[])
 
     const [filters, setFilters] = React.useState<Search.IFilter<ISecurityGroup>[]>([]);
     const [securityGroups, setSecurityGroups] = React.useState<ISecurityGroup[]>([]);
@@ -182,7 +182,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
                     if (confirm) {
                         securityGroupController.DBAction(
                             'POST',
-                            { ...newGroup, Name: ((newGroup.Name?.length ?? 0) > 0 ? newGroup.Name : newGroup.DisplayName) } as ISecurityGroup
+                            { ...newGroup, Name: ((newGroup.Name?.length ?? 0) > 0 ? newGroup.Name : newGroup.DisplayName) }
                         )
                         setStatus('changed')
                         pagedSearch()

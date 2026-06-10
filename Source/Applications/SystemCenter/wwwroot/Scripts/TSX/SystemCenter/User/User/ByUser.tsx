@@ -61,7 +61,7 @@ const newAcct: IUserAccount = {
 
 const ByUser: Application.Types.iByComponent = (props) => {
 
-    const userAccountController = React.useMemo(() => new GenericController(`${homePath}api/SystemCenter/UserAccount`, "DisplayName" as keyof IUserAccount, true), [])
+    const userAccountController = React.useMemo(() => new GenericController<IUserAccount>(`${homePath}api/SystemCenter/UserAccount`, "DisplayName" as keyof IUserAccount, true), [])
     const userAdditionalFieldController = React.useMemo(() => new GenericController(`${homePath}api/SystemCenter/AdditionalUserField`, "User"), [])
     const valueListController = React.useMemo(() => new GenericController(`${homePath}api/ValueList`, 'SortOrder'), [])
     const valueListGroupController = React.useMemo(() => new GenericController(`${homePath}api/ValueListGroup`, 'Name'), [])
