@@ -41,7 +41,7 @@ const emptyGroup: ISecurityGroup = { Name: "", CreatedBy: "", CreatedOn: new Dat
 
 const ByUser: Application.Types.iByComponent = (props) => {
     let navigate = useNavigate();
-    const securityGroupController = React.useMemo(() => new GenericController(`${homePath}api/SystemCenter/FullSecurityGroup`, "DisplayName"),[])
+    const securityGroupController = React.useMemo(() => new GenericController(`${homePath}api/SystemCenter/FullSecurityGroup`, "DisplayName" as keyof ISecurityGroup),[])
 
     const [filters, setFilters] = React.useState<Search.IFilter<ISecurityGroup>[]>([]);
     const [securityGroups, setSecurityGroups] = React.useState<ISecurityGroup[]>([]);
@@ -51,13 +51,13 @@ const ByUser: Application.Types.iByComponent = (props) => {
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
     const [sortField, setSortField] = React.useState<keyof ISecurityGroup>('DisplayName');
-    const [ascending, setAscending] = React.useState<boolean>(false);
+    const [ascending, setAscending] = React.useState<boolean>(true);
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [groupError, setGroupError] = React.useState<string[]>([]);
     const [newGroup, setNewGroup] = React.useState<ISecurityGroup>(emptyGroup);
 
     const pagedSearch = React.useCallback(() => {
-        const h = securityGroupController.PagedSearch(filters, sortField as "DisplayName", ascending, currentPage)
+        const h = securityGroupController.PagedSearch(filters, sortField, ascending, currentPage)
         h.done((d) => {
             setSecurityGroups(JSON.parse(d.Data as unknown as string))
             setTotalPages(d.NumberOfPages)
@@ -75,11 +75,6 @@ const ByUser: Application.Types.iByComponent = (props) => {
     React.useEffect(() => { 
         return pagedSearch()
     }, [sortField, ascending, filters, currentPage, pagedSearch])
-
-    React.useEffect(() => {
-        if (status === "uninitiated" || status === "changed")
-            return pagedSearch()
-    }, [status, pagedSearch])
 
     return (
         <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
@@ -190,6 +185,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
                             { ...newGroup, Name: ((newGroup.Name?.length ?? 0) > 0 ? newGroup.Name : newGroup.DisplayName) } as ISecurityGroup
                         )
                         setStatus('changed')
+                        pagedSearch()
                     }
                     setShowModal(false);
                 }}
