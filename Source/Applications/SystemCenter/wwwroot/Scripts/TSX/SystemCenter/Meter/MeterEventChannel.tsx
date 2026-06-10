@@ -73,7 +73,7 @@ const MeterEventChannelWindow = (props: IProps) => {
 
     React.useEffect(() => {
         dispatch(PagedSearch({ meterId: props.Meter.ID, page: page, ascending: ascending, sortField: sortKey }));
-    }, [ascending, sortKey, page])
+    }, [ascending, sortKey, page, props.Meter.ID])
 
     React.useEffect(() => {
         if (pStatus == 'uninitiated' || pStatus == 'changed')
