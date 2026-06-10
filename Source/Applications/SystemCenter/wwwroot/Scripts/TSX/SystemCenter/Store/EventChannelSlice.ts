@@ -84,7 +84,8 @@ interface IPagedSearchArgs extends IFetchArgs {
     page: number
 }
 
-type ThunkState = Record<string, IEventChannelState>;
+type ThunkState = {EventChannels: IEventChannelState}
+    ;
 
 
 export const FetchChannels = createAsyncThunk<string, IFetchArgs, {state: ThunkState}>('EventChannels/FetchChannels', async (args: IFetchArgs, { getState, signal }) => {
