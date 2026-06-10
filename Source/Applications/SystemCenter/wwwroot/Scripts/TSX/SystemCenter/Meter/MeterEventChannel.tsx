@@ -31,7 +31,7 @@ import { Input, Select, ToolTip } from '@gpa-gemstone/react-forms';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { OpenXDA } from '../global';
-import { SelectAscending, SelectSortKey, SelectEventChannels, SelectEventChannelStatus, SelectMeterID, dBAction, SelectPagedData, SelectNumberOfPages } from '../Store/EventChannelSlice';
+import { SelectEventChannels, SelectEventChannelStatus, SelectMeterID, dBAction, SelectPagedData, SelectNumberOfPages } from '../Store/EventChannelSlice';
 import { FetchChannels, PagedSearch } from '../Store/EventChannelSlice';
 import { IsNumber } from '@gpa-gemstone/helper-functions';
 import { cloneDeep } from 'lodash';
