@@ -147,7 +147,14 @@ function Setting<T extends SystemCenter.Types.Setting>(props: IProps<T>) {
                         Data={data}
                         SortKey={sortField as string}
                         Ascending={ascending}
-                        OnSort={sort}
+                        OnSort={(d) => {
+                            if (d.colField === sortField)
+                                setAscending(!ascending);
+                            else {
+                                setAscending(true);
+                                setSortField(d.colField);
+                            }
+                        }}
                         OnClick={(item) => { setEditNewSetting(item.row); setShowModal(true); setEditNew('Edit'); }}
                         TheadStyle={{ fontSize: 'smaller' }}
                         TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
