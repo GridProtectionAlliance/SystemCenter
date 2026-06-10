@@ -243,6 +243,7 @@ const rootReducer = combineReducers({
     SEBrowserSetting: SEBrowserSettingSlice.Reducer,
     PQDigestSetting: PQDigestSettingSlice.Reducer,
     AssetType: AssetTypeSlice.Reducer,
+    DataFile: DataFileSlice.Reducer,
     Customer: CustomerSlice.Reducer,
     AssetNote: AssetNoteSlice.Reducer,
     MeterNote: MeterNoteSlice.Reducer,
