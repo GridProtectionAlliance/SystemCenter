@@ -371,31 +371,32 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                     ResultNote={searchStatus == 'error' ? 'Could not complete Search' : 'Found ' + searchData.length + ' Additional Field(s)'}
                 >
                     {children}
-                    <Column Key="FieldName" Field="FieldName" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
-                    >Name</Column>
-                    <Column Key="ParentTable" Field="ParentTable" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
-                    >Parent Type</Column>
-                    <Column Key="Type" Field="Type" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
-                    >Field Type</Column>
-                    <Column Key="ExternalDB" Field="ExternalDB" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
-                    >External Database</Column>
-                    <Column Key="ExternalTable" Field="ExternalTable" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
-                    >External Table</Column>
-                    <Column Key="Searchable" Field="Searchable" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
-                        Content={row => row.item ? <ReactIcons.CheckMark Color="var(--success)" /> : <ReactIcons.CrossMark Color="var(--danger)" />}
-                    >Searchable</Column>
-                    <Column Key="IsSecure" Field="IsSecure" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
-                        Content={row => row.item ? <ReactIcons.CheckMark Color="var(--success)" /> : <ReactIcons.CrossMark Color="var(--danger)" />}
-                    >Secure</Column>
-                    <Column Key="IsInfo" Field="IsInfo" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
-                        Content={row => row.item ? <ReactIcons.CheckMark Color="var(--success)" /> : <ReactIcons.CrossMark Color="var(--danger)" />}
-                    >Info</Column>
-                    <Column Key="IsKey" Field="IsKey" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
-                        Content={row => row.item ? <ReactIcons.CheckMark Color="var(--success)" /> : <ReactIcons.CrossMark Color="var(--danger)" />}
-                    >Key</Column>
                 </SearchBar>
                 }
-            />
+            >
+                <Column Key="FieldName" Field="FieldName" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Name</Column>
+                <Column Key="ParentTable" Field="ParentTable" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Parent Type</Column>
+                <Column Key="Type" Field="Type" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >Field Type</Column>
+                <Column Key="ExternalDB" Field="ExternalDB" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >External Database</Column>
+                <Column Key="ExternalTable" Field="ExternalTable" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                >External Table</Column>
+                <Column Key="Searchable" Field="Searchable" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                    Content={row => row.item ? <ReactIcons.CheckMark Color="var(--success)" /> : <ReactIcons.CrossMark Color="var(--danger)" />}
+                >Searchable</Column>
+                <Column Key="IsSecure" Field="IsSecure" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                    Content={row => row.item ? <ReactIcons.CheckMark Color="var(--success)" /> : <ReactIcons.CrossMark Color="var(--danger)" />}
+                >Secure</Column>
+                <Column Key="IsInfo" Field="IsInfo" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                    Content={row => row.item ? <ReactIcons.CheckMark Color="var(--success)" /> : <ReactIcons.CrossMark Color="var(--danger)" />}
+                >Info</Column>
+                <Column Key="IsKey" Field="IsKey" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+                    Content={row => row.item ? <ReactIcons.CheckMark Color="var(--success)" /> : <ReactIcons.CrossMark Color="var(--danger)" />}
+                >Key</Column>
+            </SelectPopup>
         </div>
 
 
