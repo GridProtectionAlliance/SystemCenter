@@ -24,10 +24,10 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
-import { useAppSelector, useAppDispatch } from '../hooks';
+import { useAppSelector, useAppDispatch, useBoundPaging } from '../hooks';
 import { ValueListSlice } from '../Store/Store';
 import ValueListForm from './ValueListForm';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Modal } from '@gpa-gemstone/react-interactive';
 import { ValueListItemDelete, RequiredValueLists } from './ValueListGroupDelete';
@@ -40,11 +40,11 @@ interface IProps {
 export default function ValueListGroupItems(props: IProps) {
     const dispatch = useAppDispatch();
 
-    const data = useAppSelector(ValueListSlice.Data);
-    const sortKey = useAppSelector(ValueListSlice.SortField);
-    const asc = useAppSelector(ValueListSlice.Ascending);
+    const data = useAppSelector(ValueListSlice.SearchResults);
     const status = useAppSelector(ValueListSlice.Status);
-    const parentID= useAppSelector(ValueListSlice.ParentID);
+    const parentID = useAppSelector(ValueListSlice.ParentID);
+    const currentPage = useAppSelector(ValueListSlice.CurrentPage);
+    const totalPages = useAppSelector(ValueListSlice.TotalPages);
 
     const emptyRecord: SystemCenter.Types.ValueListItem = { ID: 0, GroupID: parentID as number, Value: '', AltValue: null, SortOrder: 0 };
     const [record, setRecord] = React.useState<SystemCenter.Types.ValueListItem>(emptyRecord);
@@ -54,6 +54,8 @@ export default function ValueListGroupItems(props: IProps) {
 
     const [countDictionary, setCountDictionary] = React.useState<{ [key: string]: number }>({});
     const [hover, setHover] = React.useState<string>('');
+    const [ascending, setAscending] = React.useState<boolean>(true);
+    const [sortField, setSortField] = React.useState<keyof SystemCenter.Types.ValueListItem>('SortOrder')
 
     const disallowReason = React.useCallback((ID: string) => {
         if (!RequiredValueLists.includes(props.Record?.Name))
@@ -67,8 +69,8 @@ export default function ValueListGroupItems(props: IProps) {
     }, [props.Record?.Name, data.length, countDictionary]);
 
     React.useEffect(() => {
-        if (status == 'uninitiated' || status == 'changed' || parentID != props.Record.ID)
-            dispatch(ValueListSlice.Fetch(props.Record.ID));
+        if (status == 'uninitiated' || status == 'changed')
+            dispatch(ValueListSlice.PagedSearch({ filter: [], sortField: 'SortOrder', ascending: true, page: 0 }));
     }, [status, parentID, props.Record.ID]);
 
     React.useEffect(() => {
@@ -87,8 +89,31 @@ export default function ValueListGroupItems(props: IProps) {
         return () => { if (h?.abort != null) h.abort(); }
     }, [props.Record?.Name]);
 
+    const setPage = React.useCallback((page) => {
+        dispatch(ValueListSlice.PagedSearch({ filter: [], sortField: sortField, ascending: ascending, page: page - 1 }))
+    }, [sortField, ascending])
+
+    useBoundPaging(currentPage, totalPages, setPage)
+
+    const sort = React.useCallback((d) => {
+        if (d.colField === 'btns')
+            return
+        let asc = ascending
+        let sort = d.colField
+        if (sortField === d.colField) {
+            setAscending(!asc)
+            asc = !asc
+        }
+        else {
+            setSortField(d.colField)
+            setAscending(true)
+            asc = true
+        }
+        dispatch(ValueListSlice.PagedSearch({ filter: [], sortField: sort, ascending: asc, page: 0 }))
+    }, [ascending, sortField])
+
     return (
-        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <div className="card h-100">
             <div className="card-header">
                 <div className="row">
                     <div className="col">
@@ -96,18 +121,15 @@ export default function ValueListGroupItems(props: IProps) {
                     </div>
                 </div>
             </div>
-            <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
-                <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', padding: 0 }}>
+            <div className="card-body d-flex flex-column" style={{ flex: '1 1 0%', overflow: 'hidden' }}>
+                <div className="row d-flex flex-column" style={{ flex: '1 1 0%', overflow: 'hidden' }}>
+                    <div className="col d-flex flex-column" style={{ overflow: 'hidden' }}>
                     <Table<SystemCenter.Types.ValueListItem>
                         TableClass="table table-hover"
                         Data={data}
-                        SortKey={sortKey}
-                        Ascending={asc}
-                        OnSort={(d) => {
-                            if (d.colKey == 'btns')
-                                return;
-                            dispatch(ValueListSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
-                        }}
+                            SortKey={sortField}
+                            Ascending={ascending}
+                            OnSort={sort}
                         TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1, width: '100%' }}
@@ -179,6 +201,16 @@ export default function ValueListGroupItems(props: IProps) {
                         > <p></p>
                         </Column>
                     </Table>
+                </div>
+            </div>
+                <div className="row">
+                    <div className="col">
+                        <Paging
+                            SetPage={setPage}
+                            Current={currentPage + 1}
+                            Total={totalPages}
+                        />
+                    </div>
                 </div>
             </div>
             <div className="card-footer">

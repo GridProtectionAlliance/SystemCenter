@@ -26,7 +26,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { useNavigate } from 'react-router-dom';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { AssetGroupSlice } from '../Store/Store';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
 import { Search, Warning } from '@gpa-gemstone/react-interactive';
@@ -38,7 +38,7 @@ import { SelectRoles } from '../Store/UserSettings';
 declare var homePath: string;
 
 
-function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
+function AssetGroupAssetGroupWindow(props: { AssetGroupID: number }) {
     let navigate = useNavigate();
     const dispatch = useAppDispatch();
     const [groupList, setGroupList] = React.useState<Array<OpenXDA.Types.AssetGroup>>([]);
@@ -47,6 +47,8 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
     const [showAdd, setShowAdd] = React.useState<boolean>(false);
     const [counter, setCounter] = React.useState<number>(0);
     const [removeGroup, setRemoveGroup] = React.useState<number>(-1);
+    const [page, setPage] = React.useState<number>(0);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
 
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
     const roles = useAppSelector(SelectRoles);
@@ -65,32 +67,33 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
         return getData();
     }, [props.AssetGroupID, counter]);
 
+    React.useEffect(() => {
+        return getData();
+    }, [ascending, sortField, page])
+
     function getData() {
         if (props.AssetGroupID == null)
             return () => { };
 
         let handle = $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/AssetGroup/${props.AssetGroupID}/AssetGroups`,
+            type: "POST",
+            url: `${homePath}api/OpenXDA/AssetGroup/${props.AssetGroupID}/AssetGroups/${page}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
-            async: true
+            async: true,
+            data: JSON.stringify({OrderBy: sortField, Ascending: ascending})
         });
 
-        handle.done((data: Array<OpenXDA.Types.AssetGroup>) => {
-            const sortedData = sortData(sortField, ascending, data);
-            setGroupList(sortedData);
+        handle.done((r) => {
+            setGroupList(JSON.parse(r.Data));
+            setTotalPages(r.NumberOfPages);
         });
-      
+
         return function cleanup() {
             if (handle.abort != null)
                 handle.abort();
         }
-    }
-
-    function sortData(key: string, ascending: boolean, data: OpenXDA.Types.AssetGroup[]) {
-        return _.orderBy(data, [key], [(ascending ? "asc" : "desc")]);
     }
 
     function getEnum(setOptions, field) {
@@ -127,7 +130,7 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
     }
 
     function saveItems(items: OpenXDA.Types.AssetGroup[]) {
-        
+
         let handle = $.ajax({
             type: "POST",
             url: `${homePath}api/OpenXDA/AssetGroup/${props.AssetGroupID}/AddAssetGroups`,
@@ -151,92 +154,95 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
 
     return (
         <>
-        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            <div className="card-header">
-                <div className="row">
-                    <div className="col">
-                        <h4>Asset Groups in Asset Group:</h4>
+            <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                <div className="card-header">
+                    <div className="row">
+                        <div className="col">
+                            <h4>Asset Groups in Asset Group:</h4>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
-                <div style={{  width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-                    <Table<OpenXDA.Types.AssetGroup>
-                        TableClass="table table-hover"
-                        Data={groupList}
-                        SortKey={sortField}
-                        Ascending={ascending}
-                        OnSort={(d) => {
-                            if (d.colKey == sortField) {
-                                setAscending(!ascending);
-                                const ordered = _.orderBy(groupList, [d.colKey], [(!ascending ? "asc" : "desc")]);
-                                setGroupList(ordered);
-                            }
-                            else {
-                                setAscending(true);
-                                setSortField(d.colField);
-                                const ordered = _.orderBy(groupList, [d.colKey], ["asc"]);
-                                setGroupList(ordered);
-                            }
-                        }}
-                        OnClick={(data) => { navigate(`${homePath}index.cshtml?name=AssetGroup&AssetGroupID=${data.row.ID}`); }}
-                        TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
-                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        TbodyStyle={{ display: 'block', width: '100%', overflowY: 'auto', flex: 1 }}
-                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        Selected={(item) => false}
-                        KeySelector={(item) => item.ID}
-                    >
-                        <Column<OpenXDA.Types.AssetGroup>
-                            Key={'Name'}
-                            AllowSort={true}
-                            Field={'Name'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Name
-                        </Column>
-                        <Column<OpenXDA.Types.AssetGroup>
-                            Key={'Assets'}
-                            AllowSort={true}
-                            Field={'Assets'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Num. of Assets
-                        </Column>
-                        <Column<OpenXDA.Types.AssetGroup>
-                            Key={'Meters'}
-                            AllowSort={true}
-                            Field={'Meters'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Num. of Meters
-                        </Column>
-                        <Column<OpenXDA.Types.AssetGroup>
-                            Key={'AssetGroups'}
-                            AllowSort={true}
-                            Field={'AssetGroups'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Num. of Asset Groups
-                        </Column>
-                        <Column<OpenXDA.Types.AssetGroup>
-                            Key={'Remove'}
-                            AllowSort={false}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                            Content={({ item }) => <>
-                                <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
-                                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (hasPermissions()) setRemoveGroup(item.ID); }}>
-                                    <span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span>
-                                </button>
-                            </> }
-                        > <p></p>
-                        </Column>
-                    </Table>
+                <div className="card-body d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
+                    <div className="row d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
+                        <Table<OpenXDA.Types.AssetGroup>
+                            TableClass="table table-hover"
+                            Data={groupList}
+                            SortKey={sortField}
+                            Ascending={ascending}
+                            OnSort={(d) => {
+                                if (d.colKey == sortField) {
+                                    setAscending(a => !a);
+                                }
+                                else {
+                                    setSortField(d.colField);
+                                }
+                            }}
+                            OnClick={(data) => { navigate(`${homePath}index.cshtml?name=AssetGroup&AssetGroupID=${data.row.ID}`); }}
+                            TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            TbodyStyle={{ display: 'block', width: '100%', overflowY: 'auto', flex: 1 }}
+                            RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            Selected={(item) => false}
+                            KeySelector={(item) => item.ID}
+                        >
+                            <Column<OpenXDA.Types.AssetGroup>
+                                Key={'Name'}
+                                AllowSort={true}
+                                Field={'Name'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Name
+                            </Column>
+                            <Column<OpenXDA.Types.AssetGroup>
+                                Key={'Assets'}
+                                AllowSort={true}
+                                Field={'Assets'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Num. of Assets
+                            </Column>
+                            <Column<OpenXDA.Types.AssetGroup>
+                                Key={'Meters'}
+                                AllowSort={true}
+                                Field={'Meters'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Num. of Meters
+                            </Column>
+                            <Column<OpenXDA.Types.AssetGroup>
+                                Key={'AssetGroups'}
+                                AllowSort={true}
+                                Field={'AssetGroups'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Num. of Asset Groups
+                            </Column>
+                            <Column<OpenXDA.Types.AssetGroup>
+                                Key={'Remove'}
+                                AllowSort={false}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                                Content={({ item }) => <>
+                                    <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
+                                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (hasPermissions()) setRemoveGroup(item.ID); }}>
+                                        <span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span>
+                                    </button>
+                                </>}
+                            > <p></p>
+                            </Column>
+                        </Table>
+                    </div>
+                    <div className="row">
+                        <div className="col">
+                            <Paging
+                                Current={page + 1}
+                                SetPage={(page) => setPage(page - 1)}
+                                Total={totalPages}
+                            />
+                        </div>
+                    </div>
                 </div>
-                
-            </div>
-            <div className="card-footer">
+                <div className="card-footer">
                     <button className={"btn btn-info pull-left" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='AddGroup'
                         onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (hasPermissions()) setShowAdd(true); }}>Add Asset Groups</button>
                 </div>
@@ -270,7 +276,7 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
                 </DefaultSelects.AssetGroup>
                 <Warning Show={removeGroup > -1} Title={'Remove Asset Group from Asset Group'} Message={'This will remove the Asset Group from this Asset Group.'} CallBack={(c) => { if (c) removeItem(removeGroup); setRemoveGroup(-1); }} />
             </div>
-            </>
+        </>
     );
 }
 

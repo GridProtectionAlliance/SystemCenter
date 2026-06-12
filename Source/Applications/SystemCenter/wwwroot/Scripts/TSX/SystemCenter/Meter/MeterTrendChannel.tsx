@@ -32,7 +32,7 @@ import { IsNumber } from '@gpa-gemstone/helper-functions';
 import { TrendChannelSlice, PhaseSlice, MeasurmentTypeSlice, MeasurementCharacteristicSlice } from '../Store/Store';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { useAppSelector, useAppDispatch } from '../hooks';
-import { ConfigurableTable, ConfigurableColumn, Column } from '@gpa-gemstone/react-table';
+import { ConfigurableTable, ConfigurableColumn, Column, Paging } from '@gpa-gemstone/react-table';
 import { SelectRoles } from '../Store/UserSettings';
 
 declare var homePath: string;
@@ -42,9 +42,9 @@ interface IProps { Meter: GemstoneOpenXDA.Types.Meter, IsVisible: boolean }
 const MeterTrendChannelWindow = (props: IProps) => {
     const dispatch = useAppDispatch();
 
-    const data = useAppSelector(TrendChannelSlice.Data);
-    const sortKey = useAppSelector(TrendChannelSlice.SortField)
-    const ascending = useAppSelector(TrendChannelSlice.Ascending)
+    const data = useAppSelector(TrendChannelSlice.SearchResults);
+    const [ascending, setAscending] = React.useState<boolean>(true);
+    const [sortKey, setSortKey] = React.useState<keyof OpenXDA.TrendChannel>('Name')
     const status = useAppSelector(TrendChannelSlice.Status);
     const meterID = useAppSelector(TrendChannelSlice.ParentID);
 
@@ -64,8 +64,13 @@ const MeterTrendChannelWindow = (props: IProps) => {
 
     const [errors, setErrors] = React.useState<string[]>([]);
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None' | 'Add')>('None');
+    const totalPages = useAppSelector(TrendChannelSlice.TotalPages);
+    const [page, setPage] = React.useState<number>(0);
     const roles = useAppSelector(SelectRoles);
 
+    const pagedSearch = React.useCallback(() => {
+        dispatch(TrendChannelSlice.PagedSearch({filter: [], sortField: sortKey, ascending, page}))
+    }, [page, ascending, sortKey, TrendChannelSlice.PagedSearch])
 
     React.useEffect(() => {
         if (phaseStatus == 'uninitiated' || phaseStatus == 'changed')
@@ -84,8 +89,17 @@ const MeterTrendChannelWindow = (props: IProps) => {
 
     React.useEffect(() => {
         if (status == 'uninitiated' || status == 'changed' || meterID !== props.Meter.ID)
-            dispatch(TrendChannelSlice.Fetch(props.Meter.ID));
+            dispatch(TrendChannelSlice.Fetch(props.Meter.ID)); // left in because it sets the parent ID
     }, [props.Meter, status]);
+
+    React.useEffect(() => {
+        if (status == 'uninitiated' || status == 'changed' || meterID !== props.Meter.ID)
+            pagedSearch();
+    }, [props.Meter, status, pagedSearch]);
+
+    React.useEffect(() => {
+        pagedSearch();
+    }, [page, sortKey, ascending])
 
     React.useEffect(() => {
         if (!props.IsVisible) return;
@@ -250,8 +264,8 @@ const MeterTrendChannelWindow = (props: IProps) => {
                     </div>
                 </div>
             </div>
-            <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
-                <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <div className="card-body d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="row d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
                     <ConfigurableTable<OpenXDA.TrendChannel>
                         LocalStorageKey="MeterTrendChannelConfigTable"
                         TableClass="table table-hover"
@@ -265,11 +279,12 @@ const MeterTrendChannelWindow = (props: IProps) => {
                         SortKey={sortKey}
                         Ascending={ascending}
                         OnSort={(d) => {
-
-                            if (d.colKey === sortKey)
-                                dispatch(TrendChannelSlice.Sort({ SortField: sortKey, Ascending: ascending }));
-                            else
-                                dispatch(TrendChannelSlice.Sort({ SortField: d.colField as keyof OpenXDA.TrendChannel, Ascending: true }));
+                            if (d.colKey == sortKey) {
+                                setAscending(a => !a);
+                            }
+                            else {
+                                setSortKey(d.colField);
+                            }
                         }}
                     >
                         <Column<OpenXDA.TrendChannel>
@@ -510,6 +525,15 @@ const MeterTrendChannelWindow = (props: IProps) => {
                         >&nbsp;
                         </Column>
                     </ConfigurableTable>
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <Paging
+                            Current={page + 1}
+                            Total={totalPages}
+                            SetPage={(page) => setPage(page - 1) }
+                        />
+                    </div>
                 </div>
             </div>
             <div className="card-footer">
