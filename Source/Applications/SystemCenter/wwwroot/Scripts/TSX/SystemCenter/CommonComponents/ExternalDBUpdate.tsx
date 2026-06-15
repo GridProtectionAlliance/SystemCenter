@@ -180,8 +180,8 @@ const ExternalDBUpdate = React.memo((props: {
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                         Content={({ item }) => {
-                            if (statusMap.get(item.ID) === 'loading') return <LoadingIcon Show={true} Label={`Performing update for ${props.Type}s on connected to ${item.Name}...`} />
-                            if (statusMap.get(item.ID) === 'error') return <ServerErrorIcon Show={true} Label="Could not complete update. Please contact an administartor..." />
+                            if (statusMap.get(item.ID) === 'loading') return <LoadingIcon Show={true} Label={`Performing update for ${props.Type === 'Bus' ? 'Buse' : props.Type}s connected to ${item.Name}. This could take awhile.`} />
+                            if (statusMap.get(item.ID) === 'error') return <ServerErrorIcon Show={true} Label="Could not complete update. Please contact an administrator." />
                             return (
                                 <button className="btn btn-info pull-right" data-tooltip={item.ID} onClick={() => {
                                     const handle = updateExternalDB(item);
