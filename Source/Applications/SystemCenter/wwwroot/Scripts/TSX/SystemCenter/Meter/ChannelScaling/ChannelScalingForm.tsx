@@ -279,7 +279,7 @@ const ChannelScalingForm = (props: IProps) => {
                     <div className="col">
                         <Paging
                             Current={page + 1}
-                            Total={(Wrappers.length + RecordsPerPage - 1) / RecordsPerPage}
+                            Total={Math.floor((Wrappers.length + RecordsPerPage - 1) / RecordsPerPage)}
                             SetPage={(page) => setPage(page - 1)}
                         />
                     </div>
