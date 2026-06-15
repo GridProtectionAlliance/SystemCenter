@@ -179,17 +179,12 @@ const ByUser: Application.Types.iByComponent = (props) => {
         setFilterableList(ordered)
     }, [adlFields]);
 
-    if (pageStatus === 'error')
-        return <div style={{ width: '100%', height: '100%' }}>
-            <ServerErrorIcon Show={true} Label={'A Server Error Occurred. Please Reload the Application.'} />
-        </div>;
-
     return (
         <div className="container-fluid d-flex h-100 flex-column">
             <LoadingScreen Show={pageStatus === 'loading'} />
             <SearchBar<IUserAccount> CollumnList={filterableList} SetFilter={setFilters}
                 Direction={'left'} defaultCollumn={{ label: 'Username', key: 'DisplayName', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
-                ShowLoading={userStatus === 'loading'} ResultNote={'Displaying  User(s) ' + (totalRecords > 0 ? (recordsPerPage * page + 1) : 0) + ' - ' + (recordsPerPage * page + users.length) + ' out of ' + totalRecords}
+                ShowLoading={userStatus === 'loading'} ResultNote={userStatus === 'error' ? 'Could not complete search.' : 'Displaying  User(s) ' + (totalRecords > 0 ? (recordsPerPage * page + 1) : 0) + ' - ' + (recordsPerPage * page + users.length) + ' out of ' + totalRecords}
                 StorageID="UsersFilter"
                 GetEnum={(setOptions, field) => {
 
