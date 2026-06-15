@@ -35,8 +35,8 @@ interface IProps { ID: number, Type: 'Asset' | 'Meter' | 'Location' | 'Customer'
 const NoteWindow = (props: IProps) => {
 
     const [noteType, setNoteType] = React.useState<OpenXDA.Types.NoteType>({ ID: -1, Name: 'Meter', ReferenceTableName: 'Meter' });
-    const [noteTag, setNoteTag] = React.useState<OpenXDA.Types.NoteTag>({ ID: -1, Name: 'Configuration' });
-    const [noteApp, setNoteApp] = React.useState<OpenXDA.Types.NoteApplication>({ ID: -1, Name: 'SystemCenter' });
+    const [noteTags, setNoteTags] = React.useState<OpenXDA.Types.NoteTag[]>([]);
+    const [noteApps, setNoteApps] = React.useState<OpenXDA.Types.NoteApplication[]>([]);
     const roles = useAppSelector(SelectRoles);
 
     
@@ -86,8 +86,7 @@ const NoteWindow = (props: IProps) => {
         });
 
         handle.done((d: OpenXDA.Types.NoteApplication[]) => {
-            let record = d.find(r => r.Name == "SystemCenter")
-            setNoteApp(record);
+            setNoteApps(d.reverse()) // puts 'all' first, as default.
         });
 
         return handle;
@@ -104,8 +103,7 @@ const NoteWindow = (props: IProps) => {
         });
 
         handle.done((d: OpenXDA.Types.NoteTag[]) => {
-            let record = d.find(r => r.Name == "Configuration")
-            setNoteTag(record);
+            setNoteTags(d)
         });
 
         return handle;
@@ -132,8 +130,16 @@ const NoteWindow = (props: IProps) => {
         slice = UserNoteSlice;
 
     return (
-        <Note MaxHeight={window.innerHeight - 250} ReferenceTableID={props.ID} NoteApplications={[noteApp]} NoteTags={[noteTag]} NoteTypes={[noteType]} NoteSlice={slice} AllowAdd={hasPermissions()}
-            AllowEdit={hasPermissions()} AllowRemove={hasPermissions()}
+        <Note
+            MaxHeight={window.innerHeight - 250}
+            ReferenceTableID={props.ID}
+            NoteApplications={noteApps}
+            NoteTags={noteTags}
+            NoteTypes={[noteType]}
+            NoteSlice={slice}
+            AllowAdd={hasPermissions()}
+            AllowEdit={hasPermissions()}
+            AllowRemove={hasPermissions()}
         />
     );
 }
