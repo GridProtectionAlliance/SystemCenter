@@ -35,7 +35,7 @@ const defaultSearchcols: Search.IField<SC.Node>[] = [
     { label: 'Assigned Host Registration Key', key: 'AssignedHostRegistrationKey', type: 'string', isPivotField: false }
 ];
 
-const ByNode = (props) => {
+const ByNode = (props: {Roles: Application.Types.SecurityRoleName[]}) => {
     const [data, setData] = React.useState<SC.Node[]>([])
     const [sortField, setSortField] = React.useState<keyof SC.Node>('Name')
     const [ascending, setAscending] = React.useState<boolean>(true)
