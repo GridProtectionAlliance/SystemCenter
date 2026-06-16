@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { GenericController, Search, SearchBar } from '@gpa-gemstone/react-interactive'
+import { GenericController, Search, SearchBar, LoadingScreen } from '@gpa-gemstone/react-interactive'
 import { Table, Column, Paging } from '@gpa-gemstone/react-table'
 import { Application } from '@gpa-gemstone/application-typings';
 import { SystemCenter as SC } from '../global'
@@ -62,7 +62,7 @@ const ByNode = (props: {Roles: Application.Types.SecurityRoleName[]}) => {
         }) },[filters, sortField, ascending, page, nodeController.PagedSearch])
 
     return <div style={{ width: '100%', height: '100%' }}>
-        {/**<LoadingScreen Show={cState === 'loading'} /> */}
+        <LoadingScreen Show={status === 'loading'} />
         <div className="container-fluid d-flex h-100 flex-column">
             <div className="row">
                 <SearchBar<SC.Node> CollumnList={defaultSearchcols} SetFilter={setFilters}
