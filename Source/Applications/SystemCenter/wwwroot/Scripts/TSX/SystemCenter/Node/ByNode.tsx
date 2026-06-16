@@ -46,10 +46,9 @@ const ByNode = (props: {Roles: Application.Types.SecurityRoleName[]}) => {
     const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
     const [totalRecords, setTotalRecords] = React.useState<number>(0);
 
-    const nodeController = React.useMemo(() => new GenericController<SC.Node>(`${homePath}api/OpenXDA/Node`, 'Name', true),[])
-
     React.useEffect(() => {
         setStatus('loading');
+        const nodeController = new GenericController<SC.Node>(`${homePath}api/OpenXDA/Node`, 'Name', true)
         const handle = nodeController.PagedSearch(filters, sortField, ascending, page);
         handle.done((d) => {
             setData(JSON.parse(d.Data as unknown as string));
@@ -59,7 +58,7 @@ const ByNode = (props: {Roles: Application.Types.SecurityRoleName[]}) => {
             setStatus('idle');
         }).fail((d) => {
             setStatus('error');
-        }) },[filters, sortField, ascending, page, nodeController.PagedSearch])
+        }) },[filters, sortField, ascending, page])
 
     return <div style={{ width: '100%', height: '100%' }}>
         <LoadingScreen Show={status === 'loading'} />
