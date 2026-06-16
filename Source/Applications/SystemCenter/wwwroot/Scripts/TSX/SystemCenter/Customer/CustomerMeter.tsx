@@ -271,6 +271,7 @@ const CustomerMeterWindow = (props: IProps) => {
             Title={"Add Meters to Customer"}
             GetEnum={getEnum}
             GetAddlFields={getAdditionalMeterFields}
+            StorageID={"CustomerMeter"}
         >
             <Column Key="Name" Field="Name" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
             >Name</Column>
