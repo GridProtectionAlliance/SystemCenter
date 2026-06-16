@@ -143,7 +143,7 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
         if (!valid('RSrc'))
             e.push('R must be a numeric value.');
         if (!valid('AssetLocationID'))
-            e.push('A valid Location must be selected.');
+            e.push('A valid Substation must be selected.');
 
         return e;
     }
