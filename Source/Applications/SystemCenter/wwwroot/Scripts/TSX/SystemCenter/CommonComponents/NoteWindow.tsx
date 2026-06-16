@@ -24,6 +24,7 @@
 import * as React from 'react';
 import { OpenXDA } from '@gpa-gemstone/application-typings'
 import { Note } from '@gpa-gemstone/common-pages'
+import { MultiCheckBoxSelect } from '@gpa-gemstone/react-forms'
 import { AssetNoteSlice, CompanyNoteSlice, CustomerNoteSlice, LocationNoteSlice, MeterNoteSlice, UserNoteSlice } from '../Store/Store';
 import { SelectRoles } from '../Store/UserSettings';
 import { useAppSelector } from '../hooks';
@@ -35,11 +36,11 @@ interface IProps { ID: number, Type: 'Asset' | 'Meter' | 'Location' | 'Customer'
 const NoteWindow = (props: IProps) => {
 
     const [noteType, setNoteType] = React.useState<OpenXDA.Types.NoteType>({ ID: -1, Name: 'Meter', ReferenceTableName: 'Meter' });
+    const [selectedTags, setSelectedTags] = React.useState<number[]>([]);
     const [noteTags, setNoteTags] = React.useState<OpenXDA.Types.NoteTag[]>([]);
-    const [noteApps, setNoteApps] = React.useState<OpenXDA.Types.NoteApplication[]>([]);
+    const [noteApp, setNoteApp] = React.useState<OpenXDA.Types.NoteApplication>({ ID: -1, Name: 'SystemCenter' });
     const roles = useAppSelector(SelectRoles);
 
-    
     React.useEffect(() => {
         let typeHandle = getNoteType();
         return () => { if (typeHandle != null && typeHandle.abort != null) typeHandle.abort(); }
@@ -86,7 +87,8 @@ const NoteWindow = (props: IProps) => {
         });
 
         handle.done((d: OpenXDA.Types.NoteApplication[]) => {
-            setNoteApps(d.reverse()) // puts 'all' first, as default.
+            let record = d.find(r => r.Name == "SystemCenter")
+            setNoteApp(record);
         });
 
         return handle;
@@ -129,18 +131,39 @@ const NoteWindow = (props: IProps) => {
     if (props.Type == 'User')
         slice = UserNoteSlice;
 
-    return (
-        <Note
-            MaxHeight={window.innerHeight - 250}
+    return (<div className="p-3">
+        <div className='row'>
+            <div className='col'>
+                <MultiCheckBoxSelect Label={'Types:'}
+                    Options={noteTags.map(t => ({ Selected: selectedTags.find(i => i == t.ID) != null, Label: t.Name, Value: t.ID }))}
+                    OnChange={(evt, changed) => {
+                        setSelectedTags((st) => {
+                            const u = st.filter((t) => changed.findIndex(c => c.Value == t) == -1);
+                            u.push(...changed.filter(t => !t.Selected).map(t => parseInt(t.Value.toString())));
+                            return u;
+                        })
+                    }}
+                    ShowToolTip={true}
+                />
+            </div>
+        </div>
+        {selectedTags.length > 0 ? < Note
+            MaxHeight={window.innerHeight - 215}
             ReferenceTableID={props.ID}
-            NoteApplications={noteApps}
-            NoteTags={noteTags}
+            NoteApplications={[noteApp]}
+            NoteTags={noteTags.filter((t) => selectedTags.find(i => i == t.ID) != null)}
             NoteTypes={[noteType]}
             NoteSlice={slice}
             AllowAdd={hasPermissions()}
+            Title={''}
             AllowEdit={hasPermissions()}
-            AllowRemove={hasPermissions()}
-        />
+            AllowRemove={false}
+            ShowCard={false}
+            Filter={(n) => selectedTags.find(i => i == n.NoteTagID) != null}
+        /> : <div className={'alert alert-warning'}>
+            <p>At least 1 Type needs to be selected.</p>
+        </div>}
+    </div>
     );
 }
 
