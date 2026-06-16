@@ -46,9 +46,8 @@ const ByNode = (props) => {
     const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
     const [totalRecords, setTotalRecords] = React.useState<number>(0);
 
-    const nodeController = React.useMemo(() => new GenericController<SC.Node>('api/OpenXDA/Node', 'Name', true),[])
-
     const pagedSearch = React.useCallback(() => {
+        const nodeController = new GenericController<SC.Node>(`${homePath}api/OpenXDA/Node`, 'Name', true)
         setStatus('loading');
         const handle = nodeController.PagedSearch(filters, sortField, ascending, page);
         handle.done((d) => {
@@ -60,7 +59,7 @@ const ByNode = (props) => {
         }).fail((d) => {
             setStatus('error');
         })
-    }, [nodeController.PagedSearch, filters, sortField, ascending, page])
+    }, [filters, sortField, ascending, page])
 
     React.useEffect(() => { return pagedSearch() },[filters, sortField, ascending, page])
 
