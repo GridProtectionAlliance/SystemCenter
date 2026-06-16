@@ -68,7 +68,6 @@ const ByNode = (props: {Roles: Application.Types.SecurityRoleName[]}) => {
                 Direction={'left'} defaultCollumn={{ label: 'Name', key: 'Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
                     ShowLoading={status === 'loading'} ResultNote={status === 'error' ? 'Could not complete search.' : `Displaying  Node(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + data.length} out of ${totalRecords}`}
                 StorageID="NodesFilter"
-                GetEnum={() => {return () => { }}}
             >
             </SearchBar>
             </div>
