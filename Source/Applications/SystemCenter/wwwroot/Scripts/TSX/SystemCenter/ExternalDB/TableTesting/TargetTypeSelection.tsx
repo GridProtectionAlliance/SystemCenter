@@ -31,7 +31,7 @@ interface IProps {
     SetTable: (table: string | undefined) => void;
 }
 
-const parentTableOptions = (OpenXDA.Lists.AssetTypes as string[]).concat(['Meter', 'Location', 'Customer', 'Asset']).map(name => { return { Value: name, Label: name } });
+const parentTableOptions = (OpenXDA.Lists.AssetTypes as string[]).concat(['Meter', 'Substation', 'Customer', 'Asset']).map(name => { return { Value: name, Label: name } });
 
 interface TableOptions { ShowTableSelect: boolean, TableName: string };
 
@@ -40,7 +40,7 @@ export default function TargetTypesSelection(props: IProps) {
     const [parentTable, setParentTable] = React.useState<TableOptions>({ ShowTableSelect: true, TableName: parentTableOptions[0].Value });
 
     React.useEffect(() => {
-        if (parentTable.ShowTableSelect) props.SetTable(parentTable.TableName)
+        if (parentTable.ShowTableSelect) props.SetTable(parentTable.TableName === 'Substation' ? 'Location' : parentTable.TableName)
         else props.SetTable('');
     }, [parentTable])
     // Needed to Select Record for Query
