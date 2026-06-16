@@ -259,6 +259,7 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
                 Title={"Add Meters to " + (props.Asset?.AssetName ?? 'Asset')}
                 GetEnum={getEnum}
                 GetAddlFields={getAdditionalMeterFields}
+                StorageID={"AssetMeter"}
             >
                 <Column Key="AssetKey" Field="AssetKey" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
                 >Key</Column>

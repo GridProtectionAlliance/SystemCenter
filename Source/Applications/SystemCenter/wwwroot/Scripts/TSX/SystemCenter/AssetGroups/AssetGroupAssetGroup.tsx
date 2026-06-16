@@ -258,6 +258,7 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
                     Title={"Add Asset Groups to Asset Group"}
                     GetEnum={getEnum}
                     GetAddlFields={() => () => { }}
+                    StorageID={"AssetGroupAssetGroup"}
                 >
                     <Column Key="Name" Field="Name" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
                     >Name</Column>

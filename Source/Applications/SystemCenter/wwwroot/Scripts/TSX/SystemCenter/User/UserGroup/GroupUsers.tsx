@@ -187,6 +187,7 @@ const GroupUser = (props: {Group: ISecurityGroup}) => {
                 Title={"Add Users to " + props.Group.Name}
                 GetEnum={() => () => { }}
                 GetAddlFields={() => () => { }}
+                StorageID={"GroupUsers"}
             >
                 <Column Key="Name" Field="Name" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: '10%' }}
                 >Username</Column>

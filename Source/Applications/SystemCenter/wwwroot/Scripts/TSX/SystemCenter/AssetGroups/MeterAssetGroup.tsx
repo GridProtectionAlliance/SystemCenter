@@ -272,6 +272,7 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
                 Title={"Add Meters to Asset Group"}
                 GetEnum={getEnum}
                 GetAddlFields={getAdditionalMeterFields}
+                StorageID={"MeterAsset"}
             >
                 <Column Key="Name" Field="Name" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
                 >Name</Column>
