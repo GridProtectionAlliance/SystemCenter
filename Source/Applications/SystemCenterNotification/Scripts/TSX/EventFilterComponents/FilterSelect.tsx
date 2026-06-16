@@ -214,7 +214,7 @@ function FilterSelect(props: IProps) {
             }}
             Show={props.Show}
             Type={'multiple'}
-            Title={"Filter by Location"}
+            Title={"Filter by Substation"}
             GetEnum={getEnum}
             GetAddlFields={getAdditionalFields}
         >
