@@ -280,7 +280,7 @@ const Matcher: React.FunctionComponent = (props: {}) => {
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <AppHost Roles={roles} />
         }
-        else if (params['name'] == "Nodes") {
+        else if (params['name'] == "TaskRunners") {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ByNode Roles={roles} />

@@ -119,7 +119,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                         </Section>
                         <Section Label={"SYSTEM SETTINGS"} Style={{ marginLeft: "10px" }} RequiredRoles={["Administrator"]}>
                             <Page Name={"index.cshtml?name=AppHost"} Label={"App Hosts"} />
-                            <Page Name={"index.cshtml?name=Nodes"} Label={"Nodes"} />
+                            <Page Name={"index.cshtml?name=TaskRunners"} Label={"Task Runners"} />
                             <Page Name={"index.cshtml?name=Settings&System=SystemCenter"} Label={"System Center"} />
                             <Page Name={"index.cshtml?name=Settings&System=OpenXDA"} Label={"openXDA"} />
                             <Page Name={"index.cshtml?name=Settings&System=SEBrowser"} Label={"PQ Browser"} />
