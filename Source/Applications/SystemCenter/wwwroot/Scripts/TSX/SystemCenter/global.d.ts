@@ -78,6 +78,15 @@ export namespace SystemCenter {
             Description: string
         } [],
     }
+
+    interface Node {
+        ID: string;
+        Name: string;
+        NodeType: string;
+        MinimumHostCount: number;
+        HostRegistrationKey: string;
+        AssignedHostRegistrationKey: string;
+    }
 }
 
 // OpenXDA Models
