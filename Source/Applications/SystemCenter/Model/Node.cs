@@ -24,6 +24,7 @@
 using System.Web.Http;
 using GSF.Data.Model;
 using GSF.Web.Model;
+using openXDA.Model;
 
 namespace SystemCenter.Model
 {
@@ -55,4 +56,10 @@ namespace SystemCenter.Model
 
     [RoutePrefix("api/OpenXDA/Node")]
     public class OpenXDANodeController : ModelController<Node> {}
+
+    [RoutePrefix("api/OpenXDA/NodeTypes")]
+    public class OpenXDANodeTypesController : ModelController<openXDA.Model.NodeType> {}
+
+    [RoutePrefix("api/OpenXDA/HostRegistration")]
+    public class OpenXDAHostRegistrationController : ModelController<openXDA.Model.HostRegistration> {}
 }

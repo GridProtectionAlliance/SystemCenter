@@ -24,16 +24,24 @@
 import * as React from 'react';
 import { GenericController, Search, SearchBar, LoadingScreen } from '@gpa-gemstone/react-interactive'
 import { Table, Column, Paging } from '@gpa-gemstone/react-table'
-import { Application } from '@gpa-gemstone/application-typings';
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
+import { IHost } from '../AppHost/ApplicationCard';
 import { SystemCenter as SC } from '../global'
 
-const defaultSearchcols: Search.IField<SC.Node>[] = [
-    { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
-    { label: 'Minimum Host Count', key: 'MinimumHostCount', type: 'number', isPivotField: false },
-    { label: 'Type', key: 'NodeType', type: 'string', isPivotField: false },
-    { label: 'Host Registration Key', key: 'HostRegistrationKey', type: 'string', isPivotField: false },
-    { label: 'Assigned Host Registration Key', key: 'AssignedHostRegistrationKey', type: 'string', isPivotField: false }
-];
+interface INodeType {
+    ID: number,
+    Name: string,
+    AssemblyName: string,
+    TypeName: string
+}
+
+interface IHostRegistration {
+    ID: number,
+    RegistrationKey: string,
+    APIToken: string,
+    URL: string,
+    CheckedIn: string
+}
 
 const ByNode = (props: {Roles: Application.Types.SecurityRoleName[]}) => {
     const [data, setData] = React.useState<SC.Node[]>([])
@@ -45,6 +53,30 @@ const ByNode = (props: {Roles: Application.Types.SecurityRoleName[]}) => {
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated')
     const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
     const [totalRecords, setTotalRecords] = React.useState<number>(0);
+    const [nodeTypes, setNodeTypes] = React.useState<INodeType[]>([]);
+    const [appHosts, setAppHosts] = React.useState<IHostRegistration[]>([])
+
+    React.useEffect(() => {
+        if (status === 'uninitiated') {
+            const nodeTypeController = new GenericController<INodeType>(`${homePath}api/OpenXDA/NodeTypes`, 'Name', true);
+            const handle = nodeTypeController.Fetch();
+            handle.done((d: INodeType[]) => {
+                setNodeTypes(d);
+            }).fail((d) => {
+                setStatus('error');
+            })
+        }
+    }, [status])
+
+    React.useEffect(() => {
+        const nodeTypeController = new GenericController<IHostRegistration>(`${homePath}api/OpenXDA/HostRegistration`, 'ID', true);
+        const handle = nodeTypeController.Fetch();
+        handle.done((d: IHostRegistration[]) => {
+            setAppHosts(d);
+        }).fail((d) => {
+            setStatus('error');
+        })
+    }, [status])
 
     React.useEffect(() => {
         setStatus('loading');
@@ -58,7 +90,17 @@ const ByNode = (props: {Roles: Application.Types.SecurityRoleName[]}) => {
             setStatus('idle');
         }).fail((d) => {
             setStatus('error');
-        }) },[filters, sortField, ascending, page])
+        })
+    }, [filters, sortField, ascending, page])
+
+
+    const defaultSearchcols: Search.IField<SC.Node>[] = [
+        { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
+        { label: 'Minimum Host Count', key: 'MinimumHostCount', type: 'number', isPivotField: false },
+        { label: 'Type', key: 'NodeType', isPivotField: false, type: 'enum', enum: nodeTypes.map((n) => { return { Value: n.Name, Label: n.Name } }) },
+        { label: 'Node', key: 'HostRegistrationKey', isPivotField: false, type: 'enum', enum: appHosts.map((h) => { return { Value: h.RegistrationKey, Label: h.RegistrationKey } })},
+        { label: 'Assigned Node', key: 'AssignedHostRegistrationKey', isPivotField: false, type: 'enum', enum: appHosts.map((h) => { return { Value: h.RegistrationKey, Label: h.RegistrationKey } })}
+    ];
 
     return <div style={{ width: '100%', height: '100%' }}>
         <LoadingScreen Show={status === 'loading'} />
@@ -66,7 +108,7 @@ const ByNode = (props: {Roles: Application.Types.SecurityRoleName[]}) => {
             <div className="row">
                 <SearchBar<SC.Node> CollumnList={defaultSearchcols} SetFilter={setFilters}
                 Direction={'left'} defaultCollumn={{ label: 'Name', key: 'Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
-                    ShowLoading={status === 'loading'} ResultNote={status === 'error' ? 'Could not complete search.' : `Displaying  Node(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + data.length} out of ${totalRecords}`}
+                    ShowLoading={status === 'loading'} ResultNote={status === 'error' ? 'Could not complete search.' : `Displaying  TaskRunner(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + data.length} out of ${totalRecords}`}
                 StorageID="NodesFilter"
             >
             </SearchBar>
@@ -110,7 +152,7 @@ const ByNode = (props: {Roles: Application.Types.SecurityRoleName[]}) => {
                         Field={'MinimumHostCount'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
-                    > Minimum Host Count
+                    > Minimum Node Count
                     </Column>
                     <Column<SC.Node>
                         Key={'HostRegistrationKey'}
@@ -120,7 +162,7 @@ const ByNode = (props: {Roles: Application.Types.SecurityRoleName[]}) => {
                         RowStyle={{ width: 'auto' }}
                         Content={({ item, field }) => {
                             return  <a href={`${homePath}index.cshtml?name=AppHost`} target='_blank'> <span className="badge badge-light">{item[field]}</span></a> }}
-                    > Host Registration Key
+                    > Node
                     </Column>
                     <Column<SC.Node>
                         Key={'AssignedHostRegistrationKey'}
@@ -130,7 +172,7 @@ const ByNode = (props: {Roles: Application.Types.SecurityRoleName[]}) => {
                         RowStyle={{ width: 'auto' }}
                         Content={({ item, field }) => {
                             return <a href={`${homePath}index.cshtml?name=AppHost`} target='_blank'> <span className="badge badge-light">{item[field]}</span></a> }}
-                    > Assigned Host Registration Key
+                    > Assigned Nodes
                     </Column>
                 </Table>
             </div>
