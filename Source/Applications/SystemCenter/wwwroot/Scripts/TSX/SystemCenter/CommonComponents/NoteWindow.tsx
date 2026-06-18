@@ -27,13 +27,13 @@ import { OpenXDA } from '@gpa-gemstone/application-typings'
 import { Note } from '@gpa-gemstone/common-pages'
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols'
 import { MultiCheckBoxSelect, Select, TextArea, ToolTip } from '@gpa-gemstone/react-forms'
-import { AssetNoteSlice, CompanyNoteSlice, CustomerNoteSlice, LocationNoteSlice, MeterNoteSlice, UserNoteSlice } from '../Store/Store';
+import { AssetNoteSlice, CustomerNoteSlice, LocationNoteSlice, MeterNoteSlice, UserNoteSlice } from '../Store/Store';
 import { SelectRoles } from '../Store/UserSettings';
 import { useAppDispatch, useAppSelector } from '../hooks';
 
 declare var homePath: string;
 
-type NoteType = 'Asset' | 'Meter' | 'Location' | 'Customer' | 'Company' | 'User'
+type NoteType = 'Asset' | 'Meter' | 'Location' | 'Customer' | 'User'
 
 interface IProps { ID: number, Type: NoteType }
 
@@ -200,8 +200,6 @@ function getSlice(type: NoteType) {
         return LocationNoteSlice;
     if (type === 'Customer')
         return CustomerNoteSlice;
-    if (type === 'Company')
-        return CompanyNoteSlice;
     if (type === 'User')
         return UserNoteSlice;
 }

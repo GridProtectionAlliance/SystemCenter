@@ -33,7 +33,7 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 import _ from 'lodash';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { IsInteger } from '@gpa-gemstone/helper-functions';
-import { AssetNoteSlice, CompanyNoteSlice, CustomerNoteSlice, LocationNoteSlice, MeterNoteSlice } from '../Store/Store';
+import { AssetNoteSlice, CustomerNoteSlice, LocationNoteSlice, MeterNoteSlice } from '../Store/Store';
 
 declare var homePath: string;
 
@@ -83,8 +83,6 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                     dispatch(LocationNoteSlice.SetChanged());
                 else if (props.Type == 'Customer')
                     dispatch(CustomerNoteSlice.SetChanged());
-                else if (props.Type == 'Company')
-                    dispatch(CompanyNoteSlice.SetChanged());
                 else
                     dispatch(AssetNoteSlice.SetChanged());
             }, () => {

@@ -108,7 +108,6 @@ export const MeterNoteSlice = new NoteSlice('Meter');
 export const UserNoteSlice = new NoteSlice('User');
 export const LocationNoteSlice = new NoteSlice('Location');
 export const CustomerNoteSlice = new NoteSlice('Customer');
-export const CompanyNoteSlice = new NoteSlice('Company');
 export const UserAccountSlice = new GenericSlice<IUserAccount>('UserAccounts', `${homePath}api/SystemCenter/UserAccount`, "DisplayName", true);
 export const UserAdditionalFieldSlice = new AdditionalUserFieldSlice('AdditionalUserFields', `${homePath}api/SystemCenter`);
 
@@ -174,7 +173,6 @@ const store = configureStore({
         UserNote: UserNoteSlice.Reducer,
         LocationNote: LocationNoteSlice.Reducer,
         CustomerNote: CustomerNoteSlice.Reducer,
-        CompanyNote: CompanyNoteSlice.Reducer,
         UserAccounts: UserAccountSlice.Reducer,
         AdditionalUserFields: UserAdditionalFieldSlice.Reducer,
         EventType: EventTypeSlice.Reducer,
