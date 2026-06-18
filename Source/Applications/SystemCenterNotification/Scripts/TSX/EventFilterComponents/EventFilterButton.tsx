@@ -127,7 +127,7 @@ function EventFilterButton(props: IProps) {
     return (
         <>
             <button className={"btn btn-block btn-sm btn-" + (props.IDs.length > 0 ? "warning" : "primary")} style={{ marginBottom: 5 }} onClick={(evt) => { evt.preventDefault(); props.OnClick(); }} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
-                {props.Type} {props.IDs.length > 0 ? ('(' + props.IDs.length + ')') : ''}
+                {props.Type === 'Location' ? 'Substation' : props.Type} {props.IDs.length > 0 ? ('(' + props.IDs.length + ')') : ''}
             </button>
             <div style={{ width: window.innerWidth / 3, display: hover ? 'block' : 'none', position: 'absolute', backgroundColor: '#f1f1f1', boxShadow: '0px 8px 16px 0px rgba(0,0,0,0.2)', zIndex: 1, right: 0 }} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
                 <table className='table'>

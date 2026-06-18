@@ -187,6 +187,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                                                 Field={'ParentTable'}
                                                 HeaderStyle={{ width: 'auto' }}
                                                 RowStyle={{ width: 'auto' }}
+                                                Content={({ item }) => item.ParentTable != '' ? (item.ParentTable === 'Location' ? 'Substation' : item.ParentTable) : 'No Associated Table'}
                                             > ParentType
                                             </Column>
                                             <Column<SystemCenter.Types.AdditionalFieldView>
