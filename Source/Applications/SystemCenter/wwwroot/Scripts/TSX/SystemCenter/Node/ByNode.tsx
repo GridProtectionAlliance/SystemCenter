@@ -22,10 +22,11 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { GenericController, Search, SearchBar, LoadingScreen } from '@gpa-gemstone/react-interactive'
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { GenericController, Search, SearchBar, LoadingScreen, Modal } from '@gpa-gemstone/react-interactive'
 import { Table, Column, Paging } from '@gpa-gemstone/react-table'
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-import { IHost } from '../AppHost/ApplicationCard';
+import NodeForm from './NodeForm'
 import { SystemCenter as SC } from '../global'
 
 interface INodeType {
@@ -43,6 +44,15 @@ interface IHostRegistration {
     CheckedIn: string
 }
 
+interface IOpenXDANode {
+    ID: number,
+    NodeTypeID: number,
+    HostRegistrationID: number,
+    AssignedHostRegistrationID: number,
+    Name: string,
+    MinimumHostCount: number
+}
+
 const ByNode = (props: {Roles: Application.Types.SecurityRoleName[]}) => {
     const [data, setData] = React.useState<SC.Node[]>([])
     const [sortField, setSortField] = React.useState<keyof SC.Node>('Name')
@@ -55,6 +65,11 @@ const ByNode = (props: {Roles: Application.Types.SecurityRoleName[]}) => {
     const [totalRecords, setTotalRecords] = React.useState<number>(0);
     const [nodeTypes, setNodeTypes] = React.useState<INodeType[]>([]);
     const [appHosts, setAppHosts] = React.useState<IHostRegistration[]>([])
+    const [showModal, setShowModal] = React.useState<boolean>(false)
+    const [selectedNode, setSelectedNode] = React.useState<SC.Node>({ ID: '-1', Name: "", AssignedHostRegistrationKey: '', HostRegistrationKey: '', NodeType: '', MinimumHostCount: 0 });
+    const [errors, setErrors] = React.useState<string[]>([]);
+    const [refreshCount, refreshData] = React.useState<number>(0);
+
 
     React.useEffect(() => {
         if (status === 'uninitiated') {
@@ -69,8 +84,8 @@ const ByNode = (props: {Roles: Application.Types.SecurityRoleName[]}) => {
     }, [status])
 
     React.useEffect(() => {
-        const nodeTypeController = new GenericController<IHostRegistration>(`${homePath}api/OpenXDA/HostRegistration`, 'ID', true);
-        const handle = nodeTypeController.Fetch();
+        const appHostController = new GenericController<IHostRegistration>(`${homePath}api/OpenXDA/HostRegistration`, 'ID', true);
+        const handle = appHostController.Fetch();
         handle.done((d: IHostRegistration[]) => {
             setAppHosts(d);
         }).fail((d) => {
@@ -80,7 +95,7 @@ const ByNode = (props: {Roles: Application.Types.SecurityRoleName[]}) => {
 
     React.useEffect(() => {
         setStatus('loading');
-        const nodeController = new GenericController<SC.Node>(`${homePath}api/OpenXDA/Node`, 'Name', true)
+        const nodeController = new GenericController<SC.Node>(`${homePath}api/SystemCenter/Node`, 'Name', true)
         const handle = nodeController.PagedSearch(filters, sortField, ascending, page);
         handle.done((d) => {
             setData(JSON.parse(d.Data as unknown as string));
@@ -91,7 +106,7 @@ const ByNode = (props: {Roles: Application.Types.SecurityRoleName[]}) => {
         }).fail((d) => {
             setStatus('error');
         })
-    }, [filters, sortField, ascending, page])
+    }, [filters, sortField, ascending, page, refreshCount])
 
 
     const defaultSearchcols: Search.IField<SC.Node>[] = [
@@ -101,6 +116,17 @@ const ByNode = (props: {Roles: Application.Types.SecurityRoleName[]}) => {
         { label: 'Node', key: 'HostRegistrationKey', isPivotField: false, type: 'enum', enum: appHosts.map((h) => { return { Value: h.RegistrationKey, Label: h.RegistrationKey } })},
         { label: 'Assigned Node', key: 'AssignedHostRegistrationKey', isPivotField: false, type: 'enum', enum: appHosts.map((h) => { return { Value: h.RegistrationKey, Label: h.RegistrationKey } })}
     ];
+
+    const convertToXDANode = React.useCallback((node: SC.Node): IOpenXDANode => {
+        return {
+            ID: parseInt(node.ID),
+            MinimumHostCount: node.MinimumHostCount,
+            NodeTypeID: nodeTypes.find(nt => nt.Name == node.NodeType).ID,
+            AssignedHostRegistrationID: appHosts.find(ah => ah.RegistrationKey == node.AssignedHostRegistrationKey)?.ID ?? null,
+            HostRegistrationID: appHosts.find(ah => ah.RegistrationKey == node.HostRegistrationKey)?.ID ?? null,
+            Name: node.Name
+        }
+    }, [nodeTypes, appHosts])
 
     return <div style={{ width: '100%', height: '100%' }}>
         <LoadingScreen Show={status === 'loading'} />
@@ -129,6 +155,7 @@ const ByNode = (props: {Roles: Application.Types.SecurityRoleName[]}) => {
                     }}
                     Selected={(item) => false}
                     KeySelector={(item) => item.ID}
+                    OnClick={(data) => { setSelectedNode(data.row); setShowModal(true) } }
                 >
                     <Column<SC.Node>
                         Key={'Name'}
@@ -161,7 +188,7 @@ const ByNode = (props: {Roles: Application.Types.SecurityRoleName[]}) => {
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                         Content={({ item, field }) => {
-                            return  <a href={`${homePath}index.cshtml?name=AppHost`} target='_blank'> <span className="badge badge-light">{item[field]}</span></a> }}
+                            return item[field] === 'N/A' ? item[field] : <a href={`${homePath}index.cshtml?name=AppHost`} target='_blank'> <span className='badge badge-light'>{item[field]}</span></a> }}
                     > Node
                     </Column>
                     <Column<SC.Node>
@@ -171,7 +198,8 @@ const ByNode = (props: {Roles: Application.Types.SecurityRoleName[]}) => {
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                         Content={({ item, field }) => {
-                            return <a href={`${homePath}index.cshtml?name=AppHost`} target='_blank'> <span className="badge badge-light">{item[field]}</span></a> }}
+                            return item[field] === 'N/A' ? item[field] : <a href={`${homePath}index.cshtml?name=AppHost`} target='_blank'> <span className='badge badge-light'>{item[field]}</span></a>
+                        }}
                     > Assigned Nodes
                     </Column>
                 </Table>
@@ -182,6 +210,27 @@ const ByNode = (props: {Roles: Application.Types.SecurityRoleName[]}) => {
                 </div>
             </div>
         </div>
+        <Modal Show={showModal} Title={'Edit Task Runner'} CallBack={(c) => {
+            setShowModal(false);
+            if (!c)
+                return;
+            new GenericController<IOpenXDANode>(`${homePath}api/OpenXDA/Node`, 'ID').DBAction('PATCH', convertToXDANode(selectedNode)).then(() => refreshData(x => x + 1))
+        }}
+            ShowCancel={false}
+            ShowX={true}
+            DisableConfirm={errors.length > 0}
+            ConfirmShowToolTip={errors.length > 0}
+            ConfirmToolTipContent={errors.map((t, i) => <p key={i}> <ReactIcons.CrossMark Color='var(--danger)' /> {t}</p>)} >
+            <div className="row">
+                <NodeForm
+                    Node={selectedNode}
+                    stateSetter={setSelectedNode}
+                    setErrors={setErrors}
+                    NodeTypeOptions={nodeTypes.map((n) => { return { Value: n.Name, Label: n.Name } })}
+                    HostOptions={appHosts.map((h) => { return { Value: h.RegistrationKey, Label: h.RegistrationKey } })}
+                />
+            </div>
+        </Modal>
     </div>
 }
 export default ByNode;
