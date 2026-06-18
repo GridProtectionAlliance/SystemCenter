@@ -136,8 +136,7 @@ export default class NoteSlice {
         const filter = [
             { FieldName: 'NoteTypeID', SearchText: "(SELECT ID FROM NoteType WHERE ReferenceTableName = '" + this.NoteType + "')", Operator: '=', Type: 'query', IsPivotColumn: false },
             { FieldName: 'ReferenceTableID', SearchText: parentID, Operator: '=', Type: 'integer', IsPivotColumn: false },
-            { FieldName: 'NoteApplicationID', SearchText: "(SELECT ID From NoteApplication WHERE Name = 'SystemCenter')", Operator: '=', Type: 'query', IsPivotColumn: false },
-            { FieldName: 'NoteTagID', SearchText: "(SELECT ID From NoteTag WHERE Name = 'Configuration')", Operator: '=', Type: 'query', IsPivotColumn: false }
+            { FieldName: 'NoteApplicationID', SearchText: "(SELECT ID From NoteApplication WHERE Name = 'SystemCenter')", Operator: '=', Type: 'query', IsPivotColumn: false }
         ]
 
         return $.ajax({
