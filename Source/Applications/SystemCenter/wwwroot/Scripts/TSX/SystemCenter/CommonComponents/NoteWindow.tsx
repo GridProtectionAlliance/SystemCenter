@@ -167,7 +167,7 @@ const NoteWindow = (props: IProps) => {
             <div className="col-12 h-100">
                 {selectedTags.length > 0 ?
                     <Note
-                        MaxHeight={notesRef.current.offsetHeight + 200} // Note in gemstone subtracts 300 from the MaxHeight for the table height, but since we are putting nothing beneath the table, we add to offset it.
+                        MaxHeight={(notesRef.current?.offsetHeight ?? 0) + 200} // Note in gemstone subtracts 300 from the MaxHeight for the table height, but since we are putting nothing beneath the table, we add to offset it.
                         ReferenceTableID={props.ID}
                         NoteApplications={[noteApp]}
                         NoteTags={noteTags.filter((t) => selectedTags.find(i => i == t.ID) != null)}
