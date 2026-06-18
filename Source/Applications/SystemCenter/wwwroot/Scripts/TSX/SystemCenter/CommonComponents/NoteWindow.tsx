@@ -181,7 +181,7 @@ const NoteWindow = (props: IProps) => {
                         Filter={(n) => selectedTags.find(i => i == n.NoteTagID) != null}
                     />
                     : <div className={'alert alert-warning'}>
-                        <p>At least 1 Type needs to be selected.</p>
+                        <p>At least 1 Type must be selected.</p>
                     </div>}
             </div>
         </div>
