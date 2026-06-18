@@ -192,16 +192,20 @@ const NoteWindow = (props: IProps) => {
 export default NoteWindow;
 
 function getSlice(type: NoteType) {
-    if (type === 'Asset')
+    switch (type) {
+        case 'Asset':
         return AssetNoteSlice;
-    if (type === 'Meter')
+        case 'Meter':
         return MeterNoteSlice;
-    if (type === 'Location')
+        case 'Location':
         return LocationNoteSlice;
-    if (type === 'Customer')
+        case 'Customer':
         return CustomerNoteSlice;
-    if (type === 'User')
+        case 'User':
         return UserNoteSlice;
+        default:
+            throw new Error(`Unsupported note type: ${type}`);
+    }
 }
 
 function getNoteType(): JQuery.jqXHR<OpenXDA.Types.NoteType[]> {
