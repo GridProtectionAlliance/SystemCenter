@@ -121,7 +121,7 @@ const NoteWindow = (props: IProps) => {
                                     Show={hover === 'add' && (note.Note === null || note.Note.length === 0)}
                                     Position={'top'}
                                     Target={"Add"}>
-                                    <p><ReactIcons.CrossMark /> A note needs to be entered. </p>
+                                    <p><ReactIcons.CrossMark /> A note is required. </p>
                                 </ToolTip>
                                 <button className={" btn btn-default" + (note.Note === null || note.Note.length === 0 ? ' disabled' : '')}
                                     onClick={() => setNote((n) => ({ ...n, Note: '' }))}
