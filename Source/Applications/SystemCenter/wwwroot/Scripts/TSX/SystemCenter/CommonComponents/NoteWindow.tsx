@@ -121,7 +121,7 @@ const NoteWindow = (props: IProps) => {
                                     Show={hover === 'add' && (note.Note === null || note.Note.length === 0)}
                                     Position={'top'}
                                     Target={"Add"}>
-                                    <p><ReactIcons.CrossMark /> A note needs to be entered. </p>
+                                    <p><ReactIcons.CrossMark /> A note is required. </p>
                                 </ToolTip>
                                 <button className={" btn btn-default" + (note.Note === null || note.Note.length === 0 ? ' disabled' : '')}
                                     onClick={() => setNote((n) => ({ ...n, Note: '' }))}
@@ -181,7 +181,7 @@ const NoteWindow = (props: IProps) => {
                         Filter={(n) => selectedTags.find(i => i == n.NoteTagID) != null}
                     />
                     : <div className={'alert alert-warning'}>
-                        <p>At least 1 Type needs to be selected.</p>
+                        <p>At least 1 Type must be selected.</p>
                     </div>}
             </div>
         </div>
