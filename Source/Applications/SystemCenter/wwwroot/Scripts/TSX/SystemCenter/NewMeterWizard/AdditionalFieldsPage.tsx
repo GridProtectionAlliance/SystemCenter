@@ -27,7 +27,7 @@ import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-ty
 import AdditionalFieldsTable from '../CommonComponents/AdditionalFieldsTable';
 import { IsInteger } from '@gpa-gemstone/helper-functions';
 import { useAppDispatch } from '../hooks';
-import { AssetNoteSlice, CompanyNoteSlice, CustomerNoteSlice, LocationNoteSlice, MeterNoteSlice } from '../Store/Store';
+import { AssetNoteSlice, CustomerNoteSlice, LocationNoteSlice, MeterNoteSlice } from '../Store/Store';
 
 declare var homePath: string;
 
