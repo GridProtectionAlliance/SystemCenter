@@ -328,7 +328,13 @@ namespace SystemCenter.Controllers.OpenXDA
 
 
                         else
-                            return Ok(new string[] { });
+                            return Ok(new PagedResults()
+                            {
+                                Data = JsonConvert.SerializeObject(null),
+                                TotalRecords = 0,
+                                NumberOfPages = 0,
+                                RecordsPerPage = Take ?? 50
+                            });
                     }
                 else
                     return Unauthorized();
