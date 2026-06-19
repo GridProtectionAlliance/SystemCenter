@@ -53,8 +53,8 @@ const CustomerAssetWindow = (props: IProps) => {
     const roles = useAppSelector(SelectRoles)
 
     const getData = React.useCallback(() => {
-        dispatch(CustomerAssetSlice.PagedSearch({ filter: [], sortField, ascending, page }))
-        }, [sortField, ascending, page, CustomerAssetSlice.PagedSearch])
+        dispatch(CustomerAssetSlice.PagedSearch({ filter: [{ FieldName: 'CustomerID', IsPivotColumn: false, Operator: '=', SearchText: props.Customer.ID.toString(), Type: 'number' }], sortField, ascending, page }))
+        }, [props.Customer.ID, sortField, ascending, page, CustomerAssetSlice.PagedSearch])
 
     React.useEffect(() => {
         getData();
