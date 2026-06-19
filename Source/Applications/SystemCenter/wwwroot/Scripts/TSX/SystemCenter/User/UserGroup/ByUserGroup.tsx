@@ -57,6 +57,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
     const [newGroup, setNewGroup] = React.useState<ISecurityGroup>(emptyGroup);
 
     const pagedSearch = React.useCallback(() => {
+        setStatus('loading')
         const h = securityGroupController.PagedSearch(filters, sortField, ascending, currentPage)
         h.done((d) => {
             setSecurityGroups(JSON.parse(d.Data as unknown as string))
