@@ -29,7 +29,7 @@ import { ValueListSlice } from '../Store/Store';
 import ValueListForm from './ValueListForm';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { Modal } from '@gpa-gemstone/react-interactive';
+import { Modal, Search } from '@gpa-gemstone/react-interactive';
 import { ValueListItemDelete, RequiredValueLists } from './ValueListGroupDelete';
 import { ToolTip } from '@gpa-gemstone/react-forms';
 
@@ -56,6 +56,7 @@ export default function ValueListGroupItems(props: IProps) {
     const [hover, setHover] = React.useState<string>('');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [sortField, setSortField] = React.useState<keyof SystemCenter.Types.ValueListItem>('SortOrder')
+    const filters = React.useMemo(() => [{ FieldName: "GroupID", SearchText: props.Record.ID.toString(), Operator: "=" as Search.OperatorType, IsPivotColumn: false, Type: "number" as Search.FieldType }],[props.Record.ID])
 
     const disallowReason = React.useCallback((ID: string) => {
         if (!RequiredValueLists.includes(props.Record?.Name))
@@ -70,8 +71,8 @@ export default function ValueListGroupItems(props: IProps) {
 
     React.useEffect(() => {
         if (status == 'uninitiated' || status == 'changed')
-            dispatch(ValueListSlice.PagedSearch({ filter: [], sortField: 'SortOrder', ascending: true, page: 0 }));
-    }, [status, parentID, props.Record.ID]);
+            dispatch(ValueListSlice.PagedSearch({ filter: filters, sortField: 'SortOrder', ascending: true, page: 0 }));
+    }, [status, props.Record.ID, filters]);
 
     React.useEffect(() => {
         if (props.Record?.Name == null) return;
@@ -90,8 +91,8 @@ export default function ValueListGroupItems(props: IProps) {
     }, [props.Record?.Name]);
 
     const setPage = React.useCallback((page) => {
-        dispatch(ValueListSlice.PagedSearch({ filter: [], sortField: sortField, ascending: ascending, page: page - 1 }))
-    }, [sortField, ascending])
+        dispatch(ValueListSlice.PagedSearch({ filter: filters, sortField: sortField, ascending: ascending, page: page - 1 }))
+    }, [sortField, ascending, filters])
 
     useBoundPaging(currentPage, totalPages, setPage)
 
