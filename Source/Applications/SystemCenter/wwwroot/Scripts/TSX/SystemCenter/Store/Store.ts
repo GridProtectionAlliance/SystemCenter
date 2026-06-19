@@ -174,7 +174,6 @@ export const reducers = {
     UserNote: UserNoteSlice.Reducer,
     LocationNote: LocationNoteSlice.Reducer,
     CustomerNote: CustomerNoteSlice.Reducer,
-    CompanyNote: CompanyNoteSlice.Reducer,
     UserAccounts: UserAccountSlice.Reducer,
     AdditionalUserFields: UserAdditionalFieldSlice.Reducer,
     EventType: EventTypeSlice.Reducer,
