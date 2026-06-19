@@ -126,7 +126,7 @@ export const PagedSearch = createAsyncThunk<IPagedResults, IPagedSearchArgs, { s
     asc = asc === undefined ? (getState()).EventChannels.Asc : asc;
 
     if (pagedHandle != null && pagedHandle.abort != null)
-        fetchHandle.abort('Prev');
+        pagedHandle.abort('Prev');
 
     const handle = GetPagedRecords(asc, sortfield, args.meterId, args.page);
     pagedHandle = handle;
