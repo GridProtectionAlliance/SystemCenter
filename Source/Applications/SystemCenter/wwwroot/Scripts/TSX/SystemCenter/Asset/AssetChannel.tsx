@@ -93,7 +93,7 @@ const AssetChannelWindow = (props: IProps) => {
             {
                 type: "POST",
                 url: `${homePath}api/OpenXDA/Asset/${props.ID}/ConnectedChannels/${page}`,
-                contentType: "application/json; charset=utf-A",
+                contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,
                 async: true,
