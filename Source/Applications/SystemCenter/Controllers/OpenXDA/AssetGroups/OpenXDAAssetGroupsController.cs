@@ -116,6 +116,13 @@ namespace SystemCenter.Controllers.OpenXDA
             PagedResults results = new PagedResults();
             results.RecordsPerPage = recordsPerPage;
 
+            string orderBy = "ID";
+
+            if (typeof(Asset).GetProperties().Select(prop => prop.Name).Contains(postData.OrderBy) || postData.OrderBy == "AssetType")
+            {
+                orderBy = postData.OrderBy;
+            }
+
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
                 string sql = $@"SELECT   
@@ -144,7 +151,7 @@ namespace SystemCenter.Controllers.OpenXDA
                                 AssetType.Name,
                                 AssetAssetGroup.AssetGroupID
                             HAVING AssetAssetGroup.AssetGroupID = {{0}}
-                            ORDER BY {postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")}
+                            ORDER BY {orderBy} {(postData.Ascending ? "ASC" : "DESC")}
                             ";
 
                 DataTable records = connection.RetrieveData(sql, assetGroupID);
@@ -280,6 +287,11 @@ namespace SystemCenter.Controllers.OpenXDA
             PagedResults results = new PagedResults();
             results.RecordsPerPage = recordsPerPage;
 
+            string orderBy = "ID";
+            
+            if (typeof(Meter).GetProperties().Select(prop => prop.Name).Contains(postData.OrderBy))
+                orderBy = postData.OrderBy;
+
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
                 string sql = $@"SELECT DISTINCT
@@ -306,7 +318,7 @@ namespace SystemCenter.Controllers.OpenXDA
                             Location.Name,
                             MeterAssetGroup.AssetGroupID
                         HAVING MeterAssetGroup.AssetGroupID = {{0}}
-                        ORDER BY {postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")}
+                        ORDER BY {orderBy} {(postData.Ascending ? "ASC" : "DESC")}
                 ";
 
                 DataTable records = connection.RetrieveData(sql, assetGroupID);
@@ -446,9 +458,9 @@ namespace SystemCenter.Controllers.OpenXDA
             {
                 IEnumerable<AssetGroupView> records = new TableOperations<AssetGroupView>(connection).QueryRecordsWhere("ID in (SELECT ChildAssetGroupID FROM AssetGroupAssetGroupView WHERE ParentAssetGroupID = {0})", assetGroupID);
                 if (postData.Ascending)
-                    records = records.OrderBy(record => record.GetType().GetProperty(postData.OrderBy).GetValue(record));
+                    records = records.OrderBy(record => record.GetType().GetProperty(postData.OrderBy).GetValue(record) ?? record.ID);
                 else
-                    records = records.OrderByDescending(record => record.GetType().GetProperty(postData.OrderBy).GetValue(record));
+                    records = records.OrderByDescending(record => record.GetType().GetProperty(postData.OrderBy).GetValue(record) ?? record.ID);
 
                 results.TotalRecords = records.Count();
                 results.NumberOfPages = (records.Count() + recordsPerPage - 1) / recordsPerPage;
