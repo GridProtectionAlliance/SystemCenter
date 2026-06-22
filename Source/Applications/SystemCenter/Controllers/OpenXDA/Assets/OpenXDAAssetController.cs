@@ -230,6 +230,11 @@ namespace SystemCenter.Controllers.OpenXDA
 
             PagedResults results = new PagedResults();
 
+            string orderBy = "ID";
+
+            if (typeof(Asset).GetProperties().Select(prop => prop.Name).Contains(postData.OrderBy))
+                orderBy = postData.OrderBy;
+
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
                 DataTable records = connection.RetrieveData(@$"
@@ -242,7 +247,7 @@ namespace SystemCenter.Controllers.OpenXDA
                         FROM
 	                        AssetRelationship JOIN
 	                        AssetRelationshipType ON AssetRelationship.AssetRelationshipTypeID = AssetRelationshipType.ID JOIN
-	                        ASset ON Asset.ID = (
+	                        Asset ON Asset.ID = (
 		                        CASE 
 			                        WHEN ParentID = {{0}} THEN AssetRelationship.ChildID
 			                        ELSE AssetRelationship.ParentID
@@ -250,7 +255,7 @@ namespace SystemCenter.Controllers.OpenXDA
 	                        )
                         WHERE
 	                        ParentID = {{0}} OR ChildID = {{0}}
-                        ORDER BY {postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")}
+                        ORDER BY {orderBy} {(postData.Ascending ? "ASC" : "DESC")}
                     ", assetID);
 
                 int totalRecords = records.Rows.Count;
