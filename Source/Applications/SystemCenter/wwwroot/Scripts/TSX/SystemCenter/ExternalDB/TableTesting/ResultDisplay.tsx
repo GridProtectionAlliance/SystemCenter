@@ -25,12 +25,15 @@ import * as React from 'react';
 import { Application } from '@gpa-gemstone/application-typings';
 import { ServerErrorIcon, Search, LoadingScreen } from '@gpa-gemstone/react-interactive';
 import { Paging, ConfigurableTable, ConfigurableColumn, Column } from '@gpa-gemstone/react-table';
+import StatusDetails from '../../CommonComponents/StatusDetails'
+import { SystemCenter as SC } from '../../global'
 import * as _ from 'lodash';
 
 interface IProps {
     TableID: number;
     GetTable: (start: number, end: number, Filters: Search.IFilter<any>[], OrderBy: string, Ascending: boolean) => JQuery.jqXHR<any[]>;
     GetCount: (Filters: Search.IFilter<any>[]) => JQuery.jqXHR<number>;
+    GetConnection: () => JQuery.jqXHR<SC.StatusItem>;
     OnSelection?: (record: any) => void;
     Selected?: (record: any) => boolean;
     ForceReload?: boolean;
@@ -48,6 +51,7 @@ export default function ResultDisplay(props: IProps) {
     const [page, setPage] = React.useState<number>(0);
     const [filters, setFilters] = React.useState<Search.IFilter<any>[]>([]);
     const [cols, setCols] = React.useState<string[]>([]);
+    const [extTableStatus, setExtTableStatus] = React.useState<SC.StatusItem>({Details: [], Status: 'Loading'})
 
     React.useEffect(() => {
         setCountStatus('loading');
@@ -89,10 +93,17 @@ export default function ResultDisplay(props: IProps) {
         }
     }, [externalData]);
 
+    React.useEffect(() => {
+        if (datastatus === 'error' || countstatus === 'error') {
+            const connectionHandle = props.GetConnection();
+            connectionHandle.done((d: SC.StatusItem) => {
+                setExtTableStatus(d);
+            }).fail((d) => {
+            })
+        }
+    }, [datastatus, countstatus])
+
     return <>
-        <ServerErrorIcon Show={countstatus === 'error' || datastatus === 'error'} Size={40}
-            Label={'Could not query external database table. Please contact your administrator.'}
-        />
         <LoadingScreen Show={countstatus === 'loading' || datastatus === 'loading'} />
         <div className="row" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="col" style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
@@ -131,7 +142,10 @@ export default function ResultDisplay(props: IProps) {
                                     </Column>
                                 </ConfigurableColumn>
                             )}
-                    </ConfigurableTable> : null}
+                    </ConfigurableTable>
+                    : <StatusDetails
+                        StatusItem={extTableStatus}
+                    />}
             </div>
         </div>
         <div className="row">

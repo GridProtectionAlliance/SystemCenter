@@ -74,7 +74,17 @@ function AdditionalFieldsKeyModal(props: IProps): JSX.Element {
         }).done((d) => { setCountStatus('idle'); return d }).fail((d) => { setCountStatus('error') })
         return handle;
     };
-  
+
+    const requestConnectionStatus = () => {
+        return $.ajax({
+            type: "GET",
+            url: `${homePath}api/SystemCenter/extDBTables/TableConnection/${props.KeyField.ExternalDBTableID}`,
+            contentType: "application/json; charset=utf-8",
+            cache: false,
+            async: true
+        })
+    }
+
     React.useEffect(() => {
         if (props.Show && dataStatus === 'error') {
             setDataStatus('uninitiated');
@@ -99,15 +109,14 @@ function AdditionalFieldsKeyModal(props: IProps): JSX.Element {
             ConfirmText={countStatus === 'error' || dataStatus === 'error' ? 'Close' : 'Select'}
             BodyStyle={{ maxHeight: 'calc(100vh - 210px)', display: 'flex', flexDirection: 'column' }}
         >
-            {dataStatus !== 'error' ? <ResultDisplay
+            <ResultDisplay
                 TableID={props.KeyField?.ExternalDBTableID}
                 GetCount={getCount}
                 GetTable={getData}
+                GetConnection={requestConnectionStatus}
                 Selected={(item) => _.isEqual(item, selectedExternal)}
                 OnSelection={setSelectedExternal}
                 ForceReload={props.Show} />
-            : <ServerErrorIcon Show={dataStatus === 'error'} Label={'The external table is not set up properly. Please check the external database and table configuration'} />
-            }
         </Modal>
     );
 }

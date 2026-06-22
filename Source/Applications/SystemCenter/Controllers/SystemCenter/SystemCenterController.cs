@@ -1701,126 +1701,129 @@ namespace SystemCenter.Controllers
             }
             catch (InvalidOperationException e)
             {
-                Type innerExceptionType = e.InnerException.GetType();
-                testDatabaseStatus.Status = "Error";
-                if (e.InnerException is KeyNotFoundException)
+                testDatabaseStatus = CreateErrorStatus(e);
+            }
+            return testDatabaseStatus;
+        }
+
+        public static AppStatus CreateErrorStatus(InvalidOperationException e)
+        {
+            AppStatus testDatabaseStatus = new()
+            {
+                Status = "Success",
+                Details = []
+            };
+
+            Type innerExceptionType = e.InnerException.GetType();
+            testDatabaseStatus.Status = "Error";
+            if (e.InnerException is KeyNotFoundException)
+            {
+                testDatabaseStatus.Details.Add(new()
+                {
+                    Status = "Error",
+                    Description = "Errors in the Data Provider string."
+                });
+            }
+            if (e.InnerException is ArgumentException)
+            {
+                testDatabaseStatus.Details.Add(new()
+                {
+                    Status = "Error",
+                    Description = "Connection String contains errors."
+                });
+            }
+            if (e.InnerException is FileNotFoundException)
+            {
+                testDatabaseStatus.Details.Add(new()
+                {
+                    Status = "Error",
+                    Description = "Missing file or dependency."
+                });
+            }
+            if (e.InnerException is NullReferenceException)
+            {
+                testDatabaseStatus.Details.Add(new()
+                {
+                    Status = "Error",
+                    Description = "Could not load connection settings from configuration file."
+                });
+            }
+            if (e.InnerException is Oracle.ManagedDataAccess.Client.OracleException o)
+            {
+                // authentication error
+                if (o.Number == 1017)
+                {
+                    testDatabaseStatus.Details.Add(new()
+                    {
+                        Status = "Success",
+                        Description = "Successfully reached SQL server."
+                    });
+                    testDatabaseStatus.Details.Add(new()
+                    {
+                        Status = "Error",
+                        Description = "Could not authenticate with the database. Please check username and password."
+                    });
+                }
+
+                // no listener - port 
+                if (o.Number == 12541)
                 {
                     testDatabaseStatus.Details.Add(new()
                     {
                         Status = "Error",
-                        Description = "Errors in the Data Provider string."
+                        Description = "Found no listener on given port."
                     });
                 }
-                if (e.InnerException is ArgumentException)
+
+                // cannot resolve hostname
+                if (o.Number == 12545)
                 {
                     testDatabaseStatus.Details.Add(new()
                     {
                         Status = "Error",
-                        Description = "Connection String contains errors."
+                        Description = "Could not resolve hostname."
                     });
                 }
-                if (e.InnerException is FileNotFoundException)
+
+                // failed to connect to server or parse connection string
+                if (o.Number == -6001)
                 {
                     testDatabaseStatus.Details.Add(new()
                     {
                         Status = "Error",
-                        Description = "Missing file or dependency."
+                        Description = "Failed to connect to server or parse connection string."
                     });
                 }
-                if (e.InnerException is NullReferenceException)
+
+                // invalid transport address (like 'TCAP')
+                if (o.Number == 12533)
                 {
                     testDatabaseStatus.Details.Add(new()
                     {
                         Status = "Error",
-                        Description = "Could not load connection settings from configuration file."
+                        Description = "Invalid transport address syntax."
                     });
                 }
-                if (e.InnerException is Oracle.ManagedDataAccess.Client.OracleException o)
+            }
+            if (e.InnerException is SqlException s)
+            {
+                int number = s.Number;
+
+                if (number == 4060)
                 {
-                    // authentication error
-                    if (o.Number == 1017)
+                    testDatabaseStatus.Details.Add(new()
                     {
-                        testDatabaseStatus.Details.Add(new()
-                        {
-                            Status = "Success",
-                            Description = "Successfully reached SQL server."
-                        });
-                        testDatabaseStatus.Details.Add(new()
-                        {
-                            Status = "Error",
-                            Description = "Could not authenticate with the database. Please check username and password."
-                        });
-                    }
-
-                    // no listener - port 
-                    if (o.Number == 12541)
+                        Status = "Success",
+                        Description = "Successfully reached SQL server."
+                    });
+                    testDatabaseStatus.Details.Add(new()
                     {
-                        testDatabaseStatus.Details.Add(new()
-                        {
-                            Status = "Error",
-                            Description = "Found no listener on given port."
-                        });
-                    }
-
-                    // cannot resolve hostname
-                    if (o.Number == 12545)
-                    {
-                        testDatabaseStatus.Details.Add(new()
-                        {
-                            Status = "Error",
-                            Description = "Could not resolve hostname."
-                        });
-                    }
-
-                    // failed to connect to server or parse connection string
-                    if (o.Number == -6001)
-                    {
-                        testDatabaseStatus.Details.Add(new()
-                        {
-                            Status = "Error",
-                            Description = "Failed to connect to server or parse connection string."
-                        });
-                    }
-
-                    // invalid transport address (like 'TCAP')
-                    if (o.Number == 12533)
-                    {
-                        testDatabaseStatus.Details.Add(new()
-                        {
-                            Status = "Error",
-                            Description = "Invalid transport address syntax."
-                        });
-                    }
+                        Status = "Error",
+                        Description = "Failed to open database."
+                    });
                 }
-                if (e.InnerException is SqlException s)
+                if (number == -1)
                 {
-                    int number = s.Number;
-
-                    if (number == 4060)
-                    {
-                        testDatabaseStatus.Details.Add(new()
-                        {
-                            Status = "Success",
-                            Description = "Successfully reached SQL server."
-                        });
-                        testDatabaseStatus.Details.Add(new()
-                        {
-                            Status = "Error",
-                            Description = "Failed to open database."
-                        });
-                    }
-                    if (number == -1)
-                    {
-                        {
-                            testDatabaseStatus.Details.Add(new()
-                            {
-                                Status = "Error",
-                                Description = "Failed to reach the server. Check that the connection string is correct and the server is accessible over network."
-                            });
-                        }
-                    }
-                    // failed to open an ADO connection - "a network-related or instance-specific error"
-                    if (number == 53)
                     {
                         testDatabaseStatus.Details.Add(new()
                         {
@@ -1828,23 +1831,33 @@ namespace SystemCenter.Controllers
                             Description = "Failed to reach the server. Check that the connection string is correct and the server is accessible over network."
                         });
                     }
-
-                    // failed for user permissions.
-                    if (number == 18456)
+                }
+                // failed to open an ADO connection - "a network-related or instance-specific error"
+                if (number == 53)
+                {
+                    testDatabaseStatus.Details.Add(new()
                     {
-                        testDatabaseStatus.Details.Add(new()
-                        {
-                            Status = "Success",
-                            Description = "Successfully reached server."
-                        });
-                        testDatabaseStatus.Details.Add(new()
-                        {
-                            Status = "Error",
-                            Description = "Failed to authenticate."
-                        });
-                    }
+                        Status = "Error",
+                        Description = "Failed to reach the server. Check that the connection string is correct and the server is accessible over network."
+                    });
+                }
+
+                // failed for user permissions.
+                if (number == 18456)
+                {
+                    testDatabaseStatus.Details.Add(new()
+                    {
+                        Status = "Success",
+                        Description = "Successfully reached server."
+                    });
+                    testDatabaseStatus.Details.Add(new()
+                    {
+                        Status = "Error",
+                        Description = "Failed to authenticate."
+                    });
                 }
             }
+
             if (testDatabaseStatus.Details.Count == 0)
                 testDatabaseStatus.Details.Add(new()
                 {
@@ -1948,6 +1961,7 @@ namespace SystemCenter.Controllers
         {
             public DetailedExtDBTables externalTable { get; set; }
         }
+
         [HttpPost, Route("RetrieveTempTable/{start:int}/{end:int}")]
         public IHttpActionResult RetrieveTable([FromBody] PostDataExtension record, int start, int end)
         {
@@ -1960,11 +1974,12 @@ namespace SystemCenter.Controllers
                     return Ok(QueryExternal(record.externalTable, xdaConnection, record.Searches, record.OrderBy, record.Ascending, start, end));
                 }
             }
-            catch (Exception ex)
+            catch (InvalidOperationException e)
             {
-                return InternalServerError(ex);
+                return InternalServerError(e);
             }
         }
+
         [HttpPost, Route("RetrieveTableCount")]
         public IHttpActionResult RetrieveTableCount([FromBody] PostDataExtension record)
         {
@@ -1981,6 +1996,46 @@ namespace SystemCenter.Controllers
             {
                 return InternalServerError(ex);
             }
+        }
+
+        [HttpGet, Route("TableConnection/{extTableID:int}")]
+        public IHttpActionResult CheckTableConnectionStatus([FromUri] int extTableID)
+        {
+            if (!PostAuthCheck())
+                return Unauthorized();
+
+            AppStatus status = new AppStatus()
+            {
+                Details = [],
+                Status = "Error"
+            };
+
+            try
+            {
+                using (AdoDataConnection xdaConnection = new AdoDataConnection(Connection))
+                {
+                    extDBTables table = new TableOperations<extDBTables>(xdaConnection).QueryRecordWhere("ID={0}", extTableID);
+                    var results = QueryExternal(table, xdaConnection, []);
+                }
+                status.Details.Add(new StatusItem() 
+                { Status = "Success",
+                    Description = "Successfully connected to database."
+                });
+                status.Details.Add(new StatusItem()
+                {
+                    Status = "Error",
+                    Description = "SQL error occurred."
+                });
+            }
+            catch (Exception e)
+            {
+                // first, check database connection
+                if (e is InvalidOperationException ioe)
+                {
+                    status = ExternalDatabasesController.CreateErrorStatus(ioe);
+                }
+            }
+            return Ok(status);
         }
 
         private DataTable QueryExternal(extDBTables table, AdoDataConnection xdaConnection, IEnumerable<SQLSearchFilter> filters, string orderBy = null, bool asc = true, int? start = null, int? end = null)
