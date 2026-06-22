@@ -26,7 +26,7 @@ import { ToolTip } from '@gpa-gemstone/react-forms';
 import { Application } from '@gpa-gemstone/application-typings';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { ServerErrorIcon, LoadingIcon } from '@gpa-gemstone/react-interactive'
-import { GetStatusSymbol, GetStatusItemAlertClass } from '../AppHost/StatusItem'
+import { GetStatusSymbol, GetStatusItemAlertClass } from '../CommonComponents/StatusItem'
 import { ErrorBoundary } from '@gpa-gemstone/common-pages'
 
 interface IOpenMICStatus {
