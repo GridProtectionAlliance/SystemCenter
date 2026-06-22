@@ -68,7 +68,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
 
     React.useEffect(() => {
         let handle = getAssetConnections();
-        return () => { if (handle != null || handle.abort != null) handle.abort();}
+        return () => { if (handle != null && handle.abort != null) handle.abort();}
     }, [props.ID, trigger, page, sortKey, ascending])
 
     React.useEffect(() => {
