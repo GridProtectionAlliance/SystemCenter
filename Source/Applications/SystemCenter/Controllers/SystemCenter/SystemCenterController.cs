@@ -61,7 +61,7 @@ namespace SystemCenter.Controllers
 
 
     [RoutePrefix("api/ChannelGroupDetails")]
-    public class ChannelGroupDetailsController : ModelController<openXDA.Model.ChannelGroupDetails> 
+    public class ChannelGroupDetailsController : ModelController<openXDA.Model.ChannelGroupDetails>
     {
         public override IHttpActionResult Post([FromBody] JObject record)
         {
@@ -112,7 +112,7 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/LSCVSAccount")]
     public class LSCVSAccountController : ModelController<LSCVSAccount> { }
 
-    
+
     [RoutePrefix("api/OpenXDA/DBCleanup")]
     public class DBCleanupController : ModelController<DBCleanup>
     {
@@ -272,7 +272,7 @@ namespace SystemCenter.Controllers
 
                     using (AdoDataConnection connection = new AdoDataConnection(Connection))
                     {
-                       
+
                         int id = record.ID;
                         int result = connection.ExecuteNonQuery($"EXEC UniversalCascadeDelete CustomerMeter, 'ID = {id}'");
                         return Ok(result);
@@ -654,11 +654,11 @@ namespace SystemCenter.Controllers
 
                         PagedResults pagedResult = new()
                         {
-                        Data = JsonConvert.SerializeObject(dataTable),
-                        TotalRecords = dataTable.Rows.Count,
-                        RecordsPerPage = recordsPerPage,
-                        NumberOfPages = ((dataTable.Rows.Count + recordsPerPage - 1) / recordsPerPage)
-                    };
+                            Data = JsonConvert.SerializeObject(dataTable),
+                            TotalRecords = dataTable.Rows.Count,
+                            RecordsPerPage = recordsPerPage,
+                            NumberOfPages = ((dataTable.Rows.Count + recordsPerPage - 1) / recordsPerPage)
+                        };
 
                         DataRow[] rows = dataTable.AsEnumerable()
                             .Skip((p) * recordsPerPage)
@@ -707,7 +707,7 @@ namespace SystemCenter.Controllers
                 if (User.IsInRole(PatchRoles))
                 {
 
-                    
+
                     using (AdoDataConnection connection = new AdoDataConnection(Connection))
                     {
                         foreach (AdditionalFieldValue value in values)
@@ -743,7 +743,7 @@ namespace SystemCenter.Controllers
                 return;
 
             AdditionalFieldValue oldValue = new TableOperations<AdditionalFieldValue>(connection).QueryRecordWhere("ID = {0}", newValue.ID);
-            
+
             NoteApplication noteApplication = new TableOperations<NoteApplication>(connection).QueryRecordWhere("Name = {0}", "SystemCenter");
             NoteTag noteTag = new TableOperations<NoteTag>(connection).QueryRecordWhere("Name = {0}", "Configuration");
             NoteType noteType = new TableOperations<NoteType>(connection).QueryRecordWhere("ReferenceTableName = {0}", field.ParentTable);
@@ -765,7 +765,7 @@ namespace SystemCenter.Controllers
     }
 
     [RoutePrefix("api/SystemCenter/AdditionalUserField")]
-    public class AdditionalUserFieldController : ModelController<AdditionalUserField> {}
+    public class AdditionalUserFieldController : ModelController<AdditionalUserField> { }
 
     [RoutePrefix("api/SystemCenter/AdditionalUserFieldValue")]
     public class AdditionalUserFieldValueController : ModelController<AdditionalUserFieldValue>
@@ -812,8 +812,10 @@ namespace SystemCenter.Controllers
     public class LocationDrawingController : ModelController<LocationDrawing> { }
 
     [RoutePrefix("api/SystemCenter/Statistics/OpenMIC")]
-    public class OpenMICDailyStatisticController : ModelController<OpenMICDailyStatistic> {
-        public OpenMICDailyStatisticController() {
+    public class OpenMICDailyStatisticController : ModelController<OpenMICDailyStatistic>
+    {
+        public OpenMICDailyStatisticController()
+        {
             ParentKey = "Meter";
         }
 
@@ -870,7 +872,7 @@ namespace SystemCenter.Controllers
     }
 
     [RoutePrefix("api/SystemCenter/Parse")]
-    public class ParseController: ApiController
+    public class ParseController : ApiController
     {
         #region [ Properties ]
 
@@ -951,7 +953,7 @@ namespace SystemCenter.Controllers
                     // Finding Phases that do not yet exist and adding them to the database
                     Func<ParsedChannel, string> phaseKeyChannel = (ParsedChannel channel) => channel.Phase.ToUpper();
                     Func<openXDA.Model.Phase, string> phaseKey = (openXDA.Model.Phase phase) => phase.Name.ToUpper();
-                    Func<ParsedChannel, openXDA.Model.Phase> createPhase = 
+                    Func<ParsedChannel, openXDA.Model.Phase> createPhase =
                         (ParsedChannel channel) =>
                             new openXDA.Model.Phase()
                             {
@@ -989,7 +991,7 @@ namespace SystemCenter.Controllers
             return Ok(channels);
         }
 
-        private void CheckAndAddRecords<T>(AdoDataConnection connection, IEnumerable<ParsedChannel> channels, Func<ParsedChannel, string> getKeyChannel, Func<T, string> getKeyRecord, Func<ParsedChannel, T> newRecordFunction) where T : class, new ()
+        private void CheckAndAddRecords<T>(AdoDataConnection connection, IEnumerable<ParsedChannel> channels, Func<ParsedChannel, string> getKeyChannel, Func<T, string> getKeyRecord, Func<ParsedChannel, T> newRecordFunction) where T : class, new()
         {
             TableOperations<T> recordTable = new TableOperations<T>(connection);
             List<T> allRecords = recordTable.QueryRecords().ToList();
@@ -1291,7 +1293,8 @@ namespace SystemCenter.Controllers
 
             IEnumerable<ParsedChannel> commaChannels = eventFile.CommaSeparatedEventReports.SelectMany((report) =>
             {
-                List<ParsedChannel> channels = report.AnalogSection.AnalogChannels.Select((chan, index) => {
+                List<ParsedChannel> channels = report.AnalogSection.AnalogChannels.Select((chan, index) =>
+                {
                     const string ChannelWithUnitsPattern = @"(?<Name>\S+)\s*\((?<Units>\S+)\)";
                     Match regexMatch = Regex.Match(chan.Name, ChannelWithUnitsPattern);
                     string channelName = regexMatch.Success ? regexMatch.Groups["Name"].Value : chan.Name;
@@ -1345,7 +1348,7 @@ namespace SystemCenter.Controllers
 
                 string phase = "None";
                 GroupCollection phaseMatchGroup = Regex.Match(channelName, @"(?<=\s\-\s[VI])(\S*)$", RegexOptions.IgnoreCase).Groups;
-                if(phaseMatchGroup.Count > 0)
+                if (phaseMatchGroup.Count > 0)
                 {
                     string phaseMatch = phaseMatchGroup[0].Value.ToUpper();
                     switch (phaseMatch)
@@ -1362,8 +1365,12 @@ namespace SystemCenter.Controllers
                         case "C":
                             phase = "CN";
                             break;
-                        case "AB": case "BC": case "CA":
-                        case "AN": case "BN": case "CN":
+                        case "AB":
+                        case "BC":
+                        case "CA":
+                        case "AN":
+                        case "BN":
+                        case "CN":
                             phase = phaseMatch;
                             break;
                         case "N":
@@ -1378,7 +1385,8 @@ namespace SystemCenter.Controllers
                     case "Digital":
                         measurementType = "Digital";
                         break;
-                    case "A": case "I":
+                    case "A":
+                    case "I":
                         measurementType = "Current";
                         break;
                     case "V":
@@ -1429,7 +1437,8 @@ namespace SystemCenter.Controllers
                 throw new InvalidDataException("No channels specified in file.");
 
 
-            return dataSet.Meter.Channels.Select((chan, index) => {
+            return dataSet.Meter.Channels.Select((chan, index) =>
+            {
                 IEnumerable<ParsedSeries> series = chan.Series.Select((single) => new ParsedSeries()
                 {
                     ID = single.ID,
@@ -1463,7 +1472,7 @@ namespace SystemCenter.Controllers
             });
 
         }
-        
+
         #endregion
     }
 
@@ -1482,7 +1491,7 @@ namespace SystemCenter.Controllers
                 string area = Geometry(record["Area"].ToObject<string>());
                 string color = record["Color"].ToObject<string>();
 
-                connection.ExecuteNonQuery("INSERT StandardMagDurCurve (Name, Area, Color) VALUES ({0}, {1}, {2})",name, area, color );
+                connection.ExecuteNonQuery("INSERT StandardMagDurCurve (Name, Area, Color) VALUES ({0}, {1}, {2})", name, area, color);
                 return Ok(1);
             }
         }
@@ -1519,7 +1528,7 @@ namespace SystemCenter.Controllers
     public class SEBrowserWidgetCategoryController : ModelController<SEBrowser.Model.WidgetCategory> { }
 
     [RoutePrefix("api/SEbrowser/WidgetView")]
-    public class SEBrowserWidgetViewController : ModelController<SEBrowser.Model.WidgetView> 
+    public class SEBrowserWidgetViewController : ModelController<SEBrowser.Model.WidgetView>
     {
         public override IHttpActionResult Delete(WidgetView record)
         {
@@ -1592,7 +1601,7 @@ namespace SystemCenter.Controllers
                 return Ok(result);
             }
         }
-        
+
         public override IHttpActionResult Patch([FromBody] ExternalDatabases record)
         {
             if (!PatchAuthCheck() || ViewOnly)
@@ -1656,11 +1665,9 @@ namespace SystemCenter.Controllers
         }
 
         private AppStatus GetConnectionStatus(ExternalDatabases extDB)
-            {
-
-
+        {
             AppStatus testDatabaseStatus = new()
-                {
+            {
                 Status = "Success",
                 Details = []
             };
@@ -1692,16 +1699,24 @@ namespace SystemCenter.Controllers
                     }
                 }
             }
-                catch (InvalidOperationException e)
+            catch (InvalidOperationException e)
             {
                 Type innerExceptionType = e.InnerException.GetType();
                 testDatabaseStatus.Status = "Error";
+                if (e.InnerException is KeyNotFoundException)
+                {
+                    testDatabaseStatus.Details.Add(new()
+                    {
+                        Status = "Error",
+                        Description = "Errors in the Data Provider string."
+                    });
+                }
                 if (e.InnerException is ArgumentException)
                 {
                     testDatabaseStatus.Details.Add(new()
                     {
                         Status = "Error",
-                        Description = "ConnectionString contains errors."
+                        Description = "Connection String contains errors."
                     });
                 }
                 if (e.InnerException is FileNotFoundException)
@@ -1716,8 +1731,8 @@ namespace SystemCenter.Controllers
                 {
                     testDatabaseStatus.Details.Add(new()
                     {
-                            Status = "Error",
-                            Description = "Could not load connection settings from configuration file."
+                        Status = "Error",
+                        Description = "Could not load connection settings from configuration file."
                     });
                 }
                 if (e.InnerException is Oracle.ManagedDataAccess.Client.OracleException o)
@@ -1781,7 +1796,6 @@ namespace SystemCenter.Controllers
                 {
                     int number = s.Number;
 
-                    // data provider string
                     if (number == 4060)
                     {
                         testDatabaseStatus.Details.Add(new()
@@ -1795,7 +1809,16 @@ namespace SystemCenter.Controllers
                             Description = "Failed to open database."
                         });
                     }
-
+                    if (number == -1)
+                    {
+                        {
+                            testDatabaseStatus.Details.Add(new()
+                            {
+                                Status = "Error",
+                                Description = "Failed to reach the server. Check that the connection string is correct and the server is accessible over network."
+                            });
+                        }
+                    }
                     // failed to open an ADO connection - "a network-related or instance-specific error"
                     if (number == 53)
                     {
@@ -1821,9 +1844,15 @@ namespace SystemCenter.Controllers
                         });
                     }
                 }
-                }
-                return testDatabaseStatus;
             }
+            if (testDatabaseStatus.Details.Count == 0)
+                testDatabaseStatus.Details.Add(new()
+                {
+                    Status = "Error",
+                    Description = "An error occurred while connecting to database, but its type could not be determined. More details are available in logs."
+                });
+            return testDatabaseStatus;
+        }
 
         [HttpPost, Route("UnscheduledUpdate")]
         public IHttpActionResult UnscheduledUpdate([FromBody] JObject record)
@@ -1860,11 +1889,11 @@ namespace SystemCenter.Controllers
     public class ExternalTableController : ModelController<DetailedExtDBTables, extDBTables>
     {
         [HttpGet, Route("RetrieveTable/{extTableID:int}/{orderBy}/{ascending:int?}/{start:int?}/{end:int?}")]
-        public IHttpActionResult RetrieveTableByID(int extTableID, string orderBy=null, int? ascending=null, int? start=null, int? end=null)
+        public IHttpActionResult RetrieveTableByID(int extTableID, string orderBy = null, int? ascending = null, int? start = null, int? end = null)
         {
             if (!GetAuthCheck())
                 return Unauthorized();
-            
+
             bool asc = ascending > 0;
 
             using (AdoDataConnection xdaConnection = new AdoDataConnection(Connection))
@@ -1898,7 +1927,7 @@ namespace SystemCenter.Controllers
             {
                 extDBTables table = new TableOperations<extDBTables>(xdaConnection).QueryRecordWhere("ID={0}", extTableID);
                 return Ok(QueryExternalCount(table, xdaConnection, new SQLSearchFilter[0]));
-            }            
+            }
         }
 
         [HttpPost, Route("RetrieveTableCount/{extTableID:int}")]
@@ -1915,7 +1944,7 @@ namespace SystemCenter.Controllers
         }
 
 
-        public class PostDataExtension: PostData
+        public class PostDataExtension : PostData
         {
             public DetailedExtDBTables externalTable { get; set; }
         }
@@ -1954,16 +1983,16 @@ namespace SystemCenter.Controllers
             }
         }
 
-        private DataTable QueryExternal(extDBTables table, AdoDataConnection xdaConnection, IEnumerable<SQLSearchFilter> filters, string orderBy=null, bool asc=true, int? start=null, int? end=null)
+        private DataTable QueryExternal(extDBTables table, AdoDataConnection xdaConnection, IEnumerable<SQLSearchFilter> filters, string orderBy = null, bool asc = true, int? start = null, int? end = null)
         {
             int count = -1;
-            if (!(start is null) && !(end is null) )
+            if (!(start is null) && !(end is null))
                 count = (end ?? 0) - (start ?? 0);
 
             ExternalDatabases extDB = new TableOperations<ExternalDatabases>(xdaConnection).QueryRecordWhere("ID={0}", table.ExtDBID);
             if (extDB is null) throw new NullReferenceException($"Could not find external database associated with table ${table.TableName}");
             using (AdoDataConnection extConnection = ScheduledExtDBTask.GetExternalConnection(extDB))
-                return ScheduledExtDBTask.RetrieveDataTable(table, extConnection, filters.Select(f => ProcessExternalFilter(extConnection, f)).ToArray(), orderBy,asc,(start ?? 1)-1, count);
+                return ScheduledExtDBTask.RetrieveDataTable(table, extConnection, filters.Select(f => ProcessExternalFilter(extConnection, f)).ToArray(), orderBy, asc, (start ?? 1) - 1, count);
         }
 
         private int QueryExternalCount(extDBTables table, AdoDataConnection xdaConnection, IEnumerable<SQLSearchFilter> filters)
@@ -1971,7 +2000,7 @@ namespace SystemCenter.Controllers
             ExternalDatabases extDB = new TableOperations<ExternalDatabases>(xdaConnection).QueryRecordWhere("ID={0}", table.ExtDBID);
             if (extDB is null) throw new NullReferenceException($"Could not find external database associated with table ${table.TableName}");
             using (AdoDataConnection extConnection = ScheduledExtDBTask.GetExternalConnection(extDB))
-                return ScheduledExtDBTask.RetrieveDataCount(table, extConnection, filters.Select(f => ProcessExternalFilter(extConnection,f)).ToArray());
+                return ScheduledExtDBTask.RetrieveDataCount(table, extConnection, filters.Select(f => ProcessExternalFilter(extConnection, f)).ToArray());
         }
 
         private Condition ProcessExternalFilter(AdoDataConnection connection, SQLSearchFilter search)
@@ -1983,7 +2012,7 @@ namespace SystemCenter.Controllers
                 fieldName = $"[{fieldName}]";
             return new Condition()
             {
-                Parameter = search.SearchText.Replace("*","%"),
+                Parameter = search.SearchText.Replace("*", "%"),
                 SQL = $"{fieldName} {search.Operator} {{0}}"
             };
         }
@@ -1991,7 +2020,7 @@ namespace SystemCenter.Controllers
     }
 
     [RoutePrefix("api/SEbrowser/Widget")]
-    public class SEBrowserWidgetController : ModelController<SEBrowser.Model.Widget> {}
+    public class SEBrowserWidgetController : ModelController<SEBrowser.Model.Widget> { }
 
     [RoutePrefix("api/PQDigest/Widget"), HttpEditionFilter(Edition.Enterprise)]
     public class PQDigestWidgetController : ModelController<PQDigest.Model.Widget> { }
@@ -2023,7 +2052,7 @@ namespace SystemCenter.Controllers
                     new TableOperations<openXDA.Model.MATLABAnalytic>(connection).AddNewRecord(analyticRecord);
 
                     analyticRecord.ID = connection.ExecuteScalar<int>($"SELECT MAX(ID) FROM MATLABAnalytic");
-                    
+
                     // Add event types
                     foreach (openXDA.Model.MATLABAnalyticEventType eventType in eventTypeRecords)
                     {
