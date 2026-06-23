@@ -330,10 +330,10 @@ namespace SystemCenter.Controllers.OpenXDA
                         else
                             return Ok(new PagedResults()
                             {
-                                Data = JsonConvert.SerializeObject(null),
+                                Data = JsonConvert.SerializeObject(new string[0]),
                                 TotalRecords = 0,
                                 NumberOfPages = 0,
-                                RecordsPerPage = Take ?? 50
+                                RecordsPerPage = Take ?? 48
                             });
                     }
                 else
@@ -349,7 +349,7 @@ namespace SystemCenter.Controllers.OpenXDA
 
 public static PagedResults PageImagePaths(IEnumerable<string> imagePaths, int page)
         {
-            int recordsPerPage = 48;
+            int recordsPerPage = 48; // the image page likes columns of 6, despite the max value.
             int totalImages = imagePaths.Count();
 
             IEnumerable<string> pagedImagePaths = imagePaths
