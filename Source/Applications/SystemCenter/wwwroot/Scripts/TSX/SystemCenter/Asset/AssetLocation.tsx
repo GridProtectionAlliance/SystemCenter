@@ -203,9 +203,9 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
                             HeaderStyle={{ width: '10%' }}
                             RowStyle={{ width: '10%' }}
                             Content={({ item }) => <>
-                                <button className={"btn btn-sm" + (!hasPermissions ? ' disabled' : '')}
+                                <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
                                     onClick={(e) => {
-                                        if (hasPermissions) {
+                                        if (hasPermissions()) {
                                             e.preventDefault();
                                             e.stopPropagation();
                                             deleteLocation(item);
@@ -235,10 +235,10 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-info pull-right" + (!hasPermissions ? ' disabled' : '')} data-tooltip='Update'
-                        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover(undefined)} onClick={(evt) => { if (hasPermissions) setShowModal(true); }}>Add Substation</button>
+                    <button className={"btn btn-info pull-right" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='Update'
+                        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover(undefined)} onClick={(evt) => { if (hasPermissions()) setShowModal(true); }}>Add Substation</button>
                 </div>
-                <ToolTip Show={hover != null && !hasPermissions} Position={hover === 'Update' ? "top" : "left"} Target={hover}>
+                <ToolTip Show={hover != null && !hasPermissions()} Position={hover === 'Update' ? "top" : "left"} Target={hover}>
                     <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                 </ToolTip>
             </div>
