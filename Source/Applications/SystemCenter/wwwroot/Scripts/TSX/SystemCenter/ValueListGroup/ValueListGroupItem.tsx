@@ -23,13 +23,13 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { SystemCenter } from '@gpa-gemstone/application-typings';
+import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
 import { useAppSelector, useAppDispatch, useBoundPaging } from '../hooks';
 import { ValueListSlice } from '../Store/Store';
 import ValueListForm from './ValueListForm';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { Modal, Search } from '@gpa-gemstone/react-interactive';
+import { Modal, Search, GenericController } from '@gpa-gemstone/react-interactive';
 import { ValueListItemDelete, RequiredValueLists } from './ValueListGroupDelete';
 import { ToolTip } from '@gpa-gemstone/react-forms';
 
@@ -38,14 +38,8 @@ interface IProps {
 }
 
 export default function ValueListGroupItems(props: IProps) {
-    const dispatch = useAppDispatch();
-
-    const data = useAppSelector(ValueListSlice.SearchResults);
-    const status = useAppSelector(ValueListSlice.Status);
+    const [data, setData] = React.useState<SystemCenter.Types.ValueListItem[]>([])
     const parentID = useAppSelector(ValueListSlice.ParentID);
-    const currentPage = useAppSelector(ValueListSlice.CurrentPage);
-    const totalPages = useAppSelector(ValueListSlice.TotalPages);
-
     const emptyRecord: SystemCenter.Types.ValueListItem = { ID: 0, GroupID: parentID as number, Value: '', AltValue: null, SortOrder: 0 };
     const [record, setRecord] = React.useState<SystemCenter.Types.ValueListItem>(emptyRecord);
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
@@ -56,7 +50,27 @@ export default function ValueListGroupItems(props: IProps) {
     const [hover, setHover] = React.useState<string>('');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [sortField, setSortField] = React.useState<keyof SystemCenter.Types.ValueListItem>('SortOrder')
-    const filters = React.useMemo(() => [{ FieldName: "GroupID", SearchText: props.Record.ID.toString(), Operator: "=" as Search.OperatorType, IsPivotColumn: false, Type: "number" as Search.FieldType }],[props.Record.ID])
+    const [page, setPage] = React.useState<number>(0);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated')
+
+    const controller = React.useMemo(() => new GenericController<SystemCenter.Types.ValueListItem>(`${homePath}api/ValueList`, 'SortOrder'),[]);
+
+    const pagedSearch = React.useCallback(() => {
+        const filters = [{ FieldName: "GroupID", SearchText: props.Record.ID.toString(), Operator: "=" as Search.OperatorType, IsPivotColumn: false, Type: "number" as Search.FieldType }];
+        setStatus('loading')
+        const h = controller.PagedSearch(filters, sortField, ascending, page);
+        h.done((d) => {
+            setData(JSON.parse(d.Data as unknown as string))
+            setTotalPages(d.NumberOfPages)
+            setStatus('idle')
+        }).fail((d) => {
+            setStatus('error')
+        })
+        return () => {
+            if (h.abort != undefined) h.abort();
+        }
+    }, [props.Record.ID, sortField, ascending, page, controller.PagedSearch])
 
     const disallowReason = React.useCallback((ID: string) => {
         if (!RequiredValueLists.includes(props.Record?.Name))
@@ -70,9 +84,14 @@ export default function ValueListGroupItems(props: IProps) {
     }, [props.Record?.Name, data.length, countDictionary]);
 
     React.useEffect(() => {
-        if (status == 'uninitiated' || status == 'changed')
-            dispatch(ValueListSlice.PagedSearch({ filter: filters, sortField: 'SortOrder', ascending: true, page: 0 }));
-    }, [status, props.Record.ID, filters]);
+        pagedSearch()
+    }, [pagedSearch, sortField, ascending, page, props.Record.ID]);
+
+    // sometimes still fetches stale data.
+    React.useEffect(() => {
+        if (status === 'changed')
+            pagedSearch()
+    }, [status])
 
     React.useEffect(() => {
         if (props.Record?.Name == null) return;
@@ -90,29 +109,6 @@ export default function ValueListGroupItems(props: IProps) {
         return () => { if (h?.abort != null) h.abort(); }
     }, [props.Record?.Name]);
 
-    const setPage = React.useCallback((page) => {
-        dispatch(ValueListSlice.PagedSearch({ filter: filters, sortField: sortField, ascending: ascending, page: page - 1 }))
-    }, [sortField, ascending, filters])
-
-    useBoundPaging(currentPage, totalPages, setPage)
-
-    const sort = React.useCallback((d) => {
-        if (d.colField === 'btns')
-            return
-        let asc = ascending
-        let sort = d.colField
-        if (sortField === d.colField) {
-            setAscending(!asc)
-            asc = !asc
-        }
-        else {
-            setSortField(d.colField)
-            setAscending(true)
-            asc = true
-        }
-        dispatch(ValueListSlice.PagedSearch({ filter: [], sortField: sort, ascending: asc, page: 0 }))
-    }, [ascending, sortField])
-
     return (
         <div className="card h-100">
             <div className="card-header">
@@ -128,9 +124,16 @@ export default function ValueListGroupItems(props: IProps) {
                     <Table<SystemCenter.Types.ValueListItem>
                         TableClass="table table-hover"
                         Data={data}
-                            SortKey={sortField}
-                            Ascending={ascending}
-                            OnSort={sort}
+                        SortKey={sortField}
+                        Ascending={ascending}
+                        OnSort={(d) => {
+                            if (d.colField === sortField)
+                                setAscending(!ascending);
+                            else {
+                                setAscending(true);
+                                setSortField(d.colField);
+                            }
+                        }}
                         TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1, width: '100%' }}
@@ -207,8 +210,8 @@ export default function ValueListGroupItems(props: IProps) {
                 <div className="row">
                     <div className="col">
                         <Paging
-                            SetPage={setPage}
-                            Current={currentPage + 1}
+                            SetPage={(page) => setPage(page - 1)}
+                            Current={page + 1}
                             Total={totalPages}
                         />
                     </div>
@@ -224,8 +227,10 @@ export default function ValueListGroupItems(props: IProps) {
             <ValueListItemDelete
                 Show={showWarning}
                 CallBack={(conf) => {
-                    if (conf)
-                        dispatch(ValueListSlice.DBAction({ verb: 'DELETE', record: { ...record } }));
+                    if (conf) {
+                        controller.DBAction('DELETE', { ...record });
+                        setStatus('changed')
+                    }
                     setShowWarning(false);
                 }}
                 Record={record}
@@ -242,10 +247,14 @@ export default function ValueListGroupItems(props: IProps) {
                 DisableConfirm={errors.length > 0}
                 ShowX={true} CallBack={(conf) => {
                     setShowModal(false);
-                    if (conf && record.ID > 0)
-                        dispatch(ValueListSlice.DBAction({ verb: 'PATCH', record }));
-                    else if (conf && record.ID == 0)
-                        dispatch(ValueListSlice.DBAction({ verb: 'POST', record }));
+                    if (conf && record.ID > 0) {
+                        controller.DBAction('PATCH', record);
+                        setStatus('changed')
+                    }
+                    else if (conf && record.ID == 0) {
+                        controller.DBAction('POST', record);
+                        setStatus('changed')
+                    }
                 }}
             >
                 <ValueListForm Record={record} Setter={setRecord} SetErrors={setErrors} />
