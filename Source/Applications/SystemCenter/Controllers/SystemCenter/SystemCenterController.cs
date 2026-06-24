@@ -29,6 +29,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text.RegularExpressions;
 using System.Web.Http;
 using System.Web.Http.Results;
@@ -2015,7 +2016,7 @@ namespace SystemCenter.Controllers
                         Description = oe.Message
                     });
                 }
-                return Ok(status);
+                return Content(HttpStatusCode.InternalServerError, status);
             }
         }
 

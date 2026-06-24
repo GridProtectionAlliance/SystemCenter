@@ -68,19 +68,13 @@ export default function ResultDisplay(props: IProps) {
     React.useEffect(() => {
         setDataStatus('loading');
         const dataHandle = props.GetTable((page * RowsPerPage) + 1, ((page + 1) * RowsPerPage + 1), filters, sortExt, ascExt);
-
         dataHandle.then((d) => {
-            if ("Status" in d && "Details" in d) {
-                setExtTableStatus(d as unknown as SC.StatusItem)
-            }
-            else {
             const keyedData = d?.map((datum, index) => ({ ...datum, __tempXdaKey__: index }));
             setExternalData(keyedData ?? []);
             if (keyedData == null || keyedData.length == 0)
                 setCount(0);
-            }
             setDataStatus('idle');
-        }, (d) => { if (d.statusText === 'abort') return; setDataStatus('error');})
+        }, (d) => { if (d.statusText === 'abort') return; setDataStatus('error'); setExtTableStatus(d as unknown as SC.StatusItem)})
         return () => {
             if (dataHandle != null && dataHandle.abort != null) dataHandle.abort()
         }

@@ -167,8 +167,7 @@ export default function QueryTestDialog(props: IProps) {
                 }}
                 BodyStyle={{ maxHeight: 'calc(100vh - 210px)', display: 'flex', flexDirection: 'column' }}
             >
-                {step == steps.PickType ? <TargetTypesSelection SetTable={setParentTable} /> :
-                    step === steps.Error ? <ServerErrorIcon Show={true} /> : <ResultDisplay TableID={props.ExtTable.ID} GetCount={requestCount} GetTable={requestTable} ForceReload={step === steps.Results} />}
+                {step == steps.PickType ? <TargetTypesSelection SetTable={setParentTable} /> : <ResultDisplay TableID={props.ExtTable.ID} GetCount={requestCount} GetTable={requestTable} ForceReload={step === steps.Results} />}
             </Modal>
             <TargetSelection OnBack={() => setStep(steps.PickType)}
                 SetSelectedID={(id) => { setStep(steps.Results); setRecordID(id); }}
