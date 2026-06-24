@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  StatusDetails.tsx - Gbtc
 //
-//  Copyright © 2026, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright ï¿½ 2026, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -26,10 +26,12 @@ import { ReactIcons } from '@gpa-gemstone/gpa-symbols'
 import { GetStatusSymbol, GetStatusItemAlertClass } from './StatusItem'
 
 interface IProps {
-    StatusItem: SystemCenter.StatusItem
+    StatusItem: SystemCenter.StatusItem | null
 }
 
 const StatusDetails = (props: IProps) => {
+    if (props.StatusItem == null)
+        return null
     return (
         <div>
             {props.StatusItem.Details.length == 0 ? <ReactIcons.SpiningIcon />

@@ -37,7 +37,7 @@ export default function ExternalDBForm(props: {
 }) {
 
     const [requestStatus, setRequestStatus] = React.useState<Application.Types.Status>('uninitiated');
-    const [connectionStatus, setConnectionStatus] = React.useState<SC.StatusItem>(null);
+    const [connectionStatus, setConnectionStatus] = React.useState<SC.StatusItem|null>(null);
 
     function Valid(field: keyof (SystemCenter.Types.ExternalDatabases)): boolean {
         if (field == 'Name')
