@@ -224,8 +224,8 @@ const ByNode = (props: {Roles: Application.Types.SecurityRoleName[]}) => {
             <div className="row">
                 <NodeForm
                     Node={selectedNode}
-                    stateSetter={setSelectedNode}
-                    setErrors={setErrors}
+                    StateSetter={setSelectedNode}
+                    SetErrors={setErrors}
                     NodeTypeOptions={nodeTypes.map((n) => { return { Value: n.Name, Label: n.Name } })}
                     HostOptions={appHosts.map((h) => { return { Value: h.RegistrationKey, Label: h.RegistrationKey } })}
                 />

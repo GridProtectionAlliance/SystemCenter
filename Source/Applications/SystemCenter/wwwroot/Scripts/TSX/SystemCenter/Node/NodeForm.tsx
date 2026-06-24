@@ -30,8 +30,8 @@ import { SystemCenter as SC } from '../global'
 
 interface IProps {
     Node: SC.Node,
-    stateSetter: (customer: SC.Node) => void,
-    setErrors?: (e: string[]) => void,
+    StateSetter: (customer: SC.Node) => void,
+    SetErrors?: (e: string[]) => void,
     NodeTypeOptions: Gemstone.TSX.Interfaces.ILabelValue<string>[]
     HostOptions: Gemstone.TSX.Interfaces.ILabelValue<string>[]
 }
@@ -54,11 +54,11 @@ const NodeForm = (props: IProps) => {
 
 
     return <div className="col">
-        <Input<SC.Node> Record={props.Node} Field={'Name'} Label='Name' Feedback={'A unique Key of less than 25 characters is required.'} Valid={valid} Setter={(record) => props.stateSetter(record)} Disabled={!hasPermissions()} />
-        <Input<SC.Node> Type={'number'} Record={props.Node} Field={'MinimumHostCount'} Label='Minimum Node Count' Feedback='A number between 0 and 100 is required.' Valid={valid} Setter={(record) => props.stateSetter(record)} Disabled={!hasPermissions()} />
-        <Select<SC.Node> Options={props.NodeTypeOptions} Record={props.Node} Field={'NodeType'} Setter={(record) => props.stateSetter(record)} />
-        <Select<SC.Node> Record={props.Node} Options={props.HostOptions} Field={'HostRegistrationKey'} Label={'Node'} EmptyOption={true} Setter={(record) => props.stateSetter(record)} />
-        <Select<SC.Node> Record={props.Node} Options={props.HostOptions} Field={'AssignedHostRegistrationKey'} Label={'Assigned Nodes'} EmptyOption={true} Setter={(record) => props.stateSetter(record)} />
+        <Input<SC.Node> Record={props.Node} Field={'Name'} Label='Name' Feedback={'A unique Key of less than 25 characters is required.'} Valid={valid} Setter={(record) => props.StateSetter(record)} Disabled={!hasPermissions()} />
+        <Input<SC.Node> Type={'number'} Record={props.Node} Field={'MinimumHostCount'} Label='Minimum Node Count' Feedback='A number between 0 and 100 is required.' Valid={valid} Setter={(record) => props.StateSetter(record)} Disabled={!hasPermissions()} />
+        <Select<SC.Node> Options={props.NodeTypeOptions} Record={props.Node} Field={'NodeType'} Setter={(record) => props.StateSetter(record)} />
+        <Select<SC.Node> Record={props.Node} Options={props.HostOptions} Field={'HostRegistrationKey'} Label={'Node'} EmptyOption={true} Setter={(record) => props.StateSetter(record)} />
+        <Select<SC.Node> Record={props.Node} Options={props.HostOptions} Field={'AssignedHostRegistrationKey'} Label={'Assigned Nodes'} EmptyOption={true} Setter={(record) => props.StateSetter(record)} />
     </div> 
 }
 
