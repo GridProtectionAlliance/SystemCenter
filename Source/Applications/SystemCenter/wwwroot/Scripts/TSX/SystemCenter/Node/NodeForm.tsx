@@ -31,7 +31,7 @@ import { SystemCenter as SC } from '../global'
 interface IProps {
     Node: SC.Node,
     StateSetter: (customer: SC.Node) => void,
-    SetErrors?: (e: string[]) => void,
+    SetErrors: (e: string[]) => void,
     NodeTypeOptions: Gemstone.TSX.Interfaces.ILabelValue<string>[]
     HostOptions: Gemstone.TSX.Interfaces.ILabelValue<string>[]
 }
