@@ -1922,11 +1922,23 @@ namespace SystemCenter.Controllers
         {
             if (!GetAuthCheck())
                 return Unauthorized();
-
-            using (AdoDataConnection xdaConnection = new AdoDataConnection(Connection))
+            try
             {
-                extDBTables table = new TableOperations<extDBTables>(xdaConnection).QueryRecordWhere("ID={0}", extTableID);
-                return Ok(QueryExternal(table, xdaConnection, postData.Searches, postData.OrderBy, postData.Ascending, start, end));
+                using (AdoDataConnection xdaConnection = new AdoDataConnection(Connection))
+                {
+                    extDBTables table = new TableOperations<extDBTables>(xdaConnection).QueryRecordWhere("ID={0}", extTableID);
+                    return Ok(QueryExternal(table, xdaConnection, postData.Searches, postData.OrderBy, postData.Ascending, start, end));
+                }
+            }
+            catch (Exception e)
+            {
+                AppStatus status = new AppStatus()
+                {
+                    Details = [new StatusItem() { Description="Server error occurred, please check connection and data provider settings.", Status="Error"}],
+                    Status = "Error"
+                };
+
+                return Content(HttpStatusCode.InternalServerError, status);
             }
         }
 
