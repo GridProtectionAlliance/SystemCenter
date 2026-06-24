@@ -23,6 +23,7 @@
 
 using System;
 using System.Data;
+using System.Net;
 using System.Web.Http;
 using Flee.PublicTypes;
 using GSF.Data;
@@ -31,6 +32,7 @@ using GSF.Web.Model;
 using Microsoft.Graph.ExternalConnectors;
 using Newtonsoft.Json.Linq;
 using openXDA.Model;
+using openXDA.Model.SystemCenter;
 using SystemCenter.Model;
 using SystemCenter.ScheduledProcesses;
 
@@ -56,11 +58,19 @@ namespace SystemCenter.Controllers
             }
             catch (Exception ex)
             {
-                return InternalServerError(ex);
+                {
+                    AppStatus status = new AppStatus()
+                    {
+                        Details = [new StatusItem() { Description = ex.Message, Status = "Error" }],
+                        Status = "Error"
+                    };
+
+                    return Content(HttpStatusCode.InternalServerError, status);
+                }
             }
         }
 
-        // This is seperated specifically for assets controller to use without making the whole thing an extension
+        // This is separated specifically for assets controller to use without making the whole thing an extension
         public static DataTable ExecuteExternalQuery(JObject extQuery, AdoDataConnection xdaConnection)
         {
             T xdaRecord = extQuery["xdaRecord"].ToObject<T>();

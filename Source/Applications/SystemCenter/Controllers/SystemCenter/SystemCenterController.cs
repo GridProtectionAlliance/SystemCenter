@@ -1934,7 +1934,7 @@ namespace SystemCenter.Controllers
             {
                 AppStatus status = new AppStatus()
                 {
-                    Details = [new StatusItem() { Description="Server error occurred, please check connection and data provider settings.", Status="Error"}],
+                    Details = [new StatusItem() { Description=e.Message, Status="Error"}],
                     Status = "Error"
                 };
 

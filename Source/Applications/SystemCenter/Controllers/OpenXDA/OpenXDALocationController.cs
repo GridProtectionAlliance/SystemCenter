@@ -31,8 +31,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Transactions;
-using System.Web;
 using System.Web.Http;
 using GSF.Data;
 using GSF.Data.Model;
@@ -41,6 +39,7 @@ using GSF.Web.Model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using openXDA.Model;
+using openXDA.Model.SystemCenter;
 using SystemCenter.Model;
 using Setting = SystemCenter.Model.Setting;
 
@@ -96,8 +95,15 @@ namespace SystemCenter.Controllers.OpenXDA
             }
             catch (Exception ex)
             {
-                return InternalServerError(ex);
+                AppStatus status = new AppStatus()
+                {
+                    Details = [new StatusItem() { Description = ex.Message, Status = "Error" }],
+                    Status = "Error"
+                };
+
+                return Content(HttpStatusCode.InternalServerError, status);
             }
+            
         }
     }
 
