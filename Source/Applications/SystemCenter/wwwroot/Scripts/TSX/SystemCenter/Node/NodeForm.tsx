@@ -46,7 +46,7 @@ const NodeForm = (props: IProps) => {
     }
     function valid(field: keyof (SC.Node)): boolean {
         if (field == 'Name')
-            return props.Node.Name != null // && props.Customer.CustomerKey.length > 0 && props.Customer.CustomerKey.length <= 25;
+            return props.Node.Name != null
         if (field == 'MinimumHostCount')
             return props.Node.MinimumHostCount > 0 && props.Node.MinimumHostCount < 100
         return true;
@@ -54,7 +54,7 @@ const NodeForm = (props: IProps) => {
 
 
     return <div className="col">
-        <Input<SC.Node> Record={props.Node} Field={'Name'} Label='Name' Feedback={'A unique Key of less than 25 characters is required.'} Valid={valid} Setter={(record) => props.StateSetter(record)} Disabled={!hasPermissions()} />
+        <Input<SC.Node> Record={props.Node} Field={'Name'} Label='Name' Valid={valid} Setter={(record) => props.StateSetter(record)} Disabled={!hasPermissions()} />
         <Input<SC.Node> Type={'number'} Record={props.Node} Field={'MinimumHostCount'} Label='Minimum Node Count' Feedback='A number between 0 and 100 is required.' Valid={valid} Setter={(record) => props.StateSetter(record)} Disabled={!hasPermissions()} />
         <Select<SC.Node> Options={props.NodeTypeOptions} Record={props.Node} Field={'NodeType'} Setter={(record) => props.StateSetter(record)} />
         <Select<SC.Node> Record={props.Node} Options={props.HostOptions} Field={'HostRegistrationKey'} Label={'Node'} EmptyOption={true} Setter={(record) => props.StateSetter(record)} />
