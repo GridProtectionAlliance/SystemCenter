@@ -1974,9 +1974,48 @@ namespace SystemCenter.Controllers
                     return Ok(QueryExternal(record.externalTable, xdaConnection, record.Searches, record.OrderBy, record.Ascending, start, end));
                 }
             }
-            catch (InvalidOperationException e)
+            catch (Exception e)
             {
-                return InternalServerError(e);
+                AppStatus status = new AppStatus()
+                {
+                    Details = [],
+                    Status = "Error"
+                };
+
+                if (e is InvalidOperationException ioe)
+                {
+                    status = ExternalDatabasesController.CreateErrorStatus(ioe);
+                }
+                else
+                {
+                    status.Details.Add(new StatusItem()
+                    {
+                        Status = "Success",
+                        Description = "Successfully connected to database."
+                    });
+                }
+
+                // check for SQL errors
+                if (e is SqlException sqle)
+                {
+
+                    status.Details.Add(new StatusItem()
+                    {
+                        Status = "Error",
+                        Description = sqle.Message
+                    });
+                }
+
+                // check for Oracle SQL error
+                if (e is Oracle.ManagedDataAccess.Client.OracleException oe)
+                {
+                    status.Details.Add(new StatusItem()
+                    {
+                        Status = "Error",
+                        Description = oe.Message
+                    });
+                }
+                return Ok(status);
             }
         }
 
@@ -1996,46 +2035,6 @@ namespace SystemCenter.Controllers
             {
                 return InternalServerError(ex);
             }
-        }
-
-        [HttpGet, Route("TableConnection/{extTableID:int}")]
-        public IHttpActionResult CheckTableConnectionStatus([FromUri] int extTableID)
-        {
-            if (!PostAuthCheck())
-                return Unauthorized();
-
-            AppStatus status = new AppStatus()
-            {
-                Details = [],
-                Status = "Error"
-            };
-
-            try
-            {
-                using (AdoDataConnection xdaConnection = new AdoDataConnection(Connection))
-                {
-                    extDBTables table = new TableOperations<extDBTables>(xdaConnection).QueryRecordWhere("ID={0}", extTableID);
-                    var results = QueryExternal(table, xdaConnection, []);
-                }
-                status.Details.Add(new StatusItem() 
-                { Status = "Success",
-                    Description = "Successfully connected to database."
-                });
-                status.Details.Add(new StatusItem()
-                {
-                    Status = "Error",
-                    Description = "SQL error occurred."
-                });
-            }
-            catch (Exception e)
-            {
-                // first, check database connection
-                if (e is InvalidOperationException ioe)
-                {
-                    status = ExternalDatabasesController.CreateErrorStatus(ioe);
-                }
-            }
-            return Ok(status);
         }
 
         private DataTable QueryExternal(extDBTables table, AdoDataConnection xdaConnection, IEnumerable<SQLSearchFilter> filters, string orderBy = null, bool asc = true, int? start = null, int? end = null)

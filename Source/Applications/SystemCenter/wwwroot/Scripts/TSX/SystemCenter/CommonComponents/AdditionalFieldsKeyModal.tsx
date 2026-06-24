@@ -75,16 +75,6 @@ function AdditionalFieldsKeyModal(props: IProps): JSX.Element {
         return handle;
     };
 
-    const requestConnectionStatus = () => {
-        return $.ajax({
-            type: "GET",
-            url: `${homePath}api/SystemCenter/extDBTables/TableConnection/${props.KeyField.ExternalDBTableID}`,
-            contentType: "application/json; charset=utf-8",
-            cache: false,
-            async: true
-        })
-    }
-
     React.useEffect(() => {
         if (props.Show && dataStatus === 'error') {
             setDataStatus('uninitiated');
@@ -113,7 +103,6 @@ function AdditionalFieldsKeyModal(props: IProps): JSX.Element {
                 TableID={props.KeyField?.ExternalDBTableID}
                 GetCount={getCount}
                 GetTable={getData}
-                GetConnection={requestConnectionStatus}
                 Selected={(item) => _.isEqual(item, selectedExternal)}
                 OnSelection={setSelectedExternal}
                 ForceReload={props.Show} />

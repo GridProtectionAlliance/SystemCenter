@@ -33,7 +33,6 @@ interface IProps {
     TableID: number;
     GetTable: (start: number, end: number, Filters: Search.IFilter<any>[], OrderBy: string, Ascending: boolean) => JQuery.jqXHR<any[]>;
     GetCount: (Filters: Search.IFilter<any>[]) => JQuery.jqXHR<number>;
-    GetConnection: () => JQuery.jqXHR<SC.StatusItem>;
     OnSelection?: (record: any) => void;
     Selected?: (record: any) => boolean;
     ForceReload?: boolean;
@@ -51,7 +50,7 @@ export default function ResultDisplay(props: IProps) {
     const [page, setPage] = React.useState<number>(0);
     const [filters, setFilters] = React.useState<Search.IFilter<any>[]>([]);
     const [cols, setCols] = React.useState<string[]>([]);
-    const [extTableStatus, setExtTableStatus] = React.useState<SC.StatusItem>({Details: [], Status: 'Loading'})
+    const [extTableStatus, setExtTableStatus] = React.useState<SC.StatusItem>({ Details: [], Status: 'N/A' })
 
     React.useEffect(() => {
         setCountStatus('loading');
@@ -71,12 +70,17 @@ export default function ResultDisplay(props: IProps) {
         const dataHandle = props.GetTable((page * RowsPerPage) + 1, ((page + 1) * RowsPerPage + 1), filters, sortExt, ascExt);
 
         dataHandle.then((d) => {
+            if ("Status" in d && "Details" in d) {
+                setExtTableStatus(d as unknown as SC.StatusItem)
+            }
+            else {
             const keyedData = d?.map((datum, index) => ({ ...datum, __tempXdaKey__: index }));
             setExternalData(keyedData ?? []);
-            setDataStatus('idle');
             if (keyedData == null || keyedData.length == 0)
                 setCount(0);
-        }, (d) => { if (d.statusText === 'abort') return; setDataStatus('error') })
+            }
+            setDataStatus('idle');
+        }, (d) => { if (d.statusText === 'abort') return; setDataStatus('error');})
         return () => {
             if (dataHandle != null && dataHandle.abort != null) dataHandle.abort()
         }
@@ -93,22 +97,15 @@ export default function ResultDisplay(props: IProps) {
         }
     }, [externalData]);
 
-    React.useEffect(() => {
-        if (datastatus === 'error' || countstatus === 'error') {
-            const connectionHandle = props.GetConnection();
-            connectionHandle.done((d: SC.StatusItem) => {
-                setExtTableStatus(d);
-            }).fail((d) => {
-            })
-        }
-    }, [datastatus, countstatus])
-
     return <>
         <LoadingScreen Show={countstatus === 'loading' || datastatus === 'loading'} />
         <div className="row" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="col" style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
-                {countstatus !== 'error' && datastatus !== 'error' ?
-                    <ConfigurableTable<any>
+                {extTableStatus.Status !== 'N/A'
+                    ? <StatusDetails
+                        StatusItem={extTableStatus}
+                    />
+                    : <ConfigurableTable<any>
                         LocalStorageKey={`TestTableResultColumns.${props.TableID}`}
                         TableClass="table table-hover"
                         Data={externalData}
@@ -133,7 +130,7 @@ export default function ResultDisplay(props: IProps) {
                         }}
                     >
                         {
-                            cols.map(col =>
+                            cols.map(col => col === 'RN' ? null :
                                 <ConfigurableColumn Key={col} Default={true} Label={col} key={col}>
                                     <Column<any> key={col}
                                         Key={col} Field={col}
@@ -142,10 +139,7 @@ export default function ResultDisplay(props: IProps) {
                                     </Column>
                                 </ConfigurableColumn>
                             )}
-                    </ConfigurableTable>
-                    : <StatusDetails
-                        StatusItem={extTableStatus}
-                    />}
+                    </ConfigurableTable>}
             </div>
         </div>
         <div className="row">

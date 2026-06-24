@@ -103,7 +103,10 @@ export default function QueryTestDialog(props: IProps) {
                 cache: false,
                 async: true,
                 data: JSON.stringify({ Ascending: false, OrderBy: '', Searches: filters, externalTable: props.ExtTable })
-            }).fail((d) => { if (d.statusText === 'abort') return; setStep(steps.Error); setErrorMsg(d.statusText); });
+            })
+                .fail((d) => {
+                    if (d.statusText === 'abort') return; //setStep(steps.Error); setErrorMsg(d.statusText); }); if this fails, we'll be expecting a status item from the other one
+                })
         }
         else {
             handle = Promise.resolve(1);
@@ -143,16 +146,6 @@ export default function QueryTestDialog(props: IProps) {
         return handle.fail((d) => { if (d.statusText === 'abort') return; setStep(steps.Error); setErrorMsg(d.statusText); });
     }
 
-    const requestConnectionStatus = () => {
-        return $.ajax({
-            type: "GET",
-            url: `${homePath}api/SystemCenter/extDBTables/TableConnection/${props.ExtTable.ID}`,
-            contentType: "application/json; charset=utf-8",
-            cache: false,
-            async: true
-        })
-    }
-
     return (
         <>
             <Modal Title={"Test External Table Query"} Show={props.Show && step !== steps.PickRecord}
@@ -174,7 +167,8 @@ export default function QueryTestDialog(props: IProps) {
                 }}
                 BodyStyle={{ maxHeight: 'calc(100vh - 210px)', display: 'flex', flexDirection: 'column' }}
             >
-                {step == steps.PickType ? <TargetTypesSelection SetTable={setParentTable} /> : <ResultDisplay TableID={props.ExtTable.ID} GetCount={requestCount} GetTable={requestTable} GetConnection={requestConnectionStatus} ForceReload={step === steps.Results} />}
+                {step == steps.PickType ? <TargetTypesSelection SetTable={setParentTable} /> :
+                    step === steps.Error ? <ServerErrorIcon Show={true} /> : <ResultDisplay TableID={props.ExtTable.ID} GetCount={requestCount} GetTable={requestTable} ForceReload={step === steps.Results} />}
             </Modal>
             <TargetSelection OnBack={() => setStep(steps.PickType)}
                 SetSelectedID={(id) => { setStep(steps.Results); setRecordID(id); }}
