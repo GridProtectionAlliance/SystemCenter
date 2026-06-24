@@ -36,9 +36,9 @@ interface IProps {
     HostOptions: Gemstone.TSX.Interfaces.ILabelValue<string>[]
 }
 
-
 const NodeForm = (props: IProps) => {
     const roles = useAppSelector(SelectRoles);
+
     function hasPermissions(): boolean {
         if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0)
             return false;
@@ -51,6 +51,15 @@ const NodeForm = (props: IProps) => {
             return props.Node.MinimumHostCount > 0 && props.Node.MinimumHostCount < 100
         return true;
     }
+
+    React.useEffect(() => {
+        let e = [];
+        if (!valid('Name'))
+            e.push('A Name is required.')
+        if (!valid('MinimumHostCount'))
+            e.push('A number between 0 and 100 is required.')
+        props.SetErrors(e);
+    }, [props.Node])
 
 
     return <div className="col">
