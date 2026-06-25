@@ -106,7 +106,7 @@ export default function NodeSettings (props: IProps) {
                 if (h.abort != undefined) h.abort();
             }
         }
-    }, [status, genericController.Fetch, props.NodeID, filters]);
+    }, [status, genericController.DBSearch, props.NodeID, filters]);
 
     React.useEffect(() => {
         if (allSettings.length > 0)
