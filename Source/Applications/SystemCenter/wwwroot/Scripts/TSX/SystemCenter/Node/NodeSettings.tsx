@@ -116,9 +116,9 @@ export default function NodeSettings (props: IProps) {
     return (
         <>
             <LoadingScreen Show={status === 'loading'} />
-            <div className="row">
-                <div className="col">
-                    <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
+            <div className="row justify-content-end">
+                <div className="col-4">
+                    <li className="nav-item" style={{ paddingRight: 10, width: '50%' }}>
                         <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                             <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                             <form>
