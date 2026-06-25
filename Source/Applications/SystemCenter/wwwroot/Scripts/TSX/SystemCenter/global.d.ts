@@ -158,6 +158,24 @@ export namespace OpenXDA {
     interface IHomeScreenWidget extends EventWidget.IWidgetView {
        TimeFrame: number
     }
+
+    interface DataFileView {
+        ID: number;
+        FileGroupID: number;
+        FilePath: string;
+        FilePathHash: number;
+        FileSize: number;
+        CreationTime: string;
+        LastWriteTime: string;
+        LastAccessTime: string;
+        MeterID: number;
+        DataStartTime: string;
+        ProcessingState: number;
+        LastProcessed: string;
+        LastProcessedComplete: string;
+        NumberOfTimesProcessed: number;
+    }
+
 }
 
 export namespace PQView {

@@ -28,7 +28,7 @@ import NoteWindow from '../CommonComponents/NoteWindow';
 import OpenMICIssuesPage from './OpenMICIssuesPage';
 import MiMDIssuesPage from './MiMDIssuesPage';
 import OpenXDAIssuesPage from './OpenXDAIssuesPage';
-import DownloadedFilesPage from './DownloadedFilesPage';
+import DownloadedFiles from '../DeviceHealthReport/DownloadedFiles';
 import DataQualityIssuesPage from './DataQualityIssuesPage';
 
 declare type Tab = 'notes' | 'openmic' | 'mimd' | 'xda' | 'files' | 'dq'
@@ -109,7 +109,7 @@ function DeviceIssuesPage(props: IProps) {
                     <DataQualityIssuesPage Meter={meter} />
                 </div> : null}
                 {tab === 'files' ? <div className={"tab-pane active"} style={{ height: '100%' }}>
-                    <DownloadedFilesPage Meter={meter} />
+                    <DownloadedFiles MeterID={props.MeterID} MeterName={meter.Name} />
                 </div> : null}
             </div>
         </div>
