@@ -47,8 +47,8 @@ interface IHostRegistration {
 interface IOpenXDANode {
     ID: number,
     NodeTypeID: number,
-    HostRegistrationID: number,
-    AssignedHostRegistrationID: number,
+    HostRegistrationID?: number,
+    AssignedHostRegistrationID?: number,
     Name: string,
     MinimumHostCount: number
 }
