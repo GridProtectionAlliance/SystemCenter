@@ -124,7 +124,7 @@ export default function ResultDisplay(props: IProps) {
                         }}
                     >
                         {
-                            cols.map(col => col === 'RN' ? null :
+                            cols.map(col => 
                                 <ConfigurableColumn Key={col} Default={true} Label={col} key={col}>
                                     <Column<any> key={col}
                                         Key={col} Field={col}
