@@ -130,6 +130,9 @@ const NodeForm = (props: IProps) => {
             }).fail((d) => {
                 setStatus('error');
             })
+            return () => {
+                if (handle.abort != undefined) handle.abort();
+            }
         }
     }, [status])
 
@@ -142,6 +145,9 @@ const NodeForm = (props: IProps) => {
             }).fail((d) => {
                 setStatus('error');
             })
+            return () => {
+                if (handle.abort != undefined) handle.abort();
+            }
         }
     }, [status])
 

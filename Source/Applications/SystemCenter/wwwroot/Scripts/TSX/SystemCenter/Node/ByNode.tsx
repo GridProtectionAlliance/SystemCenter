@@ -89,6 +89,9 @@ const ByNode = (props: { Roles: Application.Types.SecurityRoleName[] }) => {
         }).fail((d) => {
             setStatus('error');
         })
+        return () => {
+            if (handle.abort != undefined) handle.abort();
+        }
     }, [status])
 
     React.useEffect(() => {
@@ -104,6 +107,9 @@ const ByNode = (props: { Roles: Application.Types.SecurityRoleName[] }) => {
         }).fail((d) => {
             setStatus('error');
         })
+        return () => {
+            if (handle.abort != undefined) handle.abort();
+        }
     }, [filters, sortField, ascending, page, refreshCount])
     function handleSelect(item) {
         navigate(`${homePath}index.cshtml?name=Node&NodeID=${item.row.ID}`);

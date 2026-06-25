@@ -30,7 +30,7 @@ import { SystemCenter as SC } from '../global'
 
 
 declare var homePath: string;
-declare type Tab = 'info' | 'settings' 
+declare type Tab = 'info' | 'settings'
 
 interface IProps { NodeID: number, Tab: Tab, Roles: Application.Types.SecurityRoleName[] }
 
@@ -41,7 +41,7 @@ const Tabs = [
 
 export default function Node(props: IProps) {
     const [tab, setTab] = React.useState(getTab());
-    const [node, setNode] = React.useState<SC.Node|null>(null)
+    const [node, setNode] = React.useState<SC.Node | null>(null)
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated')
 
     React.useEffect(() => {
@@ -51,23 +51,26 @@ export default function Node(props: IProps) {
     }, [tab]);
 
     React.useEffect(() => {
-        if (status === 'uninitiated' || status === 'changed')
-            setStatus('loading')
-            const h = $.ajax({
-                type: "GET",
-                url: `${homePath}api/SystemCenter/Node/One/${props.NodeID}`,
-                contentType: "application/json; charset=utf-8",
-                dataType: 'json',
-                cache: false,
-                async: true
-            })
-            h.done((d) => {
-                setNode(d)
-                setStatus('idle')
-            }).fail((d) => {
-                setStatus('error')
-            })
-    }, [props.NodeID, status])
+        setStatus('loading')
+        const h = $.ajax({
+            type: "GET",
+            url: `${homePath}api/SystemCenter/Node/One/${props.NodeID}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true
+        })
+        h.done((d) => {
+            setNode(d)
+            setStatus('idle')
+        }).fail((d) => {
+            setStatus('error')
+        })
+
+        return () => {
+            if (h.abort != undefined) h.abort();
+        }
+    }, [props.NodeID])
 
     return (
         <div style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>

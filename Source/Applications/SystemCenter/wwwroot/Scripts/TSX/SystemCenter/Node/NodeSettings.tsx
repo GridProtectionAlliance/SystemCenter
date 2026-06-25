@@ -102,6 +102,7 @@ export default function NodeSettings (props: IProps) {
                 setAllSettings(d)
                 setStatus('idle')
             }).fail(() => setStatus('error'))
+
             return () => {
                 if (h.abort != undefined) h.abort();
             }
@@ -110,7 +111,7 @@ export default function NodeSettings (props: IProps) {
 
     React.useEffect(() => {
         if (allSettings.length > 0)
-            pagedSearch()
+            return pagedSearch()
     }, [pagedSearch, allSettings])
 
     return (
