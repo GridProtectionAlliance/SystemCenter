@@ -34,7 +34,7 @@ const StatusDetails = (props: IProps) => {
         return null
     return (
         <div>
-            {props.StatusItem.Details.length == 0 ? <ReactIcons.SpiningIcon />
+            {props.StatusItem.Status === 'Loading' ? <ReactIcons.SpiningIcon />
                 : props.StatusItem.Details.map((d, i) => {
                     return (
                         <div className={'row mb-2 mx-2'} key={i}> 
