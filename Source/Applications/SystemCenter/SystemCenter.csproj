@@ -561,9 +561,6 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AppHost\NodeConnections.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AppHost\NodeDetails.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AppHost\NodeHealth.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AppHost\StatusDetails.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AppHost\StatusGroup.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AppHost\StatusItem.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\FawgLineSegmentWizard\Common.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\Generation.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\StationAux.tsx" />
@@ -591,6 +588,9 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\Restrictions\EditionRestrictionTooltip.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\Restrictions\RoleRestrictionTooltip.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\ExternalDBUpdate.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\StatusDetails.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\StatusGroup.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\StatusItem.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\DeviceHealthReport\AppStatus.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDBTable.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDBTableFields.tsx" />

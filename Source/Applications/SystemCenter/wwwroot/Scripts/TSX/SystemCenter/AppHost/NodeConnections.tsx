@@ -26,8 +26,8 @@
 
 import * as React from 'react'
 import { SystemCenter as SC } from '../global'
-import StatusGroup from './StatusGroup'
-import { INamedStatusItem } from './StatusItem'
+import StatusGroup from '../CommonComponents/StatusGroup'
+import { INamedStatusItem } from '../CommonComponents/StatusItem'
 
 const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.ApplicationType, Properties: { Name: string, Value: string }[] }) => {
     const [extDBStatus, setExtDBStatus] = React.useState<INamedStatusItem[]>([{ Name: "Loading...", Status: "Loading", Details: [] }]);

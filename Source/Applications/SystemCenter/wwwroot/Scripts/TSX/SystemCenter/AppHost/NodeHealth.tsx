@@ -28,8 +28,8 @@ import * as React from 'react';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
 import { SystemCenter as SC } from '../global'
-import StatusDetails from './StatusDetails'
-import { INamedStatusItem } from './StatusItem'
+import StatusDetails from '../CommonComponents/StatusDetails'
+import { INamedStatusItem } from '../CommonComponents/StatusItem'
 
 const statStyle: React.CSSProperties = {
     fontSize: "1em",

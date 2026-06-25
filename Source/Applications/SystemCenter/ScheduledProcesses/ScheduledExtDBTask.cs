@@ -390,7 +390,7 @@ namespace SystemCenter.ScheduledProcesses
                         limit = $"where rn > {skip}";
                     string order = "null";
                     if (!String.IsNullOrEmpty(orderBy))
-                        order = $"{orderBy} {(ascending ? "ASC" : "DESC")}";
+                        order = $"\"{orderBy}\" {(ascending ? "ASC" : "DESC")}";
 
                     fullQuery = $"select * from ( select T.*, row_number() over (order by {order}) rn from ({fullQuery}) T {filters}) {limit}";
                 }

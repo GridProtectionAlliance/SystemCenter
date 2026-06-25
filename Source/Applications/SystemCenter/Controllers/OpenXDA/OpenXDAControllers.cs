@@ -37,11 +37,11 @@ using openXDA.Model.SystemCenter;
 using PQView.Model;
 using System;
 using System.IO;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -274,7 +274,13 @@ namespace SystemCenter.Controllers.OpenXDA
             }
             catch (Exception ex)
             {
-                return InternalServerError(ex);
+                AppStatus status = new AppStatus()
+                {
+                    Details = [new StatusItem() { Description = ex.Message, Status = "Error" }],
+                    Status = "Error"
+                };
+
+                return Content(HttpStatusCode.InternalServerError, status);
             }
         }
     }

@@ -25,6 +25,8 @@ import * as React from 'react';
 import { Application } from '@gpa-gemstone/application-typings';
 import { ServerErrorIcon, Search, LoadingScreen } from '@gpa-gemstone/react-interactive';
 import { Paging, ConfigurableTable, ConfigurableColumn, Column } from '@gpa-gemstone/react-table';
+import StatusDetails from '../../CommonComponents/StatusDetails'
+import { SystemCenter as SC } from '../../global'
 import * as _ from 'lodash';
 
 interface IProps {
@@ -48,6 +50,7 @@ export default function ResultDisplay(props: IProps) {
     const [page, setPage] = React.useState<number>(0);
     const [filters, setFilters] = React.useState<Search.IFilter<any>[]>([]);
     const [cols, setCols] = React.useState<string[]>([]);
+    const [extTableStatus, setExtTableStatus] = React.useState<SC.StatusItem>({ Details: [], Status: 'N/A' })
 
     React.useEffect(() => {
         setCountStatus('loading');
@@ -65,14 +68,14 @@ export default function ResultDisplay(props: IProps) {
     React.useEffect(() => {
         setDataStatus('loading');
         const dataHandle = props.GetTable((page * RowsPerPage) + 1, ((page + 1) * RowsPerPage + 1), filters, sortExt, ascExt);
-
         dataHandle.then((d) => {
             const keyedData = d?.map((datum, index) => ({ ...datum, __tempXdaKey__: index }));
             setExternalData(keyedData ?? []);
-            setDataStatus('idle');
             if (keyedData == null || keyedData.length == 0)
                 setCount(0);
-        }, (d) => { if (d.statusText === 'abort') return; setDataStatus('error') })
+            setDataStatus('idle');
+            setExtTableStatus({ Details: [], Status: 'N/A'})
+        }, (d) => { if (d.statusText === 'abort') return; setExtTableStatus(d.responseJSON as unknown as SC.StatusItem); setDataStatus('error'); })
         return () => {
             if (dataHandle != null && dataHandle.abort != null) dataHandle.abort()
         }
@@ -90,14 +93,14 @@ export default function ResultDisplay(props: IProps) {
     }, [externalData]);
 
     return <>
-        <ServerErrorIcon Show={countstatus === 'error' || datastatus === 'error'} Size={40}
-            Label={'Could not query external database table. Please contact your administrator.'}
-        />
         <LoadingScreen Show={countstatus === 'loading' || datastatus === 'loading'} />
         <div className="row" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="col" style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
-                {countstatus !== 'error' && datastatus !== 'error' ?
-                    <ConfigurableTable<any>
+                {extTableStatus.Status !== 'N/A'
+                    ? <StatusDetails
+                        StatusItem={extTableStatus}
+                    />
+                    : <ConfigurableTable<any>
                         LocalStorageKey={`TestTableResultColumns.${props.TableID}`}
                         TableClass="table table-hover"
                         Data={externalData}
@@ -122,7 +125,7 @@ export default function ResultDisplay(props: IProps) {
                         }}
                     >
                         {
-                            cols.map(col =>
+                            cols.map(col => 
                                 <ConfigurableColumn Key={col} Default={true} Label={col} key={col}>
                                     <Column<any> key={col}
                                         Key={col} Field={col}
@@ -131,7 +134,7 @@ export default function ResultDisplay(props: IProps) {
                                     </Column>
                                 </ConfigurableColumn>
                             )}
-                    </ConfigurableTable> : null}
+                    </ConfigurableTable>}
             </div>
         </div>
         <div className="row">

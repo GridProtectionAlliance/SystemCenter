@@ -103,7 +103,10 @@ export default function QueryTestDialog(props: IProps) {
                 cache: false,
                 async: true,
                 data: JSON.stringify({ Ascending: false, OrderBy: '', Searches: filters, externalTable: props.ExtTable })
-            }).fail((d) => { if (d.statusText === 'abort') return; setStep(steps.Error); setErrorMsg(d.statusText); });
+            })
+                .fail((d) => {
+                    if (d.statusText === 'abort') return; setStep(steps.Error); setErrorMsg(d.statusText);
+                });
         }
         else {
             handle = Promise.resolve(1);
@@ -164,9 +167,7 @@ export default function QueryTestDialog(props: IProps) {
                 }}
                 BodyStyle={{ maxHeight: 'calc(100vh - 210px)', display: 'flex', flexDirection: 'column' }}
             >
-                {step == steps.PickType ? <TargetTypesSelection SetTable={setParentTable} /> : null}
-                {step == steps.Results ? <ResultDisplay TableID={props.ExtTable.ID} GetCount={requestCount} GetTable={requestTable} ForceReload={step === steps.Results} /> : null}
-                {(step == steps.Error) ? <ServerErrorIcon Show={true} Size={40} Label={errorMsg} /> : null}
+                {step == steps.PickType ? <TargetTypesSelection SetTable={setParentTable} /> : <ResultDisplay TableID={props.ExtTable.ID} GetCount={requestCount} GetTable={requestTable} ForceReload={step === steps.Results} />}
             </Modal>
             <TargetSelection OnBack={() => setStep(steps.PickType)}
                 SetSelectedID={(id) => { setStep(steps.Results); setRecordID(id); }}

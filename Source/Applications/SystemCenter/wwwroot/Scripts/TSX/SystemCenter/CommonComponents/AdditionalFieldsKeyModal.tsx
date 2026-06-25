@@ -48,7 +48,7 @@ function AdditionalFieldsKeyModal(props: IProps): JSX.Element {
         setDataStatus('loading');
         const handle = $.ajax({
             type: "POST",
-            url: `${homePath}api/SystemCenter/extDBTables/RetrieveTable/${props.KeyField?.ExternalDBTableID ?? null}/${start}/${end}`,
+            url: `${homePath}api/SystemCenter/extDBTables/RetrieveTable/${props.KeyField?.ExternalDBTableID ?? -1}/${start}/${end}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             data: JSON.stringify({ Ascending: asc, OrderBy: orderBy, Searches: filters }),
@@ -71,10 +71,12 @@ function AdditionalFieldsKeyModal(props: IProps): JSX.Element {
             data: JSON.stringify({ Ascending: false, OrderBy: '', Searches: filters }),
             cache: true,
             async: true
-        }).done((d) => { setCountStatus('idle'); return d }).fail((d) => { setCountStatus('error') })
+        }).done((d) => { setCountStatus('idle'); return d }).fail((d) => {
+          // setCountStatus('error')
+        })
         return handle;
     };
-  
+
     React.useEffect(() => {
         if (props.Show && dataStatus === 'error') {
             setDataStatus('uninitiated');
@@ -99,15 +101,13 @@ function AdditionalFieldsKeyModal(props: IProps): JSX.Element {
             ConfirmText={countStatus === 'error' || dataStatus === 'error' ? 'Close' : 'Select'}
             BodyStyle={{ maxHeight: 'calc(100vh - 210px)', display: 'flex', flexDirection: 'column' }}
         >
-            {dataStatus !== 'error' ? <ResultDisplay
+            <ResultDisplay
                 TableID={props.KeyField?.ExternalDBTableID}
                 GetCount={getCount}
                 GetTable={getData}
                 Selected={(item) => _.isEqual(item, selectedExternal)}
                 OnSelection={setSelectedExternal}
                 ForceReload={props.Show} />
-            : <ServerErrorIcon Show={dataStatus === 'error'} Label={'The external table is not set up properly. Please check the external database and table configuration'} />
-            }
         </Modal>
     );
 }
