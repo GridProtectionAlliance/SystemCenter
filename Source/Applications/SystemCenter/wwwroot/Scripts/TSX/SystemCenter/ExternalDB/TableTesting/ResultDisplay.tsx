@@ -74,6 +74,7 @@ export default function ResultDisplay(props: IProps) {
             if (keyedData == null || keyedData.length == 0)
                 setCount(0);
             setDataStatus('idle');
+            setExtTableStatus({ Details: [], Status: 'N/A'})
         }, (d) => { if (d.statusText === 'abort') return; setExtTableStatus(d.responseJSON as unknown as SC.StatusItem); setDataStatus('error'); })
         return () => {
             if (dataHandle != null && dataHandle.abort != null) dataHandle.abort()
