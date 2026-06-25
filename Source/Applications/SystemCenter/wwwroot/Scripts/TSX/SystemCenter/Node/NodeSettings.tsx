@@ -183,9 +183,9 @@ export default function NodeSettings (props: IProps) {
                 Show={showModal} ShowX={true} Size={'lg'} ShowCancel={editNew === 'Edit'} ConfirmText={'Save'} CancelText={'Delete'}
                 CallBack={(conf, isBtn) => {
                     if (conf && editNew === 'New')
-                        genericController.DBAction('POST', editnewSetting); setStatus('changed');
+                        genericController.DBAction('POST', editnewSetting).then(() => setStatus('changed')) 
                     if (conf && editNew === 'Edit')
-                        genericController.DBAction('PATCH', editnewSetting); setStatus('changed');
+                        genericController.DBAction('PATCH', editnewSetting).then(() => setStatus('changed')) 
                     if (!conf && isBtn)
                         setShowWarning(true);
                     setShowModal(false);
@@ -216,7 +216,7 @@ export default function NodeSettings (props: IProps) {
                 Show={showWarning}
                 CallBack={(conf) => {
                     if (conf)
-                        genericController.DBAction('DELETE', editnewSetting); setShowWarning(false); setStatus('changed');
+                        genericController.DBAction('DELETE', editnewSetting).then(() => setStatus('changed')); setShowWarning(false);
                 }} />
         </>)
 }
