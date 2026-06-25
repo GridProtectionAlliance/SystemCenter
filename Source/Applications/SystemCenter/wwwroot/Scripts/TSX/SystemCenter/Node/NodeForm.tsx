@@ -114,7 +114,7 @@ const NodeForm = (props: IProps) => {
         return {
             ID: parseInt(node.ID),
             MinimumHostCount: node.MinimumHostCount,
-            NodeTypeID: nodeTypes.find(nt => nt.Name == node.NodeType).ID,
+            NodeTypeID: nodeTypes.find(nt => nt.Name == node.NodeType).ID ?? 1,
             AssignedHostRegistrationID: appHosts.find(ah => ah.RegistrationKey == node.AssignedHostRegistrationKey)?.ID ?? null,
             HostRegistrationID: appHosts.find(ah => ah.RegistrationKey == node.HostRegistrationKey)?.ID ?? null,
             Name: node.Name
