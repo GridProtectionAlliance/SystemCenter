@@ -45,18 +45,10 @@ export default function Node(props: IProps) {
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated')
 
     React.useEffect(() => {
-        const saved = getTab();
+        const saved = getTab(props.Tab);
         if (saved !== tab)
-            sessionStorage.setItem('Customer.Tab', JSON.stringify(tab));
+            sessionStorage.setItem('Node.Tab', JSON.stringify(tab));
     }, [tab]);
-
-    function getTab(): Tab {
-        if (props.Tab != undefined) return props.Tab;
-        else if (sessionStorage.hasOwnProperty('Node.Tab'))
-            return JSON.parse(sessionStorage.getItem('Node.Tab'));
-        else
-            return 'info';
-    }
 
     React.useEffect(() => {
         if (status === 'uninitiated' || status === 'changed')
@@ -88,7 +80,15 @@ export default function Node(props: IProps) {
 
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
             {tab === 'info' ? <NodeForm Node={node} UpdateRecord={() => setStatus('changed')} /> : null}
-            {tab === 'settings' ? <NodeSettings NodeID={node.ID} /> : null}
+            {tab === 'settings' ? <NodeSettings NodeID={node?.ID ?? props.NodeID.toString()} /> : null}
         </div>
     )
+}
+
+function getTab(currentTab?: Tab | undefined): Tab {
+    if (currentTab !== undefined) return currentTab;
+    else if (sessionStorage.hasOwnProperty('Node.Tab'))
+        return JSON.parse(sessionStorage.getItem('Node.Tab'));
+    else
+        return 'info';
 }
