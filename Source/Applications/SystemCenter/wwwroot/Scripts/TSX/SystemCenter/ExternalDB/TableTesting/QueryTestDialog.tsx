@@ -105,8 +105,8 @@ export default function QueryTestDialog(props: IProps) {
                 data: JSON.stringify({ Ascending: false, OrderBy: '', Searches: filters, externalTable: props.ExtTable })
             })
                 .fail((d) => {
-                    if (d.statusText === 'abort') return; //setStep(steps.Error); setErrorMsg(d.statusText); }); if this fails, we'll be expecting a status item from the other one
-                })
+                    if (d.statusText === 'abort') return; setStep(steps.Error); setErrorMsg(d.statusText);
+                });
         }
         else {
             handle = Promise.resolve(1);
