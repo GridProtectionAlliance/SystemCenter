@@ -86,7 +86,8 @@ const Matcher: React.FunctionComponent = (props: {}) => {
     const DataFile = React.lazy(() => import(/* webpackChunkName: "DataFile" */ './ProcessedFile/ByFile'));
     const ByDataOperationsFailure = React.lazy(() => import(/* webpackChunkName: "ByDataOperationsFailure" */ './ProcessedFile/ByDataOperationsFailure'));
     const AppHost = React.lazy(() => import(/* webpackChunkName: "AppHost" */ './AppHost/AppHost'));
-    const ByNode = React.lazy(() => import(/* webpackChunkName: "Node" */ './Node/ByNode'));
+    const ByNode = React.lazy(() => import(/* webpackChunkName: "ByNode" */ './Node/ByNode'));
+    const Node = React.lazy(() => import (/* webpackChunkName: "Node" */ './Node/Node'))
     const ByPQDigestHomePage = React.lazy(() => import(/* webpackChunkName: "ByHomeScreenWidget" */ './PQDigest/ByHomeScreenWidget'));
     const ByPQDigestWidget = React.lazy(() => import(/* webpackChunkName: "ByPQDigestWidget" */ './PQDigest/ByWidget'));
     const SEBrowserCategory = React.lazy(() => import(/* webpackChunkName: "DataFile" */ './SEBrowser/WidgetCategory'));
@@ -284,6 +285,11 @@ const Matcher: React.FunctionComponent = (props: {}) => {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ByNode Roles={roles} />
+        }
+        else if (params['name'] == "Node") {
+            if (roles.indexOf('Administrator') < 0)
+                return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
+            return <Node NodeID={parseInt(params.NodeID as string)} Tab={'info'} Roles={roles} />
         }
         else if (params['name'] == "Settings") {
             if (roles.indexOf('Administrator') < 0)

@@ -22,11 +22,10 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { GenericController, Search, SearchBar, LoadingScreen, Modal } from '@gpa-gemstone/react-interactive'
 import { Table, Column, Paging } from '@gpa-gemstone/react-table'
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-import NodeForm from './NodeForm'
+import { useNavigate } from "react-router-dom";
 import { SystemCenter as SC } from '../global'
 
 interface INodeType {
@@ -53,7 +52,8 @@ interface IOpenXDANode {
     MinimumHostCount: number
 }
 
-const ByNode = (props: {Roles: Application.Types.SecurityRoleName[]}) => {
+const ByNode = (props: { Roles: Application.Types.SecurityRoleName[] }) => {
+    let navigate = useNavigate();
     const [data, setData] = React.useState<SC.Node[]>([])
     const [sortField, setSortField] = React.useState<keyof SC.Node>('Name')
     const [ascending, setAscending] = React.useState<boolean>(true)
@@ -67,9 +67,7 @@ const ByNode = (props: {Roles: Application.Types.SecurityRoleName[]}) => {
     const [appHosts, setAppHosts] = React.useState<IHostRegistration[]>([])
     const [showModal, setShowModal] = React.useState<boolean>(false)
     const [selectedNode, setSelectedNode] = React.useState<SC.Node>({ ID: '-1', Name: "", AssignedHostRegistrationKey: '', HostRegistrationKey: '', NodeType: '', MinimumHostCount: 0 });
-    const [errors, setErrors] = React.useState<string[]>([]);
     const [refreshCount, refreshData] = React.useState<number>(0);
-
 
     React.useEffect(() => {
         if (status === 'uninitiated') {
@@ -107,7 +105,9 @@ const ByNode = (props: {Roles: Application.Types.SecurityRoleName[]}) => {
             setStatus('error');
         })
     }, [filters, sortField, ascending, page, refreshCount])
-
+    function handleSelect(item) {
+        navigate(`${homePath}index.cshtml?name=Node&NodeID=${item.row.ID}`);
+    }
 
     const defaultSearchcols: Search.IField<SC.Node>[] = [
         { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
@@ -155,7 +155,7 @@ const ByNode = (props: {Roles: Application.Types.SecurityRoleName[]}) => {
                     }}
                     Selected={(item) => false}
                     KeySelector={(item) => item.ID}
-                    OnClick={(data) => { setSelectedNode(data.row); setShowModal(true) } }
+                    OnClick={handleSelect}
                 >
                     <Column<SC.Node>
                         Key={'Name'}
@@ -210,27 +210,6 @@ const ByNode = (props: {Roles: Application.Types.SecurityRoleName[]}) => {
                 </div>
             </div>
         </div>
-        <Modal Show={showModal} Title={'Edit Task Runner'} CallBack={(c) => {
-            setShowModal(false);
-            if (!c)
-                return;
-            new GenericController<IOpenXDANode>(`${homePath}api/OpenXDA/Node`, 'ID').DBAction('PATCH', convertToXDANode(selectedNode)).then(() => refreshData(x => x + 1))
-        }}
-            ShowCancel={false}
-            ShowX={true}
-            DisableConfirm={errors.length > 0}
-            ConfirmShowToolTip={errors.length > 0}
-            ConfirmToolTipContent={errors.map((t, i) => <p key={i}> <ReactIcons.CrossMark Color='var(--danger)' /> {t}</p>)} >
-            <div className="row">
-                <NodeForm
-                    Node={selectedNode}
-                    StateSetter={setSelectedNode}
-                    SetErrors={setErrors}
-                    NodeTypeOptions={nodeTypes.map((n) => { return { Value: n.Name, Label: n.Name } })}
-                    HostOptions={appHosts.map((h) => { return { Value: h.RegistrationKey, Label: h.RegistrationKey } })}
-                />
-            </div>
-        </Modal>
     </div>
 }
 export default ByNode;
