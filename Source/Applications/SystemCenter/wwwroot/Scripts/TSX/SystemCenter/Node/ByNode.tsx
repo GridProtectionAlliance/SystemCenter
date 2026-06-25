@@ -65,9 +65,6 @@ const ByNode = (props: { Roles: Application.Types.SecurityRoleName[] }) => {
     const [totalRecords, setTotalRecords] = React.useState<number>(0);
     const [nodeTypes, setNodeTypes] = React.useState<INodeType[]>([]);
     const [appHosts, setAppHosts] = React.useState<IHostRegistration[]>([])
-    const [showModal, setShowModal] = React.useState<boolean>(false)
-    const [selectedNode, setSelectedNode] = React.useState<SC.Node>({ ID: '-1', Name: "", AssignedHostRegistrationKey: '', HostRegistrationKey: '', NodeType: '', MinimumHostCount: 0 });
-    const [refreshCount, refreshData] = React.useState<number>(0);
 
     React.useEffect(() => {
         if (status === 'uninitiated') {
@@ -110,7 +107,7 @@ const ByNode = (props: { Roles: Application.Types.SecurityRoleName[] }) => {
         return () => {
             if (handle.abort != undefined) handle.abort();
         }
-    }, [filters, sortField, ascending, page, refreshCount])
+    }, [filters, sortField, ascending, page])
     function handleSelect(item) {
         navigate(`${homePath}index.cshtml?name=Node&NodeID=${item.row.ID}`);
     }
@@ -122,17 +119,6 @@ const ByNode = (props: { Roles: Application.Types.SecurityRoleName[] }) => {
         { label: 'Node', key: 'HostRegistrationKey', isPivotField: false, type: 'enum', enum: appHosts.map((h) => { return { Value: h.RegistrationKey, Label: h.RegistrationKey } })},
         { label: 'Assigned Node', key: 'AssignedHostRegistrationKey', isPivotField: false, type: 'enum', enum: appHosts.map((h) => { return { Value: h.RegistrationKey, Label: h.RegistrationKey } })}
     ];
-
-    const convertToXDANode = React.useCallback((node: SC.Node): IOpenXDANode => {
-        return {
-            ID: parseInt(node.ID),
-            MinimumHostCount: node.MinimumHostCount,
-            NodeTypeID: nodeTypes.find(nt => nt.Name == node.NodeType).ID,
-            AssignedHostRegistrationID: appHosts.find(ah => ah.RegistrationKey == node.AssignedHostRegistrationKey)?.ID ?? null,
-            HostRegistrationID: appHosts.find(ah => ah.RegistrationKey == node.HostRegistrationKey)?.ID ?? null,
-            Name: node.Name
-        }
-    }, [nodeTypes, appHosts])
 
     return <div style={{ width: '100%', height: '100%' }}>
         <LoadingScreen Show={status === 'loading'} />
