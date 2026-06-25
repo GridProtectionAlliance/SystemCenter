@@ -21,9 +21,11 @@
 //
 //******************************************************************************************************
 
+using System.Data;
 using System.Web.Http;
 using GSF.Data.Model;
 using GSF.Web.Model;
+using Newtonsoft.Json;
 using openXDA.Model;
 
 namespace SystemCenter.Model
@@ -65,4 +67,14 @@ namespace SystemCenter.Model
 
     [RoutePrefix("api/OpenXDA/Node")]
     public class OpenXDANodeController : ModelController<openXDA.Model.Node> { }
+
+    [RoutePrefix("api/OpenXDA/NodeSetting"), AllowSearch]
+    public class OpenXDANodeSettingController : ModelController<openXDA.Model.NodeSetting> {
+
+        public override IHttpActionResult GetSearchableList([FromBody] PostData postData) // for some reason, even with the 'AllowSearch' attribute, the value for AllowSearch was false and would prevent searching.
+        {
+            DataTable table = base.GetSearchResults(postData);
+            return Ok(JsonConvert.SerializeObject(table));
+        }
+    }
 }

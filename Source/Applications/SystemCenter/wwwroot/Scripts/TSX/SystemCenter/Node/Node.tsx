@@ -23,6 +23,7 @@
 
 import * as React from 'react';
 import NodeForm from './NodeForm';
+import NodeSettings from './NodeSettings'
 import { TabSelector } from '@gpa-gemstone/react-interactive';
 import { Application } from '@gpa-gemstone/application-typings'
 import { SystemCenter as SC } from '../global'
@@ -86,7 +87,8 @@ export default function Node(props: IProps) {
             <hr />
 
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
-            {tab === 'info' ? <NodeForm Node={node} UpdateRecord={() => setStatus('changed')}/> : null}
+            {tab === 'info' ? <NodeForm Node={node} UpdateRecord={() => setStatus('changed')} /> : null}
+            {tab === 'settings' ? <NodeSettings NodeID={node.ID} /> : null}
         </div>
     )
 }
