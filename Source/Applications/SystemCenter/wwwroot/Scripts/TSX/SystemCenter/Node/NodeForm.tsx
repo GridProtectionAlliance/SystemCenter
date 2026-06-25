@@ -65,7 +65,6 @@ const NodeForm = (props: IProps) => {
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated')
     const [hover, setHover] = React.useState<string | null>(null)
     const [node, setNode] = React.useState<SC.Node | null>(props.Node)
-    const [errors, setErrors] = React.useState<string[]>([])
 
     function hasPermissions(): boolean {
         if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0)
@@ -121,17 +120,6 @@ const NodeForm = (props: IProps) => {
             Name: node.Name
         }
     }, [nodeTypes, appHosts])
-
-    React.useEffect(() => {
-        if (props.Node == null || node == null)
-            return
-        let e = [];
-        if (!valid('Name'))
-            e.push('A Name is required.')
-        if (!valid('MinimumHostCount'))
-            e.push('A number between 0 and 100 is required.')
-        setErrors(e);
-    }, [node])
 
     React.useEffect(() => {
         if (status === 'uninitiated') {
