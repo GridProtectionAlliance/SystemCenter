@@ -68,34 +68,6 @@ namespace SystemCenter.Model
     [RoutePrefix("api/OpenXDA/Node")]
     public class OpenXDANodeController : ModelController<openXDA.Model.Node> { }
 
-    [RoutePrefix("api/OpenXDA/NodeSetting"), AllowSearch]
-    public class OpenXDANodeSettingController : ModelController<openXDA.Model.NodeSetting> {
-
-        public override IHttpActionResult GetSearchableList([FromBody] PostData postData) // for some reason, even with the 'AllowSearch' attribute, the value for AllowSearch was false and would prevent searching.
-        {
-            if (!GetAuthCheck())
-                return Unauthorized();
-
-            DataTable table = base.GetSearchResults(postData);
-            return Ok(JsonConvert.SerializeObject(table));
-        }
-
-        public override IHttpActionResult GetPagedList([FromBody] PostData postData, int page) // same problem as above.
-        {
-            if (!GetAuthCheck())
-                return Unauthorized();
-
-            using DataTable table = GetSearchResults(postData, page);
-            int recordCount = CountSearchResults(postData);
-            int recordsPerPage = Take ?? 50;
-
-            return Ok(new PagedResults()
-            {
-                Data = JsonConvert.SerializeObject(table),
-                RecordsPerPage = recordsPerPage,
-                TotalRecords = recordCount,
-                NumberOfPages = (recordCount + recordsPerPage - 1) / recordsPerPage
-            });
-        }
-    }
+    [RoutePrefix("api/OpenXDA/NodeSetting")]
+    public class OpenXDANodeSettingController : ModelController<openXDA.Model.NodeSetting> { }
 }
