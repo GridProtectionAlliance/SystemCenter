@@ -49,10 +49,11 @@ namespace SystemCenter.Model
         SELECT
 	        DataFile.*,
 	        FileGroup.DataStartTime,
-            FileGroup.ProcessingStartTime,
-	        FileGroup.ProcessingEndTime,
 	        FileGroup.MeterID,
-            FileGroup.ProcessingStatus AS ProcessingState
+            FileGroup.ProcessingStatus AS ProcessingState,
+            (SELECT COUNT(*) FROM FileGroupAnalysisJob WHERE FileGroupAnalysisJob.FileGroupID = FileGroup.ID) AS NumberOfTimesProcessed,
+            (SELECT MAX(ProcessingStartTime) FROM FileGroupAnalysisJob WHERE FileGroupAnalysisJob.FileGroupID = FileGroup.ID) AS LastProcessed,
+            (SELECT MAX(ProcessingEndTime) FROM FileGroupAnalysisJob WHERE FileGroupAnalysisJob.FileGroupID = FileGroup.ID) AS LastProcessedComplete
         FROM
 	        DataFile JOIN
 	        FileGroup ON DataFile.FileGroupID = FileGroup.ID
@@ -62,13 +63,15 @@ namespace SystemCenter.Model
     {
         [ParentKey(typeof(Meter))]
         public int MeterID { get; set; }
-        public DateTime ProcessingStartTime { get; set; }
-        [DefaultSortOrder(false)]
-        public DateTime ProcessingEndTime { get; set; }
         public DateTime DataStartTime { get; set; }
         public int ProcessingState { get; set; }
         [NonRecordField]
         public string FileName => Path.GetFileName(FilePath);
+
+        [DefaultSortOrder(false)]
+        public DateTime LastProcessed { get; set; }
+        public DateTime LastProcessedComplete { get; set; }
+        public int NumberOfTimesProcessed { get; set; }
     }
 
     [RoutePrefix("api/OpenXDA/DataFile")]
@@ -256,10 +259,12 @@ namespace SystemCenter.Model
                 LastAccessTime = row.Field<DateTime>("LastAccessTime"),
                 MeterID = row.Field<int>("MeterID"),
                 DataStartTime = row.Field<DateTime>("DataStartTime"),
-                ProcessingEndTime = row.Field<DateTime>("ProcessingEndTime"),
                 ProcessingState = row.Field<int>("ProcessingState"),
-                ProcessingStartTime = row.Field<DateTime>("ProcessingStartTime")
-        }).ToArray();
+                LastProcessed = row.ConvertNullableField<DateTime>("LastProcessed") ?? DateTime.MinValue,
+                LastProcessedComplete = row.ConvertNullableField<DateTime>("LastProcessedComplete") ?? DateTime.MinValue,
+                NumberOfTimesProcessed = row.Field<int>("NumberOfTimesProcessed")
+                }).ToArray();
+
             int recordCount = CountSearchResults(postData);
             int recordPerPage = Take ?? 50;
             return Ok(new PagedResults()
