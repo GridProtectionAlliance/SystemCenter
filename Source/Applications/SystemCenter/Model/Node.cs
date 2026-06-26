@@ -21,9 +21,12 @@
 //
 //******************************************************************************************************
 
+using System.Data;
 using System.Web.Http;
 using GSF.Data.Model;
 using GSF.Web.Model;
+using Newtonsoft.Json;
+using openXDA.Model;
 
 namespace SystemCenter.Model
 {
@@ -53,6 +56,18 @@ namespace SystemCenter.Model
         public string AssignedHostRegistrationKey { get; set; }
     }
 
+    [RoutePrefix("api/SystemCenter/Node")]
+    public class SystemCenterNodeController : ModelController<Node> {}
+
+    [RoutePrefix("api/OpenXDA/NodeTypes")]
+    public class OpenXDANodeTypesController : ModelController<openXDA.Model.NodeType> {}
+
+    [RoutePrefix("api/OpenXDA/HostRegistration")]
+    public class OpenXDAHostRegistrationController : ModelController<openXDA.Model.HostRegistration> {}
+
     [RoutePrefix("api/OpenXDA/Node")]
-    public class OpenXDANodeController : ModelController<Node> {}
+    public class OpenXDANodeController : ModelController<openXDA.Model.Node> { }
+
+    [RoutePrefix("api/OpenXDA/NodeSetting")]
+    public class OpenXDANodeSettingController : ModelController<openXDA.Model.NodeSetting> { }
 }
