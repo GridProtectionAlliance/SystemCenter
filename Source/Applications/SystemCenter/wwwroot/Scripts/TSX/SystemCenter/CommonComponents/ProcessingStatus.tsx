@@ -38,34 +38,20 @@ enum ProcessingStatusEnum {
 
 interface IStatusProps {
     Status: ProcessingStatusEnum;
-    FileGroupID: number;
+    DataFileID: number;
     Interactive: boolean;
 }
 
 const ProcessingStatus = (props: IStatusProps) => {
-    const [message, setMessage] = React.useState<string | undefined>(undefined);
     const [hover, setHover] = React.useState<boolean>(false);
     const [guid, _setGuid] = React.useState<string>(CreateGuid());
-
-    React.useEffect(() => {
-        if (!props.Interactive)
-            return
-        switch (props.Status) {
-            case 5:
-                setMessage("Click to see issues.");
-                break;
-            default:
-                setMessage(undefined);
-        }
-    }, [props.Status, props.Interactive]);
-
+   
     const onClick = React.useCallback((event: React.MouseEvent<HTMLElement>) => {
         event.stopPropagation();
         if (!props.Interactive)
             return
-        if (props.Status === 5)
-            window.location.href = `${homePath}index.cshtml?name=DataOperationsFailures&FileGroupID=${props.FileGroupID}`;
-    }, [props.Status, props.FileGroupID, props.Interactive]);
+        window.location.href = `${homePath}index.cshtml?name=DataOperationsFailures&FileGroupID=${props.DataFileID}`;
+    }, [props.Status, props.DataFileID, props.Interactive]);
 
     const visual = React.useMemo(() => {
         if (props.Status == ProcessingStatusEnum.Unknown) //Added - Unknown
@@ -126,12 +112,10 @@ const ProcessingStatus = (props: IStatusProps) => {
             >
                 {Symbol}  {text}
             </span>
-            {
-                message === undefined ? null :
-                    <ToolTip Show={hover && props.Interactive} Target={guid} Position={'top'}>
-                        {message}
-                    </ToolTip>
-            }
+            <ToolTip Show={hover && props.Interactive} Target={guid} Position={'top'}>
+                Click to see details.
+            </ToolTip>
+            
         </>
     );
 }

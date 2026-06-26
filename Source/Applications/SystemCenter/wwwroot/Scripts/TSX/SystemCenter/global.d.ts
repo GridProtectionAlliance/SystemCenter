@@ -176,6 +176,26 @@ export namespace OpenXDA {
         NumberOfTimesProcessed: number;
     }
 
+    interface FileGroupAnalysisJob {
+        ID: number,
+        FileGroupID: number,
+        TaskQueuedTime: string,
+        TaskPriority: number,
+        ProcessingStartTime: string,
+        ProcessingEndTime: string,
+        ProcessingVersion: number
+    }
+
+    interface DataOperationFailure {
+        ID: number;
+        DataOperationID: number;
+        DataOperationTypeName: string;
+        FileGroupAnalysisJobID: number;
+        Log: string;
+        StackTrace: string;
+        TimeOfFailure: string;
+    }
+
 }
 
 export namespace PQView {

@@ -342,7 +342,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
                         HeaderStyle={{ width: '15%' }}
                         RowStyle={{ width: '15%' }}
                         Content={({ item }) => moment(item.CreationTime).format('MM/DD/YYYY HH:mm.ss.SSS')}
-                    > File Processed
+                    > File Created
                     </Column>
                     <Column<GlobalXDA.DataFileView>
                         Key={'DataStartTime'}
@@ -368,7 +368,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
                         Field={'ProcessingState'}
                         HeaderStyle={{ width: '10%' }}
                         RowStyle={{ width: '10%' }}
-                        Content={({ item }) => <ProcessingStatus Status={item.ProcessingState} FileGroupID={item.FileGroupID} Interactive={true} />}
+                        Content={({ item }) => <ProcessingStatus Status={item.ProcessingState} DataFileID={item.ID} Interactive={true} />}
                     > Status
                     </Column>
                 </Table>

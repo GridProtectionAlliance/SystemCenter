@@ -167,7 +167,7 @@ const FilesProcessedTable = (props: IProps) => {
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto', textAlign: 'center' }}
                         Content={({ item, field }) => {
-                            return <ProcessingStatus Status={item[field] as number} FileGroupID={item.FileGroupID} Interactive={false} />
+                            return <ProcessingStatus Status={item[field] as number} DataFileID={item.FileGroupID} Interactive={false} />
                         }}
                     >
                         Processing State

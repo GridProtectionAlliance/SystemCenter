@@ -982,6 +982,9 @@ namespace SystemCenter.Controllers.OpenXDA
 
     [RoutePrefix("api/OpenXDA/MaintenanceWindow")]
     public class MaintenanceWindowController : ModelController<MaintenanceWindow> { }
+
+    [RoutePrefix("api/OpenXDA/FileGroupAnalysisJob")]
+    public class FileGroupAnalysisJobController : ModelController<FileGroupAnalysisJob> { }
 }
 
 
