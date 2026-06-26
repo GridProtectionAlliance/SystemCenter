@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
-import { useAppSelector, useAppDispatch, useBoundPaging } from '../hooks';
+import { useAppSelector } from '../hooks';
 import { ValueListSlice } from '../Store/Store';
 import ValueListForm from './ValueListForm';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
@@ -84,14 +84,14 @@ export default function ValueListGroupItems(props: IProps) {
     }, [props.Record?.Name, data.length, countDictionary]);
 
     React.useEffect(() => {
-        pagedSearch()
+        return pagedSearch()
     }, [pagedSearch, sortField, ascending, page, props.Record.ID]);
 
     // sometimes still fetches stale data.
     React.useEffect(() => {
         if (status === 'changed')
-            pagedSearch()
-    }, [status])
+            return pagedSearch()
+    }, [pagedSearch, status])
 
     React.useEffect(() => {
         if (props.Record?.Name == null) return;
@@ -228,8 +228,7 @@ export default function ValueListGroupItems(props: IProps) {
                 Show={showWarning}
                 CallBack={(conf) => {
                     if (conf) {
-                        controller.DBAction('DELETE', { ...record });
-                        setStatus('changed')
+                        controller.DBAction('DELETE', { ...record }).then(() => setStatus('changed'))
                     }
                     setShowWarning(false);
                 }}
@@ -248,12 +247,10 @@ export default function ValueListGroupItems(props: IProps) {
                 ShowX={true} CallBack={(conf) => {
                     setShowModal(false);
                     if (conf && record.ID > 0) {
-                        controller.DBAction('PATCH', record);
-                        setStatus('changed')
+                        controller.DBAction('PATCH', record).then(() => setStatus('changed'))
                     }
                     else if (conf && record.ID == 0) {
-                        controller.DBAction('POST', record);
-                        setStatus('changed')
+                        controller.DBAction('POST', record).then(() => setStatus('changed'))
                     }
                 }}
             >
