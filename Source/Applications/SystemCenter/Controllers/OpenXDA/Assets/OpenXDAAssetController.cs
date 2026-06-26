@@ -869,6 +869,7 @@ namespace SystemCenter.Controllers.OpenXDA
             bus.AssetKey = record["AssetKey"].ToString();
             bus.Description = record["Description"].ToString();
             bus.AssetName = record["AssetName"].ToString();
+            bus.Spare = record["Spare"].ToObject<bool>();
         }
 
         private void CreateGenFromJToken(Generation gen, JToken record)
@@ -965,6 +966,7 @@ namespace SystemCenter.Controllers.OpenXDA
             transformer.SecondaryWinding = record["SecondaryWinding"].ToObject<double>();
             transformer.TertiaryWinding = record["TertiaryWinding"].ToObject<double>();
             transformer.Tap = record["Tap"].ToObject<double>();
+            transformer.Spare = record["Spare"].ToObject<bool>();
         }
 
         ////Need to Override the external DB Function to return the list for all Assets

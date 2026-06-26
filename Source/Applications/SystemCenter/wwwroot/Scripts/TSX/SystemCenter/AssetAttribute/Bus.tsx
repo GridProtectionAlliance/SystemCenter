@@ -22,9 +22,25 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings'; 
+import { CheckBox } from '@gpa-gemstone/react-forms'
+import { useAppSelector } from '../hooks';
+import { SelectRoles } from '../Store/UserSettings';
+
 function BusAttributes(props: { NewEdit: Application.Types.NewEdit, Asset: OpenXDA.Types.Bus, UpdateState: (newEditAsset: OpenXDA.Types.Bus) => void }): JSX.Element {
-    return <span>No Additional Attributes</span>;
+
+    const roles = useAppSelector(SelectRoles);
+
+    const disable = React.useMemo(() => {
+        return (
+            (props.NewEdit == 'New' && props.Asset.ID != 0) ||
+            (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0)
+        );
+    }, [props.NewEdit, props.Asset.ID, roles]);
+
+    return  <div className="col-4">
+        <CheckBox<OpenXDA.Types.Bus> Record={props.Asset} Field={'Spare'} Label={'Is a Spare Bus'} Setter={props.UpdateState} Disabled={disable} />
+    </div>
 }
 
 export default BusAttributes;

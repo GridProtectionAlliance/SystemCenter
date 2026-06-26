@@ -167,6 +167,11 @@ function AssetInfoWindow(props: IProps) {
         if (asset.Description != editAsset.Description)
             result.push('Description')
 
+        if (asset.AssetType == 'Bus') {
+            if ((asset as OpenXDA.Types.Bus).Spare != (editAsset as OpenXDA.Types.Bus).Spare)
+                result.push('Spare')
+        }
+
         if (asset.AssetType == 'Breaker') {
             if ((asset as OpenXDA.Types.Breaker).ThermalRating != (editAsset as OpenXDA.Types.Breaker).ThermalRating)
                 result.push('Thermal Rating')
@@ -236,6 +241,8 @@ function AssetInfoWindow(props: IProps) {
                 result.push('Secondary Winding')
             if ((asset as OpenXDA.Types.Transformer).TertiaryWinding != (editAsset as OpenXDA.Types.Transformer).TertiaryWinding)
                 result.push('Tertiary Winding')
+            if ((asset as OpenXDA.Types.Transformer).Spare != (editAsset as OpenXDA.Types.Transformer).Spare)
+                result.push('Spare')
         }
         if (asset.AssetType == 'CapacitorBank') {
             if ((asset as OpenXDA.Types.CapBank).Fused != (editAsset as OpenXDA.Types.CapBank).Fused ||
