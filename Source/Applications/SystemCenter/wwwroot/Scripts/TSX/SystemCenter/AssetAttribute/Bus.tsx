@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { Application, OpenXDA } from '@gpa-gemstone/application-typings'; 
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { CheckBox } from '@gpa-gemstone/react-forms'
 import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
@@ -38,8 +38,10 @@ function BusAttributes(props: { NewEdit: Application.Types.NewEdit, Asset: OpenX
         );
     }, [props.NewEdit, props.Asset.ID, roles]);
 
-    return  <div className="col-4">
-        <CheckBox<OpenXDA.Types.Bus> Record={props.Asset} Field={'Spare'} Label={'Is a Spare Bus'} Setter={props.UpdateState} Disabled={disable} />
+    return <div className="row">
+        <div className="col-4">
+            <CheckBox<OpenXDA.Types.Bus> Record={props.Asset} Field={'Spare'} Label={'Is a Spare Bus'} Setter={props.UpdateState} Disabled={disable} />
+        </div>
     </div>
 }
 
