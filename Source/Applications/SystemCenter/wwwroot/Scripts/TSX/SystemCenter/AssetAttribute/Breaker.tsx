@@ -117,7 +117,7 @@ function BreakerAttributes(props: { NewEdit: Application.Types.NewEdit, Asset: O
                     <CheckBox<OpenXDA.Types.Breaker> Record={props.Asset} Field={'AirGapResistor'} Label={'Air Gap Resistor'} Setter={props.UpdateState} Disabled={disable} />
                 </div>
                 <div className="col-6">
-                    <CheckBox<OpenXDA.Types.Breaker> Record={props.Asset} Field={'Spare'} Label={'Is a Spare Breaker'} Setter={props.UpdateState} Disabled={disable} />
+                    <CheckBox<OpenXDA.Types.Breaker> Record={props.Asset} Field={'Spare'} Label={'Is a Spare Breaker'} Setter={(record) => { const r = _.clone(record); if (r.Spare) { r.SpareBreakerID = null }; props.UpdateState(r) }} Disabled={disable} />
                 </div>
                 {props.ShowSpare && props.Asset.Spare == false ? <>
                     <div className="col-12">
