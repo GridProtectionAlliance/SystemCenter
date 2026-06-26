@@ -39,6 +39,8 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
     const [structureCrawlerStatus, setStructureCrawlerStatus] = React.useState<INamedStatusItem>({ Name: "Structure Crawler", Status: "Loading", Details: [] })
     const [lightningRealTimeStatus, setLightningRealTimeStatus] = React.useState<INamedStatusItem>({ Name: "Lightning Real Time Data", Status: "Loading", Details: [] })
     const [lightningStructureStatus, setLightningStructureStatus] = React.useState<INamedStatusItem>({ Name: "Lightning Structure Data", Status: "Loading", Details: [] })
+    const [soeStatus, setSoeStatus] = React.useState<INamedStatusItem>({ Name: "SOE", Status: "Loading", Details: [] })
+    const [itoaStatus, setItoaStatus] = React.useState<INamedStatusItem>({ Name: "ITOA", Status: "Loading", Details: [] })
 
     React.useEffect(() => {
         switch (props.ApplicationType) {
@@ -115,6 +117,20 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
                     setLightningStructureStatus({ Status: 'Error', Name: 'Lightning Structure Data', Details: [{ Status: "Error", Description: "Errors occurred in retrieving Lightning Structure Data connection status." }] })
                 })
 
+                const soe = testSOE()
+                soe.done((d: SC.StatusItem) => {
+                    setSoeStatus({ Status: d.Status, Name: 'SOE', Details: d.Details })
+                }).fail(() => {
+                    setSoeStatus({ Status: 'Error', Name: 'SOE', Details: [{ Status: "Error", Description: "Errors occurred in retrieving SOE connection status." }] })
+                })
+
+                const itoa = testITOA()
+                itoa.done((d: SC.StatusItem) => {
+                    setItoaStatus({ Status: d.Status, Name: 'ITOA', Details: d.Details })
+                }).fail(() => {
+                    setItoaStatus({ Status: 'Error', Name: 'ITOA', Details: [{ Status: "Error", Description: "Errors occurred in retrieving ITOA connection status." }] })
+                })
+
 
                 return function cleanup() {
                     if (rxdas.abort != null)
@@ -169,7 +185,7 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
                     }
                     <div className={`col-${remoteXDAStatus.length == 0 ? 12 : 6} h-100`}>
                         <StatusGroup
-                            StatusItems={[SCADAStatus, structureCrawlerStatus, lightningRealTimeStatus, lightningStructureStatus]}
+                            StatusItems={[SCADAStatus, structureCrawlerStatus, lightningRealTimeStatus, lightningStructureStatus, soeStatus, itoaStatus]}
                             HoveredItem={hoveredItem}
                             SetHoveredItem={setHoveredItem}
                             Name="Other Connections"
@@ -262,6 +278,26 @@ function testLightningStructureData() {
     return $.ajax({
         type: "GET",
         url: `${homePath}api/OpenXDA/LightningStructureDataHealth`,
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        cache: false,
+        async: true
+    })
+}
+function testSOE() {
+    return $.ajax({
+        type: "GET",
+        url: `${homePath}api/OpenXDA/SOEHealth`,
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        cache: false,
+        async: true
+    })
+}
+function testITOA() {
+    return $.ajax({
+        type: "GET",
+        url: `${homePath}api/OpenXDA/ITOAHealth`,
         contentType: "application/json; charset=utf-8",
         dataType: 'json',
         cache: false,

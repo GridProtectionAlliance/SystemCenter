@@ -781,6 +781,28 @@ namespace SystemCenter.Controllers.OpenXDA
                 .GetResponseTask($"api/SystemCenter/LightningStructureData/Health")
                 .Result;
         }
+
+        [Route("SOEHealth")]
+        public HttpResponseMessage GetSOEHealth()
+        {
+            if (!XDAAPIHelper.TryRefreshSettings())
+                Log.Warn("Unable to refresh static XDA API object.");
+
+            return XDAAPIHelper
+                .GetResponseTask($"api/SystemCenter/SOE/Health")
+                .Result;
+        }
+
+        [Route("ITOAHealth")]
+        public HttpResponseMessage GetITOAHealth()
+        {
+            if (!XDAAPIHelper.TryRefreshSettings())
+                Log.Warn("Unable to refresh static XDA API object.");
+
+            return XDAAPIHelper
+                .GetResponseTask($"api/SystemCenter/ITOA/Health")
+                .Result;
+        }
     }
 
     [RoutePrefix("api/OpenXDA/RemoteXDAAsset")]
