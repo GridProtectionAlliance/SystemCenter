@@ -22,15 +22,13 @@
 //******************************************************************************************************
 
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-import { LoadingIcon, LoadingScreen, Modal, Search, SearchBar, Warning } from '@gpa-gemstone/react-interactive';
+import { LoadingIcon, LoadingScreen, Modal, Search, SearchBar, Warning, GenericController } from '@gpa-gemstone/react-interactive';
 import { Column, Paging, Table } from '@gpa-gemstone/react-table';
 import moment from 'moment';
 import * as React from 'react';
 import EditionRestrictionTooltip from '../CommonComponents/Restrictions/EditionRestrictionTooltip';
 import { DefaultSearchField } from '../CommonComponents/SearchFields';
 import { OpenXDA as GlobalXDA } from '../global';
-import { useAppDispatch, useAppSelector } from '../hooks';
-import { DataFileSlice } from '../Store/Store';
 import EditionLockModal from '../CommonComponents/Restrictions/EditionLockModal';
 import ProcessingStatus from '../CommonComponents/ProcessingStatus'
 
@@ -58,30 +56,30 @@ interface IWarningModalInfo {
 
 declare var homePath: string;
 
+const DataFileController = new GenericController<GlobalXDA.DataFileView>(`${homePath}api/OpenXDA/DataFile`, "DataStartTime", false);
+
 const ByFile: Application.Types.iByComponent = (props) => {
-    let dispatch = useAppDispatch();
 
     const [inEnterprise, setInEnterprise] = React.useState<boolean>(false);
 
-    const cState = useAppSelector(DataFileSlice.PagedStatus);
-    const data = useAppSelector(DataFileSlice.SearchResults);
+    const [data, setData] = React.useState<GlobalXDA.DataFileView[]>([]);
+    const [ascending, setAscending] = React.useState<boolean>(false);
+    const [sortKey, setSortKey] = React.useState<keyof GlobalXDA.DataFileView>('DataStartTime');
+    const [filters, setFilters] = React.useState<Search.IFilter<GlobalXDA.DataFileView>[]>([]);
+    const [pageInfo, setPageInfo] = React.useState<{ RecordsPerPage: number, NumberOfPages: number, TotalRecords: number }>({ RecordsPerPage: 0, NumberOfPages: 0, TotalRecords: 0 });
+    const [page, setPage] = React.useState<number>(0);
+    const [pageStatus, setPageStatus] = React.useState<Application.Types.Status>('idle');
 
-    const allPages = useAppSelector(DataFileSlice.TotalPages);
-    const currentPage = useAppSelector(DataFileSlice.CurrentPage);
 
     const [eState, setEState] = React.useState<Application.Types.Status>('idle');
-    const [selectedID, setSelectetID] = React.useState<OpenXDA.Types.DataFile|null>(null);
+    const [selectedID, setSelectetID] = React.useState<GlobalXDA.DataFileView | null>(null);
     const [evts, setEvts] = React.useState<GlobalXDA.Event[]>([]);
 
     const [warningModal, setWarningModal] = React.useState<IWarningModalInfo>({ State: "idle" });
 
-    const [search, setSearch] = React.useState<Array<Search.IFilter<OpenXDA.Types.DataFile>>>([]);
 
     const [hover, setHover] = React.useState<null | string>(null);
-    const [sortKey, setSortKey] = React.useState<keyof OpenXDA.Types.DataFile>('DataStartTime');
-    const [ascending, setAscending] = React.useState<boolean>(false);
-    const [page, setPage] = React.useState<number>(currentPage);
-    const totalRecords = useAppSelector(DataFileSlice.TotalRecords);
+    
     const [update, setUpdate] = React.useState<boolean>(false);
 
     const [showEdition, setShowEdition] = React.useState<boolean>(false);
@@ -97,13 +95,20 @@ const ByFile: Application.Types.iByComponent = (props) => {
     }, [update]);
 
     React.useEffect(() => {
-        dispatch(DataFileSlice.PagedSearch({ sortField: sortKey, ascending, filter: search, page }))
-    }, [search, ascending, sortKey, page, update]);
+        setPageStatus('loading')
+        const handle = DataFileController.PagedSearch(filters, sortKey, ascending, page).done((result) => {
+            setData(JSON.parse(result.Data.toString()));
+            setPageInfo({
+                RecordsPerPage: result.RecordsPerPage,
+                NumberOfPages: result.NumberOfPages,
+                TotalRecords: result.TotalRecords
+            })
+            setPageStatus('idle');
+        }).fail(() => setPageStatus('error'));
+        return () => { if (handle != null && handle?.abort != null) handle.abort(); }
 
-    React.useEffect(() => {
-        if (cState == 'uninitiated' || cState == 'changed')
-            dispatch(DataFileSlice.PagedSearch({ sortField: sortKey, ascending, filter: search }))
-    }, [cState]);
+    }, [filters, ascending, sortKey, page, update]);
+
 
     React.useEffect(() => {
         if (selectedID == null)
@@ -176,14 +181,14 @@ const ByFile: Application.Types.iByComponent = (props) => {
         );
     }
 
-    function getFileName(file: OpenXDA.Types.DataFile) {
+    function getFileName(file: GlobalXDA.DataFileView) {
         if (file == null)
             return '';
         const path = file.FilePath.split('\\');
         return path[path.length - 1];
     }
 
-    function getPath(file: OpenXDA.Types.DataFile) {
+    function getPath(file: GlobalXDA.DataFileView) {
         if (file == null)
             return '';
         const path = file.FilePath.split('\\');
@@ -195,9 +200,9 @@ const ByFile: Application.Types.iByComponent = (props) => {
             <LoadingScreen Show={warningModal.State === 'loading'} />
             <div className="container-fluid d-flex h-100 flex-column">
                 <div className="row">
-                    <SearchBar<OpenXDA.Types.DataFile> CollumnList={filterableList} SetFilter={setSearch} Direction={'left'} defaultCollumn={DefaultSearchField.DataFile as Search.IField<OpenXDA.Types.DataFile>} Width={'100%'} Label={'Search'} StorageID="DataFilesFilter"
-                        ShowLoading={cState === 'loading'}
-                        ResultNote={(cState === 'error') ? 'Could not complete Search' : ('Displaying  Data File(s) ' + (totalRecords > 0? (50 * page + 1): 0 ) + ' - ' + (50 * page + data.length)) + ' out of ' + totalRecords}
+                    <SearchBar<GlobalXDA.DataFileView> CollumnList={filterableList} SetFilter={setFilters} Direction={'left'} defaultCollumn={DefaultSearchField.DataFile as Search.IField<OpenXDA.Types.DataFile>} Width={'100%'} Label={'Search'} StorageID="DataFilesFilter"
+                        ShowLoading={pageStatus === 'loading'}
+                        ResultNote={(pageStatus === 'error') ? 'Could not complete Search' : ('Displaying  Data File(s) ' + (pageInfo.TotalRecords > 0 ? (pageInfo.RecordsPerPage * page + 1) : 0) + ' - ' + (pageInfo.RecordsPerPage * page + data.length)) + ' out of ' + pageInfo.TotalRecords}
                         GetEnum={(setOptions, field) => {
                             if (field.enum != null)
                             setOptions(field.enum);
@@ -303,7 +308,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
                         </li>
                     </SearchBar>
                 </div>
-                <Table<OpenXDA.Types.DataFile>
+                <Table<GlobalXDA.DataFileView>
                     TableClass="table table-hover"
                     Data={data}
                     SortKey={sortKey}
@@ -321,16 +326,16 @@ const ByFile: Application.Types.iByComponent = (props) => {
                     Selected={(item) => false}
                     KeySelector={(item) => item.ID}
                 >
-                    <Column<OpenXDA.Types.DataFile>
+                    <Column<GlobalXDA.DataFileView>
                         Key={'FilePath'}
                         AllowSort={true}
                         Field={'FilePath'}
-                        HeaderStyle={{ width: '60%' }}
-                        RowStyle={{ width: '60%' }}
+                        HeaderStyle={{ width: '50%' }}
+                        RowStyle={{ width: '50%' }}
                         Content={({ item }) => item.FilePath.length > 100 ? `...${item.FilePath.substr(item.FilePath.length - 100, 100)}` : item.FilePath}
                     > File Path
                     </Column>
-                    <Column<OpenXDA.Types.DataFile>
+                    <Column<GlobalXDA.DataFileView>
                         Key={'CreationTime'}
                         AllowSort={true}
                         Field={'CreationTime'}
@@ -339,7 +344,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
                         Content={({ item }) => moment(item.CreationTime).format('MM/DD/YYYY HH:mm.ss.SSS')}
                     > File Processed
                     </Column>
-                    <Column<OpenXDA.Types.DataFile>
+                    <Column<GlobalXDA.DataFileView>
                         Key={'DataStartTime'}
                         AllowSort={true}
                         Field={'DataStartTime'}
@@ -348,7 +353,16 @@ const ByFile: Application.Types.iByComponent = (props) => {
                         Content={({ item }) => ((moment(item.DataStartTime).isValid()) ? moment(item.DataStartTime).format('MM/DD/YYYY HH:mm.ss.SSS') : 'N/A')}
                     > Data Start
                     </Column>
-                    <Column<OpenXDA.Types.DataFile>
+                    <Column<GlobalXDA.DataFileView>
+                        Key={'NumberOfTimesProcessed'}
+                        AllowSort={true}
+                        Field={'NumberOfTimesProcessed'}
+                        HeaderStyle={{ width: '10%' }}
+                        RowStyle={{ width: '10%' }}
+                    > Number of Times Processed
+                    </Column>
+
+                    <Column<GlobalXDA.DataFileView>
                         Key={'ProcessingState'}
                         AllowSort={true}
                         Field={'ProcessingState'}
@@ -360,7 +374,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
                 </Table>
                 <div className="row">
                     <div className="col">
-                        <Paging Current={page + 1} Total={allPages} SetPage={(p) => setPage(p - 1)} />
+                        <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p - 1)} />
                     </div>
                 </div>
             </div>
@@ -379,10 +393,12 @@ const ByFile: Application.Types.iByComponent = (props) => {
                         <p><strong>Path</strong>: {getPath(selectedID)}</p>
                         <p><strong>Name</strong>: {getFileName(selectedID)}</p>
                         <p><strong>Size</strong>: {selectedID?.FileSize}</p>
+                        <p><strong>Number of Times Processed</strong>: {selectedID?.NumberOfTimesProcessed}</p>
                         <p><strong>Created</strong>: {selectedID?.CreationTime}</p>
                         <p><strong>Last Write</strong>: {selectedID?.LastWriteTime}</p>
                         <p><strong>Last Access</strong>: {selectedID?.LastAccessTime}</p>
-                        <p><strong>Processed</strong>: {selectedID?.ProcessingEndTime}</p>
+                        <p><strong>Last Processed</strong>: {selectedID?.LastProcessed}</p>
+                        <p><strong>Last Processed Complete</strong>: {selectedID?.LastProcessedComplete}</p>
                     </div>
                 </div>
                 <div className="row">
