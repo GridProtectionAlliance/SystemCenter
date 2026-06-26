@@ -726,7 +726,6 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\EventType\ByEventType.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\SearchFields.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Store\NoteSlice.tsx" />
-    <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceIssuesPage\DownloadedFilesPage.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceIssuesPage\DataQualityIssuesPage.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Customer\MDMKeys.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Customer\CustomerAsset.tsx" />

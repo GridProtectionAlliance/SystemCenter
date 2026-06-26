@@ -30,10 +30,8 @@ import { OpenXDA as LocalXDA } from '../global';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import moment from 'moment';
 import { LoadingScreen, GenericController } from '@gpa-gemstone/react-interactive';
-import { json } from 'd3';
 
 const DataFileController = new GenericController<LocalXDA.DataFileView>(`${homePath}api/OpenXDA/DataFile`, "LastProcessed", false);
-
 
 function DownloadedFiles(props: { MeterID: number, MeterName: string }) {
 
