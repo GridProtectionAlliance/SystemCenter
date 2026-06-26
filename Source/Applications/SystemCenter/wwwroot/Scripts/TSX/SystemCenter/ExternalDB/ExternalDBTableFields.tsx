@@ -50,7 +50,6 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
 
     const dispatch = useAppDispatch();
 
-    const data = useAppSelector(AdditionalFieldsSlice.Data);
     const status = useAppSelector(AdditionalFieldsSlice.Status);
     const searchData = useAppSelector(AdditionalFieldsSlice.SearchResults);
     const searchStatus = useAppSelector(AdditionalFieldsSlice.SearchStatus);
@@ -96,18 +95,21 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
         handle.fail(() => {
             setTableStatus('error');
         });
-    }, [props.TableName, sortKey, asc, page])
+        return () => {
+            if (handle != null && handle.abort == null) handle.abort();
+        };
+    }, [props.TableName, sortKey, asc, page, props.ID])
 
     React.useEffect(() => {
-        pagedSearch()
+        return pagedSearch()
     }, [pagedSearch]);
 
     React.useEffect(() => {
         if (status !== 'idle') return;
         if (tableStatus === 'uninitiated' || tableStatus === 'changed' || parentID.current !== props.ID) {
-            pagedSearch()
+            return pagedSearch()
         }
-    }, [tableStatus, props.ID, status])
+    }, [tableStatus, props.ID, status, pagedSearch])
 
     React.useEffect(() => {
         if (status === 'uninitiated' || status === 'changed')
