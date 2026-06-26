@@ -116,16 +116,16 @@ function BreakerAttributes(props: { NewEdit: Application.Types.NewEdit, Asset: O
                     />
                     <CheckBox<OpenXDA.Types.Breaker> Record={props.Asset} Field={'AirGapResistor'} Label={'Air Gap Resistor'} Setter={props.UpdateState} Disabled={disable} />
                 </div>
-                {props.ShowSpare ? <>
-                    <div className="col-6">
-                        <CheckBox<OpenXDA.Types.Breaker> Record={props.Asset} Field={'Spare'} Label={'Use Spare Instead'} Setter={props.UpdateState} Disabled={disable} />
-                    </div>
+                <div className="col-6">
+                    <CheckBox<OpenXDA.Types.Breaker> Record={props.Asset} Field={'Spare'} Label={'Is a Spare Breaker'} Setter={props.UpdateState} Disabled={disable} />
+                </div>
+                {props.ShowSpare && props.Asset.Spare == false ? <>
                     <div className="col-12">
                         <div className="alert alert-info" role="alert">
                             <p>Spare Breakers must be assigned to the same Substation as the original Breaker.</p>
                             <p>If a Breaker does not show up in the list below, it is not assigned to the same Substation.</p>
                         </div>
-                        <div className="form-group" hidden={!props.Asset.Spare}>
+                        <div className="form-group" hidden={props.Asset.Spare}>
                             <label>Spare Breaker</label>
                             <select className="form-control" value={props.Asset.SpareBreakerID == null ? 0 : props.Asset.SpareBreakerID} onChange={(evt) => {
                                 let record: OpenXDA.Types.Breaker = _.clone(props.Asset);
