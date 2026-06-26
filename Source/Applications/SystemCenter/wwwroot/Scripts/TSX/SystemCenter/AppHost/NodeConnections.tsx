@@ -143,6 +143,10 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
                         lightningRealTime.abort()
                     if (lightningStructure.abort != null)
                         lightningStructure.abort()
+                    if (soe.abort != null)
+                        soe.abort()
+                    if (itoa.abort != null)
+                        itoa.abort()
                 }
             default:
                 return;
