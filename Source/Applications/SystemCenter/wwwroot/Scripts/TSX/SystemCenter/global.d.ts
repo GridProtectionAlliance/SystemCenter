@@ -196,6 +196,12 @@ export namespace OpenXDA {
         TimeOfFailure: string;
     }
 
+    interface ProcessedFiles extends FileGroupAnalysisJob {
+        MeterID: number,
+        DataStartTime: string,
+        FilePath: string,
+        FileName: string
+    }
 }
 
 export namespace PQView {

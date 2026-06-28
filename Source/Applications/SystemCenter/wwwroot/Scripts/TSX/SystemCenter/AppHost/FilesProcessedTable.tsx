@@ -23,11 +23,10 @@
 
 import * as React from 'react'
 import { Table, Paging, Column } from '@gpa-gemstone/react-table'
-import { SystemCenter as SC } from '../global';
+import { OpenXDA } from '../global';
 import moment from 'moment'
 import { Application } from '@gpa-gemstone/application-typings';
-import ProcessingStatus from '../CommonComponents/ProcessingStatus'
-import { LoadingIcon } from '@gpa-gemstone/react-interactive'
+]import { LoadingIcon, GenericController, Search } from '@gpa-gemstone/react-interactive'
 import { ErrorBoundary } from '@gpa-gemstone/common-pages'
 import { ToolTip } from '@gpa-gemstone/react-forms'
 interface IProps {
@@ -36,21 +35,24 @@ interface IProps {
     HandleOnTableClick: (data: any, evt: React.MouseEvent) => void
 }
 
+const FileController = new GenericController<OpenXDA.ProcessedFiles>(`${homePath}api/OpenXDA/ProcessedFiles`, "DataStartTime", false);
+
 const FilesProcessedTable = (props: IProps) => {
-    const [sortField, setSortField] = React.useState<keyof SC.DataFile>('ID')
+    const [sortField, setSortField] = React.useState<keyof OpenXDA.ProcessedFiles>('DataStartTime')
     const [ascending, setAscending] = React.useState<boolean>(false)
-    const [dataFile, setDataFile] = React.useState<SC.DataFile[]>([])
+    const [dataFile, setDataFile] = React.useState<OpenXDA.ProcessedFiles[]>([])
     const [totalPages, setTotalPages] = React.useState<number>(0)
     const [page, setPage] = React.useState<number>(0);
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated')
     const [hovered, setHovered] = React.useState<string>('')
 
     React.useEffect(() => {
-        const h = getFileGroups(props.FilteredHour, sortField, ascending, page)
         setStatus('loading')
 
+        const h = FileController.PagedSearch(getTimeFilters(props.FilteredHour), sortField, ascending, page)
+
         h.done((d) => {
-            setDataFile(JSON.parse(d.Data))
+            setDataFile(JSON.parse(d.Data.toString()))
             setTotalPages(d.NumberOfPages)
             if (page >= d.NumberOfPages && d.NumberOfPages > 0)
                 setPage(d.NumberOfPages - 1)
@@ -74,7 +76,7 @@ const FilesProcessedTable = (props: IProps) => {
                 Size={40}
             />
             : <>
-                <Table<SC.DataFile>
+                <Table<OpenXDA.ProcessedFiles>
                     Data={dataFile}
                     SortKey={sortField}
                     Ascending={ascending}
@@ -92,7 +94,7 @@ const FilesProcessedTable = (props: IProps) => {
                     OnClick={props.HandleOnTableClick}
                     Selected={(item) => item.FileGroupID === props.SelectedFile}
                 >
-                    <Column<SC.DataFile>
+                    <Column<OpenXDA.ProcessedFiles>
                         Key={'FileName'}
                         AllowSort={false}
                         Field={'FileName'}
@@ -118,7 +120,7 @@ const FilesProcessedTable = (props: IProps) => {
                     >
                         File Name
                     </Column>
-                    <Column<SC.DataFile>
+                    <Column<OpenXDA.ProcessedFiles>
                         Key={'DataStartTime'}
                         AllowSort={true}
                         Field={'DataStartTime'}
@@ -130,9 +132,9 @@ const FilesProcessedTable = (props: IProps) => {
                             return <span className={`badge badge-pill badge-info`}>{moment(item[field]).format('MM/DD/YYYY hh:mm')}</span>
                         }}
                     >
-                        Data Start Time
+                        Data Start
                     </Column>
-                    <Column<SC.DataFile>
+                    <Column<OpenXDA.ProcessedFiles>
                         Key={'ProcessingStartTime'}
                         AllowSort={true}
                         Field={'ProcessingStartTime'}
@@ -144,9 +146,9 @@ const FilesProcessedTable = (props: IProps) => {
                             return <span className={`badge badge-pill badge-info`}>{moment(item[field]).format('MM/DD/YYYY hh:mm')}</span>
                         }}
                     >
-                        Processing Start Time
+                        Processing Started
                     </Column>
-                    <Column<SC.DataFile>
+                    <Column<OpenXDA.ProcessedFiles>
                         Key={'ProcessingEndTime'}
                         AllowSort={true}
                         Field={'ProcessingEndTime'}
@@ -158,19 +160,31 @@ const FilesProcessedTable = (props: IProps) => {
                             return <span className={`badge badge-pill badge-info`}>{moment(item[field]).format('MM/DD/YYYY hh:mm')}</span>
                         }}
                     >
-                        Processing End Time
+                        Processing Complete
                     </Column>
-                    <Column<SC.DataFile>
-                        Key={'ProcessingState'}
+                    <Column<OpenXDA.ProcessedFiles>
+                        Key={'TaskPriority'}
                         AllowSort={true}
-                        Field={'ProcessingState'}
+                        Field={'TaskPriority'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto', textAlign: 'center' }}
-                        Content={({ item, field }) => {
-                            return <ProcessingStatus Status={item[field] as number} DataFileID={item.FileGroupID} Interactive={false} />
-                        }}
+                        Content={({ item, field }) =>
+                            <Priority
+                                priority={item[field] as number}
+                            />
+                        }
                     >
-                        Processing State
+                        Priority
+                    </Column>
+
+                    <Column<OpenXDA.ProcessedFiles>
+                        Key={'ProcessingVersion'}
+                        AllowSort={true}
+                        Field={'ProcessingVersion'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                    >
+                        Version
                     </Column>
                 </Table>
                 <Paging Current={page + 1} Total={totalPages} SetPage={(p) => setPage(p - 1)} />
@@ -181,39 +195,61 @@ const FilesProcessedTable = (props: IProps) => {
 
 export default FilesProcessedTable
 
-function getFileGroups(filteredHour: string, sortField: string, ascending: boolean, page: number) {
-    let filters = []
-    if (filteredHour === null) {
-        filters = [{
+function getTimeFilters(hour?: string) {
+    if (hour == undefined)
+        return [{
             FieldName: 'ProcessingStartTime',
             Operator: '>',
             Type: 'datetime',
-            SearchText: moment().subtract(48, 'hour').startOf('hour').format('YYYY-MM-DD HH:mm:ss.SSS')
-        }]
+            SearchText: moment().subtract(48, 'hour').startOf('hour').format('YYYY-MM-DD HH:mm:ss.SSS'),
+            IsPivotColumn: false
+        }] as Search.IFilter<OpenXDA.DataFileView>[];
+    return [{
+        FieldName: 'ProcessingStartTime',
+        Operator: '>=',
+        Type: 'datetime',
+        SearchText: moment(hour).format('YYYY-MM-DD HH:mm:ss.SSS')
+    },
+    {
+        FieldName: 'ProcessingStartTime',
+        Operator: '<',
+        Type: 'datetime',
+        SearchText: moment(hour).add(1, 'hour').format('YYYY-MM-DD HH:mm:ss.SSS'),
+        IsPivotColumn: false
     }
-    else {
-        filters = [{
-            FieldName: 'ProcessingStartTime',
-            Operator: '>=',
-            Type: 'datetime',
-            SearchText: moment(filteredHour).format('YYYY-MM-DD HH:mm:ss.SSS')
-        },
-        {
-            FieldName: 'ProcessingStartTime',
-            Operator: '<',
-            Type: 'datetime',
-            SearchText: moment(filteredHour).add(1, 'hour').format('YYYY-MM-DD HH:mm:ss.SSS')
-        }
-        ]
-    }
-    return $.ajax({
-        type: "POST",
-        url: `${homePath}api/OpenXDA/DataFile/PagedList/${page}`,
-        contentType: "application/json; charset=utf-8",
-        dataType: 'json',
-        cache: false,
-        async: true,
-        data: JSON.stringify({ Searches: filters, OrderBy: sortField, Ascending: ascending }),
-    });
+    ] as Search.IFilter<OpenXDA.DataFileView>[];
 
 }
+
+const Priority = ({ priority }: { priority: number }) => {
+
+    const visual = React.useMemo(() => {
+        if (priority == 3) // High Priority
+            return "badge-light";
+        if (priority == 2) //Normal Priority
+            return "badge-info";
+        if (priority == 1) // Enumeration
+            return "badge-primary";
+        if (priority == 4) // Manual Requeue
+            return "badge-warning";
+        return "badge-warning";
+    }, [priority]);
+
+    const text = React.useMemo(() => {
+        if (priority == 1)
+            return "Enumeration";
+        if (priority == 2)
+            return "Normal";
+        if (priority == 3)
+            return "High";
+        if (priority == 2)
+            return "Manual";
+
+        return "Unknown";
+    }, [priority]);
+
+    return <span className={`"badge badge-pill ${visual}`}>
+        {text}
+    </span>
+}
+

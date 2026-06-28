@@ -23,6 +23,14 @@
 
 
 
+using GSF.Data;
+using GSF.Data.Model;
+using GSF.IO;
+using GSF.Web.Model;
+using Newtonsoft.Json;
+using openXDA.APIAuthentication;
+using openXDA.Configuration;
+using openXDA.Model;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -33,13 +41,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Web.Http;
-using GSF.Data;
-using GSF.Data.Model;
-using GSF.Web.Model;
-using Newtonsoft.Json;
-using openXDA.APIAuthentication;
-using openXDA.Configuration;
-using openXDA.Model;
 using SystemCenter.Controllers;
 
 namespace SystemCenter.Model
@@ -72,6 +73,31 @@ namespace SystemCenter.Model
         public DateTime LastProcessed { get; set; }
         public DateTime LastProcessedComplete { get; set; }
         public int NumberOfTimesProcessed { get; set; }
+    }
+
+    [ReturnLimit(50),
+    CustomView(@"
+        SELECT
+	        FileGroupAnalysisJob.*,
+            DataFile.FilePath,
+	        FileGroup.DataStartTime,
+	        FileGroup.MeterID,
+        FROM
+	        FileGroupAnalysisJob OUTER JOIN
+            DATAFILE ON FileGroupAnalysisJob.FileGroupID = DataFile.FileGroupID LEFT JOIN
+	        FileGroup ON DataFile.FileGroupID = FileGroup.ID
+    ")]
+    [AllowSearch]
+    public class ProcessedFile : FileGroupAnalysisJob
+    {
+        [ParentKey(typeof(Meter))]
+        public int MeterID { get; set; }
+        public DateTime DataStartTime { get; set; }
+
+        public string FilePath { get; set; }
+
+        [NonRecordField]
+        public string FileName => Path.GetFileName(FilePath);
     }
 
     [RoutePrefix("api/OpenXDA/DataFile")]
@@ -263,6 +289,45 @@ namespace SystemCenter.Model
                 LastProcessed = row.ConvertNullableField<DateTime>("LastProcessed") ?? DateTime.MinValue,
                 LastProcessedComplete = row.ConvertNullableField<DateTime>("LastProcessedComplete") ?? DateTime.MinValue,
                 NumberOfTimesProcessed = row.Field<int>("NumberOfTimesProcessed")
+                }).ToArray();
+
+            int recordCount = CountSearchResults(postData);
+            int recordPerPage = Take ?? 50;
+            return Ok(new PagedResults()
+            {
+                Data = JsonConvert.SerializeObject(results),
+                RecordsPerPage = recordPerPage,
+                TotalRecords = recordCount,
+                NumberOfPages = (recordCount + recordPerPage - 1) / recordPerPage
+            });
+        }
+
+    }
+
+    [RoutePrefix("api/OpenXDA/ProcessedFiles")]
+    public class OpenXDAProcessedileController : ModelController<ProcessedFile>
+    {
+        [Route("PagedResults"), HttpPost]
+        public override IHttpActionResult GetPagedList([FromBody] PostData postData, int page)
+        {
+            if (!GetAuthCheck())
+                return Unauthorized();
+
+            using DataTable table = GetSearchResults(postData, page);
+            ProcessedFile[] results = table
+                .AsEnumerable()
+                .Select(row => new ProcessedFile()
+                {
+                    ID = row.Field<int>("ID"),
+                    FileGroupID = row.Field<int>("FileGroupID"),
+                    FilePath = row.Field<string>("FilePath"),
+                    MeterID = row.Field<int>("MeterID"),
+                    DataStartTime = row.Field<DateTime>("DataStartTime"),
+                    TaskQueuedTime = row.Field<DateTime>("TaskQueuedTime"),
+                    TaskPriority = row.Field<int>("TaskPriority"),
+                    ProcessingStartTime = row.Field<DateTime>("ProcessingStartTime"),
+                    ProcessingEndTime = row.ConvertNullableField<DateTime>("ProcessingEndTime") ?? DateTime.MinValue,
+                    ProcessingVersion = row.Field<int>("ProcessingVersion")
                 }).ToArray();
 
             int recordCount = CountSearchResults(postData);
