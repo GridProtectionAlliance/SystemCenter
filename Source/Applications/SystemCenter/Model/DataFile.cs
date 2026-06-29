@@ -81,7 +81,7 @@ namespace SystemCenter.Model
 	        FileGroupAnalysisJob.*,
             DataFile.FilePath,
 	        FileGroup.DataStartTime,
-	        FileGroup.MeterID,
+	        FileGroup.MeterID
         FROM
 	        FileGroupAnalysisJob OUTER JOIN
             DATAFILE ON FileGroupAnalysisJob.FileGroupID = DataFile.FileGroupID LEFT JOIN
