@@ -40,44 +40,32 @@ const GroupUser = (props: { Group: ISecurityGroup }) => {
     const [totalPages, setTotalPages] = React.useState<number>(0);
 
     React.useEffect(() => {
-        const handle = getUsers();
-        return () => { if (handle != null && handle.abort != null) handle.abort(); }
-    }, [props.Group.ID, props.Group.Type, asc, sortField, page])
-
-    function getUsers() {
-        if (props.Group.Type != 'Database')
-            return;
+        const handle = getUsers(props.Group.Type, props.Group.ID, page, sortField, asc);
 
         setStatus('loading')
-        return $.ajax({
-            type: "POST",
-            url: `${homePath}api/SystemCenter/FullSecurityGroup/Users/PagedList/${props.Group.ID}/${page}`,
-            contentType: "application/json; charset=utf-8",
-            cache: false,
-            async: true,
-            data: JSON.stringify({OrderBy: sortField, Ascending: asc})
-        }).done((d) => {
+        handle.done((d) => {
             setTotalPages(d.NumberOfPages);
             setUsers(JSON.parse(d.Data));
             setStatus('idle');
-        }, () => setStatus('error'));
-    }
+        }).fail(() => setStatus('error'))
 
-    function saveUser(u) {
-        if (props.Group.Type != 'Database')
-            return;
+        return () => { if (handle != null && handle.abort != null) handle.abort(); }
+    }, [props.Group.ID, props.Group.Type, asc, sortField, page])
 
-        return $.ajax({
-            type: "POST",
-            url: `${homePath}api/SystemCenter/FullSecurityGroup/AddUser/${props.Group.ID}`,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(u),
-            cache: false,
-            async: true
-        }).done((d) => {
-            getUsers()
-        }, () => setStatus('error'));
-    }
+    React.useEffect(() => {
+        if (status === 'changed') {
+            setStatus('loading')
+            const handle = getUsers(props.Group.Type, props.Group.ID, page, sortField, asc);
+
+            handle.done((d) => {
+                setTotalPages(d.NumberOfPages);
+                setUsers(JSON.parse(d.Data));
+                setStatus('idle');
+            }).fail(() => setStatus('error'))
+
+            return () => { if (handle != null && handle.abort != null) handle.abort(); }
+        }
+    }, [status, props.Group.ID, props.Group.Type, asc, sortField, page])
 
     if (props.Group == null)
         return null;
@@ -192,7 +180,7 @@ const GroupUser = (props: { Group: ISecurityGroup }) => {
                 OnClose={(selected, conf) => {
                     setShowSelect(false);
                     if (!conf) return;
-                    saveUser(selected);
+                    saveUser(selected, props.Group.Type, props.Group.ID).done(() => {setStatus('changed') }).fail(() => setStatus('error'));
                 }}
                 Show={showSelect}
                 Type={'multiple'}
@@ -218,3 +206,31 @@ const GroupUser = (props: { Group: ISecurityGroup }) => {
 }
 
 export default GroupUser;
+
+function getUsers(groupType: string, groupID: string, page: number, sortField: keyof Application.Types.iUserAccount, ascending: boolean) {
+    if (groupType != 'Database')
+        return;
+
+    return $.ajax({
+        type: "POST",
+        url: `${homePath}api/SystemCenter/FullSecurityGroup/Users/PagedList/${groupID}/${page}`,
+        contentType: "application/json; charset=utf-8",
+        cache: false,
+        async: true,
+        data: JSON.stringify({ OrderBy: sortField, Ascending: ascending })
+    })
+}
+
+function saveUser(u: Application.Types.iUserAccount[], groupType: string, groupID: string) {
+    if (groupType != 'Database')
+        return;
+
+    return $.ajax({
+        type: "POST",
+        url: `${homePath}api/SystemCenter/FullSecurityGroup/AddUser/${groupID}`,
+        contentType: "application/json; charset=utf-8",
+        data: JSON.stringify(u),
+        cache: false,
+        async: true
+    })
+}

@@ -42,7 +42,6 @@ const emptyGroup: ISecurityGroup = { Name: "", CreatedBy: "", CreatedOn: new Dat
 const ByUser: Application.Types.iByComponent = (props) => {
     let navigate = useNavigate();
     const securityGroupController = React.useMemo(() => new GenericController<ISecurityGroup>(`${homePath}api/SystemCenter/FullSecurityGroup`, "DisplayName" as keyof ISecurityGroup),[])
-
     const [filters, setFilters] = React.useState<Search.IFilter<ISecurityGroup>[]>([]);
     const [securityGroups, setSecurityGroups] = React.useState<ISecurityGroup[]>([]);
     const [currentPage, setCurrentPage] = React.useState<number>(0);
@@ -56,9 +55,8 @@ const ByUser: Application.Types.iByComponent = (props) => {
     const [groupError, setGroupError] = React.useState<string[]>([]);
     const [newGroup, setNewGroup] = React.useState<ISecurityGroup>(emptyGroup);
 
-    const pagedSearch = React.useCallback(() => {
-        setStatus('loading')
-        const h = securityGroupController.PagedSearch(filters, sortField, ascending, currentPage)
+    React.useEffect(() => { 
+        const h = getUserGroups(securityGroupController, filters, sortField, ascending, currentPage)
         h.done((d) => {
             setSecurityGroups(JSON.parse(d.Data as unknown as string))
             setTotalPages(d.NumberOfPages)
@@ -71,11 +69,25 @@ const ByUser: Application.Types.iByComponent = (props) => {
         return () => {
             if (h.abort != undefined) h.abort();
         }
-    }, [sortField, ascending, filters, currentPage, securityGroupController.PagedSearch])
+    }, [sortField, ascending, filters, currentPage, securityGroupController])
 
-    React.useEffect(() => { 
-        return pagedSearch()
-    }, [sortField, ascending, filters, currentPage, pagedSearch])
+    React.useEffect(() => {
+        if (status === 'changed') {
+            const h = getUserGroups(securityGroupController, filters, sortField, ascending, currentPage)
+            h.done((d) => {
+                setSecurityGroups(JSON.parse(d.Data as unknown as string))
+                setTotalPages(d.NumberOfPages)
+                setRecordsPerPage(d.RecordsPerPage)
+                setTotalRecords(d.TotalRecords)
+                if (d.NumberOfPages <= currentPage)
+                    setCurrentPage(d.NumberOfPages > 0 ? d.NumberOfPages - 1 : 0)
+                setStatus('idle')
+            }).fail(() => setStatus('error'))
+            return () => {
+                if (h.abort != undefined) h.abort();
+            }
+        }
+    }, [status, sortField, ascending, filters, currentPage, securityGroupController])
 
     return (
         <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
@@ -184,11 +196,11 @@ const ByUser: Application.Types.iByComponent = (props) => {
                         securityGroupController.DBAction(
                             'POST',
                             { ...newGroup, Name: ((newGroup.Name?.length ?? 0) > 0 ? newGroup.Name : newGroup.DisplayName) }
-                        )
-                        setStatus('changed')
-                        pagedSearch()
+                        ).then(() => {
+                            setStatus('changed');
+                            setShowModal(false);
+                        })
                     }
-                    setShowModal(false);
                 }}
                 ConfirmShowToolTip={groupError.length > 0}
                 ConfirmToolTipContent={<>
@@ -204,3 +216,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
 }
 
 export default ByUser;
+
+function getUserGroups(controller: GenericController<ISecurityGroup>, filters: Search.IFilter<ISecurityGroup>[], sortField: keyof ISecurityGroup, ascending: boolean, page: number) {
+    return controller.PagedSearch(filters, sortField, ascending, page)
+}
