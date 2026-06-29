@@ -100,6 +100,27 @@ namespace SystemCenter.Model
         public string FileName => Path.GetFileName(FilePath);
     }
 
+    [ReturnLimit(50),
+    CustomView(@"
+        SELECT
+	        AnalysisTask.*,
+	        FileGroup.DataStartTime,
+            FileGroup.DataEndTime,
+	        Meter.Name AS MeterName
+        FROM
+	        AnalysisTask JOIN
+	        FileGroup ON AnalysisTask.FileGroupID = FileGroup.ID JOIN
+            Meter ON FileGroup.MeterID = Meter.ID 
+    ")]
+    [AllowSearch]
+    public class AnalysisTask: openXDA.Model.AnalysisTask
+    {
+        public DateTime DataStartTime { get; set; }
+        public DateTime DataEndTime { get; set; }
+        public string MeterName { get; set; }
+    }
+
+
     [RoutePrefix("api/OpenXDA/DataFile")]
     public class OpenXDADataFileController : ModelController<DataFile> {
         [Route("GetEvents/{id:int}"), HttpGet]
@@ -342,5 +363,43 @@ namespace SystemCenter.Model
         }
 
     }
+
+    [RoutePrefix("api/OpenXDA/AnalysisTask")]
+    public class AnalysisTaskController : ModelController<AnalysisTask> 
+    {
+        [Route("PagedResults"), HttpPost]
+        public override IHttpActionResult GetPagedList([FromBody] PostData postData, int page)
+        {
+            if (!GetAuthCheck())
+                return Unauthorized();
+
+            using DataTable table = GetSearchResults(postData, page);
+            AnalysisTask[] results = table
+                .AsEnumerable()
+                .Select(row => new AnalysisTask()
+                {
+                    ID = row.Field<int>("ID"),
+                    FileGroupID = row.Field<int>("FileGroupID"),
+                    MeterID = row.Field<int>("MeterID"),
+                    DataStartTime = row.Field<DateTime>("DataStartTime"),
+                    NodeID = row.ConvertNullableField<int>("NodeID"),
+                    TimeQueued = row.Field<DateTime>("TimeQueued"),
+                    Priority = row.Field<int>("Priority"),
+                    DataEndTime = row.Field<DateTime>("DataEndTime"),
+                    MeterName = row.Field<string>("MeterName")
+                }).ToArray();
+
+            int recordCount = CountSearchResults(postData);
+            int recordPerPage = Take ?? 50;
+            return Ok(new PagedResults()
+            {
+                Data = JsonConvert.SerializeObject(results),
+                RecordsPerPage = recordPerPage,
+                TotalRecords = recordCount,
+                NumberOfPages = (recordCount + recordPerPage - 1) / recordPerPage
+            });
+        }
+    }
+
 
 }

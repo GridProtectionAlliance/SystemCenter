@@ -31,6 +31,7 @@ import ConsoleWindow from './ConsoleWindow'
 import { IHost } from './ApplicationCard';
 import { SystemCenter as SC } from '../global'
 import FilesProcessed from './FilesProcessed'
+import FilesQueued from './FilesQueued'
 
 type tab = 'connections' | 'health' | 'console' | 'filesprocessed'
 
@@ -49,7 +50,12 @@ export interface IProps {
 
 const ApplicationTabs = {
     'SystemCenter': [{ Label: 'Connections', Id: 'connections' }, { Label: 'Console', Id: 'console' }],
-    'XDA': [{ Label: 'Health', Id: 'health' }, { Label: 'Files Processed', Id: 'filesprocessed' }, { Label: 'Connections', Id: 'connections' }, { Label: 'Console', Id: 'console' }],
+    'XDA': [
+        { Label: 'Health', Id: 'health' },
+        { Label: 'Files Processed', Id: 'filesprocessed' },
+        { Label: 'Analysis Queue', Id: 'analysisqueue' },
+        { Label: 'Connections', Id: 'connections' },
+        { Label: 'Console', Id: 'console' }],
     'MiMD': [{ Label: 'Console', Id: 'console' }],
     'openMIC': [{ Label: 'Health', Id: 'health' }]
 }
@@ -108,6 +114,9 @@ const NodeDetails = (props: IProps) => {
                                 </div>
                                     : tab === "filesprocessed" ? <div className="tab-pane active" style={{ height: 'inherit' }}>
                                         <FilesProcessed/>
+                                    </div>
+                                    : tab === "analysisqueue" ? <div className="tab-pane active" style={{ height: 'inherit' }}>
+                                        <FilesQueued/>
                                     </div>
                                     : null}
                     </div>

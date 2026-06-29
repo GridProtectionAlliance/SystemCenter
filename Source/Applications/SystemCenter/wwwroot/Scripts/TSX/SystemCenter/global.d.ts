@@ -202,6 +202,17 @@ export namespace OpenXDA {
         FilePath: string,
         FileName: string
     }
+
+    interface AnalysisTask {
+        ID: number;
+        DataStartTime: string,
+        DataEndTime: string,
+        MeterName: string,
+        TimeQueued: string,
+        Priority: number,
+        MeterID: number,
+        FileGroupID: number,
+    }
 }
 
 export namespace PQView {

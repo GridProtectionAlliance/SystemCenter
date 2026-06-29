@@ -985,6 +985,7 @@ namespace SystemCenter.Controllers.OpenXDA
 
     [RoutePrefix("api/OpenXDA/FileGroupAnalysisJob")]
     public class FileGroupAnalysisJobController : ModelController<FileGroupAnalysisJob> { }
+
 }
 
 

@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  FilesProcessedTable.tsx - Gbtc
+//  AnalysisTaskTable.tsx - Gbtc
 //
 //  Copyright © 2026, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -29,18 +29,13 @@ import { Application } from '@gpa-gemstone/application-typings';
 import { LoadingIcon, GenericController, Search } from '@gpa-gemstone/react-interactive'
 import { ErrorBoundary } from '@gpa-gemstone/common-pages'
 import { ToolTip } from '@gpa-gemstone/react-forms'
-interface IProps {
-    FilteredHour: string
-    SelectedFile: number
-    HandleOnTableClick: (data: any, evt: React.MouseEvent) => void
-}
 
-const FileController = new GenericController<OpenXDA.ProcessedFiles>(`${homePath}api/OpenXDA/ProcessedFiles`, "DataStartTime", false);
+const FileController = new GenericController<OpenXDA.AnalysisTask>(`${homePath}api/OpenXDA/AnalysisTask`, "TimeQueued", false);
 
-const FilesProcessedTable = (props: IProps) => {
-    const [sortField, setSortField] = React.useState<keyof OpenXDA.ProcessedFiles>('DataStartTime')
+const AnalysisTaskTable = () => {
+    const [sortField, setSortField] = React.useState<keyof OpenXDA.AnalysisTask>('TimeQueued')
     const [ascending, setAscending] = React.useState<boolean>(false)
-    const [dataFile, setDataFile] = React.useState<OpenXDA.ProcessedFiles[]>([])
+    const [dataFile, setDataFile] = React.useState<OpenXDA.AnalysisTask[]>([])
     const [totalPages, setTotalPages] = React.useState<number>(0)
     const [page, setPage] = React.useState<number>(0);
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated')
@@ -49,7 +44,7 @@ const FilesProcessedTable = (props: IProps) => {
     React.useEffect(() => {
         setStatus('loading')
 
-        const h = FileController.PagedSearch(getTimeFilters(props.FilteredHour), sortField, ascending, page)
+        const h = FileController.PagedSearch([], sortField, ascending, page)
 
         h.done((d) => {
             setDataFile(JSON.parse(d.Data.toString()))
@@ -65,10 +60,10 @@ const FilesProcessedTable = (props: IProps) => {
             if (h.abort != null)
                 h.abort();
         }
-    }, [sortField, ascending, page, props.FilteredHour])
+    }, [sortField, ascending, page])
 
     return <ErrorBoundary
-        ErrorMessage={"Files Processed Table has encountered an error."}
+        ErrorMessage={"Queued Tasks Table has encountered an error."}
     >
         {status === "loading" ?
             <LoadingIcon
@@ -76,7 +71,7 @@ const FilesProcessedTable = (props: IProps) => {
                 Size={40}
             />
             : <>
-                <Table<OpenXDA.ProcessedFiles>
+                <Table<OpenXDA.AnalysisTask>
                     Data={dataFile}
                     SortKey={sortField}
                     Ascending={ascending}
@@ -91,36 +86,20 @@ const FilesProcessedTable = (props: IProps) => {
                         }
                         setPage(0)
                     }}
-                    OnClick={props.HandleOnTableClick}
-                    Selected={(item) => item.FileGroupID === props.SelectedFile}
+                    OnClick={() => { } }
+                    Selected={() => false}
                 >
-                    <Column<OpenXDA.ProcessedFiles>
-                        Key={'FileName'}
+                    <Column<OpenXDA.AnalysisTask>
+                        Key={'MeterName'}
                         AllowSort={false}
-                        Field={'FileName'}
+                        Field={'MeterName'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
-                        Content={({ item, field }) => {
-                            return <>
-                                <p
-                                    onMouseEnter={() => setHovered(`${item.ID.toString()}`)}
-                                    onMouseLeave={() => setHovered('')}
-                                    data-tooltip={`datafile${item.ID.toString()}`}
-                                >
-                                    {item[field]}
-                                </p>
-                                <ToolTip
-                                    Show={hovered === `${item.ID.toString()}`}
-                                    Target={`datafile${item.ID.toString()}`}
-                                >
-                                    {item.FilePath}
-                                </ToolTip>
-                            </>
-                        }}
                     >
-                        File Name
+                        Meter
                     </Column>
-                    <Column<OpenXDA.ProcessedFiles>
+                
+                    <Column<OpenXDA.AnalysisTask>
                         Key={'DataStartTime'}
                         AllowSort={true}
                         Field={'DataStartTime'}
@@ -134,24 +113,11 @@ const FilesProcessedTable = (props: IProps) => {
                     >
                         Data Start
                     </Column>
-                    <Column<OpenXDA.ProcessedFiles>
-                        Key={'ProcessingStartTime'}
+
+                    <Column<OpenXDA.AnalysisTask>
+                        Key={'DataEndTime'}
                         AllowSort={true}
-                        Field={'ProcessingStartTime'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto', textAlign: 'center' }}
-                        Content={({ item, field }) => {
-                            if (item[field] == null || item[field] == undefined)
-                                return 'N/A'
-                            return <span className={`badge badge-pill badge-info`}>{moment(item[field]).format('MM/DD/YYYY hh:mm')}</span>
-                        }}
-                    >
-                        Processing Started
-                    </Column>
-                    <Column<OpenXDA.ProcessedFiles>
-                        Key={'ProcessingEndTime'}
-                        AllowSort={true}
-                        Field={'ProcessingEndTime'}
+                        Field={'DataEndTime'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto', textAlign: 'center' }}
                         Content={({ item, field }) => {
@@ -160,12 +126,12 @@ const FilesProcessedTable = (props: IProps) => {
                             return <span className={`badge badge-pill badge-info`}>{moment(item[field]).format('MM/DD/YYYY hh:mm')}</span>
                         }}
                     >
-                        Processing Complete
+                        Data End
                     </Column>
-                    <Column<OpenXDA.ProcessedFiles>
-                        Key={'TaskPriority'}
+                    <Column<OpenXDA.AnalysisTask>
+                        Key={'Priority'}
                         AllowSort={true}
-                        Field={'TaskPriority'}
+                        Field={'Priority'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto', textAlign: 'center' }}
                         Content={({ item, field }) =>
@@ -176,16 +142,6 @@ const FilesProcessedTable = (props: IProps) => {
                     >
                         Priority
                     </Column>
-
-                    <Column<OpenXDA.ProcessedFiles>
-                        Key={'ProcessingVersion'}
-                        AllowSort={true}
-                        Field={'ProcessingVersion'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto', textAlign: 'center' }}
-                    >
-                        Version
-                    </Column>
                 </Table>
                 <Paging Current={page + 1} Total={totalPages} SetPage={(p) => setPage(p - 1)} />
             </>
@@ -193,33 +149,7 @@ const FilesProcessedTable = (props: IProps) => {
     </ErrorBoundary>
 }
 
-export default FilesProcessedTable
-
-function getTimeFilters(hour?: string) {
-    if (hour == undefined)
-        return [{
-            FieldName: 'ProcessingStartTime',
-            Operator: '>',
-            Type: 'datetime',
-            SearchText: moment().subtract(48, 'hour').startOf('hour').format('YYYY-MM-DD HH:mm:ss.SSS'),
-            IsPivotColumn: false
-        }] as Search.IFilter<OpenXDA.DataFileView>[];
-    return [{
-        FieldName: 'ProcessingStartTime',
-        Operator: '>=',
-        Type: 'datetime',
-        SearchText: moment(hour).format('YYYY-MM-DD HH:mm:ss.SSS')
-    },
-    {
-        FieldName: 'ProcessingStartTime',
-        Operator: '<',
-        Type: 'datetime',
-        SearchText: moment(hour).add(1, 'hour').format('YYYY-MM-DD HH:mm:ss.SSS'),
-        IsPivotColumn: false
-    }
-    ] as Search.IFilter<OpenXDA.DataFileView>[];
-
-}
+export default AnalysisTaskTable
 
 const Priority = ({ priority }: { priority: number }) => {
 
