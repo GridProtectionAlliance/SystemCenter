@@ -77,11 +77,11 @@ const ByMagDurCurve: Application.Types.iByComponent = () => {
                     ? 'Edit ' + (curve?.Name ?? 'MagDur Curve')
                     : 'Add New Curve'}
                 Size={'xlg'}
-                CallBack={(conf,del) => {
-                    if (del)
+                CallBack={(conf, isbtn) => { 
+                    if (!conf && isbtn)
                         setShowDelete(true);
                     else {
-                        if (conf) {
+                        if (conf && isbtn) {
                             curve.ID >= 0
                                 ? MagDurCurveController.DBAction('PATCH', curve).done(() => refreshData(x => x + 1))
                                 : MagDurCurveController.DBAction("POST", curve).done(() => refreshData(x => x + 1))
@@ -111,6 +111,7 @@ const ByMagDurCurve: Application.Types.iByComponent = () => {
                     if (c) {
                         MagDurCurveController.DBAction('DELETE', curve).done(() => refreshData(x => x + 1));
                         setCurve(emptyCurve);
+                        setShowModal(false);
                     }
                     setShowDelete(false);
                 }}

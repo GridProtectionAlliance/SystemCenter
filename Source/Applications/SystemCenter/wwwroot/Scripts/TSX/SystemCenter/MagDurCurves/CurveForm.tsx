@@ -200,6 +200,8 @@ export default function CurveForm(props: IProps) {
                             Content={({ index }) => <>
                                 <button className="btn btn-sm"
                                     onClick={(e) => {
+                                        if (curve.length < 4)
+                                            return;
                                         setCurve((d) => {
                                             const u = _.cloneDeep(d);
                                             u.splice(index, 1);
@@ -212,6 +214,8 @@ export default function CurveForm(props: IProps) {
                                 </button>
                                 <button className="btn btn-sm"
                                     onClick={(e) => {
+                                        if (index == 0)
+                                            return;
                                         setCurve((d) => {
                                             const u = _.cloneDeep(d);
                                             const p = u.splice(index, 1, u[index - 1]);
@@ -225,6 +229,8 @@ export default function CurveForm(props: IProps) {
                                 </button>
                                 <button className="btn btn-sm"
                                     onClick={(e) => {
+                                        if (index + 1 == curve.length)
+                                            return;
                                         setCurve((d) => {
                                             const u = _.cloneDeep(d);
                                             const p = u.splice(index, 1, u[index + 1]);

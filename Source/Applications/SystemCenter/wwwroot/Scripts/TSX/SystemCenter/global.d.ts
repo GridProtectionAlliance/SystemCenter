@@ -158,6 +158,61 @@ export namespace OpenXDA {
     interface IHomeScreenWidget extends EventWidget.IWidgetView {
        TimeFrame: number
     }
+
+    interface DataFileView {
+        ID: number;
+        FileGroupID: number;
+        FilePath: string;
+        FilePathHash: number;
+        FileSize: number;
+        CreationTime: string;
+        LastWriteTime: string;
+        LastAccessTime: string;
+        MeterID: number;
+        DataStartTime: string;
+        ProcessingState: number;
+        LastProcessed: string;
+        LastProcessedComplete: string;
+        NumberOfTimesProcessed: number;
+    }
+
+    interface FileGroupAnalysisJob {
+        ID: number,
+        FileGroupID: number,
+        TaskQueuedTime: string,
+        TaskPriority: number,
+        ProcessingStartTime: string,
+        ProcessingEndTime: string,
+        ProcessingVersion: number
+    }
+
+    interface DataOperationFailure {
+        ID: number;
+        DataOperationID: number;
+        DataOperationTypeName: string;
+        FileGroupAnalysisJobID: number;
+        Log: string;
+        StackTrace: string;
+        TimeOfFailure: string;
+    }
+
+    interface ProcessedFiles extends FileGroupAnalysisJob {
+        MeterID: number,
+        DataStartTime: string,
+        FilePath: string,
+        FileName: string
+    }
+
+    interface AnalysisTask {
+        ID: number;
+        DataStartTime: string,
+        DataEndTime: string,
+        MeterName: string,
+        TimeQueued: string,
+        Priority: number,
+        MeterID: number,
+        FileGroupID: number,
+    }
 }
 
 export namespace PQView {

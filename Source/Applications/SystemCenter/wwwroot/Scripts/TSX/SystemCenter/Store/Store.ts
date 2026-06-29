@@ -72,7 +72,6 @@ export const PhaseSlice = new GenericSlice<OpenXDA.Types.Phase>("Phase", `${home
 export const MeasurmentTypeSlice = new GenericSlice<OpenXDA.Types.MeasurementType>("MeasurementType", `${homePath}api/OpenXDA/MeasurementType`, 'Name');
 export const MeasurementCharacteristicSlice = new GenericSlice<OpenXDA.Types.MeasurementCharacteristic>("MeasurementCharacteristic", `${homePath}api/OpenXDA/MeasurementCharacteristic`, 'Name');
 
-export const DataFileSlice = new GenericSlice<OpenXDA.Types.DataFile>("DataFile", `${homePath}api/OpenXDA/DataFile`, "ProcessingEndTime", false);
 export const EventTypeAssetTypeSlice = new GenericSlice<OpenXDA.Types.EventTypeAssetType>("EventTypeAssetType", `${homePath}api/OpenXDA/EventTypeAssetType`, "ID", false);
 export const CustomerSlice = new GenericSlice<OpenXDA.Types.Customer>("Customer", `${homePath}api/SystemCenter/Customer`, "Name", true);
 export const CustomerMeterSlice = new GenericSlice<LocalXDA.CustomerMeter>('CustomerMeter', `${homePath}api/SystemCenter/CustomerMeter`, 'MeterName', true);
@@ -166,7 +165,6 @@ const store = configureStore({
         SEBrowserSetting: SEBrowserSettingSlice.Reducer,
         PQDigestSetting: PQDigestSettingSlice.Reducer,
         AssetType: AssetTypeSlice.Reducer,
-        DataFile: DataFileSlice.Reducer,
         Customer: CustomerSlice.Reducer,
         AssetNote: AssetNoteSlice.Reducer,
         MeterNote: MeterNoteSlice.Reducer,

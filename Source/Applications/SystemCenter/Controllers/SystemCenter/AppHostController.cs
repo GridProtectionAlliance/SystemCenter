@@ -305,13 +305,32 @@ namespace SystemCenter.Controllers
             return ResponseMessage(responseMessage);
         }
 
+        [Route("xda/AnalysisQueue"), HttpGet]
+        public IHttpActionResult XDAAnalysisQueue()
+        {
+            APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).XDAAPISettings;
+
+            APIQuery query = new APIQuery(settings.Key, settings.Token, GetXDABaseURL());
+            void ConfigureRequest(HttpRequestMessage request)
+            {
+                request.Method = HttpMethod.Get;
+            }
+            HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"api/SystemCenter/AnalysisQueueLength").Result;
+
+            return ResponseMessage(responseMessage);
+
+        }
+
         #region [ Helpers ]
 
-        private string GetXDABaseURL(int id)
+        private string GetXDABaseURL(int? id = null)
         {
             using (AdoDataConnection connection = CreateDbConnection())
             {
-                return new TableOperations<HostRegistration>(connection).QueryRecordWhere("ID = {0}", id)?.URL ?? "";
+                if (id.HasValue)
+                    return new TableOperations<HostRegistration>(connection).QueryRecordWhere("ID = {0}", id.Value)?.URL ?? "";
+                else
+                    return new TableOperations<HostRegistration>(connection).QueryRecords("CheckedIn DESC")?.FirstOrDefault()?.URL ?? "";
             }
         }
 

@@ -21,91 +21,37 @@
 //
 //******************************************************************************************************
 
-import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-import { GenericController, LoadingScreen, Search } from '@gpa-gemstone/react-interactive';
-import { Column, FilterableColumn, Paging, Table } from '@gpa-gemstone/react-table';
-import moment from 'moment';
+import { Application } from '@gpa-gemstone/application-typings';
+import { OpenXDA as LocalXDA } from '../global';
+import { LoadingScreen } from '@gpa-gemstone/react-interactive';
 import * as React from 'react';
-import EditionRestrictionTooltip from '../CommonComponents/Restrictions/EditionRestrictionTooltip';
-import RoleRestrictionTooltip from '../CommonComponents/Restrictions/RoleRestrictionTooltip';
-import Reason from '../CommonComponents/Reason';
-import EditionLockModal from '../CommonComponents/Restrictions/EditionLockModal';
+import AnalysisTask from './AnalysisTask';
+import DataOperationsFailures from './DataOperationsFailures';
 
-const DataOperationFailureController = new GenericController<OpenXDA.Types.DataOperationFailure>(`${homePath}api/OpenXDA/DataOperationFailure`, "ID", true);
-const storageID = "ByDataOperationsFailure";
-const PagingID = 'ByDataOperationsFailurePage';
-
+//#TODO This is really the DataFileID but changing the URL will require a larger rework and search so leaving it for now
 interface IProps { FileGroupID: number }
 
 function ByDataOperationsFailure(props: IProps) {
-    const [fileGroup, setFileGroup] = React.useState<OpenXDA.Types.DataFile>(null);
-    const [pageStatus, setPageStatus] = React.useState<Application.Types.Status>('idle');
-
-    const [failureData, setFailureData] = React.useState<OpenXDA.Types.DataOperationFailure[]>([]);
-    const [filters, setFilters] = React.useState<Search.IFilter<OpenXDA.Types.DataOperationFailure>[]>([]);
-    const [ascending, setAscending] = React.useState<boolean>(false);
-    const [sortField, setSortField] = React.useState<keyof OpenXDA.Types.DataOperationFailure>("TimeOfFailure");
-
-    const [pageInfo, setPageInfo] = React.useState<{ RecordsPerPage: number, NumberOfPages: number, TotalRecords: number }>({ RecordsPerPage: 0, NumberOfPages: 0, TotalRecords: 0 });
-    const [page, setPage] = React.useState<number>(0);
-
-    const [hover, setHover] = React.useState<string|undefined>(undefined);
-    const [inEdition, setInEdition] = React.useState<boolean>(true);
-    const [inRoles, setInRoles] = React.useState<boolean>(true);
-
-    const [showEdition, setShowEdition] = React.useState<boolean>(false);
-
-    React.useEffect(() => {
-            let storedInfo = JSON.parse(localStorage.getItem(PagingID) as string);
-            if (storedInfo == null || storedInfo == 0) return; // page 0 means it's on a real page
-            if (storedInfo + 1 > pageInfo.NumberOfPages) {
-                storedInfo = Math.max(0, pageInfo.NumberOfPages - 1);
-                localStorage.setItem(PagingID, `${storedInfo}`);
-            }
-            setPage(storedInfo);
-    }, [pageInfo.TotalRecords]); // Make sure user is still on a real page when data is deleted or filtered out
-
-    // Handling filter storage between sessions (this will load/save filters for all filepaths as the same, this is by design)
-    React.useEffect(() => {
-        setFilters(JSON.parse(localStorage.getItem(storageID) as string) ?? []);
-    }, []);
-
-    React.useEffect(() => {
-        localStorage.setItem(storageID, JSON.stringify(filters));
-    }, [filters]);
+    const [fileGroup, setFileGroup] = React.useState<LocalXDA.DataFileView>(null);
+    const [status, setStatus] = React.useState<Application.Types.Status>('idle');
+    const [analysisJob, setAnalysisJob] = React.useState<LocalXDA.FileGroupAnalysisJob|undefined>(undefined);
 
     React.useEffect(() => {
         if (props.FileGroupID == undefined) return null;
-        setPageStatus('loading');
-        const dataOperationFailureHandle = DataOperationFailureController
-            .PagedSearch(filters, sortField, ascending, page, props.FileGroupID)
-            .done((result) => {
-                setFailureData(JSON.parse(result.Data as unknown as string));
-                setPageInfo({
-                    RecordsPerPage: result.RecordsPerPage,
-                    NumberOfPages: result.NumberOfPages,
-                    TotalRecords: result.TotalRecords
-                });
-                setPageStatus('idle');
-        }).fail(() => setPageStatus('error'));
-
-        return () => {
-            if (dataOperationFailureHandle != null && dataOperationFailureHandle.abort != null) dataOperationFailureHandle.abort();
-        }
-    }, [filters, sortField, ascending, page, props.FileGroupID]);
-
-    React.useEffect(() => {
-        if (props.FileGroupID == undefined) return null;
-        const fileGroupHandle = $.ajax({
+        setStatus('loading')
+        const handle = $.ajax({
             type: "GET",
             url: `${homePath}api/OpenXDA/DataFile/One/${props.FileGroupID}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
             async: true
-        });
-        fileGroupHandle.then((data: OpenXDA.Types.DataFile) => setFileGroup(data));
-        return () => { if (fileGroupHandle != null && fileGroupHandle.abort != null) fileGroupHandle.abort(); }
+        }).done((data) => {
+            setFileGroup(data);
+            setStatus('idle');
+            })
+            .fail(() => setStatus('error'));
+        return () => { if (handle != null && handle.abort != null) handle.abort(); }
 
     }, [props.FileGroupID]);
 
@@ -117,98 +63,12 @@ function ByDataOperationsFailure(props: IProps) {
                 </div>
             </div>
             <hr />
-            <LoadingScreen Show={pageStatus === 'loading'} />
-            <Table<OpenXDA.Types.DataOperationFailure>
-                TableClass="table table-hover"
-                Data={failureData}
-                SortKey={sortField}
-                Ascending={ascending}
-                Filters={filters}
-                SetFilters={filts => setFilters(filts)}
-                Selected={() => false}
-                KeySelector={(item) => item.ID}
-                OnSort={(d) => {
-                    if (d.colField == sortField) {
-                        setAscending(!ascending);
-                    }
-                    else {
-                        setAscending(true);
-                        setSortField(d.colField);
-                    }
-                }}
-            >
-                <FilterableColumn<OpenXDA.Types.DataOperationFailure>
-                    Key={'TimeOfFailure'}
-                    AllowSort={true}
-                    Field={'TimeOfFailure'}
-                    HeaderStyle={{ width: '20%' }}
-                    Content={({ item, field }) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : 'N/A'}
-                    RowStyle={{ width: '20%' }}
-                    Type={"datetime"}
-                >
-                    Time Of Failure
-                </FilterableColumn>
-                <FilterableColumn<OpenXDA.Types.DataOperationFailure>
-                    Key={'DataOperationTypeName'}
-                    AllowSort={true}
-                    Field={'DataOperationTypeName'}
-                    HeaderStyle={{ width: 'auto' }}
-                    RowStyle={{ width: 'auto' }}
-                    Type={"string"}
-                >
-                    Data Operation
-                </FilterableColumn>
-                <Column<OpenXDA.Types.DataOperationFailure>
-                    Key={'Log'}
-                    AllowSort={true}
-                    Field={'Log'}
-                    Content={({ item, field }) => <Reason ID={item.ID} Text={item[field]?.toString() ?? ''} />}
-                    HeaderStyle={{ width: '115px' }}
-                    RowStyle={{ width: '115px' }}
-                >
-                    Log Message
-                </Column>
-                <Column<OpenXDA.Types.DataOperationFailure>
-                    Key={'StackTrace'}
-                    AllowSort={true}
-                    Field={'StackTrace'}
-                    Content={({ item, field }) =>
-                        <Reason
-                            ID={item.ID}
-                            Text={item[field]?.toString() ?? ''}
-                            Disabled={!inEdition || !inRoles}
-                            OnHover={setHover}
-                            OnClick={() => { if (!inEdition) setShowEdition(true); }}
-                        />
-                    }
-                    HeaderStyle={{ width: '115px' }}
-                    RowStyle={{ width: '115px' }}
-                >
-                    Stack Trace
-                </Column>
-            </Table>
-            <div className="row justify-content-center">
-                <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p - 1)} />
+            <LoadingScreen Show={status === 'loading'} />
+            <div className="row" style={{ flex: 1 }}>
+                <AnalysisTask FileGroupID={fileGroup?.FileGroupID} SetAnalysisJob={setAnalysisJob} AnalysisJobID={analysisJob?.ID} />
+                <DataOperationsFailures AnalysisTaskID={analysisJob?.ID} />
             </div>
-            <EditionRestrictionTooltip
-                SetMeetsRequirements={setInEdition}
-                EditionRequirement={'Enterprise'}
-                FeatureName={'Viewing Stack Trace'}
-                Target={hover}
-                Show={hover != null}
-            />
-            <RoleRestrictionTooltip
-                SetMeetsRequirements={setInRoles}
-                RolesRequirement={['Administrator']}
-                FeatureName={'Viewing Stack Trace'}
-                Target={hover}
-                Show={hover != null && inEdition}
-            />
-            <EditionLockModal
-                SetShow={setShowEdition}
-                Show={showEdition}
-                EditionRequirement={'Enterprise'}
-            />
+            
         </div>
     );
 }

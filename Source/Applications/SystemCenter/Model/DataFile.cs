@@ -23,6 +23,14 @@
 
 
 
+using GSF.Data;
+using GSF.Data.Model;
+using GSF.IO;
+using GSF.Web.Model;
+using Newtonsoft.Json;
+using openXDA.APIAuthentication;
+using openXDA.Configuration;
+using openXDA.Model;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -33,13 +41,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Web.Http;
-using GSF.Data;
-using GSF.Data.Model;
-using GSF.Web.Model;
-using Newtonsoft.Json;
-using openXDA.APIAuthentication;
-using openXDA.Configuration;
-using openXDA.Model;
 using SystemCenter.Controllers;
 
 namespace SystemCenter.Model
@@ -49,10 +50,11 @@ namespace SystemCenter.Model
         SELECT
 	        DataFile.*,
 	        FileGroup.DataStartTime,
-            FileGroup.ProcessingStartTime,
-	        FileGroup.ProcessingEndTime,
 	        FileGroup.MeterID,
-            FileGroup.ProcessingStatus AS ProcessingState
+            FileGroup.ProcessingStatus AS ProcessingState,
+            (SELECT COUNT(*) FROM FileGroupAnalysisJob WHERE FileGroupAnalysisJob.FileGroupID = FileGroup.ID) AS NumberOfTimesProcessed,
+            (SELECT MAX(ProcessingStartTime) FROM FileGroupAnalysisJob WHERE FileGroupAnalysisJob.FileGroupID = FileGroup.ID) AS LastProcessed,
+            (SELECT MAX(ProcessingEndTime) FROM FileGroupAnalysisJob WHERE FileGroupAnalysisJob.FileGroupID = FileGroup.ID) AS LastProcessedComplete
         FROM
 	        DataFile JOIN
 	        FileGroup ON DataFile.FileGroupID = FileGroup.ID
@@ -62,14 +64,62 @@ namespace SystemCenter.Model
     {
         [ParentKey(typeof(Meter))]
         public int MeterID { get; set; }
-        public DateTime ProcessingStartTime { get; set; }
-        [DefaultSortOrder(false)]
-        public DateTime ProcessingEndTime { get; set; }
         public DateTime DataStartTime { get; set; }
         public int ProcessingState { get; set; }
         [NonRecordField]
         public string FileName => Path.GetFileName(FilePath);
+
+        [DefaultSortOrder(false)]
+        public DateTime LastProcessed { get; set; }
+        public DateTime LastProcessedComplete { get; set; }
+        public int NumberOfTimesProcessed { get; set; }
     }
+
+    [ReturnLimit(50),
+    CustomView(@"
+        SELECT
+	        FileGroupAnalysisJob.*,
+            DataFile.FilePath,
+	        FileGroup.DataStartTime,
+	        FileGroup.MeterID,
+        FROM
+	        FileGroupAnalysisJob OUTER JOIN
+            DATAFILE ON FileGroupAnalysisJob.FileGroupID = DataFile.FileGroupID LEFT JOIN
+	        FileGroup ON DataFile.FileGroupID = FileGroup.ID
+    ")]
+    [AllowSearch]
+    public class ProcessedFile : FileGroupAnalysisJob
+    {
+        [ParentKey(typeof(Meter))]
+        public int MeterID { get; set; }
+        public DateTime DataStartTime { get; set; }
+
+        public string FilePath { get; set; }
+
+        [NonRecordField]
+        public string FileName => Path.GetFileName(FilePath);
+    }
+
+    [ReturnLimit(50),
+    CustomView(@"
+        SELECT
+	        AnalysisTask.*,
+	        FileGroup.DataStartTime,
+            FileGroup.DataEndTime,
+	        Meter.Name AS MeterName
+        FROM
+	        AnalysisTask JOIN
+	        FileGroup ON AnalysisTask.FileGroupID = FileGroup.ID JOIN
+            Meter ON FileGroup.MeterID = Meter.ID 
+    ")]
+    [AllowSearch]
+    public class AnalysisTask: openXDA.Model.AnalysisTask
+    {
+        public DateTime DataStartTime { get; set; }
+        public DateTime DataEndTime { get; set; }
+        public string MeterName { get; set; }
+    }
+
 
     [RoutePrefix("api/OpenXDA/DataFile")]
     public class OpenXDADataFileController : ModelController<DataFile> {
@@ -256,10 +306,12 @@ namespace SystemCenter.Model
                 LastAccessTime = row.Field<DateTime>("LastAccessTime"),
                 MeterID = row.Field<int>("MeterID"),
                 DataStartTime = row.Field<DateTime>("DataStartTime"),
-                ProcessingEndTime = row.Field<DateTime>("ProcessingEndTime"),
                 ProcessingState = row.Field<int>("ProcessingState"),
-                ProcessingStartTime = row.Field<DateTime>("ProcessingStartTime")
-        }).ToArray();
+                LastProcessed = row.ConvertNullableField<DateTime>("LastProcessed") ?? DateTime.MinValue,
+                LastProcessedComplete = row.ConvertNullableField<DateTime>("LastProcessedComplete") ?? DateTime.MinValue,
+                NumberOfTimesProcessed = row.Field<int>("NumberOfTimesProcessed")
+                }).ToArray();
+
             int recordCount = CountSearchResults(postData);
             int recordPerPage = Take ?? 50;
             return Ok(new PagedResults()
@@ -272,5 +324,82 @@ namespace SystemCenter.Model
         }
 
     }
+
+    [RoutePrefix("api/OpenXDA/ProcessedFiles")]
+    public class OpenXDAProcessedileController : ModelController<ProcessedFile>
+    {
+        [Route("PagedResults"), HttpPost]
+        public override IHttpActionResult GetPagedList([FromBody] PostData postData, int page)
+        {
+            if (!GetAuthCheck())
+                return Unauthorized();
+
+            using DataTable table = GetSearchResults(postData, page);
+            ProcessedFile[] results = table
+                .AsEnumerable()
+                .Select(row => new ProcessedFile()
+                {
+                    ID = row.Field<int>("ID"),
+                    FileGroupID = row.Field<int>("FileGroupID"),
+                    FilePath = row.Field<string>("FilePath"),
+                    MeterID = row.Field<int>("MeterID"),
+                    DataStartTime = row.Field<DateTime>("DataStartTime"),
+                    TaskQueuedTime = row.Field<DateTime>("TaskQueuedTime"),
+                    TaskPriority = row.Field<int>("TaskPriority"),
+                    ProcessingStartTime = row.Field<DateTime>("ProcessingStartTime"),
+                    ProcessingEndTime = row.ConvertNullableField<DateTime>("ProcessingEndTime") ?? DateTime.MinValue,
+                    ProcessingVersion = row.Field<int>("ProcessingVersion")
+                }).ToArray();
+
+            int recordCount = CountSearchResults(postData);
+            int recordPerPage = Take ?? 50;
+            return Ok(new PagedResults()
+            {
+                Data = JsonConvert.SerializeObject(results),
+                RecordsPerPage = recordPerPage,
+                TotalRecords = recordCount,
+                NumberOfPages = (recordCount + recordPerPage - 1) / recordPerPage
+            });
+        }
+
+    }
+
+    [RoutePrefix("api/OpenXDA/AnalysisTask")]
+    public class AnalysisTaskController : ModelController<AnalysisTask> 
+    {
+        [Route("PagedResults"), HttpPost]
+        public override IHttpActionResult GetPagedList([FromBody] PostData postData, int page)
+        {
+            if (!GetAuthCheck())
+                return Unauthorized();
+
+            using DataTable table = GetSearchResults(postData, page);
+            AnalysisTask[] results = table
+                .AsEnumerable()
+                .Select(row => new AnalysisTask()
+                {
+                    ID = row.Field<int>("ID"),
+                    FileGroupID = row.Field<int>("FileGroupID"),
+                    MeterID = row.Field<int>("MeterID"),
+                    DataStartTime = row.Field<DateTime>("DataStartTime"),
+                    NodeID = row.ConvertNullableField<int>("NodeID"),
+                    TimeQueued = row.Field<DateTime>("TimeQueued"),
+                    Priority = row.Field<int>("Priority"),
+                    DataEndTime = row.Field<DateTime>("DataEndTime"),
+                    MeterName = row.Field<string>("MeterName")
+                }).ToArray();
+
+            int recordCount = CountSearchResults(postData);
+            int recordPerPage = Take ?? 50;
+            return Ok(new PagedResults()
+            {
+                Data = JsonConvert.SerializeObject(results),
+                RecordsPerPage = recordPerPage,
+                TotalRecords = recordCount,
+                NumberOfPages = (recordCount + recordPerPage - 1) / recordPerPage
+            });
+        }
+    }
+
 
 }
