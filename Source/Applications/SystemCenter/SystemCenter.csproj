@@ -293,6 +293,7 @@
     <Compile Include="Model\ChannelTemplate.cs" />
     <Compile Include="Model\DetailedMeterAsset.cs" />
     <Compile Include="Model\Condition.cs" />
+    <Compile Include="Model\Node.cs" />
     <Compile Include="Model\PQDigestSetting.cs" />
     <Compile Include="Model\SEBrowserSetting.cs" />
     <Compile Include="Model\OpenSEESetting.cs" />
@@ -628,6 +629,10 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterMaintenance.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\VirtualChannelModal.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\PQDigest\ByHomeScreenWidget.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Node\ByNode.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Node\Node.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Node\NodeForm.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Node\NodeSettings.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\PQDigest\HomeScreenWidgetForm.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ProcessedFile\AnalysisTask.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ProcessedFile\DataOperationsFailures.tsx" />
