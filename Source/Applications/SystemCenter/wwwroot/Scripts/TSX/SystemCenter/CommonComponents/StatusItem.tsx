@@ -25,16 +25,17 @@ import * as React from 'react'
 import { ToolTip } from '@gpa-gemstone/react-forms'
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { SystemCenter as SC } from '../global'
+import { ServerErrorIcon } from '@gpa-gemstone/react-interactive'
 
 export interface INamedStatusItem extends SC.StatusItem {
     Name: string
+    ServerError: boolean
 }
 
 const StatusItem = (props: { StatusItem: INamedStatusItem, HoveredItem: String, SetHoveredItem: React.Dispatch<React.SetStateAction<String>>}) => {
     return (
-
         <div className="row mb-2 mx-2"
-        >
+        > {props.StatusItem.ServerError ? <div className="col-12"> <ServerErrorIcon Show={true} Label={"Server error occured."} /> </div>  :
             <div className={`col-12 d-flex align-items-center alert-${GetStatusItemAlertClass(props.StatusItem.Status)}`}>
                 <span className={"my-3"}>{GetStatusSymbol(props.StatusItem.Status)}</span>
                 <h5
@@ -65,6 +66,7 @@ const StatusItem = (props: { StatusItem: INamedStatusItem, HoveredItem: String, 
                     }
                 </ToolTip>
             </div>
+            }
         </div>
     )
 }

@@ -30,43 +30,38 @@ import StatusGroup from '../CommonComponents/StatusGroup'
 import { INamedStatusItem } from '../CommonComponents/StatusItem'
 
 const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.ApplicationType, Properties: { Name: string, Value: string }[] }) => {
-    const [extDBStatus, setExtDBStatus] = React.useState<INamedStatusItem[]>([{ Name: "Loading...", Status: "Loading", Details: [] }]);
-    const [remoteXDAStatus, setRemoteXDAStatus] = React.useState<INamedStatusItem[]>([{ Name: "Loading...", Status: "Loading", Details: [] }]);
+    const [extDBStatus, setExtDBStatus] = React.useState<INamedStatusItem[]>([{ Name: "Loading...", Status: "Loading", Details: [], ServerError: false }]);
+    const [remoteXDAStatus, setRemoteXDAStatus] = React.useState<INamedStatusItem[]>([{ Name: "Loading...", Status: "Loading", Details: [], ServerError: false }]);
     const [hoveredItem, setHoveredItem] = React.useState<string>(null)
-    const [fawgStatus, setFawgStatus] = React.useState<INamedStatusItem>({ Name: "FAWG", Status: "Loading", Details: [] })
-    const [PQIStatus, setPQIStatus] = React.useState<INamedStatusItem>({ Name: "PQI", Status: "Loading", Details: [] })
-    const [SCADAStatus, setSCADAStatus] = React.useState<INamedStatusItem>({ Name: "SCADA Resource", Status: "Loading", Details: [] })
-    const [structureCrawlerStatus, setStructureCrawlerStatus] = React.useState<INamedStatusItem>({ Name: "Structure Crawler", Status: "Loading", Details: [] })
-    const [lightningRealTimeStatus, setLightningRealTimeStatus] = React.useState<INamedStatusItem>({ Name: "Lightning Real Time Data", Status: "Loading", Details: [] })
-    const [lightningStructureStatus, setLightningStructureStatus] = React.useState<INamedStatusItem>({ Name: "Lightning Structure Data", Status: "Loading", Details: [] })
-    const [soeStatus, setSoeStatus] = React.useState<INamedStatusItem>({ Name: "SOE", Status: "Loading", Details: [] })
-    const [itoaStatus, setItoaStatus] = React.useState<INamedStatusItem>({ Name: "ITOA", Status: "Loading", Details: [] })
+    const [fawgStatus, setFawgStatus] = React.useState<INamedStatusItem>({ Name: "FAWG", Status: "Loading", Details: [], ServerError: false })
+    const [PQIStatus, setPQIStatus] = React.useState<INamedStatusItem>({ Name: "PQI", Status: "Loading", Details: [], ServerError: false })
+    const [XDAConnectionsStatus, setXDAConnectionsStatus] = React.useState<INamedStatusItem[]>([{ Name: "Loading...", Status: "Loading", Details: [], ServerError: false}])
 
     React.useEffect(() => {
         switch (props.ApplicationType) {
             case 'SystemCenter':
-                setExtDBStatus([{ Name: "Loading...", Status: "Loading", Details: [] }])
+                setExtDBStatus([{ Name: "Loading...", Status: "Loading", Details: [], ServerError: false }])
                 const dbs = testDBs()
                 dbs.done((statuses: INamedStatusItem[]) => {
                     setExtDBStatus(statuses)
                 }).fail(() => {
-                    setExtDBStatus([])
+                    setExtDBStatus([{ Name: "External Databases", Status: "Error", Details: [], ServerError: true}])
                 })
 
-                setFawgStatus({ Name: "FAWG", Status: "Loading", Details: [] })
+                setFawgStatus({ Name: "FAWG", Status: "Loading", Details: [], ServerError: false })
                 const fawg = testFAWG()
                 fawg.done((d: SC.StatusItem) => {
-                    setFawgStatus({ Status: d.Status, Name: "FAWG", Details: d.Details })
+                    setFawgStatus({ Status: d.Status, Name: "FAWG", Details: d.Details, ServerError: false })
                 }).fail(() => {
-                    setFawgStatus({ Status: 'Error', Name: 'FAWG', Details: [{ Status: "Error", Description: "Errors occurred in retrieving FAWG connection status." }] })
+                    setFawgStatus({ Status: 'Error', Name: 'FAWG', Details: [{ Status: "Error", Description: "Errors occurred in retrieving FAWG connection status." }], ServerError: true })
                 })
 
-                setPQIStatus({ Name: "PQI", Status: "Loading", Details: [] })
+                setPQIStatus({ Name: "PQI", Status: "Loading", Details: [], ServerError: false })
                 const pqi = testPQI()
                 pqi.done((d: SC.StatusItem) => {
-                    setPQIStatus({ Status: d.Status, Name: "PQI", Details: d.Details })
+                    setPQIStatus({ Status: d.Status, Name: "PQI", Details: d.Details, ServerError: false })
                 }).fail(() => {
-                    setPQIStatus({ Status: 'Error', Name: 'PQI', Details: [{ Status: "Error", Description: "Errors occurred in retrieving PQI connection status." }] })
+                    setPQIStatus({ Status: 'Error', Name: 'PQI', Details: [{ Status: "Error", Description: "Errors occurred in retrieving PQI connection status." }], ServerError: true })
                 })
 
                 return function cleanup() {
@@ -79,74 +74,27 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
                 }
 
             case 'XDA':
-                setRemoteXDAStatus([{ Name: "Loading...", Status: "Loading", Details: [] }])
+                setRemoteXDAStatus([{ Name: "Loading...", Status: "Loading", Details: [], ServerError: false }])
                 const rxdas = testRemoteXDAs(props.Properties)
                 rxdas.done((statuses: INamedStatusItem[]) => {
                     setRemoteXDAStatus(statuses)
                 }).fail(() => {
-                    setRemoteXDAStatus([])
+                    setRemoteXDAStatus([{ Name: "Loading...", Status: "Loading", Details: [], ServerError: true }])
                 })
 
-                setSCADAStatus({ Name: "SCADA Resource", Status: "Loading", Details: [] })
-                const scada = testSCADA()
-                scada.done((d: SC.StatusItem) => {
-                    setSCADAStatus({ Status: d.Status, Name: 'SCADA Resource', Details: d.Details })
+                setRemoteXDAStatus([{ Name: "Loading...", Status: "Loading", Details: [], ServerError: false }])
+                const xdaConnections = testAllXDAConnections()
+                xdaConnections.done((statuses: INamedStatusItem[]) => {
+                    setXDAConnectionsStatus(statuses)
                 }).fail(() => {
-                    setSCADAStatus({ Status: 'Error', Name: 'SCADA Resource', Details: [{ Status: "Error", Description: "Errors occurred in retrieving SCADA Resource connection status." }] })
+                    setXDAConnectionsStatus([{ Name: "XDA Connections", Status: "Error", Details: [], ServerError: true }])
                 })
-
-                setStructureCrawlerStatus({ Name: "Structure Crawler", Status: "Loading", Details: [] })
-                const crawler = testStructureCrawler()
-                crawler.done((d: SC.StatusItem) => {
-                    setStructureCrawlerStatus({ Status: d.Status, Name: "Structure Crawler", Details: d.Details })
-                }).fail(() => {
-                    setStructureCrawlerStatus({ Status: 'Error', Name: 'Structure Crawler', Details: [{ Status: "Error", Description: "Errors occurred in retrieving Structure Crawler connection status." }] })
-                })
-
-                const lightningRealTime = testLightningRealTimeData()
-                lightningRealTime.done((d: SC.StatusItem) => {
-                    setLightningRealTimeStatus({ Status: d.Status, Name: 'Lightning Real Time Data', Details: d.Details })
-                }).fail(() => {
-                    setLightningRealTimeStatus({ Status: 'Error', Name: 'Lightning Real Time Data', Details: [{ Status: "Error", Description: "Errors occurred in retrieving Lightning Real Time Data connection status." }] })
-                })
-
-                const lightningStructure = testLightningStructureData()
-                lightningStructure.done((d: SC.StatusItem) => {
-                    setLightningStructureStatus({ Status: d.Status, Name: 'Lightning Structure Data', Details: d.Details })
-                }).fail(() => {
-                    setLightningStructureStatus({ Status: 'Error', Name: 'Lightning Structure Data', Details: [{ Status: "Error", Description: "Errors occurred in retrieving Lightning Structure Data connection status." }] })
-                })
-
-                const soe = testSOE()
-                soe.done((d: SC.StatusItem) => {
-                    setSoeStatus({ Status: d.Status, Name: 'SOE', Details: d.Details })
-                }).fail(() => {
-                    setSoeStatus({ Status: 'Error', Name: 'SOE', Details: [{ Status: "Error", Description: "Errors occurred in retrieving SOE connection status." }] })
-                })
-
-                const itoa = testITOA()
-                itoa.done((d: SC.StatusItem) => {
-                    setItoaStatus({ Status: d.Status, Name: 'ITOA', Details: d.Details })
-                }).fail(() => {
-                    setItoaStatus({ Status: 'Error', Name: 'ITOA', Details: [{ Status: "Error", Description: "Errors occurred in retrieving ITOA connection status." }] })
-                })
-
 
                 return function cleanup() {
                     if (rxdas.abort != null)
                         rxdas.abort()
-                    if (scada.abort != null)
-                        scada.abort()
-                    if (crawler.abort != null)
-                        crawler.abort()
-                    if (lightningRealTime.abort != null)
-                        lightningRealTime.abort()
-                    if (lightningStructure.abort != null)
-                        lightningStructure.abort()
-                    if (soe.abort != null)
-                        soe.abort()
-                    if (itoa.abort != null)
-                        itoa.abort()
+                    if (xdaConnections.abort != null)
+                        xdaConnections.abort()
                 }
             default:
                 return;
@@ -189,7 +137,7 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
                     }
                     <div className={`col-${remoteXDAStatus.length == 0 ? 12 : 6} h-100`}>
                         <StatusGroup
-                            StatusItems={[SCADAStatus, structureCrawlerStatus, lightningRealTimeStatus, lightningStructureStatus, soeStatus, itoaStatus]}
+                            StatusItems={XDAConnectionsStatus}
                             HoveredItem={hoveredItem}
                             SetHoveredItem={setHoveredItem}
                             Name="Other Connections"
@@ -201,7 +149,6 @@ const NodeConnections = (props: { ApplicationName: string, ApplicationType: SC.A
 }
 
 export default NodeConnections;
-
 
 function testDBs() {
     return $.ajax({
@@ -246,62 +193,10 @@ function testRemoteXDAs(properties: { Name: string, Value: string }[]) {
     });
 }
 
-function testSCADA() {
+function testAllXDAConnections() {
     return $.ajax({
         type: "GET",
-        url: `${homePath}api/OpenXDA/ScadaHealth`,
-        contentType: "application/json; charset=utf-8",
-        dataType: 'json',
-        cache: false,
-        async: true
-    });
-}
-
-function testStructureCrawler() {
-        return $.ajax({
-            type: "GET",
-        url: `${homePath}api/OpenXDA/StructureCrawlerHealth`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: false,
-            async: true
-    });
-    }
-
-function testLightningRealTimeData() {
-    return $.ajax({
-        type: "GET",
-        url: `${homePath}api/OpenXDA/LightningRealTimeDataHealth`,
-        contentType: "application/json; charset=utf-8",
-        dataType: 'json',
-        cache: false,
-        async: true
-    })
-}
-function testLightningStructureData() {
-    return $.ajax({
-        type: "GET",
-        url: `${homePath}api/OpenXDA/LightningStructureDataHealth`,
-        contentType: "application/json; charset=utf-8",
-        dataType: 'json',
-        cache: false,
-        async: true
-    })
-}
-function testSOE() {
-    return $.ajax({
-        type: "GET",
-        url: `${homePath}api/OpenXDA/SOEHealth`,
-        contentType: "application/json; charset=utf-8",
-        dataType: 'json',
-        cache: false,
-        async: true
-    })
-}
-function testITOA() {
-    return $.ajax({
-        type: "GET",
-        url: `${homePath}api/OpenXDA/ITOAHealth`,
+        url: `${homePath}api/OpenXDA/AllConnectionsHealth`,
         contentType: "application/json; charset=utf-8",
         dataType: 'json',
         cache: false,
