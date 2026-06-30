@@ -241,105 +241,68 @@ namespace SystemCenter.Controllers.OpenXDA
         /*
         Channels: List<{ ID: number, Meter: string, Asset: string, MeasurementType: string, MeasurementCharacteristic: string, Phase: string, Name: string, SamplesPerHour: number, PerUnitValue: number, HarmonicGroup: number, Description: string, Enabled: boolean, Series: { ID: number, ChannelID: number, SeriesType: string, SourceIndexes: string } }>
         */
-        [HttpPost, Route("{meterID:int}/Channel/Update/{filter=All}")]
-        public IHttpActionResult UpdateMeterChannels([FromBody] JObject postData, int meterID, string filter)
+        [HttpPost, Route("{meterID:int}/Channel/Update")]
+        public IHttpActionResult UpdateMeterChannels([FromBody] JObject postData, int meterID)
         {
             if (PatchRoles != string.Empty && !User.IsInRole(PatchRoles))
                 return Unauthorized();
-            
-            try
+
+            using AdoDataConnection connection = ConnectionFactory();
+            TableOperations<Channel> channelTable = new(connection);
+            TableOperations<Series> seriesTable = new(connection);
+
+            JToken Channels = postData["Channels"];
+            IEnumerable<MeasurementType> measurementTypes = new TableOperations<MeasurementType>(connection).QueryRecords();
+            IEnumerable<MeasurementCharacteristic> measurementCharacteristics = new TableOperations<MeasurementCharacteristic>(connection).QueryRecords();
+            IEnumerable<Phase> phases = new TableOperations<Phase>(connection).QueryRecords();
+            IEnumerable<Asset> assets = new TableOperations<Asset>(connection).QueryRecordsWhere("ID IN (SELECT AssetID FROM MeterAsset WHERE MeterID = {0})", meterID);
+            IEnumerable<SeriesType> seriesTypes = new TableOperations<SeriesType>(connection).QueryRecords();
+            List<int> channelIDs = [];
+
+            foreach (JToken channelToken in Channels)
             {
-                using (AdoDataConnection connection = ConnectionFactory())
+                Channel channel = new();
+                channel.ID = channelToken["ID"].ToObject<int>();
+                channel.MeterID = meterID;
+                channel.AssetID = assets.FirstOrDefault(asset => asset.AssetKey == channelToken["Asset"].ToString()).ID;
+                channel.MeasurementTypeID = measurementTypes.First(mt => mt.Name == channelToken["MeasurementType"].ToString()).ID;
+                channel.MeasurementCharacteristicID = measurementCharacteristics.First(mc => mc.Name == channelToken["MeasurementCharacteristic"].ToString()).ID;
+                channel.PhaseID = phases.First(phase => phase.Name == channelToken["Phase"].ToString()).ID;
+                channel.Name = channelToken["Name"].ToString();
+                channel.Description = channelToken["Description"].ToString() == string.Empty ? null : channelToken["Description"].ToString();
+                channel.Adder = channelToken["Adder"].ToObject<double>();
+                channel.Multiplier = channelToken["Multiplier"].ToObject<double>();
+                channel.SamplesPerHour = channelToken["SamplesPerHour"].ToObject<double>();
+                channel.PerUnitValue = channelToken["PerUnitValue"].ToObject<double?>();
+                channel.HarmonicGroup = channelToken["HarmonicGroup"].ToObject<int>();
+                channel.Enabled = channelToken["Enabled"].ToObject<bool>();
+                channel.ConnectionPriority = channelToken["ConnectionPriority"].ToObject<int>();
+                channel.Trend = channelToken["Trend"].ToObject<bool>();
+                if (channel.AssetID == 0)
+                    continue;
+
+                channelTable.AddNewOrUpdateRecord(channel);
+
+                if (channel.ID == 0)
+                    channel.ID = connection.ExecuteScalar<int>("SELECT @@IDENTITY");
+
+                if (channelToken["Series"] is JArray array)
                 {
-                    TableOperations<Channel> channelTable = new TableOperations<Channel>(connection);
-                    TableOperations<Series> seriesTable = new TableOperations<Series>(connection);
-
-                    JToken Channels = postData["Channels"];
-                    IEnumerable<MeasurementType> measurementTypes = new TableOperations<MeasurementType>(connection).QueryRecords();
-                    IEnumerable<MeasurementCharacteristic> measurementCharacteristics = new TableOperations<MeasurementCharacteristic>(connection).QueryRecords();
-                    IEnumerable<Phase> phases = new TableOperations<Phase>(connection).QueryRecords();
-                    IEnumerable<Asset> assets = new TableOperations<Asset>(connection).QueryRecordsWhere("ID IN (SELECT AssetID FROM MeterAsset WHERE MeterID = {0})", meterID);
-                    IEnumerable<SeriesType> seriesTypes = new TableOperations<SeriesType>(connection).QueryRecords();
-                    List<int> channelIDs = new List<int>();
-
-                    foreach (JToken channelToken in Channels)
+                    foreach (JToken seriesToken in array)
                     {
-                        Channel channel = new Channel();
-                        channel.ID = channelToken["ID"].ToObject<int>();
-                        channel.MeterID = meterID;
-                        channel.AssetID = assets.FirstOrDefault(asset => asset.AssetKey == channelToken["Asset"].ToString()).ID;
-                        channel.MeasurementTypeID = measurementTypes.First(mt => mt.Name == channelToken["MeasurementType"].ToString()).ID;
-                        channel.MeasurementCharacteristicID = measurementCharacteristics.First(mc => mc.Name == channelToken["MeasurementCharacteristic"].ToString()).ID;
-                        channel.PhaseID = phases.First(phase => phase.Name == channelToken["Phase"].ToString()).ID;
-                        channel.Name = channelToken["Name"].ToString();
-                        channel.Description = channelToken["Description"].ToString() == string.Empty ? null : channelToken["Description"].ToString();
-                        channel.Adder = channelToken["Adder"].ToObject<double>();
-                        channel.Multiplier = channelToken["Multiplier"].ToObject<double>();
-                        channel.SamplesPerHour = channelToken["SamplesPerHour"].ToObject<double>();
-                        channel.PerUnitValue = channelToken["PerUnitValue"].ToObject<double?>();
-                        channel.HarmonicGroup = channelToken["HarmonicGroup"].ToObject<int>();
-                        channel.Enabled = channelToken["Enabled"].ToObject<bool>();
-                        channel.ConnectionPriority = channelToken["ConnectionPriority"].ToObject<int>();
-                        channel.Trend = channelToken["Trend"].ToObject<bool>();
-                        if (channel.AssetID == 0)
-                            continue;
-
-                        channelTable.AddNewOrUpdateRecord(channel);
-
-                        if (channel.ID == 0)
-                            channel.ID = connection.ExecuteScalar<int>("SELECT @@IDENTITY");
-
-                        if (channelToken["Series"] is JArray array)
-                        {
-                            foreach (JToken seriesToken in array)
-                            {
-                                Series series = new Series();
-                                series.ID = seriesToken.Value<int>("ID");
-                                series.ChannelID = channel.ID;
-                                series.SeriesTypeID = seriesTypes.First(st => st.Name == seriesToken.Value<string>("SeriesType")).ID;
-                                series.SourceIndexes = seriesToken.Value<string>("SourceIndexes");
-                                seriesTable.AddNewOrUpdateRecord(series);
-                            }
-                        }
-
-                        channelIDs.Add(channel.ID);
+                        Series series = new();
+                        series.ID = seriesToken.Value<int>("ID");
+                        series.ChannelID = channel.ID;
+                        series.SeriesTypeID = seriesTypes.First(st => st.Name == seriesToken.Value<string>("SeriesType")).ID;
+                        series.SourceIndexes = seriesToken.Value<string>("SourceIndexes");
+                        seriesTable.AddNewOrUpdateRecord(series);
                     }
-
-                    const string EventChannelFilter =
-                        "MeasurementCharacteristicID = (SELECT ID FROM MeasurementCharacteristic WHERE Name = 'Instantaneous') AND " +
-                        "(SELECT COUNT(*) FROM Series WHERE ChannelID = Channel.ID) = 1 AND " +
-                        "EXISTS (SELECT * FROM Series WHERE SeriesTypeID IN (SELECT ID FROM SeriesType WHERE Name IN ('Values', 'Instantaneous')))";
-
-                    string GetTypeFilter()
-                    {
-                        switch (filter.ToLower())
-                        {
-                            case "event": return EventChannelFilter;
-                            case "trend": return $"NOT ({EventChannelFilter})";
-                            case "none": return "1 IS NULL";
-                            default: return "1=1";
-                        }
-                    }
-
-                    string idFilter = channelIDs.Any()
-                        ? $"ID NOT IN ({string.Join(",", channelIDs)})"
-                        : "1=1";
-
-                    string deleteFilter =
-                        $"MeterID = {meterID} AND " +
-                        $"({GetTypeFilter()}) AND " +
-                        $"{idFilter}";
-
-                    connection.ExecuteNonQuery("EXEC UniversalCascadeDelete 'Channel', {0}", deleteFilter);
-
-                    return Ok("Completed without errors");
                 }
+
+                channelIDs.Add(channel.ID);
             }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
-            
+
+            return Ok("Completed without errors");
         }
 
         [HttpGet, Route("{meterID:int}/Channels/{filter=All}")]
