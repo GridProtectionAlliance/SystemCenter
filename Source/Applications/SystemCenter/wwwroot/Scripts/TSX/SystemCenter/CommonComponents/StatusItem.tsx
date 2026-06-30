@@ -26,35 +26,65 @@ import { ToolTip } from '@gpa-gemstone/react-forms'
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { SystemCenter as SC } from '../global'
 import { ServerErrorIcon } from '@gpa-gemstone/react-interactive'
+import { Application } from '@gpa-gemstone/application-typings'
 
 export interface INamedStatusItem extends SC.StatusItem {
     Name: string
-    ServerError: boolean
 }
 
-const StatusItem = (props: { StatusItem: INamedStatusItem, HoveredItem: String, SetHoveredItem: React.Dispatch<React.SetStateAction<String>>}) => {
+const StatusItem = (props: { URL?: string, StatusItem?: INamedStatusItem, Verb?: 'GET' | 'POST', Name: string, HoveredItem: String, SetHoveredItem: React.Dispatch<React.SetStateAction<String>> }) => {
+
+    const [statusItem, setStatusItem] = React.useState<INamedStatusItem>(props.StatusItem ?? {Name: props.Name, Status: "Loading", Details: []})
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated')
+
+    React.useEffect(() => {
+        if (props.URL == null) return
+
+        setStatus('loading')
+        const h = $.ajax({
+            type: props.Verb ?? "GET",
+            url: props.URL,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true
+        })
+
+        h.done((d) => {
+            setStatusItem(d)
+            setStatus('idle')
+        }).fail(() => {
+            setStatus('error')
+        })
+
+        return () => {
+            if (h.abort != null)
+                h.abort();
+        }
+    }, [props.URL])
+
     return (
         <div className="row mb-2 mx-2"
-        > {props.StatusItem.ServerError ? <div className="col-12"> <ServerErrorIcon Show={true} Label={"Server error occured."} /> </div>  :
-            <div className={`col-12 d-flex align-items-center alert-${GetStatusItemAlertClass(props.StatusItem.Status)}`}>
-                <span className={"my-3"}>{GetStatusSymbol(props.StatusItem.Status)}</span>
+        > {status === 'error' ? <div className="col-12"> <ServerErrorIcon Show={true} Label={"Server error occured."} /> </div>  :
+            <div className={`col-12 d-flex align-items-center alert-${GetStatusItemAlertClass(statusItem.Status)}`}>
+                <span className={"my-3"}>{GetStatusSymbol(statusItem.Status)}</span>
                 <h5
-                    onMouseEnter={() => props.SetHoveredItem(props.StatusItem.Name)}
+                    onMouseEnter={() => props.SetHoveredItem(statusItem.Name)}
                     onMouseLeave={() => props.SetHoveredItem(null)}
-                    data-tooltip={`statusbutton${props.StatusItem.Name}`}
+                    data-tooltip={`statusbutton${statusItem.Name}`}
                     className={"m-3"}
                 >
-                    {props.StatusItem.Name}
+                    {statusItem.Name}
                 </h5>
-                {props.StatusItem.Status === "N/A" ? <p className={"my-3 mx-2"}> {props.StatusItem.Name} is disabled. </p> : null}
-                {props.StatusItem.Status !== 'Error' ? null : <p className={"my-3 mx-2"}> {props.StatusItem.Details.find((detail) => detail.Status === 'Error')?.Description} </p>}
+                {statusItem.Status === "N/A" ? <p className={"my-3 mx-2"}> {statusItem.Name} is disabled. </p> : null}
+                {statusItem.Status !== 'Error' ? null : <p className={"my-3 mx-2"}> {statusItem.Details.find((detail) => detail.Status === 'Error')?.Description} </p>}
                 <ToolTip
-                    Show={props.HoveredItem === props.StatusItem.Name && props.StatusItem.Status !== 'Loading' && (props.StatusItem.Details ?? []).length > 0}
+                    Show={props.HoveredItem === statusItem.Name && statusItem.Status !== 'Loading' && (statusItem.Details ?? []).length > 0}
                     Position={'right'}
-                    Target={`statusbutton${props.StatusItem.Name}`}
+                    Target={`statusbutton${statusItem.Name}`}
                 >
-                    {props.StatusItem.Details == null ? <ReactIcons.SpiningIcon /> :
-                        props.StatusItem.Details.map((data, index) => (
+                    {statusItem.Details == null ? <ReactIcons.SpiningIcon /> :
+                        statusItem.Details.map((data, index) => (
                             <div
                                 className={'d-flex align-items-center'}
                                 key={index}
