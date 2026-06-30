@@ -171,10 +171,11 @@ public class LineSegmentWizardController : ApiController
     public IHttpActionResult PostTestConnection()
     {
 
-        AppStatus status = new()
+        NamedAppStatus status = new()
         {
             Status = "N/A",
-            Details = new()
+            Details = new(),
+            Name = "FAWG"
         };
 
         if (!useFawg)
