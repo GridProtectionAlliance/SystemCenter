@@ -803,6 +803,17 @@ namespace SystemCenter.Controllers.OpenXDA
                 .GetResponseTask($"api/SystemCenter/ITOA/Health")
                 .Result;
         }
+
+        [Route("AllConnectionsHealth")]
+        public HttpResponseMessage GetAllConnectionsHealth()
+        {
+            if (!XDAAPIHelper.TryRefreshSettings())
+                Log.Warn("Unable to refresh static XDA API object.");
+
+            return XDAAPIHelper
+                .GetResponseTask($"api/SystemCenter/Connections/Health")
+                .Result;
+        }
     }
 
     [RoutePrefix("api/OpenXDA/RemoteXDAAsset")]

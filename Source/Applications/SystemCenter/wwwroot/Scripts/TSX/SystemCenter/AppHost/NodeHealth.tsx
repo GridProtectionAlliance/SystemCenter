@@ -51,7 +51,7 @@ const NodeHealth = (props: IProps) => {
 
     const [statInfo, setStatInfo] = React.useState<string>('');
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
-    const [openMICStatus, setOpenMICStatus] = React.useState<INamedStatusItem>({ Name: 'openMIC', Status: 'Loading', Details: [] });
+    const [openMICStatus, setOpenMICStatus] = React.useState<INamedStatusItem>({ Name: 'openMIC', Status: 'Loading', Details: []});
 
     React.useEffect(() => {
         if (props.ApplicationType === 'openMIC') {
@@ -102,7 +102,6 @@ const NodeHealth = (props: IProps) => {
             setOpenMICStatus(d)
             setStatus('idle')
         }).fail(() => {
-            setOpenMICStatus({ Status: 'Error', Name: 'openMIC', Details: [{ Status: "Error", Description: "Errors occurred in retrieving openMIC health." }] })
             setStatus('error')
         })
 

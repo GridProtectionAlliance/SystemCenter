@@ -1582,11 +1582,6 @@ namespace SystemCenter.Controllers
     public class ExternalDatabasesController : ModelController<DetailedExternalDatabases, ExternalDatabases>
     {
 
-        private class NamedAppStatus : AppStatus
-        {
-            public string Name { get; set; }
-        }
-
         private static ServiceHost Host = Program.Host;
 
         public override IHttpActionResult Post([FromBody] JObject record)
@@ -1642,7 +1637,7 @@ namespace SystemCenter.Controllers
 
             foreach (ExternalDatabases externalDatabase in externalDatabases)
             {
-                AppStatus connectionStatus = GetConnectionStatus(externalDatabase);
+                AppStatus connectionStatus = CheckConnectivity(externalDatabase);
                 statuses.Add(new NamedAppStatus()
                 {
                     Name = externalDatabase.Name,
@@ -1661,50 +1656,16 @@ namespace SystemCenter.Controllers
 
             ExternalDatabases externalDatabase = record.ToObject<ExternalDatabases>();
 
-            return Ok(GetConnectionStatus(externalDatabase));
+            return Ok(CheckConnectivity(externalDatabase));
 
         }
 
-        private AppStatus GetConnectionStatus(ExternalDatabases extDB)
+        public static AppStatus CheckConnectivity(ExternalDatabases externalDatabase)
         {
-            AppStatus testDatabaseStatus = new()
-            {
-                Status = "Success",
-                Details = []
-            };
-            try
-            {
-                using (AdoDataConnection extConn = ScheduledExtDBTask.GetExternalConnection(extDB))
-                {
-                    string query;
-
-                    if (extConn.IsOracle)
-                        query = "SELECT 0 FROM dual"; // oracle adds the semicolon for you as a way to keep you from delimiting multiple statements.
-                    else
-                        query = "SELECT 0;";
-
-                    int result = extConn.ExecuteScalar<int>(query);
-
-                    if (result == 0)
-                    {
-                        testDatabaseStatus.Details.Add(new()
-                        {
-                            Status = "Success",
-                            Description = "Successfully connected to database."
-                        });
-                    }
-
-                    else
-                    {
-                        testDatabaseStatus.Status = "Warning";
-                    }
-                }
-            }
-            catch (InvalidOperationException e)
-            {
-                testDatabaseStatus = CreateErrorStatus(e);
-            }
-            return testDatabaseStatus;
+            if (externalDatabase.Encrypt)
+                return AppStatus.CheckConnectivity(externalDatabase.ConnectionString);
+            else
+                return AppStatus.CheckConnectivity(externalDatabase.ConnectionString, externalDatabase.DataProviderString);
         }
 
         public static AppStatus CreateErrorStatus(InvalidOperationException e)

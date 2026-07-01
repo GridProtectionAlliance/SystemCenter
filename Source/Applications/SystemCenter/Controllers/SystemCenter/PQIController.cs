@@ -139,10 +139,11 @@ namespace SystemCenter.Controllers
         [Route("Test"), HttpGet]
         public IHttpActionResult TestPQI()
         {
-            AppStatus appStatus = new()
+            NamedAppStatus appStatus = new()
             {
                 Status = "N/A",
-                Details = []
+                Details = [],
+                Name = "PQI"
             };
 
             if (String.IsNullOrEmpty(BaseURL))
