@@ -1637,7 +1637,7 @@ namespace SystemCenter.Controllers
 
             foreach (ExternalDatabases externalDatabase in externalDatabases)
             {
-                AppStatus connectionStatus = AppStatus.CheckConnectivity(externalDatabase.ConnectionString, externalDatabase.DataProviderString);
+                AppStatus connectionStatus = CheckConnectivity(externalDatabase);
                 statuses.Add(new NamedAppStatus()
                 {
                     Name = externalDatabase.Name,
@@ -1656,8 +1656,16 @@ namespace SystemCenter.Controllers
 
             ExternalDatabases externalDatabase = record.ToObject<ExternalDatabases>();
 
-            return Ok(AppStatus.CheckConnectivity(externalDatabase.ConnectionString, externalDatabase.DataProviderString));
+            return Ok(CheckConnectivity(externalDatabase));
 
+        }
+
+        public static AppStatus CheckConnectivity(ExternalDatabases externalDatabase)
+        {
+            if (externalDatabase.Encrypt)
+                return AppStatus.CheckConnectivity(externalDatabase.ConnectionString);
+            else
+                return AppStatus.CheckConnectivity(externalDatabase.ConnectionString, externalDatabase.DataProviderString);
         }
 
         public static AppStatus CreateErrorStatus(InvalidOperationException e)
