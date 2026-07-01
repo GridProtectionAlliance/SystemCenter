@@ -25,6 +25,8 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
+using Newtonsoft.Json;
+using System.Reflection;
 using System.Linq;
 using System.Transactions;
 using System.Web.Http;
@@ -63,6 +65,34 @@ namespace SystemCenter.Controllers.OpenXDA
             }
             else
                 return Unauthorized();
+        }
+
+        [HttpPost, Route("{assetID:int}/Locations/{page:int}")]
+        public IHttpActionResult GetAssetLocationsPaged([FromBody] PostData postData, [FromUri] int assetID, [FromUri] int page)
+        {
+            if (!GetAuthCheck())
+                return Unauthorized();
+
+            int recordsPerPage = Take ?? 50;
+
+            PagedResults results = new PagedResults();
+
+            results.RecordsPerPage = recordsPerPage;
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                IEnumerable<Location> records = new TableOperations<Location>(connection).QueryRecordsWhere("ID IN (SELECT LocationID FROM AssetLocation WHERE AssetID = {0})", assetID);
+
+                if (postData.Ascending)
+                    records = records.OrderBy(record => record.GetType().GetProperty(postData.OrderBy).GetValue(record));
+                else
+                    records = records.OrderByDescending(record => record.GetType().GetProperty(postData.OrderBy).GetValue(record));
+
+                results.TotalRecords = records.Count();
+                results.NumberOfPages = (records.Count() + recordsPerPage - 1) / recordsPerPage;
+                results.Data = JsonConvert.SerializeObject(records.Skip(page * recordsPerPage).Take(recordsPerPage));
+            }
+            return Ok(results);
         }
 
         [HttpGet, Route("{assetID:int}/AssetLocations")]
@@ -122,6 +152,33 @@ namespace SystemCenter.Controllers.OpenXDA
             }
             return Unauthorized();
         }
+        [HttpPost, Route("{assetID:int}/Meters/{page:int}")]
+        public IHttpActionResult GetAssetMetersPaged([FromBody] PostData postData, [FromUri] int assetID, [FromUri] int page)
+        {
+            if (!GetAuthCheck())
+                return Unauthorized();
+
+            int recordsPerPage = Take ?? 50;
+
+            PagedResults results = new PagedResults();
+
+            results.RecordsPerPage = recordsPerPage;
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                IEnumerable<Meter> records = new TableOperations<Meter>(connection).QueryRecordsWhere("ID IN (SELECT MeterID FROM MeterAsset WHERE AssetID = {0})", assetID);
+
+                if (postData.Ascending)
+                    records = records.OrderBy(record => record.GetType().GetProperty(postData.OrderBy).GetValue(record));
+                else
+                    records = records.OrderByDescending(record => record.GetType().GetProperty(postData.OrderBy).GetValue(record));
+
+                results.TotalRecords = records.Count();
+                results.NumberOfPages = (records.Count() + recordsPerPage - 1) / recordsPerPage;
+                results.Data = JsonConvert.SerializeObject(records.Skip(page * recordsPerPage).Take(recordsPerPage));
+            }
+            return Ok(results);
+        }
 
         [HttpGet, Route("{assetID:int}/AssetConnections")]
         public IHttpActionResult GetAssetAssetConnections(int assetID)
@@ -161,6 +218,64 @@ namespace SystemCenter.Controllers.OpenXDA
                 }
             }
             return Unauthorized();
+        }
+
+        [HttpPost, Route("{assetID:int}/AssetConnections/{page:int}")]
+        public IHttpActionResult GetAssetAssetConnectionsPaged([FromBody] PostData postData, [FromUri] int assetID, [FromUri] int page)
+        {
+            if (!GetAuthCheck())
+                return Unauthorized();
+
+            int recordsPerPage = Take ?? 50;
+
+            PagedResults results = new PagedResults();
+
+            string orderBy = "ID";
+
+            if (typeof(Asset).GetProperties().Select(prop => prop.Name).Contains(postData.OrderBy))
+                orderBy = postData.OrderBy;
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                DataTable records = connection.RetrieveData(@$"
+                        SELECT
+	                        AssetRelationship.AssetRelationshipTypeID,
+	                        AssetRelationshipType.Name,
+	                        Asset.ID as AssetID,
+	                        Asset.AssetKey,
+                            Asset.AssetName
+                        FROM
+	                        AssetRelationship JOIN
+	                        AssetRelationshipType ON AssetRelationship.AssetRelationshipTypeID = AssetRelationshipType.ID JOIN
+	                        Asset ON Asset.ID = (
+		                        CASE 
+			                        WHEN ParentID = {{0}} THEN AssetRelationship.ChildID
+			                        ELSE AssetRelationship.ParentID
+		                        END
+	                        )
+                        WHERE
+	                        ParentID = {{0}} OR ChildID = {{0}}
+                        ORDER BY {orderBy} {(postData.Ascending ? "ASC" : "DESC")}
+                    ", assetID);
+
+                int totalRecords = records.Rows.Count;
+
+                DataRow[] rows = records.AsEnumerable()
+                    .Skip((page) * recordsPerPage)
+                    .Take(recordsPerPage)
+                    .ToArray();
+
+                DataTable pagedTable = records.Clone();
+
+                foreach (DataRow row in rows)
+                    pagedTable.ImportRow(row);
+
+                results.TotalRecords = totalRecords;
+                results.NumberOfPages = (totalRecords + recordsPerPage - 1) / recordsPerPage;
+                results.Data = JsonConvert.SerializeObject(pagedTable);
+            }
+
+            return Ok(results);
         }
 
         [HttpGet, Route("{assetID:int}/OtherLocations")]
@@ -575,13 +690,8 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
 
-        [HttpGet, Route("{assetID:int}/ConnectedChannels")]
-        public IHttpActionResult GetAssetChannels(int assetID)
+        public IEnumerable<ChannelDetail> GetAssetChannels(int assetID)
         {
-            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
-            {
-                try
-                {
                     using (AdoDataConnection connection = new AdoDataConnection(Connection))
                     {
                         Asset asset = new TableOperations<Asset>(connection).QueryRecordWhere("ID={0}", assetID);
@@ -601,20 +711,51 @@ namespace SystemCenter.Controllers.OpenXDA
                             .QueryRecordsWhere($"ID in ({string.Join(", ", connectedChannels.Select(channels => channels.ID))})")
                             .DistinctBy(c => c.ID);
 
-                            return Ok(uniqueChannels);
+                    return uniqueChannels;
                         }
                         else
                         {
-                            return Ok(new List<ChannelDetail>());
+                    return new List<ChannelDetail>();
                         }
+
                     }
-                } catch (Exception ex)
+        }
+
+        [HttpPost, Route("{assetID:int}/ConnectedChannels/{page:int}")]
+        public IHttpActionResult GetConnectedChannelsPaged([FromBody] PostData postData, [FromUri] int assetID, [FromUri] int page)
                 {
-                    return InternalServerError(ex);
-                }
-            }
-            else
+            if (!GetAuthCheck())
                 return Unauthorized();
+
+            int recordsPerPage = Take ?? 50;
+
+            IEnumerable<ChannelDetail> uniqueChannels = GetAssetChannels(assetID);
+
+            int totalRecords = uniqueChannels.Count();
+
+            BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance;
+
+            if (postData.OrderBy == "Phase" || postData.OrderBy == "MeasurementType")
+                bindingFlags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly;
+
+            if (postData.Ascending)
+                uniqueChannels = uniqueChannels.OrderBy(item => item.GetType().GetProperty(postData.OrderBy, bindingFlags).GetValue(item));
+            else
+                uniqueChannels = uniqueChannels.OrderByDescending(item => item.GetType().GetProperty(postData.OrderBy, bindingFlags).GetValue(item));
+
+            uniqueChannels = uniqueChannels
+                .Skip(recordsPerPage * page)
+                .Take(recordsPerPage);
+
+            PagedResults pagedResults = new PagedResults()
+            {
+                Data = JsonConvert.SerializeObject(uniqueChannels),
+                RecordsPerPage = recordsPerPage,
+                TotalRecords = totalRecords,
+                NumberOfPages = (totalRecords + recordsPerPage - 1) / recordsPerPage
+            };
+
+            return Ok(pagedResults);
         }
 
 

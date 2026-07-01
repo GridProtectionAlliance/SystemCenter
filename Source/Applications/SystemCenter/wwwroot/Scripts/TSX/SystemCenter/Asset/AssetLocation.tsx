@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { useNavigate } from "react-router-dom";
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols'
 import { useAppSelector } from '../hooks';
@@ -34,15 +34,17 @@ import { ToolTip } from '@gpa-gemstone/react-forms';
 
 declare var homePath: string;
 
-function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
+function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element {
     let navigate = useNavigate();
     const [locations, setLocations] = React.useState<Array<OpenXDA.Types.Location>>([]);
     const [sortField, setSortField] = React.useState<keyof (OpenXDA.Types.Location)>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [allLocations, setAllLocations] = React.useState<Array<OpenXDA.Types.Location>>([]);
     const [newLocation, setNewLocation] = React.useState<OpenXDA.Types.Location>();
-    const [hover, setHover] = React.useState<string|undefined>(undefined);
+    const [hover, setHover] = React.useState<string | undefined>(undefined);
     const [showModal, setShowModal] = React.useState<boolean>(false);
+    const [page, setPage] = React.useState<number>(0);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
     const roles = useAppSelector(SelectRoles);
 
     function hasPermissions(): boolean {
@@ -50,6 +52,10 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
             return false;
         return true;
     }
+
+    React.useEffect(() => {
+        return getData();
+    }, [ascending, sortField, page])
 
     React.useEffect(() => {
         getData();
@@ -62,20 +68,17 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
 
     function getLocations(): void {
         $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/Asset/${props.Asset.ID}/Locations`,
+            type: "POST",
+            url: `${homePath}api/OpenXDA/Asset/${props.Asset.ID}/Locations/${page}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
-            async: true
-        }).done(data => {
-            const sortedLocations = sortData(sortField, ascending, data);
-            setLocations(sortedLocations);
+            async: true,
+            data: JSON.stringify({ OrderBy: sortField, Ascending: ascending })
+        }).done(d => {
+            setLocations(JSON.parse(d.Data));
+            setTotalPages(d.NumberOfPages);
         });
-    }
-
-    function sortData(key: keyof OpenXDA.Types.Location, ascending: boolean, data: OpenXDA.Types.Location[]) {
-        return _.orderBy(data, [key], [(ascending ? "asc" : "desc")]);
     }
 
     function getAllOtherLocations(): void {
@@ -139,96 +142,103 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
                     </div>
                 </div>
             </div>
-            <div className="card-body" style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-                <Table<OpenXDA.Types.Location>
-                    TableClass="table table-hover"
-                    Data={locations}
-                    SortKey={sortField}
-                    Ascending={ascending}
-                    OnSort={(d) => {
-                        if (d.colKey == sortField) {
-                            setAscending(!ascending);
-                            const ordered = _.orderBy(locations, [d.colKey], [(!ascending ? "asc" : "desc")]);
-                            setLocations(ordered);
-                        }
-                        else {
-                            setAscending(true);
-                            setSortField(d.colField);
-                            const ordered = _.orderBy(locations, [d.colKey], ["asc"]);
-                            setLocations(ordered);
-                        }
-                    }}
-                    TableStyle={{ height: '100%' }}
-                    TheadStyle={{ fontSize: 'smaller' }}
-                    RowStyle={{ fontSize: 'smaller' }}
-                    OnClick={handleSelect}
-                    Selected={(item) => false}
-                    KeySelector={(item) => item.ID}
-                >
-                    <Column<OpenXDA.Types.Location>
-                        Key={'Name'}
-                        AllowSort={true}
-                        Field={'Name'}
-                        HeaderStyle={{ width: '30%' }}
-                        RowStyle={{ width: '30%' }}
-                    > Name
-                    </Column>
-                    <Column<OpenXDA.Types.Location>
-                        Key={'LocationKey'}
-                        AllowSort={true}
-                        Field={'LocationKey'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                    > Key
-                    </Column>
-                    <Column<OpenXDA.Types.Location>
-                        Key={'Latitude'}
-                        AllowSort={true}
-                        Field={'Latitude'}
-                        HeaderStyle={{ width: '15%' }}
-                        RowStyle={{ width: '15%' }}
-                    > Latitude
-                    </Column>
-                    <Column<OpenXDA.Types.Location>
-                        Key={'Longitude'}
-                        AllowSort={true}
-                        Field={'Longitude'}
-                        HeaderStyle={{ width: '15%' }}
-                        RowStyle={{ width: '15%' }}
-                    > Longitude
-                    </Column>
-                    <Column<OpenXDA.Types.Location>
-                        Key={'Delete'}
-                        AllowSort={false}
-                        HeaderStyle={{ width: '10%' }}
-                        RowStyle={{ width: '10%' }}
-                        Content={({ item }) => <>
-                            <button className={"btn btn-sm" + (!hasPermissions ? ' disabled' : '')}
-                                onClick={(e) => {
-                                    if (hasPermissions) {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        deleteLocation(item);
-                                    }
-                                }}
-                                data-tooltip={item.ID.toString()}
-                                onMouseEnter={() => setHover(item.ID.toString())} onMouseLeave={() => setHover(undefined)}
-                            >
-                                <span>
-                                    <ReactIcons.TrashCan Color="var(--danger)" Size={20} />
-                                </span>
-                            </button>
-                        </> }
-                    > <p></p>
-                    </Column>
-                </Table>
+            <div className="card-body d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="row d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
+                    <Table<OpenXDA.Types.Location>
+                        TableClass="table table-hover"
+                        Data={locations}
+                        SortKey={sortField}
+                        Ascending={ascending}
+                        OnSort={(d) => {
+                            if (d.colKey == sortField) {
+                                setAscending(!ascending);
+                            }
+                            else {
+                                setAscending(true);
+                                setSortField(d.colField);
+                            }
+                        }}
+                        TableStyle={{ height: '100%' }}
+                        TheadStyle={{ fontSize: 'smaller' }}
+                        RowStyle={{ fontSize: 'smaller' }}
+                        OnClick={handleSelect}
+                        Selected={(item) => false}
+                        KeySelector={(item) => item.ID}
+                    >
+                        <Column<OpenXDA.Types.Location>
+                            Key={'Name'}
+                            AllowSort={true}
+                            Field={'Name'}
+                            HeaderStyle={{ width: '30%' }}
+                            RowStyle={{ width: '30%' }}
+                        > Name
+                        </Column>
+                        <Column<OpenXDA.Types.Location>
+                            Key={'LocationKey'}
+                            AllowSort={true}
+                            Field={'LocationKey'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Key
+                        </Column>
+                        <Column<OpenXDA.Types.Location>
+                            Key={'Latitude'}
+                            AllowSort={true}
+                            Field={'Latitude'}
+                            HeaderStyle={{ width: '15%' }}
+                            RowStyle={{ width: '15%' }}
+                        > Latitude
+                        </Column>
+                        <Column<OpenXDA.Types.Location>
+                            Key={'Longitude'}
+                            AllowSort={true}
+                            Field={'Longitude'}
+                            HeaderStyle={{ width: '15%' }}
+                            RowStyle={{ width: '15%' }}
+                        > Longitude
+                        </Column>
+                        <Column<OpenXDA.Types.Location>
+                            Key={'Delete'}
+                            AllowSort={false}
+                            HeaderStyle={{ width: '10%' }}
+                            RowStyle={{ width: '10%' }}
+                            Content={({ item }) => <>
+                                <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
+                                    onClick={(e) => {
+                                        if (hasPermissions()) {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            deleteLocation(item);
+                                        }
+                                    }}
+                                    data-tooltip={item.ID.toString()}
+                                    onMouseEnter={() => setHover(item.ID.toString())} onMouseLeave={() => setHover(undefined)}
+                                >
+                                    <span>
+                                        <ReactIcons.TrashCan Color="var(--danger)" Size={20} />
+                                    </span>
+                                </button>
+                            </>}
+                        > <p></p>
+                        </Column>
+                    </Table>
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <Paging
+                            Total={totalPages}
+                            Current={page + 1}
+                            SetPage={(page) => setPage(page - 1)}
+                        />
+                    </div>
+                </div>
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-info pull-right" + (!hasPermissions ? ' disabled' : '')} data-tooltip='Update'
-                        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover(undefined)} onClick={(evt) => { if (hasPermissions) setShowModal(true); }}>Add Substation</button>
+                    <button className={"btn btn-info pull-right" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='Update'
+                        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover(undefined)} onClick={(evt) => { if (hasPermissions()) setShowModal(true); }}>Add Substation</button>
                 </div>
-                <ToolTip Show={hover != null && !hasPermissions} Position={hover === 'Update' ? "top" : "left"} Target={hover}>
+                <ToolTip Show={hover != null && !hasPermissions()} Position={hover === 'Update' ? "top" : "left"} Target={hover}>
                     <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                 </ToolTip>
             </div>
@@ -241,19 +251,19 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
                     setShowModal(false)
                 }}
                 ConfirmText={'Save'} DisableConfirm={allLocations.length === 0}>
-                    
-                        <div className="form-group">
-                            <label>Substation</label>
-                            <select className="form-control" value={newLocation != null ? newLocation.ID : '0'} onChange={(evt) => {
-                                setNewLocation(allLocations.find(l => l.ID.toString() == evt.target.value));
-                            }}>
-                                {allLocations.map(als => <option value={als.ID} key={als.ID}>{als.Name} ({als.LocationKey})</option>)}
-                            </select>
-                        </div>
+
+                <div className="form-group">
+                    <label>Substation</label>
+                    <select className="form-control" value={newLocation != null ? newLocation.ID : '0'} onChange={(evt) => {
+                        setNewLocation(allLocations.find(l => l.ID.toString() == evt.target.value));
+                    }}>
+                        {allLocations.map(als => <option value={als.ID} key={als.ID}>{als.Name} ({als.LocationKey})</option>)}
+                    </select>
+                </div>
             </Modal>
 
         </div>
-                
+
     );
 
 }

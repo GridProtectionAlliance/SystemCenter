@@ -25,7 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { PhaseSlice, MeasurmentTypeSlice } from '../Store/Store'
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { useAppSelector } from '../hooks';
 import { LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
@@ -73,6 +73,8 @@ const AssetChannelWindow = (props: IProps) => {
     const [status, setStatus] = React.useState<Application.Types.Status>('idle');
     const [sortField, setSortField] = React.useState<keyof (ChannelDetail)>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
+    const [page, setPage] = React.useState<number>(0);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
 
     React.useEffect(() => {
         let channelHandle = getChannels();
@@ -83,30 +85,27 @@ const AssetChannelWindow = (props: IProps) => {
             if (channelHandle != null && channelHandle.abort != null)
                 channelHandle.abort();
         }
-    }, [props.ID]);
+    }, [props.ID, ascending, page, sortField]);
 
     function getChannels(): JQuery.jqXHR<ChannelDetail[]> {
         setStatus('loading');
         return $.ajax(
             {
-                type: "GET",
-                url: `${homePath}api/OpenXDA/Asset/${props.ID}/ConnectedChannels`,
-                contentType: "application/json; charset=utf-A",
+                type: "POST",
+                url: `${homePath}api/OpenXDA/Asset/${props.ID}/ConnectedChannels/${page}`,
+                contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,
-                async: true
+                async: true,
+                data: JSON.stringify({OrderBy: sortField, Ascending: ascending, Searches: []})
             }
         ).done(
-            (d: Array<ChannelDetail>) => {
-                const sortedChannels = sortData(sortField, ascending, d);
-                setAssetChannels(sortedChannels)
+            (d) => {
+                setAssetChannels(JSON.parse(d.Data))
+                setTotalPages(d.NumberOfPages)
                 setStatus('idle');
             }
         ).fail(() => setStatus('error'));
-    }
-
-    function sortData(key: keyof ChannelDetail, ascending: boolean, data: ChannelDetail[]) {
-        return _.orderBy(data, [key], [(ascending ? "asc" : "desc")]);
     }
 
     if (status == 'error' || pStatus == 'error' || mtStatus == 'error')
@@ -155,22 +154,21 @@ const AssetChannelWindow = (props: IProps) => {
                 </div>
             </div>
             <div className="card-body" style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                <div className="row d-flex flex-column" style={{ flex: '1 1 0%', overflow: 'hidden' }}>
+                    <div className="col d-flex flex-column" style={{ overflow: 'hidden' }}>
                 <Table<ChannelDetail>
                     TableClass="table table-hover"
                     Data={assetChannels}
                     SortKey={sortField}
                     Ascending={ascending}
                     OnSort={(d) => {
+                                setPage(0)
                         if (d.colKey == sortField) {
                             setAscending(!ascending);
-                            const ordered = _.orderBy(assetChannels, [d.colKey], [(!ascending ? "asc" : "desc")]);
-                            setAssetChannels(ordered);
                         }
                         else {
                             setAscending(true);
                             setSortField(d.colField);
-                            const ordered = _.orderBy(assetChannels, [d.colKey], ["asc"]);
-                            setAssetChannels(ordered);
                         }
                     }}
                     TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
@@ -243,6 +241,17 @@ const AssetChannelWindow = (props: IProps) => {
                     > Description
                     </Column>
                 </Table>
+            </div>
+        </div>
+                <div className="row">
+                    <div className="col">
+                        <Paging
+                            Current={page + 1}
+                            SetPage={(p) => { setPage(p - 1) }}
+                            Total={totalPages}
+                        />
+                    </div>
+                </div>
             </div>
         </div>
     );

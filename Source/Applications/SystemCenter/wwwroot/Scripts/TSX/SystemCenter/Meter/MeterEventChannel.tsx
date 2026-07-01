@@ -31,11 +31,11 @@ import { Input, Select, ToolTip } from '@gpa-gemstone/react-forms';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { OpenXDA } from '../global';
-import { SelectAscending, SelectSortKey, SelectEventChannels, SelectEventChannelStatus, SelectMeterID, dBAction } from '../Store/EventChannelSlice';
-import { FetchChannels } from '../Store/EventChannelSlice';
+import { SelectEventChannels, SelectEventChannelStatus, SelectMeterID, dBAction, SelectPagedData, SelectNumberOfPages } from '../Store/EventChannelSlice';
+import { FetchChannels, PagedSearch } from '../Store/EventChannelSlice';
 import { IsNumber } from '@gpa-gemstone/helper-functions';
 import { cloneDeep } from 'lodash';
-import { ConfigurableTable, ConfigurableColumn, Column } from '@gpa-gemstone/react-table';
+import { ConfigurableTable, ConfigurableColumn, Column, Paging } from '@gpa-gemstone/react-table';
 import { SelectRoles } from '../Store/UserSettings';
 
 declare var homePath: string;
@@ -47,8 +47,9 @@ const MeterEventChannelWindow = (props: IProps) => {
     const dispatch = useAppDispatch();
 
     const data = useAppSelector(SelectEventChannels);
-    const sortKey = useAppSelector(SelectSortKey)
-    const ascending = useAppSelector(SelectAscending)
+    const pagedData = useAppSelector(SelectPagedData);
+    const [ascending, setAscending] = React.useState<boolean>(true);
+    const [sortKey, setSortKey] = React.useState<keyof OpenXDA.EventChannel>('Name')
     const status = useAppSelector(SelectEventChannelStatus);
     const meterID = useAppSelector(SelectMeterID);
 
@@ -65,10 +66,14 @@ const MeterEventChannelWindow = (props: IProps) => {
     const [removeRecord, setRemoveRecord] = React.useState<OpenXDA.EventChannel|null>(null);
 
     const [errors, setErrors] = React.useState<string[]>([]);
+    const totalPages = useAppSelector(SelectNumberOfPages);
+    const [page, setPage] = React.useState<number>(0);
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None' | 'Add')>('None');
     const roles = useAppSelector(SelectRoles);
 
-
+    React.useEffect(() => {
+        dispatch(PagedSearch({ meterId: props.Meter.ID, page: page, ascending: ascending, sortField: sortKey }));
+    }, [ascending, sortKey, page, props.Meter.ID])
 
     React.useEffect(() => {
         if (pStatus == 'uninitiated' || pStatus == 'changed')
@@ -83,7 +88,12 @@ const MeterEventChannelWindow = (props: IProps) => {
     React.useEffect(() => {
         if (status == 'uninitiated' || meterID !== props.Meter.ID || status == 'changed')
             dispatch(FetchChannels({ meterId: props.Meter.ID }));
-    }, [props.Meter,status])
+    }, [props.Meter, status])
+
+    React.useEffect(() => {
+        if (status == 'uninitiated' || meterID !== props.Meter.ID || status == 'changed')
+            dispatch(PagedSearch({ meterId: props.Meter.ID, page: page, ascending: ascending, sortField: sortKey }));
+    }, [props.Meter, status])
 
     React.useEffect(() => {
         if (!props.IsVisible)
@@ -243,12 +253,12 @@ const MeterEventChannelWindow = (props: IProps) => {
                     </div>
                 </div>
             </div>
-            <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
-                <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <div className="card-body d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="row d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
                     <ConfigurableTable<OpenXDA.EventChannel>
                         LocalStorageKey="MeterEventChannelConfigTable"
                         TableClass="table table-hover"
-                        Data={data.map(c => replicateChanges(c))}
+                        Data={pagedData.map(c => replicateChanges(c))}
                         TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         TbodyStyle={{ display: 'block', width: '100%', overflowY: 'auto', flex: 1 }}
@@ -258,10 +268,12 @@ const MeterEventChannelWindow = (props: IProps) => {
                         SortKey={sortKey}
                         Ascending={ascending}
                         OnSort={(d) => {
-                            if (d.colKey === sortKey)
-                                dispatch(FetchChannels({ sortField: d.colField, ascending: !ascending, meterId: props.Meter.ID }));
-                            else
-                                dispatch(FetchChannels({ sortField: d.colField, ascending: true, meterId: props.Meter.ID }));
+                            if (d.colKey == sortKey) {
+                                setAscending(a => !a);
+                            }
+                            else {
+                                setSortKey(d.colField);
+                            }
                         }}
                     >
                         <ConfigurableColumn Key='SourceIndices' Label='Channel' Default={true}>
@@ -402,7 +414,15 @@ const MeterEventChannelWindow = (props: IProps) => {
                             <p></p>
                         </Column>
                     </ConfigurableTable>
-
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <Paging
+                            Current={page + 1}
+                            Total={totalPages}
+                            SetPage={(page) => setPage(page - 1)}
+                        />
+                    </div>
                 </div>
             </div>
             <div className="card-footer">

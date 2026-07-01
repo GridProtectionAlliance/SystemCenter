@@ -29,12 +29,14 @@ import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { useAppSelector, useAppDispatch } from '../../hooks';
 import { MeasurementCharacteristicSlice, MeasurmentTypeSlice, PhaseSlice } from '../../Store/Store';
 import { LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ChannelScalingWrapper, ChannelScalingType, IMultiplier } from './ChannelScalingWrapper';
 import { Input, ToolTip } from '@gpa-gemstone/react-forms';
 import { SelectRoles } from '../../Store/UserSettings';
 
 declare let homePath: string;
+
+const RecordsPerPage = 50;
 
 interface IProps {
     Channels: OpenXDA.Types.Channel[],
@@ -59,6 +61,8 @@ const ChannelScalingForm = (props: IProps) => {
     const mcStatus = useAppSelector(MeasurementCharacteristicSlice.Status) as Application.Types.Status;
     const [status, setStatus] = React.useState<Application.Types.Status>('idle');
 
+    //const totalPages = useAppSelector(TrendChannelSlice.TotalPages);
+    const [page, setPage] = React.useState<number>(0);
     const [hover, setHover] = React.useState<('Reset' | 'None' | 'Replace' | 'Adjust')>('None');
     const roles = useAppSelector(SelectRoles);
 
@@ -201,10 +205,10 @@ const ChannelScalingForm = (props: IProps) => {
                             }} Valid={(f) => true} />
                     </div>
                 </div>
-                <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden'}}>
+                <div className="row d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
                     <Table<ChannelScalingWrapper>
                         TableClass="table table-hover"
-                        Data={Wrappers}
+                        Data={Wrappers.slice(RecordsPerPage*page, RecordsPerPage*(page+1))}
                         SortKey={''}
                         Ascending={false}
                         OnSort={(d) => { }}
@@ -270,12 +274,21 @@ const ChannelScalingForm = (props: IProps) => {
                         > If Adjusted
                         </Column>
                     </Table>
-                </div> 
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <Paging
+                            Current={page + 1}
+                            Total={Math.floor((Wrappers.length + RecordsPerPage - 1) / RecordsPerPage)}
+                            SetPage={(page) => setPage(page - 1)}
+                        />
+                    </div>
+                </div>
             </>
 
     return (
         <>
-            <div className="card-body" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <div className="card-body d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
                 {cardBody}
             </div>
             <div className="card-footer">

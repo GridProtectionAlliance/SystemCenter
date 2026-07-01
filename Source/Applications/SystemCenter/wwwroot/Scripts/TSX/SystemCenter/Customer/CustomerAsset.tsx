@@ -27,7 +27,7 @@ import { OpenXDA as LocalXDA } from '../global';
 import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { CustomerAssetSlice } from '../Store/Store'
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { LoadingIcon, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
 import { ToolTip } from '@gpa-gemstone/react-forms';
@@ -38,21 +38,31 @@ declare var homePath: string;
 interface IProps { Customer: OpenXDA.Types.Customer }
 const CustomerAssetWindow = (props: IProps) => {
     const dispatch = useAppDispatch();
-    const data = useAppSelector(CustomerAssetSlice.Data);
+    const data = useAppSelector(CustomerAssetSlice.SearchResults);
     const status = useAppSelector(CustomerAssetSlice.Status);
     const [showAdd, setShowAdd] = React.useState<boolean>(false);
 
-    const sortField = useAppSelector(CustomerAssetSlice.SortField);
-    const ascending = useAppSelector(CustomerAssetSlice.Ascending);
+    const [sortField, setSortField] = React.useState<keyof LocalXDA.CustomerAsset>('AssetName')
+    const [ascending, setAscending] = React.useState<boolean>(true)
+    const totalPages = useAppSelector(CustomerAssetSlice.TotalPages);
+    const [page, setPage] = React.useState<number>(0);
 
     const [removeRecord, setRemoveRecord] = React.useState<LocalXDA.CustomerAsset | null>(null);
 
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
     const roles = useAppSelector(SelectRoles)
 
+    const getData = React.useCallback(() => {
+        dispatch(CustomerAssetSlice.PagedSearch({ filter: [{ FieldName: 'CustomerID', IsPivotColumn: false, Operator: '=', SearchText: props.Customer.ID.toString(), Type: 'number' }], sortField, ascending, page }))
+        }, [props.Customer.ID, sortField, ascending, page, CustomerAssetSlice.PagedSearch])
+
+    React.useEffect(() => {
+        getData();
+    }, [props.Customer.ID, sortField, ascending, page])
+
     React.useEffect(() => {
         if (status == 'uninitiated' || status == 'changed')
-            dispatch(CustomerAssetSlice.Fetch());
+            getData();
     }, [status]);
 
     function saveCustomerAssets(m: SystemCenter.Types.DetailedAsset[]) {
@@ -115,82 +125,95 @@ const CustomerAssetWindow = (props: IProps) => {
         </div>
 
     return <>
-    <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        <div className="card-header">
-            <div className="row">
-                <div className="col">
-                    <h4>Assigned Assets:</h4>
+        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <div className="card-header">
+                <div className="row">
+                    <div className="col">
+                        <h4>Assigned Assets:</h4>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
-            <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-                <Table<LocalXDA.CustomerAsset>
-                    TableClass="table table-hover"
-                    Data={data}
-                    SortKey={sortField}
-                    Ascending={ascending}
-                    OnSort={(d) => {
-                        if (d.colKey == 'Remove')
-                            return;
-                        dispatch(CustomerAssetSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
-                    }}
-                    TheadStyle={{ fontSize: 'smaller' }}
-                    RowStyle={{ fontSize: 'smaller' }}
-                    Selected={(item) => false}
-                    KeySelector={(item) => item.ID}
-                >
-                    <Column<LocalXDA.CustomerAsset>
-                        Key={'AssetName'}
-                        AllowSort={true}
-                        Field={'AssetName'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                    > Name
-                    </Column>
-                    <Column<LocalXDA.CustomerAsset>
-                        Key={'AssetKey'}
-                        AllowSort={true}
-                        Field={'AssetKey'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                    > Key
-                    </Column>
-                    <Column<LocalXDA.CustomerAsset>
-                        Key={'AssetType'}
-                        AllowSort={true}
-                        Field={'AssetType'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                    > Type
-                    </Column>
-                    <Column<LocalXDA.CustomerAsset>
-                        Key={'Remove'}
-                        AllowSort={false}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                        Content={({ item }) =>
-                            <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
-                                onClick={(e) => { if (hasPermissions()) setRemoveRecord(item) }}>
-                                <span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span>
-                            </button>
-                        }
-                    > <p></p>
-                    </Column>
-                </Table>
+            <div className="card-body d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="row d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
+                    <Table<LocalXDA.CustomerAsset>
+                        TableClass="table table-hover"
+                        Data={data}
+                        SortKey={sortField}
+                        Ascending={ascending}
+                        OnSort={(d) => {
+                            if (d.colKey == sortField) {
+                                setAscending(a => !a);
+                            }
+                            else {
+                                setSortField(d.colField);
+                            }
+                        }}
+                        TheadStyle={{ fontSize: 'smaller' }}
+                        RowStyle={{ fontSize: 'smaller' }}
+                        Selected={(item) => false}
+                        KeySelector={(item) => item.ID}
+                    >
+                        <Column<LocalXDA.CustomerAsset>
+                            Key={'AssetName'}
+                            AllowSort={true}
+                            Field={'AssetName'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Name
+                        </Column>
+                        <Column<LocalXDA.CustomerAsset>
+                            Key={'AssetKey'}
+                            AllowSort={true}
+                            Field={'AssetKey'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Key
+                        </Column>
+                        <Column<LocalXDA.CustomerAsset>
+                            Key={'AssetType'}
+                            AllowSort={true}
+                            Field={'AssetType'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Type
+                        </Column>
+                        <Column<LocalXDA.CustomerAsset>
+                            Key={'Remove'}
+                            AllowSort={false}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={({ item }) =>
+                                <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
+                                    onClick={(e) => { if (hasPermissions()) setRemoveRecord(item) }}>
+                                    <span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span>
+                                </button>
+                            }
+                        > <p></p>
+                        </Column>
+                    </Table>
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <Paging
+                            Total={totalPages}
+                            SetPage={(page) => setPage(page - 1)}
+                            Current={page + 1}
+                        />
+                    </div>
+                </div>
             </div>
-        </div>
-        <div className="card-footer">
-            <div className="btn-group mr-2">
+            <div className="card-footer">
+                <div className="btn-group mr-2">
                     <button className={"btn btn-info pull-right" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='AssignedAssets'
-                        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (hasPermissions())
-                        setShowAdd(true);
-                }}>Add Assets</button>
-            </div>
+                        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => {
+                            if (hasPermissions())
+                                setShowAdd(true);
+                        }}>Add Assets</button>
+                </div>
                 <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Target={"AssignedAssets"}>
                     <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                 </ToolTip>
-        </div>
+            </div>
         </div>
         <Warning Message={'This will permanently remove the Asset from this Customer and can affect PQ Digest, PQI results, and LSCVS logic.'} Show={removeRecord != null} Title={'Remove ' + (removeRecord?.AssetName ?? 'Asset') + ' from ' + (props.Customer?.Name ?? 'Customer')} CallBack={(c) => { if (c) dispatch(CustomerAssetSlice.DBAction({ record: removeRecord, verb: 'DELETE' })); setRemoveRecord(null); }} />
         <AssetSelect Type='multiple' StorageID='CustomerAsset' ShowModal={showAdd} SelectedAssets={[]}

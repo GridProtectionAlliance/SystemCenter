@@ -23,13 +23,13 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { SystemCenter } from '@gpa-gemstone/application-typings';
-import { useAppSelector, useAppDispatch } from '../hooks';
+import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
+import { useAppSelector } from '../hooks';
 import { ValueListSlice } from '../Store/Store';
 import ValueListForm from './ValueListForm';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { Modal } from '@gpa-gemstone/react-interactive';
+import { Modal, Search, GenericController } from '@gpa-gemstone/react-interactive';
 import { ValueListItemDelete, RequiredValueLists } from './ValueListGroupDelete';
 import { ToolTip } from '@gpa-gemstone/react-forms';
 
@@ -37,23 +37,23 @@ interface IProps {
     Record: SystemCenter.Types.ValueListGroup
 }
 
+
 export default function ValueListGroupItems(props: IProps) {
-    const dispatch = useAppDispatch();
-
-    const data = useAppSelector(ValueListSlice.Data);
-    const sortKey = useAppSelector(ValueListSlice.SortField);
-    const asc = useAppSelector(ValueListSlice.Ascending);
-    const status = useAppSelector(ValueListSlice.Status);
-    const parentID= useAppSelector(ValueListSlice.ParentID);
-
-    const emptyRecord: SystemCenter.Types.ValueListItem = { ID: 0, GroupID: parentID as number, Value: '', AltValue: null, SortOrder: 0 };
+    const [data, setData] = React.useState<SystemCenter.Types.ValueListItem[]>([])
+    const emptyRecord: SystemCenter.Types.ValueListItem = { ID: 0, GroupID: props.Record.ID, Value: '', AltValue: null, SortOrder: 0 };
     const [record, setRecord] = React.useState<SystemCenter.Types.ValueListItem>(emptyRecord);
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [errors, setErrors] = React.useState<string[]>([]);
-
     const [countDictionary, setCountDictionary] = React.useState<{ [key: string]: number }>({});
     const [hover, setHover] = React.useState<string>('');
+    const [ascending, setAscending] = React.useState<boolean>(true);
+    const [sortField, setSortField] = React.useState<keyof SystemCenter.Types.ValueListItem>('SortOrder')
+    const [page, setPage] = React.useState<number>(0);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated')
+
+    const controller = React.useMemo(() => new GenericController<SystemCenter.Types.ValueListItem>(`${homePath}api/ValueList`, 'SortOrder'), []);
 
     const disallowReason = React.useCallback((ID: string) => {
         if (!RequiredValueLists.includes(props.Record?.Name))
@@ -67,9 +67,36 @@ export default function ValueListGroupItems(props: IProps) {
     }, [props.Record?.Name, data.length, countDictionary]);
 
     React.useEffect(() => {
-        if (status == 'uninitiated' || status == 'changed' || parentID != props.Record.ID)
-            dispatch(ValueListSlice.Fetch(props.Record.ID));
-    }, [status, parentID, props.Record.ID]);
+        setStatus('loading')
+        const h = pagedSearch(controller, props.Record, sortField, ascending, page)
+        h.done((d) => {
+            setData(JSON.parse(d.Data as unknown as string))
+            setTotalPages(d.NumberOfPages)
+            setStatus('idle')
+        }).fail((d) => {
+            setStatus('error')
+        })
+        return () => {
+            if (h.abort != undefined) h.abort();
+        }
+    }, [pagedSearch, sortField, ascending, page, props.Record]);
+
+    React.useEffect(() => {
+        if (status === 'changed') {
+            setStatus('loading')
+            const h = pagedSearch(controller, props.Record, sortField, ascending, page)
+            h.done((d) => {
+                setData(JSON.parse(d.Data as unknown as string))
+                setTotalPages(d.NumberOfPages)
+                setStatus('idle')
+            }).fail((d) => {
+                setStatus('error')
+            })
+            return () => {
+                if (h.abort != undefined) h.abort();
+            }
+        }
+    }, [pagedSearch, sortField, ascending, page, status, props.Record])
 
     React.useEffect(() => {
         if (props.Record?.Name == null) return;
@@ -88,7 +115,7 @@ export default function ValueListGroupItems(props: IProps) {
     }, [props.Record?.Name]);
 
     return (
-        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <div className="card h-100">
             <div className="card-header">
                 <div className="row">
                     <div className="col">
@@ -96,89 +123,103 @@ export default function ValueListGroupItems(props: IProps) {
                     </div>
                 </div>
             </div>
-            <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
-                <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', padding: 0 }}>
-                    <Table<SystemCenter.Types.ValueListItem>
-                        TableClass="table table-hover"
-                        Data={data}
-                        SortKey={sortKey}
-                        Ascending={asc}
-                        OnSort={(d) => {
-                            if (d.colKey == 'btns')
-                                return;
-                            dispatch(ValueListSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
-                        }}
-                        TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
-                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1, width: '100%' }}
-                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        Selected={(item) => false}
-                        KeySelector={(item) => item.ID}
-                    >
-                        <Column<SystemCenter.Types.ValueListItem>
-                            Key={'Value'}
-                            AllowSort={true}
-                            Field={'Value'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Value
-                        </Column>
-                        <Column<SystemCenter.Types.ValueListItem>
-                            Key={'AltValue'}
-                            AllowSort={true}
-                            Field={'AltValue'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Label
-                        </Column>
-                        <Column<SystemCenter.Types.ValueListItem>
-                            Key={'SortOrder'}
-                            AllowSort={true}
-                            Field={'SortOrder'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Sort Order
-                        </Column>
-                        <Column<SystemCenter.Types.ValueListItem>
-                            Key={'btns'}
-                            AllowSort={false}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                            Content={({ item }) => {
-                                const id = item.ID.toString();
-                                const isDisallowed = disallowReason(id) != null;
-                                return (
-                                    <>
-                                        <button
-                                            className="btn btn-sm"
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                setRecord(item);
-                                                setShowModal(true);
-                                            }}
-                                        >
-                                            <ReactIcons.Pencil Color="var(--warning)" Size={20} />
-                                        </button>
-                                        <button
-                                            className={`btn btn-sm${isDisallowed ? " disabled" : ""}`}
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                if (isDisallowed) return;
-                                                setRecord(item);
-                                                setShowWarning(true);
-                                            }}
-                                            onMouseEnter={() => { if (isDisallowed) setHover(id); }}
-                                            onMouseLeave={() => setHover('')}
-                                            data-tooltip={id}
-                                        >
-                                            <ReactIcons.TrashCan Color="var(--danger)" Size={20} />
-                                        </button>
-                                    </>
-                                );
+            <div className="card-body d-flex flex-column" style={{ flex: '1 1 0%', overflow: 'hidden' }}>
+                <div className="row d-flex flex-column" style={{ flex: '1 1 0%', overflow: 'hidden' }}>
+                    <div className="col d-flex flex-column" style={{ overflow: 'hidden' }}>
+                        <Table<SystemCenter.Types.ValueListItem>
+                            TableClass="table table-hover"
+                            Data={data}
+                            SortKey={sortField}
+                            Ascending={ascending}
+                            OnSort={(d) => {
+                                if (d.colField === sortField)
+                                    setAscending(!ascending);
+                                else {
+                                    setAscending(true);
+                                    setSortField(d.colField);
+                                }
                             }}
-                        > <p></p>
-                        </Column>
-                    </Table>
+                            TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1, width: '100%' }}
+                            RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            Selected={(item) => false}
+                            KeySelector={(item) => item.ID}
+                        >
+                            <Column<SystemCenter.Types.ValueListItem>
+                                Key={'Value'}
+                                AllowSort={true}
+                                Field={'Value'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Value
+                            </Column>
+                            <Column<SystemCenter.Types.ValueListItem>
+                                Key={'AltValue'}
+                                AllowSort={true}
+                                Field={'AltValue'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Label
+                            </Column>
+                            <Column<SystemCenter.Types.ValueListItem>
+                                Key={'SortOrder'}
+                                AllowSort={true}
+                                Field={'SortOrder'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Sort Order
+                            </Column>
+                            <Column<SystemCenter.Types.ValueListItem>
+                                Key={'btns'}
+                                AllowSort={false}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                                Content={({ item }) => {
+                                    const id = item.ID.toString();
+                                    const isDisallowed = disallowReason(id) != null;
+                                    return (
+                                        <>
+                                            <button
+                                                className="btn btn-sm"
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    setRecord(item);
+                                                    setShowModal(true);
+                                                }}
+                                            >
+                                                <ReactIcons.Pencil Color="var(--warning)" Size={20} />
+                                            </button>
+                                            <button
+                                                className={`btn btn-sm${isDisallowed ? " disabled" : ""}`}
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    if (isDisallowed) return;
+                                                    setRecord(item);
+                                                    setShowWarning(true);
+                                                }}
+                                                onMouseEnter={() => { if (isDisallowed) setHover(id); }}
+                                                onMouseLeave={() => setHover('')}
+                                                data-tooltip={id}
+                                            >
+                                                <ReactIcons.TrashCan Color="var(--danger)" Size={20} />
+                                            </button>
+                                        </>
+                                    );
+                                }}
+                            > <p></p>
+                            </Column>
+                        </Table>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <Paging
+                            SetPage={(page) => setPage(page - 1)}
+                            Current={page + 1}
+                            Total={totalPages}
+                        />
+                    </div>
                 </div>
             </div>
             <div className="card-footer">
@@ -191,8 +232,9 @@ export default function ValueListGroupItems(props: IProps) {
             <ValueListItemDelete
                 Show={showWarning}
                 CallBack={(conf) => {
-                    if (conf)
-                        dispatch(ValueListSlice.DBAction({ verb: 'DELETE', record: { ...record } }));
+                    if (conf) {
+                        controller.DBAction('DELETE', { ...record }).then(() => setStatus('changed'))
+                    }
                     setShowWarning(false);
                 }}
                 Record={record}
@@ -209,18 +251,21 @@ export default function ValueListGroupItems(props: IProps) {
                 DisableConfirm={errors.length > 0}
                 ShowX={true} CallBack={(conf) => {
                     setShowModal(false);
-                    if (conf && record.ID > 0)
-                        dispatch(ValueListSlice.DBAction({ verb: 'PATCH', record }));
-                    else if (conf && record.ID == 0)
-                        dispatch(ValueListSlice.DBAction({ verb: 'POST', record }));
+                    if (conf && record.ID > 0) {
+                        controller.DBAction('PATCH', record).then(() => setStatus('changed'))
+                    }
+                    else if (conf && record.ID == 0) {
+                        controller.DBAction('POST', record).then(() => setStatus('changed'))
+                    }
                 }}
             >
                 <ValueListForm Record={record} Setter={setRecord} SetErrors={setErrors} />
             </Modal>
-            </div>
-        
-
+        </div>
     );
-
 }
 
+const pagedSearch = (controller: GenericController<SystemCenter.Types.ValueListItem>, record: SystemCenter.Types.ValueListGroup, sortField: keyof SystemCenter.Types.ValueListItem, ascending: boolean, page: number) => {
+    const filters = [{ FieldName: "GroupID", SearchText: record.ID.toString(), Operator: "=" as Search.OperatorType, IsPivotColumn: false, Type: "number" as Search.FieldType }];
+    return controller.PagedSearch(filters, sortField, ascending, page);
+}
