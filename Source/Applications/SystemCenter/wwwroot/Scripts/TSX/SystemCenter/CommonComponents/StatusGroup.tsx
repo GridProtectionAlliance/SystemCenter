@@ -44,7 +44,7 @@ const StatusGroup = (props: { Name: string, URL: string, Verb?: 'GET' | 'POST', 
         })
 
         h.done((d) => {
-            setStatusItems(() => d)
+            setStatusItems(d)
             setStatus('idle')
         }).fail(() => {
             setStatus('error')
