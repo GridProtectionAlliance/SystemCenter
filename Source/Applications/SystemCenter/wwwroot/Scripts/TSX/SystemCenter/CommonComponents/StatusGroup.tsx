@@ -27,8 +27,15 @@ import { Application } from '@gpa-gemstone/application-typings'
 import { ServerErrorIcon } from '@gpa-gemstone/react-interactive'
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 
+interface IProps {
+    Name: string,
+    URL: string,
+    Verb?: 'GET' | 'POST',
+    HoveredItem: String,
+    SetHoveredItem: React.Dispatch<React.SetStateAction<String>>
+}
 
-const StatusGroup = (props: { Name: string, URL: string, Verb?: 'GET' | 'POST', HoveredItem: String, SetHoveredItem: React.Dispatch<React.SetStateAction<String>> }) => {
+const StatusGroup = (props: IProps) => {
     const [statusItems, setStatusItems] = React.useState<INamedStatusItem[]>([])
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated')
 
@@ -54,7 +61,7 @@ const StatusGroup = (props: { Name: string, URL: string, Verb?: 'GET' | 'POST', 
             if (h.abort != null)
                 h.abort();
         }
-    }, [props.URL])
+    }, [props.URL, props.Verb])
 
     return (
         <fieldset className="border h-100" style={{ padding: '10px', flex: '1 1 0%', display: 'flex', flexDirection: 'column', overflow: 'auto' }}>

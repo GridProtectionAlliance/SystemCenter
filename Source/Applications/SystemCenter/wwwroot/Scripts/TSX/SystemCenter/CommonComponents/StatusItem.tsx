@@ -32,7 +32,16 @@ export interface INamedStatusItem extends SC.StatusItem {
     Name: string
 }
 
-const StatusItem = (props: { URL?: string, StatusItem?: INamedStatusItem, Verb?: 'GET' | 'POST', Name: string, HoveredItem: String, SetHoveredItem: React.Dispatch<React.SetStateAction<String>> }) => {
+interface IProps {
+    URL?: string
+    StatusItem?: INamedStatusItem
+    Verb?: 'GET' | 'POST'
+    Name: string
+    HoveredItem: String
+    SetHoveredItem: React.Dispatch<React.SetStateAction<String>>
+}
+
+const StatusItem = (props: IProps) => {
 
     const [statusItem, setStatusItem] = React.useState<INamedStatusItem>(props.StatusItem ?? {Name: props.Name, Status: "Loading", Details: []})
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated')
@@ -61,7 +70,7 @@ const StatusItem = (props: { URL?: string, StatusItem?: INamedStatusItem, Verb?:
             if (h.abort != null)
                 h.abort();
         }
-    }, [props.URL])
+    }, [props.URL, props.Verb])
 
     return (
         <div className="row mb-2 mx-2"
