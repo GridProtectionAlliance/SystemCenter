@@ -24,12 +24,12 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { PQView, OpenXDA as LocalXDA } from '../global';
-import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
+import { OpenXDA, SystemCenter, Application } from '@gpa-gemstone/application-typings'
 import { useAppDispatch, useAppSelector } from '../hooks';
-import { ByMeterSlice, CustomerMeterSlice } from '../Store/Store'
+import { ByMeterSlice } from '../Store/Store'
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { LoadingIcon, Search, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
+import { LoadingIcon, Search, ServerErrorIcon, Warning, GenericController } from '@gpa-gemstone/react-interactive';
 import { ToolTip } from '@gpa-gemstone/react-forms';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
 import { SelectRoles } from '../Store/UserSettings';
@@ -38,40 +38,30 @@ declare var homePath: string;
 interface IProps { Customer: OpenXDA.Types.Customer }
 const CustomerMeterWindow = (props: IProps) => {
     const dispatch = useAppDispatch();
-    const data = useAppSelector(CustomerMeterSlice.SearchResults);
-    const status = useAppSelector(CustomerMeterSlice.SearchStatus);
+    const [data, setData] = React.useState<LocalXDA.CustomerMeter[]>([]);
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated')
     const [showAdd, setShowAdd] = React.useState<boolean>(false);
-
     const [sortField, setSortField] = React.useState<keyof LocalXDA.CustomerMeter>('MeterName')
     const [ascending, setAscending] = React.useState<boolean>(true)
-    const totalPages = useAppSelector(CustomerMeterSlice.TotalPages);
     const [page, setPage] = React.useState<number>(0);
-
+    const [totalPages, setTotalPages] = React.useState<number>(0);
     const [removeRecord, setRemoveRecord] = React.useState<LocalXDA.CustomerMeter | null>(null);
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
 
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
     const roles = useAppSelector(SelectRoles);
+    const customerMeterController = React.useMemo(() => new GenericController<LocalXDA.CustomerMeter>(`${homePath}api/SystemCenter/CustomerMeter`, 'MeterName', true), [])
 
     React.useEffect(() => {
-        if (status == 'uninitiated' || status == 'changed')
-            getData();
-    }, [status])
+        setStatus('loading')
+        const h = customerMeterController.PagedSearch([], sortField, ascending, page, props.Customer.ID)
+        h.done((d) => {
+            setData(JSON.parse(d.Data as unknown as string))
+            setTotalPages(d.NumberOfPages)
+            setStatus('idle')
+        }).fail((d) => setStatus('error'))
+    }, [props.Customer.ID, sortField, ascending, page, refreshTrigger])
 
-    React.useEffect(() => {
-        getData();
-    }, [props.Customer.ID, sortField, ascending, page])
-
-    function getData() {
-        dispatch(CustomerMeterSlice.PagedSearch({
-            filter: [{
-                FieldName: 'CustomerID',
-                SearchText: props.Customer.ID.toString(),
-                Operator: '=',
-                Type: 'number',
-                IsPivotColumn: false
-            }], sortField, ascending, page
-        }));
-    }
 
     function getEnum(setOptions, field) {
         let handle = null;
@@ -123,9 +113,9 @@ const CustomerMeterWindow = (props: IProps) => {
     }
 
     function saveCustomerMeters(m: SystemCenter.Types.DetailedMeter[]) {
-        m.forEach((meter) => {
-            dispatch(CustomerMeterSlice.DBAction({
-                verb: 'POST', record: {
+        Promise.all(m.map((meter) => {
+            customerMeterController.DBAction(
+                'POST', {
                     ID: 0,
                     CustomerKey: props.Customer.CustomerKey,
                     CustomerName: props.Customer.Name,
@@ -135,8 +125,8 @@ const CustomerMeterWindow = (props: IProps) => {
                     MeterName: meter.Name,
                     MeterID: meter.ID
                 }
-            }))
-        })
+            )
+        })).then(() => setRefreshTrigger((val) => !val))
     }
 
     function hasPermissions(): boolean {
@@ -272,7 +262,10 @@ const CustomerMeterWindow = (props: IProps) => {
                 </ToolTip>
             </div>
         </div>
-        <Warning Message={'This will permanently remove the Meter from this Customer and can affect PQ Digest, PQI results and LSCVS logic.'} Show={removeRecord != null} Title={'Remove ' + (removeRecord?.MeterName ?? 'Meter') + ' from ' + (props.Customer?.Name ?? 'Customer')} CallBack={(c) => { if (c) dispatch(CustomerMeterSlice.DBAction({ record: removeRecord, verb: 'DELETE' })); setRemoveRecord(null); }} />
+        <Warning Message={'This will permanently remove the Meter from this Customer and can affect PQ Digest, PQI results and LSCVS logic.'}
+            Show={removeRecord != null}
+            Title={'Remove ' + (removeRecord?.MeterName ?? 'Meter') + ' from ' + (props.Customer?.Name ?? 'Customer')}
+            CallBack={(c) => { if (c) customerMeterController.DBAction('DELETE', removeRecord).then(() => { setRemoveRecord(null); setRefreshTrigger((val) => !val) } )}} />
         <DefaultSelects.Meter
             Slice={ByMeterSlice}
             Selection={[]}
