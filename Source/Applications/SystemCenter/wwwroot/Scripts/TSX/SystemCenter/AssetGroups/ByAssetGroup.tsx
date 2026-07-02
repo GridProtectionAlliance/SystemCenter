@@ -48,7 +48,6 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
     let navigate = useNavigate();
     const dispatch = useAppDispatch();
     const data = useAppSelector(AssetGroupSlice.SearchResults);
-    const searchStatus = useAppSelector(AssetGroupSlice.SearchStatus);
     const searchFields = useAppSelector(AssetGroupSlice.SearchFilters)
     const status = useAppSelector(AssetGroupSlice.Status);
     const allAssetGroups = useAppSelector(AssetGroupSlice.Data);
@@ -58,7 +57,6 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
     const currentPage = useAppSelector(AssetGroupSlice.CurrentPage);
     const totalPages = useAppSelector(AssetGroupSlice.TotalPages);
     const [showFilter, setFilter] = React.useState<('None' | 'Meter' | 'Asset' | 'Asset Group' | 'Station')>('None');
-
     const [newAssetGroup, setNewAssetGroup] = React.useState<extendedAssetGroup>(_.cloneDeep(emptyAssetGroup));
     const [showNewGroup, setShowNewGroup] = React.useState<boolean>(false);
     const [assetGrpErrors, setAssetGrpErrors] = React.useState<string[]>([]);
@@ -67,27 +65,8 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
     const [page, setPage] = React.useState<number>(currentPage);
 
     React.useEffect(() => {
-        if (status == 'changed' || status == 'uninitiated')
-            dispatch(AssetGroupSlice.Fetch());
-    }, [status]);
-
-    const pagedSearch = React.useCallback((searches?: Search.IFilter<extendedAssetGroup>[], sortfield?: keyof OpenXDA.Types.AssetGroup, asc?: boolean, page?: number) => {
-        const searchToUse = searches ?? searchFields;
-        const sortKeyToUse = sortfield ?? sortKey;
-        const ascendingToUse = asc ?? ascending;
-        const pageToUse = page ?? currentPage;
-        dispatch(AssetGroupSlice.PagedSearch({filter: searchToUse, sortField: sortKeyToUse, ascending: ascendingToUse, page: pageToUse }));
-
-    }, [searchFields, currentPage, ascending, sortKey, AssetGroupSlice.PagedSearch])
-
-    React.useEffect(() => {
-        pagedSearch(undefined, sortKey, ascending, page)
-    }, [sortKey, ascending, page, pagedSearch])
-
-    React.useEffect(() => {
-        if (searchStatus == 'changed' || searchStatus == 'uninitiated')
-            pagedSearch();
-    }, [searchStatus, pagedSearch]);
+        dispatch(AssetGroupSlice.PagedSearch({ filter: searchFields, sortField: sortKey, ascending: ascending, page: page }));
+    }, [sortKey, ascending, page, searchFields])
 
     React.useEffect(() => {
         if (assetTypeStatus == 'changed' || assetTypeStatus == 'uninitiated')
@@ -127,35 +106,6 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
             setFields(ordered)
         });
 
-        return () => {
-            if (handle != null && handle.abort == null) handle.abort();
-        };
-    }
-
-    function getAdditionalAssetFields(setFields) {
-        let handle = $.ajax({
-            type: "GET",
-            url: `${homePath}api/SystemCenter/AdditionalFieldView/ParentTable/Asset/FieldName/0`,
-            contentType: "application/json; charset=utf-8",
-            cache: false,
-            async: true
-        });
-
-        function ConvertType(type: string) {
-            if (type == 'string' || type == 'integer' || type == 'number' || type == 'datetime' || type == 'boolean')
-                return { type: type }
-            return {
-                type: 'enum', enum: [{ Label: type, Value: type }]
-            }
-    }
-
-        handle.done((d: Array<SystemCenter.Types.AdditionalFieldView>) => {
-
-            let ordered = _.orderBy(d.filter(item => item.Searchable).map(item => (
-                { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type), isPivotField: true } as Search.IField<SystemCenter.Types.DetailedAsset>
-            )), ['label'], ["asc"]);
-            setFields(ordered);
-        });
         return () => {
             if (handle != null && handle.abort == null) handle.abort();
         };
@@ -213,7 +163,6 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
             if (msg.status == 500)
                 alert(msg.responseJSON.ExceptionMessage)
         });
-
     }
 
     function handleSelect(item) {
