@@ -24,12 +24,11 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA as LocalXDA } from '../global';
-import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
+import { OpenXDA, SystemCenter, Application } from '@gpa-gemstone/application-typings'
 import { useAppDispatch, useAppSelector } from '../hooks';
-import { CustomerAssetSlice } from '../Store/Store'
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { LoadingIcon, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
+import { LoadingIcon, ServerErrorIcon, Warning, GenericController, Search } from '@gpa-gemstone/react-interactive';
 import { ToolTip } from '@gpa-gemstone/react-forms';
 import AssetSelect from '../Asset/AssetSelect';
 import { SelectRoles } from '../Store/UserSettings';
@@ -37,38 +36,42 @@ declare var homePath: string;
 
 interface IProps { Customer: OpenXDA.Types.Customer }
 const CustomerAssetWindow = (props: IProps) => {
-    const dispatch = useAppDispatch();
-    const data = useAppSelector(CustomerAssetSlice.SearchResults);
-    const status = useAppSelector(CustomerAssetSlice.Status);
+    const [data, setData] = React.useState<LocalXDA.CustomerAsset[]>([]);
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [showAdd, setShowAdd] = React.useState<boolean>(false);
 
     const [sortField, setSortField] = React.useState<keyof LocalXDA.CustomerAsset>('AssetName')
     const [ascending, setAscending] = React.useState<boolean>(true)
-    const totalPages = useAppSelector(CustomerAssetSlice.TotalPages);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
     const [page, setPage] = React.useState<number>(0);
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false)
 
     const [removeRecord, setRemoveRecord] = React.useState<LocalXDA.CustomerAsset | null>(null);
 
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
     const roles = useAppSelector(SelectRoles)
 
-    const getData = React.useCallback(() => {
-        dispatch(CustomerAssetSlice.PagedSearch({ filter: [{ FieldName: 'CustomerID', IsPivotColumn: false, Operator: '=', SearchText: props.Customer.ID.toString(), Type: 'number' }], sortField, ascending, page }))
-        }, [props.Customer.ID, sortField, ascending, page, CustomerAssetSlice.PagedSearch])
+    const assetController = React.useMemo(() => new GenericController<LocalXDA.CustomerAsset>(`${homePath}api/SystemCenter/CustomerAsset`, 'AssetName', true), [])
 
     React.useEffect(() => {
-        getData();
-    }, [props.Customer.ID, sortField, ascending, page])
+        setStatus('loading')
+        const h = assetController.PagedSearch([], sortField, ascending, page, props.Customer.ID)
+        h.done((d) => {
+            setStatus('idle')
+            setTotalPages(d.NumberOfPages)
+            setData(JSON.parse(d.Data as unknown as string))
+        }).fail(() => setStatus('error'))
 
-    React.useEffect(() => {
-        if (status == 'uninitiated' || status == 'changed')
-            getData();
-    }, [status]);
+        return () => {
+            if (h != null && h.abort == null) h.abort();
+        };
+    }, [props.Customer.ID, sortField, ascending, page, assetController.PagedSearch, refreshTrigger])
+
 
     function saveCustomerAssets(m: SystemCenter.Types.DetailedAsset[]) {
-        m.forEach((asset) => {
-            dispatch(CustomerAssetSlice.DBAction({
-                verb: 'POST', record: {
+        Promise.all(m.map((asset) => {
+            return assetController.DBAction(
+                'POST', {
                     ID: 0,
                     CustomerKey: props.Customer.CustomerKey,
                     CustomerName: props.Customer.Name,
@@ -77,10 +80,11 @@ const CustomerAssetWindow = (props: IProps) => {
                     AssetName: asset.AssetName,
                     AssetType: asset.AssetType,
                     AssetID: asset.ID
-                }
-            }))
-        })
+                })
+        }
+        )).then(() => setRefreshTrigger((val) => !val))
     }
+
 
     function hasPermissions(): boolean {
         if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0)
@@ -215,13 +219,18 @@ const CustomerAssetWindow = (props: IProps) => {
                 </ToolTip>
             </div>
         </div>
-        <Warning Message={'This will permanently remove the Asset from this Customer and can affect PQ Digest, PQI results, and LSCVS logic.'} Show={removeRecord != null} Title={'Remove ' + (removeRecord?.AssetName ?? 'Asset') + ' from ' + (props.Customer?.Name ?? 'Customer')} CallBack={(c) => { if (c) dispatch(CustomerAssetSlice.DBAction({ record: removeRecord, verb: 'DELETE' })); setRemoveRecord(null); }} />
+        <Warning
+            Message={'This will permanently remove the Asset from this Customer and can affect PQ Digest, PQI results, and LSCVS logic.'}
+            Show={removeRecord != null}
+            Title={'Remove ' + (removeRecord?.AssetName ?? 'Asset') + ' from ' + (props.Customer?.Name ?? 'Customer')}
+            CallBack={(c) => { if (c) assetController.DBAction('DELETE', removeRecord).done((d) => { setRefreshTrigger((val) => !val); setRemoveRecord(null); }) }} />
         <AssetSelect Type='multiple' StorageID='CustomerAsset' ShowModal={showAdd} SelectedAssets={[]}
             Title={"Add Assets to Customer"}
             OnCloseFunction={(selected, conf) => {
                 setShowAdd(false)
                 if (!conf) return
                 saveCustomerAssets(selected.filter(items => data.findIndex(g => g.AssetID == items.ID) < 0));
+                setRefreshTrigger((val) => !val);
             }} />
     </>
 }
