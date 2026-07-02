@@ -38,10 +38,20 @@ const GroupUser = (props: { Group: ISecurityGroup }) => {
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [page, setPage] = React.useState<number>(0);
     const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false)
 
     React.useEffect(() => {
-        const handle = getUsers(props.Group.Type, props.Group.ID, page, sortField, asc);
+        if (props.Group.Type != 'Database')
+            return;
 
+        const handle = $.ajax({
+            type: "POST",
+            url: `${homePath}api/SystemCenter/FullSecurityGroup/Users/PagedList/${props.Group.ID}/${page}`,
+            contentType: "application/json; charset=utf-8",
+            cache: false,
+            async: true,
+            data: JSON.stringify({ OrderBy: sortField, Ascending: asc })
+        })
         setStatus('loading')
         handle.done((d) => {
             setTotalPages(d.NumberOfPages);
@@ -50,25 +60,11 @@ const GroupUser = (props: { Group: ISecurityGroup }) => {
         }).fail(() => setStatus('error'))
 
         return () => { if (handle != null && handle.abort != null) handle.abort(); }
-    }, [props.Group.ID, props.Group.Type, asc, sortField, page])
-
-    React.useEffect(() => {
-        if (status === 'changed') {
-            setStatus('loading')
-            const handle = getUsers(props.Group.Type, props.Group.ID, page, sortField, asc);
-
-            handle.done((d) => {
-                setTotalPages(d.NumberOfPages);
-                setUsers(JSON.parse(d.Data));
-                setStatus('idle');
-            }).fail(() => setStatus('error'))
-
-            return () => { if (handle != null && handle.abort != null) handle.abort(); }
-        }
-    }, [status, props.Group.ID, props.Group.Type, asc, sortField, page])
+    }, [props.Group.ID, props.Group.Type, asc, sortField, page, refreshTrigger])
 
     if (props.Group == null)
         return null;
+
     return (
         <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="card-header">
@@ -157,7 +153,7 @@ const GroupUser = (props: { Group: ISecurityGroup }) => {
                             <div className="col">
                                 <Paging
                                     Current={page + 1}
-                                    SetPage={(page) => {setPage(page - 1)}}
+                                    SetPage={(page) => setPage(page - 1)}
                                     Total={totalPages}
                                 />
                             </div>
@@ -180,7 +176,7 @@ const GroupUser = (props: { Group: ISecurityGroup }) => {
                 OnClose={(selected, conf) => {
                     setShowSelect(false);
                     if (!conf) return;
-                    saveUser(selected, props.Group.Type, props.Group.ID).done(() => {setStatus('changed') }).fail(() => setStatus('error'));
+                    saveUser(selected, props.Group.Type, props.Group.ID).done(() => setRefreshTrigger((val) => !val));
                 }}
                 Show={showSelect}
                 Type={'multiple'}
@@ -206,20 +202,6 @@ const GroupUser = (props: { Group: ISecurityGroup }) => {
 }
 
 export default GroupUser;
-
-function getUsers(groupType: string, groupID: string, page: number, sortField: keyof Application.Types.iUserAccount, ascending: boolean) {
-    if (groupType != 'Database')
-        return;
-
-    return $.ajax({
-        type: "POST",
-        url: `${homePath}api/SystemCenter/FullSecurityGroup/Users/PagedList/${groupID}/${page}`,
-        contentType: "application/json; charset=utf-8",
-        cache: false,
-        async: true,
-        data: JSON.stringify({ OrderBy: sortField, Ascending: ascending })
-    })
-}
 
 function saveUser(u: Application.Types.iUserAccount[], groupType: string, groupID: string) {
     if (groupType != 'Database')
