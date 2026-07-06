@@ -29,7 +29,7 @@ import { AdditionalFieldsSlice, ValueListGroupSlice } from '../Store/Store';
 import AdditionalFieldForm from '../AdditionalFields/AdditionalFieldForm';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { LoadingScreen, Modal, SearchBar, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
+import { LoadingScreen, Modal, SearchBar, ServerErrorIcon, Warning, GenericController, Search } from '@gpa-gemstone/react-interactive';
 import { SelectPopup } from '@gpa-gemstone/common-pages';
 
 const emptyRecord: SystemCenter.Types.AdditionalFieldView = {
@@ -50,7 +50,6 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
 
     const dispatch = useAppDispatch();
 
-    const status = useAppSelector(AdditionalFieldsSlice.Status);
     const searchData = useAppSelector(AdditionalFieldsSlice.SearchResults);
     const searchStatus = useAppSelector(AdditionalFieldsSlice.SearchStatus);
 
@@ -61,7 +60,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
     const parentID = React.useRef<number>(-1);
     const [tableStatus, setTableStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [asc, setAsc] = React.useState<boolean>(true);
-    const [sortKey, setSortKey] = React.useState<string>('FieldName');
+    const [sortKey, setSortKey] = React.useState<keyof SystemCenter.Types.AdditionalFieldView>('FieldName');
 
     const [record, setRecord] = React.useState<SystemCenter.Types.AdditionalFieldView>(emptyRecord);
     const [showRemove, setShowRemove] = React.useState<boolean>(false);
@@ -74,21 +73,17 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
 
     const [page, setPage] = React.useState<number>(0);
     const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
 
-    const pagedSearch = React.useCallback(() => {
+    const additionalFieldsController = React.useMemo(() => new GenericController<SystemCenter.Types.AdditionalFieldView>(`${homePath}api/SystemCenter/AdditionalFieldView`, "FieldName", true),[])
+
+    React.useEffect(() => {
         setTableStatus('loading');
         parentID.current = props.ID;
-        const handle = $.ajax({
-            type: "POST",
-            url: `${homePath}api/SystemCenter/AdditionalFieldView/PagedList/${page}`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: false,
-            async: true,
-            data: JSON.stringify({ Searches: [{ SearchText: props.TableName, Operator: "LIKE", IsPivotColumn: false, FieldName: "ExternalTable" }], OrderBy: sortKey, Ascending: asc })
-        });
+        const filters: Search.IFilter<SystemCenter.Types.AdditionalFieldView>[] = [{ SearchText: props.TableName, Operator: "=", IsPivotColumn: false, FieldName: "ExternalTable", Type: 'string' }]
+        const handle = additionalFieldsController.PagedSearch(filters, sortKey, asc, page)
         handle.done((results) => {
-            setFieldsInTable(JSON.parse(results.Data));
+            setFieldsInTable(JSON.parse(results.Data as unknown as string));
             setTotalPages(results.NumberOfPages);
             setTableStatus('idle');
         });
@@ -98,53 +93,32 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
         return () => {
             if (handle != null && handle.abort == null) handle.abort();
         };
-    }, [props.TableName, sortKey, asc, page, props.ID])
-
-    React.useEffect(() => {
-        return pagedSearch()
-    }, [pagedSearch]);
-
-    React.useEffect(() => {
-        if (status !== 'idle') return;
-        if (tableStatus === 'uninitiated' || tableStatus === 'changed' || parentID.current !== props.ID) {
-            return pagedSearch()
-        }
-    }, [tableStatus, props.ID, status, pagedSearch])
-
-    React.useEffect(() => {
-        if (status === 'uninitiated' || status === 'changed')
-            dispatch(AdditionalFieldsSlice.Fetch());
-    }, [status]);
+    }, [sortKey, asc, props.ID, page, refreshTrigger]);
 
     React.useEffect(() => {
         if (valueListGroupStatus === 'uninitiated' || valueListGroupStatus === 'changed')
             dispatch(ValueListGroupSlice.Fetch());
     }, [valueListGroupStatus]);
 
-    /* TODO: we don't have any way to filter for null values here... this might need a gsf update
-    React.useEffect(() => {
-        localStorage.setItem(filterStorage, JSON.stringify([{
-            FieldName: "ExternalDB",
-            SearchText: ``,
-            Operator: "LIKE",
-            Type: "integer",
-            IsPivotColumn: false
-        }]));
-    }, [props.ID]);
-    */
-
     function Delete() {
-        dispatch(AdditionalFieldsSlice.DBAction({ verb: 'DELETE', record: { ...record } }));
-        setRecord(emptyRecord);
+        additionalFieldsController.DBAction('DELETE', { ...record }).then(() => {
+            setRecord(emptyRecord);
+            setRefreshTrigger((val) => !val)
+        });
     }
 
     function AssociateField(fld) {
-        dispatch(AdditionalFieldsSlice.DBAction({ verb: 'PATCH', record: { ...fld, ExternalDBTableID: props.ID } }));
+        additionalFieldsController.DBAction('PATCH', { ...fld, ExternalDBTableID: props.ID }).then(() => {
+            setRecord(emptyRecord);
+            setRefreshTrigger((val) => !val)
+        }) ;
     }
 
     function DisassociateField(fld) {
-        dispatch(AdditionalFieldsSlice.DBAction({ verb: 'PATCH', record: { ...fld, ExternalDBTableID: null } }));
-        setRecord(emptyRecord);
+        additionalFieldsController.DBAction('PATCH', { ...fld, ExternalDBTableID: null }).then(() => {
+            setRecord(emptyRecord);
+            setRefreshTrigger((val) => !val)
+        });
     }
 
     return (
@@ -173,7 +147,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                                             OnSort={(d) => {
                                                 if (d.colKey == 'btns') return;
                                                 if (d.colKey === sortKey) setAsc(prev => !prev);
-                                                else setSortKey(d.colKey);
+                                                else setSortKey(d.colKey as keyof SystemCenter.Types.AdditionalFieldView);
                                             }}
                                             TheadStyle={{ fontSize: 'smaller' }}
                                             RowStyle={{ fontSize: 'smaller' }}
@@ -326,8 +300,16 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                     setShowNew(false);
                     if (conf) {
                         setTableStatus('changed');
-                        if (record.ID > 0) dispatch(AdditionalFieldsSlice.DBAction({ verb: 'PATCH', record }));
-                        else if (record.ID == 0) dispatch(AdditionalFieldsSlice.DBAction({ verb: 'POST', record }));
+                        if (record.ID > 0) {
+                            additionalFieldsController.DBAction('PATCH', record).then(() => {
+                                setRefreshTrigger((val) => !val)
+                            })
+                        } 
+                        else if (record.ID == 0) {
+                            additionalFieldsController.DBAction('POST', record).then(() => {
+                                setRefreshTrigger((val) => !val)
+                            })
+                        }
                     }
                 }}
             >
