@@ -72,10 +72,6 @@ const RemoteAssetTab = (props: IProps) => {
     const roles = useAppSelector(SelectRoles);
     const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
 
-    const pagedSearch = React.useCallback(() => {
-        
-    }, [page, sortKey, , ascending])
-
     React.useEffect(() => {
         if (remoteAssetStatus === 'uninitiated' || remoteAssetStatus === 'changed')
             dispatch(RemoteXDAAssetSlice.Fetch());
