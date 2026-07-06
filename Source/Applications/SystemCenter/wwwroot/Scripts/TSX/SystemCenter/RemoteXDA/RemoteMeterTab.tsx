@@ -86,7 +86,7 @@ const RemoteMeterTab = (props: IProps) => {
     const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
 
     const pagedSearch = React.useCallback(() => {
-        dispatch(RemoteXDAMeterSlice.PagedSearch({ filter: searchFilters, ascending: ascending, sortField: sortKey, page }))
+        
     }, [page, sortKey, searchFilters, ascending])
 
     React.useEffect(() => {
@@ -100,13 +100,8 @@ const RemoteMeterTab = (props: IProps) => {
     }, [dispatch, meterStatus]);
 
     React.useEffect(() => {
-        if (searchState === 'uninitiated' || searchState === 'changed')
-            pagedSearch()
-    }, [dispatch, searchState]);
-
-    React.useEffect(() => {
-        pagedSearch()
-    }, [ascending, sortKey, page]);
+        dispatch(RemoteXDAMeterSlice.PagedSearch({ filter: searchFilters, ascending: ascending, sortField: sortKey, page }))
+    }, [searchFilters, ascending, sortKey, page]);
 
     function isEditable(item: OpenXDA.Types.RemoteXDAMeter): boolean {
         return item.RemoteXDAMeterID <= 0;

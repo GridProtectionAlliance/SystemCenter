@@ -73,8 +73,8 @@ const RemoteAssetTab = (props: IProps) => {
     const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
 
     const pagedSearch = React.useCallback(() => {
-        dispatch(RemoteXDAAssetSlice.PagedSearch({ filter: searchFilters, ascending: ascending, sortField: sortKey, page }))
-    }, [page, sortKey, searchFilters, ascending])
+        
+    }, [page, sortKey, , ascending])
 
     React.useEffect(() => {
         if (remoteAssetStatus === 'uninitiated' || remoteAssetStatus === 'changed')
@@ -82,13 +82,8 @@ const RemoteAssetTab = (props: IProps) => {
     }, [dispatch, remoteAssetStatus]);
 
     React.useEffect(() => {
-        if (searchState === 'uninitiated' || searchState === 'changed')
-            pagedSearch()
-    }, [dispatch, searchState]);
-
-    React.useEffect(() => {
-        pagedSearch()
-    }, [ascending, sortKey, page]);
+        dispatch(RemoteXDAAssetSlice.PagedSearch({ filter: searchFilters, ascending: ascending, sortField: sortKey, page }))
+    }, [ascending, sortKey, page, searchFilters]);
 
     React.useEffect(() => {
         if (assetStatus === 'uninitiated' || assetStatus === 'changed')
