@@ -30,7 +30,7 @@ import { ExternalDBTablesSlice } from '../Store/Store';
 import ExternalDBTableForm from './ExternalDBTableForm';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { Modal, Warning } from '@gpa-gemstone/react-interactive';
+import { Modal, Warning, Search } from '@gpa-gemstone/react-interactive';
 
 export default function ExternalDBTables(props: { ID: number }) {
     let navigate = useNavigate();
@@ -50,11 +50,11 @@ export default function ExternalDBTables(props: { ID: number }) {
     const [sortField, setSortField] = React.useState<keyof SystemCenter.Types.extDBTables>('ID');
     const [ascending, setAscending] = React.useState<boolean>(true);
 
+    const filters: Search.IFilter<SystemCenter.Types.extDBTables>[] = React.useMemo(() => [{ SearchText: props.ID.toString(), FieldName: 'ExtDBID', Operator: "=", IsPivotColumn: false, Type: 'string' }],[props.ID])
 
     React.useEffect(() => {
-        if (status == 'uninitiated' || status == 'changed' || parentID != props.ID)
-            dispatch(ExternalDBTablesSlice.Fetch(props.ID));
-    }, [status, parentID, props.ID]);
+        dispatch(ExternalDBTablesSlice.PagedSearch({ filter: filters, sortField, ascending, page: currentPage}));
+    }, [status, parentID, props.ID, sortField, ascending, currentPage]);
 
     React.useEffect(() => {
         let e = [];
@@ -79,7 +79,7 @@ export default function ExternalDBTables(props: { ID: number }) {
     }
 
     const setPage = React.useCallback((page) => {
-        dispatch(ExternalDBTablesSlice.PagedSearch({ filter: [], sortField, ascending, page: page - 1 }))
+        dispatch(ExternalDBTablesSlice.PagedSearch({ filter: filters, sortField, ascending, page: page - 1 }))
     }, [sortField, ascending])
 
     const sort = React.useCallback((d) => {
@@ -94,7 +94,7 @@ export default function ExternalDBTables(props: { ID: number }) {
             setAscending(false)
             asc = false
         }
-        dispatch(ExternalDBTablesSlice.PagedSearch({ filter: [], sortField: sort, ascending: asc, page: 0 }))
+        dispatch(ExternalDBTablesSlice.PagedSearch({ filter: filters, sortField: sort, ascending: asc, page: 0 }))
     }, [ascending, sortField])
 
     useBoundPaging(currentPage, totalPages, setPage)
@@ -190,9 +190,9 @@ export default function ExternalDBTables(props: { ID: number }) {
                         DisableConfirm={errors.length > 0}
                         ShowX={true} CallBack={(conf) => {
                             setShowModal(false);
-                            if (conf && record.ID > 0)
+                            if (conf && record.ID > 0) 
                                 dispatch(ExternalDBTablesSlice.DBAction({ verb: 'PATCH', record }));
-                            else if (conf && record.ID == 0)
+                            else if (conf && record.ID == 0) 
                                 dispatch(ExternalDBTablesSlice.DBAction({ verb: 'POST', record }));
                         }}
                     >

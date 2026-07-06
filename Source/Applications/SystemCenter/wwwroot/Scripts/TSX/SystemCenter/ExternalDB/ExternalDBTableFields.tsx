@@ -50,6 +50,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
 
     const dispatch = useAppDispatch();
 
+    // needed for the selection popup
     const searchData = useAppSelector(AdditionalFieldsSlice.SearchResults);
     const searchStatus = useAppSelector(AdditionalFieldsSlice.SearchStatus);
 
