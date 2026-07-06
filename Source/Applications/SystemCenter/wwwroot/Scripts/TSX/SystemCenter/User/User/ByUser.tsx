@@ -30,6 +30,8 @@ import UserForm from './UserForm';
 import { useNavigate } from "react-router-dom";
 import { IUserAccount } from '../Types';
 import moment from 'moment';
+import { UserAccountSlice } from '../../Store/Store'
+import { useAppDispatch } from '../../hooks';
 
 const defaultSearchcols: Search.IField<Application.Types.iUserAccount>[] = [
     { label: 'Username', key: 'DisplayName', type: 'string', isPivotField: false },
@@ -61,12 +63,13 @@ const newAcct: IUserAccount = {
 
 const ByUser: Application.Types.iByComponent = (props) => {
 
-    const userAccountController = React.useMemo(() => new GenericController<IUserAccount>(`${homePath}api/SystemCenter/UserAccount`, "DisplayName" as keyof IUserAccount, true), [])
+    const userAccountController = React.useMemo(() => new GenericController<IUserAccount>(`${homePath}api/SystemCenter/UserAccount`, "DisplayName", true), [])
     const userAdditionalFieldController = React.useMemo(() => new GenericController(`${homePath}api/SystemCenter/AdditionalUserField`, "User"), [])
     const valueListController = React.useMemo(() => new GenericController(`${homePath}api/ValueList`, 'SortOrder'), [])
     const valueListGroupController = React.useMemo(() => new GenericController(`${homePath}api/ValueListGroup`, 'Name'), [])
 
     let navigate = useNavigate();
+    const dispatch = useAppDispatch();
 
     const [filters, setFilters] = React.useState<Search.IFilter<IUserAccount>[]>([]);
 
@@ -99,6 +102,8 @@ const ByUser: Application.Types.iByComponent = (props) => {
 
     const [pageStatus, setPageStatus] = React.useState<Application.Types.Status>('uninitiated');
 
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
+
     React.useEffect(() => {
         if (userStatus === 'error' || adlFieldStatus === 'error' || valueListItemStatus === 'error' || valueListGroupStatus === 'error')
             setPageStatus('error')
@@ -108,7 +113,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
             setPageStatus('idle');
     }, [userStatus, adlFieldStatus, valueListItemStatus, valueListGroupStatus])
 
-    const pagedSearch = React.useCallback(() => {
+    React.useEffect(() => {
         setUserStatus('loading')
         const h = userAccountController.PagedSearch(filters, sortField, ascending, page);
         h.done((d) => {
@@ -123,11 +128,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
         return () => {
             if (h.abort != undefined) h.abort();
         }
-    }, [filters, sortField, ascending, page, userAccountController.PagedSearch])
-
-    React.useEffect(() => {
-        return pagedSearch()
-    }, [filters, sortField, ascending, page, pagedSearch]);
+    }, [filters, sortField, ascending, page, userAccountController.PagedSearch, refreshTrigger]);
 
     React.useEffect(() => {
         if (adlFieldStatus === 'uninitiated' || adlFieldStatus === 'changed') {
@@ -178,6 +179,11 @@ const ByUser: Application.Types.iByComponent = (props) => {
 
         setFilterableList(ordered)
     }, [adlFields]);
+
+    // refresh the slice so that users don't have to refresh after selecting a newly created user.
+    React.useEffect(() => {
+        dispatch(UserAccountSlice.Fetch());
+    }, [refreshTrigger])
 
     return (
         <div className="container-fluid d-flex h-100 flex-column">
@@ -299,11 +305,8 @@ const ByUser: Application.Types.iByComponent = (props) => {
             </div>
             <Modal Show={showModal} Size={'lg'} ShowCancel={false} ShowX={true} ConfirmText={'Save'}
                 Title={'Add New User'} CallBack={(confirm) => {
-                    if (confirm) {
-                        userAccountController.DBAction('POST', act)
-                        setUserStatus('changed');
-                        pagedSearch();
-                    }
+                    if (confirm) 
+                        userAccountController.DBAction('POST', act).then(() => { setRefreshTrigger((val) => !val)})
                     setAct(newAcct);
                     setShowModal(false);
                 }}
