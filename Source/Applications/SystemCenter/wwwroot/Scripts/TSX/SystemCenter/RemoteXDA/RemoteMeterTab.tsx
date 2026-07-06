@@ -85,10 +85,6 @@ const RemoteMeterTab = (props: IProps) => {
     const roles = useAppSelector(SelectRoles);
     const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
 
-    const pagedSearch = React.useCallback(() => {
-        
-    }, [page, sortKey, searchFilters, ascending])
-
     React.useEffect(() => {
         if (remoteMeterStatus === 'uninitiated' || remoteMeterStatus === 'changed')
             dispatch(RemoteXDAMeterSlice.Fetch());
