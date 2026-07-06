@@ -60,8 +60,8 @@ const SentEmailTable = (props: IProps) => {
     return (
         <>
             <LoadingScreen Show={pageStatus == 'loading'} />
-            <div className="row" style={{ overflow: 'hidden', flex: '1 1 0%' }}>
-                <div className="col h-100" style={{ overflow: 'hidden' }}>
+            <div className="row h-100" style={{ overflow: 'hidden', flex: '1 1 0%' }}>
+                <div className="col h-100 d-flex flex-column" style={{ overflow: 'hidden' }}>
                     <Table<SentEmail>
                         TableClass="table table-hover"
                         Data={data}
