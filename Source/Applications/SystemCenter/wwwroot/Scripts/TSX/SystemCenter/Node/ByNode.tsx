@@ -75,6 +75,9 @@ const ByNode = (props: { Roles: Application.Types.SecurityRoleName[] }) => {
         }).fail((d) => {
             setStatus('error');
         })
+        return () => {
+            if (handle.abort != undefined) handle.abort();
+        }
     }, [])
 
     // on initial mount, fetch app hosts.
