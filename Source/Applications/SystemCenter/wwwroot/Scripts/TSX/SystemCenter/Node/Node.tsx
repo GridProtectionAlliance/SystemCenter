@@ -35,8 +35,8 @@ declare type Tab = 'info' | 'settings'
 interface IProps { NodeID: number, Tab: Tab, Roles: Application.Types.SecurityRoleName[] }
 
 const Tabs = [
-    { Id: "info", Label: "Task Runner Info" },
-    { Id: "settings", Label: "Task Runner Settings" },
+    { Id: "info", Label: "Info" },
+    { Id: "settings", Label: "Settings" },
 ]
 
 export default function Node(props: IProps) {
