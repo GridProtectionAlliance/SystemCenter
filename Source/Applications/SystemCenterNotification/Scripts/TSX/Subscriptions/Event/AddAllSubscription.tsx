@@ -95,8 +95,13 @@ const AddAllSubscription = (props: IProps) => {
 
     return (
         <>
-            <Modal Show={props.show} ShowCancel={true} Size={'xlg'} ShowX={true} Title={'Add New Event Subscription'}
-                BodyStyle={{ overflowY: 'hidden' }}
+            <Modal
+                Show={props.show}
+                ShowCancel={true}
+                Size={'xlg'}
+                ShowX={true}
+                Title={'Add New Event Subscription'}
+                BodyStyle={{ overflow: 'hidden', height: 'calc(-210px + 100vh)'}}
                 CancelText={step == 'Email' ? 'Add Subscription' : 'Next'}
                 ConfirmText={'Previous'}
                 DisableConfirm={step == 'User'}
@@ -117,7 +122,7 @@ const AddAllSubscription = (props: IProps) => {
                 }}
             >
                 {step == 'Email' ? 
-                    <div className="row">
+                    <div className="row h-100">
                         <AssetGroupSelection assetGroupID={assetGroupIDs} SetAssetGroupID={setAssetGroupIDs} />
                         <EmailSelect emailTypeID={emailTypeID} SetEmailTypeID={setEmailTypeID} />
                     </div> : null}
