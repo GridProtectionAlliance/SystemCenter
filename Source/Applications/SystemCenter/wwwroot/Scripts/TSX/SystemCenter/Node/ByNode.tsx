@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { GenericController, Search, SearchBar, LoadingScreen, Modal } from '@gpa-gemstone/react-interactive'
+import { GenericController, Search, SearchBar, LoadingScreen, ServerErrorIcon } from '@gpa-gemstone/react-interactive'
 import { Table, Column, Paging } from '@gpa-gemstone/react-table'
 import { Application } from '@gpa-gemstone/application-typings';
 import { useNavigate } from "react-router-dom";
@@ -61,6 +61,7 @@ const ByNode = (props: { Roles: Application.Types.SecurityRoleName[] }) => {
     const [page, setPage] = React.useState<number>(0)
     const [totalPages, setTotalPages] = React.useState<number>(0)
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated')
+    const [searchStatus, setSearchStatus] = React.useState<Application.Types.Status>('uninitiated')
     const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
     const [totalRecords, setTotalRecords] = React.useState<number>(0);
     const [nodeTypes, setNodeTypes] = React.useState<INodeType[]>([]);
@@ -70,8 +71,10 @@ const ByNode = (props: { Roles: Application.Types.SecurityRoleName[] }) => {
     React.useEffect(() => {
         const nodeTypeController = new GenericController<INodeType>(`${homePath}api/OpenXDA/NodeTypes`, 'Name', true);
         const handle = nodeTypeController.Fetch();
+        setStatus('loading');
         handle.done((d: INodeType[]) => {
             setNodeTypes(d);
+            setStatus('idle');
         }).fail((d) => {
             setStatus('error');
         })
@@ -84,8 +87,10 @@ const ByNode = (props: { Roles: Application.Types.SecurityRoleName[] }) => {
     React.useEffect(() => {
         const appHostController = new GenericController<IHostRegistration>(`${homePath}api/OpenXDA/HostRegistration`, 'ID', true);
         const handle = appHostController.Fetch();
+        setStatus('loading');
         handle.done((d: IHostRegistration[]) => {
             setAppHosts(d);
+            setStatus('idle');
         }).fail((d) => {
             setStatus('error');
         })
@@ -96,7 +101,7 @@ const ByNode = (props: { Roles: Application.Types.SecurityRoleName[] }) => {
 
     // effect to collect data.
     React.useEffect(() => {
-        setStatus('loading');
+        setSearchStatus('loading');
         const nodeController = new GenericController<SC.Node>(`${homePath}api/SystemCenter/Node`, 'Name', true)
         const handle = nodeController.PagedSearch(filters, sortField, ascending, page);
         handle.done((d) => {
@@ -104,9 +109,9 @@ const ByNode = (props: { Roles: Application.Types.SecurityRoleName[] }) => {
             setTotalPages(d.NumberOfPages);
             setRecordsPerPage(d.RecordsPerPage);
             setTotalRecords(d.TotalRecords);
-            setStatus('idle');
+            setSearchStatus('idle');
         }).fail((d) => {
-            setStatus('error');
+            setSearchStatus('error');
         })
         return () => {
             if (handle.abort != undefined) handle.abort();
@@ -127,17 +132,18 @@ const ByNode = (props: { Roles: Application.Types.SecurityRoleName[] }) => {
     ];
 
     return <div style={{ width: '100%', height: '100%' }}>
-        <LoadingScreen Show={status === 'loading'} />
+        <LoadingScreen Show={status === 'loading' || searchStatus === 'loading'} />
+        <ServerErrorIcon Show={ status === 'error'} />
         <div className="container-fluid d-flex h-100 flex-column">
             <div className="row">
                 <SearchBar<SC.Node> CollumnList={defaultSearchcols} SetFilter={setFilters}
                 Direction={'left'} defaultCollumn={{ label: 'Name', key: 'Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
-                    ShowLoading={status === 'loading'} ResultNote={status === 'error' ? 'Could not complete search.' : `Displaying  TaskRunner(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + data.length} out of ${totalRecords}`}
+                    ShowLoading={status === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete search.' : `Displaying  TaskRunner(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + data.length} out of ${totalRecords}`}
                 StorageID="NodesFilter"
             >
             </SearchBar>
             </div>
-            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+            <div className="d-flex flex-column row" style={{ flex: 1, overflow: 'hidden' }}>
                 <Table<SC.Node>
                     TableClass="table table-hover"
                     Data={data}
