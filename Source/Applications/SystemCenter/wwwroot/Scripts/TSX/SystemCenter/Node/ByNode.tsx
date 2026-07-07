@@ -24,7 +24,7 @@
 import * as React from 'react';
 import { GenericController, Search, SearchBar, LoadingScreen, Modal } from '@gpa-gemstone/react-interactive'
 import { Table, Column, Paging } from '@gpa-gemstone/react-table'
-import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
+import { Application } from '@gpa-gemstone/application-typings';
 import { useNavigate } from "react-router-dom";
 import { SystemCenter as SC } from '../global'
 
@@ -66,18 +66,18 @@ const ByNode = (props: { Roles: Application.Types.SecurityRoleName[] }) => {
     const [nodeTypes, setNodeTypes] = React.useState<INodeType[]>([]);
     const [appHosts, setAppHosts] = React.useState<IHostRegistration[]>([])
 
+    // on initial mount, fetch node types.
     React.useEffect(() => {
-        if (status === 'uninitiated') {
-            const nodeTypeController = new GenericController<INodeType>(`${homePath}api/OpenXDA/NodeTypes`, 'Name', true);
-            const handle = nodeTypeController.Fetch();
-            handle.done((d: INodeType[]) => {
-                setNodeTypes(d);
-            }).fail((d) => {
-                setStatus('error');
-            })
-        }
-    }, [status])
+        const nodeTypeController = new GenericController<INodeType>(`${homePath}api/OpenXDA/NodeTypes`, 'Name', true);
+        const handle = nodeTypeController.Fetch();
+        handle.done((d: INodeType[]) => {
+            setNodeTypes(d);
+        }).fail((d) => {
+            setStatus('error');
+        })
+    }, [])
 
+    // on initial mount, fetch app hosts.
     React.useEffect(() => {
         const appHostController = new GenericController<IHostRegistration>(`${homePath}api/OpenXDA/HostRegistration`, 'ID', true);
         const handle = appHostController.Fetch();
@@ -89,8 +89,9 @@ const ByNode = (props: { Roles: Application.Types.SecurityRoleName[] }) => {
         return () => {
             if (handle.abort != undefined) handle.abort();
         }
-    }, [status])
+    }, [])
 
+    // effect to collect data.
     React.useEffect(() => {
         setStatus('loading');
         const nodeController = new GenericController<SC.Node>(`${homePath}api/SystemCenter/Node`, 'Name', true)
@@ -108,6 +109,8 @@ const ByNode = (props: { Roles: Application.Types.SecurityRoleName[] }) => {
             if (handle.abort != undefined) handle.abort();
         }
     }, [filters, sortField, ascending, page])
+
+    // navigate to node info 
     function handleSelect(item) {
         navigate(`${homePath}index.cshtml?name=Node&NodeID=${item.row.ID}`);
     }
