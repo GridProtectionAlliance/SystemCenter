@@ -39,6 +39,8 @@ using System.Web.Http;
 using GSF.Data;
 using GSF.Data.Model;
 using GSF.Web.Model;
+using Microsoft.Graph;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using openXDA.Model;
 using SystemCenter.Model;
@@ -359,6 +361,51 @@ namespace SystemCenter.Controllers.OpenXDA
                 return InternalServerError(ex);
             }
         }
+        
+        [HttpPost, Route("Membership/{recordType}/{recordID:int}/{page:int}")]
+        public IHttpActionResult GetMembership([FromBody] PostData postData, [FromUri] string recordType, [FromUri] int recordID, [FromUri] int page)
+        {
+            if (!GetAuthCheck())
+                return Unauthorized();
+
+            PagedResults pagedResults = new PagedResults();
+
+            int recordsPerPage = Take ?? 50;
+
+            pagedResults.RecordsPerPage = recordsPerPage;
+
+            string[] validRecordTypes = ["AssetGroup", "Asset", "Meter"];
+
+            if (!validRecordTypes.Contains(recordType))
+                return BadRequest();
+
+            string linkTable = recordType + "AssetGroup";
+
+            string recordIDField = recordType + "ID";
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                string sql = $" SELECT * FROM {linkTable} WHERE {recordIDField} = {{0}} ";
+                DataTable linkRecords = connection.RetrieveData(sql, recordID);
+
+                IEnumerable<int> assetGroupIDs = linkRecords.AsEnumerable().Select(row => row.Field<int>("AssetGroupID"));
+
+                string filterExpression = $"ID in ({String.Join(",", assetGroupIDs)})";
+
+                TableOperations<AssetGroup> table = new TableOperations<AssetGroup>(connection);
+                IEnumerable<AssetGroup> records = table.QueryRecordsWhere(filterExpression);
+
+                pagedResults.TotalRecords = records.Count();
+                pagedResults.NumberOfPages = (pagedResults.TotalRecords + recordsPerPage - 1) / recordsPerPage;
+
+                IEnumerable<AssetGroup> pagedRecords = table.GetPageOfRecords(records.ToArray(), page, recordsPerPage);
+
+                pagedResults.Data = JsonConvert.SerializeObject(pagedRecords); 
+            }
+
+            return Ok(pagedResults);
+        }
+
         public override IHttpActionResult Delete(AssetGroupView record)
         {
             try

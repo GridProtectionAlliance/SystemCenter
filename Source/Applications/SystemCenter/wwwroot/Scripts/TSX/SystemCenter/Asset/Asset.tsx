@@ -33,6 +33,7 @@ import AssetChannelWindow from './AssetChannel';
 import { useNavigate } from 'react-router-dom';
 import NoteWindow from '../CommonComponents/NoteWindow';
 import AssetConnectionWindow from './AssetConnection';
+import AssetGroupWindow from '../CommonComponents/AssetGroupWindow'
 import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
 import { getAssetTypes } from '../../../TS/Services/Asset';
 import LineSegmentWindow from '../AssetAttribute/LineSegmentWindow';
@@ -42,7 +43,7 @@ import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
 
 declare var homePath: string;
-declare type Tab = 'notes' | 'assetInfo' | 'substations' | 'meters' | 'connections' | 'additionalFields' | 'extDB' | 'segments' | 'sourceImpedances' | 'channels';
+declare type Tab = 'notes' | 'assetInfo' | 'substations' | 'meters' | 'assetGroup' | 'connections' | 'additionalFields' | 'extDB' | 'segments' | 'sourceImpedances' | 'channels';
 
 interface IProps { AssetID: number, Tab: Tab }
 
@@ -139,6 +140,7 @@ function Asset(props: IProps) {
     const Tabs = [
         { Id: "notes", Label: "Notes" },
         { Id: "assetInfo", Label: "Info" },
+        { Id: "assetGroups", Label: "Asset Groups"},
         { Id: "additionalFields", Label: "Additional Fields" },
         { Id: "substations", Label: "Substations" },
         { Id: "meters", Label: "Meters" },
@@ -173,7 +175,8 @@ function Asset(props: IProps) {
 
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
             {tab === 'notes' ? <NoteWindow ID={asset.ID} Type='Asset' /> : null}
-            {tab === 'assetInfo' ? <AssetInfoWindow Asset={asset} StateSetter={setAsset} />: null}
+            {tab === 'assetInfo' ? <AssetInfoWindow Asset={asset} StateSetter={setAsset} /> : null}
+            {tab === 'assetGroups' ? <AssetGroupWindow ID={asset.ID} RecordType={'Asset'} /> : null }
             {tab === 'additionalFields' ? <AdditionalFieldsWindow ID={asset.ID} Type={(assetType == null) ? "Asset" : assetType} Tab={tab} />: null}
             {tab === 'substations' ? <AssetLocationWindow Asset={asset} />: null}
             {tab === 'meters' ? <AssetMeterWindow Asset={asset} />: null}

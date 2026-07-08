@@ -32,6 +32,7 @@ import MeterEventChannelWindow from '../Meter/MeterEventChannel';
 import MeterTrendChannelWindow from '../Meter/MeterTrendChannel';
 import ChannelScalingWindow from './ChannelScaling/ChannelScalingWindow';
 import MeterAssetWindow from '../Meter/MeterAsset';
+import AssetGroupWindow from '../CommonComponents/AssetGroupWindow';
 import MeterMaintenanceWindow from '../Meter/MeterMaintenance';
 import NoteWindow from '../CommonComponents/NoteWindow';
 import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
@@ -45,7 +46,7 @@ import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
  
 declare var homePath: string;
-declare type Tab = 'notes' | 'meterInfo' | 'additionalFields' | 'substation' | 'assets' | 'eventChannels' | 'trendChannels' | 'channelScaling' | 'configurationHistory' | 'extDB' | 'maintenance' | 'dataRescue' | 'dataMerge' | 'dataDelete'
+declare type Tab = 'notes' | 'meterInfo' | 'additionalFields' | 'substation' | 'assets' | 'assetGroups' | 'eventChannels' | 'trendChannels' | 'channelScaling' | 'configurationHistory' | 'extDB' | 'maintenance' | 'dataRescue' | 'dataMerge' | 'dataDelete'
 
 interface IProps { MeterID: number, Tab: Tab }
 
@@ -162,6 +163,7 @@ function Meter(props: IProps) {
         { Id: "additionalFields", Label: "Additional Fields" },
         { Id: "substation", Label: "Substations" },
         { Id: "assets", Label: "Assets" },
+        { Id: "assetGroups", Label: "Asset Groups"},
         { Id: "eventChannels", Label: "Event Channels" },
         { Id: "trendChannels", Label: "Trend Channels" },
         { Id: "channelScaling", Label: "Scale Channels" },
@@ -189,6 +191,7 @@ function Meter(props: IProps) {
             {tab === 'trendChannels' ? <MeterTrendChannelWindow Meter={meter} IsVisible={tab === "trendChannels"} /> : null}
             {tab === 'channelScaling' ? <ChannelScalingWindow Meter={meter} IsVisible={tab === "channelScaling"} /> : null}
             {tab === 'assets' ? <MeterAssetWindow Meter={meter} /> : null}
+            {tab === 'assetGroups' ? <AssetGroupWindow RecordType={'Meter'} ID={props.MeterID} /> : null}
             {tab === 'configurationHistory' ? <MeterConfigurationHistoryWindow Meter={meter} /> : null}
             {tab === 'dataRescue' ? dataRescueWindow : null}
             {tab === 'dataMerge' ? dataMergeWindow : null}
