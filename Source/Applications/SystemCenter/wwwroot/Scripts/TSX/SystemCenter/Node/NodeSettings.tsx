@@ -121,13 +121,13 @@ export default function NodeSettings(props: IProps) {
                 <div className="card-header">
                     <div className="row">
                         <div className="col">
-                            <h4>Settings</h4>
+                            <h4>Settings:</h4>
                         </div>
                     </div>
                 </div>
                 <div className='card-body' style={{ paddingBottom: 0, display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
-                    <div className='row h-100'>
-                        <div className='col-12 d-flex flex-column' style={{ flex: 1 }}>
+                    <div className='row h-100' style={{ overflow: 'hidden' }}>
+                        <div className='col d-flex flex-column h-100' style={{ overflow: 'hidden', flex: 1 }}>
                             <Table<INodeSetting>
                                 TableClass="table table-hover"
                                 Data={data}
@@ -143,7 +143,6 @@ export default function NodeSettings(props: IProps) {
                                 }}
                                 OnClick={(item) => { setEditNewSetting(item.row); setShowModal(true); setEditNew('Edit'); }}
                                 TheadStyle={{ fontSize: 'smaller' }}
-                                TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
                                 RowStyle={{ fontSize: 'smaller' }}
                                 Selected={(item) => false}
                                 KeySelector={(item) => item.ID}
@@ -178,12 +177,8 @@ export default function NodeSettings(props: IProps) {
                     </div>
                 </div>
                 <div className="card-footer">
-                    <div className="row justify-content-start">
-                        <div className="col-4">
-                            <form>
-                                <button className="btn btn-info btn-block" onClick={(event) => { setEditNewSetting(emptyNodeSetting(props.NodeID)); setEditNew('New'); setShowModal(true); event.preventDefault() }}>Add Setting</button>
-                            </form>
-                        </div>
+                    <div className="btn-group mr-2">
+                        <button className="btn btn-info" onClick={(event) => { setEditNewSetting(emptyNodeSetting(props.NodeID)); setEditNew('New'); setShowModal(true); event.preventDefault() }}>Add Setting</button>
                     </div>
                 </div>
             </div>

@@ -165,9 +165,9 @@ const NodeForm = (props: IProps) => {
                 <div className="col">
                     <Input<SC.Node> Record={node} Field={'Name'} Label='Name' Valid={valid} Setter={(record) => setNode(record)} Disabled={!hasPermissions()} Feedback='A name is required.' />
                     <Input<SC.Node> Type={'number'} Record={node} Field={'MinimumHostCount'} Label='Minimum Node Count' Feedback='A number between 0 and 100 is required.' Valid={valid} Setter={(record) => setNode(record)} Disabled={!hasPermissions()} />
-                    <Select<SC.Node> Options={nodeTypes.map((n) => { return { Value: n.Name, Label: n.Name } })} Record={node} Field={'NodeType'} Setter={(record) => setNode(record)} />
+                    <Select<SC.Node> Options={nodeTypes.map((n) => { return { Value: n.Name, Label: n.Name } })} Record={node} Field={'NodeType'} Setter={(record) => setNode(record)} Label={'Type'} />
                     <Select<SC.Node> Record={node} Options={appHosts.map((h) => { return { Value: h.RegistrationKey, Label: h.RegistrationKey } })} Field={'HostRegistrationKey'} Label={'Node'} EmptyOption={true} Setter={(record) => setNode(record)} />
-                    <Select<SC.Node> Record={node} Options={appHosts.map((h) => { return { Value: h.RegistrationKey, Label: h.RegistrationKey } })} Field={'AssignedHostRegistrationKey'} Label={'Assigned Nodes'} EmptyOption={true} Setter={(record) => setNode(record)} />
+                    <Select<SC.Node> Record={node} Options={appHosts.map((h) => { return { Value: h.RegistrationKey, Label: h.RegistrationKey } })} Field={'AssignedHostRegistrationKey'} Label={'Assigned Node'} EmptyOption={true} Setter={(record) => setNode(record)} />
                 </div>
             }
             <LoadingScreen Show={status === 'loading'} />
