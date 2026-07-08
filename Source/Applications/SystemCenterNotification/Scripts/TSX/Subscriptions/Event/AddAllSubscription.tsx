@@ -101,7 +101,7 @@ const AddAllSubscription = (props: IProps) => {
                 Size={'xlg'}
                 ShowX={true}
                 Title={'Add New Event Subscription'}
-                BodyStyle={{ overflow: 'hidden', height: 'calc(-210px + 100vh)'}}
+                BodyStyle={{ overflow: 'hidden', height: 'calc(100vh - 210px)'}}
                 CancelText={step == 'Email' ? 'Add Subscription' : 'Next'}
                 ConfirmText={'Previous'}
                 DisableConfirm={step == 'User'}
