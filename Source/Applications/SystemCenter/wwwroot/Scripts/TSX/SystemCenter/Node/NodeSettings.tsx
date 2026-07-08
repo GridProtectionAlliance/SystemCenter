@@ -44,7 +44,7 @@ const searchFields: Search.IField<INodeSetting>[] = [
     { key: 'Value', label: 'Current Value', type: 'string', isPivotField: false }
 ]
 
-export default function NodeSettings (props: IProps) {
+export default function NodeSettings(props: IProps) {
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated')
     const [sortField, setSortField] = React.useState<keyof INodeSetting>("Name");
     const [ascending, setAscending] = React.useState<boolean>(true);
@@ -117,76 +117,83 @@ export default function NodeSettings (props: IProps) {
     return (
         <>
             <LoadingScreen Show={status === 'loading'} />
-            <div className="row justify-content-end">
-                <div className="col-4">
-                    <li className="nav-item" style={{ paddingRight: 10, width: '50%' }}>
-                        <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                            <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
+            <div className='card' style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                <div className="card-header">
+                    <div className="row">
+                        <div className="col">
+                            <h4>Settings</h4>
+                        </div>
+                    </div>
+                </div>
+                <div className='card-body' style={{ paddingBottom: 0, display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+                    <div className='row h-100'>
+                        <div className='col-12 d-flex flex-column' style={{ flex: 1 }}>
+                            <Table<INodeSetting>
+                                TableClass="table table-hover"
+                                Data={data}
+                                SortKey={sortField}
+                                Ascending={ascending}
+                                OnSort={(d) => {
+                                    if (d.colField === sortField)
+                                        setAscending(!ascending);
+                                    else {
+                                        setAscending(true);
+                                        setSortField(d.colField);
+                                    }
+                                }}
+                                OnClick={(item) => { setEditNewSetting(item.row); setShowModal(true); setEditNew('Edit'); }}
+                                TheadStyle={{ fontSize: 'smaller' }}
+                                TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                                RowStyle={{ fontSize: 'smaller' }}
+                                Selected={(item) => false}
+                                KeySelector={(item) => item.ID}
+                            >
+                                <Column<INodeSetting>
+                                    Key={'Name'}
+                                    AllowSort={true}
+                                    Field={'Name'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                > Setting
+                                </Column>
+                                <Column<INodeSetting>
+                                    Key={'Value'}
+                                    AllowSort={true}
+                                    Field={'Value'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                >  Value
+                                </Column>
+                            </Table>
+                        </div>
+                    </div>
+                    <div className="row">
+                        <div className="col">
+                            <Paging
+                                Current={currentPage + 1}
+                                SetPage={(page) => setCurrentPage(page - 1)}
+                                Total={totalPages}
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div className="card-footer">
+                    <div className="row justify-content-start">
+                        <div className="col-4">
                             <form>
                                 <button className="btn btn-info btn-block" onClick={(event) => { setEditNewSetting(emptyNodeSetting(props.NodeID)); setEditNew('New'); setShowModal(true); event.preventDefault() }}>Add Setting</button>
                             </form>
-                        </fieldset>
-                    </li>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div className='row' style={{ flex: 1, overflow: 'hidden' }}>
-                <div className='col-12' style={{ height: '100%', overflow: 'auto' }}>
-                    <Table<INodeSetting>
-                        TableClass="table table-hover"
-                        Data={data}
-                        SortKey={sortField as string}
-                        Ascending={ascending}
-                        OnSort={(d) => {
-                            if (d.colField === sortField)
-                                setAscending(!ascending);
-                            else {
-                                setAscending(true);
-                                setSortField(d.colField);
-                            }
-                        }}
-                        OnClick={(item) => { setEditNewSetting(item.row); setShowModal(true); setEditNew('Edit'); }}
-                        TheadStyle={{ fontSize: 'smaller' }}
-                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                        RowStyle={{ fontSize: 'smaller' }}
-                        Selected={(item) => false}
-                        KeySelector={(item) => item.ID}
-                    >
-                        <Column<INodeSetting>
-                            Key={'Name'}
-                            AllowSort={true}
-                            Field={'Name'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Setting
-                        </Column>
-                        <Column<INodeSetting>
-                            Key={'Value'}
-                            AllowSort={true}
-                            Field={'Value'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        >  Value
-                        </Column>
-                    </Table>
-                </div>
-            </div>
-            <div className="row">
-                <div className="col">
-                    <Paging
-                        Current={currentPage + 1}
-                        SetPage={(page) => setCurrentPage(page - 1)}
-                        Total={totalPages}
-                    />
-                </div>
-            </div>
-
             <Modal Title={editNew === 'Edit' ? 'Edit ' + (editnewSetting?.Name ?? 'Setting') : 'Add New Setting'}
                 Show={showModal} ShowX={true} Size={'lg'} ShowCancel={editNew === 'Edit'} ConfirmText={'Save'} CancelText={'Delete'}
                 CallBack={(conf, isBtn) => {
                     if (conf && editNew === 'New')
-                        genericController.DBAction('POST', editnewSetting).then(() => setStatus('changed')) 
+                        genericController.DBAction('POST', editnewSetting).then(() => setStatus('changed'))
                     if (conf && editNew === 'Edit')
-                        genericController.DBAction('PATCH', editnewSetting).then(() => setStatus('changed')) 
+                        genericController.DBAction('PATCH', editnewSetting).then(() => setStatus('changed'))
                     if (!conf && isBtn)
                         setShowWarning(true);
                     setShowModal(false);
