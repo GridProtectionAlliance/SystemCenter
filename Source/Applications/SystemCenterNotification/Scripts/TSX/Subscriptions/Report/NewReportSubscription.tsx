@@ -147,7 +147,7 @@ const NewReportSubscription = (props: {}) => {
                         </div>
                     </div>
                     <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
-                        <div className="row">
+                        <div className="row h-100">
                             {currentStep == 'Selection' ?
                                 <>
                                     <AssetGroupSelection assetGroupID={assetGroupID} SetAssetGroupID={setAssetGroupID} /> 

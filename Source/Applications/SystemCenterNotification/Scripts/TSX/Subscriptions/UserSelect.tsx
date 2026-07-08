@@ -42,75 +42,67 @@ const UserSelect = (props: IProps) => {
     const data = useAppSelector(UserAccountSlice.SearchResults);
     const sortField = useAppSelector(UserAccountSlice.SortField);
     const ascending = useAppSelector(UserAccountSlice.Ascending);
-    
+
     return (
-        <>
+        <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
             <div className="row">
                 <div className="col">
                     <DefaultSearch.User Slice={UserAccountSlice as any} GetAddlFields={() => () => { }} GetEnum={() => () => { }}>
                     </DefaultSearch.User>
                 </div>
             </div>
-            <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
-                <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                    <div className="col-12" style={{ height: '100%', overflow: 'hidden' }}>
-                        <Table<Application.Types.iUserAccount>
-                            TableClass="table table-hover"
-                            Data={data}
-                            SortKey={sortField}
-                            Ascending={ascending}
-                            OnSort={(d) => {
-                                if (d.colKey == null) return;
-                                dispatch(UserAccountSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
-                            }}
-                            OnClick={(d) => props.SetUserAccountID(d.row.ID)}
-                            TableStyle={{
-                                padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
-                                tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
-                            }}
-                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
-                            RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            Selected={(item) => props.UserAccountID == item.ID}
-                            KeySelector={(item) => item.ID}
-                        >
-                            <Column<Application.Types.iUserAccount>
-                                Key={'Name'}
-                                AllowSort={true}
-                                Field={'Name'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                            > Account
-                            </Column>
-                            <Column<Application.Types.iUserAccount>
-                                Key={'FirstName'}
-                                AllowSort={true}
-                                Field={'FirstName'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                            > First Name
-                            </Column>
-                            <Column<Application.Types.iUserAccount>
-                                Key={'LastName'}
-                                AllowSort={true}
-                                Field={'LastName'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                            > Last Name
-                            </Column>
-                            <Column<Application.Types.iUserAccount>
-                                Key={'Email'}
-                                AllowSort={true}
-                                Field={'Email'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                            > Email
-                            </Column>
-                        </Table>
-                    </div>
+            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className='col-12' style={{ height: '100%', overflow: 'hidden' }}>
+                    <Table<Application.Types.iUserAccount>
+                        TableClass="table table-hover"
+                        Data={data}
+                        SortKey={sortField}
+                        Ascending={ascending}
+                        OnSort={(d) => {
+                            if (d.colKey == null) return;
+                            dispatch(UserAccountSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
+                        }}
+                        OnClick={(d) => props.SetUserAccountID(d.row.ID)}
+                        TableStyle={{ height: 'calc(100% - 16px)' }}
+                        Selected={(item) => props.UserAccountID == item.ID}
+                        KeySelector={(item) => item.ID}
+                    >
+                        <Column<Application.Types.iUserAccount>
+                            Key={'Name'}
+                            AllowSort={true}
+                            Field={'Name'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Account
+                        </Column>
+                        <Column<Application.Types.iUserAccount>
+                            Key={'FirstName'}
+                            AllowSort={true}
+                            Field={'FirstName'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > First Name
+                        </Column>
+                        <Column<Application.Types.iUserAccount>
+                            Key={'LastName'}
+                            AllowSort={true}
+                            Field={'LastName'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Last Name
+                        </Column>
+                        <Column<Application.Types.iUserAccount>
+                            Key={'Email'}
+                            AllowSort={true}
+                            Field={'Email'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Email
+                        </Column>
+                    </Table>
                 </div>
             </div>
-        </>
+        </div>
     );
 }
 

@@ -64,7 +64,7 @@ const AssetGroupSelection = (props: IProps) => {
 
     React.useEffect(() => {
         let handle = getParents();
-        return () => { if (handle != null && handle.abort != null) handle.abort();}
+        return () => { if (handle != null && handle.abort != null) handle.abort(); }
     }, [])
 
     React.useEffect(() => {
@@ -124,74 +124,78 @@ const AssetGroupSelection = (props: IProps) => {
         }
 
         setShowWarning(props.assetGroupID.length > 5);
-        props.SetAssetGroupID([...props.assetGroupID, x.row.ID]);    
+        props.SetAssetGroupID([...props.assetGroupID, x.row.ID]);
     }
 
     return (<>
-            <LoadingIcon Show={parentGroupState == 'loading' || assetGrpStatus == 'loading'} />
-            <div className="col">
-                    <div className="col">
+        <LoadingIcon Show={parentGroupState == 'loading' || assetGrpStatus == 'loading'} />
+        <div className="col h-100 d-flex flex-column">
+            <div className="row">
+                <div className="col">
                     <Select<OpenXDA.Types.AssetGroup> Record={selectedParent} Field={'ID'} Label='Asset Group'
                         Help={'Choose a parent Asset Group or "Other" from the dropdown to see all parent Groups, then select a Subgroup from the table below. Only Asset Groups marked "Show in Email Subscription" in System Center will appear here.'}
                         Setter={setSelectedParent} Options={[{ Label: 'Other', Value: '-1' }].concat(parentGroups.map((p) => {
-                                return { Label: p.Name, Value: p.ID.toString() }
-                            }))} />
-                    </div>
-                    <div className='col'>
-                        <Table<OpenXDA.Types.AssetGroup>
-                            TableClass="table table-hover"
-                            Data={assetGrps}
-                            SortKey={sort}
-                            Ascending={asc}
-                            OnSort={(d) => {
-                                if (d.colKey === sort)
-                                    setAsc(x => !x);
-                                else {
-                                    setAsc(false);
-                                    setSort(d.colField);
-                                }
-                            }}
-                            OnClick={handleSelected}
-                            TableStyle={{ height: 'calc(100% - 16px)' }}
-                            TheadStyle={{ fontSize: 'smaller' }}
-                            TbodyStyle={{ fontSize: 'smaller' }}
-                            Selected={(item) => props.assetGroupID.includes(item.ID)}
-                            KeySelector={(item) => item.ID}
-                        >
-                            <Column<OpenXDA.Types.AssetGroup>
-                                Key={'Name'}
-                                AllowSort={true}
-                                Field={'Name'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                            > Name
-                            </Column>
-                            <Column<OpenXDA.Types.AssetGroup>
-                                Key={'Meters'}
-                                AllowSort={true}
-                                Field={'Meters'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                            > Num. Meters
-                            </Column>
-                            <Column<OpenXDA.Types.AssetGroup>
-                                Key={'Assets'}
-                                AllowSort={true}
-                                Field={'Assets'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                            > Num. Assets
-                            </Column>
-                        </Table>
-                    </div>
-                <Warning
-                    Message={`You are subscribing to ${props.assetGroupID.length} sets of notifications. For some events you may receive a notification for each Asset Group selected.`}
-                    Title={`Subscribing to ${props.assetGroupID.length} Notifications`}
-                    Show={showWarning}
-                    CallBack={(c) => { setShowWarning(false); }}
-                />
+                            return { Label: p.Name, Value: p.ID.toString() }
+                        }))} />
+                </div>
             </div>
-        </>
+            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className='col-12' style={{ height: '100%', overflow: 'hidden' }}>
+                    <Table<OpenXDA.Types.AssetGroup>
+                        TableClass="table table-hover"
+                        Data={assetGrps}
+                        SortKey={sort}
+                        Ascending={asc}
+                        OnSort={(d) => {
+                            if (d.colKey === sort)
+                                setAsc(x => !x);
+                            else {
+                                setAsc(false);
+                                setSort(d.colField);
+                            }
+                        }}
+                        OnClick={handleSelected}
+                        TableStyle={{ height: 'calc(100% - 16px)' }}
+                        TheadStyle={{ fontSize: 'smaller' }}
+                        TbodyStyle={{ fontSize: 'smaller' }}
+                        Selected={(item) => props.assetGroupID.includes(item.ID)}
+                        KeySelector={(item) => item.ID}
+                    >
+                        <Column<OpenXDA.Types.AssetGroup>
+                            Key={'Name'}
+                            AllowSort={true}
+                            Field={'Name'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Name
+                        </Column>
+                        <Column<OpenXDA.Types.AssetGroup>
+                            Key={'Meters'}
+                            AllowSort={true}
+                            Field={'Meters'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Num. Meters
+                        </Column>
+                        <Column<OpenXDA.Types.AssetGroup>
+                            Key={'Assets'}
+                            AllowSort={true}
+                            Field={'Assets'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Num. Assets
+                        </Column>
+                    </Table>
+                </div>
+            </div>
+            <Warning
+                Message={`You are subscribing to ${props.assetGroupID.length} sets of notifications. For some events you may receive a notification for each Asset Group selected.`}
+                Title={`Subscribing to ${props.assetGroupID.length} Notifications`}
+                Show={showWarning}
+                CallBack={(c) => { setShowWarning(false); }}
+            />
+        </div>
+    </>
     );
 }
 
