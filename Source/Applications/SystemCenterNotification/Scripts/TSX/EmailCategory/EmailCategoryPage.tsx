@@ -75,7 +75,7 @@ const EmailCategoryPage = (props: IProps) => {
                     </div>
                     <div className="col-6 align-self-center">
                         <button className="btn btn-danger float-right" hidden={category == null}
-                            onClick={() => setShowDelete(true)}>Delete EmailCategory</button>
+                            onClick={() => setShowDelete(true)}>Delete Email Category</button>
                     </div>
                 </div>
 
