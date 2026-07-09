@@ -236,7 +236,7 @@ const ByNode = (props: { Roles: Application.Types.SecurityRoleName[] }) => {
                 ConfirmShowToolTip={!validNode(newNode)}
                 ConfirmToolTipContent={ <>
                     {!valid(newNode, 'Name') ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> A name is required.</p> : null}
-                    {!valid(newNode, 'MinimumHostCount') ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> A minimum node count between 0 and 100 (non-inclusive) is required.</p> : null}
+                    {!valid(newNode, 'MinimumHostCount') ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> A minimum node count between 1 and 99 is required.</p> : null}
                     </>
                 }
                 CallBack={(conf) => {
