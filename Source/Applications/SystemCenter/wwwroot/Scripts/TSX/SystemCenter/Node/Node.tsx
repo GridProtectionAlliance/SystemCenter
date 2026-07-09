@@ -134,7 +134,7 @@ export default function Node(props: IProps) {
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
             {tab === 'info' ? <NodeForm Node={node} UpdateRecord={() => setRefreshTrigger((val) => !val)} NodeTypes={nodeTypes} AppHosts={appHosts} /> : null}
             {tab === 'settings' ? <NodeSettings NodeID={node?.ID ?? props.NodeID.toString()} /> : null}
-            <Warning Title={'Delete ' + (node?.Name ?? 'Customer')} Show={showWarning} Message={'This will permanently delete this Customer.'} CallBack={(c) => { if (c) deleteNode(); setShowWarning(false) }} />
+            <Warning Title={'Delete ' + (node?.Name ?? 'Task Runner')} Show={showWarning} Message={'This will permanently delete this Task Runner.'} CallBack={(c) => { if (c) deleteNode(); setShowWarning(false) }} />
         </div>
     )
 }
