@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import { useAppSelector } from '../hooks';
-import { Gemstone, Application, OpenXDA } from '@gpa-gemstone/application-typings'
+import { Application } from '@gpa-gemstone/application-typings'
 import { ToolTip } from '@gpa-gemstone/react-forms'
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { GenericController, LoadingScreen } from '@gpa-gemstone/react-interactive'
@@ -32,7 +32,7 @@ import { SystemCenter as SC } from '../global'
 import NodeAttributes, { validNode, valid, INodeType, IHostRegistration, IOpenXDANode, convertToXDANode } from './NodeAttributes'
 
 interface IProps {
-    Node: SC.Node | null,
+    Node: SC.Node | null
     UpdateRecord: () => void
 }
 

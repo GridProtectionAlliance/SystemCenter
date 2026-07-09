@@ -43,6 +43,7 @@ export default function Node(props: IProps) {
     const [tab, setTab] = React.useState(getTab());
     const [node, setNode] = React.useState<SC.Node | null>(null)
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated')
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false)
 
     React.useEffect(() => {
         const saved = getTab(props.Tab);
@@ -70,7 +71,7 @@ export default function Node(props: IProps) {
         return () => {
             if (h.abort != undefined) h.abort();
         }
-    }, [props.NodeID])
+    }, [props.NodeID, refreshTrigger])
 
     return (
         <div style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
@@ -82,7 +83,7 @@ export default function Node(props: IProps) {
             <hr />
 
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
-            {tab === 'info' ? <NodeForm Node={node} UpdateRecord={() => setStatus('changed')} /> : null}
+            {tab === 'info' ? <NodeForm Node={node} UpdateRecord={() => setRefreshTrigger((val) => !val)} /> : null}
             {tab === 'settings' ? <NodeSettings NodeID={node?.ID ?? props.NodeID.toString()} /> : null}
         </div>
     )

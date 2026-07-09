@@ -23,8 +23,8 @@
 
 import * as React from 'react';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
-import { SearchBar, Search, Warning, LoadingScreen, ServerErrorIcon, GenericController, Modal } from '@gpa-gemstone/react-interactive';
-import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
+import { Search, Warning, LoadingScreen, GenericController, Modal } from '@gpa-gemstone/react-interactive';
+import { Application } from '@gpa-gemstone/application-typings';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Input, TextArea } from '@gpa-gemstone/react-forms';
 
