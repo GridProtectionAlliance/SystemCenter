@@ -63,6 +63,12 @@ const ByNode = (props: { Roles: Application.Types.SecurityRoleName[] }) => {
     const [newNode, setNewNode] = React.useState<SC.Node>(getNewNode())
     const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false)
 
+    function hasPermissions(): boolean {
+        if (props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Engineer') < 0)
+            return false;
+        return true;
+    }
+
     // on initial mount, fetch node types.
     React.useEffect(() => {
         const nodeTypeController = new GenericController<INodeType>(`${homePath}api/OpenXDA/NodeTypes`, 'Name', true);
@@ -247,7 +253,7 @@ const ByNode = (props: { Roles: Application.Types.SecurityRoleName[] }) => {
                 <div className="container-fluid d-flex h-100 flex-column">
                     <div className="tab-content row" style={{ flex: 1, overflow: 'hidden' }}>
                         <div className="col">
-                            <NodeAttributes Node={newNode} SetNode={setNewNode} HasPermissions={props.Roles.includes('Administrator') || props.Roles.includes('Engineer')} NodeTypes={nodeTypes} AppHosts={appHosts} />
+                            <NodeAttributes Node={newNode} SetNode={setNewNode} HasPermissions={hasPermissions()} NodeTypes={nodeTypes} AppHosts={appHosts} />
                         </div>
                     </div>
                 </div>

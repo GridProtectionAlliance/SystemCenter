@@ -34,12 +34,12 @@ import NodeAttributes, { validNode, valid, INodeType, IHostRegistration, IOpenXD
 interface IProps {
     Node: SC.Node | null
     UpdateRecord: () => void
+    NodeTypes: INodeType[]
+    AppHosts: IHostRegistration[]
 }
 
 const NodeForm = (props: IProps) => {
     const roles = useAppSelector(SelectRoles);
-    const [nodeTypes, setNodeTypes] = React.useState<INodeType[]>([]);
-    const [appHosts, setAppHosts] = React.useState<IHostRegistration[]>([])
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated')
     const [hover, setHover] = React.useState<string | null>(null)
     const [node, setNode] = React.useState<SC.Node | null>(props.Node)
@@ -72,37 +72,8 @@ const NodeForm = (props: IProps) => {
 
     const updateNode = React.useCallback(() => {
         const controller = new GenericController<IOpenXDANode>(`${homePath}api/openXDA/Node`, 'ID')
-        const handle = controller.DBAction('PATCH', convertToXDANode(node, nodeTypes, appHosts)).done((d) => props.UpdateRecord())
+        const handle = controller.DBAction('PATCH', convertToXDANode(node, props.NodeTypes, props.AppHosts)).done((d) => props.UpdateRecord())
     }, [node, props.UpdateRecord])
-
-    React.useEffect(() => {
-        const nodeTypeController = new GenericController<INodeType>(`${homePath}api/OpenXDA/NodeTypes`, 'Name', true);
-        const handle = nodeTypeController.Fetch();
-        handle.done((d: INodeType[]) => {
-            setNodeTypes(d);
-        }).fail((d) => {
-            setStatus('error');
-        })
-        return () => {
-            if (handle.abort != undefined) handle.abort();
-
-        }
-    }, [])
-
-    React.useEffect(() => {
-        const appHostController = new GenericController<IHostRegistration>(`${homePath}api/OpenXDA/HostRegistration`, 'ID', true);
-        const handle = appHostController.Fetch();
-        handle.done((d: IHostRegistration[]) => {
-            setAppHosts(d);
-        }).fail((d) => {
-            setStatus('error');
-        })
-        return () => {
-            if (handle.abort != undefined) handle.abort();
-
-        }
-    }, [])
-
 
     return <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <div className="card-header">
@@ -119,8 +90,8 @@ const NodeForm = (props: IProps) => {
                         Node={node}
                         SetNode={setNode}
                         HasPermissions={hasPermissions()}
-                        NodeTypes={nodeTypes}
-                        AppHosts={appHosts}
+                        NodeTypes={props.NodeTypes}
+                        AppHosts={props.AppHosts}
                     />
                 </div>
             }
