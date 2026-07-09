@@ -22,11 +22,13 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { GenericController, Search, SearchBar, LoadingScreen, ServerErrorIcon } from '@gpa-gemstone/react-interactive'
+import { GenericController, Search, SearchBar, LoadingScreen, ServerErrorIcon, Modal } from '@gpa-gemstone/react-interactive'
 import { Table, Column, Paging } from '@gpa-gemstone/react-table'
 import { Application } from '@gpa-gemstone/application-typings';
 import { useNavigate } from "react-router-dom";
 import { SystemCenter as SC } from '../global'
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols'
+import NodeAttributes, { validNode, valid, IOpenXDANode, convertToXDANode } from './NodeAttributes'
 
 interface INodeType {
     ID: number,
@@ -43,15 +45,6 @@ interface IHostRegistration {
     CheckedIn: string
 }
 
-interface IOpenXDANode {
-    ID: number,
-    NodeTypeID: number,
-    HostRegistrationID: number,
-    AssignedHostRegistrationID: number,
-    Name: string,
-    MinimumHostCount: number
-}
-
 const ByNode = (props: { Roles: Application.Types.SecurityRoleName[] }) => {
     let navigate = useNavigate();
     const [data, setData] = React.useState<SC.Node[]>([])
@@ -66,6 +59,9 @@ const ByNode = (props: { Roles: Application.Types.SecurityRoleName[] }) => {
     const [totalRecords, setTotalRecords] = React.useState<number>(0);
     const [nodeTypes, setNodeTypes] = React.useState<INodeType[]>([]);
     const [appHosts, setAppHosts] = React.useState<IHostRegistration[]>([])
+    const [showNewModal, setShowNewModal] = React.useState<boolean>(false)
+    const [newNode, setNewNode] = React.useState<SC.Node>(getNewNode())
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false)
 
     // on initial mount, fetch node types.
     React.useEffect(() => {
@@ -116,7 +112,7 @@ const ByNode = (props: { Roles: Application.Types.SecurityRoleName[] }) => {
         return () => {
             if (handle.abort != undefined) handle.abort();
         }
-    }, [filters, sortField, ascending, page])
+    }, [filters, sortField, ascending, page, refreshTrigger])
 
     // navigate to node info 
     function handleSelect(item) {
@@ -138,10 +134,21 @@ const ByNode = (props: { Roles: Application.Types.SecurityRoleName[] }) => {
             <div className="row">
                 <SearchBar<SC.Node> CollumnList={defaultSearchcols} SetFilter={setFilters}
                 Direction={'left'} defaultCollumn={{ label: 'Name', key: 'Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
-                    ShowLoading={status === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete search.' : `Displaying  TaskRunner(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + data.length} out of ${totalRecords}`}
+                    ShowLoading={status === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete search.' : `Displaying  Task Runner(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + data.length} out of ${totalRecords}`}
                 StorageID="NodesFilter"
-            >
-            </SearchBar>
+                >
+                    <li className="nav-item" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Engineer') < 0} style={{ width: '15%', paddingRight: 10 }}>
+                        <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                            <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
+                            <form>
+                                <div className="form-group">
+                                    <button className="btn btn-info btn-block"
+                                        onClick={(event) => { event.preventDefault(); setShowNewModal(true); }}>Add Task Runner</button>
+                                </div>
+                            </form>
+                        </fieldset>
+                    </li>
+                </SearchBar>
             </div>
             <div className="d-flex flex-column row" style={{ flex: 1, overflow: 'hidden' }}>
                 <Table<SC.Node>
@@ -214,6 +221,42 @@ const ByNode = (props: { Roles: Application.Types.SecurityRoleName[] }) => {
                 </div>
             </div>
         </div>
+        <div>
+            <Modal Show={showNewModal} Size={'xlg'} Title={'Add New Task Runner'}
+                ShowX={true}
+                ShowCancel={false}
+                ConfirmText={'Save'}
+                DisableConfirm={!validNode(newNode)}
+                ConfirmShowToolTip={!validNode(newNode)}
+                ConfirmToolTipContent={ <>
+                    {!valid(newNode, 'Name') ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> A name is required.</p> : null}
+                    {!valid(newNode, 'MinimumHostCount') ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> A minimum node count between 0 and 100 (non-inclusive) is required.</p> : null}
+                    </>
+                }
+                CallBack={(conf) => {
+                    if (conf) {
+                        const controller = new GenericController<IOpenXDANode>(`${homePath}api/openXDA/Node`, 'ID')
+                        controller.DBAction("POST", convertToXDANode(newNode, nodeTypes, appHosts)).done(() => setRefreshTrigger((val) => !val))
+                    }
+
+                    setNewNode(getNewNode());
+
+                    setShowNewModal(false);
+                }}
+            >
+                <div className="container-fluid d-flex h-100 flex-column">
+                    <div className="tab-content row" style={{ flex: 1, overflow: 'hidden' }}>
+                        <div className="col">
+                            <NodeAttributes Node={newNode} SetNode={setNewNode} HasPermissions={props.Roles.includes('Administrator') || props.Roles.includes('Engineer')} NodeTypes={nodeTypes} AppHosts={appHosts} />
+                        </div>
+                    </div>
+                </div>
+            </Modal>
+        </div>
     </div>
 }
 export default ByNode;
+
+function getNewNode(): SC.Node {
+    return {ID: '-1', Name: '', MinimumHostCount: 0, HostRegistrationKey: null, AssignedHostRegistrationKey: null, NodeType: ''}
+}

@@ -24,34 +24,12 @@
 import * as React from 'react';
 import { useAppSelector } from '../hooks';
 import { Gemstone, Application, OpenXDA } from '@gpa-gemstone/application-typings'
-import { Input, Select, MultiCheckBoxSelect, ToolTip } from '@gpa-gemstone/react-forms'
+import { ToolTip } from '@gpa-gemstone/react-forms'
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { GenericController, LoadingScreen } from '@gpa-gemstone/react-interactive'
 import { SelectRoles } from '../Store/UserSettings';
 import { SystemCenter as SC } from '../global'
-
-interface INodeType {
-    ID: number,
-    Name: string,
-    AssemblyName: string,
-    TypeName: string
-}
-
-interface IHostRegistration {
-    ID: number,
-    RegistrationKey: string,
-    APIToken: string,
-    URL: string,
-    CheckedIn: string
-}
-interface IOpenXDANode {
-    ID: number,
-    NodeTypeID: number,
-    HostRegistrationID?: number,
-    AssignedHostRegistrationID?: number,
-    Name: string,
-    MinimumHostCount: number
-}
+import NodeAttributes, { validNode, valid, INodeType, IHostRegistration, IOpenXDANode, convertToXDANode } from './NodeAttributes'
 
 interface IProps {
     Node: SC.Node | null,
@@ -71,23 +49,10 @@ const NodeForm = (props: IProps) => {
             return false;
         return true;
     }
-    function valid(field: keyof (SC.Node)): boolean {
-        if (node == null)
-            return false
-        if (field == 'Name')
-            return node.Name != null
-        if (field == 'MinimumHostCount')
-            return node.MinimumHostCount > 0 && node.MinimumHostCount < 100
-        return true;
-    }
 
     React.useEffect(() => {
         setNode(props.Node)
     }, [props.Node])
-
-    function validNode(): boolean {
-        return valid('Name') && valid('MinimumHostCount')
-    }
 
     function hasChanged(field?: keyof (SC.Node)): boolean {
         if (props.Node == null || node == null) return true;
@@ -107,49 +72,36 @@ const NodeForm = (props: IProps) => {
 
     const updateNode = React.useCallback(() => {
         const controller = new GenericController<IOpenXDANode>(`${homePath}api/openXDA/Node`, 'ID')
-        const handle = controller.DBAction('PATCH', convertToXDANode(node)).done((d) => props.UpdateRecord())
-    },[node, props.UpdateRecord])
-
-    const convertToXDANode = React.useCallback((node: SC.Node): IOpenXDANode => {
-        return {
-            ID: parseInt(node.ID),
-            MinimumHostCount: node.MinimumHostCount,
-            NodeTypeID: nodeTypes.find(nt => nt.Name == node.NodeType).ID ?? 1,
-            AssignedHostRegistrationID: appHosts.find(ah => ah.RegistrationKey == node.AssignedHostRegistrationKey)?.ID ?? null,
-            HostRegistrationID: appHosts.find(ah => ah.RegistrationKey == node.HostRegistrationKey)?.ID ?? null,
-            Name: node.Name
-        }
-    }, [nodeTypes, appHosts])
+        const handle = controller.DBAction('PATCH', convertToXDANode(node, nodeTypes, appHosts)).done((d) => props.UpdateRecord())
+    }, [node, props.UpdateRecord])
 
     React.useEffect(() => {
-        if (status === 'uninitiated') {
-            const nodeTypeController = new GenericController<INodeType>(`${homePath}api/OpenXDA/NodeTypes`, 'Name', true);
-            const handle = nodeTypeController.Fetch();
-            handle.done((d: INodeType[]) => {
-                setNodeTypes(d);
-            }).fail((d) => {
-                setStatus('error');
-            })
-            return () => {
-                if (handle.abort != undefined) handle.abort();
-            }
+        const nodeTypeController = new GenericController<INodeType>(`${homePath}api/OpenXDA/NodeTypes`, 'Name', true);
+        const handle = nodeTypeController.Fetch();
+        handle.done((d: INodeType[]) => {
+            setNodeTypes(d);
+        }).fail((d) => {
+            setStatus('error');
+        })
+        return () => {
+            if (handle.abort != undefined) handle.abort();
+
         }
-    }, [status])
+    }, [])
 
     React.useEffect(() => {
-        if (status === 'uninitiated') {
-            const appHostController = new GenericController<IHostRegistration>(`${homePath}api/OpenXDA/HostRegistration`, 'ID', true);
-            const handle = appHostController.Fetch();
-            handle.done((d: IHostRegistration[]) => {
-                setAppHosts(d);
-            }).fail((d) => {
-                setStatus('error');
-            })
-            return () => {
-                if (handle.abort != undefined) handle.abort();
-            }
+        const appHostController = new GenericController<IHostRegistration>(`${homePath}api/OpenXDA/HostRegistration`, 'ID', true);
+        const handle = appHostController.Fetch();
+        handle.done((d: IHostRegistration[]) => {
+            setAppHosts(d);
+        }).fail((d) => {
+            setStatus('error');
+        })
+        return () => {
+            if (handle.abort != undefined) handle.abort();
+
         }
-    }, [status])
+    }, [])
 
 
     return <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -163,25 +115,27 @@ const NodeForm = (props: IProps) => {
         <div className="card-body" style={{ flex: 1, overflowY: 'auto' }}>
             {node == null ? null :
                 <div className="col">
-                    <Input<SC.Node> Record={node} Field={'Name'} Label='Name' Valid={valid} Setter={(record) => setNode(record)} Disabled={!hasPermissions()} Feedback='A name is required.' />
-                    <Input<SC.Node> Type={'number'} Record={node} Field={'MinimumHostCount'} Label='Minimum Node Count' Feedback='A number between 0 and 100 is required.' Valid={valid} Setter={(record) => setNode(record)} Disabled={!hasPermissions()} />
-                    <Select<SC.Node> Options={nodeTypes.map((n) => { return { Value: n.Name, Label: n.Name } })} Record={node} Field={'NodeType'} Setter={(record) => setNode(record)} Label={'Type'} />
-                    <Select<SC.Node> Record={node} Options={appHosts.map((h) => { return { Value: h.RegistrationKey, Label: h.RegistrationKey } })} Field={'HostRegistrationKey'} Label={'Node'} EmptyOption={true} Setter={(record) => setNode(record)} />
-                    <Select<SC.Node> Record={node} Options={appHosts.map((h) => { return { Value: h.RegistrationKey, Label: h.RegistrationKey } })} Field={'AssignedHostRegistrationKey'} Label={'Assigned Node'} EmptyOption={true} Setter={(record) => setNode(record)} />
+                    <NodeAttributes
+                        Node={node}
+                        SetNode={setNode}
+                        HasPermissions={hasPermissions()}
+                        NodeTypes={nodeTypes}
+                        AppHosts={appHosts}
+                    />
                 </div>
             }
             <LoadingScreen Show={status === 'loading'} />
         </div>
         <div className="card-footer">
             <div className="btn-group mr-2">
-                <button className={"btn btn-primary" + (validNode() && hasChanged() ? '' : ' disabled')} type="submit"
-                    onClick={() => { if (validNode() && hasChanged()) updateNode(); }} data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
+                <button className={"btn btn-primary" + (validNode(node) && hasChanged() ? '' : ' disabled')} type="submit"
+                    onClick={() => { if (validNode(node) && hasChanged()) updateNode(); }} data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
             </div>
-            <ToolTip Show={(!validNode() || !hasChanged()) && hover == 'submit'} Position={'top'} Target={"submit"}>
+            <ToolTip Show={(!validNode(node) || !hasChanged()) && hover == 'submit'} Position={'top'} Target={"submit"}>
                 {!hasChanged() && hasPermissions() ? <p> No changes made.</p> : null}
                 {!hasPermissions() ? <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p> : null}
-                {!valid('Name') ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> A name is required.</p> : null}
-                {!valid('MinimumHostCount') ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> A minimum node count between 0 and 100 (non-inclusive) is required.</p> : null}
+                {!valid(node, 'Name') ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> A name is required.</p> : null}
+                {!valid(node, 'MinimumHostCount') ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> A minimum node count between 0 and 100 (non-inclusive) is required.</p> : null}
             </ToolTip>
             <div className="btn-group mr-2">
                 <button className={"btn btn-warning" + (hasChanged() ? '' : ' disabled')} data-tooltip="clear" onClick={() => {
