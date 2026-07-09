@@ -25,7 +25,7 @@ import * as React from 'react';
 import { LoadingScreen, Modal, Search, SearchBar } from '@gpa-gemstone/react-interactive'
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import moment from 'moment';
 import { ICellCarrier } from '../global';
 import { CellCarrierSlice } from '../Store';
@@ -52,22 +52,24 @@ const ByCellCarrier = (props: IProps) => {
     const status: Application.Types.Status = useAppSelector(CellCarrierSlice.Status);
     const data: ICellCarrier[] = useAppSelector(CellCarrierSlice.SearchResults);
     const allData: ICellCarrier[] = useAppSelector(CellCarrierSlice.Data);
-    const sortField = useAppSelector(CellCarrierSlice.SortField);
-    const asc = useAppSelector(CellCarrierSlice.Ascending);
-    const filters = useAppSelector(CellCarrierSlice.SearchFilters);
+    const [sortField, setSortField] = React.useState<keyof ICellCarrier>('Name');
+    const [ascending, setAscending] = React.useState<boolean>(true);
+    const [filters, setFilters] = React.useState<Search.IFilter<ICellCarrier>[]>([]);
     const [showModal, setShowModal] = React.useState<'New' | 'Edit' | 'Hide'>('Hide');
     const [carrier, setCarrier] = React.useState<ICellCarrier>(emptyCarrier);
-
+    const [page, setPage] = React.useState<number>(0);
+    const totalPages = useAppSelector(CellCarrierSlice.TotalPages)
+    const recordsPerPage = useAppSelector(CellCarrierSlice.RecordsPerPage);
+    const totalRecords = useAppSelector(CellCarrierSlice.TotalRecords);
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
 
     React.useEffect(() => {
-        if (searchStatus == 'uninitiated' || searchStatus == 'changed')
-            dispatch(CellCarrierSlice.DBSearch({ filter: filters, sortField, ascending: asc }));
-    }, [searchStatus])
+         dispatch(CellCarrierSlice.PagedSearch({ filter: filters, sortField, ascending: ascending, page: page }));
+    }, [page, filters, sortField, ascending, refreshTrigger])
 
     React.useEffect(() => {
-        if (status == 'uninitiated' || status == 'changed')
-            dispatch(CellCarrierSlice.Fetch());
-    }, [status])
+        dispatch(CellCarrierSlice.Fetch());
+    }, [refreshTrigger])
 
     return (
         <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit', padding: 0 }}>
@@ -75,9 +77,9 @@ const ByCellCarrier = (props: IProps) => {
             <div className="row">
                 <div className="col">
                     <SearchBar<ICellCarrier> CollumnList={searchFields}
-                        SetFilter={(flds) => dispatch(CellCarrierSlice.DBSearch({ filter: flds }))}
+                        SetFilter={setFilters}
                         Direction={'left'} defaultCollumn={{ key: 'Name', label: 'Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
-                        ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Cell Carrier(s)'}
+                        ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : `Displaying Cell Carrier(s) ${totalRecords > 0 ? recordsPerPage * page + 1 : 0}-${recordsPerPage * page + data.length} out of ${totalRecords}`}
                     >
                         <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
                             <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
@@ -99,10 +101,14 @@ const ByCellCarrier = (props: IProps) => {
                         TableClass="table table-hover"
                         Data={data}
                         SortKey={sortField}
-                        Ascending={asc}
+                        Ascending={ascending}
                         OnSort={(d) => {
-                            if (d.colKey === null) return;
-                            dispatch(CellCarrierSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
+                            if (d.colKey === sortField)
+                                setAscending((val) => !val);
+                            else {
+                                setSortField(d.colKey as keyof ICellCarrier)
+                            }
+                            ;
                         }}
                         OnClick={(item) => { setCarrier(item.row); setShowModal('Edit'); }}
                         TableStyle={{
@@ -134,6 +140,15 @@ const ByCellCarrier = (props: IProps) => {
                     </Table>
                 </div>
             </div>
+            <div className="row">
+                <div className="col">
+                    <Paging
+                        SetPage={(p) => setPage(p - 1)}
+                        Current={page + 1}
+                        Total={totalPages}
+                    />
+                </div>
+            </div>
 
             <Modal Show={showModal != 'Hide'} ShowCancel={showModal == 'Edit'} CancelText={'Delete'} ShowX={true} Size='lg' Title={showModal == 'Edit' ? `Edit ${carrier.Name}` : 'Add New Carrier'} ConfirmText={showModal == 'Edit' ? 'Save' : 'Add'}
                 DisableConfirm={carrier.Name == null || carrier.Transform == null || carrier.Name.length == 0 || carrier.Transform.length == 0 || carrier.Name.length > 200 || carrier.Transform.length > 200 || allData.findIndex(c => c.Name == carrier.Name && c.ID != carrier.ID) > -1}
@@ -147,11 +162,11 @@ const ByCellCarrier = (props: IProps) => {
                 </>}
                 ConfirmBtnClass={'btn-primary'} CallBack={(c, b) => {
                     if (showModal == 'New' && c)
-                        dispatch(CellCarrierSlice.DBAction({ verb: 'POST', record: carrier }))
+                        dispatch(CellCarrierSlice.DBAction({ verb: 'POST', record: carrier })).then(() => setRefreshTrigger((val) => !val));
                     if (showModal == 'Edit' && c)
-                        dispatch(CellCarrierSlice.DBAction({ verb: 'PATCH', record: carrier }))
+                        dispatch(CellCarrierSlice.DBAction({ verb: 'PATCH', record: carrier })).then(() => setRefreshTrigger((val) => !val));
                     if (showModal == 'Edit' && b && !c)
-                        dispatch(CellCarrierSlice.DBAction({ verb: 'DELETE', record: carrier }))
+                        dispatch(CellCarrierSlice.DBAction({ verb: 'DELETE', record: carrier })).then(() => setRefreshTrigger((val) => !val));
 
                     setShowModal('Hide');
                 }}
