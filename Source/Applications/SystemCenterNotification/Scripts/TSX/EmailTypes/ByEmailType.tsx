@@ -63,6 +63,7 @@ const ByEmailType = (props: IProps) => {
     const data: EmailType[] = useAppSelector(EmailTypeSlice.SearchResults);
     const allData: EmailType[] = useAppSelector(EmailTypeSlice.Data);
     const categories = useAppSelector(EmailCategorySlice.Data);
+    const parentID = useAppSelector(EmailTypeSlice.ParentID);
 
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [errors, setErrors] = React.useState<string[]>([]);
@@ -84,7 +85,7 @@ const ByEmailType = (props: IProps) => {
 
     React.useEffect(() => {
         dispatch(EmailTypeSlice.Fetch());
-    }, [refreshTrigger]);
+    }, [refreshTrigger, parentID]);
 
     React.useEffect(() => {
         dispatch(EmailTypeSlice.PagedSearch({ filter: search, sortField: sortField, ascending: asc, page: page}));
