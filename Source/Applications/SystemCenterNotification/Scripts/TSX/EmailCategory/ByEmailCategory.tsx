@@ -28,41 +28,40 @@ import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
 import { EmailCategory } from '../global';
 import { EmailCategorySlice } from '../Store';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import EmailCategoryForm from './EmailCategoryForm';
 import { useNavigate } from 'react-router-dom';
 import TestEmailButton from '../CommonComponents/TestEmailButton';
 
-interface IProps {}
+interface IProps { }
 
 const ByEmailCategory = (props: IProps) => {
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
 
-    const search: Search.IFilter<EmailCategory>[] = useAppSelector(EmailCategorySlice.SearchFilters);
+    const [search, setSearch] = React.useState<Search.IFilter<EmailCategory>[]>([]);
     const status: Application.Types.Status = useAppSelector(EmailCategorySlice.Status);
     const searchStatus: Application.Types.Status = useAppSelector(EmailCategorySlice.SearchStatus);
     const data: EmailCategory[] = useAppSelector(EmailCategorySlice.SearchResults);
     const allData: EmailCategory[] = useAppSelector(EmailCategorySlice.Data);
-
-
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [errors, setErrors] = React.useState<string[]>([]);
-
     const [newEmailCategory, setNewEmailCategory] = React.useState<EmailCategory>({ ID: -1, Name: '', SelfSubscribe: true });
-
-    const sortField = useAppSelector(EmailCategorySlice.SortField);
-    const asc = useAppSelector(EmailCategorySlice.Ascending);
+    const [sortField, setSortField] = React.useState<keyof EmailCategory>('Name');
+    const [asc, setAsc] = React.useState<boolean>(true);
+    const [page, setPage] = React.useState<number>(0);W
+    const totalPages: number = useAppSelector(EmailCategorySlice.TotalPages);
+    const totalRecords: number = useAppSelector(EmailCategorySlice.TotalRecords);
+    const recordsPerPage: number = useAppSelector(EmailCategorySlice.RecordsPerPage);
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false)
 
     React.useEffect(() => {
-        if (status == 'uninitiated' || status == 'changed')
-            dispatch(EmailCategorySlice.Fetch());
-    }, [status]);
+        dispatch(EmailCategorySlice.Fetch());
+    }, [refreshTrigger]);
 
     React.useEffect(() => {
-        if (searchStatus == 'uninitiated' || searchStatus == 'changed')
-            dispatch(EmailCategorySlice.DBSearch({ filter: search, sortField, ascending: asc }));
-    }, [searchStatus])
+        dispatch(EmailCategorySlice.PagedSearch({ filter: search, sortField, ascending: asc, page: page }));
+    }, [search, sortField, asc, page, refreshTrigger])
 
     React.useEffect(() => {
         let e = [];
@@ -84,9 +83,9 @@ const ByEmailCategory = (props: IProps) => {
                         { key: "Name", label: "Name", type: "string", isPivotField: false },
                         { key: "ShowSubscription", label: "Self Subscription", type: "boolean", isPivotField: false },
                     ]}
-                        SetFilter={(flds) => dispatch(EmailCategorySlice.DBSearch({ filter: flds }))}
+                        SetFilter={setSearch}
                         Direction={'left'} defaultCollumn={{ key: 'Name', label: 'Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
-                        ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Email Category(s)'}
+                        ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : `Displaying Email Category(s) ${totalRecords > 0 ? recordsPerPage * page + 1 : 0}-${recordsPerPage * page + data.length} out of ${totalRecords}`}
                     >
                         <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
                             <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
@@ -109,8 +108,11 @@ const ByEmailCategory = (props: IProps) => {
                         SortKey={sortField}
                         Ascending={asc}
                         OnSort={(d) => {
-                            if (d.colKey === null) return;
-                            dispatch(EmailCategorySlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
+                            if (d.colKey === sortField)
+                                setAsc((val) => !val);
+                            else {
+                                setSortField(d.colKey as keyof EmailCategory)
+                            }
                         }}
                         OnClick={(item) => navigate(`${homePath}Category/${item.row.ID}`)}
                         TableStyle={{
@@ -143,12 +145,21 @@ const ByEmailCategory = (props: IProps) => {
                     </Table>
                 </div>
             </div>
+            <div className="row">
+                <div className="col">
+                    <Paging
+                        Current={page + 1}
+                        SetPage={(page) => setPage(page - 1)}
+                        Total={totalPages}
+                    />
+                </div>
+            </div>
 
             <Modal Title={'Add New Email Category'}
                 Show={showModal} ShowX={true} Size={'lg'} ShowCancel={false} ConfirmText={'Add'}
                 CallBack={(conf) => {
                     if (conf)
-                        dispatch(EmailCategorySlice.DBAction({ verb: "POST", record: newEmailCategory }));
+                        dispatch(EmailCategorySlice.DBAction({ verb: "POST", record: newEmailCategory })).then(()=>setRefreshTrigger((val) => !val));
                     setShowModal(false);
                 }}
                 DisableConfirm={errors.length > 0}
