@@ -24,9 +24,11 @@
 import * as React from 'react';
 import NodeForm from './NodeForm';
 import NodeSettings from './NodeSettings'
-import { TabSelector } from '@gpa-gemstone/react-interactive';
+import { TabSelector, Warning, GenericController } from '@gpa-gemstone/react-interactive';
 import { Application } from '@gpa-gemstone/application-typings'
 import { SystemCenter as SC } from '../global'
+import { useNavigate } from 'react-router-dom';
+import { IOpenXDANode, convertToXDANode, IHostRegistration, INodeType } from './NodeAttributes'
 
 
 declare var homePath: string;
@@ -35,14 +37,31 @@ declare type Tab = 'info' | 'settings'
 interface IProps { NodeID: number, Tab: Tab, Roles: Application.Types.SecurityRoleName[] }
 
 const Tabs = [
-    { Id: "info", Label: "Task Runner Info" },
-    { Id: "settings", Label: "Task Runner Settings" },
+    { Id: "info", Label: "Info" },
+    { Id: "settings", Label: "Settings" },
 ]
 
 export default function Node(props: IProps) {
+    let navigate = useNavigate();
     const [tab, setTab] = React.useState(getTab());
     const [node, setNode] = React.useState<SC.Node | null>(null)
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated')
+    const [showWarning, setShowWarning] = React.useState<boolean>(false)
+    const [nodeTypes, setNodeTypes] = React.useState<INodeType[]>([]);
+    const [appHosts, setAppHosts] = React.useState<IHostRegistration[]>([])
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false)
+
+    function hasPermissions(): boolean {
+        if (props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Engineer') < 0)
+            return false;
+        return true;
+    }
+
+    function deleteNode() {
+        const controller = new GenericController<IOpenXDANode>(`${homePath}api/openXDA/Node`, 'ID')
+        controller.DBAction('DELETE', convertToXDANode(node, nodeTypes, appHosts))
+        navigate(`${homePath}index.cshtml?name=TaskRunners`)
+    }
 
     React.useEffect(() => {
         const saved = getTab(props.Tab);
@@ -70,7 +89,35 @@ export default function Node(props: IProps) {
         return () => {
             if (h.abort != undefined) h.abort();
         }
-    }, [props.NodeID])
+    }, [props.NodeID, refreshTrigger])
+
+    React.useEffect(() => {
+        const nodeTypeController = new GenericController<INodeType>(`${homePath}api/OpenXDA/NodeTypes`, 'Name', true);
+        const handle = nodeTypeController.Fetch();
+        handle.done((d: INodeType[]) => {
+            setNodeTypes(d);
+        }).fail((d) => {
+            setStatus('error');
+        })
+        return () => {
+            if (handle.abort != undefined) handle.abort();
+
+        }
+    }, [])
+
+    React.useEffect(() => {
+        const appHostController = new GenericController<IHostRegistration>(`${homePath}api/OpenXDA/HostRegistration`, 'ID', true);
+        const handle = appHostController.Fetch();
+        handle.done((d: IHostRegistration[]) => {
+            setAppHosts(d);
+        }).fail((d) => {
+            setStatus('error');
+        })
+        return () => {
+            if (handle.abort != undefined) handle.abort();
+
+        }
+    }, [])
 
     return (
         <div style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
@@ -78,12 +125,16 @@ export default function Node(props: IProps) {
                 <div className="col">
                     <h2>{node != null ? node.Name : ''}</h2>
                 </div>
+                <div className="col">
+                    <button className={"btn btn-danger pull-right"} hidden={(node == null) || !hasPermissions()} onClick={() => { if (hasPermissions()) setShowWarning(true) }}>Delete Task Runner</button>
+                </div>
             </div>
             <hr />
 
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
-            {tab === 'info' ? <NodeForm Node={node} UpdateRecord={() => setStatus('changed')} /> : null}
+            {tab === 'info' ? <NodeForm Node={node} UpdateRecord={() => setRefreshTrigger((val) => !val)} NodeTypes={nodeTypes} AppHosts={appHosts} /> : null}
             {tab === 'settings' ? <NodeSettings NodeID={node?.ID ?? props.NodeID.toString()} /> : null}
+            <Warning Title={'Delete ' + (node?.Name ?? 'Task Runner')} Show={showWarning} Message={'This will permanently delete this Task Runner.'} CallBack={(c) => { if (c) deleteNode(); setShowWarning(false) }} />
         </div>
     )
 }

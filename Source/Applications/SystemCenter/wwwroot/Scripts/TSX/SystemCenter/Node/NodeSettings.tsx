@@ -23,8 +23,8 @@
 
 import * as React from 'react';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
-import { SearchBar, Search, Warning, LoadingScreen, ServerErrorIcon, GenericController, Modal } from '@gpa-gemstone/react-interactive';
-import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
+import { Search, Warning, LoadingScreen, GenericController, Modal } from '@gpa-gemstone/react-interactive';
+import { Application } from '@gpa-gemstone/application-typings';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Input, TextArea } from '@gpa-gemstone/react-forms';
 
@@ -44,7 +44,7 @@ const searchFields: Search.IField<INodeSetting>[] = [
     { key: 'Value', label: 'Current Value', type: 'string', isPivotField: false }
 ]
 
-export default function NodeSettings (props: IProps) {
+export default function NodeSettings(props: IProps) {
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated')
     const [sortField, setSortField] = React.useState<keyof INodeSetting>("Name");
     const [ascending, setAscending] = React.useState<boolean>(true);
@@ -60,6 +60,7 @@ export default function NodeSettings (props: IProps) {
     const [totalRecords, setTotalRecords] = React.useState<number>(0);
     const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
     const [allSettings, setAllSettings] = React.useState<INodeSetting[]>([])
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false)
 
     const genericController = React.useMemo(() =>
         new GenericController<INodeSetting>(`${homePath}api/OpenXDA/NodeSetting`, 'Name')
@@ -67,7 +68,29 @@ export default function NodeSettings (props: IProps) {
 
     const filters = React.useMemo((): Search.IFilter<INodeSetting>[] => { return [{ FieldName: 'NodeID', SearchText: props.NodeID, Operator: '=', IsPivotColumn: false, Type: 'string' }] }, [props.NodeID])
 
-    const pagedSearch = React.useCallback(() => {
+    React.useEffect(() => {
+        const e: string[] = [];
+        if (editnewSetting.Name == null || editnewSetting.Name.length === 0)
+            e.push('A Name is required.')
+        if (editnewSetting.Name != null && editnewSetting.Name.length > 0 && allSettings.findIndex(s => s.Name.toLowerCase() === editnewSetting.Name.toLowerCase() && s.ID !== editnewSetting.ID) > -1)
+            e.push('A Setting with this Name already exists.')
+        setErrors(e)
+    }, [editnewSetting])
+
+
+    React.useEffect(() => {
+        const h = genericController.DBSearch(filters);
+        h.done((d: INodeSetting[]) => {
+            setAllSettings(d)
+            setStatus('idle')
+        }).fail(() => setStatus('error'))
+
+        return () => {
+            if (h.abort != undefined) h.abort();
+        }
+    }, [genericController.DBSearch, props.NodeID, filters, refreshTrigger]);
+
+    React.useEffect(() => {
         setStatus('loading')
         const h = genericController.PagedSearch(filters, sortField, ascending, currentPage);
         h.done((d) => {
@@ -83,110 +106,83 @@ export default function NodeSettings (props: IProps) {
         return () => {
             if (h.abort != undefined) h.abort();
         }
-    }, [genericController.PagedSearch, filters, sortField, ascending, currentPage, props.NodeID])
-
-    React.useEffect(() => {
-        const e: string[] = [];
-        if (editnewSetting.Name == null || editnewSetting.Name.length === 0)
-            e.push('A Name is required.')
-        if (editnewSetting.Name != null && editnewSetting.Name.length > 0 && allSettings.findIndex(s => s.Name.toLowerCase() === editnewSetting.Name.toLowerCase() && s.ID !== editnewSetting.ID) > -1)
-            e.push('A Setting with this Name already exists.')
-        setErrors(e)
-    }, [editnewSetting])
-
-
-    React.useEffect(() => {
-        if (status === 'uninitiated' || status === 'changed') {
-            const h = genericController.DBSearch(filters);
-            h.done((d: INodeSetting[]) => {
-                setAllSettings(d)
-                setStatus('idle')
-            }).fail(() => setStatus('error'))
-
-            return () => {
-                if (h.abort != undefined) h.abort();
-            }
-        }
-    }, [status, genericController.DBSearch, props.NodeID, filters]);
-
-    React.useEffect(() => {
-        if (allSettings.length > 0)
-            return pagedSearch()
-    }, [pagedSearch, allSettings])
+    }, [genericController.PagedSearch, filters, sortField, ascending, currentPage, props.NodeID, refreshTrigger])
 
     return (
         <>
             <LoadingScreen Show={status === 'loading'} />
-            <div className="row justify-content-end">
-                <div className="col-4">
-                    <li className="nav-item" style={{ paddingRight: 10, width: '50%' }}>
-                        <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                            <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
-                            <form>
-                                <button className="btn btn-info btn-block" onClick={(event) => { setEditNewSetting(emptyNodeSetting(props.NodeID)); setEditNew('New'); setShowModal(true); event.preventDefault() }}>Add Setting</button>
-                            </form>
-                        </fieldset>
-                    </li>
+            <div className='card' style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                <div className="card-header">
+                    <div className="row">
+                        <div className="col">
+                            <h4>Settings:</h4>
+                        </div>
+                    </div>
+                </div>
+                <div className='card-body' style={{ paddingBottom: 0, display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+                    <div className='row h-100' style={{ overflow: 'hidden' }}>
+                        <div className='col d-flex flex-column h-100' style={{ overflow: 'hidden', flex: 1 }}>
+                            <Table<INodeSetting>
+                                TableClass="table table-hover"
+                                Data={data}
+                                SortKey={sortField}
+                                Ascending={ascending}
+                                OnSort={(d) => {
+                                    if (d.colField === sortField)
+                                        setAscending(!ascending);
+                                    else {
+                                        setAscending(true);
+                                        setSortField(d.colField);
+                                    }
+                                }}
+                                OnClick={(item) => { setEditNewSetting(item.row); setShowModal(true); setEditNew('Edit'); }}
+                                TheadStyle={{ fontSize: 'smaller' }}
+                                RowStyle={{ fontSize: 'smaller' }}
+                                Selected={(item) => false}
+                                KeySelector={(item) => item.ID}
+                            >
+                                <Column<INodeSetting>
+                                    Key={'Name'}
+                                    AllowSort={true}
+                                    Field={'Name'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                > Setting
+                                </Column>
+                                <Column<INodeSetting>
+                                    Key={'Value'}
+                                    AllowSort={true}
+                                    Field={'Value'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                >  Value
+                                </Column>
+                            </Table>
+                        </div>
+                    </div>
+                    <div className="row">
+                        <div className="col">
+                            <Paging
+                                Current={currentPage + 1}
+                                SetPage={(page) => setCurrentPage(page - 1)}
+                                Total={totalPages}
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div className="card-footer">
+                    <div className="btn-group mr-2">
+                        <button className="btn btn-info" onClick={(event) => { setEditNewSetting(emptyNodeSetting(props.NodeID)); setEditNew('New'); setShowModal(true); event.preventDefault() }}>Add Setting</button>
+                    </div>
                 </div>
             </div>
-            <div className='row' style={{ flex: 1, overflow: 'hidden' }}>
-                <div className='col-12' style={{ height: '100%', overflow: 'auto' }}>
-                    <Table<INodeSetting>
-                        TableClass="table table-hover"
-                        Data={data}
-                        SortKey={sortField as string}
-                        Ascending={ascending}
-                        OnSort={(d) => {
-                            if (d.colField === sortField)
-                                setAscending(!ascending);
-                            else {
-                                setAscending(true);
-                                setSortField(d.colField);
-                            }
-                        }}
-                        OnClick={(item) => { setEditNewSetting(item.row); setShowModal(true); setEditNew('Edit'); }}
-                        TheadStyle={{ fontSize: 'smaller' }}
-                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                        RowStyle={{ fontSize: 'smaller' }}
-                        Selected={(item) => false}
-                        KeySelector={(item) => item.ID}
-                    >
-                        <Column<INodeSetting>
-                            Key={'Name'}
-                            AllowSort={true}
-                            Field={'Name'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > Setting
-                        </Column>
-                        <Column<INodeSetting>
-                            Key={'Value'}
-                            AllowSort={true}
-                            Field={'Value'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        >  Value
-                        </Column>
-                    </Table>
-                </div>
-            </div>
-            <div className="row">
-                <div className="col">
-                    <Paging
-                        Current={currentPage + 1}
-                        SetPage={(page) => setCurrentPage(page - 1)}
-                        Total={totalPages}
-                    />
-                </div>
-            </div>
-
             <Modal Title={editNew === 'Edit' ? 'Edit ' + (editnewSetting?.Name ?? 'Setting') : 'Add New Setting'}
                 Show={showModal} ShowX={true} Size={'lg'} ShowCancel={editNew === 'Edit'} ConfirmText={'Save'} CancelText={'Delete'}
                 CallBack={(conf, isBtn) => {
                     if (conf && editNew === 'New')
-                        genericController.DBAction('POST', editnewSetting).then(() => setStatus('changed')) 
+                        genericController.DBAction('POST', editnewSetting).then(() => setRefreshTrigger((val) => !val))
                     if (conf && editNew === 'Edit')
-                        genericController.DBAction('PATCH', editnewSetting).then(() => setStatus('changed')) 
+                        genericController.DBAction('PATCH', editnewSetting).then(() => setRefreshTrigger((val) => !val))
                     if (!conf && isBtn)
                         setShowWarning(true);
                     setShowModal(false);
@@ -217,7 +213,7 @@ export default function NodeSettings (props: IProps) {
                 Show={showWarning}
                 CallBack={(conf) => {
                     if (conf)
-                        genericController.DBAction('DELETE', editnewSetting).then(() => setStatus('changed')); setShowWarning(false);
+                        genericController.DBAction('DELETE', editnewSetting).then(() => { setRefreshTrigger((val) => !val); setShowWarning(false) });
                 }} />
         </>)
 }
