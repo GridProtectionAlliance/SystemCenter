@@ -60,6 +60,7 @@ export default function NodeSettings(props: IProps) {
     const [totalRecords, setTotalRecords] = React.useState<number>(0);
     const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
     const [allSettings, setAllSettings] = React.useState<INodeSetting[]>([])
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false)
 
     const genericController = React.useMemo(() =>
         new GenericController<INodeSetting>(`${homePath}api/OpenXDA/NodeSetting`, 'Name')
@@ -67,7 +68,29 @@ export default function NodeSettings(props: IProps) {
 
     const filters = React.useMemo((): Search.IFilter<INodeSetting>[] => { return [{ FieldName: 'NodeID', SearchText: props.NodeID, Operator: '=', IsPivotColumn: false, Type: 'string' }] }, [props.NodeID])
 
-    const pagedSearch = React.useCallback(() => {
+    React.useEffect(() => {
+        const e: string[] = [];
+        if (editnewSetting.Name == null || editnewSetting.Name.length === 0)
+            e.push('A Name is required.')
+        if (editnewSetting.Name != null && editnewSetting.Name.length > 0 && allSettings.findIndex(s => s.Name.toLowerCase() === editnewSetting.Name.toLowerCase() && s.ID !== editnewSetting.ID) > -1)
+            e.push('A Setting with this Name already exists.')
+        setErrors(e)
+    }, [editnewSetting])
+
+
+    React.useEffect(() => {
+        const h = genericController.DBSearch(filters);
+        h.done((d: INodeSetting[]) => {
+            setAllSettings(d)
+            setStatus('idle')
+        }).fail(() => setStatus('error'))
+
+        return () => {
+            if (h.abort != undefined) h.abort();
+        }
+    }, [genericController.DBSearch, props.NodeID, filters, refreshTrigger]);
+
+    React.useEffect(() => {
         setStatus('loading')
         const h = genericController.PagedSearch(filters, sortField, ascending, currentPage);
         h.done((d) => {
@@ -83,36 +106,7 @@ export default function NodeSettings(props: IProps) {
         return () => {
             if (h.abort != undefined) h.abort();
         }
-    }, [genericController.PagedSearch, filters, sortField, ascending, currentPage, props.NodeID])
-
-    React.useEffect(() => {
-        const e: string[] = [];
-        if (editnewSetting.Name == null || editnewSetting.Name.length === 0)
-            e.push('A Name is required.')
-        if (editnewSetting.Name != null && editnewSetting.Name.length > 0 && allSettings.findIndex(s => s.Name.toLowerCase() === editnewSetting.Name.toLowerCase() && s.ID !== editnewSetting.ID) > -1)
-            e.push('A Setting with this Name already exists.')
-        setErrors(e)
-    }, [editnewSetting])
-
-
-    React.useEffect(() => {
-        if (status === 'uninitiated' || status === 'changed') {
-            const h = genericController.DBSearch(filters);
-            h.done((d: INodeSetting[]) => {
-                setAllSettings(d)
-                setStatus('idle')
-            }).fail(() => setStatus('error'))
-
-            return () => {
-                if (h.abort != undefined) h.abort();
-            }
-        }
-    }, [status, genericController.DBSearch, props.NodeID, filters]);
-
-    React.useEffect(() => {
-        if (allSettings.length > 0)
-            return pagedSearch()
-    }, [pagedSearch, allSettings])
+    }, [genericController.PagedSearch, filters, sortField, ascending, currentPage, props.NodeID, refreshTrigger])
 
     return (
         <>
@@ -186,9 +180,9 @@ export default function NodeSettings(props: IProps) {
                 Show={showModal} ShowX={true} Size={'lg'} ShowCancel={editNew === 'Edit'} ConfirmText={'Save'} CancelText={'Delete'}
                 CallBack={(conf, isBtn) => {
                     if (conf && editNew === 'New')
-                        genericController.DBAction('POST', editnewSetting).then(() => setStatus('changed'))
+                        genericController.DBAction('POST', editnewSetting).then(() => setRefreshTrigger((val) => !val))
                     if (conf && editNew === 'Edit')
-                        genericController.DBAction('PATCH', editnewSetting).then(() => setStatus('changed'))
+                        genericController.DBAction('PATCH', editnewSetting).then(() => setRefreshTrigger((val) => !val))
                     if (!conf && isBtn)
                         setShowWarning(true);
                     setShowModal(false);
@@ -219,7 +213,7 @@ export default function NodeSettings(props: IProps) {
                 Show={showWarning}
                 CallBack={(conf) => {
                     if (conf)
-                        genericController.DBAction('DELETE', editnewSetting).then(() => setStatus('changed')); setShowWarning(false);
+                        genericController.DBAction('DELETE', editnewSetting).then(() => { setRefreshTrigger((val) => !val); setShowWarning(false) });
                 }} />
         </>)
 }
