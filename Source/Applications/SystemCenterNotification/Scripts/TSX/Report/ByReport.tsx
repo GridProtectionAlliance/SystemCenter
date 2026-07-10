@@ -28,7 +28,7 @@ import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
 import { ScheduledEmailType } from '../global';
 import { EmailCategorySlice, ScheduledEmailTypeSlice } from '../Store';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { IsCron } from '@gpa-gemstone/helper-functions';
 import ReportForm from './ReportForm';
 import { useNavigate } from 'react-router-dom';
@@ -67,24 +67,29 @@ const ByReport = (props: IProps) => {
 
     const [newEmail, setNewEmail] = React.useState<ScheduledEmailType>(emptyEmail);
 
-    const sortField = useAppSelector(ScheduledEmailTypeSlice.SortField);
-    const asc = useAppSelector(ScheduledEmailTypeSlice.Ascending);
+    const [sortField, setSortField] = React.useState<keyof ScheduledEmailType>('Name');
+    const [ascending, setAscending] = React.useState<boolean>(false);
 
+    const [page, setPage] = React.useState<number>(0);
+    const totalPages = useAppSelector(ScheduledEmailTypeSlice.TotalPages);
+    const totalRecords = useAppSelector(ScheduledEmailTypeSlice.TotalRecords);
+    const recordsPerPage = useAppSelector(ScheduledEmailTypeSlice.RecordsPerPage);
+
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
 
     React.useEffect(() => {
         if (categoryStatus == 'uninitiated' || categoryStatus == 'changed')
             dispatch(EmailCategorySlice.Fetch());
-    }, [categoryStatus]);
+    }, []);
 
     React.useEffect(() => {
-        if (status == 'uninitiated' || status == 'changed' || parentID != null )
+        if ( parentID != null )
             dispatch(ScheduledEmailTypeSlice.Fetch());
-    }, [status, parentID]);
+    }, [parentID, refreshTrigger]);
 
     React.useEffect(() => {
-        if (searchStatus == 'uninitiated' || searchStatus == 'changed')
-            dispatch(ScheduledEmailTypeSlice.DBSearch({ filter: search, sortField, ascending: asc }));
-    }, [searchStatus])
+        dispatch(ScheduledEmailTypeSlice.PagedSearch({ filter: undefined, sortField, ascending: ascending, page: page }));
+    }, [sortField, ascending, page, refreshTrigger])
 
     React.useEffect(() => {
         let e = [];
@@ -118,9 +123,9 @@ const ByReport = (props: IProps) => {
             <div className="row">
                 <div className="col">
                     <SearchBar<ScheduledEmailType> CollumnList={searchFields}
-                        SetFilter={(flds) => dispatch(ScheduledEmailTypeSlice.DBSearch({ filter: flds }))}
+                        SetFilter={(flds) => dispatch(ScheduledEmailTypeSlice.PagedSearch({ filter: flds }))}
                         Direction={'left'} defaultCollumn={{ key: 'Name', label: 'Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
-                        ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Report(s)'}
+                        ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : `Displaying Report(s) ${totalRecords > 0 ? recordsPerPage * page + 1 : 0}-${recordsPerPage * page + data.length} out of ${totalRecords}`}
                         GetEnum={() => {
                             return () => { }
                         }}>
@@ -142,10 +147,13 @@ const ByReport = (props: IProps) => {
                         TableClass="table table-hover"
                         Data={data}
                         SortKey={sortField}
-                        Ascending={asc}
+                        Ascending={ascending}
                         OnSort={(d) => {
-                            if (d.colKey === null) return;
-                            dispatch(ScheduledEmailTypeSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
+                            if (d.colKey === sortField)
+                                setAscending((val) => !val);
+                            else {
+                                setSortField(d.colKey as keyof ScheduledEmailType)
+                            }
                         }}
                         OnClick={(item) => navigate(`${homePath}ReportEmail/${item.row.ID}`)}
                         TableStyle={{
@@ -208,11 +216,20 @@ const ByReport = (props: IProps) => {
                     </Table>
                 </div>
             </div>
+            <div className="row">
+                <div className="col">
+                    <Paging
+                        Current={page + 1}
+                        SetPage={(page) => setPage(page - 1)}
+                        Total={totalPages}
+                    />
+                </div>
+            </div>
             <Modal Title={'Add New Report'}
                 Show={showModal} ShowX={true} Size={'lg'} ShowCancel={false} ConfirmText={'Add'}
                 CallBack={(conf, isBtn) => {
                     if (conf)
-                        dispatch(ScheduledEmailTypeSlice.DBAction({ verb: "POST", record: newEmail }))
+                        dispatch(ScheduledEmailTypeSlice.DBAction({ verb: "POST", record: newEmail })).then(() => setRefreshTrigger((val) => !val))
                     setShowModal(false);
                 }}
                 DisableConfirm={errors.length > 0}
