@@ -27,6 +27,7 @@ import { Application } from '@gpa-gemstone/application-typings'
 import { Table, Column, Paging } from '@gpa-gemstone/react-table'
 import moment from 'moment';
 import { Pill, Plot, VerticalMarker } from '@gpa-gemstone/react-graph'
+import { LoadingScreen, ServerErrorIcon } from '@gpa-gemstone/react-interactive'
 
 interface TimelineItem {
     Start: string,
@@ -57,6 +58,7 @@ const SentEmailTimeline = (props: IProps) => {
     const [pagedTimeline, setPagedTimeline] = React.useState<TimelineItem[]>([]);
     const [page, setPage] = React.useState<number>(0);
     const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [tblStatus, setTblStatus] = React.useState<Application.Types.Status>('uninitiated');
 
     const rowRef = React.useRef<HTMLDivElement>(null);
 
@@ -69,6 +71,7 @@ const SentEmailTimeline = (props: IProps) => {
 
     React.useEffect(() => {
         if (props.SentEmailID == null) return;
+        setState('loading')
         let handle = getTimeline();
         handle.done((dt: TimelineItem[]) => {
             const eventResults = dt;
@@ -84,13 +87,14 @@ const SentEmailTimeline = (props: IProps) => {
 
     React.useEffect(() => {
         if (props.SentEmailID == null) return;
+        setTblStatus('loading')
         let handle = getPagedTimeline();
         handle.done((dt) => {
             const eventResults = JSON.parse(dt.Data as unknown as string);
             setPagedTimeline(eventResults);
             setTotalPages(dt.NumberOfPages);
-            setState('idle');
-        }).fail((d) => setState('error'));
+            setTblStatus('idle');
+        }).fail((d) => setTblStatus('error'));
 
         return function cleanup() {
             if (handle.abort != null)
@@ -164,7 +168,9 @@ const SentEmailTimeline = (props: IProps) => {
 
     return (
         <>
-            {state !== 'idle' ? <></> :
+            <LoadingScreen Show={state === 'loading' || tblStatus === 'loading'} />
+            <ServerErrorIcon Show={state === 'error' || tblStatus === 'error' } />
+            {state !== 'idle' || tblStatus !== 'idle' ? <></> :
                 <>
                     <div className="row h-10" ref={rowRef}>
                         <div className="col-12">
