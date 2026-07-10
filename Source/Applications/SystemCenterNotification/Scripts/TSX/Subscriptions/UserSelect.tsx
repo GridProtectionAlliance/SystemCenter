@@ -24,10 +24,9 @@
 import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
 import { UserAccountSlice } from '../Store';
-import { Table, Column } from '@gpa-gemstone/react-table';
-import { DefaultSearch } from '@gpa-gemstone/common-pages';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
+import { SearchBar, Search } from '@gpa-gemstone/react-interactive'
 import { Application } from '@gpa-gemstone/application-typings'
-import { GenericSlice } from '@gpa-gemstone/react-interactive';
 
 declare var homePath;
 declare var version;
@@ -37,18 +36,40 @@ interface IProps {
     UserAccountID: string
 }
 
+const defaultSearchcols: Search.IField<Application.Types.iUserAccount>[] = [
+    { label: 'First Name', key: 'FirstName', type: 'string', isPivotField: false },
+    { label: 'Last Name', key: 'LastName', type: 'string', isPivotField: false },
+    { label: 'Email', key: 'Email', type: 'string', isPivotField: false },
+];
+
 const UserSelect = (props: IProps) => {
     const dispatch = useAppDispatch();
     const data = useAppSelector(UserAccountSlice.SearchResults);
-    const sortField = useAppSelector(UserAccountSlice.SortField);
-    const ascending = useAppSelector(UserAccountSlice.Ascending);
+    const searchStatus = useAppSelector(UserAccountSlice.SearchStatus);
+    const [sortField, setSortField] = React.useState<keyof Application.Types.iUserAccount>('Name');
+    const [ascending, setAscending] = React.useState<boolean>(true);
+    const [page, setPage] = React.useState<number>(0);
+    const totalPages = useAppSelector(UserAccountSlice.TotalPages);
+    const totalRecords = useAppSelector(UserAccountSlice.TotalRecords);
+    const recordsPerPage = useAppSelector(UserAccountSlice.RecordsPerPage);
+
+    React.useEffect(() => {
+        const filters = undefined // setting filter to undefined uses the filter set on the slice by default search.
+        dispatch(UserAccountSlice.PagedSearch({filter: filters, sortField: sortField, ascending: ascending, page: page}))
+    }, [sortField, ascending, page])
 
     return (
         <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
             <div className="row">
                 <div className="col">
-                    <DefaultSearch.User Slice={UserAccountSlice as any} GetAddlFields={() => () => { }} GetEnum={() => () => { }}>
-                    </DefaultSearch.User>
+                    <SearchBar<Application.Types.iUserAccount> CollumnList={defaultSearchcols}
+                        SetFilter={(flds) => dispatch(UserAccountSlice.PagedSearch({ filter: flds }))}
+                        Direction={'left'} defaultCollumn={{ key: 'Name', label: 'Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
+                        ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : `Displaying User(s) ${totalRecords > 0 ? recordsPerPage * page + 1 : 0}-${recordsPerPage * page + data.length} out of ${totalRecords}`}
+                        GetEnum={() => {
+                            return () => { }
+                        }}>
+                    </SearchBar>
                 </div>
             </div>
             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
@@ -59,8 +80,11 @@ const UserSelect = (props: IProps) => {
                         SortKey={sortField}
                         Ascending={ascending}
                         OnSort={(d) => {
-                            if (d.colKey == null) return;
-                            dispatch(UserAccountSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
+                            if (d.colKey === sortField)
+                                setAscending((val) => !val);
+                            else {
+                                setSortField(d.colKey as keyof Application.Types.iUserAccount)
+                            }
                         }}
                         OnClick={(d) => props.SetUserAccountID(d.row.ID)}
                         TableStyle={{ height: 'calc(100% - 16px)' }}
@@ -100,6 +124,15 @@ const UserSelect = (props: IProps) => {
                         > Email
                         </Column>
                     </Table>
+                </div>
+            </div>
+            <div className="row">
+                <div className="col">
+                    <Paging
+                        Current={page + 1}
+                        SetPage={(page) => setPage(page - 1)}
+                        Total={totalPages}
+                    />
                 </div>
             </div>
         </div>

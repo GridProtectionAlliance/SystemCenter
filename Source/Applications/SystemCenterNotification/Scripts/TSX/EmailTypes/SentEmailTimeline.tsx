@@ -24,9 +24,10 @@
 import * as React from 'react'
 import * as $ from 'jquery'
 import { Application } from '@gpa-gemstone/application-typings'
-import { Table, Column } from '@gpa-gemstone/react-table'
+import { Table, Column, Paging } from '@gpa-gemstone/react-table'
 import moment from 'moment';
 import { Pill, Plot, VerticalMarker } from '@gpa-gemstone/react-graph'
+import { LoadingScreen, ServerErrorIcon } from '@gpa-gemstone/react-interactive'
 
 interface TimelineItem {
     Start: string,
@@ -54,21 +55,26 @@ const SentEmailTimeline = (props: IProps) => {
     const [ascending, setAscending] = React.useState<boolean>(false)
     const [plotWidth, setPlotWidth] = React.useState<number>(100);
     const [selectedID, setSelectedID] = React.useState<number>(null);
+    const [pagedTimeline, setPagedTimeline] = React.useState<TimelineItem[]>([]);
+    const [page, setPage] = React.useState<number>(0);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [tblStatus, setTblStatus] = React.useState<Application.Types.Status>('uninitiated');
 
     const rowRef = React.useRef<HTMLDivElement>(null);
 
     const [timeframe, setTimeframe] = React.useState<[number, number]>([null, null]) 
 
-    const tblData = React.useMemo(() => ToTimestamps(timeline), [timeline])
+    const tblData = React.useMemo(() => ToTimestamps(pagedTimeline), [pagedTimeline])
 
     const tMin = React.useMemo(() => { return Math.min(...timeline.map((i) => moment(i.Start).valueOf())) - 3600000 }, [timeline])
     const tMax = React.useMemo(() => { return Math.max(...timeline?.map((i) => moment(i.End ?? i.Start).valueOf())) + 3600000 }, [timeline])
 
     React.useEffect(() => {
         if (props.SentEmailID == null) return;
+        setState('loading')
         let handle = getTimeline();
-        handle.done((dt: string) => {
-            const eventResults = JSON.parse(dt) as TimelineItem[];
+        handle.done((dt: TimelineItem[]) => {
+            const eventResults = dt;
             setTimeline(eventResults);
             setState('idle');
         }).fail((d) => setState('error'));
@@ -78,6 +84,23 @@ const SentEmailTimeline = (props: IProps) => {
                 handle.abort();
         }
     }, [props.SentEmailID, sortKey, ascending])
+
+    React.useEffect(() => {
+        if (props.SentEmailID == null) return;
+        setTblStatus('loading')
+        let handle = getPagedTimeline();
+        handle.done((dt) => {
+            const eventResults = JSON.parse(dt.Data as unknown as string);
+            setPagedTimeline(eventResults);
+            setTotalPages(dt.NumberOfPages);
+            setTblStatus('idle');
+        }).fail((d) => setTblStatus('error'));
+
+        return function cleanup() {
+            if (handle.abort != null)
+                handle.abort();
+        }
+    }, [props.SentEmailID, sortKey, ascending, page])
 
     React.useEffect(() => {
         if (timeline.length == 0)
@@ -93,6 +116,18 @@ const SentEmailTimeline = (props: IProps) => {
         return $.ajax({
             type: "POST",
             url: `${homePath}api/OpenXDA/SentEmail/Timeline/${props.SentEmailID}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true,
+            data: JSON.stringify({ "Ascending": ascending, "OrderBy": sortKey })
+        });
+    }
+
+    const getPagedTimeline = () => {
+        return $.ajax({
+            type: "POST",
+            url: `${homePath}api/OpenXDA/SentEmail/Timeline/${props.SentEmailID}/${page}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
@@ -133,7 +168,9 @@ const SentEmailTimeline = (props: IProps) => {
 
     return (
         <>
-            {state !== 'idle' ? <></> :
+            <LoadingScreen Show={state === 'loading' || tblStatus === 'loading'} />
+            <ServerErrorIcon Show={state === 'error' || tblStatus === 'error' } />
+            {state !== 'idle' || tblStatus !== 'idle' ? <></> :
                 <>
                     <div className="row h-10" ref={rowRef}>
                         <div className="col-12">
@@ -216,7 +253,16 @@ const SentEmailTimeline = (props: IProps) => {
                                     }}
                                 > Timestamp
                                 </Column>
-                            </Table>
+                    </Table>
+                    <div className="row">
+                        <div className="col">
+                            <Paging
+                                Current={page + 1}
+                                SetPage={(page) => setPage(page - 1)}
+                                Total={totalPages}
+                            />
+                        </div>
+                    </div>
                 </>
             }</>)
 }

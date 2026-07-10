@@ -26,10 +26,10 @@ import * as React from 'react';
 import { ScheduledEmailType, IDataSourceScheduledEmailType } from '../../global';
 import { ScheduledEmailDataSourceSlice } from '../../Store';
 import DataSourceModal from './DataSourceModal';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import DataSourceTesting from './DataSourceTesting';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { Warning } from '@gpa-gemstone/react-interactive';
+import { Warning, Search } from '@gpa-gemstone/react-interactive';
 
 
 declare var homePath;
@@ -41,17 +41,20 @@ interface IProps { Record: ScheduledEmailType }
 const DataSourceWindow = (props: IProps) => {
     const dispatch = useAppDispatch();
     const status = useAppSelector(ScheduledEmailDataSourceSlice.Status);
-    const data = useAppSelector(ScheduledEmailDataSourceSlice.Data);
+    const data = useAppSelector(ScheduledEmailDataSourceSlice.SearchResults);
     const emailID = useAppSelector(ScheduledEmailDataSourceSlice.ParentID);
     const [dataSource, setDataSource] = React.useState<null | IDataSourceScheduledEmailType>(null);
     const [showTest, setShowTest] = React.useState<boolean>(false);
     const [showRemoveWarning, setShowRemoveWarning] = React.useState<boolean>(false);
     const [showDataSourceModal, setShowDataSourceModal] = React.useState<boolean>(false);
+    const [page, setPage] = React.useState<number>(0);
+    const totalPages = useAppSelector(ScheduledEmailDataSourceSlice.TotalPages);
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
 
     React.useEffect(() => {
-        if (status == 'uninitiated' || status == 'changed' || emailID !== props.Record.ID)
-            dispatch(ScheduledEmailDataSourceSlice.Fetch(props.Record.ID));
-    }, [status, props.Record.ID, emailID]);
+        const filters: Search.IFilter<IDataSourceScheduledEmailType>[] = [{ FieldName: "ScheduledEmailTypeID", SearchText: props.Record.ID.toString(), Operator: "=", IsPivotColumn: false, Type: 'string' }]
+        dispatch(ScheduledEmailDataSourceSlice.PagedSearch({ filter: filters, sortField: 'ScheduledEmailDataSourceName', ascending: true, page: page }));
+    }, [status, props.Record.ID, emailID, dataSource, page, refreshTrigger]);
 
     return (
         <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
@@ -127,7 +130,16 @@ const DataSourceWindow = (props: IProps) => {
                                         </Column>
                                     </Table>
                                 </div>
-                           </div>      
+                            </div>      
+                            <div className="row">
+                                <div className="col">
+                                    <Paging
+                                        Current={page + 1}
+                                        SetPage={(page) => setPage(page - 1)}
+                                        Total={totalPages}
+                                    />
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div className="card-footer">
@@ -144,12 +156,12 @@ const DataSourceWindow = (props: IProps) => {
                     if (c)
                         dispatch(ScheduledEmailDataSourceSlice.DBAction({
                             verb: 'DELETE', record: dataSource
-                        }));
+                        })).then(() => setRefreshTrigger((val) => !val));
                     setShowRemoveWarning(false);
 
                 }}
             ></Warning>
-            <DataSourceModal Show={showDataSourceModal} Record={dataSource} OnClose={() => {setDataSource(null); setShowDataSourceModal(false)}} />
+            <DataSourceModal Show={showDataSourceModal} Record={dataSource} OnClose={() => { setDataSource(null); setRefreshTrigger((val) => !val); setShowDataSourceModal(false)}} />
             <DataSourceTesting Record={props.Record} OnClose={() => setShowTest(false)} Show={showTest}/>
         </div>
         )

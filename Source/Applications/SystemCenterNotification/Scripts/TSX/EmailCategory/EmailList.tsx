@@ -25,7 +25,8 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
 import { EmailType } from '../global';
 import { EmailTypeSlice } from '../Store';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
+import { Search } from '@gpa-gemstone/react-interactive'
 
 interface IProps { CategoryID: number}
 
@@ -33,18 +34,21 @@ interface IProps { CategoryID: number}
 const EmailList = (props: IProps) => {
     const dispatch = useAppDispatch();
 
-    const emails = useAppSelector(EmailTypeSlice.Data);
-    const status = useAppSelector(EmailTypeSlice.Status);
+    const emails = useAppSelector(EmailTypeSlice.SearchResults);
+    const status = useAppSelector(EmailTypeSlice.SearchStatus);
 
     const parentID = useAppSelector(EmailTypeSlice.ParentID);
 
-    const sortField = useAppSelector(EmailTypeSlice.SortField);
-    const ascending = useAppSelector(EmailTypeSlice.Ascending);
+    const [sortField, setSortField] = React.useState<keyof EmailType>('Name');
+    const [ascending, setAscending] = React.useState<boolean>(false);
+
+    const [page, setPage] = React.useState<number>(0);
+    const totalPages = useAppSelector(EmailTypeSlice.TotalPages);
 
     React.useEffect(() => {
-        if (props.CategoryID != parentID || status == 'uninitiated' || status == 'changed')
-            dispatch(EmailTypeSlice.Fetch(props.CategoryID));
-    }, [parentID, status, props.CategoryID])
+        const filters: Search.IFilter<EmailType>[] = [{ FieldName: "EmailCategoryID", Type: 'number', Operator: '=', SearchText: props.CategoryID.toString(), IsPivotColumn: false}]
+        dispatch(EmailTypeSlice.PagedSearch({ filter: filters, sortField: sortField, ascending: ascending, page: page }));
+    }, [parentID, props.CategoryID, sortField, ascending, page])
 
     return (
         <div className="container-fluid d-flex h-100 flex-column">
@@ -67,8 +71,11 @@ const EmailList = (props: IProps) => {
                                         SortKey={sortField}
                                         Ascending={ascending}
                                         OnSort={(d) => {
-                                            if (d.colKey === null) return;
-                                            dispatch(EmailTypeSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
+                                            if (d.colKey === sortField)
+                                                setAscending((val) => !val);
+                                            else {
+                                                setSortField(d.colKey as keyof EmailType)
+                                            }
                                         }}
                                         TableStyle={{
                                             padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
@@ -114,6 +121,15 @@ const EmailList = (props: IProps) => {
                                         > Type
                                         </Column>
                                     </Table>
+                                </div>
+                            </div>
+                            <div className="row">
+                                <div className="col">
+                                    <Paging
+                                        Current={page + 1}
+                                        SetPage={(page) => setPage(page - 1)}
+                                        Total={totalPages}
+                                    />
                                 </div>
                             </div>
                         </div>

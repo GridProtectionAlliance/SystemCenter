@@ -23,10 +23,10 @@
 
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import * as React from 'react';
-import { LoadingScreen, SearchBar, Warning } from '@gpa-gemstone/react-interactive'
+import { LoadingScreen, SearchBar, Warning, Search } from '@gpa-gemstone/react-interactive'
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ToolTip } from '@gpa-gemstone/react-forms';
 import { ActiveSubscriptionSlice } from '../../Store';
 import { ActiveSubscription } from '../../global';
@@ -37,7 +37,7 @@ import AddAllSubscription from './AddAllSubscription';
 declare var homePath;
 declare var version;
 
-interface IProps {}
+interface IProps { }
 
 const ByAllSubscription = (props: IProps) => {
     const dispatch = useAppDispatch();
@@ -46,34 +46,27 @@ const ByAllSubscription = (props: IProps) => {
     const data: ActiveSubscription[] = useAppSelector(ActiveSubscriptionSlice.SearchResults);
     const allData: ActiveSubscription[] = useAppSelector(ActiveSubscriptionSlice.Data);
     const parentID = useAppSelector(ActiveSubscriptionSlice.ParentID);
-    const sortField = useAppSelector(ActiveSubscriptionSlice.SortField);
-    const asc = useAppSelector(ActiveSubscriptionSlice.Ascending);
-    const filter = useAppSelector(ActiveSubscriptionSlice.SearchFilters);
+    const [sortField, setSortField] = React.useState<keyof ActiveSubscription>('Category');
+    const [asc, setAsc] = React.useState<boolean>(false);
+    const [filters, setFilters] = React.useState<Search.IFilter<ActiveSubscription>[]>([]);
     const searchStatus = useAppSelector(ActiveSubscriptionSlice.SearchStatus);
     const [showApproveWarning, setShowApproveWarning] = React.useState<boolean>(false);
     const [showRemoveWarning, setShowRemoveWarning] = React.useState<boolean>(false);
     const [showModal, setShowModal] = React.useState<boolean>(false);
-    const [force, setForce] = React.useState<number>(0);
     const [nApproval, setNApproval] = React.useState<number>(0);
     const [record, setRecord] = React.useState<ActiveSubscription>();
     const [hover, setHover] = React.useState<string>('none');
+    const [page, setPage] = React.useState<number>(0);
+    const totalPages = useAppSelector(ActiveSubscriptionSlice.TotalPages);
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false)
 
     React.useEffect(() => {
-        if (status == 'uninitiated' || status == 'changed' || parentID != null)
-            dispatch(ActiveSubscriptionSlice.Fetch());
-    }, [status, parentID]);
+        dispatch(ActiveSubscriptionSlice.Fetch());
+    }, [parentID, refreshTrigger]);
 
     React.useEffect(() => {
-        if (searchStatus === 'uninitiated' || searchStatus === 'changed')
-            dispatch(ActiveSubscriptionSlice.DBSearch({ filter, sortField, ascending: asc }));
-    }, [searchStatus]);
-
-    React.useEffect(() => {
-        if (force > 0) {
-            dispatch(ActiveSubscriptionSlice.DBSearch({ filter, sortField, ascending: asc }));
-            dispatch(ActiveSubscriptionSlice.Fetch());
-        }
-    }, [force])
+        dispatch(ActiveSubscriptionSlice.PagedSearch({ filter: filters, sortField, ascending: asc, page: page }));
+    }, [filters, sortField, asc, page, refreshTrigger]);
 
     React.useEffect(() => {
         setNApproval(allData.filter(s => !s.Approved).length);
@@ -87,9 +80,9 @@ const ByAllSubscription = (props: IProps) => {
             cache: false,
             async: true,
         }).then((d) => {
-            setForce((x) => x + 1)
+            setRefreshTrigger((val) => !val)
         }, () => {
-            setForce((x) => x + 1)
+            setRefreshTrigger((val) => !val)
         });
     }
 
@@ -101,14 +94,14 @@ const ByAllSubscription = (props: IProps) => {
             cache: false,
             async: true,
         }).then((d) => {
-            setForce((x) => x+1)
+            setRefreshTrigger((val) => !val)
         }, () => {
-            setForce((x) => x + 1)
+            setRefreshTrigger((val) => !val)
         });
     }
 
     const removeSubscription = () => {
-        dispatch(ActiveSubscriptionSlice.DBAction({ verb: 'DELETE', record }));
+        dispatch(ActiveSubscriptionSlice.DBAction({ verb: 'DELETE', record })).then(() => setRefreshTrigger((val) => !val));
     };
 
     return (
@@ -118,14 +111,14 @@ const ByAllSubscription = (props: IProps) => {
                 <div className="col">
                     <SearchBar<ActiveSubscription> CollumnList={[
                         { key: 'Category', label: 'Category', type: 'string', isPivotField: false },
-                        { key: 'EmailName', label: 'Notification', type: 'string', isPivotField: false},
+                        { key: 'EmailName', label: 'Notification', type: 'string', isPivotField: false },
                         { key: 'AssetGroup', label: 'Assets', type: 'string', isPivotField: false },
                         { key: 'LastSent', label: 'Last Sent', type: 'datetime', isPivotField: false },
                         { key: 'FirstName', label: 'First', type: 'string', isPivotField: false },
                         { key: 'LastName', label: 'Last', type: 'string', isPivotField: false },
                         { key: 'Email', label: 'Email', type: 'string', isPivotField: false },
                         { key: 'Approved', label: 'Approved', type: 'boolean', isPivotField: false },
-                    ]} SetFilter={(flds) => dispatch(ActiveSubscriptionSlice.DBSearch({ filter: flds, sortField, ascending: asc }))}
+                    ]} SetFilter={setFilters}
                         Direction={'left'} defaultCollumn={{ key: 'EmailName', label: 'Notification', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
                         ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Subscriptions'}
                         GetEnum={() => {
@@ -156,8 +149,11 @@ const ByAllSubscription = (props: IProps) => {
                         SortKey={sortField}
                         Ascending={asc}
                         OnSort={(d) => {
-                            if (d.colKey === null) return;
-                            dispatch(ActiveSubscriptionSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
+                            if (d.colKey === sortField)
+                                setAsc((val) => !val);
+                            else {
+                                setSortField(d.colKey as keyof ActiveSubscription)
+                            }
                         }}
                         TableStyle={{
                             padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
@@ -238,8 +234,8 @@ const ByAllSubscription = (props: IProps) => {
                                     onMouseEnter={() => setHover(`${item.ID}_approve`)}
                                     onMouseLeave={() => setHover('none')}
                                     onClick={(e) => {
-                                    e.preventDefault();
-                                    approve(item.UserAccountEmailID);
+                                        e.preventDefault();
+                                        approve(item.UserAccountEmailID);
                                     }}><span><ReactIcons.CrossMark Color="var(--danger)" Size={20} /></span></button>) : 'N/A'
                             }
                         > Approved
@@ -261,11 +257,20 @@ const ByAllSubscription = (props: IProps) => {
                     </Table>
                 </div>
             </div>
+            <div className="row">
+                <div className="col">
+                    <Paging
+                        Current={page + 1}
+                        SetPage={(page) => setPage(page - 1)}
+                        Total={totalPages}
+                    />
+                </div>
+            </div>
             <Warning Show={showApproveWarning} Title={'Approve Subscriptions'} Message={`This will approve all ${nApproval} subscriptions that are currently pending.`}
                 CallBack={(c) => { setShowApproveWarning(false); if (c) approveAll(); }} />
             <Warning Show={showRemoveWarning} Title={'Remove Subscription'} Message={`Are you sure you want to remove this subscription?`}
                 CallBack={(c) => { setShowRemoveWarning(false); if (c) removeSubscription(); }} />
-            <AddAllSubscription OnClose={() => setShowModal(false)} show={showModal} />
+            <AddAllSubscription OnClose={() => { setShowModal(false); setRefreshTrigger((val) => !val) }} show={showModal} />
             <ToolTip Show={hover.match(/_approve$/) != null} Position={'top'} Target={hover}>
                 Click to approve this subscription.
             </ToolTip>

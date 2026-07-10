@@ -95,7 +95,7 @@ const EmailPage = (props: IProps) => {
                     <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
                 </div>
                 <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                    <div className="col-12" style={{ padding: 0 }}>
+                    <div className="col-12 h-100" style={{ padding: 0 }}>
                         <div className="tab-content" style={{ height: '100%' }}>
                             {tab == "settings" ?
                                 <div className="tab-pane active" style={{ height: 'inherit' }}>

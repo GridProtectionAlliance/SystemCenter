@@ -23,10 +23,10 @@
 
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import * as React from 'react';
-import { LoadingScreen, Warning } from '@gpa-gemstone/react-interactive'
+import { LoadingScreen, Warning, Search } from '@gpa-gemstone/react-interactive'
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ActiveSubscriptionSlice } from '../../Store';
 import { ActiveSubscription } from '../../global';
 import moment from 'moment';
@@ -43,18 +43,21 @@ const BySubscription = (props: IProps) => {
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
     const [subscription, setSubscription] = React.useState<ActiveSubscription>(null);
 
-    const status: Application.Types.Status = useAppSelector(ActiveSubscriptionSlice.Status);
-    const data: ActiveSubscription[] = useAppSelector(ActiveSubscriptionSlice.Data);
+    const status: Application.Types.Status = useAppSelector(ActiveSubscriptionSlice.SearchStatus);
+    const data: ActiveSubscription[] = useAppSelector(ActiveSubscriptionSlice.SearchResults);
     const parentID = useAppSelector(ActiveSubscriptionSlice.ParentID);
     const userID = useAppSelector(UserInfoSlice.UserAccountID)
-    const sortField = useAppSelector(ActiveSubscriptionSlice.SortField);
-    const asc = useAppSelector(ActiveSubscriptionSlice.Ascending);
+    const [sortField, setSortField] = React.useState<keyof ActiveSubscription>('Category');
+    const [asc, setAsc] = React.useState<boolean>(false);
+    const [page, setPage] = React.useState<number>(0);
+    const totalPages = useAppSelector(ActiveSubscriptionSlice.TotalPages);
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
 
 
     React.useEffect(() => {
-        if (status == 'uninitiated' || status == 'changed' || parentID != userID)
-            dispatch(ActiveSubscriptionSlice.Fetch(userID));
-    }, [status, parentID, userID])
+        const filters: Search.IFilter<ActiveSubscription>[]  = [{FieldName: 'UserAccountID', SearchText: userID.toString(), IsPivotColumn: false, Operator: "=", Type:'string'}]
+        dispatch(ActiveSubscriptionSlice.PagedSearch({ filter: filters, sortField: sortField, ascending: asc, page: page }));
+    }, [parentID, userID, asc, sortField, page, refreshTrigger])
 
     return (
         <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit', padding: 0 }}>
@@ -67,8 +70,11 @@ const BySubscription = (props: IProps) => {
                         SortKey={sortField}
                         Ascending={asc}
                         OnSort={(d) => {
-                            if (d.colKey === null || d.colKey === 'btns') return;
-                            dispatch(ActiveSubscriptionSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
+                            if (d.colKey === sortField)
+                                setAsc((val) => !val);
+                            else {
+                                setSortField(d.colKey as keyof ActiveSubscription)
+                            }
                         }}
                         TableStyle={{
                             padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
@@ -147,12 +153,21 @@ const BySubscription = (props: IProps) => {
                     </Table>
                 </div>
             </div>
+            <div className="row">
+                <div className="col">
+                    <Paging
+                        Current={page + 1}
+                        SetPage={(page) => setPage(page - 1)}
+                        Total={totalPages}
+                    />
+                </div>
+            </div>
             <Warning Show={showWarning}
                 Title={'Unsubscribe from ' + (subscription == undefined ? '' : subscription.EmailName)}
-                Message={'This will unsubscribe you from these notifications. You will no longer recieve these notifications.'}
+                Message={'This will unsubscribe you from these notifications. You will no longer receive these notifications.'}
                 CallBack={(c) => {
                     if (c)
-                        dispatch(ActiveSubscriptionSlice.DBAction({ record: subscription, verb: 'DELETE' }));
+                        dispatch(ActiveSubscriptionSlice.DBAction({ record: subscription, verb: 'DELETE' })).then(() => setRefreshTrigger((val) => !val));
                     setShowWarning(false);
                 }}
             />
