@@ -23,11 +23,11 @@
 
 import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
-import { LoadingScreen } from '@gpa-gemstone/react-interactive';
+import { LoadingScreen, Search } from '@gpa-gemstone/react-interactive';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { ScheduledEmailType, SubscribeScheduledEmails } from '../global';
 import { ReportSubscriptionSlice } from '../Store';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import * as $ from 'jquery';
 import { Application } from '@gpa-gemstone/application-typings';
 import { ToolTip } from '@gpa-gemstone/react-forms';
@@ -41,19 +41,21 @@ interface IProps { Record: ScheduledEmailType }
 const Subscriptions = (props: IProps) => {
     const dispatch = useAppDispatch();
 
-    const subscriptions = useAppSelector(ReportSubscriptionSlice.Data);
-    const status = useAppSelector(ReportSubscriptionSlice.Status);
+    const subscriptions = useAppSelector(ReportSubscriptionSlice.SearchResults);
+    const status = useAppSelector(ReportSubscriptionSlice.SearchStatus);
     const parentID = useAppSelector(ReportSubscriptionSlice.ParentID);
-    const asc = useAppSelector(ReportSubscriptionSlice.Ascending);
-    const sortKey = useAppSelector(ReportSubscriptionSlice.SortField);
+    const [ascending, setAscending] = React.useState<boolean>(false);
+    const [sortField, setSortField] = React.useState<keyof SubscribeScheduledEmails>('FirstName');
+    const [page, setPage] = React.useState<number>(0);
+    const totalPages = useAppSelector(ReportSubscriptionSlice.TotalPages);
     const [hover, setHover] = React.useState<string>('none');
 
     const [approvalStatus, setApprovalStatus] = React.useState<Application.Types.Status>('idle');
 
     React.useEffect(() => {
-        if (status == 'uninitiated' || status == 'changed' || parentID != props.Record.ID)
-            dispatch(ReportSubscriptionSlice.Fetch(props.Record.ID))
-    }, [props.Record, parentID, status])
+        const filters: Search.IFilter<SubscribeScheduledEmails>[] = [{FieldName: "ScheduledEmailID", IsPivotColumn: false, SearchText: props.Record.ID.toString(), Operator: "=", Type: 'string'}];
+        dispatch(ReportSubscriptionSlice.PagedSearch({filter: filters, sortField: sortField, ascending: ascending, page: page}))
+    }, [props.Record, parentID, ascending, sortField, page])
 
     function approve(record: SubscribeScheduledEmails) {
         setApprovalStatus('loading')
@@ -113,11 +115,14 @@ const Subscriptions = (props: IProps) => {
                                     <Table<SubscribeScheduledEmails>
                                         TableClass="table table-hover"
                                         Data={subscriptions}
-                                        SortKey={sortKey}
-                                        Ascending={asc}
+                                        SortKey={sortField}
+                                        Ascending={ascending}
                                         OnSort={(d) => {
-                                            if (d.colKey === null) return;
-                                            dispatch(ReportSubscriptionSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
+                                            if (d.colKey === sortField)
+                                                setAscending((val) => !val);
+                                            else {
+                                                setSortField(d.colKey as keyof SubscribeScheduledEmails)
+                                            }
                                         }}
                                         TableStyle={{
                                             padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
@@ -179,6 +184,15 @@ const Subscriptions = (props: IProps) => {
                                             </Column>
                                         : null}
                                     </Table>
+                                </div>
+                            </div>
+                            <div className="row">
+                                <div className="col">
+                                    <Paging
+                                        Current={page + 1}
+                                        SetPage={(page) => setPage(page - 1)}
+                                        Total={totalPages}
+                                    />
                                 </div>
                             </div>
                         </div>
