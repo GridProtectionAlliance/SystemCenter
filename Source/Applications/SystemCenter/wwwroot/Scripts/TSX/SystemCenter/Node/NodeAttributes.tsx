@@ -61,7 +61,7 @@ export default function NodeAttributes(props: IProps) {
 
     return (<>
         <Input<SC.Node> Record={props.Node} Field={'Name'} Label='Name' Valid={(field) => valid(props.Node, field)} Setter={(record) => props.SetNode(record)} Disabled={!props.HasPermissions} Feedback='A name is required.' />
-        <Input<SC.Node> Type={'number'} Record={props.Node} Field={'MinimumHostCount'} Label='Minimum Node Count' Feedback='A number between 0 and 100 is required.' Valid={(field) => valid(props.Node, field)} Setter={(record) => props.SetNode(record)} Disabled={!props.HasPermissions} />
+        <Input<SC.Node> Type={'number'} Record={props.Node} Field={'MinimumHostCount'} Label='Minimum Node Count' Help='The minimum number of active Nodes before this task runner is enabled.' Feedback='A number between 1 and 99 is required.' Valid={(field) => valid(props.Node, field)} Setter={(record) => props.SetNode(record)} Disabled={!props.HasPermissions} />
         <Select<SC.Node> Options={props.NodeTypes.map((n) => { return { Value: n.Name, Label: n.Name } })} Record={props.Node} Field={'NodeType'} Setter={(record) => props.SetNode(record)} Label={'Type'} />
         <Select<SC.Node> Record={props.Node} Options={props.AppHosts.map((h) => { return { Value: h.RegistrationKey, Label: h.RegistrationKey } })} Field={'HostRegistrationKey'} Label={'Node'} EmptyOption={true} Setter={(record) => props.SetNode(record)} />
         <Select<SC.Node> Record={props.Node} Options={props.AppHosts.map((h) => { return { Value: h.RegistrationKey, Label: h.RegistrationKey } })} Field={'AssignedHostRegistrationKey'} Label={'Assigned Node'} EmptyOption={true} Setter={(record) => props.SetNode(record)} />
