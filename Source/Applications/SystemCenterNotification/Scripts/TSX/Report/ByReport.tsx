@@ -83,8 +83,7 @@ const ByReport = (props: IProps) => {
     }, []);
 
     React.useEffect(() => {
-        if ( parentID != null )
-            dispatch(ScheduledEmailTypeSlice.Fetch());
+        dispatch(ScheduledEmailTypeSlice.Fetch());
     }, [parentID, refreshTrigger]);
 
     React.useEffect(() => {
