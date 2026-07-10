@@ -433,6 +433,27 @@ namespace SystemCenter.Notifications.Controllers
         [HttpPost, Route("Timeline/{SentEmailID:int}")]
         public IHttpActionResult SentEmailTimeline([FromBody] PostData postData, int SentEmailID)
         {
+            return Ok(GetEmailTimeline(postData, SentEmailID));
+        }
+
+        [HttpPost, Route("Timeline/{sentEmailID:int}/{page:int}")]
+        public IHttpActionResult SentEmailTimelinePaged([FromBody] PostData postData, [FromUri] int sentEmailID, [FromUri] int page)
+        {
+            PagedResults pagedResults = new PagedResults();
+            int recordsPerPage = Take ?? 50;
+
+            List<TimelineItem> timeline = GetEmailTimeline(postData, sentEmailID);
+            int totalRecords = timeline.Count;
+
+            pagedResults.TotalRecords = totalRecords;
+            pagedResults.RecordsPerPage = recordsPerPage;
+            pagedResults.NumberOfPages = (totalRecords + recordsPerPage - 1) / recordsPerPage;
+            pagedResults.Data = JsonConvert.SerializeObject(timeline.Skip(recordsPerPage * page).Take(recordsPerPage));
+
+            return Ok(pagedResults);
+        }
+
+        private List<TimelineItem> GetEmailTimeline(PostData postData, int SentEmailID) { 
             List<TimelineItem> timeline = [];
 
             int id = 0;
@@ -455,7 +476,7 @@ namespace SystemCenter.Notifications.Controllers
 
                 if (eventSentEmail == null)
             {
-                    return Ok(JsonConvert.SerializeObject(timeline));
+                    return timeline;
             }
 
                 Event eventRecord = new TableOperations<Event>(connection).QueryRecordWhere("ID = {0}", eventSentEmail.EventID);
@@ -531,7 +552,7 @@ namespace SystemCenter.Notifications.Controllers
                     sortedTimeline = timeline.OrderByDescending(i => orderByProp.GetValue(i)).ToList();
                 }
 
-                return Ok(JsonConvert.SerializeObject(sortedTimeline));
+                return sortedTimeline;
             }
         }
 
