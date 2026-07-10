@@ -164,7 +164,7 @@ const BySubscription = (props: IProps) => {
             </div>
             <Warning Show={showWarning}
                 Title={'Unsubscribe from ' + (subscription == undefined ? '' : subscription.EmailName)}
-                Message={'This will unsubscribe you from these notifications. You will no longer recieve these notifications.'}
+                Message={'This will unsubscribe you from these notifications. You will no longer receive these notifications.'}
                 CallBack={(c) => {
                     if (c)
                         dispatch(ActiveSubscriptionSlice.DBAction({ record: subscription, verb: 'DELETE' })).then(() => setRefreshTrigger((val) => !val));
