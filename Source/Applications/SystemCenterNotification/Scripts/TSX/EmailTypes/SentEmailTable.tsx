@@ -105,12 +105,11 @@ const SentEmailTable = (props: IProps) => {
                     </Table>
                 </div>
             </div>
-            {pageInfo?.NumberOfPages > 1 ?
-                <div className="row">
-                    <div className="col">
-                        <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p - 1)} />
-                    </div>
-                </div> : null}
+            <div className="row">
+                <div className="col">
+                    <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p - 1)} />
+                </div>
+            </div>
         </>
     )
 }
