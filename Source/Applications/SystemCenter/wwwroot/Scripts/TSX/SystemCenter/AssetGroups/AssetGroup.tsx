@@ -33,10 +33,11 @@ import { LoadingScreen, TabSelector, Warning } from '@gpa-gemstone/react-interac
 import { AssetGroupSlice } from '../Store/Store';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
+import AssetGroupWindow from '../CommonComponents/AssetGroupWindow'
 
 
 declare var homePath: string;
-declare type Tab = 'info' | 'meter' | 'asset' | 'assetgroup'
+declare type Tab = 'info' | 'meter' | 'asset' | 'assetgroup' | 'assetsupergroup'
 
 interface IProps { AssetGroupID: number, Tab: Tab }
 
@@ -94,7 +95,8 @@ function AssetGroup(props: IProps) {
         { Id: "info", Label: "Asset Group Info" },
         { Id: "asset", Label: "Assets" },
         { Id: "meter", Label: "Meters" },
-        { Id: "assetgroup", Label: "Asset Subgroups" }];
+        { Id: "assetgroup", Label: "Asset Subgroups" },
+        { Id: "assetsupergroup", Label: "Asset Supergroups"}];
 
     return (
         <div style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
@@ -114,6 +116,7 @@ function AssetGroup(props: IProps) {
             {tab === 'asset' ? <AssetAssetGroupWindow AssetGroupID={props.AssetGroupID} /> : null}
             {tab === 'meter' ? <MeterAssetGroupWindow AssetGroupID={props.AssetGroupID} /> : null}
             {tab === 'assetgroup' ? <AssetGroupAssetGroupWindow AssetGroupID={props.AssetGroupID} /> : null}
+            {tab === 'assetsupergroup' ? <AssetGroupWindow RecordType={'AssetGroup'} ID={props.AssetGroupID} /> : null }
 
             <Warning Message={'This will permanently delete this Asset Group and cannot be undone.'} Show={showDelete} Title={'Delete ' + (group?.Name ?? 'Asset Group')} CallBack={(conf) => { if (conf) deleteAssetGroup(); setShowDelete(false); }} />
             <LoadingScreen Show={gStatus == 'loading'} />

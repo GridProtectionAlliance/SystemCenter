@@ -76,8 +76,8 @@ function AssetGroupWindow<T>(props: IProps) {
                 </div>
             </div>
             <div className="card-body" style={{ paddingBottom: 0, display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
-                <div className="row">
-                    <div className="col">
+                <div className="row h-100">
+                    <div className="col d-flex flex-column" style={{ flex: 1, overflow: 'hidden'}}>
                         <Table<OpenXDA.Types.AssetGroup>
                             Data={data}
                             SortKey={sortField}

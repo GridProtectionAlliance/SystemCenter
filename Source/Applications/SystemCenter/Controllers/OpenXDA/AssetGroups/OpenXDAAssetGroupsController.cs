@@ -381,14 +381,16 @@ namespace SystemCenter.Controllers.OpenXDA
 
             string linkTable = recordType + "AssetGroup";
 
-            string recordIDField = recordType + "ID";
+            string recordIDField = recordType == "AssetGroup" ? "ChildAssetGroupID" : recordType + "ID";
+
+            string parentIDField = recordType == "AssetGroup" ? "ParentAssetGroupID" : "AssetGroupID";
 
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
                 string sql = $" SELECT * FROM {linkTable} WHERE {recordIDField} = {{0}} ";
                 DataTable linkRecords = connection.RetrieveData(sql, recordID);
 
-                IEnumerable<int> assetGroupIDs = linkRecords.AsEnumerable().Select(row => row.Field<int>("AssetGroupID"));
+                IEnumerable<int> assetGroupIDs = linkRecords.AsEnumerable().Select(row => row.Field<int>(parentIDField));
 
                 string filterExpression = $"ID in ({String.Join(",", assetGroupIDs)})";
 
