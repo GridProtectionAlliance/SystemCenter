@@ -97,108 +97,106 @@ function AdditionalFieldsTable(props: IProps): JSX.Element {
     return (
         <>
             <LoadingScreen Show={props.LoadState === 'loading' || fieldState === 'loading'} />
-            <div className="row d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
-                <div className="col" style={{ overflow: 'auto' }}>
-            <Table<SystemCenter.Types.AdditionalFieldView>
-                TableClass="table table-hover"
-                Data={additionalFields}
-                SortKey={sortKey}
-                Ascending={ascending}
-                OnSort={(d) => {
-                    if (d.colKey === sortKey)
-                        setAscending(!ascending);
-                    else {
-                        setAscending(true);
-                        setSortKey(d.colKey);
-                    }
-                }}
-                Selected={() => false}
-                KeySelector={(item) => item.ID}
-            >
-                <Column<SystemCenter.Types.AdditionalFieldView>
-                    Key={'FieldName'}
-                    AllowSort={true}
-                    Field={'FieldName'}
-                    HeaderStyle={{ width: 'auto' }}
-                    RowStyle={{ width: 'auto' }}
-                > Name
-                </Column>
-                <Column<SystemCenter.Types.AdditionalFieldView>
-                    Key={'Type'}
-                    AllowSort={true}
-                    Field={'Type'}
-                    HeaderStyle={{ width: 'auto' }}
-                    RowStyle={{ width: 'auto' }}
-                    Content={({ item }) => `${item.Type}${item.IsKey ? " (external key)" : ""}`}
-                > Type
-                </Column>
-                <Column<SystemCenter.Types.AdditionalFieldView>
-                    Key={'ExternalDB'}
-                    AllowSort={true}
-                    Field={'ExternalDB'}
-                    HeaderStyle={{ width: 'auto' }}
-                    RowStyle={{ width: 'auto' }}
-                > Ext Database
-                </Column>
-                <Column<SystemCenter.Types.AdditionalFieldView>
-                    Key={'ExternalTable'}
-                    AllowSort={true}
-                    Field={'ExternalTable'}
-                    HeaderStyle={{ width: 'auto' }}
-                    RowStyle={{ width: 'auto' }}
-                > Ext Table
-                </Column>
-                <Column<SystemCenter.Types.AdditionalFieldView>
-                    Key={'Searchable'}
-                    AllowSort={true}
-                    Field={'Searchable'}
-                    HeaderStyle={{ width: 'auto' }}
-                    RowStyle={{ width: 'auto' }}
-                    Content={({ item }) => item.Searchable ? <ReactIcons.CheckMark Color="var(--success)" /> : ''}
-                > Searchable
-                </Column>
-                <Column<SystemCenter.Types.AdditionalFieldView>
-                    Key={'Value'}
-                    AllowSort={false}
-                    HeaderStyle={{ width: 'auto' }}
-                    RowStyle={{ width: 'auto' }}
-                    Content={({ item }) => <>
-                        <AdditionalFieldsValueField Field={item} ParentTableID={props.ID} Values={props.FieldValues}
-                            Setter={(v) => props.SetValues(v.find(x => x.AdditionalFieldID == item.ID), item)} />
-                    </>}
-                > Value
-                </Column>
-                <Column<SystemCenter.Types.AdditionalFieldView>
-                    Key={'IsKey'}
-                    AllowSort={false}
-                    Field={'IsKey'}
-                    HeaderStyle={{ width: '100px' }}
-                    RowStyle={{ width: '100px', paddingLeft: '0px' }}
-                    Content={({ item }) =>
-                        item.IsKey ?
-                            <>
-                                <button
-                                    data-tooltip={`${item.ID}_edit`}
-                                    onMouseEnter={() => setHover(`${item.ID}_edit`)}
-                                    onMouseLeave={() => setHover('None')}
-                                    className="btn btn-sm pull-left" onClick={(e) => {
-                                        e.preventDefault();
-                                        setKeyField(item);
-                                        setShowModal(true);
-                                    }}><ReactIcons.Pencil Color="var(--danger)" Size={20} /></button>
-                                <button
-                                    data-tooltip={`${item.ID}_delete`}
-                                    onMouseEnter={() => setHover(`${item.ID}_delete`)}
-                                    onMouseLeave={() => setHover('None')}
-                                    className="btn btn-sm pull-right" onClick={(e) => {
-                                        e.preventDefault();
-                                        keyModalCallback(null);
-                                    }}><ReactIcons.CrossMark Color="var(--danger)" Size={20} /></button>
-                            </> : null}
-                > <p></p>
-                </Column>
-            </Table>
-                </div>
+            <div className="row h-100 d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }} >
+                    <Table<SystemCenter.Types.AdditionalFieldView>
+                        TableClass="table table-hover"
+                        Data={additionalFields}
+                        SortKey={sortKey}
+                        Ascending={ascending}
+                        OnSort={(d) => {
+                            if (d.colKey === sortKey)
+                                setAscending(!ascending);
+                            else {
+                                setAscending(true);
+                                setSortKey(d.colKey);
+                            }
+                        }}
+                        Selected={() => false}
+                        KeySelector={(item) => item.ID}
+                    >
+                        <Column<SystemCenter.Types.AdditionalFieldView>
+                            Key={'FieldName'}
+                            AllowSort={true}
+                            Field={'FieldName'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Name
+                        </Column>
+                        <Column<SystemCenter.Types.AdditionalFieldView>
+                            Key={'Type'}
+                            AllowSort={true}
+                            Field={'Type'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={({ item }) => `${item.Type}${item.IsKey ? " (external key)" : ""}`}
+                        > Type
+                        </Column>
+                        <Column<SystemCenter.Types.AdditionalFieldView>
+                            Key={'ExternalDB'}
+                            AllowSort={true}
+                            Field={'ExternalDB'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Ext Database
+                        </Column>
+                        <Column<SystemCenter.Types.AdditionalFieldView>
+                            Key={'ExternalTable'}
+                            AllowSort={true}
+                            Field={'ExternalTable'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Ext Table
+                        </Column>
+                        <Column<SystemCenter.Types.AdditionalFieldView>
+                            Key={'Searchable'}
+                            AllowSort={true}
+                            Field={'Searchable'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={({ item }) => item.Searchable ? <ReactIcons.CheckMark Color="var(--success)" /> : ''}
+                        > Searchable
+                        </Column>
+                        <Column<SystemCenter.Types.AdditionalFieldView>
+                            Key={'Value'}
+                            AllowSort={false}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={({ item }) => <>
+                                <AdditionalFieldsValueField Field={item} ParentTableID={props.ID} Values={props.FieldValues}
+                                    Setter={(v) => props.SetValues(v.find(x => x.AdditionalFieldID == item.ID), item)} />
+                            </>}
+                        > Value
+                        </Column>
+                        <Column<SystemCenter.Types.AdditionalFieldView>
+                            Key={'IsKey'}
+                            AllowSort={false}
+                            Field={'IsKey'}
+                            HeaderStyle={{ width: '100px' }}
+                            RowStyle={{ width: '100px', paddingLeft: '0px' }}
+                            Content={({ item }) =>
+                                item.IsKey ?
+                                    <>
+                                        <button
+                                            data-tooltip={`${item.ID}_edit`}
+                                            onMouseEnter={() => setHover(`${item.ID}_edit`)}
+                                            onMouseLeave={() => setHover('None')}
+                                            className="btn btn-sm pull-left" onClick={(e) => {
+                                                e.preventDefault();
+                                                setKeyField(item);
+                                                setShowModal(true);
+                                            }}><ReactIcons.Pencil Color="var(--danger)" Size={20} /></button>
+                                        <button
+                                            data-tooltip={`${item.ID}_delete`}
+                                            onMouseEnter={() => setHover(`${item.ID}_delete`)}
+                                            onMouseLeave={() => setHover('None')}
+                                            className="btn btn-sm pull-right" onClick={(e) => {
+                                                e.preventDefault();
+                                                keyModalCallback(null);
+                                            }}><ReactIcons.CrossMark Color="var(--danger)" Size={20} /></button>
+                                    </> : null}
+                        > <p></p>
+                        </Column>
+                    </Table>
             </div>
             <div className="row">
                 <div className="col">
