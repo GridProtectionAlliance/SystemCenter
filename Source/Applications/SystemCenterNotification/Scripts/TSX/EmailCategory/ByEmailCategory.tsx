@@ -49,7 +49,7 @@ const ByEmailCategory = (props: IProps) => {
     const [newEmailCategory, setNewEmailCategory] = React.useState<EmailCategory>({ ID: -1, Name: '', SelfSubscribe: true });
     const [sortField, setSortField] = React.useState<keyof EmailCategory>('Name');
     const [asc, setAsc] = React.useState<boolean>(true);
-    const [page, setPage] = React.useState<number>(0);W
+    const [page, setPage] = React.useState<number>(0);
     const totalPages: number = useAppSelector(EmailCategorySlice.TotalPages);
     const totalRecords: number = useAppSelector(EmailCategorySlice.TotalRecords);
     const recordsPerPage: number = useAppSelector(EmailCategorySlice.RecordsPerPage);
