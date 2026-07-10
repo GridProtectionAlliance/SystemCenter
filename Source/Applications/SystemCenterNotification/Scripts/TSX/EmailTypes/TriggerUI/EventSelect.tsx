@@ -165,7 +165,7 @@ const EventSelect = (props: IProps) => {
                                             HeaderStyle={{ width: 'auto' }}
                                             RowStyle={{ width: 'auto' }}
                                             Content={({ item }) => item.Triggered ? <ReactIcons.CheckMark Color="var(--success)" /> : <ReactIcons.CrossMark Color="var(--danger)" />}
-                                        > Notified
+                                        > Matches Trigger
                                         </Column>
                                     </Table>
                                 </div>
