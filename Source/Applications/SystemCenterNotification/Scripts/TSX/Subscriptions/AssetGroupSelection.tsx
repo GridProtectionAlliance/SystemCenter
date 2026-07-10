@@ -26,7 +26,7 @@ import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { AssetGroupSlice } from '../Store';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import * as $ from 'jquery';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { Select } from '@gpa-gemstone/react-forms';
 
 declare var homePath;
@@ -60,6 +60,9 @@ const AssetGroupSelection = (props: IProps) => {
     const [asc, setAsc] = React.useState<boolean>(true);
     const [sort, setSort] = React.useState<keyof OpenXDA.Types.AssetGroup>('Name');
 
+    const [page, setPage] = React.useState<number>(0);
+    const totalPages = useAppSelector(AssetGroupSlice.TotalPages);
+
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
 
     React.useEffect(() => {
@@ -73,8 +76,8 @@ const AssetGroupSelection = (props: IProps) => {
             flt.SearchText = " (SELECT ChildAssetGroupID FROM AssetGroupAssetGroup X WHERE X.ParentAssetGroupID IN (SELECT ID FROM AssetGroup Y WHERE Y.DisplayEmail =1))";
             flt.Operator = "NOT IN"
         }
-        dispatch(AssetGroupSlice.DBSearch({ ascending: asc, sortField: sort, filter: [flt] }));
-    }, [asc, sort, selectedParent])
+        dispatch(AssetGroupSlice.PagedSearch({ ascending: asc, sortField: sort, filter: [flt], page: page }));
+    }, [asc, sort, selectedParent, page])
 
     React.useEffect(() => {
         if (parentGroups.length > 0) {
@@ -186,6 +189,15 @@ const AssetGroupSelection = (props: IProps) => {
                         > Num. Assets
                         </Column>
                     </Table>
+                </div>
+            </div>
+            <div className="row">
+                <div className="col">
+                    <Paging
+                        Current={page + 1}
+                        SetPage={(page) => setPage(page - 1)}
+                        Total={totalPages}
+                    />
                 </div>
             </div>
             <Warning
