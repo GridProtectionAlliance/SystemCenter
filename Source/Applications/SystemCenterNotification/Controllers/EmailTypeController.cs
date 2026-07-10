@@ -543,7 +543,7 @@ namespace SystemCenter.Notifications.Controllers
                     orderByProp = typeof(TimelineItem).GetProperty("Start");
                 }
 
-                if (!postData.Ascending)
+                if (postData.Ascending)
                 {
                     sortedTimeline = timeline.OrderBy(i => orderByProp.GetValue(i)).ToList();
                 }
