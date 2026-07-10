@@ -23,11 +23,11 @@
 
 import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
-import { LoadingScreen } from '@gpa-gemstone/react-interactive'
+import { LoadingScreen, Search } from '@gpa-gemstone/react-interactive'
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { EmailType, SubscribeEmails } from '../global';
 import { EventSubscriptionSlice } from '../Store';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import * as $ from 'jquery';
 import { Application } from '@gpa-gemstone/application-typings';
 import { ToolTip } from '@gpa-gemstone/react-forms';
@@ -42,19 +42,23 @@ interface IProps { Record: EmailType}
 const Subscriptions = (props: IProps) => {
     const dispatch = useAppDispatch();
 
-    const subscriptions = useAppSelector(EventSubscriptionSlice.Data);
+    const subscriptions = useAppSelector(EventSubscriptionSlice.SearchResults);
     const status = useAppSelector(EventSubscriptionSlice.Status);
     const parentID = useAppSelector(EventSubscriptionSlice.ParentID);
-    const asc = useAppSelector(EventSubscriptionSlice.Ascending);
-    const sortKey = useAppSelector(EventSubscriptionSlice.SortField);
+    const [ascending, setAscending] = React.useState<boolean>(false);
+    const [sortField, setSortField] = React.useState<keyof SubscribeEmails>('FirstName');
     const [hover, setHover] = React.useState<string>('none');
 
     const [approvalStatus, setApprovalStatus] = React.useState<Application.Types.Status>('idle');
 
+    const [page, setPage] = React.useState<number>(0);
+    const totalPages = useAppSelector(EventSubscriptionSlice.TotalPages);
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
+
     React.useEffect(() => {
-        if (status == 'uninitiated' || status == 'changed' || parentID != props.Record.ID)
-            dispatch(EventSubscriptionSlice.Fetch(props.Record.ID))
-    }, [props.Record, parentID, status])
+        const filters: Search.IFilter<SubscribeEmails>[] = [{FieldName: "EmailID", SearchText: props.Record.ID.toString(), Operator: '=', Type: 'string', IsPivotColumn: false}]
+        dispatch(EventSubscriptionSlice.PagedSearch({filter: filters, sortField: sortField, ascending: ascending, page: page}))
+    }, [props.Record.ID, sortField, ascending, page, refreshTrigger, parentID])
 
     function approve(record: SubscribeEmails) {
         setApprovalStatus('loading')
@@ -66,7 +70,7 @@ const Subscriptions = (props: IProps) => {
             async: true
         }).then((d) => {
             setApprovalStatus('idle');
-            dispatch(EventSubscriptionSlice.Fetch(props.Record.ID))
+            setRefreshTrigger((val) => !val);
         }, () => { setApprovalStatus('error'); });
     }
 
@@ -82,7 +86,7 @@ const Subscriptions = (props: IProps) => {
 
         Promise.all(handles).then((d) => {
             setApprovalStatus('idle');
-            dispatch(EventSubscriptionSlice.Fetch(props.Record.ID))
+            setRefreshTrigger((val) => !val);
         }, () => { setApprovalStatus('error'); });
     }
 
@@ -114,11 +118,14 @@ const Subscriptions = (props: IProps) => {
                                     <Table<SubscribeEmails>
                                         TableClass="table table-hover"
                                         Data={subscriptions}
-                                        SortKey={sortKey.toString()}
-                                        Ascending={asc}
+                                        SortKey={sortField}
+                                        Ascending={ascending}
                                         OnSort={(d) => {
-                                            if (d.colKey === null) return;
-                                            dispatch(EventSubscriptionSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
+                                            if (d.colKey === sortField)
+                                                setAscending((val) => !val);
+                                            else {
+                                                setSortField(d.colKey as keyof SubscribeEmails)
+                                            }
                                         }}
                                         TableStyle={{
                                             padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
@@ -180,6 +187,15 @@ const Subscriptions = (props: IProps) => {
                                             </Column>
                                         : null }
                                     </Table>
+                                </div>
+                            </div>
+                            <div className="row">
+                                <div className="col">
+                                    <Paging
+                                        Current={page + 1}
+                                        SetPage={(page) => setPage(page - 1)}
+                                        Total={totalPages}
+                                    />
                                 </div>
                             </div>
                         </div>
