@@ -108,7 +108,6 @@ const ByCellCarrier = (props: IProps) => {
                             else {
                                 setSortField(d.colKey as keyof ICellCarrier)
                             }
-                            ;
                         }}
                         OnClick={(item) => { setCarrier(item.row); setShowModal('Edit'); }}
                         TableStyle={{
