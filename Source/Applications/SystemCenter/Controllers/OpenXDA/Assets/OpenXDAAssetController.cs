@@ -382,12 +382,7 @@ namespace SystemCenter.Controllers.OpenXDA
                         AssetKey = asset["AssetKey"].ToString() + "LineSegment",
                         Description = asset["Description"].ToString(),
                         AssetName = asset["AssetName"].ToString(),
-                        AssetTypeID = assetTypeID,
-                        R0 = asset["Segment"]["R0"].ToObject<double>(),
-                        X0 = asset["Segment"]["X0"].ToObject<double>(),
-                        R1 = asset["Segment"]["R1"].ToObject<double>(),
-                        X1 = asset["Segment"]["X1"].ToObject<double>(),
-                        Length = asset["Segment"]["Length"].ToObject<double>(),
+                        AssetTypeID = assetTypeID
                     };
                     lineSegment.AssetTypeID = connection.ExecuteScalar<int>("SELECT ID FROM AssetType WHERE Name = 'LineSegment'");
 
