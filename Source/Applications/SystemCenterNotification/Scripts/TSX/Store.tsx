@@ -27,7 +27,7 @@ import {
     IDataSourceTriggeredEmailType, ITriggeredDataSource,
     ITriggeredEmailDataSourceSetting, SubscribeEmails,
     ActiveReportSubscription,
-    IScheduledDataSource, IScheduledEmailDataSourceSetting, IDataSourceScheduledEmailType,
+    IScheduledDataSource, IDataSourceScheduledEmailType,
     SubscribeScheduledEmails
 } from './global';
 import { GenericSlice } from '@gpa-gemstone/react-interactive';
@@ -63,7 +63,6 @@ export const UserAccountSlice = new GenericSlice<Application.Types.iUserAccount>
 
 export const ScheduledDataSourceSlice = new GenericSlice<IScheduledDataSource>("ScheduledDataSource", `${homePath}api/OpenXDA/ScheduledEmailDataSource`, "Name", false);
 export const ScheduledEmailDataSourceSlice = new GenericSlice<IDataSourceScheduledEmailType>("ScheduledEmailDataSourceEmailType", `${homePath}api/OpenXDA/ScheduledEmailDataSourceEmailType`, "ScheduledEmailDataSourceName", false);
-export const ScheduledDataSourceSettingSlice = new GenericSlice<IScheduledEmailDataSourceSetting>("ScheduledDataSourceSetting", `${homePath}api/OpenXDA/ScheduledEmailDataSourceSetting`, "Name", false);
 
 const reducer = {
     EmailType: EmailTypeSlice.Reducer,
@@ -83,9 +82,7 @@ const reducer = {
     UserAccount: UserAccountSlice.Reducer,
     ActiveReportSubscription: ActiveReportSubscriptionSlice.Reducer,
     ReportSubscription: ReportSubscriptionSlice.Reducer,
-    ScheduledDataSourceSetting: ScheduledDataSourceSettingSlice.Reducer,
     ScheduledDataSource: ScheduledDataSourceSlice.Reducer,
-    ScheduledEmailDataSourceEmailType: ScheduledEmailDataSourceSlice.Reducer
 }
 
 const store = configureStore({ reducer });
