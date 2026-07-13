@@ -90,10 +90,49 @@ function AssetGroupWindow<T>(props: IProps) {
                         >
                             <Column<OpenXDA.Types.AssetGroup>
                                 Key={'Name'}
+                                AllowSort={true}
                                 Field={'Name'}
-                            >
-                            Name
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Name
                             </Column>
+                            <Column<OpenXDA.Types.AssetGroup>
+                                Key={'Assets'}
+                                AllowSort={true}
+                                Field={'Assets'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Num. of Assets
+                            </Column>
+                            <Column<OpenXDA.Types.AssetGroup>
+                                Key={'Meters'}
+                                AllowSort={true}
+                                Field={'Meters'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Num. of Meters
+                            </Column>
+                            <Column<OpenXDA.Types.AssetGroup>
+                                Key={'AssetGroups'}
+                                AllowSort={true}
+                                Field={'AssetGroups'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Num. of Asset Groups
+                            </Column>
+                            {/**<Column<OpenXDA.Types.AssetGroup>
+                                Key={'Remove'}
+                                AllowSort={false}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                                Content={({ item }) => <>
+                                    <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
+                                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (hasPermissions()) setRemoveGroup(item.ID); }}>
+                                        <span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span>
+                                    </button>
+                                </>}
+                            > <p></p>
+                            </Column>*/}
                         </Table>
                     </div>
                 </div>

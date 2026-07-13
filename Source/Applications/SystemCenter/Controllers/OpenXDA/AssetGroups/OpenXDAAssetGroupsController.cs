@@ -387,22 +387,17 @@ namespace SystemCenter.Controllers.OpenXDA
 
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
-                string sql = $" SELECT * FROM {linkTable} WHERE {recordIDField} = {{0}} ";
-                DataTable linkRecords = connection.RetrieveData(sql, recordID);
+                string sql = $"ID in (SELECT {parentIDField} FROM {linkTable} WHERE {recordIDField} = {{0}}) ";
 
-                IEnumerable<int> assetGroupIDs = linkRecords.AsEnumerable().Select(row => row.Field<int>(parentIDField));
-
-                string filterExpression = $"ID in ({String.Join(",", assetGroupIDs)})";
-
-                TableOperations<AssetGroup> table = new TableOperations<AssetGroup>(connection);
-                IEnumerable<AssetGroup> records = table.QueryRecordsWhere(filterExpression);
-
+                TableOperations<AssetGroupView> table = new TableOperations<AssetGroupView>(connection);
+                IEnumerable<AssetGroupView> records = table.QueryRecordsWhere(sql, recordID);
+                
                 pagedResults.TotalRecords = records.Count();
                 pagedResults.NumberOfPages = (pagedResults.TotalRecords + recordsPerPage - 1) / recordsPerPage;
 
-                IEnumerable<AssetGroup> pagedRecords = table.GetPageOfRecords(records.ToArray(), page, recordsPerPage);
+                IEnumerable<AssetGroupView> pagedRecords = table.GetPageOfRecords(records.ToArray(), page, recordsPerPage);
 
-                pagedResults.Data = JsonConvert.SerializeObject(pagedRecords); 
+                pagedResults.Data = JsonConvert.SerializeObject(pagedRecords);
             }
 
             return Ok(pagedResults);
