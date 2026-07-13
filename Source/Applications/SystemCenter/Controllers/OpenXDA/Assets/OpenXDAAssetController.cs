@@ -478,6 +478,12 @@ namespace SystemCenter.Controllers.OpenXDA
                     CreateTransformerFromJToken(transformer, asset);
                     new TableOperations<Transformer>(connection).AddNewRecord(transformer);
                 }
+                else if (assetType == "DER")
+                {
+                    DER der = new DER();
+                    CreateDERFromJToken(der, asset);
+                    new TableOperations<DER>(connection).AddNewRecord(der);
+                }
                 else
                 {
                     Asset newAsset = new Asset();
@@ -967,6 +973,15 @@ namespace SystemCenter.Controllers.OpenXDA
             transformer.TertiaryWinding = record["TertiaryWinding"].ToObject<double>();
             transformer.Tap = record["Tap"].ToObject<double>();
             transformer.Spare = record["Spare"].ToObject<bool>();
+        }
+        private void CreateDERFromJToken(DER der, JToken record)
+        {
+            der.VoltageKV = record["VoltageKV"].ToObject<double>();
+            der.AssetKey = record["AssetKey"].ToString();
+            der.Description = record["Description"].ToString();
+            der.AssetName = record["AssetName"].ToString();
+            der.FullRatedOutputCurrent = record["FullRatedOutputCurrent"].ToObject<double>();
+            der.VoltageLevel = record["VoltageLevel"].ToString();
         }
 
         ////Need to Override the external DB Function to return the list for all Assets
