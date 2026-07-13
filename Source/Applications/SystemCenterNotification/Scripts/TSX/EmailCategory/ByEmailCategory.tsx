@@ -21,13 +21,11 @@
 //
 //******************************************************************************************************
 
-import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
-import { LoadingScreen, Modal, Search, SearchBar } from '@gpa-gemstone/react-interactive'
+import { LoadingScreen, Modal, Search, SearchBar, GenericController } from '@gpa-gemstone/react-interactive'
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
 import { EmailCategory } from '../global';
-import { EmailCategorySlice } from '../Store';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import EmailCategoryForm from './EmailCategoryForm';
 import { useNavigate } from 'react-router-dom';
@@ -37,31 +35,55 @@ interface IProps { }
 
 const ByEmailCategory = (props: IProps) => {
     const navigate = useNavigate();
-    const dispatch = useAppDispatch();
 
     const [search, setSearch] = React.useState<Search.IFilter<EmailCategory>[]>([]);
-    const status: Application.Types.Status = useAppSelector(EmailCategorySlice.Status);
-    const searchStatus: Application.Types.Status = useAppSelector(EmailCategorySlice.SearchStatus);
-    const data: EmailCategory[] = useAppSelector(EmailCategorySlice.SearchResults);
-    const allData: EmailCategory[] = useAppSelector(EmailCategorySlice.Data);
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [searchStatus, setSearchStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [data, setData] = React.useState<EmailCategory[]>([]);
+    const [allData, setAllData] = React.useState<EmailCategory[]>([]);
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [errors, setErrors] = React.useState<string[]>([]);
     const [newEmailCategory, setNewEmailCategory] = React.useState<EmailCategory>({ ID: -1, Name: '', SelfSubscribe: true });
     const [sortField, setSortField] = React.useState<keyof EmailCategory>('Name');
     const [asc, setAsc] = React.useState<boolean>(true);
     const [page, setPage] = React.useState<number>(0);
-    const totalPages: number = useAppSelector(EmailCategorySlice.TotalPages);
-    const totalRecords: number = useAppSelector(EmailCategorySlice.TotalRecords);
-    const recordsPerPage: number = useAppSelector(EmailCategorySlice.RecordsPerPage);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
+    const [totalRecords, setTotalRecords] = React.useState<number>(0);
     const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false)
 
-    React.useEffect(() => {
-        dispatch(EmailCategorySlice.Fetch());
-    }, [refreshTrigger]);
+    const emailCategoryController = React.useMemo(() => new GenericController<EmailCategory>(`${homePath}api/OpenXDA/EmailCategory`, "Name", true), []);
 
     React.useEffect(() => {
-        dispatch(EmailCategorySlice.PagedSearch({ filter: search, sortField, ascending: asc, page: page }));
-    }, [search, sortField, asc, page, refreshTrigger])
+        setStatus('uninitiated')
+        const h = emailCategoryController.Fetch();
+        h.done((d) => {
+            setAllData(d)
+            setStatus('idle')
+        })
+        h.fail(() => setStatus('error'))
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+    }, [refreshTrigger, emailCategoryController.Fetch]);
+
+    React.useEffect(() => {
+        setStatus('uninitiated')
+        const h = emailCategoryController.PagedSearch(search, sortField, asc, page);
+        h.done((d) => {
+            setData(JSON.parse(d.Data as unknown as string));
+            setTotalPages(d.NumberOfPages);
+            setTotalRecords(d.TotalRecords);
+            setRecordsPerPage(d.RecordsPerPage);
+            setStatus('idle');
+        })
+        h.fail(() => setStatus('error'))
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+    }, [search, sortField, asc, page, refreshTrigger, emailCategoryController.PagedSearch])
 
     React.useEffect(() => {
         let e = [];
@@ -159,7 +181,7 @@ const ByEmailCategory = (props: IProps) => {
                 Show={showModal} ShowX={true} Size={'lg'} ShowCancel={false} ConfirmText={'Add'}
                 CallBack={(conf) => {
                     if (conf)
-                        dispatch(EmailCategorySlice.DBAction({ verb: "POST", record: newEmailCategory })).then(()=>setRefreshTrigger((val) => !val));
+                        emailCategoryController.DBAction("POST",newEmailCategory).then(()=>setRefreshTrigger((val) => !val));
                     setShowModal(false);
                 }}
                 DisableConfirm={errors.length > 0}

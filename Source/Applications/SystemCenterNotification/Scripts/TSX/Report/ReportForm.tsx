@@ -23,10 +23,12 @@
 
 import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
-import { ScheduledEmailType } from '../global';
-import { EmailCategorySlice, ScheduledEmailTypeSlice } from '../Store';
+import { ScheduledEmailType, EmailCategory } from '../global';
+import { ScheduledEmailTypeSlice } from '../Store';
 import { CheckBox, Input, Select } from '@gpa-gemstone/react-forms';
-import { IsCron } from '@gpa-gemstone/helper-functions'
+import { IsCron } from '@gpa-gemstone/helper-functions';
+import { Application } from '@gpa-gemstone/application-typings';
+import { GenericController } from '@gpa-gemstone/react-interactive';
 
 interface IProps { record: ScheduledEmailType, setRecord: (d: ScheduledEmailType) => void }
 
@@ -35,14 +37,26 @@ const ReportForm = (props: IProps) => {
     const emails = useAppSelector(ScheduledEmailTypeSlice.Data);
     const status = useAppSelector(ScheduledEmailTypeSlice.Status);
 
-    const categoryStatus = useAppSelector(EmailCategorySlice.Status);
-    const categories = useAppSelector(EmailCategorySlice.Data);
+    const [categoryStatus, setCategoryStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [categories, setCategories] = React.useState<EmailCategory[]>([]);
 
+    const emailCategoryController = React.useMemo(() => new GenericController<EmailCategory>(`${homePath}api/OpenXDA/EmailCategory`, "Name", true), [])
 
     React.useEffect(() => {
-        if (categoryStatus == 'uninitiated' || categoryStatus == 'changed')
-            dispatch(EmailCategorySlice.Fetch());
-    }, [categoryStatus]);
+        setCategoryStatus('loading')
+        const h = emailCategoryController.Fetch();
+        h.done((d) => {
+            setCategories(d)
+            setCategoryStatus('idle')
+        });
+        h.fail(() => setCategoryStatus('error'));
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+
+    }, [emailCategoryController.Fetch]);
 
 
     React.useEffect(() => {

@@ -23,11 +23,11 @@
 
 import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
-import { LoadingScreen, Modal, Search, SearchBar } from '@gpa-gemstone/react-interactive'
+import { LoadingScreen, Modal, Search, SearchBar, GenericController } from '@gpa-gemstone/react-interactive'
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
-import { EmailType } from '../global';
-import { EmailCategorySlice, EmailTypeSlice } from '../Store';
+import { EmailType, EmailCategory } from '../global';
+import { EmailTypeSlice } from '../Store';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import EmailForm from './EmailForm';
 import { IsNumber } from '@gpa-gemstone/helper-functions';
@@ -62,7 +62,8 @@ const ByEmailType = (props: IProps) => {
     const searchStatus: Application.Types.Status = useAppSelector(EmailTypeSlice.SearchStatus);
     const data: EmailType[] = useAppSelector(EmailTypeSlice.SearchResults);
     const allData: EmailType[] = useAppSelector(EmailTypeSlice.Data);
-    const categories = useAppSelector(EmailCategorySlice.Data);
+    const [categoryStatus, setCategoryStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [categories, setCategories] = React.useState<EmailCategory[]>([]);
     const parentID = useAppSelector(EmailTypeSlice.ParentID);
 
     const [showModal, setShowModal] = React.useState<boolean>(false);
@@ -78,10 +79,23 @@ const ByEmailType = (props: IProps) => {
 
     const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false)
 
+    const emailCategoryController = React.useMemo(() => new GenericController<EmailCategory>(`${homePath}api/OpenXDA/EmailCategory`, "Name", true), [])
 
     React.useEffect(() => {
-        dispatch(EmailCategorySlice.Fetch());
-    }, [refreshTrigger]);
+        setCategoryStatus('loading')
+        const h = emailCategoryController.Fetch();
+        h.done((d) => {
+            setCategories(d)
+            setCategoryStatus('idle')
+        });
+        h.fail(() => setCategoryStatus('error'));
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+
+    }, [emailCategoryController.Fetch]);
 
     React.useEffect(() => {
         dispatch(EmailTypeSlice.Fetch());
