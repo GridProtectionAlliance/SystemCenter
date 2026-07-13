@@ -24,7 +24,6 @@
 import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
 import { ScheduledEmailType, EmailCategory } from '../global';
-import { ScheduledEmailTypeSlice } from '../Store';
 import { CheckBox, Input, Select } from '@gpa-gemstone/react-forms';
 import { IsCron } from '@gpa-gemstone/helper-functions';
 import { Application } from '@gpa-gemstone/application-typings';
@@ -33,13 +32,13 @@ import { GenericController } from '@gpa-gemstone/react-interactive';
 interface IProps { record: ScheduledEmailType, setRecord: (d: ScheduledEmailType) => void }
 
 const ReportForm = (props: IProps) => {
-    const dispatch = useAppDispatch();
-    const emails = useAppSelector(ScheduledEmailTypeSlice.Data);
-    const status = useAppSelector(ScheduledEmailTypeSlice.Status);
+    const [scheduledEmails, setScheduledEmails] = React.useState<ScheduledEmailType[]>([]);
+    const [scheduledEmailStatus, setScheduledEmailStatus] = React.useState<Application.Types.Status>('uninitiated');
 
     const [categoryStatus, setCategoryStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [categories, setCategories] = React.useState<EmailCategory[]>([]);
 
+    const scheduledEmailTypeController = React.useMemo(() => new GenericController<ScheduledEmailType>(`${homePath}api/OpenXDA/ScheduledEmailType`, "Name", true), [])
     const emailCategoryController = React.useMemo(() => new GenericController<EmailCategory>(`${homePath}api/OpenXDA/EmailCategory`, "Name", true), [])
 
     React.useEffect(() => {
@@ -58,15 +57,25 @@ const ReportForm = (props: IProps) => {
 
     }, [emailCategoryController.Fetch]);
 
-
     React.useEffect(() => {
-        if (status == 'uninitiated' || status == 'changed')
-            dispatch(ScheduledEmailTypeSlice.Fetch());
-    }, [status]);
+        setScheduledEmailStatus('loading')
+        const h = scheduledEmailTypeController.Fetch();
+        h.done((d) => {
+            setScheduledEmails(d)
+            setScheduledEmailStatus('idle')
+        });
+        h.fail(() => setScheduledEmailStatus('error'));
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+
+    }, [scheduledEmailTypeController.Fetch]);
 
     function Valid(field: keyof ScheduledEmailType) {
         if (field == 'Name')
-            return props.record.Name != null && props.record.Name.length != 0 && emails.findIndex(e => e.Name == props.record.Name && props.record.ID != e.ID) == -1;
+            return props.record.Name != null && props.record.Name.length != 0 && scheduledEmails.findIndex(e => e.Name == props.record.Name && props.record.ID != e.ID) == -1;
         if (field == 'Schedule')
             return props.record.Schedule != null && IsCron(props.record.Schedule);
 

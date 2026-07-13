@@ -26,7 +26,7 @@ import * as React from 'react';
 import { TextArea, ToolTip } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { ScheduledEmailType } from '../global';
-import { ScheduledEmailTypeSlice } from '../Store';
+import { GenericController } from '@gpa-gemstone/react-interactive';
 import moment from 'moment';
 
 declare var homePath;
@@ -48,6 +48,8 @@ const TriggerWindow = (props: IProps) => {
     const [triggerStatus, setTriggerStatus] = React.useState<('idle' | 'loading' | 'valid' | 'invalid')>('idle')
     const [triggers, setTriggers] = React.useState<boolean>(false)
     const [selectedDateTime, setSelectedDateTime] = React.useState<{ dateTime: string }>({ dateTime: moment.utc().format(momentDateTimeFormat) });
+
+    const scheduledEmailTypeController = React.useMemo(() => new GenericController<ScheduledEmailType>(`${homePath}api/OpenXDA/ScheduledEmailType`, "Name", true), [])
 
     React.useEffect(() => {
         setEmail(props.Record);
@@ -114,7 +116,7 @@ const TriggerWindow = (props: IProps) => {
                                 type="submit"
                                 onClick={() => {
                                     if ((triggerStatus == 'valid' || triggerStatus == 'idle') && hasChanged)
-                                        dispatch(ScheduledEmailTypeSlice.DBAction({ verb: 'PATCH', record: email }));
+                                       scheduledEmailTypeController.DBAction('PATCH', email);
                                 }}
                                 data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
                         </div>

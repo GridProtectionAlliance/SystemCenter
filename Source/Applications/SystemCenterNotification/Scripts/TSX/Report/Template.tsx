@@ -21,12 +21,11 @@
 //
 //******************************************************************************************************
 
-import { useAppDispatch } from '../hooks';
 import * as React from 'react';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import {   ScheduledEmailType } from '../global';
-import {  ScheduledEmailTypeSlice } from '../Store';
 import { TextArea, ToolTip } from '@gpa-gemstone/react-forms';
+import { GenericController } from '@gpa-gemstone/react-interactive';
 
 declare var homePath;
 declare var version;
@@ -36,11 +35,12 @@ interface IProps { Record: ScheduledEmailType }
 
 
 const Template = (props: IProps) => {
-    const dispatch = useAppDispatch();
 
     const [email, setEmail] = React.useState<ScheduledEmailType>(props.Record);
     const [hasChanged, setHasChanged] = React.useState<boolean>(false);
     const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
+
+    const scheduledEmailTypeController = React.useMemo(() => new GenericController<ScheduledEmailType>(`${homePath}api/OpenXDA/ScheduledEmailType`, "Name", true), [])
 
     React.useEffect(() => {
         setEmail(props.Record);
@@ -74,7 +74,7 @@ const Template = (props: IProps) => {
                     <div className="card-footer">
                         <div className="btn-group mr-2">
                             <button className={"btn btn-primary" + (email.Template != null && email.Template.length > 0 && hasChanged ? '' : ' disabled')} type="submit"
-                                onClick={() => { if (email.Template != null && email.Template.length > 0 && hasChanged) dispatch(ScheduledEmailTypeSlice.DBAction({ verb: 'PATCH', record: email })); }}
+                                onClick={() => { if (email.Template != null && email.Template.length > 0 && hasChanged) scheduledEmailTypeController.DBAction('PATCH', email); }}
                                 data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
                         </div>
                         <div className="btn-group mr-2">

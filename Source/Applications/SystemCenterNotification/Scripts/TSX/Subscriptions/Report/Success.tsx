@@ -22,8 +22,11 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import {  ActiveReportSubscriptionSlice, AssetGroupSlice, ScheduledEmailTypeSlice, UserInfoSlice } from '../../Store';
+import * as $ from 'jquery';
+import { ActiveReportSubscriptionSlice, AssetGroupSlice, UserInfoSlice } from '../../Store';
+import { ScheduledEmailType } from '../../global';
 import { useAppDispatch, useAppSelector } from '../../hooks';
+import { Application } from '@gpa-gemstone/application-typings'
 
 declare var homePath;
 declare var version;
@@ -35,7 +38,10 @@ interface IProps {
 
 const Success = (props: IProps) => {
     const dispatch = useAppDispatch();
-    const email = useAppSelector((state) => ScheduledEmailTypeSlice.Datum(state, props.emailTypeID));
+
+    const [email, setEmail] = React.useState<ScheduledEmailType | null>(null);
+    const [scheduledEmailStatus, setScheduledEmailStatus] = React.useState<Application.Types.Status>('uninitiated');
+
     const assetGrp = useAppSelector((state) => AssetGroupSlice.Data(state).filter(ag => props.assetGroupID.includes(ag.ID)));
     const userID = useAppSelector(UserInfoSlice.UserAccountID);
 
@@ -57,7 +63,28 @@ const Success = (props: IProps) => {
         });
     }, [props.assetGroupID, props.emailTypeID])
     
+    React.useEffect(() => {
+        setScheduledEmailStatus('loading')
+        const h = $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/ScheduledEmailType/One/${props.emailTypeID}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true
+        })
+        h.done((d) => {
+            setEmail(d)
+            setScheduledEmailStatus('idle')
+        });
+        h.fail(() => setScheduledEmailStatus('error'));
 
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+
+    }, [props.emailTypeID])
 
     return (
         <div className="row">
