@@ -914,6 +914,7 @@ namespace SystemCenter.Controllers.OpenXDA
             capBank.PosReactanceTol = record["PosReactanceTol"].ToObject<double>();
             capBank.Nparalell = record["Nparalell"].ToObject<int>();
             capBank.Nseries = record["Nseries"].ToObject<int>();
+            /**
             capBank.NSeriesGroup = record["NSeriesGroup"].ToObject<int>();
             capBank.NParalellGroup = record["NParalellGroup"].ToObject<int>();
             capBank.Fused = record["Fused"].ToObject<bool>();
@@ -924,10 +925,12 @@ namespace SystemCenter.Controllers.OpenXDA
             capBank.LVKV = record["LVKV"].ToObject<double>();
             capBank.LVNegReactanceTol = record["LVNegReactanceTol"].ToObject<double>();
             capBank.LVPosReactanceTol = record["LVPosReactanceTol"].ToObject<double>();
+            */
             capBank.LowerXFRRatio = record["LowerXFRRatio"].ToObject<double>();
             capBank.Nshorted = record["Nshorted"].ToObject<double>();
             capBank.BlownFuses = record["BlownFuses"].ToObject<int>();
             capBank.BlownGroups = record["BlownGroups"].ToObject<int>();
+            /**
             capBank.ShortedGroups = record["ShortedGroups"].ToObject<double>();
             capBank.NLowerGroups = record["NLowerGroups"].ToObject<int>();
 
@@ -936,6 +939,7 @@ namespace SystemCenter.Controllers.OpenXDA
             capBank.Sh = record["Sh"].ToObject<double>();
             capBank.Rv = record["Rv"].ToObject<double>();
             capBank.Rh = record["Rh"].ToObject<double>();
+            */
             capBank.Compensated = record["Compensated"].ToObject<bool>();
 
         }
