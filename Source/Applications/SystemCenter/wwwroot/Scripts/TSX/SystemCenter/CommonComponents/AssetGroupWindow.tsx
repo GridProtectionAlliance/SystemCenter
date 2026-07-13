@@ -24,6 +24,10 @@
 import * as React from 'react';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table'
 import { OpenXDA, Application } from '@gpa-gemstone/application-typings'
+import { Warning } from '@gpa-gemstone/react-interactive';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { useAppSelector } from '../hooks';
+import { SelectRoles } from '../Store/UserSettings';
 
 interface IProps {
     RecordType: 'Asset' | 'Meter' | 'AssetGroup'
@@ -40,6 +44,16 @@ function AssetGroupWindow<T>(props: IProps) {
     const [data, setData] = React.useState<OpenXDA.Types.AssetGroup[]>([])
     const [totalPages, setTotalPages] = React.useState<number>(0)
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated')
+    const [removeGroup, setRemoveGroup] = React.useState<number>(-1);
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
+    const roles = useAppSelector(SelectRoles);
+
+
+    function hasPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0)
+            return false;
+        return true;
+    }
 
     React.useEffect(() => {
         setStatus('loading')
@@ -50,7 +64,7 @@ function AssetGroupWindow<T>(props: IProps) {
             dataType: 'json',
             cache: false,
             async: true,
-            data: JSON.stringify({ Searches: [], OrderBy: 'ID', Ascending: true })
+            data: JSON.stringify({ Searches: [], OrderBy: sortField, Ascending: ascending })
         })
 
         h.done((d) => {
@@ -64,7 +78,20 @@ function AssetGroupWindow<T>(props: IProps) {
         })
 
         return () => { if (h != null && h.abort != null) h.abort(); }
-    }, [props.ID, props.RecordType, page, sortField, ascending])
+    }, [props.ID, props.RecordType, page, sortField, ascending, refreshTrigger])
+
+    function removeItem(id: number) {
+        let handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/AssetGroup/${id}/Remove${props.RecordType === 'AssetGroup' ? 'Group' : props.RecordType}/${props.ID}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        });
+
+        handle.done(d => setRefreshTrigger(val => !val))
+    }
 
     return (
         <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -84,8 +111,10 @@ function AssetGroupWindow<T>(props: IProps) {
                             Ascending={ascending}
                             KeySelector={(d) => d.ID}
                             OnSort={(d) => {
-                                if (d.colKey === sortField) setAscending(a => !a);
-                                else setSortField(d.colField);
+                                if (d.colKey === sortField)
+                                    setAscending(a => !a);
+                                else
+                                    setSortField(d.colField);
                             }}
                         >
                             <Column<OpenXDA.Types.AssetGroup>
@@ -120,7 +149,7 @@ function AssetGroupWindow<T>(props: IProps) {
                                 RowStyle={{ width: 'auto' }}
                             > Num. of Asset Groups
                             </Column>
-                            {/**<Column<OpenXDA.Types.AssetGroup>
+                            <Column<OpenXDA.Types.AssetGroup>
                                 Key={'Remove'}
                                 AllowSort={false}
                                 HeaderStyle={{ width: 'auto' }}
@@ -132,7 +161,7 @@ function AssetGroupWindow<T>(props: IProps) {
                                     </button>
                                 </>}
                             > <p></p>
-                            </Column>*/}
+                            </Column>
                         </Table>
                     </div>
                 </div>
@@ -148,6 +177,7 @@ function AssetGroupWindow<T>(props: IProps) {
             </div>
             <div className="card-footer">
             </div>
+            <Warning Show={removeGroup > -1} Title={'Remove Asset Group from Asset Group'} Message={'This will remove the Asset Group from this Asset Group.'} CallBack={(c) => { if (c) removeItem(removeGroup); setRemoveGroup(-1); }} />
         </div>
     )
 }

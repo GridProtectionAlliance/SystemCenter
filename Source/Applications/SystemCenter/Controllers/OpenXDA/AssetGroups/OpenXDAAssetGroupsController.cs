@@ -31,6 +31,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Net.Http;
@@ -368,16 +369,16 @@ namespace SystemCenter.Controllers.OpenXDA
             if (!GetAuthCheck())
                 return Unauthorized();
 
+            string[] validRecordTypes = ["AssetGroup", "Asset", "Meter"];
+
+            if (!validRecordTypes.Contains(recordType))
+                return BadRequest($"{recordType} is not a valid record type");
+
             PagedResults pagedResults = new PagedResults();
 
             int recordsPerPage = Take ?? 50;
 
             pagedResults.RecordsPerPage = recordsPerPage;
-
-            string[] validRecordTypes = ["AssetGroup", "Asset", "Meter"];
-
-            if (!validRecordTypes.Contains(recordType))
-                return BadRequest();
 
             string linkTable = recordType + "AssetGroup";
 
@@ -385,12 +386,20 @@ namespace SystemCenter.Controllers.OpenXDA
 
             string parentIDField = recordType == "AssetGroup" ? "ParentAssetGroupID" : "AssetGroupID";
 
+            if (!(new string[] { "Assets", "Name", "Meters", "AssetGroups" }.Contains(postData.OrderBy)))
+            {
+                throw new KeyNotFoundException($"Sort requested by invalid field: {postData.OrderBy}");
+            }
+
+            string orderBy = $"{postData.OrderBy} {(postData.Ascending ? "asc" : "desc")}";
+                
+            string sql = $"ID in (SELECT {parentIDField} FROM {linkTable} WHERE {recordIDField} = {{0}})";
+
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
-                string sql = $"ID in (SELECT {parentIDField} FROM {linkTable} WHERE {recordIDField} = {{0}}) ";
 
                 TableOperations<AssetGroupView> table = new TableOperations<AssetGroupView>(connection);
-                IEnumerable<AssetGroupView> records = table.QueryRecordsWhere(sql, recordID);
+                IEnumerable<AssetGroupView> records = table.QueryRecords(orderBy, new RecordRestriction(sql, recordID));
                 
                 pagedResults.TotalRecords = records.Count();
                 pagedResults.NumberOfPages = (pagedResults.TotalRecords + recordsPerPage - 1) / recordsPerPage;
