@@ -67,9 +67,6 @@ export const ScheduledDataSourceSlice = new GenericSlice<IScheduledDataSource>("
 export const ScheduledEmailDataSourceSlice = new GenericSlice<IDataSourceScheduledEmailType>("ScheduledEmailDataSourceEmailType", `${homePath}api/OpenXDA/ScheduledEmailDataSourceEmailType`, "ScheduledEmailDataSourceName", false);
 export const ScheduledDataSourceSettingSlice = new GenericSlice<IScheduledEmailDataSourceSetting>("ScheduledDataSourceSetting", `${homePath}api/OpenXDA/ScheduledEmailDataSourceSetting`, "Name", false);
 
-
-export const CellCarrierSlice = new GenericSlice<ICellCarrier>("CellCarrier", `${homePath}api/OpenXDA/CellCarrier`, "Name", true);
-
 const reducer = {
     EmailCategory: EmailCategorySlice.Reducer,
     EmailType: EmailTypeSlice.Reducer,
@@ -87,7 +84,6 @@ const reducer = {
     TriggeredEmailDataSource: TriggeredEmailDataSourceSlice.Reducer,
     TriggeredDataSource: TriggeredDataSourceSlice.Reducer,
     UserAccount: UserAccountSlice.Reducer,
-    CellCarrier: CellCarrierSlice.Reducer,
     ScheduledEmailType: ScheduledEmailTypeSlice.Reducer,
     ActiveReportSubscription: ActiveReportSubscriptionSlice.Reducer,
     ReportSubscription: ReportSubscriptionSlice.Reducer,

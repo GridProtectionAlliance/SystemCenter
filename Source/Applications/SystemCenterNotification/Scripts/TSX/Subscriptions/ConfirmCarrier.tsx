@@ -22,9 +22,11 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { CellCarrierSlice, UserInfoSlice } from '../Store';
+import { UserInfoSlice } from '../Store';
 import { useAppDispatch, useAppSelector } from '../hooks';
+import { Application } from '@gpa-gemstone/application-typings';
 import { Select } from '@gpa-gemstone/react-forms';
+import { GenericController } from '@gpa-gemstone/react-interactive';
 import { ICellCarrier } from '../global';
 
 const emptyCarrier: ICellCarrier = {
@@ -41,12 +43,22 @@ const ConfirmPhoneCarrier = (props: IProps) => {
     const [currentCarrier, setCurrentCarrier] = React.useState<ICellCarrier>(emptyCarrier);
     const userCarrier = useAppSelector(UserInfoSlice.CellCarrierID);
 
-    const carriers = useAppSelector(CellCarrierSlice.Data);
-    const carrierStatus = useAppSelector(CellCarrierSlice.Status);
+    const [carriers, setCarriers] = React.useState<ICellCarrier[]>([]);
+    const [carrierStatus, setCarrierStatus] = React.useState<Application.Types.Status>('uninitiated');
+
+    const cellCarrierController = React.useMemo(() => new GenericController<ICellCarrier>(`${homePath}api/OpenXDA/CellCarrier`, "Name", true), [])
+
 
     React.useEffect(() => {
-        if (carrierStatus == 'uninitiated' || carrierStatus == 'changed')
-            dispatch(CellCarrierSlice.Fetch());
+        setCarrierStatus('loading');
+        const h = cellCarrierController.Fetch();
+        h.done((d) => {
+            setCarrierStatus('idle');
+            setCarriers(d);
+        })
+        h.fail(() => {
+            setCarrierStatus('error');
+        })
     }, [carrierStatus]);
 
     React.useEffect(() => {

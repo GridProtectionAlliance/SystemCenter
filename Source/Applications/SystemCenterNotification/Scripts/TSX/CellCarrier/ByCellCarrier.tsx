@@ -27,7 +27,6 @@ import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ICellCarrier } from '../global';
-import { CellCarrierSlice } from '../Store';
 import { Input } from '@gpa-gemstone/react-forms';
 
 
