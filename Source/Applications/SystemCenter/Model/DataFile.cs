@@ -40,6 +40,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading.Tasks;
 using System.Web.Http;
 using SystemCenter.Controllers;
 
@@ -167,17 +168,24 @@ namespace SystemCenter.Model
         }
 
         [Route("ReprocessMany"), HttpPost]
-        public IHttpActionResult ReprocessMany([FromBody] IEnumerable<int> ids)
+        public async Task<IHttpActionResult> ReprocessMany([FromBody] IEnumerable<int> ids)
         {
             if (PatchAuthCheck())
             {
+                if (ids is null || !ids.Any())
+                    return Ok(1);
+
                 if (!XDAAPIHelper.TryRefreshSettings())
                     throw new InvalidOperationException("Unable to refresh static XDA API credentials.");
 
-                HttpContent content = new StringContent(JsonConvert.SerializeObject(ids), Encoding.UTF8, "application/json");
-                HttpResponseMessage responseMessage = XDAAPIHelper.GetResponseTask($"api/Workbench/DataFiles/ReprocessFilesByID", content).Result;
+                string content = JsonConvert.SerializeObject(ids.Distinct());
 
-                responseMessage.EnsureSuccessStatusCode();
+                using (HttpContent httpContent = new StringContent(content, Encoding.UTF8, "application/json"))
+                using (HttpResponseMessage responseMessage = await XDAAPIHelper.GetResponseTask($"api/Workbench/DataFiles/ReprocessFilesByID", httpContent))
+                {
+                    responseMessage.EnsureSuccessStatusCode();
+                }
+
                 return Ok(1);
             }
             else
