@@ -27,6 +27,7 @@ import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import BusAttributes from '../AssetAttribute/Bus';
 import BreakerAttributes from '../AssetAttribute/Breaker';
 import CapBankAttributes from '../AssetAttribute/CapBank';
+import CapBankRelayAttributes from '../AssetAttribute/CapBankRelay';
 import LineAttributes from '../AssetAttribute/Line';
 import TransformerAttributes from '../AssetAttribute/Transformer';
 import { useNavigate } from 'react-router-dom';
@@ -335,6 +336,8 @@ const MeterAssetWindow = (props: IProps) => {
             return <BreakerAttributes NewEdit={newEdit} Asset={activeAsset as OpenXDA.Types.Breaker} UpdateState={changeActiveAsset} ShowSpare={true} />;
         else if (activeAsset.AssetType == 'Bus')
             return <BusAttributes NewEdit={newEdit} Asset={activeAsset} UpdateState={changeActiveAsset} />;
+        else if (activeAsset.AssetType == 'CapacitorBankRelay')
+            return <CapBankRelayAttributes NewEdit={newEdit} Asset={activeAsset as OpenXDA.Types.CapBankRelay} UpdateState={changeActiveAsset}/>
         else if (activeAsset.AssetType == 'CapacitorBank')
             return <CapBankAttributes NewEdit={newEdit} Asset={activeAsset as OpenXDA.Types.CapBank} UpdateState={changeActiveAsset} />;
         else if (activeAsset.AssetType == 'Line')
