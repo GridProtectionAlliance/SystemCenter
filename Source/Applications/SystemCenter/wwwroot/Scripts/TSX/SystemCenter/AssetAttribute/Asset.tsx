@@ -200,6 +200,7 @@ export namespace AssetAttributes {
             record.TripTime = null;
             record.PickupTime = null;
             record.TripCoilCondition = null;
+            record.AirGapResistor = false;
             return record;
         }
         else if (type == 'Bus') {
@@ -320,7 +321,7 @@ export namespace AssetAttributes {
                 errors.push('A valid Pickup Time Limit is required.')
             if ((asset as OpenXDA.Types.Breaker).TripCoilCondition == null || !AssetAttributes.isRealNumber((asset as OpenXDA.Types.Breaker).TripCoilCondition))
                 errors.push('A valid Trip Coil Condition Limit is required.')
-           
+      
         }
 
         if (type == 'CapacitorBankRelay') {
