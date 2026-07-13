@@ -914,32 +914,29 @@ namespace SystemCenter.Controllers.OpenXDA
             capBank.PosReactanceTol = record["PosReactanceTol"].ToObject<double>();
             capBank.Nparalell = record["Nparalell"].ToObject<int>();
             capBank.Nseries = record["Nseries"].ToObject<int>();
-            /**
-            capBank.NSeriesGroup = record["NSeriesGroup"].ToObject<int>();
-            capBank.NParalellGroup = record["NParalellGroup"].ToObject<int>();
-            capBank.Fused = record["Fused"].ToObject<bool>();
-            capBank.VTratioBus = record["VTratioBus"].ToObject<double>();
-            capBank.NumberLVCaps = record["NumberLVCaps"].ToObject<int>();
-            capBank.NumberLVUnits = record["NumberLVUnits"].ToObject<int>();
-            capBank.LVKVAr = record["LVKVAr"].ToObject<double>(); 
-            capBank.LVKV = record["LVKV"].ToObject<double>();
-            capBank.LVNegReactanceTol = record["LVNegReactanceTol"].ToObject<double>();
-            capBank.LVPosReactanceTol = record["LVPosReactanceTol"].ToObject<double>();
-            */
+            capBank.NSeriesGroup = record.Value<int?>("NSeriesGroup") ?? 0;
+            capBank.NParalellGroup = record.Value<int?>("NParalellGroup") ?? 0;
+            capBank.Fused = record.Value<bool?>("Fused") ?? true;
+            capBank.VTratioBus = record.Value<double?>("VTratioBus") ?? 0;
+            capBank.NumberLVCaps = record.Value<int?>("NumberLVCaps") ?? 0;
+            capBank.NumberLVUnits = record.Value<int?>("NumberLVUnits") ?? 0;
+            capBank.LVKVAr = record.Value<double?>("LVKVAr") ?? 0;
+            capBank.LVKV = record.Value<double?>("LVKV") ?? 0;
+            capBank.LVNegReactanceTol = record.Value<double?>("LVNegReactanceTol") ?? 0;
+            capBank.LVPosReactanceTol = record.Value<double?>("LVPosReactanceTol") ?? 0;
+
             capBank.LowerXFRRatio = record["LowerXFRRatio"].ToObject<double>();
             capBank.Nshorted = record["Nshorted"].ToObject<double>();
             capBank.BlownFuses = record["BlownFuses"].ToObject<int>();
             capBank.BlownGroups = record["BlownGroups"].ToObject<int>();
-            /**
-            capBank.ShortedGroups = record["ShortedGroups"].ToObject<double>();
-            capBank.NLowerGroups = record["NLowerGroups"].ToObject<int>();
+            capBank.ShortedGroups = record.Value<double?>("ShortedGroups") ?? 0;
+            capBank.NLowerGroups = record.Value<int?>("NLowerGroups") ?? 0;
 
-            capBank.RelayPTRatioPrimary = record["RelayPTRatioPrimary"].ToObject<int>();
-            capBank.RelayPTRatioSecondary = record["RelayPTRatioSecondary"].ToObject<int>();
-            capBank.Sh = record["Sh"].ToObject<double>();
-            capBank.Rv = record["Rv"].ToObject<double>();
-            capBank.Rh = record["Rh"].ToObject<double>();
-            */
+            capBank.RelayPTRatioPrimary = record.Value<int?>("RelayPTRatioPrimary") ?? 0;
+            capBank.RelayPTRatioSecondary = record.Value<int?>("RelayPTRatioSecondary") ?? 0;
+            capBank.Sh = record.Value<double?>("Sh") ?? 0;
+            capBank.Rv = record.Value<double?>("Rv") ?? 0;
+            capBank.Rh = record.Value<double?>("Rh") ?? 0;
             capBank.Compensated = record["Compensated"].ToObject<bool>();
 
         }
