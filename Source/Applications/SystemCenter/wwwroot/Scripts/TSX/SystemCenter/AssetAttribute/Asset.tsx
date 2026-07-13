@@ -257,6 +257,8 @@ export namespace AssetAttributes {
             record.ThermalRating = null;
             record.PrimaryVoltageKV = null;
             record.SecondaryVoltageKV = null;
+            record.TertiaryVoltageKV = null;
+            record.TertiaryWinding = null;
             record.Tap = null;
             return record
         }

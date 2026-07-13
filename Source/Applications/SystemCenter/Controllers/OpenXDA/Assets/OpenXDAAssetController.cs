@@ -966,10 +966,10 @@ namespace SystemCenter.Controllers.OpenXDA
             transformer.ThermalRating = record["ThermalRating"].ToObject<double>();
             transformer.PrimaryVoltageKV = record["PrimaryVoltageKV"].ToObject<double>();
             transformer.SecondaryVoltageKV = record["SecondaryVoltageKV"].ToObject<double>();
-            // transformer.TertiaryVoltageKV = record["TertiaryVoltageKV"].ToObject<double>();
+            transformer.TertiaryVoltageKV = record.Value<double?>("TertiaryVoltageKV") ?? 0;
             transformer.PrimaryWinding = record["PrimaryWinding"].ToObject<double>();
             transformer.SecondaryWinding = record["SecondaryWinding"].ToObject<double>();
-            // transformer.TertiaryWinding = record["TertiaryWinding"].ToObject<double>();
+            transformer.TertiaryWinding = record.Value<double?>("TertiaryWinding") ?? 0;
             transformer.Tap = record["Tap"].ToObject<double>();
             transformer.Spare = record["Spare"].ToObject<bool>();
         }
