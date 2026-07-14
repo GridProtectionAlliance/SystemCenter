@@ -21,9 +21,11 @@
 //
 //******************************************************************************************************
 
+import * as $ from 'jquery';
 import * as React from 'react';
-import { ActiveSubscriptionSlice, AssetGroupSlice, EmailTypeSlice, UserInfoSlice } from '../../Store';
+import { EmailType } from '../../global';
 import { useAppDispatch, useAppSelector } from '../../hooks';
+import { ActiveSubscriptionSlice, AssetGroupSlice, UserInfoSlice } from '../../Store';
 
 declare var homePath;
 declare var version;
@@ -35,7 +37,7 @@ interface IProps {
 
 const Success = (props: IProps) => {
     const dispatch = useAppDispatch();
-    const email = useAppSelector((state) => EmailTypeSlice.Datum(state, props.emailTypeID));
+    const [email, setEmail] = React.useState<EmailType | null>(null);
     const assetGrp = useAppSelector((state) => AssetGroupSlice.Data(state).filter(ag => props.assetGroupID.includes(ag.ID)));
     const userID = useAppSelector(UserInfoSlice.UserAccountID);
 
@@ -63,7 +65,26 @@ const Success = (props: IProps) => {
         });
     }, [props.assetGroupID, props.emailTypeID])
 
+    React.useEffect(() => {
+        const h = $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/EmailType/One/${props.emailTypeID}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true
+        })
+        h.done((d) => {
+            setEmail(d);
+        });
 
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+
+    }, [props.emailTypeID])
+    
     return (
         <div className="col">
             <div className="alert alert-success" style={{ margin: 'auto' }}>

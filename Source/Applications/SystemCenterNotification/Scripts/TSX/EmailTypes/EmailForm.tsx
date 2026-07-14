@@ -21,26 +21,24 @@
 //
 //******************************************************************************************************
 
-import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
-import { EmailCategory, EmailType } from '../global';
-import { EmailTypeSlice } from '../Store';
-import { CheckBox, Input, Select } from '@gpa-gemstone/react-forms';
-import { IsNumber } from '@gpa-gemstone/helper-functions';
 import { Application } from '@gpa-gemstone/application-typings';
+import { IsNumber } from '@gpa-gemstone/helper-functions';
+import { CheckBox, Input, Select } from '@gpa-gemstone/react-forms';
 import { GenericController } from '@gpa-gemstone/react-interactive';
+import { EmailCategory, EmailType } from '../global';
 
 interface IProps { record: EmailType, setRecord: (d: EmailType) => void }
 
 const EmailForm = (props: IProps) => {
-    const dispatch = useAppDispatch();
-    const emails = useAppSelector(EmailTypeSlice.Data);
-    const status = useAppSelector(EmailTypeSlice.Status);
+    const [emails, setEmails] = React.useState<EmailType[]>([]);
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 
     const [categoryStatus, setCategoryStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [categories, setCategories] = React.useState<EmailCategory[]>([]);
 
-    const emailCategoryController = React.useMemo(() => new GenericController<EmailCategory>(`${homePath}api/OpenXDA/EmailCategory`, "Name", true), [])
+    const emailCategoryController = React.useMemo(() => new GenericController<EmailCategory>(`${homePath}api/OpenXDA/EmailCategory`, "Name", true), []);
+    const emailTypeController = React.useMemo(() => new GenericController<EmailType>(`${homePath}api/OpenXDA/EmailType`, "Name", true), []);
 
     React.useEffect(() => {
         setCategoryStatus('loading')
@@ -58,11 +56,20 @@ const EmailForm = (props: IProps) => {
 
     }, [emailCategoryController.Fetch]);
 
-
     React.useEffect(() => {
-        if (status == 'uninitiated' || status == 'changed')
-            dispatch(EmailTypeSlice.Fetch());
-    }, [status]);
+        setStatus('loading')
+        const h = emailTypeController.Fetch();
+        h.done((d) => {
+            setEmails(d)
+            setStatus('idle')
+        });
+        h.fail(() => setStatus('error'));
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+    }, [emailTypeController.Fetch]);
 
     function Valid(field: keyof EmailType) {
         if (field == 'Name')

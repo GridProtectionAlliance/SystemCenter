@@ -22,13 +22,13 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { ToolTip } from '@gpa-gemstone/react-forms';
-import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { ScheduledEmailType } from '../global';
-import { IsCron } from '@gpa-gemstone/helper-functions';
-import ReportForm from './ReportForm';
-import { GenericController } from '@gpa-gemstone/react-interactive';
 import { Application } from '@gpa-gemstone/application-typings';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { IsCron } from '@gpa-gemstone/helper-functions';
+import { ToolTip } from '@gpa-gemstone/react-forms';
+import { GenericController } from '@gpa-gemstone/react-interactive';
+import { ScheduledEmailType } from '../global';
+import ReportForm from './ReportForm';
 
 declare var homePath;
 declare var version;

@@ -23,7 +23,7 @@
 
 import { configureStore } from '@reduxjs/toolkit';
 import {
-    ActiveSubscription, EmailType,
+    ActiveSubscription,
     IDataSourceTriggeredEmailType, ITriggeredDataSource,
     ITriggeredEmailDataSourceSetting, SubscribeEmails,
     ActiveReportSubscription,
@@ -40,7 +40,6 @@ declare var homePath: string;
 export type AppDispatch = typeof store.dispatch;
 export type RootState = ReturnType<typeof store.getState>
 
-export const EmailTypeSlice = new GenericSlice<EmailType>("EmailType", `${homePath}api/OpenXDA/EmailType`, "Name", true);
 export const AssetGroupSlice = new GenericSlice<OpenXDA.Types.AssetGroup>("AssetGroup", `${homePath}api/OpenXDA/AssetGroup`, "Name", true);
 export const SettingSlice = new GenericSlice<SystemCenter.Types.Setting>('Setting', `${homePath}api/Setting`, 'Name');
 export const EventSubscriptionSlice = new GenericSlice<SubscribeEmails>('EventSubscription', `${homePath}api/EventSubscription`, 'Email');
@@ -65,7 +64,6 @@ export const ScheduledDataSourceSlice = new GenericSlice<IScheduledDataSource>("
 export const ScheduledEmailDataSourceSlice = new GenericSlice<IDataSourceScheduledEmailType>("ScheduledEmailDataSourceEmailType", `${homePath}api/OpenXDA/ScheduledEmailDataSourceEmailType`, "ScheduledEmailDataSourceName", false);
 
 const reducer = {
-    EmailType: EmailTypeSlice.Reducer,
     AssetGroup: AssetGroupSlice.Reducer,
     Setting: SettingSlice.Reducer,
     EventSubscription: EventSubscriptionSlice.Reducer,

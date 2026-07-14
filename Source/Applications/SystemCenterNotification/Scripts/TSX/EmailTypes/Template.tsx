@@ -21,28 +21,26 @@
 //
 //******************************************************************************************************
 
-import { useAppDispatch } from '../hooks';
 import * as React from 'react';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { EmailType } from '../global';
-import { EmailTypeSlice } from '../Store';
 import { TextArea, ToolTip } from '@gpa-gemstone/react-forms';
+import { GenericController } from '@gpa-gemstone/react-interactive';
+import { EmailType } from '../global';
 
 declare var homePath;
 declare var version;
 
-interface IProps { Record: EmailType}
+interface IProps { Record: EmailType }
 
 
 
 const Template = (props: IProps) => {
-    const dispatch = useAppDispatch();
 
     const [email, setEmail] = React.useState<EmailType>(props.Record);
     const [hasChanged, setHasChanged] = React.useState<boolean>(false);
     const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
 
-
+    const emailTypeController = React.useMemo(() => new GenericController<EmailType>(`${homePath}api/OpenXDA/EmailType`, "Name", true), []);
 
     React.useEffect(() => {
         setEmail(props.Record);
@@ -53,7 +51,6 @@ const Template = (props: IProps) => {
         h = h && email.Template == props.Record.Template;
         setHasChanged(!h);
     }, [props.Record, email])
-
 
     return (
         <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
@@ -69,33 +66,53 @@ const Template = (props: IProps) => {
                     <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
                         <div className="row">
                             <div className="col-12">
-                                <TextArea<EmailType> Record={email} Setter={setEmail} Field={'Template'} Help={'XML-formatted template to specify the layout of the notification.'} Rows={12} Label='' Valid={(r) => email.Template != null && email.Template.length > 0} />
+                                <TextArea<EmailType>
+                                    Record={email}
+                                    Setter={setEmail}
+                                    Field={'Template'}
+                                    Help={'XML-formatted template to specify the layout of the notification.'}
+                                    Rows={12}
+                                    Label=''
+                                    Valid={(r) => email.Template != null && email.Template.length > 0} />
                             </div>
                         </div>
                     </div>
                     <div className="card-footer">
                         <div className="btn-group mr-2">
-                            <button className={"btn btn-primary" + (email.Template != null && email.Template.length > 0 && hasChanged ? '' : ' disabled')} type="submit"
-                                onClick={() => { if (email.Template != null && email.Template.length > 0 && hasChanged) dispatch(EmailTypeSlice.DBAction({ verb: 'PATCH', record: email })); }}
-                                data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
+                            <button className={"btn btn-primary" + (email.Template != null && email.Template.length > 0 && hasChanged ? '' : ' disabled')}
+                                type="submit"
+                                onClick={() => { if (email.Template != null && email.Template.length > 0 && hasChanged) emailTypeController.DBAction('PATCH', email); }}
+                                data-tooltip='submit'
+                                onMouseEnter={() => setHover('submit')}
+                                onMouseLeave={() => setHover('none')}
+                            >Save Changes</button>
                         </div>
                         <div className="btn-group mr-2">
-                            <button className={"btn btn-warning" + (hasChanged ? '' : ' disabled')} data-tooltip="clear"
+                            <button className={"btn btn-warning" + (hasChanged ? '' : ' disabled')}
+                                data-tooltip="clear"
                                 onClick={() => { setEmail(props.Record); setHasChanged(false); }}
-                                onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')} >Clear Changes</button>
+                                onMouseEnter={() => setHover('clear')}
+                                onMouseLeave={() => setHover('none')}
+                            >Clear Changes</button>
                         </div>
-                        <ToolTip Show={(email.Template == null || email.Template.length == 0 || !hasChanged) && hover == 'submit'} Position={'top'} Target={"submit"}>
+                        <ToolTip
+                            Show={(email.Template == null || email.Template.length == 0 || !hasChanged) && hover == 'submit'}
+                            Position={'top'}
+                            Target={"submit"}>
                             {!hasChanged ? <p> No changes made.</p> : null}
                             {email.Template == null || email.Template.length == 0 ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> A valid Template is required.</p> : null}
                         </ToolTip>
-                        <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Target={"clear"}>
+                        <ToolTip
+                            Show={hasChanged && hover == 'clear'}
+                            Position={'top'}
+                            Target={"clear"}>
                             <p><ReactIcons.Warning Color="var(--warning)" /> Changes to Template will be discarded.</p>
                         </ToolTip>
                     </div>
                 </div>
             </div>
         </div>
-        )
+    )
 }
 
 export default Template;

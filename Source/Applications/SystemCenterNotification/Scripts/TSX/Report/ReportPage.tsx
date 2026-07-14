@@ -21,17 +21,17 @@
 //
 //******************************************************************************************************
 
-import * as React from 'react';
 import * as $ from 'jquery'
-import { TabSelector, Warning, LoadingScreen, ServerErrorIcon, GenericController } from '@gpa-gemstone/react-interactive';
-import { ScheduledEmailType } from '../global';
+import * as React from 'react';
 import { Application } from '@gpa-gemstone/application-typings';
+import { GenericController, LoadingScreen, ServerErrorIcon, TabSelector, Warning } from '@gpa-gemstone/react-interactive';
+import { ScheduledEmailType } from '../global';
+import DataSourceWindow from './DatasourceUI/DataSourceWindow';
 import GeneralInfo from './GeneralInfo';
 import Subscriptions from './Subscriptions';
-import TriggerWindow from './TriggerWindow';
-import DataSourceWindow from './DatasourceUI/DataSourceWindow';
 import Template from './Template';
 import TestEmail from './TestEmail';
+import TriggerWindow from './TriggerWindow';
 
 declare var homePath;
 declare var version;

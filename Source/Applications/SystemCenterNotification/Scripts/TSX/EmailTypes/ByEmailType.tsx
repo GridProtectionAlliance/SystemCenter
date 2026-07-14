@@ -21,18 +21,16 @@
 //
 //******************************************************************************************************
 
-import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
-import { LoadingScreen, Modal, Search, SearchBar, GenericController } from '@gpa-gemstone/react-interactive'
-import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { Application } from '@gpa-gemstone/application-typings';
-import { EmailType, EmailCategory } from '../global';
-import { EmailTypeSlice } from '../Store';
-import { Table, Column, Paging } from '@gpa-gemstone/react-table';
-import EmailForm from './EmailForm';
-import { IsNumber } from '@gpa-gemstone/helper-functions';
 import { useNavigate } from 'react-router-dom';
+import { Application } from '@gpa-gemstone/application-typings';
+import { IsNumber } from '@gpa-gemstone/helper-functions';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { LoadingScreen, Modal, Search, SearchBar, GenericController } from '@gpa-gemstone/react-interactive'
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import TestEmailButton from '../CommonComponents/TestEmailButton';
+import { EmailType, EmailCategory } from '../global';
+import EmailForm from './EmailForm';
 
 declare var homePath;
 declare var version;
@@ -55,16 +53,14 @@ const emptyEmail = {
 
 const ByEmailType = (props: IProps) => {
     const navigate = useNavigate();
-    const dispatch = useAppDispatch();
 
     const [search, setSearch] = React.useState<Search.IFilter<EmailType>[]>([]);
-    const status: Application.Types.Status = useAppSelector(EmailTypeSlice.Status);
-    const searchStatus: Application.Types.Status = useAppSelector(EmailTypeSlice.SearchStatus);
-    const data: EmailType[] = useAppSelector(EmailTypeSlice.SearchResults);
-    const allData: EmailType[] = useAppSelector(EmailTypeSlice.Data);
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [searchStatus, setSearchStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [data, setData] = React.useState<EmailType[]>([]);
+    const [allData, setAllData] = React.useState<EmailType[]>([]);
     const [categoryStatus, setCategoryStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [categories, setCategories] = React.useState<EmailCategory[]>([]);
-    const parentID = useAppSelector(EmailTypeSlice.ParentID);
 
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [errors, setErrors] = React.useState<string[]>([]);
@@ -75,11 +71,14 @@ const ByEmailType = (props: IProps) => {
     const [asc, setAsc] = React.useState<boolean>(true);
 
     const [page, setPage] = React.useState<number>(0);
-    const totalPages = useAppSelector(EmailTypeSlice.TotalPages);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
+    const [totalRecords, setTotalRecords] = React.useState<number>(0);
 
     const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false)
 
     const emailCategoryController = React.useMemo(() => new GenericController<EmailCategory>(`${homePath}api/OpenXDA/EmailCategory`, "Name", true), [])
+    const emailTypeController = React.useMemo(() => new GenericController<EmailType>(`${homePath}api/OpenXDA/EmailType`, "Name", true), [])
 
     React.useEffect(() => {
         setCategoryStatus('loading')
@@ -98,12 +97,40 @@ const ByEmailType = (props: IProps) => {
     }, [emailCategoryController.Fetch]);
 
     React.useEffect(() => {
-        dispatch(EmailTypeSlice.Fetch());
-    }, [refreshTrigger, parentID]);
+        setStatus('loading')
+        const h = emailTypeController.Fetch();
+        h.done((d) => {
+            setAllData(d)
+            setStatus('idle')
+        });
+        h.fail(() => setStatus('error'));
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+
+    }, [emailTypeController.Fetch, refreshTrigger]);
 
     React.useEffect(() => {
-        dispatch(EmailTypeSlice.PagedSearch({ filter: search, sortField: sortField, ascending: asc, page: page}));
-    }, [search, sortField, asc, page, refreshTrigger])
+        setSearchStatus('loading')
+        const h = emailTypeController.PagedSearch(search, sortField, asc, page);
+
+        h.done((d) => {
+            setData(JSON.parse(d.Data));
+            setTotalPages(d.NumberOfPages);
+            setTotalRecords(d.TotalRecords);
+            setRecordsPerPage(d.RecordsPerPage);
+            setSearchStatus('idle')
+        })
+        h.fail(() => setSearchStatus('error'))
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+
+    }, [search, sortField, asc, page, emailTypeController.PagedSearch, refreshTrigger])
 
     React.useEffect(() => {
         let e = [];
@@ -151,7 +178,7 @@ const ByEmailType = (props: IProps) => {
                     <SearchBar<EmailType> CollumnList={searchFields}
                         SetFilter={setSearch}
                         Direction={'left'} defaultCollumn={{ key: 'Name', label: 'Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
-                        ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Event Notification(s)'}
+                        ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : `Displaying Event Notification(s) ${totalRecords > 0 ? recordsPerPage * page + 1 : 0}-${recordsPerPage * page + data.length} out of ${totalRecords}`}
                     >
                         <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
                             <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
@@ -273,7 +300,7 @@ const ByEmailType = (props: IProps) => {
                 Show={showModal} ShowX={true} Size={'lg'} ShowCancel={false} ConfirmText={'Add'}
                 CallBack={(conf, isBtn) => {
                     if (conf)
-                        dispatch(EmailTypeSlice.DBAction({ verb: "POST", record: newEmail })).then(() => setRefreshTrigger((val) => !val))
+                        emailTypeController.DBAction("POST", newEmail).then(() => setRefreshTrigger((val) => !val))
                     setShowModal(false);
                 }}
                 DisableConfirm={errors.length > 0}

@@ -21,18 +21,18 @@
 //
 //******************************************************************************************************
 
-import { useAppDispatch, useAppSelector } from '../hooks';
+import * as $ from 'jquery';
 import * as React from 'react';
-import { TabSelector, Warning, LoadingScreen, ServerErrorIcon, Modal } from '@gpa-gemstone/react-interactive'
 import { Application } from '@gpa-gemstone/application-typings';
-import { EmailTypeSlice } from '../Store';
-import GeneralInfo from './GeneralInfo';
-import Subscriptions from './Subscriptions';
-import TriggerWindow from './TriggerUI/TriggerWindow';
+import { GenericController, LoadingScreen, ServerErrorIcon, TabSelector, Warning } from '@gpa-gemstone/react-interactive'
+import { EmailType } from '../global'
 import DataSourceWindow from './DatasourceUI/DataSourceWindow';
+import GeneralInfo from './GeneralInfo';
+import History from './History'
+import Subscriptions from './Subscriptions';
 import Template from './Template';
 import TestEmail from './TestEmail';
-import History from './History'
+import TriggerWindow from './TriggerUI/TriggerWindow';
 
 declare var homePath;
 declare var version;
@@ -41,22 +41,40 @@ interface IProps { useParams: {id: string}}
 
 type tab = 'settings' | 'template' | 'dataSources' | 'subscriptions'  | 'trigger' | 'history'
 
-
 const EmailPage = (props: IProps) => {
-    const dispatch = useAppDispatch();
 
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
     const [showTest, setShowTest] = React.useState<boolean>(false);
 
-    const email = useAppSelector((state) => EmailTypeSlice.Datum(state, parseInt(props.useParams.id)));
-    const status: Application.Types.Status = useAppSelector(EmailTypeSlice.Status);
+    const [email, setEmail] = React.useState<EmailType | null>(null); //= useAppSelector((state) => EmailTypeSlice.Datum(state, parseInt(props.useParams.id)));
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 
     const [tab, setTab] = React.useState<tab>('settings');
 
+    const emailTypeController = React.useMemo(() => new GenericController<EmailType>(`${homePath}api/OpenXDA/EmailType`, "Name", true), []);
+
     React.useEffect(() => {
-        if (status == 'uninitiated' || status == 'changed')
-            dispatch(EmailTypeSlice.Fetch());
-    }, [status]);
+        setStatus('loading')
+        const h = $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/EmailType/One/${props.useParams.id}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true
+        })
+        h.done((d) => {
+            setEmail(d)
+            setStatus('idle')
+        });
+        h.fail(() => setStatus('error'));
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+
+    }, [props.useParams.id])
 
     return (
         <div className="container-fluid d-flex h-100 flex-column">
@@ -125,7 +143,7 @@ const EmailPage = (props: IProps) => {
                 <Warning Message={'This will permanently delete this notification and can not be undone.'} Show={showDelete} Title={'Delete ' + (email !== undefined ? email.Name : '')}
                     CallBack={(conf) => {
                         if (conf) {
-                            dispatch(EmailTypeSlice.DBAction({ verb: 'DELETE', record: email }));
+                            emailTypeController.DBAction('DELETE', email);
                             window.location.href = `${homePath}EventEmails`;
                         }
                         setShowDelete(false);
