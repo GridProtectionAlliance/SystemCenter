@@ -40,7 +40,6 @@ declare var homePath: string;
 export type AppDispatch = typeof store.dispatch;
 export type RootState = ReturnType<typeof store.getState>
 
-export const SettingSlice = new GenericSlice<SystemCenter.Types.Setting>('Setting', `${homePath}api/Setting`, 'Name');
 export const ReportSubscriptionSlice = new GenericSlice<SubscribeScheduledEmails>('ReportSubscription', `${homePath}api/ReportSubscription`, 'Email');
 export const ActiveSubscriptionSlice = new GenericSlice<ActiveSubscription>('ActiveSubscription', `${homePath}api/ActiveSubscription`, 'LastSent');
 export const ActiveReportSubscriptionSlice = new GenericSlice<ActiveReportSubscription>('ActiveReportSubscription', `${homePath}api/ActiveScheduleSubscription`, 'Email');
@@ -62,7 +61,6 @@ export const ScheduledDataSourceSlice = new GenericSlice<IScheduledDataSource>("
 export const ScheduledEmailDataSourceSlice = new GenericSlice<IDataSourceScheduledEmailType>("ScheduledEmailDataSourceEmailType", `${homePath}api/OpenXDA/ScheduledEmailDataSourceEmailType`, "ScheduledEmailDataSourceName", false);
 
 const reducer = {
-    Setting: SettingSlice.Reducer,
     ActiveSubscription: ActiveSubscriptionSlice.Reducer,
     UserInfo: UserInfoSlice.Reducer,
     EventType: EventTypeSlice.Reducer,
