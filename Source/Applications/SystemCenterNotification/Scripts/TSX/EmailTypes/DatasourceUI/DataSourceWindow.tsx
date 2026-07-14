@@ -68,7 +68,7 @@ const DataSourceWindow = (props: IProps) => {
             if (h != null && h.abort != null)
                 h.abort();
         }
-    }, [status, props.Record.ID, dataSource, page, refreshTrigger]);
+    }, [props.Record.ID, dataSource, page, refreshTrigger]);
 
     return (
         <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>

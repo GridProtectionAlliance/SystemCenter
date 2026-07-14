@@ -59,7 +59,11 @@ const ConfirmPhoneCarrier = (props: IProps) => {
         h.fail(() => {
             setCarrierStatus('error');
         })
-    }, [carrierStatus]);
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+    }, []);
 
     React.useEffect(() => {
         if (userCarrier == null && carriers.length > 0)
