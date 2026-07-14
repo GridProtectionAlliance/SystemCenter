@@ -29,7 +29,7 @@ import { Select } from '@gpa-gemstone/react-forms';
 import { GenericController, Modal } from '@gpa-gemstone/react-interactive'
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { IDataSourceTriggeredEmailType, ITriggeredDataSource, ITriggeredEmailDataSourceSetting } from '../../global';
-import { TriggeredDataSourceSettingSlice, TriggeredEmailDataSourceSlice } from '../../Store';
+import { TriggeredDataSourceSettingSlice } from '../../Store';
 import FTTDataSource from './FTTDataSource';
 import PQIDataSource from './PQIDataSource';
 import SQLDataSource from './SQLDataSource';
@@ -59,6 +59,9 @@ const DataSourceModal = (props: IProps) => {
 
     const [errors, setErrors] = React.useState<string[]>([]);
     const [changes, setChanges] = React.useState<string[]>([]);
+
+    const triggeredEmailDataSourceController = React.useMemo(() => new GenericController<IDataSourceTriggeredEmailType>(`${homePath}api/OpenXDA/TriggeredEmailDataSourceEmailType`, "TriggeredEmailDataSourceName", false), [])
+
 
     const dataSourceUI = React.useMemo(() => {
         const type = types.find(item => item.ID == dataSourceID);
@@ -156,10 +159,10 @@ const DataSourceModal = (props: IProps) => {
         <Modal Show={props.Show} Title={'Data Source'} ShowCancel={true} ShowX={false} CancelText={'Close'} ConfirmText={'Save'} Size={'lg'}
             CallBack={(c) => {
                 if (c && record.ID < 0) {
-                    dispatch(TriggeredEmailDataSourceSlice.DBAction({ verb: 'POST', record: { ...record, Settings: currentSettings.filter(s => s.Value != null) } }))
+                    triggeredEmailDataSourceController.DBAction('POST', { ...record, Settings: currentSettings.filter(s => s.Value != null) })
                 }
                 if (c && record.ID >= 0) {
-                    dispatch(TriggeredEmailDataSourceSlice.DBAction({ verb: 'PATCH', record }))
+                    triggeredEmailDataSourceController.DBAction('PATCH', record )
                     currentSettings.forEach((s) => { if (s.Value != null) dispatch(TriggeredDataSourceSettingSlice.DBAction({ verb: s.ID == 0 ? 'POST' : 'PATCH', record: s }));});
                 }
                 if (!c)
