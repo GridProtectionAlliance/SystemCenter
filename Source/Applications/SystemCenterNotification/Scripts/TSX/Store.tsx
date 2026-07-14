@@ -25,7 +25,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import {
     IDataSourceTriggeredEmailType,
     ITriggeredEmailDataSourceSetting,
-    IScheduledDataSource, IDataSourceScheduledEmailType
+    IScheduledDataSource,
 } from './global';
 import { GenericSlice } from '@gpa-gemstone/react-interactive';
 import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
@@ -48,7 +48,6 @@ export const TriggeredEmailDataSourceSlice = new GenericSlice<IDataSourceTrigger
 export const TriggeredDataSourceSettingSlice = new GenericSlice<ITriggeredEmailDataSourceSetting>("TriggeredDataSourceSetting", `${homePath}api/OpenXDA/TriggeredEmailDataSourceSetting`, "Name", false);
 
 export const ScheduledDataSourceSlice = new GenericSlice<IScheduledDataSource>("ScheduledDataSource", `${homePath}api/OpenXDA/ScheduledEmailDataSource`, "Name", false);
-export const ScheduledEmailDataSourceSlice = new GenericSlice<IDataSourceScheduledEmailType>("ScheduledEmailDataSourceEmailType", `${homePath}api/OpenXDA/ScheduledEmailDataSourceEmailType`, "ScheduledEmailDataSourceName", false);
 
 const reducer = {
     UserInfo: UserInfoSlice.Reducer,
@@ -57,7 +56,6 @@ const reducer = {
     EventAsset: EventAssetSlice.Reducer,
     EventLocation: EventLocationSlice.Reducer,
     TriggeredDataSourceSetting: TriggeredDataSourceSettingSlice.Reducer,
-    TriggeredEmailDataSource: TriggeredEmailDataSourceSlice.Reducer,
     ScheduledDataSource: ScheduledDataSourceSlice.Reducer
 }
 

@@ -26,7 +26,7 @@ import * as React from 'react';
 import { Modal, GenericController } from '@gpa-gemstone/react-interactive';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { IDataSourceScheduledEmailType, IScheduledDataSource, IScheduledEmailDataSourceSetting } from '../../global';
-import { ScheduledDataSourceSlice, ScheduledEmailDataSourceSlice } from '../../Store';
+import { ScheduledDataSourceSlice } from '../../Store';
 import { Select } from '@gpa-gemstone/react-forms';
 import { Application } from '@gpa-gemstone/application-typings';
 import SQLDataSource from './SQLDataSource';
@@ -57,8 +57,10 @@ const DataSourceModal = (props: IProps) => {
     const [changes, setChanges] = React.useState<string[]>([]);
 
     const scheduledDataSourceSettingController = React.useMemo(() => new GenericController<IScheduledEmailDataSourceSetting>(`${homePath}api/OpenXDA/ScheduledEmailDataSourceSetting`, "Name", false), [])
+    const dataSourceScheduledEmailTypeController = React.useMemo(() => new GenericController<IDataSourceScheduledEmailType>(`${homePath}api/OpenXDA/ScheduledEmailDataSourceEmailType`, "ScheduledEmailDataSourceName", false), []);
 
-      React.useEffect(() => {
+
+    React.useEffect(() => {
           if (typeStatus == 'uninitiated' || typeStatus == 'changed')
               dispatch(ScheduledDataSourceSlice.Fetch());
       }, [typeStatus]);
@@ -187,10 +189,10 @@ const DataSourceModal = (props: IProps) => {
         <Modal Show={props.Show} Title={'Data Source'} ShowCancel={false} ShowX={true} ConfirmText={'Save'} Size={'lg'}
             CallBack={(c) => {
                 if (c && record.ID < 0) {
-                    dispatch(ScheduledEmailDataSourceSlice.DBAction({ verb: 'POST', record: { ...record, Settings: currentSettings.filter(s => s.Value != null) } }))
+                    dataSourceScheduledEmailTypeController.DBAction('POST',{ ...record, Settings: currentSettings.filter(s => s.Value != null) } )
                 }
                 if (c && record.ID >= 0) {
-                    dispatch(ScheduledEmailDataSourceSlice.DBAction({ verb: 'PATCH', record }))
+                    dataSourceScheduledEmailTypeController.DBAction('PATCH', record )
                     currentSettings.forEach((s) => { if (s.Value != null) scheduledDataSourceSettingController.DBAction( s.ID == 0 ? 'POST' : 'PATCH',  s );});
                 }
                 if (!c)
