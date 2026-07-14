@@ -20,14 +20,13 @@
 //       Generated original version of source code.
 //
 //******************************************************************************************************
-import * as React from 'react';
-import { LoadingIcon, Search, Warning } from '@gpa-gemstone/react-interactive'
-import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-import { AssetGroupSlice } from '../Store';
-import { useAppDispatch, useAppSelector } from '../hooks';
+
 import * as $ from 'jquery';
-import { Table, Column, Paging } from '@gpa-gemstone/react-table';
+import * as React from 'react';
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { Select } from '@gpa-gemstone/react-forms';
+import { GenericController, LoadingIcon, Search, Warning } from '@gpa-gemstone/react-interactive'
+import { Column, Paging, Table } from '@gpa-gemstone/react-table';
 
 declare var homePath;
 declare var version;
@@ -49,35 +48,52 @@ interface IProps {
 }
 
 const AssetGroupSelection = (props: IProps) => {
-    const dispatch = useAppDispatch();
     const [parentGroups, setParentGroups] = React.useState<OpenXDA.Types.AssetGroup[]>([]);
     const [parentGroupState, setParentGroupState] = React.useState<Application.Types.Status>('uninitiated');
 
     const [selectedParent, setSelectedParent] = React.useState<OpenXDA.Types.AssetGroup>(otherParent);
-    const assetGrpStatus = useAppSelector(AssetGroupSlice.Status);
-    const assetGrps = useAppSelector(AssetGroupSlice.SearchResults);
+    const [assetGrpStatus, setAssetGrpStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [assetGrps, setAssetGrps] = React.useState<OpenXDA.Types.AssetGroup[]>([]);
 
     const [asc, setAsc] = React.useState<boolean>(true);
     const [sort, setSort] = React.useState<keyof OpenXDA.Types.AssetGroup>('Name');
 
     const [page, setPage] = React.useState<number>(0);
-    const totalPages = useAppSelector(AssetGroupSlice.TotalPages);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
 
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
+
+    const assetGroupController = React.useMemo(() => new GenericController<OpenXDA.Types.AssetGroup>(`${homePath}api/OpenXDA/AssetGroup`, "Name", true), []);
 
     React.useEffect(() => {
         let handle = getParents();
         return () => { if (handle != null && handle.abort != null) handle.abort(); }
     }, [])
 
+    // search for child asset groups.
     React.useEffect(() => {
         const flt: Search.IFilter<OpenXDA.Types.AssetGroup> = { FieldName: 'ID', IsPivotColumn: false, SearchText: `(SELECT ChildAssetGroupID FROM AssetGroupAssetGroup WHERE ParentAssetGroupID = ${selectedParent.ID})`, Type: 'query', Operator: 'IN' }
         if (selectedParent.ID == -1) {
             flt.SearchText = " (SELECT ChildAssetGroupID FROM AssetGroupAssetGroup X WHERE X.ParentAssetGroupID IN (SELECT ID FROM AssetGroup Y WHERE Y.DisplayEmail =1))";
             flt.Operator = "NOT IN"
         }
-        dispatch(AssetGroupSlice.PagedSearch({ ascending: asc, sortField: sort, filter: [flt], page: page }));
-    }, [asc, sort, selectedParent, page])
+
+        setAssetGrpStatus('loading');
+        const h = assetGroupController.PagedSearch([flt], sort, asc, page);
+
+        h.done((d) => {
+            setAssetGrps(JSON.parse(d.Data));
+            setTotalPages(d.NumberOfPages);
+            setAssetGrpStatus('idle');
+        })
+
+        h.fail(() => setAssetGrpStatus('error'));
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+    }, [asc, sort, selectedParent, page, assetGroupController.PagedSearch])
 
     React.useEffect(() => {
         if (parentGroups.length > 0) {
@@ -93,12 +109,6 @@ const AssetGroupSelection = (props: IProps) => {
         if (selectedParent.ID != -1)
             localStorage.setItem("SystemCenter.Notifications.SelectedGroup", selectedParent.ID.toString());
     }, [selectedParent]);
-
-    React.useEffect(() => {
-        if (assetGrpStatus == 'uninitiated' || assetGrpStatus == 'changed') {
-            dispatch(AssetGroupSlice.Fetch());
-        }
-    }, [assetGrpStatus]);
 
     function getParents() {
         setParentGroupState('loading');
