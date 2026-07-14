@@ -22,10 +22,6 @@
 //******************************************************************************************************
 
 import { configureStore } from '@reduxjs/toolkit';
-import {
-    ITriggeredEmailDataSourceSetting,
-    IScheduledDataSource,
-} from './global';
 import { GenericSlice } from '@gpa-gemstone/react-interactive';
 import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import UserInfoSliceClass  from './Store/UserInfoSlice';
@@ -43,18 +39,12 @@ export const EventMeterSlice = new GenericSlice<SystemCenter.Types.DetailedMeter
 export const EventAssetSlice = new GenericSlice<SystemCenter.Types.DetailedAsset>("EventAsset", `${homePath}api/OpenXDA/Event/Asset`, "AssetName", true);
 export const EventLocationSlice = new GenericSlice<SystemCenter.Types.DetailedLocation>("EventLocation", `${homePath}api/OpenXDA/Event/Location`, "LocationKey", true);
 
-export const TriggeredDataSourceSettingSlice = new GenericSlice<ITriggeredEmailDataSourceSetting>("TriggeredDataSourceSetting", `${homePath}api/OpenXDA/TriggeredEmailDataSourceSetting`, "Name", false);
-
-export const ScheduledDataSourceSlice = new GenericSlice<IScheduledDataSource>("ScheduledDataSource", `${homePath}api/OpenXDA/ScheduledEmailDataSource`, "Name", false);
-
 const reducer = {
     UserInfo: UserInfoSlice.Reducer,
     EventAssetGroup: EventAssetGroupSlice.Reducer,
     EventMeter: EventMeterSlice.Reducer,
     EventAsset: EventAssetSlice.Reducer,
-    EventLocation: EventLocationSlice.Reducer,
-    TriggeredDataSourceSetting: TriggeredDataSourceSettingSlice.Reducer,
-    ScheduledDataSource: ScheduledDataSourceSlice.Reducer
+    EventLocation: EventLocationSlice.Reducer
 }
 
 const store = configureStore({ reducer });

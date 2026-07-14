@@ -27,9 +27,7 @@ import { Application } from '@gpa-gemstone/application-typings';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Select } from '@gpa-gemstone/react-forms';
 import { GenericController, Modal } from '@gpa-gemstone/react-interactive'
-import { useAppDispatch, useAppSelector } from '../../hooks';
 import { IDataSourceTriggeredEmailType, ITriggeredDataSource, ITriggeredEmailDataSourceSetting } from '../../global';
-import { TriggeredDataSourceSettingSlice } from '../../Store';
 import FTTDataSource from './FTTDataSource';
 import PQIDataSource from './PQIDataSource';
 import SQLDataSource from './SQLDataSource';
@@ -46,22 +44,20 @@ interface IProps {
 const AllDataSources: DataSourceSettingUI[] = [SQLDataSource, PQIDataSource, FTTDataSource];
 
 const DataSourceModal = (props: IProps) => {
-    const dispatch = useAppDispatch();
     const [typeStatus, setTypeStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [types, setTypes] = React.useState<ITriggeredDataSource[]>([]);
     const [record, setRecord] = React.useState<IDataSourceTriggeredEmailType>();
     const dataSourceID = React.useMemo(() => record != null ? record.TriggeredEmailDataSourceID : null, [record]);
 
-    const originalsettings = useAppSelector(TriggeredDataSourceSettingSlice.Data);
-    const settingStatus = useAppSelector(TriggeredDataSourceSettingSlice.Status);
-    const settingsParentID = useAppSelector(TriggeredDataSourceSettingSlice.ParentID);
+    const [originalsettings, setOriginalSettings] = React.useState<ITriggeredEmailDataSourceSetting[]>([]);
+    const [settingStatus, setSettingStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [currentSettings, setCurrentSettings] = React.useState<ITriggeredEmailDataSourceSetting[]>([]);
 
     const [errors, setErrors] = React.useState<string[]>([]);
     const [changes, setChanges] = React.useState<string[]>([]);
 
     const triggeredEmailDataSourceController = React.useMemo(() => new GenericController<IDataSourceTriggeredEmailType>(`${homePath}api/OpenXDA/TriggeredEmailDataSourceEmailType`, "TriggeredEmailDataSourceName", false), [])
-
+    const triggeredDataSourceSettingController = React.useMemo(() => new GenericController<ITriggeredEmailDataSourceSetting>(`${homePath}api/OpenXDA/TriggeredEmailDataSourceSetting`, "Name", false),[])
 
     const dataSourceUI = React.useMemo(() => {
         const type = types.find(item => item.ID == dataSourceID);
@@ -98,9 +94,22 @@ const DataSourceModal = (props: IProps) => {
     React.useEffect(() => {
         if (props.Record == null)
             return
-        if (settingStatus == 'uninitiated' || settingStatus == 'changed' || settingsParentID != props.Record.ID)
-            dispatch(TriggeredDataSourceSettingSlice.Fetch(props.Record.ID));
-    }, [settingStatus, props.Record]);
+
+        setSettingStatus('loading');
+        const h = triggeredDataSourceSettingController.Fetch(props.Record.ID);
+
+        h.done((d) => {
+            setOriginalSettings(d);
+            setSettingStatus('idle');
+        })
+        
+        h.fail(() => setSettingStatus('error'));
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+    }, [props.Record.ID, triggeredDataSourceSettingController.Fetch]);
 
     React.useEffect(() => {
         if (props.Record == null)
@@ -163,7 +172,9 @@ const DataSourceModal = (props: IProps) => {
                 }
                 if (c && record.ID >= 0) {
                     triggeredEmailDataSourceController.DBAction('PATCH', record )
-                    currentSettings.forEach((s) => { if (s.Value != null) dispatch(TriggeredDataSourceSettingSlice.DBAction({ verb: s.ID == 0 ? 'POST' : 'PATCH', record: s }));});
+                    currentSettings.forEach((s) => {
+                        if (s.Value != null) triggeredDataSourceSettingController.DBAction(s.ID == 0 ? 'POST' : 'PATCH', s);
+                    });
                 }
                 if (!c)
                     resetCurrentSettings();

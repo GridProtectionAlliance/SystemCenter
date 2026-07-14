@@ -21,12 +21,10 @@
 //
 //******************************************************************************************************
 
-import { useAppDispatch, useAppSelector } from '../../hooks';
 import * as React from 'react';
 import { Modal, GenericController } from '@gpa-gemstone/react-interactive';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { IDataSourceScheduledEmailType, IScheduledDataSource, IScheduledEmailDataSourceSetting } from '../../global';
-import { ScheduledDataSourceSlice } from '../../Store';
 import { Select } from '@gpa-gemstone/react-forms';
 import { Application } from '@gpa-gemstone/application-typings';
 import SQLDataSource from './SQLDataSource';
@@ -44,9 +42,8 @@ interface IProps {
 
 
 const DataSourceModal = (props: IProps) => {
-    const dispatch = useAppDispatch();
-    const typeStatus = useAppSelector(ScheduledDataSourceSlice.Status);
-    const types: IScheduledDataSource[] = useAppSelector(ScheduledDataSourceSlice.Data);
+    const [typeStatus, setTypeStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [types, setTypes] = React.useState<IScheduledDataSource[]>([]);
     const [record, setRecord] = React.useState<IDataSourceScheduledEmailType>();
 
     const [originalsettings, setOriginalSettings] = React.useState<IScheduledEmailDataSourceSetting[]>([]);
@@ -58,12 +55,22 @@ const DataSourceModal = (props: IProps) => {
 
     const scheduledDataSourceSettingController = React.useMemo(() => new GenericController<IScheduledEmailDataSourceSetting>(`${homePath}api/OpenXDA/ScheduledEmailDataSourceSetting`, "Name", false), [])
     const dataSourceScheduledEmailTypeController = React.useMemo(() => new GenericController<IDataSourceScheduledEmailType>(`${homePath}api/OpenXDA/ScheduledEmailDataSourceEmailType`, "ScheduledEmailDataSourceName", false), []);
-
+    const scheduledDataSourceController = React.useMemo(() => new GenericController<IScheduledDataSource>(`${homePath}api/OpenXDA/ScheduledEmailDataSource`, "Name", false), []);
 
     React.useEffect(() => {
-          if (typeStatus == 'uninitiated' || typeStatus == 'changed')
-              dispatch(ScheduledDataSourceSlice.Fetch());
-      }, [typeStatus]);
+        const h = scheduledDataSourceController.Fetch();
+        setTypeStatus('loading');
+        h.done((d) => {
+            setTypeStatus('idle');
+            setTypes(d);
+        })
+        h.fail(() => setTypeStatus('error'))
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+    }, [scheduledDataSourceController.Fetch]);
 
     React.useEffect(() => {
         if (props.Record == null)
