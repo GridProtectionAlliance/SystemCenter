@@ -25,7 +25,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import {
     ActiveSubscription,
     IDataSourceTriggeredEmailType, ITriggeredDataSource,
-    ITriggeredEmailDataSourceSetting, SubscribeEmails,
+    ITriggeredEmailDataSourceSetting,
     ActiveReportSubscription,
     IScheduledDataSource, IDataSourceScheduledEmailType,
     SubscribeScheduledEmails
@@ -42,7 +42,6 @@ export type RootState = ReturnType<typeof store.getState>
 
 export const AssetGroupSlice = new GenericSlice<OpenXDA.Types.AssetGroup>("AssetGroup", `${homePath}api/OpenXDA/AssetGroup`, "Name", true);
 export const SettingSlice = new GenericSlice<SystemCenter.Types.Setting>('Setting', `${homePath}api/Setting`, 'Name');
-export const EventSubscriptionSlice = new GenericSlice<SubscribeEmails>('EventSubscription', `${homePath}api/EventSubscription`, 'Email');
 export const ReportSubscriptionSlice = new GenericSlice<SubscribeScheduledEmails>('ReportSubscription', `${homePath}api/ReportSubscription`, 'Email');
 export const ActiveSubscriptionSlice = new GenericSlice<ActiveSubscription>('ActiveSubscription', `${homePath}api/ActiveSubscription`, 'LastSent');
 export const ActiveReportSubscriptionSlice = new GenericSlice<ActiveReportSubscription>('ActiveReportSubscription', `${homePath}api/ActiveScheduleSubscription`, 'Email');
@@ -66,7 +65,6 @@ export const ScheduledEmailDataSourceSlice = new GenericSlice<IDataSourceSchedul
 const reducer = {
     AssetGroup: AssetGroupSlice.Reducer,
     Setting: SettingSlice.Reducer,
-    EventSubscription: EventSubscriptionSlice.Reducer,
     ActiveSubscription: ActiveSubscriptionSlice.Reducer,
     UserInfo: UserInfoSlice.Reducer,
     EventType: EventTypeSlice.Reducer,
