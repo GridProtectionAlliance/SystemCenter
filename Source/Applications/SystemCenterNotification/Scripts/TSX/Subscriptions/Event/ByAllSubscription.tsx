@@ -82,7 +82,7 @@ const ByAllSubscription = (props: IProps) => {
         const h = activeSubscriptionController.PagedSearch(filters, sortField, asc, page);
 
         h.done((d) => {
-            setData(JSON.parse(d));
+            setData(JSON.parse(d.Data));
             setTotalPages(d.NumberOfPages);
             setRecordsPerPage(d.RecordsPerPage);
             setTotalRecords(d.TotalRecords);
