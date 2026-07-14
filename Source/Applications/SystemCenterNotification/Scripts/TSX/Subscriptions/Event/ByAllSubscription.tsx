@@ -86,6 +86,7 @@ const ByAllSubscription = (props: IProps) => {
             setTotalPages(d.NumberOfPages);
             setRecordsPerPage(d.RecordsPerPage);
             setTotalRecords(d.TotalRecords);
+            setSearchStatus('idle');
         })
 
         h.fail(() => setSearchStatus('error'))
