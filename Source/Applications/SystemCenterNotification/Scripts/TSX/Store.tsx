@@ -23,7 +23,7 @@
 
 import { configureStore } from '@reduxjs/toolkit';
 import {
-    IDataSourceTriggeredEmailType, ITriggeredDataSource,
+    IDataSourceTriggeredEmailType,
     ITriggeredEmailDataSourceSetting,
     IScheduledDataSource, IDataSourceScheduledEmailType
 } from './global';
@@ -44,7 +44,6 @@ export const EventMeterSlice = new GenericSlice<SystemCenter.Types.DetailedMeter
 export const EventAssetSlice = new GenericSlice<SystemCenter.Types.DetailedAsset>("EventAsset", `${homePath}api/OpenXDA/Event/Asset`, "AssetName", true);
 export const EventLocationSlice = new GenericSlice<SystemCenter.Types.DetailedLocation>("EventLocation", `${homePath}api/OpenXDA/Event/Location`, "LocationKey", true);
 
-export const TriggeredDataSourceSlice = new GenericSlice<ITriggeredDataSource>("TriggeredDataSource", `${homePath}api/OpenXDA/TriggeredEmailDataSource`, "Name", false);
 export const TriggeredEmailDataSourceSlice = new GenericSlice<IDataSourceTriggeredEmailType>("TriggeredEmailDataSource", `${homePath}api/OpenXDA/TriggeredEmailDataSourceEmailType`, "TriggeredEmailDataSourceName", false);
 export const TriggeredDataSourceSettingSlice = new GenericSlice<ITriggeredEmailDataSourceSetting>("TriggeredDataSourceSetting", `${homePath}api/OpenXDA/TriggeredEmailDataSourceSetting`, "Name", false);
 
@@ -59,7 +58,6 @@ const reducer = {
     EventLocation: EventLocationSlice.Reducer,
     TriggeredDataSourceSetting: TriggeredDataSourceSettingSlice.Reducer,
     TriggeredEmailDataSource: TriggeredEmailDataSourceSlice.Reducer,
-    TriggeredDataSource: TriggeredDataSourceSlice.Reducer,
     ScheduledDataSource: ScheduledDataSourceSlice.Reducer
 }
 

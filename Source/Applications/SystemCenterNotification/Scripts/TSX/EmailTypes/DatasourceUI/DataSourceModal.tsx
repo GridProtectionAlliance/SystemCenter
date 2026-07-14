@@ -21,17 +21,18 @@
 //
 //******************************************************************************************************
 
-import { useAppDispatch, useAppSelector } from '../../hooks';
+import { cloneDeep } from 'lodash';
 import * as React from 'react';
-import { Modal } from '@gpa-gemstone/react-interactive'
+import { Application } from '@gpa-gemstone/application-typings';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { IDataSourceTriggeredEmailType, IEvent, ITriggeredEmailDataSourceSetting } from '../../global';
-import { TriggeredDataSourceSettingSlice, TriggeredDataSourceSlice, TriggeredEmailDataSourceSlice } from '../../Store';
 import { Select } from '@gpa-gemstone/react-forms';
-import SQLDataSource from './SQLDataSource';
-import { cloneDeep } from 'lodash'
-import PQIDataSource from './PQIDataSource';
+import { GenericController, Modal } from '@gpa-gemstone/react-interactive'
+import { useAppDispatch, useAppSelector } from '../../hooks';
+import { IDataSourceTriggeredEmailType, ITriggeredDataSource, ITriggeredEmailDataSourceSetting } from '../../global';
+import { TriggeredDataSourceSettingSlice, TriggeredEmailDataSourceSlice } from '../../Store';
 import FTTDataSource from './FTTDataSource';
+import PQIDataSource from './PQIDataSource';
+import SQLDataSource from './SQLDataSource';
 
 declare var homePath;
 declare var version;
@@ -46,8 +47,8 @@ const AllDataSources: DataSourceSettingUI[] = [SQLDataSource, PQIDataSource, FTT
 
 const DataSourceModal = (props: IProps) => {
     const dispatch = useAppDispatch();
-    const typeStatus = useAppSelector(TriggeredDataSourceSlice.Status);
-    const types = useAppSelector(TriggeredDataSourceSlice.Data);
+    const [typeStatus, setTypeStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [types, setTypes] = React.useState<ITriggeredDataSource[]>([]);
     const [record, setRecord] = React.useState<IDataSourceTriggeredEmailType>();
     const dataSourceID = React.useMemo(() => record != null ? record.TriggeredEmailDataSourceID : null, [record]);
 
@@ -75,9 +76,21 @@ const DataSourceModal = (props: IProps) => {
     }, [originalsettings, dataSourceUI]);
 
     React.useEffect(() => {
-        if (typeStatus == 'uninitiated' || typeStatus == 'changed')
-            dispatch(TriggeredDataSourceSlice.Fetch());
-    }, [typeStatus]);
+        const triggeredDataSourceController = new GenericController(`${homePath}api/OpenXDA/TriggeredEmailDataSource`, "Name", false);
+        setTypeStatus('uninitiated');
+
+        const h = triggeredDataSourceController.Fetch();
+        h.done((d) => {
+            setTypeStatus('idle');
+            setTypes(JSON.parse(d.Data));
+        })
+        h.fail(() => setTypeStatus('error'))
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+    }, []);
 
     React.useEffect(() => {
         if (props.Record == null)
