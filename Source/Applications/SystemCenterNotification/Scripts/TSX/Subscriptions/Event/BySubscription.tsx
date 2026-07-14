@@ -21,14 +21,13 @@
 //
 //******************************************************************************************************
 
-import { useAppDispatch, useAppSelector } from '../../hooks';
 import * as React from 'react';
-import { LoadingScreen, Warning, Search } from '@gpa-gemstone/react-interactive'
-import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { GenericController, LoadingScreen, Search, Warning } from '@gpa-gemstone/react-interactive'
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
-import { ActiveSubscriptionSlice } from '../../Store';
 import { ActiveSubscription } from '../../global';
+import { useAppSelector } from '../../hooks'
 import moment from 'moment';
 import { UserInfoSlice } from '../../Store';
 
@@ -39,25 +38,39 @@ declare var version;
 interface IProps {}
 
 const BySubscription = (props: IProps) => {
-    const dispatch = useAppDispatch();
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
     const [subscription, setSubscription] = React.useState<ActiveSubscription>(null);
 
-    const status: Application.Types.Status = useAppSelector(ActiveSubscriptionSlice.SearchStatus);
-    const data: ActiveSubscription[] = useAppSelector(ActiveSubscriptionSlice.SearchResults);
-    const parentID = useAppSelector(ActiveSubscriptionSlice.ParentID);
-    const userID = useAppSelector(UserInfoSlice.UserAccountID)
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [data, setData] = React.useState<ActiveSubscription[]>([]);
+    const userID = useAppSelector(UserInfoSlice.UserAccountID);
     const [sortField, setSortField] = React.useState<keyof ActiveSubscription>('Category');
     const [asc, setAsc] = React.useState<boolean>(false);
     const [page, setPage] = React.useState<number>(0);
-    const totalPages = useAppSelector(ActiveSubscriptionSlice.TotalPages);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
     const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
 
+    const activeSubscriptionController = React.useMemo(() => new GenericController<ActiveSubscription>(`${homePath}api/ActiveSubscription`, 'LastSent'), [])
 
     React.useEffect(() => {
-        const filters: Search.IFilter<ActiveSubscription>[]  = [{FieldName: 'UserAccountID', SearchText: userID.toString(), IsPivotColumn: false, Operator: "=", Type:'string'}]
-        dispatch(ActiveSubscriptionSlice.PagedSearch({ filter: filters, sortField: sortField, ascending: asc, page: page }));
-    }, [parentID, userID, asc, sortField, page, refreshTrigger])
+        const filters: Search.IFilter<ActiveSubscription>[] = [{ FieldName: 'UserAccountID', SearchText: userID.toString(), IsPivotColumn: false, Operator: "=", Type: 'string' }]
+
+        const h = activeSubscriptionController.PagedSearch(filters, sortField, asc, page);
+        setStatus('loading');
+
+        h.done((d) => {
+            setStatus('idle');
+            setData(JSON.parse(d));
+            setTotalPages(d.NumberOfPages);
+        })
+
+        h.fail(() => setStatus('error'));
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+    }, [userID, asc, sortField, page, refreshTrigger])
 
     return (
         <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit', padding: 0 }}>
@@ -167,7 +180,7 @@ const BySubscription = (props: IProps) => {
                 Message={'This will unsubscribe you from these notifications. You will no longer receive these notifications.'}
                 CallBack={(c) => {
                     if (c)
-                        dispatch(ActiveSubscriptionSlice.DBAction({ record: subscription, verb: 'DELETE' })).then(() => setRefreshTrigger((val) => !val));
+                        activeSubscriptionController.DBAction('DELETE', subscription).then(() => setRefreshTrigger((val) => !val));
                     setShowWarning(false);
                 }}
             />

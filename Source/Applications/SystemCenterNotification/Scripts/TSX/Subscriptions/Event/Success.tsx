@@ -25,9 +25,9 @@ import * as $ from 'jquery';
 import * as React from 'react';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { GenericController, Search } from '@gpa-gemstone/react-interactive';
-import { EmailType } from '../../global';
+import { EmailType, ActiveSubscription } from '../../global';
 import { useAppDispatch, useAppSelector } from '../../hooks';
-import { ActiveSubscriptionSlice, UserInfoSlice } from '../../Store';
+import { UserInfoSlice } from '../../Store';
 
 declare var homePath;
 declare var version;
@@ -61,9 +61,11 @@ const Success = (props: IProps) => {
     }, [props.assetGroupID, assetGroupController.DBSearch])
 
     React.useEffect(() => {
+        const activeSubscriptionController = new GenericController<ActiveSubscription>(`${homePath}api/ActiveSubscription`, 'LastSent');
+
         props.assetGroupID.forEach((id) => {
-            dispatch(ActiveSubscriptionSlice.DBAction({
-                verb: 'POST', record: {
+            activeSubscriptionController.DBAction(
+                'POST', {
                     ID: 0,
                     UserAccountID: userID,
                     EmailTypeID: props.emailTypeID,
@@ -80,7 +82,7 @@ const Success = (props: IProps) => {
                     LastName: '',
                     RequireApproval: false
                 }
-            }));
+            );
         });
     }, [props.assetGroupID, props.emailTypeID])
 
