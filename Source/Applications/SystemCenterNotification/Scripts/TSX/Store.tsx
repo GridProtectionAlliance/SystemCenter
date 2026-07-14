@@ -23,7 +23,6 @@
 
 import { configureStore } from '@reduxjs/toolkit';
 import {
-    IDataSourceTriggeredEmailType,
     ITriggeredEmailDataSourceSetting,
     IScheduledDataSource,
 } from './global';
@@ -44,7 +43,6 @@ export const EventMeterSlice = new GenericSlice<SystemCenter.Types.DetailedMeter
 export const EventAssetSlice = new GenericSlice<SystemCenter.Types.DetailedAsset>("EventAsset", `${homePath}api/OpenXDA/Event/Asset`, "AssetName", true);
 export const EventLocationSlice = new GenericSlice<SystemCenter.Types.DetailedLocation>("EventLocation", `${homePath}api/OpenXDA/Event/Location`, "LocationKey", true);
 
-export const TriggeredEmailDataSourceSlice = new GenericSlice<IDataSourceTriggeredEmailType>("TriggeredEmailDataSource", `${homePath}api/OpenXDA/TriggeredEmailDataSourceEmailType`, "TriggeredEmailDataSourceName", false);
 export const TriggeredDataSourceSettingSlice = new GenericSlice<ITriggeredEmailDataSourceSetting>("TriggeredDataSourceSetting", `${homePath}api/OpenXDA/TriggeredEmailDataSourceSetting`, "Name", false);
 
 export const ScheduledDataSourceSlice = new GenericSlice<IScheduledDataSource>("ScheduledDataSource", `${homePath}api/OpenXDA/ScheduledEmailDataSource`, "Name", false);
