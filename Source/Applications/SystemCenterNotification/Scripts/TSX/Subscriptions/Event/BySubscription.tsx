@@ -60,7 +60,7 @@ const BySubscription = (props: IProps) => {
 
         h.done((d) => {
             setStatus('idle');
-            setData(JSON.parse(d));
+            setData(JSON.parse(d.Data));
             setTotalPages(d.NumberOfPages);
         })
 
