@@ -21,15 +21,14 @@
 //
 //******************************************************************************************************
 
-import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
 import { createPortal } from "react-dom";
-import {Modal } from '@gpa-gemstone/react-interactive'
-import {  IEventFilter } from '../global';
-import {  EventTypeSlice } from '../Store';
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { TimeFilter, EventTypeFilter } from '@gpa-gemstone/common-pages';
+import { GenericController, Modal } from '@gpa-gemstone/react-interactive';
 import EventFilterButton from './EventFilterButton';
 import FilterSelect from './FilterSelect';
+import { IEventFilter } from '../global';
 
 
 declare var homePath;
@@ -40,21 +39,33 @@ type TimeUnit = 'y' | 'M' | 'w' | 'd' | 'h' | 'm' | 's' | 'ms'
 
 
 const EventFilter = (props: IProps) => {
-    const dispatch = useAppDispatch();
     const [filter, setFilter] = React.useState<IEventFilter>(props.Filter);
     const [showFilter, setShowFilter] = React.useState<('Meter' | 'Asset' | 'AssetGroup' | 'Location' | 'None')>('None')
 
-    const eventTypes = useAppSelector(EventTypeSlice.Data);
-    const eventTypeStatus = useAppSelector(EventTypeSlice.Status);
+    const [eventTypes, setEventTypes] = React.useState<OpenXDA.Types.EventType[]>([]);
+    const [eventTypeStatus, setEventTypeStatus] = React.useState<Application.Types.Status>('uninitiated');
 
     // Portal rendering const
     const [domReady, setDomReady] = React.useState(false);
     const portalContainer = (props.RenderPortalId === undefined || props.RenderPortalId === null) ? document.getElementById('baseEventFilterPortal') : document.getElementById(props.RenderPortalId);
 
+    const eventTypeController = React.useMemo(() => new GenericController(`${homePath}api/EventType`, 'Name'), [])
+
     React.useEffect(() => {
-        if (eventTypeStatus == 'uninitiated' || eventTypeStatus == 'changed')
-            dispatch(EventTypeSlice.Fetch());
-    }, [eventTypeStatus]);
+        setEventTypeStatus('loading');
+
+        const h = eventTypeController.Fetch();
+        h.done((d) => {
+            setEventTypes(d);
+            setEventTypeStatus('idle');
+        })
+        h.fail(() => setEventTypeStatus('error'))
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+    }, [eventTypeController.Fetch]);
 
     React.useEffect(() => {
         if (props.Show)

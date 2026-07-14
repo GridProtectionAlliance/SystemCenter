@@ -38,7 +38,6 @@ export type AppDispatch = typeof store.dispatch;
 export type RootState = ReturnType<typeof store.getState>
 
 export const UserInfoSlice = new UserInfoSliceClass('UserInfo', `${homePath}api/UserInfo`);
-export const EventTypeSlice = new GenericSlice<OpenXDA.Types.EventType>('EventType', `${homePath}api/EventType`, 'Name');
 
 export const EventAssetGroupSlice = new GenericSlice<OpenXDA.Types.AssetGroup>('EventAssetGroup', `${homePath}api/openXDA/Event/AssetGroup`, 'Name');
 export const EventMeterSlice = new GenericSlice<SystemCenter.Types.DetailedMeter>("EventMeter", `${homePath}api/OpenXDA/Event/Meter`, "Name", true);
@@ -55,7 +54,6 @@ export const ScheduledEmailDataSourceSlice = new GenericSlice<IDataSourceSchedul
 
 const reducer = {
     UserInfo: UserInfoSlice.Reducer,
-    EventType: EventTypeSlice.Reducer,
     EventAssetGroup: EventAssetGroupSlice.Reducer,
     EventMeter: EventMeterSlice.Reducer,
     EventAsset: EventAssetSlice.Reducer,
