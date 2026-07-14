@@ -28,7 +28,7 @@ import {
     IScheduledDataSource, IDataSourceScheduledEmailType
 } from './global';
 import { GenericSlice } from '@gpa-gemstone/react-interactive';
-import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
+import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import UserInfoSliceClass  from './Store/UserInfoSlice';
 
 declare var homePath: string;
@@ -47,7 +47,6 @@ export const EventLocationSlice = new GenericSlice<SystemCenter.Types.DetailedLo
 export const TriggeredDataSourceSlice = new GenericSlice<ITriggeredDataSource>("TriggeredDataSource", `${homePath}api/OpenXDA/TriggeredEmailDataSource`, "Name", false);
 export const TriggeredEmailDataSourceSlice = new GenericSlice<IDataSourceTriggeredEmailType>("TriggeredEmailDataSource", `${homePath}api/OpenXDA/TriggeredEmailDataSourceEmailType`, "TriggeredEmailDataSourceName", false);
 export const TriggeredDataSourceSettingSlice = new GenericSlice<ITriggeredEmailDataSourceSetting>("TriggeredDataSourceSetting", `${homePath}api/OpenXDA/TriggeredEmailDataSourceSetting`, "Name", false);
-export const UserAccountSlice = new GenericSlice<Application.Types.iUserAccount>("UserAccount", `${homePath}api/OpenXDA/UserAccount`, "Name", true);
 
 export const ScheduledDataSourceSlice = new GenericSlice<IScheduledDataSource>("ScheduledDataSource", `${homePath}api/OpenXDA/ScheduledEmailDataSource`, "Name", false);
 export const ScheduledEmailDataSourceSlice = new GenericSlice<IDataSourceScheduledEmailType>("ScheduledEmailDataSourceEmailType", `${homePath}api/OpenXDA/ScheduledEmailDataSourceEmailType`, "ScheduledEmailDataSourceName", false);
@@ -61,8 +60,7 @@ const reducer = {
     TriggeredDataSourceSetting: TriggeredDataSourceSettingSlice.Reducer,
     TriggeredEmailDataSource: TriggeredEmailDataSourceSlice.Reducer,
     TriggeredDataSource: TriggeredDataSourceSlice.Reducer,
-    UserAccount: UserAccountSlice.Reducer,
-    ScheduledDataSource: ScheduledDataSourceSlice.Reducer,
+    ScheduledDataSource: ScheduledDataSourceSlice.Reducer
 }
 
 const store = configureStore({ reducer });
