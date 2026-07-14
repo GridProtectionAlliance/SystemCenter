@@ -27,8 +27,7 @@ import {
     IDataSourceTriggeredEmailType, ITriggeredDataSource,
     ITriggeredEmailDataSourceSetting,
     ActiveReportSubscription,
-    IScheduledDataSource, IDataSourceScheduledEmailType,
-    SubscribeScheduledEmails
+    IScheduledDataSource, IDataSourceScheduledEmailType
 } from './global';
 import { GenericSlice } from '@gpa-gemstone/react-interactive';
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
@@ -40,7 +39,6 @@ declare var homePath: string;
 export type AppDispatch = typeof store.dispatch;
 export type RootState = ReturnType<typeof store.getState>
 
-export const ReportSubscriptionSlice = new GenericSlice<SubscribeScheduledEmails>('ReportSubscription', `${homePath}api/ReportSubscription`, 'Email');
 export const ActiveSubscriptionSlice = new GenericSlice<ActiveSubscription>('ActiveSubscription', `${homePath}api/ActiveSubscription`, 'LastSent');
 export const ActiveReportSubscriptionSlice = new GenericSlice<ActiveReportSubscription>('ActiveReportSubscription', `${homePath}api/ActiveScheduleSubscription`, 'Email');
 
@@ -73,7 +71,6 @@ const reducer = {
     TriggeredDataSource: TriggeredDataSourceSlice.Reducer,
     UserAccount: UserAccountSlice.Reducer,
     ActiveReportSubscription: ActiveReportSubscriptionSlice.Reducer,
-    ReportSubscription: ReportSubscriptionSlice.Reducer,
     ScheduledDataSource: ScheduledDataSourceSlice.Reducer,
 }
 
