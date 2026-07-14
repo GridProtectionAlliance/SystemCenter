@@ -65,7 +65,7 @@ const ByUserInformation = (props: IProps) => {
         h.fail(() => {
             setCarrierStatus('error');
         })
-    }, [carrierStatus]);
+    }, []);
 
     React.useEffect(() => {
         if (userPhone != null && userPhone.length > 0)
