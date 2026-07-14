@@ -90,7 +90,7 @@ const DataSourceModal = (props: IProps) => {
                 h.abort();
         }
 
-    }, [props.Record, props.Record.ID, scheduledDataSourceSettingController.Fetch]);
+    }, [props.Record, scheduledDataSourceSettingController.Fetch]);
 
     React.useEffect(() => {
         if (props.Record == null)
