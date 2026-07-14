@@ -25,7 +25,6 @@ import { configureStore } from '@reduxjs/toolkit';
 import {
     IDataSourceTriggeredEmailType, ITriggeredDataSource,
     ITriggeredEmailDataSourceSetting,
-    ActiveReportSubscription,
     IScheduledDataSource, IDataSourceScheduledEmailType
 } from './global';
 import { GenericSlice } from '@gpa-gemstone/react-interactive';
@@ -37,8 +36,6 @@ declare var homePath: string;
 //Dispatch and Selector Types
 export type AppDispatch = typeof store.dispatch;
 export type RootState = ReturnType<typeof store.getState>
-
-export const ActiveReportSubscriptionSlice = new GenericSlice<ActiveReportSubscription>('ActiveReportSubscription', `${homePath}api/ActiveScheduleSubscription`, 'Email');
 
 export const UserInfoSlice = new UserInfoSliceClass('UserInfo', `${homePath}api/UserInfo`);
 export const EventTypeSlice = new GenericSlice<OpenXDA.Types.EventType>('EventType', `${homePath}api/EventType`, 'Name');
@@ -67,7 +64,6 @@ const reducer = {
     TriggeredEmailDataSource: TriggeredEmailDataSourceSlice.Reducer,
     TriggeredDataSource: TriggeredDataSourceSlice.Reducer,
     UserAccount: UserAccountSlice.Reducer,
-    ActiveReportSubscription: ActiveReportSubscriptionSlice.Reducer,
     ScheduledDataSource: ScheduledDataSourceSlice.Reducer,
 }
 

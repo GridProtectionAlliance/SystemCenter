@@ -21,13 +21,13 @@
 //
 //******************************************************************************************************
 
-import * as React from 'react';
 import * as $ from 'jquery';
-import { ActiveReportSubscriptionSlice, UserInfoSlice } from '../../Store';
-import { ScheduledEmailType } from '../../global';
-import { useAppDispatch, useAppSelector } from '../../hooks';
+import * as React from 'react';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings'
 import { GenericController, Search } from '@gpa-gemstone/react-interactive';
+import { ActiveReportSubscription, ScheduledEmailType } from '../../global';
+import { useAppSelector } from '../../hooks';
+import { UserInfoSlice } from '../../Store';
 
 declare var homePath;
 declare var version;
@@ -38,7 +38,6 @@ interface IProps {
 }
 
 const Success = (props: IProps) => {
-    const dispatch = useAppDispatch();
 
     const [email, setEmail] = React.useState<ScheduledEmailType | null>(null);
     const [scheduledEmailStatus, setScheduledEmailStatus] = React.useState<Application.Types.Status>('uninitiated');
@@ -63,9 +62,10 @@ const Success = (props: IProps) => {
     }, [props.assetGroupID, assetGroupController.DBSearch])
 
     React.useEffect(() => {
+        const activeReportSubscriptionController = new GenericController<ActiveReportSubscription>(`${homePath}api/ActiveScheduleSubscription`, 'Email');
         props.assetGroupID.forEach((id) => {
-            dispatch(ActiveReportSubscriptionSlice.DBAction({
-                verb: 'POST', record: {
+            activeReportSubscriptionController.DBAction(
+                'POST',{
                     ID: 0,
                     UserAccountID: userID,
                     ScheduledEmailTypeID: props.emailTypeID,
@@ -76,7 +76,7 @@ const Success = (props: IProps) => {
                     EmailName: '',
                     UserName: ''
                 }
-            }));
+            );
         });
     }, [props.assetGroupID, props.emailTypeID])
     
