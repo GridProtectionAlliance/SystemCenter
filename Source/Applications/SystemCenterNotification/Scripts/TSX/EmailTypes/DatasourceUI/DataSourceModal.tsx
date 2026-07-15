@@ -57,7 +57,7 @@ const DataSourceModal = (props: IProps) => {
     const [changes, setChanges] = React.useState<string[]>([]);
 
     const triggeredEmailDataSourceController = React.useMemo(() => new GenericController<IDataSourceTriggeredEmailType>(`${homePath}api/OpenXDA/TriggeredEmailDataSourceEmailType`, "TriggeredEmailDataSourceName", false), [])
-    const triggeredDataSourceSettingController = React.useMemo(() => new GenericController<ITriggeredEmailDataSourceSetting>(`${homePath}api/OpenXDA/TriggeredEmailDataSourceSetting`, "Name", false),[])
+    const triggeredDataSourceSettingController = React.useMemo(() => new GenericController<ITriggeredEmailDataSourceSetting>(`${homePath}api/OpenXDA/TriggeredEmailDataSourceSetting`, "Name", false), [])
 
     const dataSourceUI = React.useMemo(() => {
         const type = types.find(item => item.ID == dataSourceID);
@@ -75,13 +75,13 @@ const DataSourceModal = (props: IProps) => {
     }, [originalsettings, dataSourceUI]);
 
     React.useEffect(() => {
-        const triggeredDataSourceController = new GenericController(`${homePath}api/OpenXDA/TriggeredEmailDataSource`, "Name", false);
+        const triggeredDataSourceController = new GenericController<ITriggeredDataSource>(`${homePath}api/OpenXDA/TriggeredEmailDataSource`, "Name", false);
         setTypeStatus('uninitiated');
 
         const h = triggeredDataSourceController.Fetch();
-        h.done((d) => {
+        h.done((d: ITriggeredDataSource[]) => {
+            setTypes(d);
             setTypeStatus('idle');
-            setTypes(JSON.parse(d.Data));
         })
         h.fail(() => setTypeStatus('error'))
 
