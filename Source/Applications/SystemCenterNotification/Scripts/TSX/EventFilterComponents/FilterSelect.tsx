@@ -129,7 +129,7 @@ function FilterSelect(props: IProps) {
             setAddlFields(ordered);
         });
         return () => {
-            if (handle != null && handle.abort == null) handle.abort();
+            if (handle != null && handle.abort != null) handle.abort();
         };
     }, [props.Type])
 

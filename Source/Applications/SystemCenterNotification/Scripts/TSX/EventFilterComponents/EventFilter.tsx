@@ -69,7 +69,7 @@ const EventFilter = (props: IProps) => {
 
     React.useEffect(() => {
         if (props.Show)
-            setFilter((f) => ({ ...filter, EventTypes: f.EventTypes }));
+            setFilter((f) => ({ ...props.Filter, EventTypes: f.EventTypes }));
     }, [props.Show])
 
     React.useEffect(() => {
@@ -85,16 +85,16 @@ const EventFilter = (props: IProps) => {
     function setIDs(type: filterTypes, ids: number[]) {
         switch (type) {
             case 'Asset':
-                setFilter((f) => ({ ...filter, AssetIDs: ids }))
+                setFilter((f) => ({ ...f, AssetIDs: ids }))
                 break
             case 'AssetGroup':
-                setFilter((f) => ({ ...filter, GroupIDs: ids }))
+                setFilter((f) => ({ ...f, GroupIDs: ids }))
                 break
             case 'Meter':
-                setFilter((f) => ({ ...filter, MeterIDs: ids }))
+                setFilter((f) => ({ ...f, MeterIDs: ids }))
                 break
             case 'Location':
-                setFilter((f) => ({ ...filter, SubstationIDs: ids }))
+                setFilter((f) => ({ ...f, SubstationIDs: ids }))
                 break
             case 'None':
                 break

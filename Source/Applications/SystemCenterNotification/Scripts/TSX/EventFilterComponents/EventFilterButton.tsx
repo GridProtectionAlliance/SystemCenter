@@ -82,7 +82,7 @@ function EventFilterButton(props: IProps) {
             if (h != null && h.abort != null)
                 h.abort();
         }
-    }, []);
+    }, [props.Type]);
 
     React.useEffect(() => {
         if (props.Type != 'Location') return;
@@ -98,7 +98,7 @@ function EventFilterButton(props: IProps) {
             if (h != null && h.abort != null)
                 h.abort();
         }
-    }, []);
+    }, [props.Type]);
 
     React.useEffect(() => {
         if (props.Type != 'AssetGroup') return;
@@ -114,7 +114,7 @@ function EventFilterButton(props: IProps) {
             if (h != null && h.abort != null)
                 h.abort();
         }
-    }, []);
+    }, [props.Type]);
 
     React.useEffect(() => {
         switch (props.Type) {
