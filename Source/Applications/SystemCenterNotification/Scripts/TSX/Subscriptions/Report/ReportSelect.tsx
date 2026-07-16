@@ -92,7 +92,7 @@ const ReportSelect = (props: IProps) => {
 
     React.useEffect(() => {
         setScheduledEmailStatus('loading')
-        const h = scheduledEmailTypeController.Fetch();
+        const h = scheduledEmailTypeController.Fetch(selectedCategory.ID);
         h.done((d) => {
             setScheduledEmails(d)
             setScheduledEmailStatus('idle')
@@ -104,7 +104,7 @@ const ReportSelect = (props: IProps) => {
                 h.abort();
         }
 
-    }, [scheduledEmailTypeController.Fetch]);
+    }, [scheduledEmailTypeController.Fetch, selectedCategory]);
 
     React.useEffect(() => {
         if (scheduledEmails.length > 0)
