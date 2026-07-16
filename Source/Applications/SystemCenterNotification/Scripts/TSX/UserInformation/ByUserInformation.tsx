@@ -65,7 +65,12 @@ const ByUserInformation = (props: IProps) => {
         h.fail(() => {
             setCarrierStatus('error');
         })
-    }, []);
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+    }, [cellCarrierController.Fetch]);
 
     React.useEffect(() => {
         if (userPhone != null && userPhone.length > 0)
