@@ -54,7 +54,6 @@ const EventSelect = (props: IProps) => {
 
     React.useEffect(() => { props.SetStatus(suceeded, loading); }, [loading, suceeded])
     React.useEffect(() => {
-        console.log('hey nat')
         // Shortest possible is SELECT 1 which is 8 Characters
         if (props.TriggerSQL == null || props.TriggerSQL.length < 8) {
             setLoading(false);
