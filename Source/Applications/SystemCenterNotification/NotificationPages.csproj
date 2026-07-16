@@ -366,6 +366,7 @@
     <Content Include="Scripts\TSX\CommonComponents\TestEmailButton.tsx" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="Scripts\TSX\CommonComponents\ControllerSelects.tsx" />
     <TypeScriptCompile Include="Scripts\TSX\EmailTypes\History.tsx" />
     <TypeScriptCompile Include="Scripts\TSX\EmailTypes\SentEmailTable.tsx" />
     <TypeScriptCompile Include="Scripts\TSX\EmailTypes\SentEmailTimeline.tsx" />

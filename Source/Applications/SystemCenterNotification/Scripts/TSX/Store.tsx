@@ -22,8 +22,6 @@
 //******************************************************************************************************
 
 import { configureStore } from '@reduxjs/toolkit';
-import { GenericSlice } from '@gpa-gemstone/react-interactive';
-import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import UserInfoSliceClass  from './Store/UserInfoSlice';
 
 declare var homePath: string;
@@ -34,17 +32,8 @@ export type RootState = ReturnType<typeof store.getState>
 
 export const UserInfoSlice = new UserInfoSliceClass('UserInfo', `${homePath}api/UserInfo`);
 
-export const EventAssetGroupSlice = new GenericSlice<OpenXDA.Types.AssetGroup>('EventAssetGroup', `${homePath}api/openXDA/Event/AssetGroup`, 'Name');
-export const EventMeterSlice = new GenericSlice<SystemCenter.Types.DetailedMeter>("EventMeter", `${homePath}api/OpenXDA/Event/Meter`, "Name", true);
-export const EventAssetSlice = new GenericSlice<SystemCenter.Types.DetailedAsset>("EventAsset", `${homePath}api/OpenXDA/Event/Asset`, "AssetName", true);
-export const EventLocationSlice = new GenericSlice<SystemCenter.Types.DetailedLocation>("EventLocation", `${homePath}api/OpenXDA/Event/Location`, "LocationKey", true);
-
 const reducer = {
-    UserInfo: UserInfoSlice.Reducer,
-    EventAssetGroup: EventAssetGroupSlice.Reducer,
-    EventMeter: EventMeterSlice.Reducer,
-    EventAsset: EventAssetSlice.Reducer,
-    EventLocation: EventLocationSlice.Reducer
+    UserInfo: UserInfoSlice.Reducer
 }
 
 const store = configureStore({ reducer });

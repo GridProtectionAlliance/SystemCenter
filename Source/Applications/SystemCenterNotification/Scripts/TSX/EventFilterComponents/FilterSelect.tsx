@@ -23,13 +23,11 @@
 import React from 'react';
 import 'moment';
 import _ from 'lodash';
-import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
-import { DefaultSelects } from '@gpa-gemstone/common-pages';
-import { useAppDispatch, useAppSelector } from '../hooks';
-import { EventMeterSlice, EventLocationSlice, EventAssetSlice, EventAssetGroupSlice } from '../Store';
+import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import * as $ from 'jquery';
-import { Search } from '@gpa-gemstone/react-interactive';
+import { GenericController, Search, SearchBar } from '@gpa-gemstone/react-interactive';
 import { Column } from '@gpa-gemstone/react-table';
+import { ControllerSelects } from '../CommonComponents/ControllerSelects'
 
 interface IProps {
     IDs: number[],
@@ -42,28 +40,48 @@ interface IProps {
 type Data = (SystemCenter.Types.DetailedMeter | SystemCenter.Types.DetailedAsset | OpenXDA.Types.AssetGroup | SystemCenter.Types.DetailedLocation);
 
 function FilterSelect(props: IProps) {
-    const dispatch = useAppDispatch();
-    const select = React.useMemo(() => {
-        if (props.Type == 'Meter') return EventMeterSlice.Data;
-        if (props.Type == 'Location') return EventLocationSlice.Data;
-        if (props.Type == 'Asset') return EventAssetSlice.Data;
-        if (props.Type == 'AssetGroup') return EventAssetGroupSlice.Data;
+
+    const [data, setData] = React.useState<Data[]>([]);
+    const [selectedData, setSelectedData] = React.useState<Data[]>([]);
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [addlFields, setAddlFields] = React.useState<Search.IField<Data>[]>([])
+
+    // get data according to whatever
+    React.useEffect(() => {
+        let controller;
+        switch (props.Type) {
+            case 'Meter':
+                controller = new GenericController<SystemCenter.Types.DetailedMeter>(`${homePath}api/OpenXDA/Event/Meter`, "Name", true);
+                break;
+            case 'Asset':
+                controller = new GenericController<OpenXDA.Types.DetailedAsset>(`${homePath}api/OpenXDA/Event/Asset`, "AssetName", true);
+                break;
+            case 'AssetGroup':
+                controller = new GenericController<OpenXDA.Types.AssetGroup>(`${homePath}api/openXDA/Event/AssetGroup`, 'Name');
+                break;
+            case 'Location':
+                controller = new GenericController<SystemCenter.Types.DetailedLocation>(`${homePath}api/OpenXDA/Event/Location`, "LocationKey", true);
+                break;
+        }
+        setStatus('loading');
+        const h = controller.Fetch();
+        h.done((d) => {
+            setStatus('idle');
+            setData(d);
+        })
+        h.fail(() => {
+            setStatus('error');
+        })
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
     }, [props.Type])
-
-    const slice = React.useMemo(() => {
-        if (props.Type == 'Meter') return EventMeterSlice 
-        if (props.Type == 'Location')  return EventLocationSlice 
-        if (props.Type == 'Asset')  return EventAssetSlice 
-        if (props.Type == 'AssetGroup')  return EventAssetGroupSlice
-    }, [props.Type])
-
-
-    const data: Data[] = useAppSelector(select as (state: any) => Data[]);
-    const [selectedData, setSelectedData] = React.useState<Data[]>();
 
     React.useEffect(() => {
         setSelectedData(data.filter(i => props.IDs.findIndex((j) => j == i.ID) > -1));
-    }, [data])
+    }, [props.Type, data])
 
     function getEnum(setOptions, field) {
         let handle = null;
@@ -86,7 +104,7 @@ function FilterSelect(props: IProps) {
     }
 
 
-    function getAdditionalFields(setFields) {
+    React.useEffect(() => { 
         let handle = $.ajax({
             type: "GET",
             url: `${homePath}api/openXDA/AdditionalFieldView/ParentTable/${props.Type}/FieldName/0`,
@@ -108,29 +126,46 @@ function FilterSelect(props: IProps) {
             let ordered = _.orderBy(d.filter(item => item.Searchable).map(item => (
                 { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type), isPivotField: true } as Search.IField<Data>
             )), ['label'], ["asc"]);
-            setFields(ordered);
+            setAddlFields(ordered);
         });
         return () => {
             if (handle != null && handle.abort == null) handle.abort();
         };
-    }
+    }, [props.Type])
 
 
 
     if (props.Type == 'Meter')
-        return <DefaultSelects.Meter
-            Slice={slice as any}
-            Selection={selectedData as SystemCenter.Types.DetailedMeter[]}
+        return <ControllerSelects<SystemCenter.Types.DetailedMeter>
+            Controller={new GenericController<SystemCenter.Types.DetailedMeter>(`${homePath}api/OpenXDA/Event/Meter`, "Name", true)}
+            Selection={selectedData as any}
             OnClose={(selected, conf) => {
                 props.OnClose();
-                if (conf) 
+                if (conf)
                     props.OnConfirm(selected.map(m => m.ID));
-             }}
+            }}
             Show={props.Show}
             Type={'multiple'}
-            Title={"Filter Meters"}
-            GetEnum={getEnum}
-            GetAddlFields={getAdditionalFields}
+            Title={`Filter by Meter`}
+            MinSelection={0}
+            PrimaryKey={'ID'}
+            Searchbar={(children, setFilter, searchStatus, resultCount) =>
+                <SearchBar<SystemCenter.Types.DetailedMeter>
+                    SetFilter={setFilter}
+                    CollumnList={[...addlFields,
+                        { label: 'Key', key: 'AssetKey', type: 'string', isPivotField: false },
+                        { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
+                        { label: 'Substation Name', key: 'Location', type: 'string', isPivotField: false },
+                        { label: 'Make', key: 'Make', type: 'string', isPivotField: false },
+                        { label: 'Model', key: 'Model', type: 'string', isPivotField: false },
+                        { label: 'Number of Assets', key: 'MappedAssets', type: 'number', isPivotField: false },
+                        { label: 'Description', key: 'Description', type: 'string', isPivotField: false },
+                    ]}
+                    defaultCollumn={{ label: 'Name', key: 'Name', type: 'string', isPivotField: false }}
+                    GetEnum={getEnum}
+                />
+            }
+            DefaultSortField={'Name'}
         >
             <Column Key="AssetKey" Field="AssetKey" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
             >Key</Column>
@@ -144,69 +179,104 @@ function FilterSelect(props: IProps) {
             >Make</Column>
             <Column Key="Model" Field="Model" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
             >Model</Column>
-        </DefaultSelects.Meter>
+        </ControllerSelects>
 
     if (props.Type == 'Asset')
-            return <DefaultSelects.Asset
-                Slice={slice as any}
-                Selection={selectedData as SystemCenter.Types.DetailedAsset[]}
-                OnClose={(selected, conf) => {
-                    props.OnClose();
-                    if (conf)
-                        props.OnConfirm(selected.map(m => m.ID));
-                }}
-                Show={props.Show}
-                Type={'multiple'}
-                Title={"Filter Transmission Assets"}
-                GetEnum={getEnum}
-                GetAddlFields={getAdditionalFields}
-            >
-                <Column Key="AssetKey" Field="AssetKey" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
-                >Key</Column>
-                <Column Key="AssetName" Field="AssetName" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
-                >Name</Column>
-                <Column Key="AssetType" Field="AssetType" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
-                >Asset Type</Column>
-                <Column Key="VoltageKV" Field="VoltageKV" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
-                >Voltage (kV)</Column>
-                <Column Key="Meters" Field="Meters" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
-                >Meters</Column>
-                <Column Key="Locations" Field="Locations" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
-                >Substations</Column>
-            </DefaultSelects.Asset>
-                
+        return <ControllerSelects<OpenXDA.Types.DetailedAsset>
+            Controller={new GenericController<OpenXDA.Types.DetailedAsset>(`${homePath}api/OpenXDA/Event/Asset`, "AssetName", true)}
+            Selection={selectedData as any}
+            OnClose={(selected, conf) => {
+                props.OnClose();
+                if (conf)
+                    props.OnConfirm(selected.map(m => m.ID));
+            }}
+            Show={props.Show}
+            Type={'multiple'}
+            Title={"Filter by Asset"}
+            MinSelection={0}
+            PrimaryKey={'ID'}
+            Searchbar={(children, setFilter, searchStatus, resultCount) =>
+                <SearchBar<OpenXDA.Types.DetailedAsset>
+                    SetFilter={setFilter}
+                    CollumnList={[...addlFields,
+                        { label: 'Key', key: 'AssetKey', type: 'string', isPivotField: false },
+                        { label: 'Name', key: 'AssetName', type: 'string', isPivotField: false },
+                        { label: 'Nominal Voltage (L-L kV)', key: 'VoltageKV', type: 'number', isPivotField: false },
+                        { label: 'Type', key: 'AssetType', type: 'enum', isPivotField: false },
+                        { label: 'Meter Key', key: 'Meter', type: 'string', isPivotField: false },
+                        { label: 'Substation Key', key: 'Location', type: 'string', isPivotField: false },
+                        { label: 'Number of Meters', key: 'Meters', type: 'integer', isPivotField: false },
+                        { label: 'Number of Substations', key: 'Locations', type: 'integer', isPivotField: false },
+                        { label: 'Description', key: 'Description', type: 'string', isPivotField: false },
+                    ]}
+                    defaultCollumn={{label: 'Name', key: 'AssetName', type: 'string', isPivotField: false}}
+                    GetEnum={getEnum}
+                />
+            }
+            DefaultSortField={'AssetName'}
+        >
+            <Column Key="AssetKey" Field="AssetKey" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+            >Key</Column>
+            <Column Key="AssetName" Field="AssetName" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+            >Name</Column>
+            <Column Key="AssetType" Field="AssetType" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+            >Asset Type</Column>
+            <Column Key="VoltageKV" Field="VoltageKV" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+            >Voltage (kV)</Column>
+            <Column Key="Meters" Field="Meters" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+            >Meters</Column>
+            <Column Key="Locations" Field="Locations" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+            >Substations</Column>
+        </ControllerSelects>
+
 
     if (props.Type == 'AssetGroup')
-            return <DefaultSelects.AssetGroup
-                Slice={slice as any}
-                Selection={selectedData as OpenXDA.Types.AssetGroup[]}
-                OnClose={(selected, conf) => {
-                    props.OnClose();
-                    if (conf)
-                        props.OnConfirm(selected.map(m => m.ID));
-                }}
-                Show={props.Show}
-                Type={'multiple'}
-                Title={"Filter Asset Groups"}
-                GetEnum={getEnum}
-                GetAddlFields={() => () => { }}
-            >
-                <Column Key="Name" Field="Name" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
-                >Name</Column>
-                <Column Key="Assets" Field="Assets" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
-                >Assets</Column>
-                <Column Key="Meters" Field="Meters" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
-                >Meters</Column>
-                <Column Key="Users" Field="Users" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
-                >Users</Column>
-                <Column Key="AssetGroups" Field="AssetGroups" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
-                >Sub Groups</Column>
-            </DefaultSelects.AssetGroup>
+        return <ControllerSelects<OpenXDA.Types.AssetGroup>
+            Controller={new GenericController<OpenXDA.Types.AssetGroup>(`${homePath}api/openXDA/Event/AssetGroup`, 'Name')}
+            Selection={selectedData as any}
+            OnClose={(selected, conf) => {
+                props.OnClose();
+                if (conf)
+                    props.OnConfirm(selected.map(m => m.ID));
+            }}
+            Show={props.Show}
+            Type={'multiple'}
+            Title={"Filter by AssetGroup"}
+            MinSelection={0}
+            PrimaryKey={'ID'}
+            Searchbar={(children, setFilter, searchStatus, resultCount) =>
+                <SearchBar<OpenXDA.Types.AssetGroup>
+                    SetFilter={setFilter}
+                    CollumnList={[...addlFields,
+                        { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
+                        { label: 'Number of Meters', key: 'Meters', type: 'integer', isPivotField: false },
+                        { label: 'Number of Transmission Assets', key: 'Assets', type: 'integer', isPivotField: false },
+                        { label: 'Number of Asset Groups', key: 'AssetGroups', type: 'integer', isPivotField: false },
+                        { label: 'Show in PQ Dashboard', key: 'DisplayDashboard', type: 'boolean', isPivotField: false },
+                        { label: 'Show in Email Subscription', key: 'DisplayEmail', type: 'boolean', isPivotField: false },
+                    ]}
+                    GetEnum={getEnum}
+                    defaultCollumn={{ label: 'Name', key: 'Name', type: 'string', isPivotField: false }}
+                />
+            }
+            DefaultSortField={'Name'}
+        >
+            <Column Key="Name" Field="Name" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+            >Name</Column>
+            <Column Key="Assets" Field="Assets" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+            >Assets</Column>
+            <Column Key="Meters" Field="Meters" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+            >Meters</Column>
+            <Column Key="Users" Field="Users" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+            >Users</Column>
+            <Column Key="AssetGroups" Field="AssetGroups" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
+            >Sub Groups</Column>
+        </ControllerSelects>
 
     if (props.Type == 'Location')
-        return <DefaultSelects.Location
-            Slice={slice as any}
-            Selection={selectedData as SystemCenter.Types.DetailedLocation[]}
+        return <ControllerSelects<SystemCenter.Types.DetailedLocation>
+            Controller={new GenericController<SystemCenter.Types.DetailedLocation>(`${homePath}api/OpenXDA/Event/Location`, "LocationKey", true)}
+            Selection={selectedData as any}
             OnClose={(selected, conf) => {
                 props.OnClose();
                 if (conf)
@@ -215,8 +285,26 @@ function FilterSelect(props: IProps) {
             Show={props.Show}
             Type={'multiple'}
             Title={"Filter by Substation"}
-            GetEnum={getEnum}
-            GetAddlFields={getAdditionalFields}
+            MinSelection={0}
+            PrimaryKey={'ID'}
+            Searchbar={(children, setFilter, searchStatus, resultCount) =>
+                <SearchBar<SystemCenter.Types.DetailedLocation>
+                    SetFilter={setFilter}
+                    CollumnList={[...addlFields,
+                        { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
+                        { label: 'Key', key: 'LocationKey', type: 'string', isPivotField: false },
+                        { label: 'Asset Key', key: 'Asset', type: 'string', isPivotField: false },
+                        { label: 'Meter Key', key: 'Meter', type: 'string', isPivotField: false },
+                        { label: 'Number of Assets', key: 'Assets', type: 'integer', isPivotField: false },
+                        { label: 'Number of Meters', key: 'Meters', type: 'integer', isPivotField: false },
+                        { label: 'Description', key: 'Description', type: 'string', isPivotField: false },
+                    ]}
+                    GetEnum={getEnum}
+                    defaultCollumn={{ label: 'Name', key: 'Name', type: 'string', isPivotField: false } }
+                />
+            }
+            DefaultSortField={'Name'}
+
         >
             <Column Key="Name" Field="Name" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
             >Name</Column>
@@ -226,8 +314,7 @@ function FilterSelect(props: IProps) {
             >Meters</Column>
             <Column Key="Assets" Field="Assets" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
             >Assets</Column>
-        </DefaultSelects.Location>
-
+        </ControllerSelects>
     return null
 }
 

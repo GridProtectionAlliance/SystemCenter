@@ -20,11 +20,12 @@
 //       Generated original version of source code.
 //
 //******************************************************************************************************
-import React from 'react';
-import 'moment';
+
 import _ from 'lodash';
-import { useAppDispatch, useAppSelector } from '../hooks';
-import { EventAssetGroupSlice, EventAssetSlice, EventLocationSlice, EventMeterSlice } from '../Store';
+import 'moment';
+import React from 'react';
+import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
+import { GenericController } from '@gpa-gemstone/react-interactive';
 
 interface IProps {
     IDs: number[],
@@ -33,43 +34,87 @@ interface IProps {
 }
 
 function EventFilterButton(props: IProps) {
-    const dispatch = useAppDispatch();
 
     const [hover, setHover] = React.useState<boolean>(false);
     const [rows, setRows] = React.useState<JSX.Element[]>([]);
     const [header, setHeader] = React.useState<JSX.Element>(null);
 
-    const meter = useAppSelector(EventMeterSlice.Data);
-    const meterStatus = useAppSelector(EventMeterSlice.Status);
+    const [meters, setMeters] = React.useState<SystemCenter.Types.DetailedMeter[]>([]);
+    const [meterStatus, setMeterStatus] = React.useState<Application.Types.Status>('uninitiated');
 
-    const asset = useAppSelector(EventAssetSlice.Data);
-    const assetStatus = useAppSelector(EventAssetSlice.Status);
+    const [assets, setAssets] = React.useState<SystemCenter.Types.DetailedAsset[]>([]);
+    const [assetStatus, setAssetStatus] = React.useState<Application.Types.Status>('uninitiated');
 
-    const location = useAppSelector(EventLocationSlice.Data);
-    const locationStatus = useAppSelector(EventLocationSlice.Status);
+    const [locations, setLocations] = React.useState<SystemCenter.Types.DetailedLocation[]>([]);
+    const [locationStatus, setLocationStatus] = React.useState<Application.Types.Status>('uninitiated');
 
-    const group = useAppSelector(EventAssetGroupSlice.Data);
-    const groupStatus = useAppSelector(EventAssetGroupSlice.Status);
+    const [groups, setGroups] = React.useState<OpenXDA.Types.AssetGroup[]>([]);
+    const [groupStatus, setGroupStatus] = React.useState<Application.Types.Status>('uninitiated');
 
-    React.useEffect(() => {
-        if (meterStatus == 'uninitiated' || meterStatus == 'changed')
-            dispatch(EventMeterSlice.Fetch());
-    }, [meterStatus]);
 
     React.useEffect(() => {
-        if (assetStatus == 'uninitiated' || assetStatus == 'changed')
-            dispatch(EventAssetSlice.Fetch());
-    }, [assetStatus]);
+        if (props.Type != 'Meter') return;
+        setMeterStatus('loading');
+        const h = new GenericController<SystemCenter.Types.DetailedMeter>(`${homePath}api/OpenXDA/Event/Meter`, "Name", true).Fetch();
+        h.done((d: SystemCenter.Types.DetailedMeter[]) => {
+            setMeters(d);
+            setMeterStatus('idle');
+        })
+        h.fail(() => setMeterStatus('error'))
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+    }, [props.Type]);
 
     React.useEffect(() => {
-        if (locationStatus == 'uninitiated' || locationStatus == 'changed')
-            dispatch(EventLocationSlice.Fetch());
-    }, [locationStatus]);
+        if (props.Type != 'Asset') return;
+        setAssetStatus('loading');
+        const h = new GenericController<SystemCenter.Types.DetailedAsset>(`${homePath}api/OpenXDA/Event/Asset`, "AssetName", true).Fetch();
+        h.done((d: SystemCenter.Types.DetailedAsset[]) => {
+            setAssets(d);
+            setAssetStatus('idle');
+        })
+        h.fail(() => setAssetStatus('error'))
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+    }, []);
 
     React.useEffect(() => {
-        if (groupStatus == 'uninitiated' || groupStatus == 'changed')
-            dispatch(EventAssetGroupSlice.Fetch());
-    }, [groupStatus]);
+        if (props.Type != 'Location') return;
+        setLocationStatus('loading');
+        const h = new GenericController<SystemCenter.Types.DetailedLocation>(`${homePath}api/OpenXDA/Event/Location`, "LocationKey", true).Fetch();
+        h.done((d: SystemCenter.Types.DetailedLocation[]) => {
+            setLocations(d);
+            setLocationStatus('idle');
+        })
+        h.fail(() => setLocationStatus('error'))
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+    }, []);
+
+    React.useEffect(() => {
+        if (props.Type != 'AssetGroup') return;
+        setGroupStatus('loading');
+        const h = new GenericController<OpenXDA.Types.AssetGroup>(`${homePath}api/openXDA/Event/AssetGroup`, 'Name').Fetch();
+        h.done((d: OpenXDA.Types.AssetGroup[]) => {
+            setGroups(d);
+            setGroupStatus('idle');
+        })     
+        h.fail(() => setGroupStatus('error'))
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+    }, []);
 
     React.useEffect(() => {
         switch (props.Type) {
@@ -90,7 +135,8 @@ function EventFilterButton(props: IProps) {
     React.useEffect(() => {
         switch (props.Type) {
             case ('Meter'):
-                setRows(props.IDs.filter((v, i) => i < 10).map((d) => meter.find(m => m.ID == d)).map((d) => <tr key={d.ID}>
+                if (meterStatus !== 'idle') return
+                setRows(props.IDs.filter((v, i) => i < 10).map((d) => meters.find(m => m.ID == d)).map((d) => <tr key={d.ID}>
                     <td>{d['Name']}</td>
                     <td>{d['AssetKey']}</td>
                     <td>{d['Location']}</td>
@@ -99,7 +145,8 @@ function EventFilterButton(props: IProps) {
                 </tr>));
                 break;
             case ('Asset'):
-                setRows(props.IDs.filter((v, i) => i < 10).map((d) => asset.find(m => m.ID == d)).map((d) => <tr key={d.ID}>
+                if (assetStatus !== 'idle') return
+                setRows(props.IDs.filter((v, i) => i < 10).map((d) => assets.find(m => m.ID == d)).map((d) => <tr key={d.ID}>
                     <td>{d['AssetKey']}</td>
                     <td>{d['AssetName']}</td>
                     <td>{d['AssetType']}</td>
@@ -107,14 +154,16 @@ function EventFilterButton(props: IProps) {
                 </tr>));
                 break;
             case ('AssetGroup'):
-                setRows(props.IDs.filter((v, i) => i < 10).map((d) => group.find(m => m.ID == d)).map((d) => <tr key={d.ID}>
+                if (groupStatus !== 'idle') return
+                setRows(props.IDs.filter((v, i) => i < 10).map((d) => groups.find(m => m.ID == d)).map((d) => <tr key={d.ID}>
                     <td>{d['Name']}</td>
                     <td>{d['Assets']}</td>
                     <td>{d['Meters']}</td>
                 </tr>));
                 break;
             default:
-                setRows(props.IDs.filter((v, i) => i < 10).map((d) => location.find(m => m.ID == d)).map((d) => <tr key={d.ID}>
+                if (locationStatus !== 'idle') return
+                setRows(props.IDs.filter((v, i) => i < 10).map((d) => locations.find(m => m.ID == d)).map((d) => <tr key={d.ID}>
                     <td>{d['Name']}</td>
                     <td>{d['LocationKey']}</td>
                     <td>{d['Meters']}</td>
@@ -122,7 +171,7 @@ function EventFilterButton(props: IProps) {
                 </tr>));
         }
 
-    }, [props.IDs, props.Type])
+    }, [props.IDs, props.Type, meters, assets, groups, locations, meterStatus, groupStatus, locationStatus, assetStatus])
 
     return (
         <>

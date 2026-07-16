@@ -36,11 +36,11 @@ declare var version;
 
 interface IProps { Show: boolean, Close: () => void, Filter: IEventFilter, SetFilter: (f: IEventFilter) => void, RenderPortalId?: string }
 type TimeUnit = 'y' | 'M' | 'w' | 'd' | 'h' | 'm' | 's' | 'ms'
-
+type filterTypes = 'Meter' | 'Asset' | 'AssetGroup' | 'Location' | 'None'
 
 const EventFilter = (props: IProps) => {
     const [filter, setFilter] = React.useState<IEventFilter>(props.Filter);
-    const [showFilter, setShowFilter] = React.useState<('Meter' | 'Asset' | 'AssetGroup' | 'Location' | 'None')>('None')
+    const [showFilter, setShowFilter] = React.useState<filterTypes>('None')
 
     const [eventTypes, setEventTypes] = React.useState<OpenXDA.Types.EventType[]>([]);
     const [eventTypeStatus, setEventTypeStatus] = React.useState<Application.Types.Status>('uninitiated');
@@ -69,7 +69,7 @@ const EventFilter = (props: IProps) => {
 
     React.useEffect(() => {
         if (props.Show)
-            setFilter((f) => ({...props.Filter, EventTypes: f.EventTypes}));
+            setFilter((f) => ({ ...filter, EventTypes: f.EventTypes }));
     }, [props.Show])
 
     React.useEffect(() => {
@@ -80,6 +80,41 @@ const EventFilter = (props: IProps) => {
     React.useEffect(() => {
         setDomReady(true);
     })
+
+
+    function setIDs(type: filterTypes, ids: number[]) {
+        switch (type) {
+            case 'Asset':
+                setFilter((f) => ({ ...filter, AssetIDs: ids }))
+                break
+            case 'AssetGroup':
+                setFilter((f) => ({ ...filter, GroupIDs: ids }))
+                break
+            case 'Meter':
+                setFilter((f) => ({ ...filter, MeterIDs: ids }))
+                break
+            case 'Location':
+                setFilter((f) => ({ ...filter, SubstationIDs: ids }))
+                break
+            case 'None':
+                break
+        }
+    }
+
+    function getIDs(type: filterTypes): number[] {
+        switch (type) {
+            case 'Asset':
+                return filter.AssetIDs
+            case 'AssetGroup':
+                return filter.GroupIDs
+            case 'Meter':
+                return filter.MeterIDs
+            case 'Location':
+                return filter.SubstationIDs
+            case 'None':
+                return []
+        }
+    }
 
     return (
         <div id='baseEventFilterPortal'>
@@ -134,14 +169,14 @@ const EventFilter = (props: IProps) => {
                         </div>
                     </div>
                 </Modal>
-            <FilterSelect Show={showFilter != 'None'}
-                OnClose={() => setShowFilter('None')}
-                Type={showFilter == 'None' ? 'Location' : showFilter}
-                IDs={[]}
-                OnConfirm={() => { }}
+                <FilterSelect Show={showFilter != 'None'}
+                    OnClose={() => setShowFilter('None')}
+                    Type={showFilter == 'None' ? 'Location' : showFilter}
+                    IDs={getIDs(showFilter)}
+                    OnConfirm={(ids) => { setIDs(showFilter, ids) }}
                 />
             </>, portalContainer) : null}
         </div>
-        )
+    )
 }
 export default EventFilter;
