@@ -152,7 +152,7 @@ function FilterSelect(props: IProps) {
             Searchbar={(children, setFilter, searchStatus, resultCount) =>
                 <SearchBar<SystemCenter.Types.DetailedMeter>
                     SetFilter={setFilter}
-                    CollumnList={[...addlFields,
+                    CollumnList={[
                         { label: 'Key', key: 'AssetKey', type: 'string', isPivotField: false },
                         { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
                         { label: 'Substation Name', key: 'Location', type: 'string', isPivotField: false },
@@ -160,6 +160,7 @@ function FilterSelect(props: IProps) {
                         { label: 'Model', key: 'Model', type: 'string', isPivotField: false },
                         { label: 'Number of Assets', key: 'MappedAssets', type: 'number', isPivotField: false },
                         { label: 'Description', key: 'Description', type: 'string', isPivotField: false },
+                        ...addlFields
                     ]}
                     defaultCollumn={{ label: 'Name', key: 'Name', type: 'string', isPivotField: false }}
                     GetEnum={getEnum}
@@ -198,7 +199,7 @@ function FilterSelect(props: IProps) {
             Searchbar={(children, setFilter, searchStatus, resultCount) =>
                 <SearchBar<OpenXDA.Types.DetailedAsset>
                     SetFilter={setFilter}
-                    CollumnList={[...addlFields,
+                    CollumnList={[
                         { label: 'Key', key: 'AssetKey', type: 'string', isPivotField: false },
                         { label: 'Name', key: 'AssetName', type: 'string', isPivotField: false },
                         { label: 'Nominal Voltage (L-L kV)', key: 'VoltageKV', type: 'number', isPivotField: false },
@@ -208,6 +209,7 @@ function FilterSelect(props: IProps) {
                         { label: 'Number of Meters', key: 'Meters', type: 'integer', isPivotField: false },
                         { label: 'Number of Substations', key: 'Locations', type: 'integer', isPivotField: false },
                         { label: 'Description', key: 'Description', type: 'string', isPivotField: false },
+                        ...addlFields
                     ]}
                     defaultCollumn={{label: 'Name', key: 'AssetName', type: 'string', isPivotField: false}}
                     GetEnum={getEnum}
@@ -247,13 +249,14 @@ function FilterSelect(props: IProps) {
             Searchbar={(children, setFilter, searchStatus, resultCount) =>
                 <SearchBar<OpenXDA.Types.AssetGroup>
                     SetFilter={setFilter}
-                    CollumnList={[...addlFields,
+                    CollumnList={[
                         { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
                         { label: 'Number of Meters', key: 'Meters', type: 'integer', isPivotField: false },
                         { label: 'Number of Transmission Assets', key: 'Assets', type: 'integer', isPivotField: false },
                         { label: 'Number of Asset Groups', key: 'AssetGroups', type: 'integer', isPivotField: false },
                         { label: 'Show in PQ Dashboard', key: 'DisplayDashboard', type: 'boolean', isPivotField: false },
                         { label: 'Show in Email Subscription', key: 'DisplayEmail', type: 'boolean', isPivotField: false },
+                        ...addlFields
                     ]}
                     GetEnum={getEnum}
                     defaultCollumn={{ label: 'Name', key: 'Name', type: 'string', isPivotField: false }}
@@ -290,7 +293,7 @@ function FilterSelect(props: IProps) {
             Searchbar={(children, setFilter, searchStatus, resultCount) =>
                 <SearchBar<SystemCenter.Types.DetailedLocation>
                     SetFilter={setFilter}
-                    CollumnList={[...addlFields,
+                    CollumnList={[
                         { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
                         { label: 'Key', key: 'LocationKey', type: 'string', isPivotField: false },
                         { label: 'Asset Key', key: 'Asset', type: 'string', isPivotField: false },
@@ -298,6 +301,7 @@ function FilterSelect(props: IProps) {
                         { label: 'Number of Assets', key: 'Assets', type: 'integer', isPivotField: false },
                         { label: 'Number of Meters', key: 'Meters', type: 'integer', isPivotField: false },
                         { label: 'Description', key: 'Description', type: 'string', isPivotField: false },
+                        ...addlFields
                     ]}
                     GetEnum={getEnum}
                     defaultCollumn={{ label: 'Name', key: 'Name', type: 'string', isPivotField: false } }
