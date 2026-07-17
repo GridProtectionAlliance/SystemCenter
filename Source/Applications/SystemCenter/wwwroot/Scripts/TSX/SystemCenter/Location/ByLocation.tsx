@@ -29,35 +29,37 @@ import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
-import { Search, Modal } from '@gpa-gemstone/react-interactive';
+import { GenericController, Search, Modal, SearchBar } from '@gpa-gemstone/react-interactive';
 import { Input, TextArea } from '@gpa-gemstone/react-forms';
-import { DefaultSearch } from '@gpa-gemstone/common-pages';
-import { ByLocationSlice } from '../Store/Store';
-import { useAppDispatch, useAppSelector } from '../hooks';
 
 declare var homePath: string;
 
 const ByLocation: Application.Types.iByComponent = (props) => {
 
     let navigate = useNavigate();
-    const dispatch = useAppDispatch();
-    const data = useAppSelector(ByLocationSlice.SearchResults);
-    const ascending = useAppSelector(ByLocationSlice.Ascending);
-    const sortKey = useAppSelector(ByLocationSlice.SortField);
-    const searchFields = useAppSelector(ByLocationSlice.SearchFilters);
-    const allKeys = useAppSelector(ByLocationSlice.Data);
-    const searchStatus = useAppSelector(ByLocationSlice.SearchStatus);
-    const status = useAppSelector(ByLocationSlice.Status);
+    const [data, setData] = React.useState<SystemCenter.Types.DetailedLocation[]>([]);
+    const [ascending, setAscending] = React.useState<boolean>(true);
+    const [sortKey, setSortKey] = React.useState<keyof SystemCenter.Types.DetailedLocation>('Name');
+    const [searchFields, setSearchFields] = React.useState<Search.IFilter<SystemCenter.Types.DetailedLocation>[]>([]);
+    const [allKeys, setAllKeys] = React.useState<SystemCenter.Types.DetailedLocation[]>([]);
+    const [searchStatus, setSearchStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [newLocation, setNewLocation] = React.useState<SystemCenter.Types.DetailedLocation>(getNewLocation());
     const [newLocationErrors, setNewLocationErrors] = React.useState<string[]>([]);
     const [showEXTModal, setShowExtModal] = React.useState<boolean>(false);
     const extDbUpdateAll = React.useRef<() => (() => void)>(undefined);
 
-    const allPages = useAppSelector(ByLocationSlice.TotalPages);
-    const currentPage = useAppSelector(ByLocationSlice.CurrentPage);
-    const [page, setPage] = React.useState<number>(currentPage);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
+    const [totalRecords, setTotalRecords] = React.useState<number>(0);
+    const [page, setPage] = React.useState<number>(0);
+    const [addlFields, setAddlFields] = React.useState<Search.IField<SystemCenter.Types.DetailedLocation>[]>([]);
 
     const [showNew, setShowNew] = React.useState<boolean>(false);
+
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
+
+    const locationController = React.useMemo(() => new GenericController<SystemCenter.Types.DetailedLocation>(`${homePath}api/OpenXDA/ByLocation`, "Name", true),[])
 
     React.useEffect(() => {
         let errors = [];
@@ -91,18 +93,35 @@ const ByLocation: Application.Types.iByComponent = (props) => {
     }, [newLocation, allKeys]);
 
     React.useEffect(() => {
-        if (status == 'changed' || status == 'uninitiated')
-            dispatch(ByLocationSlice.Fetch());
-    }, [dispatch, status])
+        setStatus('loading');
+        const h = locationController.Fetch();
+        h.done((d) => {
+            setAllKeys(d);
+            setStatus('idle');
+        })
+        h.fail(() => setStatus('error'))
+
+        return () => {
+            if (h != null && h?.abort != null) h.abort();
+        }
+    }, [locationController, refreshTrigger])
 
     React.useEffect(() => {
-        if (searchStatus == 'changed' || searchStatus == 'uninitiated')
-            dispatch(ByLocationSlice.PagedSearch({ filter: searchFields, sortField: sortKey, ascending, page }));
-    }, [searchStatus]);
+        setSearchStatus('loading');
+        const h = locationController.PagedSearch(searchFields, sortKey, ascending, page);
+        h.done((d) => {
+            setData(JSON.parse(d.Data as unknown as string));
+            setTotalPages(d.NumberOfPages);
+            setTotalRecords(d.TotalRecords);
+            setRecordsPerPage(d.RecordsPerPage);
+            setSearchStatus('idle');
+        })
+        h.fail(() => setSearchStatus('error'))
 
-    React.useEffect(() => {
-        dispatch(ByLocationSlice.PagedSearch({ filter: searchFields, sortField: sortKey, ascending, page }));
-    }, [searchFields, sortKey, ascending, page]);
+        return () => {
+            if (h != null && h?.abort != null) h.abort();
+        }
+    }, [locationController, searchFields, sortKey, ascending, page, refreshTrigger]);
 
     function getNewLocation() {
         return {
@@ -119,7 +138,7 @@ const ByLocation: Application.Types.iByComponent = (props) => {
         }
     }
 
-    function getAdditionalFields(setFields) {
+    React.useEffect(() => {
         let handle = $.ajax({
             type: "GET",
             url: `${homePath}api/SystemCenter/AdditionalFieldView/ParentTable/Location/FieldName/0`,
@@ -140,13 +159,13 @@ const ByLocation: Application.Types.iByComponent = (props) => {
             let ordered = _.orderBy(d.filter(item => item.Searchable).map(item => (
                 { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type), isPivotField: true } as Search.IField<SystemCenter.Types.DetailedLocation>
             )), ['label'], ["asc"]);
-            setFields(ordered)
+            setAddlFields(ordered)
         });
 
         return () => {
             if (handle != null && handle.abort == null) handle.abort();
         };
-    }
+    }, [])
 
     function getEnum(setOptions, field) {
         let handle = null;
@@ -193,25 +212,42 @@ const ByLocation: Application.Types.iByComponent = (props) => {
 
     return (
         <div className="container-fluid d-flex h-100 flex-column">
-            <DefaultSearch.Location Slice={ByLocationSlice} GetEnum={getEnum}
-                GetAddlFields={getAdditionalFields}
-                StorageID={'LocationsFilter'}>
+            <SearchBar<SystemCenter.Types.DetailedLocation>
+                CollumnList={[
+                    { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
+                    { label: 'Key', key: 'LocationKey', type: 'string', isPivotField: false },
+                    { label: 'Asset Key', key: 'Asset', type: 'string', isPivotField: false },
+                    { label: 'Meter Key', key: 'Meter', type: 'string', isPivotField: false },
+                    { label: 'Number of Assets', key: 'Assets', type: 'integer', isPivotField: false },
+                    { label: 'Number of Meters', key: 'Meters', type: 'integer', isPivotField: false },
+                    { label: 'Description', key: 'Description', type: 'string', isPivotField: false },
+                ...addlFields]}
+                SetFilter={setSearchFields}
+                Direction={'left'}
+                defaultCollumn={{ label: 'Name', key: 'Name', type: 'string', isPivotField: false }}
+                Width={'50%'}
+                Label={'Search'}
+                ShowLoading={searchStatus === 'loading'}
+                ResultNote={searchStatus === 'error' ? 'Could not complete Search' : `Displaying Substation(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + data.length} out of ${totalRecords}`}
+                GetEnum={getEnum}
+                StorageID={'LocationsFilter'}
+            >
                 <li className="nav-item" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Engineer') < 0} style={{ width: '20%', paddingRight: 10 }}>
                     <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                         <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                         <form>
                             <div className="form-group">
-                                <button className="btn btn-info btn-block" 
+                                <button className="btn btn-info btn-block"
                                     onClick={(event) => { event.preventDefault(); setShowNew(true); }}>Add Substation</button>
                             </div>
                             <div className="form-group">
-                                <button className="btn btn-info btn-block" 
+                                <button className="btn btn-info btn-block"
                                     onClick={(event) => { event.preventDefault(); setShowExtModal(true); }}>External Database</button>
                             </div>
                         </form>
                     </fieldset>
                 </li>
-            </DefaultSearch.Location>
+            </SearchBar>
 
             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
                 <Table<SystemCenter.Types.DetailedLocation>
@@ -221,9 +257,10 @@ const ByLocation: Application.Types.iByComponent = (props) => {
                     Ascending={ascending}
                     OnSort={(d) => {
                         if (d.colKey === sortKey)
-                            dispatch(ByLocationSlice.Sort({ SortField: sortKey, Ascending: ascending }));
+                            setAscending(a => !a);
                         else {
-                            dispatch(ByLocationSlice.Sort({ SortField: d.colField as keyof SystemCenter.Types.DetailedLocation, Ascending: true }));
+                            setAscending(true);
+                            setSortKey(d.colField);
                         }
                     }}
                     OnClick={handleSelect}
@@ -269,7 +306,7 @@ const ByLocation: Application.Types.iByComponent = (props) => {
             </div>
             <div className="row">
                 <div className="col">
-                    <Paging Current={page + 1} Total={allPages} SetPage={(p) => setPage(p - 1)} />
+                    <Paging Current={page + 1} Total={totalPages} SetPage={(p) => setPage(p - 1)} />
                 </div>
             </div>
 
@@ -277,7 +314,7 @@ const ByLocation: Application.Types.iByComponent = (props) => {
                 ShowX={true}
                 CallBack={(conf) => {
                     if (conf)
-                        dispatch(ByLocationSlice.DBAction({ verb: "POST", record: newLocation }))
+                        locationController.DBAction("POST", newLocation).done(() => setRefreshTrigger(val => !val));
                     setShowNew(false);
                 }}
                 ConfirmShowToolTip={newLocationErrors.length > 0}
