@@ -56,6 +56,7 @@ const NewEventSubscription = (props: {}) => {
     const carrierID = useAppSelector(UserInfoSlice.CellCarrierID);
 
     React.useEffect(() => {
+        if (emailTypeID < 0) return
         setEmailTypeStatus('loading')
         const h = $.ajax({
             type: "GET",

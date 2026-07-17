@@ -54,6 +54,7 @@ const NewReportSubscription = (props: {}) => {
 
 
     React.useEffect(() => {
+        if (emailTypeID < 0) return
         const h = $.ajax({
             type: "GET",
             url: `${homePath}api/OpenXDA/EmailType/One/${emailTypeID}`,
