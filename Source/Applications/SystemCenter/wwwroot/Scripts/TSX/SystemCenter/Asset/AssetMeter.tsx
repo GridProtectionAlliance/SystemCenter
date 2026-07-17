@@ -115,7 +115,7 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
 
         handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
         return () => {
-            if (handle != null && handle.abort == null) handle.abort();
+            if (handle != null && handle.abort != null) handle.abort();
         }
     }
 
@@ -144,7 +144,7 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
         });
 
         return () => {
-            if (handle != null && handle.abort == null) handle.abort();
+            if (handle != null && handle.abort != null) handle.abort();
         };
     }
 

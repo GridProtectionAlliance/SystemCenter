@@ -100,7 +100,7 @@ export default function FilterSelect(props: IProps) {
 
         handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
         return () => {
-            if (handle != null && handle.abort == null) handle.abort();
+            if (handle != null && handle.abort != null) handle.abort();
         }
     }
 
@@ -129,7 +129,7 @@ export default function FilterSelect(props: IProps) {
             setFields(ordered);
         });
         return () => {
-            if (handle != null && handle.abort == null) handle.abort();
+            if (handle != null && handle.abort != null) handle.abort();
         };
     }
 

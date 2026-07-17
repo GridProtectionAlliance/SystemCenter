@@ -181,7 +181,7 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                         });
 
                         handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
-                        return () => { if (handle != null && handle.abort == null) handle.abort(); }
+                        return () => { if (handle != null && handle.abort != null) handle.abort(); }
                     }}
                 >
                     <li className="nav-item">

@@ -146,7 +146,7 @@ export default function RemoteXDAInstanceForm(props: IProps) {
         });
 
         return () => {
-            if (handle != null && handle.abort == null) handle.abort();
+            if (handle != null && handle.abort != null) handle.abort();
         };
     }
 
@@ -171,7 +171,7 @@ export default function RemoteXDAInstanceForm(props: IProps) {
         });
 
         return () => {
-            if (handle != null && handle.abort == null) handle.abort();
+            if (handle != null && handle.abort != null) handle.abort();
         };
     }
 

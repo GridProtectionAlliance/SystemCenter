@@ -92,7 +92,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
             setTableStatus('error');
         });
         return () => {
-            if (handle != null && handle.abort == null) handle.abort();
+            if (handle != null && handle.abort != null) handle.abort();
         };
     }, [sortKey, asc, props.ID, page, refreshTrigger]);
 

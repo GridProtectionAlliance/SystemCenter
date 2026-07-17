@@ -175,7 +175,7 @@ const ByAsset: Application.Types.iByComponent = (props) => {
             setAddlFieldCols(ordered);
         });
         return () => {
-            if (handle != null && handle.abort == null) handle.abort();
+            if (handle != null && handle.abort != null) handle.abort();
         };
     }, []);
 
@@ -257,7 +257,7 @@ const ByAsset: Application.Types.iByComponent = (props) => {
             });
 
             handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
-            return () => { if (handle != null && handle.abort == null) handle.abort(); }
+            return () => { if (handle != null && handle.abort != null) handle.abort(); }
     }
 
     // ToDo: This search bar is not the default select. Default select should probably be paged in the future if it doesn't break anything else
