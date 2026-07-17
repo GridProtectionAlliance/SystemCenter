@@ -337,7 +337,7 @@ const MeterAssetWindow = (props: IProps) => {
         else if (activeAsset.AssetType == 'Bus')
             return <BusAttributes NewEdit={newEdit} Asset={activeAsset} UpdateState={changeActiveAsset} />;
         else if (activeAsset.AssetType == 'CapacitorBankRelay')
-            return <CapBankRelayAttributes NewEdit={newEdit} Asset={activeAsset as OpenXDA.Types.CapBankRelay} UpdateState={changeActiveAsset}/>
+            return <CapBankRelayAttributes NewEdit={newEdit} Asset={activeAsset as OpenXDA.Types.CapBankRelay} UpdateState={changeActiveAsset} />
         else if (activeAsset.AssetType == 'CapacitorBank')
             return <CapBankAttributes NewEdit={newEdit} Asset={activeAsset as OpenXDA.Types.CapBank} UpdateState={changeActiveAsset} />;
         else if (activeAsset.AssetType == 'Line')
