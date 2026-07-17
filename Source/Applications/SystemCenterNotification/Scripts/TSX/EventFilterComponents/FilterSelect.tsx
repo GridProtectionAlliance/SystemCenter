@@ -46,21 +46,26 @@ function FilterSelect(props: IProps) {
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [addlFields, setAddlFields] = React.useState<Search.IField<Data>[]>([])
 
+    const meterController = React.useMemo(() => new GenericController<SystemCenter.Types.DetailedMeter>(`${homePath}api/OpenXDA/Event/Meter`, "Name", true), [])
+    const assetController = React.useMemo(() => new GenericController<OpenXDA.Types.DetailedAsset>(`${homePath}api/OpenXDA/Event/Asset`, "AssetName", true), [])
+    const groupController = React.useMemo(() => new GenericController<OpenXDA.Types.AssetGroup>(`${homePath}api/openXDA/Event/AssetGroup`, 'Name'), [])
+    const substationController = React.useMemo(() => new GenericController<SystemCenter.Types.DetailedLocation>(`${homePath}api/OpenXDA/Event/Location`, "LocationKey", true), [])
+
     // get data according to whatever
     React.useEffect(() => {
         let controller;
         switch (props.Type) {
             case 'Meter':
-                controller = new GenericController<SystemCenter.Types.DetailedMeter>(`${homePath}api/OpenXDA/Event/Meter`, "Name", true);
+                controller = meterController;
                 break;
             case 'Asset':
-                controller = new GenericController<OpenXDA.Types.DetailedAsset>(`${homePath}api/OpenXDA/Event/Asset`, "AssetName", true);
+                controller = assetController;
                 break;
             case 'AssetGroup':
-                controller = new GenericController<OpenXDA.Types.AssetGroup>(`${homePath}api/openXDA/Event/AssetGroup`, 'Name');
+                controller = groupController;
                 break;
             case 'Location':
-                controller = new GenericController<SystemCenter.Types.DetailedLocation>(`${homePath}api/OpenXDA/Event/Location`, "LocationKey", true);
+                controller = substationController;
                 break;
         }
         setStatus('loading');
@@ -137,7 +142,7 @@ function FilterSelect(props: IProps) {
 
     if (props.Type == 'Meter')
         return <ControllerSelects<SystemCenter.Types.DetailedMeter>
-            Controller={new GenericController<SystemCenter.Types.DetailedMeter>(`${homePath}api/OpenXDA/Event/Meter`, "Name", true)}
+            Controller={meterController}
             Selection={selectedData as any}
             OnClose={(selected, conf) => {
                 props.OnClose();
@@ -184,7 +189,7 @@ function FilterSelect(props: IProps) {
 
     if (props.Type == 'Asset')
         return <ControllerSelects<OpenXDA.Types.DetailedAsset>
-            Controller={new GenericController<OpenXDA.Types.DetailedAsset>(`${homePath}api/OpenXDA/Event/Asset`, "AssetName", true)}
+            Controller={assetController}
             Selection={selectedData as any}
             OnClose={(selected, conf) => {
                 props.OnClose();
@@ -234,7 +239,7 @@ function FilterSelect(props: IProps) {
 
     if (props.Type == 'AssetGroup')
         return <ControllerSelects<OpenXDA.Types.AssetGroup>
-            Controller={new GenericController<OpenXDA.Types.AssetGroup>(`${homePath}api/openXDA/Event/AssetGroup`, 'Name')}
+            Controller={groupController}
             Selection={selectedData as any}
             OnClose={(selected, conf) => {
                 props.OnClose();
@@ -278,7 +283,7 @@ function FilterSelect(props: IProps) {
 
     if (props.Type == 'Location')
         return <ControllerSelects<SystemCenter.Types.DetailedLocation>
-            Controller={new GenericController<SystemCenter.Types.DetailedLocation>(`${homePath}api/OpenXDA/Event/Location`, "LocationKey", true)}
+            Controller={substationController}
             Selection={selectedData as any}
             OnClose={(selected, conf) => {
                 props.OnClose();

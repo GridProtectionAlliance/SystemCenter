@@ -25,7 +25,7 @@ import _ from "lodash";
 import * as React from 'react';
 import { Application } from '@gpa-gemstone/application-typings';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { BtnDropdown, GenericController, Modal, Search } from '@gpa-gemstone/react-interactive';
+import { GenericController, Modal, Search } from '@gpa-gemstone/react-interactive';
 import { Column, ConfigurableColumn, FilterableColumn, Paging, Table } from '@gpa-gemstone/react-table';
 
 interface IProps<T> {
@@ -87,15 +87,6 @@ export const ControllerSelects = <T,>(props: IProps<T>) => {
         }
     }, [props.Controller, filters, sortField, ascending, activePage]) 
 
-    const addRecords = React.useCallback((records: T[]) => {
-        setSelectedData((s) => _.uniqBy([...s, ...records], (d) => d[props.PrimaryKey]));
-    }, [props.PrimaryKey]);
-
-    const removeRecords = React.useCallback((records: T[]) => {
-        const ids = new Set(records.map((r) => r[props.PrimaryKey]));
-        setSelectedData((s) => s.filter((d) => !ids.has(d[props.PrimaryKey])));
-    }, [props.PrimaryKey]);
-
     return (
         <Modal
             Show={props.Show}
@@ -130,40 +121,7 @@ export const ControllerSelects = <T,>(props: IProps<T>) => {
                         </>, setFilters, searchStatus, totalRecords)}
                 </div>
                 {props.Type === 'multiple' ? <div className="col" style={{ width: '40%', borderLeft: '1px solid #dee2e6' }}>
-                    <h3> Current Selection </h3> {/** 
-                    <div className="form-group">
-                        <BtnDropdown
-                            Label={'Add Page'}
-                            Callback={() => addRecords(data)}
-                            Options={[{
-                                Label: 'Add All Pages',
-                                Callback: () => handleAddAllPages(),
-                                ShowToolTip: true,
-                                ToolTipContent: <p className='mb-0'>Adds every matching record to your selection.</p>
-                            }]}
-                            BtnClass={'btn-primary'}
-                            Size="std"
-                            ShowToolTip={true}
-                            TooltipContent={<p className='mb-0'>Adds the records on this page to your selection.</p>}
-                        />
-                    </div>
-                    <div className="form-group">
-                        <BtnDropdown
-                            Label={'Remove Page'}
-                            Callback={() => removeRecords(data)}
-                            Options={[{
-                                Label: 'Remove All Pages',
-                                Callback: () => setSelectedData([]),
-                                ShowToolTip: true,
-                                ToolTipContent: <p className='mb-0'>Removes all records from your selection.</p>
-                            }]}
-                            BtnClass={'btn-danger'}
-                            Size="std"
-                            ShowToolTip={true}
-                            TooltipLocation="bottom"
-                            TooltipContent={<p className='mb-0'>Removes the records on this page from your selection.</p>}
-                        />
-                    </div>  */}
+                    <h3> Current Selection </h3> 
                 </div> : null}
             </div>
             <div className="row d-flex" style={{ flex: 1, overflow: 'hidden'}}>
