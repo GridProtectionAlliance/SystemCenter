@@ -26,10 +26,7 @@ import { Table, Column } from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
-import { Search, Modal, LoadingScreen } from '@gpa-gemstone/react-interactive';
-import { DefaultSearch } from '@gpa-gemstone/common-pages';
-import { ByMeterSlice } from '../Store/Store';
-import { useAppDispatch, useAppSelector } from '../hooks';
+import { GenericController, Search, Modal, LoadingScreen, SearchBar } from '@gpa-gemstone/react-interactive';
 import { useNavigate } from "react-router-dom";
 import { Paging } from '@gpa-gemstone/react-table';
 
@@ -37,28 +34,39 @@ declare var homePath: string;
 
 const ByMeter: Application.Types.iByComponent = (props) => {
     let navigate = useNavigate();
-    const dispatch = useAppDispatch();
 
-    const data = useAppSelector(ByMeterSlice.SearchResults);
+    const [data, setData] = React.useState<SystemCenter.Types.DetailedMeter[]>([]);
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [sortKey, setSortKey] = React.useState<keyof SystemCenter.Types.DetailedMeter>("Name");
-
-    const cState = useAppSelector(ByMeterSlice.PagedStatus);
-    const allPages = useAppSelector(ByMeterSlice.TotalPages);
-    const currentPage = useAppSelector(ByMeterSlice.CurrentPage);
-    const [page, setPage] = React.useState<number>(currentPage);
+    const [filters, setFilters] = React.useState<Search.IFilter<SystemCenter.Types.DetailedMeter>[]>([]);
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
+    const [totalRecords, setTotalRecords] = React.useState<number>(0);
+    const [page, setPage] = React.useState<number>(0);
+    const [addlFields, setAddlFields] = React.useState<Search.IField<SystemCenter.Types.DetailedMeter>[]>([]);
 
     const [showEXTModal, setShowExtModal] = React.useState<boolean>(false);
     const extDbUpdateAll = React.useRef<() => (() => void)>(undefined);
 
-    React.useEffect(() => {
-        dispatch(ByMeterSlice.PagedSearch({ sortField: sortKey, ascending, page }));
-    }, [sortKey, ascending, page]);
+    const meterController = React.useMemo(() => new GenericController<SystemCenter.Types.DetailedMeter>(`${homePath}api/OpenXDA/ByMeter`, "Name", true), [])
 
     React.useEffect(() => {
-        if (cState === 'uninitiated' || cState === 'changed')
-            dispatch(ByMeterSlice.PagedSearch({ sortField: sortKey, ascending, page }));
-    }, [cState]);
+        setStatus('loading')
+        const h = meterController.PagedSearch(filters, sortKey, ascending, page);
+        h.done((d) => {
+            setData(JSON.parse(d.Data as unknown as string));
+            setTotalPages(d.NumberOfPages);
+            setRecordsPerPage(d.RecordsPerPage);
+            setTotalRecords(d.TotalRecords);
+            setStatus('idle');
+        })
+        h.fail(() => setStatus('error'))
+
+        return () => {
+            if (h != null && h.abort == null) h.abort();
+        }
+    }, [filters, sortKey, ascending, page, meterController])
 
     function handleSelect(item) {
         navigate(`${homePath}index.cshtml?name=Meter&MeterID=${item.row.ID}`);
@@ -67,8 +75,7 @@ const ByMeter: Application.Types.iByComponent = (props) => {
         navigate(`${homePath}index.cshtml?name=NewMeterWizard`);
     }
 
-    function getAdditionalFields(setFields) {
-
+    React.useEffect(() => { 
         let handle = $.ajax({
             type: "GET",
             url: `${homePath}api/SystemCenter/AdditionalFieldView/ParentTable/Meter/FieldName/0`,
@@ -77,19 +84,11 @@ const ByMeter: Application.Types.iByComponent = (props) => {
             async: true
         });
 
-        function ConvertType(type: string) {
-            if (type == 'string' || type == 'integer' || type == 'number' || type == 'datetime' || type == 'boolean')
-                return { type: type }
-            return {
-                type: 'enum', enum: [{ Label: type, Value: type }]
-            }
-        }
-
         handle.done((d: Array<SystemCenter.Types.AdditionalFieldView>) => {
             let ordered = _.orderBy(d.filter(item => item.Searchable).map(item => (
                 { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type), isPivotField: true } as Search.IField<SystemCenter.Types.DetailedMeter>
             )), ['label'], ["asc"]);
-            setFields(ordered)
+            setAddlFields(ordered)
         });
 
         return () => {
@@ -97,7 +96,7 @@ const ByMeter: Application.Types.iByComponent = (props) => {
                 handle.abort()
             };
         };
-    }
+    }, [])
 
     function getEnum(setOptions, field) {
         let handle = null;
@@ -122,10 +121,30 @@ const ByMeter: Application.Types.iByComponent = (props) => {
 
     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <LoadingScreen Show={cState === 'loading'} />
+            <LoadingScreen Show={status === 'loading'} />
             <div className="container-fluid d-flex h-100 flex-column">
                 <div className="row">
-                     <DefaultSearch.Meter Slice={ByMeterSlice} GetEnum={getEnum} GetAddlFields={getAdditionalFields} StorageID="MetersFilter">
+                    <SearchBar<SystemCenter.Types.DetailedMeter>
+                        CollumnList={[
+                            { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
+                            { label: 'Key', key: 'LocationKey', type: 'string', isPivotField: false },
+                            { label: 'Asset Key', key: 'Asset', type: 'string', isPivotField: false },
+                            { label: 'Meter Key', key: 'Meter', type: 'string', isPivotField: false },
+                            { label: 'Number of Assets', key: 'Assets', type: 'integer', isPivotField: false },
+                            { label: 'Number of Meters', key: 'Meters', type: 'integer', isPivotField: false },
+                            { label: 'Description', key: 'Description', type: 'string', isPivotField: false },
+                            ...addlFields
+                        ]}
+                        SetFilter={setFilters}
+                        Direction={'left'}
+                        defaultCollumn={{ label: 'Name', key: 'Name', type: 'string', isPivotField: false }}
+                        Width={'50%'}
+                        Label={'Search'}
+                        ShowLoading={status === 'loading'}
+                        ResultNote={status === 'error' ? 'Could not complete Search' : `Displaying Meter(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + data.length} out of ${totalRecords}`}
+                        GetEnum={getEnum}
+                        StorageID={"MetersFilter"}
+                    >
                         <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
                             <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                                 <legend className="w-auto" style={{ fontSize: 'large' }}>Wizards:</legend>
@@ -143,7 +162,7 @@ const ByMeter: Application.Types.iByComponent = (props) => {
                                 </form>
                             </fieldset>
                         </li>
-                    </DefaultSearch.Meter>
+                    </SearchBar>
                 </div>
                 <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
                     <Table<SystemCenter.Types.DetailedMeter>
@@ -218,7 +237,7 @@ const ByMeter: Application.Types.iByComponent = (props) => {
                 </div>
                 <div className="row">
                     <div className="col">
-                        <Paging Current={page + 1} Total={allPages} SetPage={(p) => setPage(p - 1)} />
+                        <Paging Current={page + 1} Total={totalPages} SetPage={(p) => setPage(p - 1)} />
                     </div>
                 </div>
             </div>
@@ -234,3 +253,11 @@ const ByMeter: Application.Types.iByComponent = (props) => {
 }
 
 export default ByMeter;
+
+function ConvertType(type: string) {
+    if (type == 'string' || type == 'integer' || type == 'number' || type == 'datetime' || type == 'boolean')
+        return { type: type }
+    return {
+        type: 'enum', enum: [{ Label: type, Value: type }]
+    }
+}
