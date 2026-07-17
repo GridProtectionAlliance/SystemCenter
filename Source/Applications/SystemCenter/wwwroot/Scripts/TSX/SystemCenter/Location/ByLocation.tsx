@@ -102,7 +102,7 @@ const ByLocation: Application.Types.iByComponent = (props) => {
         h.fail(() => setStatus('error'))
 
         return () => {
-            if (h != null && h?.abort != null) h.abort();
+            if (h != null || h.abort != null) h.abort();
         }
     }, [locationController, refreshTrigger])
 
@@ -119,7 +119,7 @@ const ByLocation: Application.Types.iByComponent = (props) => {
         h.fail(() => setSearchStatus('error'))
 
         return () => {
-            if (h != null && h?.abort != null) h.abort();
+            if (h != null || h.abort != null) h.abort();
         }
     }, [locationController, searchFields, sortKey, ascending, page, refreshTrigger]);
 
@@ -163,7 +163,7 @@ const ByLocation: Application.Types.iByComponent = (props) => {
         });
 
         return () => {
-            if (handle != null && handle.abort == null) handle.abort();
+            if (handle != null && handle.abort != null) handle.abort();
         };
     }, [])
 
@@ -183,7 +183,7 @@ const ByLocation: Application.Types.iByComponent = (props) => {
 
         handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
         return () => {
-            if (handle != null && handle.abort == null)
+            if (handle != null && handle.abort != null)
                 handle.abort();
         }
     }

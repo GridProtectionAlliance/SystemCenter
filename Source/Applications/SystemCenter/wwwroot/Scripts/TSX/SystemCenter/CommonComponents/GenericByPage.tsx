@@ -142,7 +142,7 @@ function GenericByPage<T extends U>(props: React.PropsWithChildren<IProps<T>>) {
         });
 
         handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
-        return () => { if (handle != null && handle.abort == null) handle.abort(); }
+        return () => { if (handle != null && handle.abort != null) handle.abort(); }
     }, []);
 
     const getContent = React.useCallback((datum: SC.IColDatum<T>, col: SC.IByCol<T>) => {

@@ -64,7 +64,7 @@ const ByMeter: Application.Types.iByComponent = (props) => {
         h.fail(() => setStatus('error'))
 
         return () => {
-            if (h != null && h.abort == null) h.abort();
+            if (h != null && h.abort != null) h.abort();
         }
     }, [filters, sortKey, ascending, page, meterController])
 
@@ -92,7 +92,7 @@ const ByMeter: Application.Types.iByComponent = (props) => {
         });
 
         return () => {
-            if (handle != null && handle.abort == null) {
+            if (handle != null && handle.abort != null) {
                 handle.abort()
             };
         };
@@ -114,7 +114,7 @@ const ByMeter: Application.Types.iByComponent = (props) => {
 
         handle.done(d => setOptions(d.map(item => ({ Value: item.ID, Label: item.Value }))))
         return () => {
-            if (handle != null && handle.abort == null)
+            if (handle != null && handle.abort != null)
                 handle.abort();
         }
     }

@@ -30,7 +30,7 @@ import { GenericController, Modal, Search, SearchBar } from '@gpa-gemstone/react
 import { CheckBox, Input } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { AssetGroupSlice, ByMeterSlice, AssetTypeSlice } from '../Store/Store';
-import { DefaultSearch, DefaultSelects } from '@gpa-gemstone/common-pages';
+import { DefaultSelects } from '@gpa-gemstone/common-pages';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import AssetSelect from '../Asset/AssetSelect';
 
@@ -79,7 +79,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
         h.fail(() => setStatus('error'))
 
         return () => {
-            if (h != null && h.abort == null) h.abort();
+            if (h != null && h.abort != null) h.abort();
         }
     }, [sortKey, ascending, page, searchFilters])
 
@@ -122,7 +122,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
         });
 
         return () => {
-            if (handle != null && handle.abort == null) handle.abort();
+            if (handle != null && handle.abort != null) handle.abort();
         };
     }
 
@@ -212,7 +212,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
 
         handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
         return () => {
-            if (handle != null && handle.abort == null) handle.abort();
+            if (handle != null && handle.abort != null) handle.abort();
         }
     }
 
