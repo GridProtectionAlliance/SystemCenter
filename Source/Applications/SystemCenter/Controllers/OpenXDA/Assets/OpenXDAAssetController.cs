@@ -383,11 +383,11 @@ namespace SystemCenter.Controllers.OpenXDA
                         Description = asset["Description"].ToString(),
                         AssetName = asset["AssetName"].ToString(),
                         AssetTypeID = assetTypeID,
-                        R0 = asset["Segment"]["R0"].ToObject<double>(),
-                        X0 = asset["Segment"]["X0"].ToObject<double>(),
-                        R1 = asset["Segment"]["R1"].ToObject<double>(),
-                        X1 = asset["Segment"]["X1"].ToObject<double>(),
-                        Length = asset["Segment"]["Length"].ToObject<double>(),
+                        R0 = asset["Detail"]?.Value<double?>("R0") ?? 0,
+                        X0 = asset["Detail"]?.Value<double?>("X0") ?? 0,
+                        R1 = asset["Detail"]?.Value<double?>("R1") ?? 0,
+                        X1 = asset["Detail"]?.Value<double?>("X1") ?? 0,
+                        Length = asset["Detail"]?.Value<double?>("Length") ?? 0
                     };
                     lineSegment.AssetTypeID = connection.ExecuteScalar<int>("SELECT ID FROM AssetType WHERE Name = 'LineSegment'");
 
@@ -477,6 +477,12 @@ namespace SystemCenter.Controllers.OpenXDA
                     Transformer transformer = new Transformer();
                     CreateTransformerFromJToken(transformer, asset);
                     new TableOperations<Transformer>(connection).AddNewRecord(transformer);
+                }
+                else if (assetType == "DER")
+                {
+                    DER der = new DER();
+                    CreateDERFromJToken(der, asset);
+                    new TableOperations<DER>(connection).AddNewRecord(der);
                 }
                 else
                 {
@@ -913,28 +919,29 @@ namespace SystemCenter.Controllers.OpenXDA
             capBank.PosReactanceTol = record["PosReactanceTol"].ToObject<double>();
             capBank.Nparalell = record["Nparalell"].ToObject<int>();
             capBank.Nseries = record["Nseries"].ToObject<int>();
-            capBank.NSeriesGroup = record["NSeriesGroup"].ToObject<int>();
-            capBank.NParalellGroup = record["NParalellGroup"].ToObject<int>();
-            capBank.Fused = record["Fused"].ToObject<bool>();
-            capBank.VTratioBus = record["VTratioBus"].ToObject<double>();
-            capBank.NumberLVCaps = record["NumberLVCaps"].ToObject<int>();
-            capBank.NumberLVUnits = record["NumberLVUnits"].ToObject<int>();
-            capBank.LVKVAr = record["LVKVAr"].ToObject<double>(); 
-            capBank.LVKV = record["LVKV"].ToObject<double>();
-            capBank.LVNegReactanceTol = record["LVNegReactanceTol"].ToObject<double>();
-            capBank.LVPosReactanceTol = record["LVPosReactanceTol"].ToObject<double>();
+            capBank.NSeriesGroup = record.Value<int?>("NSeriesGroup") ?? 0;
+            capBank.NParalellGroup = record.Value<int?>("NParalellGroup") ?? 0;
+            capBank.Fused = record.Value<bool?>("Fused") ?? true;
+            capBank.VTratioBus = record.Value<double?>("VTratioBus") ?? 0;
+            capBank.NumberLVCaps = record.Value<int?>("NumberLVCaps") ?? 0;
+            capBank.NumberLVUnits = record.Value<int?>("NumberLVUnits") ?? 0;
+            capBank.LVKVAr = record.Value<double?>("LVKVAr") ?? 0;
+            capBank.LVKV = record.Value<double?>("LVKV") ?? 0;
+            capBank.LVNegReactanceTol = record.Value<double?>("LVNegReactanceTol") ?? 0;
+            capBank.LVPosReactanceTol = record.Value<double?>("LVPosReactanceTol") ?? 0;
+
             capBank.LowerXFRRatio = record["LowerXFRRatio"].ToObject<double>();
             capBank.Nshorted = record["Nshorted"].ToObject<double>();
             capBank.BlownFuses = record["BlownFuses"].ToObject<int>();
             capBank.BlownGroups = record["BlownGroups"].ToObject<int>();
-            capBank.ShortedGroups = record["ShortedGroups"].ToObject<double>();
-            capBank.NLowerGroups = record["NLowerGroups"].ToObject<int>();
+            capBank.ShortedGroups = record.Value<double?>("ShortedGroups") ?? 0;
+            capBank.NLowerGroups = record.Value<int?>("NLowerGroups") ?? 0;
 
-            capBank.RelayPTRatioPrimary = record["RelayPTRatioPrimary"].ToObject<int>();
-            capBank.RelayPTRatioSecondary = record["RelayPTRatioSecondary"].ToObject<int>();
-            capBank.Sh = record["Sh"].ToObject<double>();
-            capBank.Rv = record["Rv"].ToObject<double>();
-            capBank.Rh = record["Rh"].ToObject<double>();
+            capBank.RelayPTRatioPrimary = record.Value<int?>("RelayPTRatioPrimary") ?? 0;
+            capBank.RelayPTRatioSecondary = record.Value<int?>("RelayPTRatioSecondary") ?? 0;
+            capBank.Sh = record.Value<double?>("Sh") ?? 0;
+            capBank.Rv = record.Value<double?>("Rv") ?? 0;
+            capBank.Rh = record.Value<double?>("Rh") ?? 0;
             capBank.Compensated = record["Compensated"].ToObject<bool>();
 
         }
@@ -961,12 +968,21 @@ namespace SystemCenter.Controllers.OpenXDA
             transformer.ThermalRating = record["ThermalRating"].ToObject<double>();
             transformer.PrimaryVoltageKV = record["PrimaryVoltageKV"].ToObject<double>();
             transformer.SecondaryVoltageKV = record["SecondaryVoltageKV"].ToObject<double>();
-            transformer.TertiaryVoltageKV = record["TertiaryVoltageKV"].ToObject<double>();
+            transformer.TertiaryVoltageKV = record.Value<double?>("TertiaryVoltageKV") ?? 0;
             transformer.PrimaryWinding = record["PrimaryWinding"].ToObject<double>();
             transformer.SecondaryWinding = record["SecondaryWinding"].ToObject<double>();
-            transformer.TertiaryWinding = record["TertiaryWinding"].ToObject<double>();
+            transformer.TertiaryWinding = record.Value<double?>("TertiaryWinding") ?? 0;
             transformer.Tap = record["Tap"].ToObject<double>();
             transformer.Spare = record["Spare"].ToObject<bool>();
+        }
+        private void CreateDERFromJToken(DER der, JToken record)
+        {
+            der.VoltageKV = record["VoltageKV"].ToObject<double>();
+            der.AssetKey = record["AssetKey"].ToString();
+            der.Description = record["Description"].ToString();
+            der.AssetName = record["AssetName"].ToString();
+            der.FullRatedOutputCurrent = record["FullRatedOutputCurrent"].ToObject<double>();
+            der.VoltageLevel = record["VoltageLevel"].ToString();
         }
 
         ////Need to Override the external DB Function to return the list for all Assets
