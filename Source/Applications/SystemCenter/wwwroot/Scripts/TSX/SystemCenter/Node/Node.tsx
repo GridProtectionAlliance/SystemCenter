@@ -24,7 +24,7 @@
 import * as React from 'react';
 import NodeForm from './NodeForm';
 import NodeSettings from './NodeSettings'
-import { TabSelector, Warning, GenericController } from '@gpa-gemstone/react-interactive';
+import { TabSelector, Warning, GenericController, LoadingScreen, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { Application } from '@gpa-gemstone/application-typings'
 import { SystemCenter as SC } from '../global'
 import { useNavigate } from 'react-router-dom';
@@ -58,8 +58,9 @@ export default function Node(props: IProps) {
     }
 
     function deleteNode() {
-        const controller = new GenericController<IOpenXDANode>(`${homePath}api/openXDA/Node`, 'ID')
-        controller.DBAction('DELETE', convertToXDANode(node, nodeTypes, appHosts)).then(() => navigate(`${homePath}index.cshtml?name=TaskRunners`))
+        setStatus('loading');
+        const controller = new GenericController<IOpenXDANode>(`${homePath}api/openXDA/Node`, 'ID');
+        controller.DBAction('DELETE', convertToXDANode(node, nodeTypes, appHosts)).then(() => { navigate(`${homePath}index.cshtml?name=TaskRunners`); setStatus('idle'); })
     }
 
     React.useEffect(() => {
@@ -120,6 +121,8 @@ export default function Node(props: IProps) {
 
     return (
         <div style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+            <ServerErrorIcon Show={ status === 'error' } />
+            <LoadingScreen Show={ status === 'loading' } />
             <div className="row p-2">
                 <div className="col">
                     <h2>{node != null ? node.Name : ''}</h2>
