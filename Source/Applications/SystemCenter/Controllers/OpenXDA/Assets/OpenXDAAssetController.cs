@@ -79,14 +79,14 @@ namespace SystemCenter.Controllers.OpenXDA
 
             results.RecordsPerPage = recordsPerPage;
 
+            string[] sortFields = { "Name", "LocationKey", "Latitude", "Longitude" };
+
+            if (!sortFields.Any(f => f.Equals(postData.OrderBy)))
+                return Unauthorized();
+
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
-                IEnumerable<Location> records = new TableOperations<Location>(connection).QueryRecordsWhere("ID IN (SELECT LocationID FROM AssetLocation WHERE AssetID = {0})", assetID);
-
-                if (postData.Ascending)
-                    records = records.OrderBy(record => record.GetType().GetProperty(postData.OrderBy).GetValue(record));
-                else
-                    records = records.OrderByDescending(record => record.GetType().GetProperty(postData.OrderBy).GetValue(record));
+                IEnumerable<Location> records = new TableOperations<Location>(connection).QueryRecords($"{postData.OrderBy} {(postData.Ascending ? "asc" : "desc")}", new RecordRestriction("ID IN (SELECT LocationID FROM AssetLocation WHERE AssetID = {0})", assetID));
 
                 results.TotalRecords = records.Count();
                 results.NumberOfPages = (records.Count() + recordsPerPage - 1) / recordsPerPage;
@@ -164,14 +164,14 @@ namespace SystemCenter.Controllers.OpenXDA
 
             results.RecordsPerPage = recordsPerPage;
 
+            string[] sortFields = { "AssetKey", "Name", "Make", "Model" };
+
+            if (!sortFields.Any(f => f.Equals(postData.OrderBy, StringComparison.OrdinalIgnoreCase)))
+                return Unauthorized();
+
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
-                IEnumerable<Meter> records = new TableOperations<Meter>(connection).QueryRecordsWhere("ID IN (SELECT MeterID FROM MeterAsset WHERE AssetID = {0})", assetID);
-
-                if (postData.Ascending)
-                    records = records.OrderBy(record => record.GetType().GetProperty(postData.OrderBy).GetValue(record));
-                else
-                    records = records.OrderByDescending(record => record.GetType().GetProperty(postData.OrderBy).GetValue(record));
+                IEnumerable<Meter> records = new TableOperations<Meter>(connection).QueryRecords($"{postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")}", new RecordRestriction("ID IN (SELECT MeterID FROM MeterAsset WHERE AssetID = {0})", assetID));
 
                 results.TotalRecords = records.Count();
                 results.NumberOfPages = (records.Count() + recordsPerPage - 1) / recordsPerPage;
@@ -231,6 +231,8 @@ namespace SystemCenter.Controllers.OpenXDA
             PagedResults results = new PagedResults();
 
             string orderBy = "ID";
+
+            string[] sortFields = { "AssetName", "AssetKey", "Relationship" };
 
             if (typeof(Asset).GetProperties().Select(prop => prop.Name).Contains(postData.OrderBy))
                 orderBy = postData.OrderBy;
