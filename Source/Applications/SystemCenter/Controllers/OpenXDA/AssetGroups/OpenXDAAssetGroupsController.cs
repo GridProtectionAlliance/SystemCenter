@@ -118,7 +118,7 @@ namespace SystemCenter.Controllers.OpenXDA
 
             string orderBy = "ID";
 
-            if (typeof(Asset).GetProperties().Select(prop => prop.Name).Contains(postData.OrderBy) || postData.OrderBy == "AssetType")
+            if (typeof(Asset).GetProperties().Select(prop => prop.Name).Contains(postData.OrderBy) || String.Equals(postData.OrderBy, "AssetType", StringComparison.OrdinalIgnoreCase))
             {
                 orderBy = postData.OrderBy;
             }
@@ -152,25 +152,16 @@ namespace SystemCenter.Controllers.OpenXDA
                                 AssetAssetGroup.AssetGroupID
                             HAVING AssetAssetGroup.AssetGroupID = {{0}}
                             ORDER BY {orderBy} {(postData.Ascending ? "ASC" : "DESC")}
+                             OFFSET {page * recordsPerPage} ROWS FETCH NEXT {recordsPerPage} ROWS ONLY;
                             ";
 
                 DataTable records = connection.RetrieveData(sql, assetGroupID);
 
                 int totalRecords = records.Rows.Count;
 
-                DataRow[] rows = records.AsEnumerable()
-                    .Skip((page) * recordsPerPage)
-                    .Take(recordsPerPage)
-                    .ToArray();
-
-                DataTable pagedTable = records.Clone();
-
-                foreach (DataRow row in rows)
-                    pagedTable.ImportRow(row);
-
                 results.TotalRecords = totalRecords;
                 results.NumberOfPages = (totalRecords + recordsPerPage - 1) / recordsPerPage;
-                results.Data = JsonConvert.SerializeObject(pagedTable);
+                results.Data = JsonConvert.SerializeObject(records);
             }
 
             return Ok(results);
