@@ -116,16 +116,16 @@ namespace SystemCenter.Controllers.OpenXDA
             PagedResults results = new PagedResults();
             results.RecordsPerPage = recordsPerPage;
 
-            string orderBy = "ID";
+            string[] sortFields = { "AssetName", "AssetKey", "AssetType" };
 
-            if (typeof(Asset).GetProperties().Select(prop => prop.Name).Contains(postData.OrderBy) || String.Equals(postData.OrderBy, "AssetType", StringComparison.OrdinalIgnoreCase))
+            if (!sortFields.Any(f => f.Equals(postData.OrderBy, StringComparison.OrdinalIgnoreCase)))
             {
-                orderBy = postData.OrderBy;
+                return Unauthorized();
             }
 
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
-                string sql = $@"SELECT   
+                string allSql = $@"SELECT   
                             DISTINCT
                                 Asset.ID,
                                 AssetAssetGroup.AssetGroupID,
@@ -151,13 +151,18 @@ namespace SystemCenter.Controllers.OpenXDA
                                 AssetType.Name,
                                 AssetAssetGroup.AssetGroupID
                             HAVING AssetAssetGroup.AssetGroupID = {{0}}
-                            ORDER BY {orderBy} {(postData.Ascending ? "ASC" : "DESC")}
-                             OFFSET {page * recordsPerPage} ROWS FETCH NEXT {recordsPerPage} ROWS ONLY;
+                            ";
+
+                DataTable allRecords = connection.RetrieveData(allSql, assetGroupID);
+
+                string sql = $@"{allSql}
+                            ORDER BY {postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")}
+                            OFFSET {page * recordsPerPage} ROWS FETCH NEXT {recordsPerPage} ROWS ONLY;
                             ";
 
                 DataTable records = connection.RetrieveData(sql, assetGroupID);
 
-                int totalRecords = records.Rows.Count;
+                int totalRecords = allRecords.Rows.Count;
 
                 results.TotalRecords = totalRecords;
                 results.NumberOfPages = (totalRecords + recordsPerPage - 1) / recordsPerPage;
@@ -278,14 +283,16 @@ namespace SystemCenter.Controllers.OpenXDA
             PagedResults results = new PagedResults();
             results.RecordsPerPage = recordsPerPage;
 
-            string orderBy = "ID";
+            string[] sortFields = { "Name", "Location" };
 
-            if (typeof(Meter).GetProperties().Select(prop => prop.Name).Contains(postData.OrderBy))
-                orderBy = postData.OrderBy;
+            if (!sortFields.Any(f => f.Equals(postData.OrderBy, StringComparison.OrdinalIgnoreCase)))
+            {
+                return Unauthorized();
+            }
 
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
-                string sql = $@"SELECT DISTINCT
+                string allSql = $@"SELECT DISTINCT
                             Meter.ID,
                             MeterAssetGroup.AssetGroupID,
                             Meter.AssetKey,
@@ -309,26 +316,22 @@ namespace SystemCenter.Controllers.OpenXDA
                             Location.Name,
                             MeterAssetGroup.AssetGroupID
                         HAVING MeterAssetGroup.AssetGroupID = {{0}}
-                        ORDER BY {orderBy} {(postData.Ascending ? "ASC" : "DESC")}
                 ";
 
-                DataTable records = connection.RetrieveData(sql, assetGroupID);
+                DataTable allRecords = connection.RetrieveData(allSql, assetGroupID);
 
-                int totalRecords = records.Rows.Count;
+                string orderedPagedSql = $@"{allSql}
+                        ORDER BY {postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")}
+                        OFFSET {page * recordsPerPage} ROWS FETCH NEXT {recordsPerPage} ROWS ONLY;
+                ";
 
-                DataRow[] rows = records.AsEnumerable()
-                    .Skip((page) * recordsPerPage)
-                    .Take(recordsPerPage)
-                    .ToArray();
+                DataTable records = connection.RetrieveData(orderedPagedSql, assetGroupID);
 
-                DataTable pagedTable = records.Clone();
-
-                foreach (DataRow row in rows)
-                    pagedTable.ImportRow(row);
+                int totalRecords = allRecords.Rows.Count;
 
                 results.TotalRecords = totalRecords;
                 results.NumberOfPages = (totalRecords + recordsPerPage - 1) / recordsPerPage;
-                results.Data = JsonConvert.SerializeObject(pagedTable);
+                results.Data = JsonConvert.SerializeObject(records);
             }
 
             return Ok(results);
