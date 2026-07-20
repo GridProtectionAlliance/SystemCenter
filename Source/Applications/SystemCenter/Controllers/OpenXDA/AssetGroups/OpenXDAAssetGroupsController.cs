@@ -47,7 +47,7 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA/AssetGroup")]
     public class OpenXDAAssetGroupController : ModelController<AssetGroupView>
     {
-        private class extendedAssetGroupView: AssetGroupView
+        private class extendedAssetGroupView : AssetGroupView
         {
             public List<int> MeterList { get; set; }
             public List<int> AssetList { get; set; }
@@ -55,7 +55,7 @@ namespace SystemCenter.Controllers.OpenXDA
             public List<int> AssetGroupList { get; set; }
 
         }
-     
+
         [HttpGet, Route("{assetGroupID:int}/Assets")]
         public IHttpActionResult GetAssets(int assetGroupID)
         {
@@ -92,7 +92,7 @@ namespace SystemCenter.Controllers.OpenXDA
                                 AssetAssetGroup.AssetGroupID
                             HAVING AssetAssetGroup.AssetGroupID = {0}";
 
-                        return Ok(connection.RetrieveData(sql,assetGroupID));
+                        return Ok(connection.RetrieveData(sql, assetGroupID));
                     }
                     catch (Exception ex)
                     {
@@ -107,7 +107,7 @@ namespace SystemCenter.Controllers.OpenXDA
         [HttpPost, Route("{assetGroupID:int}/Assets/{page:int}")]
         public IHttpActionResult GetAssetsPaged([FromBody] PostData postData, [FromUri] int assetGroupID, [FromUri] int page)
         {
-            
+
             if (!GetAuthCheck())
                 return Unauthorized();
 
@@ -181,7 +181,7 @@ namespace SystemCenter.Controllers.OpenXDA
                         {
                             int n = connection.ExecuteScalar<int>("Select Count(ID) FROM AssetAssetGroup WHERE AssetID = {0} AND AssetGroupID = {1}", assetID, assetGroupID);
                             if (n == 0)
-                                assetassetGroupTbl.AddNewRecord( new AssetAssetGroup() { AssetGroupID = assetGroupID, AssetID = assetID});
+                                assetassetGroupTbl.AddNewRecord(new AssetAssetGroup() { AssetGroupID = assetGroupID, AssetID = assetID });
                         }
                         return Ok(1);
                     }
@@ -254,8 +254,8 @@ namespace SystemCenter.Controllers.OpenXDA
                             Location.Name,
                             MeterAssetGroup.AssetGroupID
                         HAVING MeterAssetGroup.AssetGroupID = {0}";
-                       
-                        return Ok(connection.RetrieveData(sql,assetGroupID));
+
+                        return Ok(connection.RetrieveData(sql, assetGroupID));
                     }
                     catch (Exception ex)
                     {
@@ -279,7 +279,7 @@ namespace SystemCenter.Controllers.OpenXDA
             results.RecordsPerPage = recordsPerPage;
 
             string orderBy = "ID";
-            
+
             if (typeof(Meter).GetProperties().Select(prop => prop.Name).Contains(postData.OrderBy))
                 orderBy = postData.OrderBy;
 
@@ -434,7 +434,7 @@ namespace SystemCenter.Controllers.OpenXDA
                 return Unauthorized();
         }
 
-        [HttpPost, Route("{assetGroupID:int}/AssetGroups/{page:int}")] 
+        [HttpPost, Route("{assetGroupID:int}/AssetGroups/{page:int}")]
         public IHttpActionResult GetSubGroupsPaged([FromBody] PostData postData, [FromUri] int assetGroupID, [FromUri] int page)
         {
             if (!GetAuthCheck())
@@ -445,13 +445,14 @@ namespace SystemCenter.Controllers.OpenXDA
             PagedResults results = new PagedResults();
             results.RecordsPerPage = recordsPerPage;
 
+            String[] sortFields = { "AssetGroups", "Meters", "Assets", "Name" }; 
+
+            if (!sortFields.Any(f => f.Equals(postData.OrderBy, StringComparison.OrdinalIgnoreCase)))
+                return Unauthorized();
+
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
-                IEnumerable<AssetGroupView> records = new TableOperations<AssetGroupView>(connection).QueryRecordsWhere("ID in (SELECT ChildAssetGroupID FROM AssetGroupAssetGroupView WHERE ParentAssetGroupID = {0})", assetGroupID);
-                if (postData.Ascending)
-                    records = records.OrderBy(record => record.GetType().GetProperty(postData.OrderBy).GetValue(record) ?? record.ID);
-                else
-                    records = records.OrderByDescending(record => record.GetType().GetProperty(postData.OrderBy).GetValue(record) ?? record.ID);
+                IEnumerable<AssetGroupView> records = new TableOperations<AssetGroupView>(connection).QueryRecords($"{postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")}", new RecordRestriction("ID in (SELECT ChildAssetGroupID FROM AssetGroupAssetGroupView WHERE ParentAssetGroupID = {0})", assetGroupID));
 
                 results.TotalRecords = records.Count();
                 results.NumberOfPages = (records.Count() + recordsPerPage - 1) / recordsPerPage;
@@ -523,7 +524,7 @@ namespace SystemCenter.Controllers.OpenXDA
 
                     using (AdoDataConnection connection = new AdoDataConnection(Connection))
                     {
-                       
+
                         int id = record.ID;
                         int result = connection.ExecuteNonQuery($"EXEC UniversalCascadeDelete 'AssetGroup', 'ID = {id}'");
                         return Ok(result);
@@ -551,14 +552,14 @@ namespace SystemCenter.Controllers.OpenXDA
                     {
 
                         extendedAssetGroupView newRecord = record.ToObject<extendedAssetGroupView>();
-                        AssetGroup newGroup = new AssetGroup() { ID= newRecord.ID, DisplayDashboard = newRecord.DisplayDashboard, Name= newRecord.Name, DisplayEmail=newRecord.DisplayEmail };
+                        AssetGroup newGroup = new AssetGroup() { ID = newRecord.ID, DisplayDashboard = newRecord.DisplayDashboard, Name = newRecord.Name, DisplayEmail = newRecord.DisplayEmail };
 
                         int result = new TableOperations<AssetGroup>(connection).AddNewRecord(newRecord);
 
                         return Ok(new TableOperations<AssetGroupView>(connection).QueryRecordWhere("Name = {0}", newRecord.Name));
-                            
 
-                     }
+
+                    }
                 }
                 else
                 {
