@@ -59,8 +59,7 @@ export default function Node(props: IProps) {
 
     function deleteNode() {
         const controller = new GenericController<IOpenXDANode>(`${homePath}api/openXDA/Node`, 'ID')
-        controller.DBAction('DELETE', convertToXDANode(node, nodeTypes, appHosts))
-        navigate(`${homePath}index.cshtml?name=TaskRunners`)
+        controller.DBAction('DELETE', convertToXDANode(node, nodeTypes, appHosts)).then(() => navigate(`${homePath}index.cshtml?name=TaskRunners`))
     }
 
     React.useEffect(() => {
@@ -134,7 +133,7 @@ export default function Node(props: IProps) {
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
             {tab === 'info' ? <NodeForm Node={node} UpdateRecord={() => setRefreshTrigger((val) => !val)} NodeTypes={nodeTypes} AppHosts={appHosts} /> : null}
             {tab === 'settings' ? <NodeSettings NodeID={node?.ID ?? props.NodeID.toString()} /> : null}
-            <Warning Title={'Delete ' + (node?.Name ?? 'Task Runner')} Show={showWarning} Message={'This will permanently delete this Task Runner.'} CallBack={(c) => { if (c) deleteNode(); setShowWarning(false) }} />
+            <Warning Title={'Delete ' + (node?.Name ?? 'Task Runner')} Show={showWarning} Message={'This will delete this Task Runner from the system. This can have unintended consequences and cause the system to crash. Are you sure you want to continue?'} CallBack={(c) => { if (c) deleteNode(); setShowWarning(false) }} />
         </div>
     )
 }
