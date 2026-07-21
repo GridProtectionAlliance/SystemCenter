@@ -21,14 +21,12 @@
 //
 //******************************************************************************************************
 
-import * as React from 'react';
 import * as _ from 'lodash';
+import * as React from 'react';
 import { Application } from '@gpa-gemstone/application-typings';
-import { PhaseSlice, MeasurmentTypeSlice } from '../Store/Store'
-import { Table, Column, Paging } from '@gpa-gemstone/react-table';
-import { useAppSelector } from '../hooks';
-import { LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { Column, Paging, Table } from '@gpa-gemstone/react-table';
 
 declare var homePath: string;
 
@@ -66,10 +64,9 @@ interface ChannelDetail { //TODO: Move to Gemstone
 
 
 const AssetChannelWindow = (props: IProps) => {
-    const [assetChannels, setAssetChannels] = React.useState<ChannelDetail[]>([]);
 
-    const pStatus = useAppSelector(PhaseSlice.Status) as Application.Types.Status;
-    const mtStatus = useAppSelector(MeasurmentTypeSlice.Status) as Application.Types.Status;
+    // asset channels table
+    const [assetChannels, setAssetChannels] = React.useState<ChannelDetail[]>([]);
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [sortField, setSortField] = React.useState<keyof (ChannelDetail)>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
@@ -78,6 +75,8 @@ const AssetChannelWindow = (props: IProps) => {
     const [totalRecords, setTotalRecords] = React.useState<number>(0);
     const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
 
+
+    // fetch refresh assetChannels based on sort and page
     React.useEffect(() => {
         setStatus('loading')
         const channelHandle = $.ajax({
@@ -96,6 +95,8 @@ const AssetChannelWindow = (props: IProps) => {
                 setTotalPages(d.NumberOfPages);
                 setTotalRecords(d.TotalRecords);
                 setRecordsPerPage(d.RecordsPerPage);
+                if (page >= d.NumberOfPages)
+                    setPage(d.NumberOfPages - 1);
                 setStatus('idle');
             })
 
@@ -105,9 +106,10 @@ const AssetChannelWindow = (props: IProps) => {
             if (channelHandle != null && channelHandle.abort != null)
                 channelHandle.abort();
         }
+
     }, [props.ID, ascending, page, sortField]);
 
-    if (status == 'error' || pStatus == 'error' || mtStatus == 'error')
+    if (status == 'error')
         return <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
                 <div className="row">
@@ -133,7 +135,7 @@ const AssetChannelWindow = (props: IProps) => {
             </div>
         </div>
 
-    if (status == 'loading' || pStatus == 'loading' || mtStatus == 'loading')
+    if (status == 'loading')
         return <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
                 <div className="row">

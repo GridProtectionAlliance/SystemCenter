@@ -82,7 +82,6 @@ function AssetConnectionWindow(props: IProps): JSX.Element {
 
     const roles = useAppSelector(SelectRoles);
 
-
     // fetch AssetConnections according to page and sort
     React.useEffect(() => {
         setStatus('loading');
@@ -235,7 +234,6 @@ function AssetConnectionWindow(props: IProps): JSX.Element {
             setActionStatus('error');
         });
     }
-
 
     function handleSelect(item) {
         navigate(`${homePath}index.cshtml?name=Asset&AssetID=${item.row.AssetID}`);
