@@ -120,7 +120,7 @@ namespace SystemCenter.Controllers.OpenXDA
 
             if (!sortFields.Any(f => f.Equals(postData.OrderBy, StringComparison.OrdinalIgnoreCase)))
             {
-                return Unauthorized();
+                return BadRequest($"{postData.OrderBy} is not a valid search field.")
             }
 
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
@@ -287,7 +287,7 @@ namespace SystemCenter.Controllers.OpenXDA
 
             if (!sortFields.Any(f => f.Equals(postData.OrderBy, StringComparison.OrdinalIgnoreCase)))
             {
-                return Unauthorized();
+                return BadRequest($"{postData.OrderBy} is not a valid search field.");
             }
 
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
@@ -448,10 +448,10 @@ namespace SystemCenter.Controllers.OpenXDA
             PagedResults results = new PagedResults();
             results.RecordsPerPage = recordsPerPage;
 
-            String[] sortFields = { "AssetGroups", "Meters", "Assets", "Name" }; 
+            String[] sortFields = { "AssetGroups", "Meters", "Assets", "Name" };
 
             if (!sortFields.Any(f => f.Equals(postData.OrderBy, StringComparison.OrdinalIgnoreCase)))
-                return Unauthorized();
+                return BadRequest($"{postData.OrderBy} is not a valid search field.");
 
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {

@@ -82,7 +82,7 @@ namespace SystemCenter.Controllers.OpenXDA
             string[] sortFields = { "Name", "LocationKey", "Latitude", "Longitude" };
 
             if (!sortFields.Any(f => f.Equals(postData.OrderBy)))
-                return Unauthorized();
+                return BadRequest($"{postData.OrderBy} is not a valid search field.");
 
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
@@ -167,7 +167,7 @@ namespace SystemCenter.Controllers.OpenXDA
             string[] sortFields = { "AssetKey", "Name", "Make", "Model" };
 
             if (!sortFields.Any(f => f.Equals(postData.OrderBy, StringComparison.OrdinalIgnoreCase)))
-                return Unauthorized();
+                return BadRequest($"{postData.OrderBy} is not a valid search field.");
 
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
@@ -230,16 +230,14 @@ namespace SystemCenter.Controllers.OpenXDA
 
             PagedResults results = new PagedResults();
 
-            string orderBy = "ID";
-
             string[] sortFields = { "AssetName", "AssetKey", "Relationship" };
 
-            if (typeof(Asset).GetProperties().Select(prop => prop.Name).Contains(postData.OrderBy))
-                orderBy = postData.OrderBy;
+            if (!sortFields.Any(f => f.Equals(postData.OrderBy, StringComparison.OrdinalIgnoreCase)))
+                return BadRequest($"{postData.OrderBy} is not a valid search field.");
 
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
-                DataTable records = connection.RetrieveData(@$"
+                string sql = @$"
                         SELECT
 	                        AssetRelationship.AssetRelationshipTypeID,
 	                        AssetRelationshipType.Name,
@@ -257,24 +255,19 @@ namespace SystemCenter.Controllers.OpenXDA
 	                        )
                         WHERE
 	                        ParentID = {{0}} OR ChildID = {{0}}
-                        ORDER BY {orderBy} {(postData.Ascending ? "ASC" : "DESC")}
-                    ", assetID);
+                        ORDER BY {postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")}";
+
+                DataTable records = connection.RetrieveData(sql, assetID);
 
                 int totalRecords = records.Rows.Count;
 
-                DataRow[] rows = records.AsEnumerable()
-                    .Skip((page) * recordsPerPage)
-                    .Take(recordsPerPage)
-                    .ToArray();
+                string pagedSql = $"{sql} OFFSET {page * recordsPerPage} ROWS FETCH NEXT {recordsPerPage} ROWS ONLY;";
 
-                DataTable pagedTable = records.Clone();
-
-                foreach (DataRow row in rows)
-                    pagedTable.ImportRow(row);
+                DataTable pagedRecords = connection.RetrieveData(pagedSql, assetID);
 
                 results.TotalRecords = totalRecords;
                 results.NumberOfPages = (totalRecords + recordsPerPage - 1) / recordsPerPage;
-                results.Data = JsonConvert.SerializeObject(pagedTable);
+                results.Data = JsonConvert.SerializeObject(pagedRecords);
             }
 
             return Ok(results);
