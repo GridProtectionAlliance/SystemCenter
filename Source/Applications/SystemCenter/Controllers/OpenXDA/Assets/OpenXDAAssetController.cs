@@ -733,10 +733,12 @@ namespace SystemCenter.Controllers.OpenXDA
             if (postData.OrderBy == "Phase" || postData.OrderBy == "MeasurementType")
                 bindingFlags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly;
 
+            PropertyInfo orderByProperty = typeof(ChannelDetail).GetProperty(postData.OrderBy, bindingFlags);
+
             if (postData.Ascending)
-                uniqueChannels = uniqueChannels.OrderBy(item => item.GetType().GetProperty(postData.OrderBy, bindingFlags).GetValue(item));
+                uniqueChannels = uniqueChannels.OrderBy(item => orderByProperty.GetValue(item));
             else
-                uniqueChannels = uniqueChannels.OrderByDescending(item => item.GetType().GetProperty(postData.OrderBy, bindingFlags).GetValue(item));
+                uniqueChannels = uniqueChannels.OrderByDescending(item => orderByProperty.GetValue(item));
 
             uniqueChannels = uniqueChannels
                 .Skip(recordsPerPage * page)
