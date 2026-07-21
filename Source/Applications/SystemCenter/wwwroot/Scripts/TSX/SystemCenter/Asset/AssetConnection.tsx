@@ -101,7 +101,9 @@ function AssetConnectionWindow(props: IProps): JSX.Element {
             setTotalPages(d.NumberOfPages);
             setTotalRecords(d.TotalRecords);
             setRecordsPerPage(d.RecordsPerPage);
-            if (page >= d.NumberOfPages)
+            if (d.NumberOfPages == 0)
+                setPage(0);
+            else if (page >= d.NumberOfPages)
                 setPage(d.NumberOfPages - 1);
             setStatus('idle')
         })

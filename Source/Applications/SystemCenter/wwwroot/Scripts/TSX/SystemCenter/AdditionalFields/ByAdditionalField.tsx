@@ -22,13 +22,14 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
-import { LoadingScreen, GenericController, Modal, Search, SearchBar, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { LoadingScreen, GenericController, Modal, Search, SearchBar, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { Column, Paging, Table } from '@gpa-gemstone/react-table';
 import AdditionalFieldForm from './AdditionalFieldForm';
 
 const AdditionalFieldDefaultSearchField: Search.IField<SystemCenter.Types.AdditionalFieldView> = { label: 'Name', key: 'FieldName', type: 'string', isPivotField: false };
+
 const emptyRecord: SystemCenter.Types.AdditionalField = {
     ID: 0,
     ParentTable: 'Meter',
@@ -43,24 +44,29 @@ const emptyRecord: SystemCenter.Types.AdditionalField = {
 
 const ByAdditionalField: Application.Types.iByComponent = (props) => {
 
+    // additional field view table
     const [data, setData] = React.useState<SystemCenter.Types.AdditionalFieldView[]>([]);
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [search, setSearch] = React.useState<Search.IFilter<SystemCenter.Types.AdditionalFieldView>[]>([]);
+    const [sortField, setSortField] = React.useState<keyof SystemCenter.Types.AdditionalFieldView>("FieldName");
+    const [ascending, setAscending] = React.useState<boolean>(false);
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
+
+    // additional field table pagination
     const [page, setPage] = React.useState<number>(0);
     const [totalPages, setTotalPages] = React.useState<number>(0);
     const [totalRecords, setTotalRecords] = React.useState<number>(0);
     const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
 
+    // value list group for 'field type' dropdown in additional field search bar
     const [valueListGroupData, setValueListGroupData] = React.useState<SystemCenter.Types.ValueListGroup[]>([]);
     const [valueListGroupStatus, setValueListGroupStatus] = React.useState<Application.Types.Status>('uninitiated');
 
-    const [sortField, setSortField] = React.useState<keyof SystemCenter.Types.AdditionalFieldView>("FieldName")
-    const [ascending, setAscending] = React.useState<boolean>(false)
+    // edit modal
     const [errors, setErrors] = React.useState<string[]>([]);
     const [warnings, setWarnings] = React.useState<string[]>([]);
     const [mode, setMode] = React.useState<'View' | 'Add' | 'Edit'>('View');
     const [record, setRecord] = React.useState<SystemCenter.Types.AdditionalField>(emptyRecord);
-    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false)
 
     const additionalFieldViewController = React.useMemo(() => new GenericController<SystemCenter.Types.AdditionalFieldView>(`${homePath}api/SystemCenter/AdditionalFieldView`, "FieldName", true),[])
 
@@ -99,6 +105,7 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
         }
     ];
 
+    // fetch data according to filters, paging, and sorting information
     React.useEffect(() => {
         setStatus('loading')
         const h = additionalFieldViewController.PagedSearch(search, sortField, ascending, page);
@@ -108,7 +115,9 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
             setTotalPages(d.NumberOfPages);
             setRecordsPerPage(d.RecordsPerPage);
             setTotalRecords(d.TotalRecords);
-            if (page >= d.NumberOfPages)
+            if (d.NumberOfPages == 0) 
+                setPage(0);
+            else if (page >= d.NumberOfPages)
                 setPage(d.NumberOfPages - 1);
             setStatus('idle');
         })
@@ -122,6 +131,7 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
 
     }, [search, sortField, ascending, page, additionalFieldViewController, refreshTrigger]);
 
+    // fetch value list groups
     React.useEffect(() => {
         setValueListGroupStatus('loading')
 
@@ -309,7 +319,8 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
                 DisableConfirm={errors.length > 0}
                 ShowCancel={mode === 'Edit'}
                 CancelText={'Delete'}
-                Show={mode === 'Add' || mode === 'Edit'} >
+                Show={mode === 'Add' || mode === 'Edit'}
+            >
                 <AdditionalFieldForm Record={record} Setter={setRecord} SetErrors={setErrors} SetWarnings={setWarnings} ShowDatabaseSelect={true} />
             </Modal>
         </div>
