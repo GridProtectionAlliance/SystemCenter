@@ -24,11 +24,10 @@
 import * as React from 'react';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
-import { Modal, Search, SearchBar } from '@gpa-gemstone/react-interactive';
+import { LoadingScreen, GenericController, Modal, Search, SearchBar, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import AdditionalFieldForm from './AdditionalFieldForm';
-import { useAppDispatch, useAppSelector, useBoundPaging } from '../hooks';
-import { AdditionalFieldsSlice, ValueListGroupSlice } from '../Store/Store';
+import { add } from 'lodash';
 
 const AdditionalFieldDefaultSearchField: Search.IField<SystemCenter.Types.AdditionalFieldView> = { label: 'Name', key: 'FieldName', type: 'string', isPivotField: false };
 const emptyRecord: SystemCenter.Types.AdditionalField = {
@@ -44,19 +43,17 @@ const emptyRecord: SystemCenter.Types.AdditionalField = {
 };
 
 const ByAdditionalField: Application.Types.iByComponent = (props) => {
-    const dispatch = useAppDispatch();
 
-    const data = useAppSelector(AdditionalFieldsSlice.SearchResults);
-    const status = useAppSelector(AdditionalFieldsSlice.PagedStatus);
-    const search = useAppSelector(AdditionalFieldsSlice.SearchFilters);
-    const parentID = useAppSelector(AdditionalFieldsSlice.ParentID);
-    const currentPage = useAppSelector(AdditionalFieldsSlice.CurrentPage);
-    const totalPages = useAppSelector(AdditionalFieldsSlice.TotalPages);
-    const totalRecords = useAppSelector(AdditionalFieldsSlice.TotalRecords);
+    const [data, setData] = React.useState<SystemCenter.Types.AdditionalFieldView[]>([]);
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [search, setSearch] = React.useState<Search.IFilter<SystemCenter.Types.AdditionalFieldView>[]>([]);
+    const [page, setPage] = React.useState<number>(0);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [totalRecords, setTotalRecords] = React.useState<number>(0);
+    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
 
-    const valueListGroupData = useAppSelector(ValueListGroupSlice.Data);
-    const valueListGroupStatus = useAppSelector(ValueListGroupSlice.Status);
-
+    const [valueListGroupData, setValueListGroupData] = React.useState<SystemCenter.Types.ValueListGroup[]>([]);
+    const [valueListGroupStatus, setValueListGroupStatus] = React.useState<Application.Types.Status>('uninitiated');
 
     const [sortField, setSortField] = React.useState<keyof SystemCenter.Types.AdditionalFieldView>("FieldName")
     const [ascending, setAscending] = React.useState<boolean>(false)
@@ -64,6 +61,9 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
     const [warnings, setWarnings] = React.useState<string[]>([]);
     const [mode, setMode] = React.useState<'View' | 'Add' | 'Edit'>('View');
     const [record, setRecord] = React.useState<SystemCenter.Types.AdditionalField>(emptyRecord);
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false)
+
+    const additionalFieldViewController = React.useMemo(() => new GenericController<SystemCenter.Types.AdditionalFieldView>(`${homePath}api/SystemCenter/AdditionalFieldView`, "FieldName", true),[])
 
     const AdditionalFieldSearchField: Array<Search.IField<SystemCenter.Types.AdditionalFieldView>> = [
         { label: 'Name', key: 'FieldName', type: 'string', isPivotField: false },
@@ -101,59 +101,62 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
     ];
 
     React.useEffect(() => {
-        if (parentID !== null)
-            dispatch(AdditionalFieldsSlice.Fetch());
-    }, [parentID]);
+        setStatus('loading')
+        const h = additionalFieldViewController.PagedSearch(search, sortField, ascending, page);
+
+        h.done((d) => {
+            setData(JSON.parse(d.Data as unknown as string));
+            setTotalPages(d.NumberOfPages);
+            setRecordsPerPage(d.RecordsPerPage);
+            setTotalRecords(d.TotalRecords);
+            if (page >= d.NumberOfPages)
+                setPage(d.NumberOfPages - 1);
+            setStatus('idle');
+        })
+
+        h.fail(() => setStatus('error'))
+
+        return () => {
+            if (h != null && h.abort != null)
+                h.abort()
+        }
+
+    }, [search, sortField, ascending, page, additionalFieldViewController, refreshTrigger]);
 
     React.useEffect(() => {
-        if (status === 'uninitiated' || status === 'changed')
-            dispatch(AdditionalFieldsSlice.PagedSearch({ filter: search, sortField, ascending, page: currentPage }));
-    }, [status, search, sortField, ascending, currentPage]);
+        setValueListGroupStatus('loading')
 
-    React.useEffect(() => {
-        if (valueListGroupStatus == 'uninitiated' || valueListGroupStatus == 'changed')
-            dispatch(ValueListGroupSlice.Fetch());
-    }, [valueListGroupStatus]);
+        const h = new GenericController<SystemCenter.Types.ValueListGroup>(`${homePath}api/ValueListGroup`, 'Name').Fetch();
 
-    const setFilters = React.useCallback((filters: Search.IFilter<SystemCenter.Types.AdditionalField>[]) => {
-        dispatch(AdditionalFieldsSlice.PagedSearch({ sortField, ascending, filter: filters, page: currentPage }))
-    }, [sortField, ascending, currentPage])
+        h.done((d) => {
+            setValueListGroupData(d);
+            setValueListGroupStatus('idle');
+        })
 
-    const setPage = React.useCallback((page: number) => {
-        dispatch(AdditionalFieldsSlice.PagedSearch({ filter: search, sortField, ascending, page: page - 1}))
-    }, [search, sortField, ascending]) 
+        h.fail(() => setValueListGroupStatus('error'))
 
-    const sort = React.useCallback((d) => {
-        let asc = ascending
-        let sort = d.colField
-        if (sortField === d.colField) {
-            setAscending(!ascending)
-            asc = !ascending
+        return () => {
+            if (h != null && h.abort != null)
+                h.abort()
         }
-        else {
-            setSortField(d.colField)
-            setAscending(false)
-            asc = false
-        }
-        dispatch(AdditionalFieldsSlice.PagedSearch({ filter: search, sortField: sort, ascending: asc, page: 0 }))
-    }, [search, ascending, sortField])
-
-    useBoundPaging(currentPage, totalPages, setPage)
+    }, []);
 
     return (
         <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit', padding: 0 }}>
+            <LoadingScreen Show={ valueListGroupStatus === 'loading' || status === 'loading'} />
+            <ServerErrorIcon Show={ valueListGroupStatus === 'error' || status === 'error'} />
             <div className="row">
                 <div className="col">
                     <SearchBar<SystemCenter.Types.AdditionalFieldView>
                         CollumnList={AdditionalFieldSearchField}
-                        SetFilter={setFilters}
+                        SetFilter={setSearch}
                         Direction={'left'}
                         defaultCollumn={AdditionalFieldDefaultSearchField}
                         Width={'50%'}
                         StorageID="AdditionalFieldsFilter"
                         Label={'Search'}
                         ShowLoading={status == 'loading'}
-                        ResultNote={status == 'error' ? 'Could not complete Search' : 'Found ' + totalRecords + ' Additional Field(s)'}
+                        ResultNote={status == 'error' ? 'Could not complete Search' : `Displaying Additional Field(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + data.length} out of ${totalRecords}`}
                     >
                         <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
                             <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
@@ -178,7 +181,14 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
                         Data={data}
                         SortKey={sortField as string}
                         Ascending={ascending}
-                        OnSort={sort}
+                        OnSort={(d) => {
+                            if (d.colKey === sortField)
+                                setAscending(a => !a)
+                            else {
+                                setAscending(true);
+                                setSortField(d.colField);
+                            }
+                        }}
                         OnClick={(item) => { setRecord(item.row); setMode('Edit'); }}
                         TableStyle={{
                             padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
@@ -273,18 +283,18 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
             <div className="row">
                 <div className="col">
                     <Paging
-                        Current={currentPage + 1}
+                        Current={page + 1}
                         Total={totalPages}
-                        SetPage={setPage}
+                        SetPage={(p) =>setPage(p - 1)}
                     />
                 </div>
             </div>
             <Modal Title={mode === 'Add' ? 'Add New Additional Field' : 'Edit ' + record.FieldName}
                 CallBack={(conf, isBtn) => {
                     if (conf)
-                        dispatch(AdditionalFieldsSlice.DBAction({ verb: mode === 'Add' ? 'POST' : 'PATCH', record }));
+                        additionalFieldViewController.DBAction(mode === 'Add' ? 'POST' : 'PATCH', record).done(() => setRefreshTrigger(val => !val));
                     else if (isBtn)
-                        dispatch(AdditionalFieldsSlice.DBAction({ verb: 'DELETE', record }));
+                        additionalFieldViewController.DBAction('DELETE', record).done(() => setRefreshTrigger(val => !val));
                     setMode('View');
                 }}
                 ShowX={true}
