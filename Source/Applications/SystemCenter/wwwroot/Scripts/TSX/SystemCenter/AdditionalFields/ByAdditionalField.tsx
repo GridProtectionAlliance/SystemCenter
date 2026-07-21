@@ -27,7 +27,6 @@ import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { LoadingScreen, GenericController, Modal, Search, SearchBar, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import AdditionalFieldForm from './AdditionalFieldForm';
-import { add } from 'lodash';
 
 const AdditionalFieldDefaultSearchField: Search.IField<SystemCenter.Types.AdditionalFieldView> = { label: 'Name', key: 'FieldName', type: 'string', isPivotField: false };
 const emptyRecord: SystemCenter.Types.AdditionalField = {
