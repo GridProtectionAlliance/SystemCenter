@@ -70,13 +70,14 @@ const AssetChannelWindow = (props: IProps) => {
 
     const pStatus = useAppSelector(PhaseSlice.Status) as Application.Types.Status;
     const mtStatus = useAppSelector(MeasurmentTypeSlice.Status) as Application.Types.Status;
-    const [status, setStatus] = React.useState<Application.Types.Status>('idle');
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [sortField, setSortField] = React.useState<keyof (ChannelDetail)>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [page, setPage] = React.useState<number>(0);
     const [totalPages, setTotalPages] = React.useState<number>(0);
 
     React.useEffect(() => {
+        setStatus('loading')
         const channelHandle = $.ajax({
                 type: "POST",
                 url: `${homePath}api/OpenXDA/Asset/${props.ID}/ConnectedChannels/${page}`,
