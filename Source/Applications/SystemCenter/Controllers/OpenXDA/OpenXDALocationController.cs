@@ -323,7 +323,7 @@ namespace SystemCenter.Controllers.OpenXDA
                         if (Directory.Exists(Path.Combine(path, key)))
                         {
                             IEnumerable<string> imagePaths = Directory.GetFiles(Path.Combine(path, key)).Select(fp => new FileInfo(fp).Name);
-                            return Ok(PageImagePaths(imagePaths, page));
+                            return Ok(PageImagePaths(imagePaths, page, Take ?? 50));
                         }
 
 
@@ -347,13 +347,11 @@ namespace SystemCenter.Controllers.OpenXDA
 
 
 
-public static PagedResults PageImagePaths(IEnumerable<string> imagePaths, int page)
+public static PagedResults PageImagePaths(IEnumerable<string> imagePaths, int page, int recordsPerPage)
         {
-            int recordsPerPage = 48; // the image page likes columns of 6, despite the max value.
             int totalImages = imagePaths.Count();
 
             IEnumerable<string> pagedImagePaths = imagePaths
-                .OrderBy(fp => fp)
                 .Skip((page) * recordsPerPage)
                 .Take(recordsPerPage);
 
