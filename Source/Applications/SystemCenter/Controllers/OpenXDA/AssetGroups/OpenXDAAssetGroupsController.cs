@@ -120,7 +120,7 @@ namespace SystemCenter.Controllers.OpenXDA
 
             if (!sortFields.Any(f => f.Equals(postData.OrderBy, StringComparison.OrdinalIgnoreCase)))
             {
-                return BadRequest($"{postData.OrderBy} is not a valid search field.")
+                return BadRequest($"{postData.OrderBy} is not a valid search field.");
             }
 
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
