@@ -21,16 +21,15 @@
 //
 //******************************************************************************************************
 
-import * as React from 'react';
 import _ from 'lodash';
+import * as React from 'react';
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
+import { ToolTip } from '@gpa-gemstone/react-forms';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { useNavigate } from "react-router-dom";
-import { LoadingIcon, Modal, Search, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
-import { ToolTip } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols'
-import { OpenXDA } from '@gpa-gemstone/application-typings';
-import { useAppSelector, useAppDispatch } from '../hooks';
-import { AssetConnectionTypeSlice } from '../Store/Store';
+import { GenericController, LoadingIcon, Modal, Search, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
 
 interface AssetConnection {
@@ -41,78 +40,54 @@ interface AssetConnection {
     AssetName: string
 }
 
-function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number}): JSX.Element{
+interface IProps {
+    Name: string
+    ID: number
+    TypeID: number
+}
+
+function AssetConnectionWindow(props: IProps): JSX.Element {
 
     let navigate = useNavigate();
-    let dispatch = useAppDispatch();
 
+    // asset connections table
     const [assetConnections, setAssetConnections] = React.useState<Array<AssetConnection>>([]);
-
-    const assetConnectionTypes = useAppSelector(AssetConnectionTypeSlice.SearchResults);
-    const [selectedAssetID, setSelectedAssetID] = React.useState<number>(0);
-    const [selectedTypeID, setSelectedtypeID] = React.useState<number>(0);
-    const [localAssets, setLocalAssets] = React.useState<Array<OpenXDA.Types.Asset>>([]);
-
-    const [sortKey, setSortKey] = React.useState<string>('AssetName');
+    const [status, setStatus] = React.useState<Application.Types.Status>('idle');
+    const [sortKey, setSortKey] = React.useState<keyof AssetConnection>('AssetName');
     const [ascending, setAscending] = React.useState<boolean>(true);
-    const [showModal, setShowModal] = React.useState<boolean>(false);
-
-    const [status, setStatus] = React.useState<'idle' | 'loading' | 'error'>('idle');
-    const actStatus = useAppSelector(AssetConnectionTypeSlice.SearchStatus);
-    const [trigger, setTrigger] = React.useState<number>(0);
-
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
+
+    // connection type selection
+    const [assetConnectionTypes, setAssetConnectionTypes] = React.useState<OpenXDA.Types.AssetConnectionType[]>([]);
+    const [assetConnectionTypeStatus, setAssetConnectionTypeStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [selectedTypeID, setSelectedtypeID] = React.useState<number>(0);
+
+    // connected asset selection
+    const [localAssets, setLocalAssets] = React.useState<OpenXDA.Types.Asset[]>([]);
+    const [localAssetStatus, setLocalAssetStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [selectedAssetID, setSelectedAssetID] = React.useState<number>(0);
+
+    // pagination info
     const [page, setPage] = React.useState<number>(0);
     const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [totalRecords, setTotalRecords] = React.useState<number>(0);
+    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
+
+    // new connection modal
+    const [showModal, setShowModal] = React.useState<boolean>(false);
+
+    //db action status
+    const [actionStatus, setActionStatus] = React.useState<Application.Types.Status>('uninitiated');
+
     const roles = useAppSelector(SelectRoles);
 
-    React.useEffect(() => {
-        let handle = getAssetConnections();
-        return () => { if (handle != null && handle.abort != null) handle.abort();}
-    }, [props.ID, trigger, page, sortKey, ascending])
 
+    // fetch AssetConnections according to page and sort
     React.useEffect(() => {
-        if (props.ID > 0) {
-            let sqlString = `(SELECT AssetRelationshipTypeID FROM AssetRelationshipTypeAssetType LEFT JOIN Asset ON `
-            sqlString = sqlString +  `Asset.AssetTypeID <> ${props.TypeID} AND Asset.AssetTypeID = AssetRelationshipTypeAssetType.assetTypeID AND `
-            sqlString = sqlString +  `Asset.ID IN (SELECT AssetID FROM AssetLocation WHERE LocationID IN (Select LocationID FROM AssetLocation WHERE AssetID = ${props.ID})) `
-            sqlString = sqlString +  `GROUP BY AssetRelationshipTypeAssetType.AssetTypeID, AssetRelationshipTypeAssetType.AssetRelationshipTypeID `
-            sqlString = sqlString +  `HAVING COUNT(Asset.ID) > 0)`
-            const filter: Search.IFilter<OpenXDA.Types.AssetConnectionType>[] = [
-                { FieldName: 'ID', SearchText: `(SELECT AssetRelationshipTypeID FROM AssetRelationshipTypeAssetType WHERE AssetTypeID = ${props.TypeID})`, Operator: 'IN', Type: 'query', IsPivotColumn: false },
-                {
-                    FieldName: 'ID', SearchText: sqlString, Operator: 'IN', Type: 'query', IsPivotColumn: false
-                }
-                ]
-            dispatch(AssetConnectionTypeSlice.DBSearch({ filter: filter }))
-        }
-        }, [props.TypeID])
-
-    React.useEffect(() => {
-        if (selectedTypeID == 0) {
-            setLocalAssets([]);
-            return;
-        }
-        let handle = getAssets();
-        return () => { if (handle != null && handle.abort != null) handle.abort(); }
-
-    }, [selectedTypeID])
-
-    React.useEffect(() => {
-        let index = assetConnectionTypes.findIndex(t => t.ID == selectedTypeID);
-        if (index == -1 && assetConnectionTypes.length> 0)
-            setSelectedtypeID(assetConnectionTypes[0].ID)
-    }, [assetConnectionTypes])
-
-    React.useEffect(() => {
-        let index = localAssets.findIndex(t => t.ID == selectedAssetID);
-        if (index == -1 && localAssets.length > 0)
-            setSelectedAssetID(localAssets[0].ID)
-    }, [localAssets])
-   
-    function getAssetConnections(): JQuery.jqXHR<OpenXDA.Types.AssetConnection> {
         setStatus('loading');
-        return $.ajax({
+
+        const handle = $.ajax({
             type: "POST",
             url: `${homePath}api/OpenXDA/Asset/${props.ID}/AssetConnections/${page}`,
             contentType: "application/json; charset=utf-8",
@@ -120,20 +95,77 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
             cache: true,
             async: true,
             data: JSON.stringify({ OrderBy: sortKey, Ascending: ascending })
-        }).done((d) => {
+        })
+
+        handle.done((d) => {
             setStatus('idle')
             setAssetConnections(JSON.parse(d.Data));
             setTotalPages(d.NumberOfPages);
-        }).fail(() => setStatus('error'));
-    }
+            setTotalRecords(d.TotalRecords);
+            setRecordsPerPage(d.RecordsPerPage);
+        })
 
-    function getAssets(): JQuery.jqXHR<string> {
+        handle.fail(() => setStatus('error'));
+
+        return () => {
+            if (handle != null && handle.abort != null)
+                handle.abort();
+        }
+    }, [props.ID, refreshTrigger, page, sortKey, ascending])
+
+    // fetch AssetRelationshipTypes for Asset Connection Type select
+    React.useEffect(() => {
+        if (props.ID <= 0) return;
+
+        setAssetConnectionTypeStatus('loading');
+
+        const sqlString = `(SELECT AssetRelationshipTypeID FROM AssetRelationshipTypeAssetType LEFT JOIN Asset ON 
+                        Asset.AssetTypeID <> ${props.TypeID} AND Asset.AssetTypeID = AssetRelationshipTypeAssetType.assetTypeID AND 
+                        Asset.ID IN (SELECT AssetID FROM AssetLocation WHERE LocationID IN (Select LocationID FROM AssetLocation WHERE AssetID = ${props.ID})) 
+                        GROUP BY AssetRelationshipTypeAssetType.AssetTypeID, AssetRelationshipTypeAssetType.AssetRelationshipTypeID 
+                        HAVING COUNT(Asset.ID) > 0)`
+
+        const filter: Search.IFilter<OpenXDA.Types.AssetConnectionType>[] = [
+            {
+                FieldName: 'ID',
+                SearchText: `(SELECT AssetRelationshipTypeID FROM AssetRelationshipTypeAssetType WHERE AssetTypeID = ${props.TypeID})`,
+                Operator: 'IN',
+                Type: 'query',
+                IsPivotColumn: false
+            },
+            {
+                FieldName: 'ID',
+                SearchText: sqlString,
+                Operator: 'IN',
+                Type: 'query',
+                IsPivotColumn: false
+            }
+        ]
+
+        const controller = new GenericController<OpenXDA.Types.AssetConnectionType>(`${homePath}api/OpenXDA/AssetConnectionType`, 'Name');
+
+        const handle = controller.DBSearch(filter);
+
+        handle.done((d) => {
+            setAssetConnectionTypes(d);
+            setAssetConnectionTypeStatus('idle');
+        })
+    }, [props.TypeID])
+
+    // fetch local assets for Connecting Asset select
+    React.useEffect(() => {
+        if (selectedTypeID == 0) {
+            setLocalAssets([]);
+            return;
+        }
+        setLocalAssetStatus('loading');
+
         const filter = [
             { FieldName: 'ID', SearchText: `(SELECT AssetID FROM AssetLocation WHERE LocationID IN (SELECT LocationID FROM AssetLocation WHERE AssetID = ${props.ID}))`, Operator: 'IN', Type: 'query', IsPivotColumn: false },
             { FieldName: 'AssetTypeID', SearchText: `(SELECT AssetTypeID FROM AssetRelationshipTypeAssetType WHERE AssetRelationshipTypeID = ${selectedTypeID} AND AssetTypeID <> ${props.TypeID})`, Operator: 'IN', Type: 'query', IsPivotColumn: false }
         ]
-        setStatus('loading');
-        return $.ajax({
+
+        let handle = $.ajax({
             type: 'POST',
             url: `${homePath}api/OpenXDA/Asset/SearchableList`,
             contentType: "application/json; charset=utf-8",
@@ -141,14 +173,34 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
             data: JSON.stringify({ Searches: filter, OrderBy: 'AssetName', Ascending: false }),
             cache: false,
             async: true
-        }).done((d) => {
-            setStatus('idle')
+        })
+
+        handle.done((d) => {
+            setLocalAssetStatus('idle')
             setLocalAssets(JSON.parse(d) as OpenXDA.Types.Asset[]);
-        }).fail(() => setStatus('error'));
-    }
+        })
+
+        handle.fail(() => setLocalAssetStatus('error'));
+        return () => { if (handle != null && handle.abort != null) handle.abort(); }
+
+    }, [selectedTypeID])
+
+    // reset selected type when assetConnectionTypes changes and selectedTypeID no longer exists.
+    React.useEffect(() => {
+        let index = assetConnectionTypes.findIndex(t => t.ID == selectedTypeID);
+        if (index == -1 && assetConnectionTypes.length > 0)
+            setSelectedtypeID(assetConnectionTypes[0].ID)
+    }, [assetConnectionTypes])
+
+    // reset selected asset when localAssets changes and selectedAssetID no longer exists.
+    React.useEffect(() => {
+        let index = localAssets.findIndex(t => t.ID == selectedAssetID);
+        if (index == -1 && localAssets.length > 0)
+            setSelectedAssetID(localAssets[0].ID)
+    }, [localAssets])
 
     async function deleteAssetConnection(connection: AssetConnection) {
-        setStatus('loading')
+        setActionStatus('loading')
         return $.ajax({
             type: "DELETE",
             url: `${homePath}api/OpenXDA/Asset/${props.ID}/AssetConnection/${connection.AssetID}`,
@@ -157,27 +209,28 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
             cache: true,
             async: true
         }).done(() => {
-            setTrigger(x => x + 1);
-
+            setActionStatus('idle');
+            setRefreshTrigger(val => !val);
         }).fail(() => {
-            setStatus('error')
+            setActionStatus('error');
         });
     }
 
-    function addConnection() {
-        setStatus('loading')
+    async function addConnection(selectedTypeID: number, selectedAssetID: number) {
+        setActionStatus('loading');
         $.ajax({
             type: "POST",
             url: `${homePath}api/OpenXDA/AssetConnection/Add`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify({ ID: 0, AssetRelationshipTypeID: selectedTypeID, ParentID: props.ID, ChildID: selectedAssetID}),
+            data: JSON.stringify({ ID: 0, AssetRelationshipTypeID: selectedTypeID, ParentID: props.ID, ChildID: selectedAssetID }),
             cache: false,
             async: true
         }).done(() => {
-            setTrigger(x => x + 1);
+            setActionStatus('idle');
+            setRefreshTrigger(val => !val);
         }).fail(() => {
-            setStatus('error')
+            setActionStatus('error');
         });
     }
 
@@ -192,12 +245,19 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
         return true;
     }
 
-    if (status == 'error' || actStatus == 'error')
+    if (status === 'error' || assetConnectionTypeStatus === 'error' || localAssetStatus === "error" || actionStatus === "error")
         return <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
                         <h4>Assets:</h4>
+                    </div>
+                </div>]
+                <div className="row">
+                    <div className="col">
+                        <p style={{ marginTop: 2, marginBottom: 2 }}>
+                            {'Could not complete Search'}
+                        </p>
                     </div>
                 </div>
             </div>
@@ -210,7 +270,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
             </div>
         </div>
 
-    if (status == 'loading' || actStatus == 'loading' )
+    if (status == 'loading' || assetConnectionTypeStatus == 'loading' || localAssetStatus === "loading" || actionStatus === "loading")
         return <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
                 <div className="row">
@@ -225,10 +285,17 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                         <LoadingIcon Show={true} Size={40} Label={''} />
                     </div>
                 </div>
+                <div className="row">
+                    <div className="col">
+                        <p style={{ marginTop: 2, marginBottom: 2 }}>
+                            {'Loading...'}
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
 
-    const connectionsAvailable = !(assetConnectionTypes == undefined) && (assetConnectionTypes.length > 0);
+    const connectionsAvailable = (assetConnectionTypes != null && assetConnectionTypes.length > 0) && (localAssets != null && localAssets.length > 0);
     return (
         <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="card-header">
@@ -237,71 +304,84 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                         <h4>Connections:</h4>
                     </div>
                 </div>
+                <div className="row">
+                    <div className="col">
+                        <p style={{ marginTop: 2, marginBottom: 2 }}>
+                            {`Displaying Asset Connection(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + assetConnections.length} out of ${totalRecords}`}
+                        </p>
+                    </div>
+                </div>
             </div>
             <div className="card-body d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
                 <div className="row d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
-                <Table<AssetConnection>
-                    TableClass="table table-hover"
-                    Data={assetConnections}
-                    SortKey={sortKey}
-                    Ascending={ascending}
-                    OnSort={(d) => {
-                        if (d.colKey === "DeleteButton")
-                            return;
+                    <Table<AssetConnection>
+                        TableClass="table table-hover"
+                        Data={assetConnections}
+                        SortKey={sortKey}
+                        Ascending={ascending}
+                        OnSort={(d) => {
+                            if (d.colKey === "DeleteButton")
+                                return;
 
-                        if (d.colKey === sortKey) {
-                            setAscending(!ascending);
-                        }
-                        else {
-                            setAscending(true);
-                            setSortKey(d.colKey);
-                        }
-                    }}
-                    TableStyle={{ height: '100%' }}
-                    TheadStyle={{ fontSize: 'smaller' }}
-                    RowStyle={{ fontSize: 'smaller' }}
-                    OnClick={handleSelect}
-                    Selected={(item) => false}
-                    KeySelector={(item) => item.AssetID}
-                >
-                    <Column<AssetConnection>
-                        Key={'AssetName'}
-                        AllowSort={true}
-                        Field={'AssetName'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                    > Asset Name
-                    </Column>
-                    <Column<AssetConnection>
-                        Key={'AssetKey'}
-                        AllowSort={true}
-                        Field={'AssetKey'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                    > Asset Key
-                    </Column>
-                    <Column<AssetConnection>
-                        Key={'Name'}
-                        AllowSort={true}
-                        Field={'Name'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                    > Relationship
-                    </Column>
-                    <Column<AssetConnection>
-                        Key={'DeleteButton'}
-                        AllowSort={false}
-                        HeaderStyle={{ width: '6%' }}
-                        RowStyle={{ width: '6%' }}
-                        Content={({ item }) => <>
-                            <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                if (hasPermissions()) deleteAssetConnection(item);
-                            }}><span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span></button>
-                        </> }
-                    > <p></p>
-                    </Column>
+                            if (d.colKey === sortKey) {
+                                setAscending(!ascending);
+                            }
+                            else {
+                                setAscending(true);
+                                setSortKey(d.colKey as keyof AssetConnection);
+                            }
+                        }}
+                        TableStyle={{ height: '100%' }}
+                        TheadStyle={{ fontSize: 'smaller' }}
+                        RowStyle={{ fontSize: 'smaller' }}
+                        OnClick={handleSelect}
+                        Selected={(item) => false}
+                        KeySelector={(item) => item.AssetID}
+                    >
+                        <Column<AssetConnection>
+                            Key={'AssetName'}
+                            AllowSort={true}
+                            Field={'AssetName'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Asset Name
+                        </Column>
+                        <Column<AssetConnection>
+                            Key={'AssetKey'}
+                            AllowSort={true}
+                            Field={'AssetKey'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Asset Key
+                        </Column>
+                        <Column<AssetConnection>
+                            Key={'Name'}
+                            AllowSort={true}
+                            Field={'Name'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Relationship
+                        </Column>
+                        <Column<AssetConnection>
+                            Key={'DeleteButton'}
+                            AllowSort={false}
+                            HeaderStyle={{ width: '6%' }}
+                            RowStyle={{ width: '6%' }}
+                            Content={({ item }) => <>
+                                <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        if (hasPermissions())
+                                            deleteAssetConnection(item);
+                                    }}>
+                                    <span>
+                                        <ReactIcons.TrashCan Color="var(--danger)" Size={20} />
+                                    </span>
+                                </button>
+                            </>}
+                        > <p></p>
+                        </Column>
                     </Table>
                 </div>
                 <div className="row">
@@ -316,20 +396,32 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-info pull-right" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='Connect'
-                        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={(evt) => { evt.preventDefault(); if (hasPermissions()) setShowModal(true); }}>Add Connection</button>
+                    <button className={"btn btn-info pull-right" + (!hasPermissions() ? ' disabled' : '')}
+                        data-tooltip='Connect'
+                        onMouseEnter={() => setHover('Update')}
+                        onMouseLeave={() => setHover('None')}
+                        onClick={(evt) => { evt.preventDefault(); if (hasPermissions()) setShowModal(true); }}
+                    >
+                        Add Connection
+                    </button>
                 </div>
                 <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Target={"Connect"}>
                     <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                 </ToolTip>
             </div>
 
-            <Modal Show={showModal} Title={'Add Connection to ' + (props.Name ?? 'Asset')} ShowCancel={false} ShowX={true}
+            <Modal
+                Show={showModal}
+                Title={'Add Connection to ' + (props.Name ?? 'Asset')}
+                ShowCancel={false}
+                ShowX={true}
                 CallBack={(conf) => {
                     if (conf)
-                        addConnection();
+                        addConnection(selectedTypeID, selectedAssetID);
                     setShowModal(false);
-                }} ConfirmText={'Save'} DisableConfirm={!connectionsAvailable}>
+                }}
+                ConfirmText={'Save'}
+                DisableConfirm={!connectionsAvailable}>
                 {connectionsAvailable ?
                     <>
                         <div className="alert alert-info" role="alert">
@@ -357,10 +449,11 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                     </> :
                     <div className="alert alert-warning" role="alert">
                         <p>There are no Assets at this Substation that can be connected to {props.Name}.</p>
-                    </div>}
+                    </div>
+                }
             </Modal>
         </div>
-                
+
     );
 
 }
