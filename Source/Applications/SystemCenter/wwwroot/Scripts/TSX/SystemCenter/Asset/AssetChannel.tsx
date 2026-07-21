@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
+import { Application } from '@gpa-gemstone/application-typings';
 import { PhaseSlice, MeasurmentTypeSlice } from '../Store/Store'
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { useAppSelector } from '../hooks';
@@ -77,36 +77,30 @@ const AssetChannelWindow = (props: IProps) => {
     const [totalPages, setTotalPages] = React.useState<number>(0);
 
     React.useEffect(() => {
-        let channelHandle = getChannels();
-
-        Promise.all([channelHandle]);
-
-        return () => {
-            if (channelHandle != null && channelHandle.abort != null)
-                channelHandle.abort();
-        }
-    }, [props.ID, ascending, page, sortField]);
-
-    function getChannels(): JQuery.jqXHR<ChannelDetail[]> {
-        setStatus('loading');
-        return $.ajax(
-            {
+        const channelHandle = $.ajax({
                 type: "POST",
                 url: `${homePath}api/OpenXDA/Asset/${props.ID}/ConnectedChannels/${page}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: true,
                 async: true,
-                data: JSON.stringify({OrderBy: sortField, Ascending: ascending, Searches: []})
-            }
-        ).done(
+                data: JSON.stringify({ OrderBy: sortField, Ascending: ascending, Searches: [] })
+            })
+
+        channelHandle.done(
             (d) => {
                 setAssetChannels(JSON.parse(d.Data))
                 setTotalPages(d.NumberOfPages)
                 setStatus('idle');
-            }
-        ).fail(() => setStatus('error'));
-    }
+            })
+
+        channelHandle.fail(() => setStatus('error'));
+
+        return () => {
+            if (channelHandle != null && channelHandle.abort != null)
+                channelHandle.abort();
+        }
+    }, [props.ID, ascending, page, sortField]);
 
     if (status == 'error' || pStatus == 'error' || mtStatus == 'error')
         return <div className="card" style={{ marginBottom: 10 }}>
@@ -156,93 +150,92 @@ const AssetChannelWindow = (props: IProps) => {
             <div className="card-body" style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
                 <div className="row d-flex flex-column" style={{ flex: '1 1 0%', overflow: 'hidden' }}>
                     <div className="col d-flex flex-column" style={{ overflow: 'hidden' }}>
-                <Table<ChannelDetail>
-                    TableClass="table table-hover"
-                    Data={assetChannels}
-                    SortKey={sortField}
-                    Ascending={ascending}
-                    OnSort={(d) => {
-                                setPage(0)
-                        if (d.colKey == sortField) {
-                            setAscending(!ascending);
-                        }
-                        else {
-                            setAscending(true);
-                            setSortField(d.colField);
-                        }
-                    }}
-                    TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
-                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
-                    RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    Selected={(item) => false}
-                    KeySelector={(item) => item.ID}
-                >
-                    <Column<ChannelDetail>
-                        Key={'Name'}
-                        AllowSort={true}
-                        Field={'Name'}
-                        HeaderStyle={{ width: '15%' }}
-                        RowStyle={{ width: '15%' }}
-                    > Label
-                    </Column>
-                    <Column<ChannelDetail>
-                        Key={'MeterName'}
-                        AllowSort={true}
-                        Field={'MeterName'}
-                        HeaderStyle={{ width: '15%' }}
-                        RowStyle={{ width: '15%' }}
-                        Content={(row) => <a href={`${homePath}index.cshtml?name=Meter&MeterID=${row.item.MeterID}&Tab=${row.item.Trend ? "trendChannels" : "eventChannels"}`} target='_blank'>{row.item.MeterName}</a>}
-                    > Meter Name
-                    </Column>
-                    <Column<ChannelDetail>
-                        Key={'AssetName'}
-                        AllowSort={true}
-                        Field={'AssetName'}
-                        HeaderStyle={{ width: '15%' }}
-                        RowStyle={{ width: '15%' }}
-                        Content={(row) => (row.item.AssetID !== props.ID ?
-                            <a href={`${homePath}index.cshtml?name=Asset&AssetID=${row.item.AssetID}&Tab=channels`} target='_blank'>{row.item.AssetName}</a> :
-                            row.item.AssetName
-                        )}
-                    > Asset Name
-                    </Column>
-                    <Column<ChannelDetail>
-                        Key={'MeasurementType'}
-                        AllowSort={true}
-                        Field={'MeasurementType'}
-                        HeaderStyle={{ width: '8%' }}
-                        RowStyle={{ width: '8%' }}
-                    > Type
-                    </Column>
-                    <Column<ChannelDetail>
-                        Key={'Phase'}
-                        AllowSort={true}
-                        Field={'Phase'}
-                        HeaderStyle={{ width: '8%' }}
-                        RowStyle={{ width: '8%' }}
-                    > Phase
-                    </Column>
-                    <Column<ChannelDetail>
-                        Key={'AssetID'}
-                        AllowSort={true}
-                        Field={'AssetID'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                        Content={row => row.item.AssetID !== props.ID ? <ReactIcons.CheckMark Color="var(--success)" /> : <></>}
-                    > Shared Via Asset Connection
-                    </Column>
-                    <Column<ChannelDetail>
-                        Key={'Description'}
-                        AllowSort={true}
-                        Field={'Description'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                    > Description
-                    </Column>
-                </Table>
-            </div>
-        </div>
+                        <Table<ChannelDetail>
+                            TableClass="table table-hover"
+                            Data={assetChannels}
+                            SortKey={sortField}
+                            Ascending={ascending}
+                            OnSort={(d) => {
+                                if (d.colKey == sortField) {
+                                    setAscending(!ascending);
+                                }
+                                else {
+                                    setAscending(true);
+                                    setSortField(d.colField);
+                                }
+                            }}
+                            TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
+                            RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            Selected={(item) => false}
+                            KeySelector={(item) => item.ID}
+                        >
+                            <Column<ChannelDetail>
+                                Key={'Name'}
+                                AllowSort={true}
+                                Field={'Name'}
+                                HeaderStyle={{ width: '15%' }}
+                                RowStyle={{ width: '15%' }}
+                            > Label
+                            </Column>
+                            <Column<ChannelDetail>
+                                Key={'MeterName'}
+                                AllowSort={true}
+                                Field={'MeterName'}
+                                HeaderStyle={{ width: '15%' }}
+                                RowStyle={{ width: '15%' }}
+                                Content={(row) => <a href={`${homePath}index.cshtml?name=Meter&MeterID=${row.item.MeterID}&Tab=${row.item.Trend ? "trendChannels" : "eventChannels"}`} target='_blank'>{row.item.MeterName}</a>}
+                            > Meter Name
+                            </Column>
+                            <Column<ChannelDetail>
+                                Key={'AssetName'}
+                                AllowSort={true}
+                                Field={'AssetName'}
+                                HeaderStyle={{ width: '15%' }}
+                                RowStyle={{ width: '15%' }}
+                                Content={(row) => (row.item.AssetID !== props.ID ?
+                                    <a href={`${homePath}index.cshtml?name=Asset&AssetID=${row.item.AssetID}&Tab=channels`} target='_blank'>{row.item.AssetName}</a> :
+                                    row.item.AssetName
+                                )}
+                            > Asset Name
+                            </Column>
+                            <Column<ChannelDetail>
+                                Key={'MeasurementType'}
+                                AllowSort={true}
+                                Field={'MeasurementType'}
+                                HeaderStyle={{ width: '8%' }}
+                                RowStyle={{ width: '8%' }}
+                            > Type
+                            </Column>
+                            <Column<ChannelDetail>
+                                Key={'Phase'}
+                                AllowSort={true}
+                                Field={'Phase'}
+                                HeaderStyle={{ width: '8%' }}
+                                RowStyle={{ width: '8%' }}
+                            > Phase
+                            </Column>
+                            <Column<ChannelDetail>
+                                Key={'AssetID'}
+                                AllowSort={true}
+                                Field={'AssetID'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                                Content={row => row.item.AssetID !== props.ID ? <ReactIcons.CheckMark Color="var(--success)" /> : <></>}
+                            > Shared Via Asset Connection
+                            </Column>
+                            <Column<ChannelDetail>
+                                Key={'Description'}
+                                AllowSort={true}
+                                Field={'Description'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Description
+                            </Column>
+                        </Table>
+                    </div>
+                </div>
                 <div className="row">
                     <div className="col">
                         <Paging
@@ -258,4 +251,4 @@ const AssetChannelWindow = (props: IProps) => {
 }
 
 export default AssetChannelWindow
-;
+    ;
