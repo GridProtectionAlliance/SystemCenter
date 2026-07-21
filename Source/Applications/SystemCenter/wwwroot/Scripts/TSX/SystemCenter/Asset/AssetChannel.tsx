@@ -277,5 +277,4 @@ const AssetChannelWindow = (props: IProps) => {
     );
 }
 
-export default AssetChannelWindow
-    ;
+export default AssetChannelWindow;
