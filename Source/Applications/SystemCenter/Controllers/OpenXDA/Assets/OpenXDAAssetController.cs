@@ -230,7 +230,7 @@ namespace SystemCenter.Controllers.OpenXDA
 
             PagedResults results = new PagedResults();
 
-            string[] sortFields = { "AssetName", "AssetKey", "Relationship" };
+            string[] sortFields = { "AssetName", "AssetKey", "Name" };
 
             if (!sortFields.Any(f => f.Equals(postData.OrderBy, StringComparison.OrdinalIgnoreCase)))
                 return BadRequest($"{postData.OrderBy} is not a valid search field.");

@@ -98,11 +98,13 @@ function AssetConnectionWindow(props: IProps): JSX.Element {
         })
 
         handle.done((d) => {
-            setStatus('idle')
             setAssetConnections(JSON.parse(d.Data));
             setTotalPages(d.NumberOfPages);
             setTotalRecords(d.TotalRecords);
             setRecordsPerPage(d.RecordsPerPage);
+            if (page >= d.NumberOfPages)
+                setPage(d.NumberOfPages - 1);
+            setStatus('idle')
         })
 
         handle.fail(() => setStatus('error'));
@@ -245,14 +247,14 @@ function AssetConnectionWindow(props: IProps): JSX.Element {
         return true;
     }
 
-    if (status === 'error' || assetConnectionTypeStatus === 'error' || localAssetStatus === "error" || actionStatus === "error")
+    if (status === 'error' || actionStatus === "error")
         return <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
                         <h4>Assets:</h4>
                     </div>
-                </div>]
+                </div>
                 <div className="row">
                     <div className="col">
                         <p style={{ marginTop: 2, marginBottom: 2 }}>
@@ -270,7 +272,7 @@ function AssetConnectionWindow(props: IProps): JSX.Element {
             </div>
         </div>
 
-    if (status == 'loading' || assetConnectionTypeStatus == 'loading' || localAssetStatus === "loading" || actionStatus === "loading")
+    if (status === 'loading' || actionStatus === 'loading')
         return <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
                 <div className="row">
@@ -433,18 +435,33 @@ function AssetConnectionWindow(props: IProps): JSX.Element {
                         </div>
                         <div className="form-group">
                             <label>Select Connection Type:</label>
-                            <select className="form-control" value={selectedTypeID} onChange={(evt) => {
-                                setSelectedtypeID(parseInt(evt.target.value))
-                            }}>
-                                {assetConnectionTypes.map(als => <option value={als.ID} key={als.ID}>{als.Name}</option>)}
-                            </select>
+                            {
+                                assetConnectionTypeStatus === 'idle' ?
+                                    <select className="form-control" value={selectedTypeID} onChange={(evt) => {
+                                        setSelectedtypeID(parseInt(evt.target.value))
+                                    }}>
+                                        {assetConnectionTypes.map(als => <option value={als.ID} key={als.ID}>{als.Name}</option>)}
+                                    </select> :
+                                    <>
+                                        <LoadingIcon Show={assetConnectionTypeStatus != "error"} />
+                                        <ServerErrorIcon Show={assetConnectionTypeStatus === 'error'} />
+                                    </>
+                            }
 
                             <label>Select Connecting Asset:</label>
-                            <select className="form-control" value={selectedAssetID} onChange={(evt) => {
-                                setSelectedAssetID(parseInt(evt.target.value));
-                            }}>
-                                {localAssets.map(als => <option value={als.ID} key={als.ID}>{als.AssetName} ({als.AssetKey})</option>)}
-                            </select>
+                            {
+                                localAssetStatus === "idle" ?
+                                    <select className="form-control" value={selectedAssetID} onChange={(evt) => {
+                                        setSelectedAssetID(parseInt(evt.target.value));
+                                    }}>
+                                        {localAssets.map(als => <option value={als.ID} key={als.ID}>{als.AssetName} ({als.AssetKey})</option>)}
+                                    </select> :
+                                    <>
+                                        <LoadingIcon Show={localAssetStatus != "error"} />
+                                        <ServerErrorIcon Show={localAssetStatus === 'error'} />
+                                    </>
+                            }
+
                         </div>
                     </> :
                     <div className="alert alert-warning" role="alert">
