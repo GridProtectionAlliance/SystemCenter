@@ -75,23 +75,27 @@ const AssetChannelWindow = (props: IProps) => {
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [page, setPage] = React.useState<number>(0);
     const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [totalRecords, setTotalRecords] = React.useState<number>(0);
+    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
 
     React.useEffect(() => {
         setStatus('loading')
         const channelHandle = $.ajax({
-                type: "POST",
-                url: `${homePath}api/OpenXDA/Asset/${props.ID}/ConnectedChannels/${page}`,
-                contentType: "application/json; charset=utf-8",
-                dataType: 'json',
-                cache: true,
-                async: true,
-                data: JSON.stringify({ OrderBy: sortField, Ascending: ascending, Searches: [] })
-            })
+            type: "POST",
+            url: `${homePath}api/OpenXDA/Asset/${props.ID}/ConnectedChannels/${page}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true,
+            data: JSON.stringify({ OrderBy: sortField, Ascending: ascending, Searches: [] })
+        })
 
         channelHandle.done(
             (d) => {
-                setAssetChannels(JSON.parse(d.Data))
-                setTotalPages(d.NumberOfPages)
+                setAssetChannels(JSON.parse(d.Data));
+                setTotalPages(d.NumberOfPages);
+                setTotalRecords(d.TotalRecords);
+                setRecordsPerPage(d.RecordsPerPage);
                 setStatus('idle');
             })
 
@@ -109,6 +113,14 @@ const AssetChannelWindow = (props: IProps) => {
                 <div className="row">
                     <div className="col">
                         <h4>Channels:</h4>
+                    </div>
+                </div>
+
+                <div className="row">
+                    <div className="col">
+                        <p style={{ marginTop: 2, marginBottom: 2 }}>
+                            {'Could not complete Search'}
+                        </p>
                     </div>
                 </div>
             </div>
@@ -129,6 +141,13 @@ const AssetChannelWindow = (props: IProps) => {
                         <h4>Channels:</h4>
                     </div>
                 </div>
+                <div className="row">
+                    <div className="col">
+                        <p style={{ marginTop: 2, marginBottom: 2 }}>
+                            {'Loading...'}
+                        </p>
+                    </div>
+                </div>
             </div>
             <div className="card-body">
                 <div style={{ width: '100%', height: '200px' }}>
@@ -145,6 +164,13 @@ const AssetChannelWindow = (props: IProps) => {
                 <div className="row">
                     <div className="col">
                         <h4>Channels:</h4>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <p style={{ marginTop: 2, marginBottom: 2 }}>
+                            {`Displaying Asset Channel(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + assetChannels.length} out of ${totalRecords}`}
+                        </p>
                     </div>
                 </div>
             </div>
