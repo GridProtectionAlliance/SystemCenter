@@ -106,15 +106,10 @@ namespace SystemCenter.Model.Security
         {
             if (!GetAuthCheck())
                 return Unauthorized();
-
-            string orderBySwitch(string orderBy)
-            {
-                String[] valid = ["Phone", "Email", "FirstName", "LastName"];
-                if (valid.Contains(orderBy))
-                    return orderBy;
-                else
-                    return "Name";
-            }
+            
+            String[] sortFields = { "Phone", "Email", "FirstName", "LastName", "AccountName" };
+            if (!sortFields.Any(f => f.Equals(postData.OrderBy, StringComparison.OrdinalIgnoreCase)))
+                return BadRequest("Invalid 'OrderBy' field.");
 
             PagedResults pagedResults = new PagedResults();
 
@@ -122,23 +117,11 @@ namespace SystemCenter.Model.Security
 
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
-                string sql = $"SELECT UserAccount.*, UserAccount.Name as AccountName FROM SecurityGroupUserAccount JOIN UserAccount ON UserAccountID = UserAccount.ID WHERE SecurityGroupID = {{0}} ORDER BY {orderBySwitch(postData.OrderBy)} {(postData.Ascending ? "ASC" : "DESC")}";
+                string sql = $"SELECT UserAccount.*, UserAccount.Name as AccountName FROM SecurityGroupUserAccount JOIN UserAccount ON UserAccountID = UserAccount.ID WHERE SecurityGroupID = {{0}} ORDER BY {postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")} OFFSET {page * recordsPerPage} ROWS FETCH NEXT {recordsPerPage} ROWS ONLY";
                 string countSql = "SELECT COUNT(*) FROM SecurityGroupUserAccount JOIN UserAccount ON UserAccountID = UserAccount.ID WHERE SecurityGroupID = {0}";
 
                 DataTable results = connection.RetrieveData(sql, groupID.ToString());
                 int count = connection.ExecuteScalar<int>(countSql, groupID);
-
-                DataRow[] rows = results.AsEnumerable()
-                    .Skip((page) * recordsPerPage)
-                    .Take(recordsPerPage)
-                    .ToArray();
-
-                DataTable pagedTable = results.Clone();
-
-                foreach (DataRow row in rows)
-                    pagedTable.ImportRow(row);
-
-                results = pagedTable;
 
                 // paged results setting
                 pagedResults.Data = JsonConvert.SerializeObject(results);
