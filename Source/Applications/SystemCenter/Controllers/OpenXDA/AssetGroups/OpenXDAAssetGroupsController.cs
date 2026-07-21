@@ -157,7 +157,7 @@ namespace SystemCenter.Controllers.OpenXDA
 
                 string sql = $@"{allSql}
                             ORDER BY {postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")}
-                            OFFSET {page * recordsPerPage} ROWS FETCH NEXT {recordsPerPage} ROWS ONLY;
+                            OFFSET {page * recordsPerPage} ROWS FETCH NEXT {recordsPerPage} ROWS ONLY
                             ";
 
                 DataTable records = connection.RetrieveData(sql, assetGroupID);
