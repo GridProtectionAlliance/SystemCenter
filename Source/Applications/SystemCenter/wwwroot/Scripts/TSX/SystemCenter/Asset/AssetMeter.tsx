@@ -21,15 +21,15 @@
 //
 //******************************************************************************************************
 
-import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
-import { Table, Column, Paging } from '@gpa-gemstone/react-table';
+import * as React from 'react';
 import { useNavigate } from "react-router-dom";
+import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
-import { ByMeterSlice } from '../Store/Store';
-import { Search } from '@gpa-gemstone/react-interactive';
 import { ToolTip } from '@gpa-gemstone/react-forms';
+import { Search } from '@gpa-gemstone/react-interactive';
+import { Column, Paging, Table } from '@gpa-gemstone/react-table';
+import { ByMeterSlice } from '../Store/Store';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
 
@@ -38,16 +38,30 @@ declare var homePath: string;
 function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
     let navigate = useNavigate();
     const dispatch = useAppDispatch();
+
+    // meter table
     const [meters, setMeters] = React.useState<Array<OpenXDA.Types.Meter>>([]);
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [sortField, setSortField] = React.useState<keyof(OpenXDA.Types.Meter)>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
+    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
+
+    // meter pagination
+    const [page, setPage] = React.useState<number>(0);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [totalRecords, setTotalRecords] = React.useState<number>(0);
+    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
+
+    // db actions
+    const [actionStatus, setActionStatus] = React.useState<Application.Types.Status>('idle')
+
+    // selects
     const [showAdd, setShowAdd] = React.useState<boolean>(false);
     const allMeters = useAppSelector(ByMeterSlice.Data);
     const mStatus = useAppSelector(ByMeterSlice.Status);
     const mParentID = useAppSelector(ByMeterSlice.ParentID);
-    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
-    const [page, setPage] = React.useState<number>(0);
-    const [totalPages, setTotalPages] = React.useState<number>(0);
+
     const roles = useAppSelector(SelectRoles);
 
     React.useEffect(() => {
@@ -56,16 +70,11 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
     }, [mStatus, mParentID]);
 
 
+    // fetch asset meters paged and sorted
     React.useEffect(() => {
-        return getMeters();
-    }, [ascending, sortField, page])
+        setStatus('loading');
 
-    React.useEffect(() => {
-        getMeters();
-    }, [props.Asset]);
-
-    function getMeters(): void {
-        $.ajax({
+        const h = $.ajax({
             type: "POST",
             url: `${homePath}api/OpenXDA/Asset/${props.Asset.ID}/Meters/${page}`,
             contentType: "application/json; charset=utf-8",
@@ -73,13 +82,28 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
             cache: true,
             async: true,
             data: JSON.stringify({ OrderBy: sortField, Ascending: ascending })
-        }).done(d => {
+        })
+
+        h.done(d => {
             setMeters(JSON.parse(d.Data));
             setTotalPages(d.NumberOfPages);
-        });
-    }
+            setTotalRecords(d.TotalRecords);
+            setRecordsPerPage(d.RecordsPerPage);
 
-    function addMeter(meterID: number) {
+            if (d.NumberOfPages == 0)
+                setPage(0);
+            else if (page >= d.NumberOfPages)
+                setPage(d.NumberOfPages - 1);
+
+            setStatus('idle');
+        });
+
+        h.fail(() => setStatus('error'))
+    }, [ascending, sortField, page, refreshTrigger, props.Asset.ID])
+
+    async function addMeter(meterID: number) {
+        setActionStatus('loading');
+
         return $.ajax({
             type: "POST",
             url: `${homePath}api/OpenXDA/Asset/${props.Asset.ID}/Meter/${meterID}`,
@@ -88,8 +112,10 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
             cache: true,
             async: true
         }).done(record => {
-            getMeters();
+            setRefreshTrigger(val => !val);
+            setActionStatus('idle');
         }).fail((msg) => {
+            setActionStatus('error');
             if (msg.status == 500)
                 alert(msg.responseJSON.ExceptionMessage)
         });
@@ -149,6 +175,7 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
     }
 
     async function deleteMeter(meter: OpenXDA.Types.Meter) {
+        setActionStatus('loading');
         return $.ajax({
             type: "DELETE",
             url: `${homePath}api/OpenXDA/Asset/${props.Asset.ID}/Meter/${meter.ID}`,
@@ -157,8 +184,10 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
             cache: true,
             async: true
         }).done(() => {
-            getMeters();
+            setRefreshTrigger(val => !val);
+            setActionStatus('idle');
         }).fail((msg) => {
+            setActionStatus('error');
             if (msg.status == 500)
                 alert(msg.responseJSON.ExceptionMessage)
         });
@@ -176,6 +205,15 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
                 <div className="row">
                     <div className="col">
                         <h4>Meters:</h4>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <p style={{ marginTop: 2, marginBottom: 2 }}>
+                            {status === 'error' ? 'Could not complete Search' :
+                                status === 'loading' ? 'Loading...' :
+                                    `Displaying Meter(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + meters.length} out of ${totalRecords}`}
+                        </p>
                     </div>
                 </div>
             </div>
