@@ -62,7 +62,8 @@ function AssetAssetGroupWindow(props: IProps) {
     const [removeAsset, setRemoveAsset] = React.useState<number>(-1);
 
     // db actions
-    const [actionStatus, setActionStatus] = React.useState<Application.Types.Status>('idle');
+    const [addStatus, setAddStatus] = React.useState<Application.Types.Status>('idle');
+    const [removeStatus, setRemoveStatus] = React.useState<Application.Types.Status>('idle');
 
     const roles = useAppSelector(SelectRoles);
 
@@ -102,7 +103,7 @@ function AssetAssetGroupWindow(props: IProps) {
 
 
     async function saveItems(items: SystemCenter.Types.DetailedAsset[]) {
-        setActionStatus('loading');
+        setAddStatus('loading');
 
         const handle = $.ajax({
             type: "POST",
@@ -115,11 +116,11 @@ function AssetAssetGroupWindow(props: IProps) {
         });
 
         handle.done(d => {
-            setActionStatus('idle')
+            setAddStatus('idle')
             setRefreshTrigger(val => !val);
         })
 
-        handle.fail(() => setActionStatus('error'));
+        handle.fail(() => setAddStatus('error'));
 
         return () => {
             if (handle != null && handle.abort != null)
@@ -128,7 +129,7 @@ function AssetAssetGroupWindow(props: IProps) {
     }
 
     async function removeItem(id: number) {
-        setActionStatus('loading');
+        setRemoveStatus('loading');
 
         const handle = $.ajax({
             type: "GET",
@@ -140,11 +141,11 @@ function AssetAssetGroupWindow(props: IProps) {
         });
 
         handle.done(d => {
-            setActionStatus('idle')
+            setRemoveStatus('idle')
             setRefreshTrigger(val => !val);
         })
 
-        handle.fail(() => setActionStatus('error'));
+        handle.fail(() => setRemoveStatus('error'));
 
         return () => {
             if (handle != null && handle.abort != null)

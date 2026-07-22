@@ -24,7 +24,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '@gpa-gemstone/application-typings';
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { useNavigate } from 'react-router-dom';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { AssetGroupSlice } from '../Store/Store';
@@ -40,17 +40,28 @@ declare var homePath: string;
 
 function AssetGroupAssetGroupWindow(props: { AssetGroupID: number }) {
     let navigate = useNavigate();
-    const dispatch = useAppDispatch();
-    const [groupList, setGroupList] = React.useState<Array<OpenXDA.Types.AssetGroup>>([]);
+
+    // asset group table
+    const [groups, setGroups] = React.useState<OpenXDA.Types.AssetGroup[]>([]);
+    const [groupStatus, setGroupStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [sortField, setSortField] = React.useState<string>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
-    const [showAdd, setShowAdd] = React.useState<boolean>(false);
-    const [counter, setCounter] = React.useState<number>(0);
-    const [removeGroup, setRemoveGroup] = React.useState<number>(-1);
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
+    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
+
+    // asset group pagination
     const [page, setPage] = React.useState<number>(0);
     const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [totalRecords, setTotalRecords] = React.useState<number>(0);
+    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
 
-    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
+    const [showAdd, setShowAdd] = React.useState<boolean>(false);
+    const [removeGroup, setRemoveGroup] = React.useState<number>(-1);
+
+    // db actions
+    const [addStatus, setAddStatus] = React.useState<Application.Types.Status>('idle');
+    const [removeStatus, setRemoveStatus] = React.useState<Application.Types.Status>('idle');
+
     const roles = useAppSelector(SelectRoles);
 
     const noSameFilter: Search.IFilter<OpenXDA.Types.RemoteXDAMeter> =
@@ -63,38 +74,35 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number }) {
     };
 
     React.useEffect(() => {
-        dispatch(AssetGroupSlice.SetChanged());
-        return getData();
-    }, [props.AssetGroupID, counter]);
+        if (props.AssetGroupID == null) return
 
-    React.useEffect(() => {
-        return getData();
-    }, [ascending, sortField, page])
-
-    function getData() {
-        if (props.AssetGroupID == null)
-            return () => { };
-
-        let handle = $.ajax({
+        const handle = $.ajax({
             type: "POST",
             url: `${homePath}api/OpenXDA/AssetGroup/${props.AssetGroupID}/AssetGroups/${page}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
             async: true,
-            data: JSON.stringify({OrderBy: sortField, Ascending: ascending})
+            data: JSON.stringify({ OrderBy: sortField, Ascending: ascending })
         });
 
-        handle.done((r) => {
-            setGroupList(JSON.parse(r.Data));
-            setTotalPages(r.NumberOfPages);
+        handle.done((d) => {
+            setGroups(JSON.parse(d.Data));
+            setTotalPages(d.NumberOfPages);
+            setTotalRecords(d.TotalRecords);
+            setRecordsPerPage(d.RecordsPerPage);
+            if (page >= d.NumberOfPages)
+                setPage(Math.max(d.NumberOfPages - 1, 0));
+            setGroupStatus('idle')
         });
+
+        handle.fail(() => setGroupStatus('error'));
 
         return function cleanup() {
             if (handle.abort != null)
                 handle.abort();
         }
-    }
+    }, [ascending, sortField, page, props.AssetGroupID, refreshTrigger])
 
     function getEnum(setOptions, field) {
         let handle = null;
@@ -116,8 +124,11 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number }) {
         }
     }
 
-    function removeItem(id: number) {
-        let handle = $.ajax({
+    async function removeItem(id: number) {
+
+        setRemoveStatus('loading');
+
+        const handle = $.ajax({
             type: "GET",
             url: `${homePath}api/OpenXDA/AssetGroup/${props.AssetGroupID}/RemoveGroup/${id}`,
             contentType: "application/json; charset=utf-8",
@@ -126,12 +137,24 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number }) {
             async: true
         });
 
-        handle.done(d => setCounter(x => x + 1))
+        handle.done(d => {
+            setRefreshTrigger(val => !val)
+            setRemoveStatus('idle');
+        })
+
+        handle.fail(() => setRemoveStatus('error'));
+
+        return () => {
+            if (handle != null && handle.abort != null)
+                handle.abort();
+        }
     }
 
-    function saveItems(items: OpenXDA.Types.AssetGroup[]) {
+    async function saveItems(items: OpenXDA.Types.AssetGroup[]) {
 
-        let handle = $.ajax({
+        setAddStatus('loading');
+
+        const handle = $.ajax({
             type: "POST",
             url: `${homePath}api/OpenXDA/AssetGroup/${props.AssetGroupID}/AddAssetGroups`,
             contentType: "application/json; charset=utf-8",
@@ -141,9 +164,17 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number }) {
             data: JSON.stringify(items.map(e => e.ID))
         });
 
-        handle.done(d => setCounter(x => x + 1))
+        handle.done(d => {
+            setRefreshTrigger(val => !val)
+            setAddStatus('idle');
+        })
 
+        handle.fail(() => setAddStatus('error'));
 
+        return () => {
+            if (handle != null && handle.abort != null)
+                handle.abort();
+        }
     }
 
     function hasPermissions(): boolean {
@@ -161,12 +192,21 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number }) {
                             <h4>Asset Groups in Asset Group:</h4>
                         </div>
                     </div>
+                    <div className="row">
+                        <div className="col">
+                            <p style={{ marginTop: 2, marginBottom: 2 }}>
+                                {groupStatus === 'error' ? 'Could not complete Search' :
+                                    groupStatus === 'loading' ? 'Loading...' :
+                                        `Displaying Asset Group(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + groups.length} out of ${totalRecords}`}
+                            </p>
+                        </div>
+                    </div>
                 </div>
                 <div className="card-body d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
                     <div className="row d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
                         <Table<OpenXDA.Types.AssetGroup>
                             TableClass="table table-hover"
-                            Data={groupList}
+                            Data={groups}
                             SortKey={sortField}
                             Ascending={ascending}
                             OnSort={(d) => {
@@ -252,11 +292,11 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number }) {
 
                 <DefaultSelects.AssetGroup
                     Slice={AssetGroupSlice}
-                    Selection={groupList}
+                    Selection={groups}
                     OnClose={(selected, conf) => {
                         setShowAdd(false)
                         if (!conf) return
-                        saveItems(selected.filter(items => groupList.findIndex(g => g.ID == items.ID) < 0))
+                        saveItems(selected.filter(items => groups.findIndex(g => g.ID == items.ID) < 0))
                     }}
                     Show={showAdd}
                     Type={'multiple'}
