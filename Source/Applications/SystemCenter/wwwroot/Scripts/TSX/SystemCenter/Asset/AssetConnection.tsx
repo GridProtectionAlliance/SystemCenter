@@ -280,18 +280,18 @@ function AssetConnectionWindow(props: IProps): JSX.Element {
                         <h4>Assets:</h4>
                     </div>
                 </div>
-            </div>
-            <div className="card-body">
-                <div style={{ width: '100%', height: '200px' }}>
-                    <div style={{ height: '40px', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
-                        <LoadingIcon Show={true} Size={40} Label={''} />
-                    </div>
-                </div>
                 <div className="row">
                     <div className="col">
                         <p style={{ marginTop: 2, marginBottom: 2 }}>
                             {'Loading...'}
                         </p>
+                    </div>
+                </div>
+            </div>
+            <div className="card-body">
+                <div style={{ width: '100%', height: '200px' }}>
+                    <div style={{ height: '40px', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
+                        <LoadingIcon Show={true} Size={40} Label={''} />
                     </div>
                 </div>
             </div>
