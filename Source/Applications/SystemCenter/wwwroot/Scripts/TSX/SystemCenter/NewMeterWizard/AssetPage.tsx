@@ -189,10 +189,8 @@ export default function AssetPage(props: IProps) {
     }, [props.Assets]);
 
     React.useEffect(() => {
-        if (tabs.length === 0) {
             setConnectionPriority(0);
-        }
-    }, [tabs.length]);
+    }, [newEditAsset.AssetType]);
 
     React.useEffect(() => {
         if (newEditAsset.AssetType == 'Breaker') {
