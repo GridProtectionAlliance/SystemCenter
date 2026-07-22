@@ -23,56 +23,54 @@
 
 
 import * as React from 'react';
-import * as _ from 'lodash';
 import { useNavigate } from 'react-router-dom';
-import { Table, Column, Paging } from '@gpa-gemstone/react-table';
-import { AssetGroupSlice, AssetTypeSlice } from '../Store/Store';
-import { SystemCenter } from '@gpa-gemstone/application-typings';
-import { Warning } from '@gpa-gemstone/react-interactive';
+import * as _ from 'lodash';
+import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { ToolTip } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { useAppDispatch, useAppSelector } from '../hooks';
+import { Warning } from '@gpa-gemstone/react-interactive';
+import { Column, Paging, Table } from '@gpa-gemstone/react-table';
+import { useAppSelector } from '../hooks';
 import AssetSelect from '../Asset/AssetSelect';
 import { SelectRoles } from '../Store/UserSettings';
 
 declare var homePath: string;
 
-function AssetAssetGroupWindow(props: { AssetGroupID: number }) {
+interface IProps {
+    AssetGroupID: number
+}
+
+function AssetAssetGroupWindow(props: IProps) {
     let navigate = useNavigate();
-    const [assetList, setAssetList] = React.useState<Array<SystemCenter.Types.DetailedAsset>>([]);
+
+    // asset table
+    const [assets, setAssets] = React.useState<SystemCenter.Types.DetailedAsset[]>([]);
+    const [assetStatus, setAssetStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [sortKey, setSortKey] = React.useState<string>('AssetName');
     const [ascending, setAscending] = React.useState<boolean>(true);
-    const [showAdd, setShowAdd] = React.useState<boolean>(false);
-    const [counter, setCounter] = React.useState<number>(0);
-    const [removeAsset, setRemoveAsset] = React.useState<number>(-1);
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
+    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
+
+    // paging
     const [page, setPage] = React.useState<number>(0);
     const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [totalRecords, setTotalRecords] = React.useState<number>(0);
+    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
 
-    const assetType = useAppSelector(AssetTypeSlice.Data);
-    const assetTypeStatus = useAppSelector(AssetTypeSlice.Status);
-    const dispatch = useAppDispatch();
+    // add/remove asset modal
+    const [showAdd, setShowAdd] = React.useState<boolean>(false);
+    const [removeAsset, setRemoveAsset] = React.useState<number>(-1);
 
-    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
+    // db actions
+    const [actionStatus, setActionStatus] = React.useState<Application.Types.Status>('idle');
+
     const roles = useAppSelector(SelectRoles);
 
     React.useEffect(() => {
-        dispatch(AssetGroupSlice.SetChanged());
-        return getData();
-    }, [props.AssetGroupID, counter]);
 
-    React.useEffect(() => {
-        if (assetTypeStatus == 'changed' || assetTypeStatus == 'uninitiated')
-            dispatch(AssetTypeSlice.Fetch());
-    }, [assetTypeStatus]);
+        if (props.AssetGroupID == null) return 
 
-
-    React.useEffect(() => {
-        return getData();
-    }, [ascending, sortKey, page])
-
-    function getData() {
-        if (props.AssetGroupID == null)
-            return () => { };
+        setAssetStatus('loading');
 
         let handle = $.ajax({
             type: "POST",
@@ -84,20 +82,29 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number }) {
             data: JSON.stringify({ OrderBy: sortKey, Ascending: ascending })
         })
 
-        handle.done((r) => {
-            setAssetList(JSON.parse(r.Data));
-            setTotalPages(r.NumberOfPages);
+        handle.done((d) => {
+            setAssets(JSON.parse(d.Data));
+            setTotalPages(d.NumberOfPages);
+            setTotalRecords(d.TotalRecords);
+            setRecordsPerPage(d.RecordsPerPage);
+            if (page >= d.NumberOfPages)
+                setPage(Math.max(d.NumberOfPages - 1, 0));
+            setAssetStatus('idle')
         });
 
-        return function cleanup() {
-            if (handle.abort != null)
+        handle.fail(() => setAssetStatus('error'))
+
+        return () => {
+            if (handle != null && handle.abort != null)
                 handle.abort();
         }
-    }
+    }, [ascending, sortKey, page, props.AssetGroupID, refreshTrigger])
 
-    function saveItems(items: SystemCenter.Types.DetailedAsset[]) {
 
-        let handle = $.ajax({
+    async function saveItems(items: SystemCenter.Types.DetailedAsset[]) {
+        setActionStatus('loading');
+
+        const handle = $.ajax({
             type: "POST",
             url: `${homePath}api/OpenXDA/AssetGroup/${props.AssetGroupID}/AddAssets`,
             contentType: "application/json; charset=utf-8",
@@ -107,13 +114,23 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number }) {
             data: JSON.stringify(items.map(e => e.ID))
         });
 
-        handle.done(d => setCounter(x => x + 1))
+        handle.done(d => {
+            setActionStatus('idle')
+            setRefreshTrigger(val => !val);
+        })
 
+        handle.fail(() => setActionStatus('error'));
 
+        return () => {
+            if (handle != null && handle.abort != null)
+                handle.abort();
+        }
     }
 
-    function removeItem(id: number) {
-        let handle = $.ajax({
+    async function removeItem(id: number) {
+        setActionStatus('loading');
+
+        const handle = $.ajax({
             type: "GET",
             url: `${homePath}api/OpenXDA/AssetGroup/${props.AssetGroupID}/RemoveAsset/${id}`,
             contentType: "application/json; charset=utf-8",
@@ -122,7 +139,17 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number }) {
             async: true
         });
 
-        handle.done(d => setCounter(x => x + 1))
+        handle.done(d => {
+            setActionStatus('idle')
+            setRefreshTrigger(val => !val);
+        })
+
+        handle.fail(() => setActionStatus('error'));
+
+        return () => {
+            if (handle != null && handle.abort != null)
+                handle.abort();
+        }
     }
 
     function hasPermissions(): boolean {
@@ -143,14 +170,22 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number }) {
                         <div className="col">
                             <h4>Transmission Assets:</h4>
                         </div>
-
+                    </div>
+                    <div className="row">
+                        <div className="col">
+                            <p style={{ marginTop: 2, marginBottom: 2 }}>
+                                {assetStatus === 'error' ? 'Could not complete Search' :
+                                    assetStatus === 'loading' ? 'Loading...' :
+                                        `Displaying Asset(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + assets.length} out of ${totalRecords}`}
+                            </p>
+                        </div>
                     </div>
                 </div>
                 <div className="card-body d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
                     <div className="row d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
                         <Table<SystemCenter.Types.DetailedAsset>
                             TableClass="table table-hover"
-                            Data={assetList}
+                            Data={assets}
                             SortKey={sortKey}
                             Ascending={ascending}
                             OnSort={(d) => {
@@ -228,19 +263,27 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number }) {
                 </div>
                 <div className="card-footer">
                     <div className="btn-group mr-2">
-                        <button className={"btn btn-info pull-right" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='AddAsset'
-                            onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (hasPermissions()) setShowAdd(true) }}>Add Assets</button>
+                        <button className={"btn btn-info pull-right" + (!hasPermissions() ? ' disabled' : '')}
+                            data-tooltip='AddAsset'
+                            onMouseEnter={() => setHover('Update')}
+                            onMouseLeave={() => setHover('None')}
+                            onClick={() => { if (hasPermissions()) setShowAdd(true) }}>Add Assets</button>
                     </div>
                     <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Target={"AddAsset"}>
                         <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                     </ToolTip>
                 </div>
             </div>
-            <AssetSelect Type='multiple' StorageID='AssetAssetGroup' Title={'Add Transmission Assets to Asset Group'} ShowModal={showAdd} SelectedAssets={assetList}
+            <AssetSelect
+                Type='multiple'
+                StorageID='AssetAssetGroup'
+                Title={'Add Transmission Assets to Asset Group'}
+                ShowModal={showAdd}
+                SelectedAssets={assets}
                 OnCloseFunction={(selected, conf) => {
                     setShowAdd(false);
                     if (!conf) return
-                    saveItems(selected.filter(items => assetList.findIndex(g => g.ID == items.ID) < 0))
+                    saveItems(selected.filter(items => assets.findIndex(g => g.ID == items.ID) < 0))
                 }} />
             <Warning Show={removeAsset > -1} Title={'Remove Asset from Asset Group'} Message={'This will remove the Transmission Asset from this Asset Group.'} CallBack={(c) => { if (c) removeItem(removeAsset); setRemoveAsset(-1); }} />
         </>
