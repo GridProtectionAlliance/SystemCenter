@@ -27,7 +27,7 @@ import * as _ from 'lodash';
 import { useNavigate } from 'react-router-dom';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ByMeterSlice } from '../Store/Store';
-import { SystemCenter } from '@gpa-gemstone/application-typings';
+import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { Search, Warning } from '@gpa-gemstone/react-interactive';
 import { ToolTip } from '@gpa-gemstone/react-forms';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
@@ -42,32 +42,35 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number }) {
 
     let navigate = useNavigate();
     const dispatch = useAppDispatch();
-    const [meterList, setMeterList] = React.useState<Array<SystemCenter.Types.DetailedMeter>>([]);
+
+    // meter table
+    const [meters, setMeters] = React.useState<SystemCenter.Types.DetailedMeter[]>([]);
+    const [meterStatus, setMeterStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [sortField, setSortField] = React.useState<string>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
-    const [showAdd, setShowAdd] = React.useState<boolean>(false);
-    const [counter, setCounter] = React.useState<number>(0);
-    const [removeMeter, setRemoveMeter] = React.useState<number>(-1);
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
+
+    // meter pagination
     const [page, setPage] = React.useState<number>(0);
     const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [totalRecords, setTotalRecords] = React.useState<number>(0);
+    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
+
+    // db actions
+    const [removeStatus, setRemoveStatus] = React.useState<Application.Types.Status>('idle');
+    const [addStatus, setAddStatus] = React.useState<Application.Types.Status>('idle');
+
+    const [showAdd, setShowAdd] = React.useState<boolean>(false);
+    const [removeMeter, setRemoveMeter] = React.useState<number>(-1);
     const roles = useAppSelector(SelectRoles);
 
     React.useEffect(() => {
-        dispatch(AssetGroupSlice.SetChanged());
-        return getData();
-    }, [props.AssetGroupID, counter])
+        if (props.AssetGroupID == null) return
 
+        setMeterStatus('loading');
 
-    React.useEffect(() => {
-        return getData();
-    }, [ascending, sortField, page])
-
-    function getData() {
-        if (props.AssetGroupID == null)
-            return () => { };
-
-        let handle = $.ajax({
+        const handle = $.ajax({
             type: "POST",
             url: `${homePath}api/OpenXDA/AssetGroup/${props.AssetGroupID}/Meters/${page}`,
             contentType: "application/json; charset=utf-8",
@@ -78,15 +81,22 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number }) {
         });
 
         handle.done((d) => {
-            setMeterList(JSON.parse(d.Data));
+            setMeters(JSON.parse(d.Data));
             setTotalPages(d.NumberOfPages);
+            setTotalRecords(d.TotalRecords);
+            setRecordsPerPage(d.RecordsPerPage);
+            if (page >= d.NumberOfPages)
+                setPage(Math.max(d.NumberOfPages - 1, 0));
+            setMeterStatus('idle');
         });
+
+        handle.fail(() => setMeterStatus('error'))
 
         return function cleanup() {
             if (handle.abort != null)
                 handle.abort();
         }
-    }
+    }, [ascending, sortField, page, props.AssetGroupID, refreshTrigger])
 
     function getEnum(setOptions, field) {
         let handle = null;
@@ -139,7 +149,9 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number }) {
 
     function saveItems(items: SystemCenter.Types.DetailedMeter[]) {
 
-        let handle = $.ajax({
+        setAddStatus('loading');
+
+        const handle = $.ajax({
             type: "POST",
             url: `${homePath}api/OpenXDA/AssetGroup/${props.AssetGroupID}/AddMeters`,
             contentType: "application/json; charset=utf-8",
@@ -149,11 +161,24 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number }) {
             data: JSON.stringify(items.map(e => e.ID))
         });
 
-        handle.done(d => setCounter(x => x + 1))
+        handle.done(() => {
+            setRefreshTrigger(val => !val);
+            setAddStatus('idle');
+        })
+
+        handle.fail(() => setAddStatus('error'));
+
+        return () => {
+            if (handle != null && handle.abort != null)
+                handle.abort()
+        }
     }
 
     function removeItem(id: number) {
-        let handle = $.ajax({
+
+        setRemoveStatus('loading');
+
+        const handle = $.ajax({
             type: "GET",
             url: `${homePath}api/OpenXDA/AssetGroup/${props.AssetGroupID}/RemoveMeter/${id}`,
             contentType: "application/json; charset=utf-8",
@@ -162,7 +187,17 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number }) {
             async: true
         });
 
-        handle.done(d => setCounter(x => x + 1))
+        handle.done(d => {
+            setRefreshTrigger(val => !val);
+            setRemoveStatus('idle');
+        })
+
+        handle.fail(() => setRemoveStatus('error'));
+
+        return () => {
+            if (handle != null && handle.abort != null)
+                handle.abort();
+        }
     }
 
     function hasPermissions(): boolean {
@@ -184,12 +219,21 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number }) {
                             <h4>Meters in Asset Group:</h4>
                         </div>
                     </div>
+                    <div className="row">
+                        <div className="col">
+                            <p style={{ marginTop: 2, marginBottom: 2 }}>
+                                {meterStatus === 'error' ? 'Could not complete Search' :
+                                    meterStatus === 'loading' ? 'Loading...' :
+                                        `Displaying Substation(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + meters.length} out of ${totalRecords}`}
+                            </p>
+                        </div>
+                    </div>
                 </div>
                 <div className="card-body d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
                     <div className="row d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
                         <Table<SystemCenter.Types.DetailedMeter>
                             TableClass="table table-hover"
-                            Data={meterList}
+                            Data={meters}
                             SortKey={sortField}
                             Ascending={ascending}
                             OnSort={(d) => {
@@ -257,8 +301,12 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number }) {
                 </div>
                 <div className="card-footer">
                     <div className="btn-group mr-2">
-                        <button className={"btn btn-info pull-right" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='AddMeters'
-                            onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (hasPermissions()) setShowAdd(true) }}>Add Meters</button>
+                        <button className={"btn btn-info pull-right" + (!hasPermissions() ? ' disabled' : '')}
+                            data-tooltip='AddMeters'
+                            onMouseEnter={() => setHover('Update')}
+                            onMouseLeave={() => setHover('None')}
+                            onClick={() => { if (hasPermissions()) setShowAdd(true) }}
+                        >Add Meters</button>
                     </div>
                     <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Target={"AddMeters"}>
                         <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
@@ -268,11 +316,11 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number }) {
             </div>
             <DefaultSelects.Meter
                 Slice={ByMeterSlice}
-                Selection={meterList}
+                Selection={meters}
                 OnClose={(selected, conf) => {
                     setShowAdd(false)
                     if (!conf) return
-                    saveItems(selected.filter(items => meterList.findIndex(g => g.ID == items.ID) < 0))
+                    saveItems(selected.filter(items => meters.findIndex(g => g.ID == items.ID) < 0))
                 }}
                 Show={showAdd}
                 Type={'multiple'}
