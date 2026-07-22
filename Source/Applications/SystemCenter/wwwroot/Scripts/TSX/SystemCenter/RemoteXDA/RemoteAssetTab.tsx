@@ -283,7 +283,7 @@ const RemoteAssetTab = (props: IProps) => {
                         <p style={{ marginTop: 2, marginBottom: 2 }}>
                             {remoteAssetStatus === 'error' ? 'Could not complete Search' :
                                 remoteAssetStatus === 'loading' ? 'Loading...' :
-                                    `Displaying Substation(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + remoteAssets.length} out of ${totalRecords}`}
+                                    `Displaying Asset(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + remoteAssets.length} out of ${totalRecords}`}
                         </p>
                     </div>
                 </div>
