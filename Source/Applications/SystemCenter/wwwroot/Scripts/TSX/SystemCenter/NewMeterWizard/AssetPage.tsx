@@ -128,14 +128,14 @@ export default function AssetPage(props: IProps) {
         switch (newEditAsset.AssetType) {
             case 'Transformer':
                 return [
-                    { Id: "1", Label: "Primary Side"},
-                    { Id: "2", Label: "Secondary Side"},
-                    { Id: "3", Label: "Tertiary Side"}
+                    { Id: "0", Label: "Primary Side"},
+                    { Id: "1", Label: "Secondary Side"},
+                    { Id: "2", Label: "Tertiary Side"}
                 ];
             case 'Breaker':
                 return [
-                    { Id: "1", Label: "Bus Side" },
-                    { Id: "2", Label: "Line/XFR Side"},
+                    { Id: "0", Label: "Bus Side" },
+                    { Id: "1", Label: "Line/XFR Side"},
                 ];
             default:
                 return [];
@@ -188,9 +188,9 @@ export default function AssetPage(props: IProps) {
         setSelectedAssets(assetList);
     }, [props.Assets]);
 
+    // Reset to the first valid connectionPriority when the asset type changes.
     React.useEffect(() => {
-        if (newEditAsset.AssetType === 'Transformer' || newEditAsset.AssetType === 'Breaker') setConnectionPriority(1);
-        else setConnectionPriority(0);
+            setConnectionPriority(0);
     }, [newEditAsset.AssetType]);
 
     React.useEffect(() => {
@@ -595,7 +595,7 @@ export default function AssetPage(props: IProps) {
                                             CurrentTab={connectionPriority.toString()}
                                             SetTab={tabId => {
                                                 let newConPrio = parseInt(tabId);
-                                                if (isNaN(connectionPriority)) newConPrio = 1;
+                                                if (isNaN(newConPrio)) newConPrio = 0;
                                                 setConnectionPriority(newConPrio);
                                             }}
                                             Tabs={tabs}
