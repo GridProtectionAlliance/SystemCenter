@@ -37,18 +37,22 @@ declare var homePath: string;
 
 interface IProps { Customer: OpenXDA.Types.Customer }
 const CustomerMeterWindow = (props: IProps) => {
-    const dispatch = useAppDispatch();
+
     const [data, setData] = React.useState<LocalXDA.CustomerMeter[]>([]);
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated')
-    const [showAdd, setShowAdd] = React.useState<boolean>(false);
     const [sortField, setSortField] = React.useState<keyof LocalXDA.CustomerMeter>('MeterName')
     const [ascending, setAscending] = React.useState<boolean>(true)
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
+    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
+
     const [page, setPage] = React.useState<number>(0);
     const [totalPages, setTotalPages] = React.useState<number>(0);
-    const [removeRecord, setRemoveRecord] = React.useState<LocalXDA.CustomerMeter | null>(null);
-    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
+    const [totalRecords, setTotalRecords] = React.useState<number>(0);
+    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
 
-    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
+    const [showAdd, setShowAdd] = React.useState<boolean>(false);
+    const [removeRecord, setRemoveRecord] = React.useState<LocalXDA.CustomerMeter | null>(null);
+
     const roles = useAppSelector(SelectRoles);
     const customerMeterController = React.useMemo(() => new GenericController<LocalXDA.CustomerMeter>(`${homePath}api/SystemCenter/CustomerMeter`, 'MeterName', true), [])
 
@@ -58,6 +62,10 @@ const CustomerMeterWindow = (props: IProps) => {
         h.done((d) => {
             setData(JSON.parse(d.Data as unknown as string))
             setTotalPages(d.NumberOfPages)
+            setTotalRecords(d.TotalRecords);
+            setRecordsPerPage(d.RecordsPerPage);
+            if (page >= d.NumberOfPages)
+                setPage(Math.max(d.NumberOfPages - 1, 0));
             setStatus('idle')
         }).fail((d) => setStatus('error'))
     }, [props.Customer.ID, sortField, ascending, page, refreshTrigger])
@@ -143,6 +151,13 @@ const CustomerMeterWindow = (props: IProps) => {
                         <h4>Assigned Meters:</h4>
                     </div>
                 </div>
+                <div className="row">
+                    <div className="col">
+                        <p style={{ marginTop: 2, marginBottom: 2 }}>
+                            {'Could not complete Search'}
+                        </p>
+                    </div>
+                </div>
             </div>
             <div className="card-body">
                 <div style={{ width: '100%', height: '200px' }}>
@@ -161,6 +176,13 @@ const CustomerMeterWindow = (props: IProps) => {
                         <h4>Assigned Meters:</h4>
                     </div>
                 </div>
+                <div className="row">
+                    <div className="col">
+                        <p style={{ marginTop: 2, marginBottom: 2 }}>
+                            {'Loading...'}
+                        </p>
+                    </div>
+                </div>
             </div>
             <div className="card-body">
                 <div style={{ width: '100%', height: '200px' }}>
@@ -177,6 +199,13 @@ const CustomerMeterWindow = (props: IProps) => {
                 <div className="row">
                     <div className="col">
                         <h4>Assigned Meters:</h4>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <p style={{ marginTop: 2, marginBottom: 2 }}>
+                            {`Displaying Asset Channel(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + data.length} out of ${totalRecords}`}
+                        </p>
                     </div>
                 </div>
             </div>

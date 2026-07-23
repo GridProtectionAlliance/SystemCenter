@@ -38,17 +38,19 @@ interface IProps { Customer: OpenXDA.Types.Customer }
 const CustomerAssetWindow = (props: IProps) => {
     const [data, setData] = React.useState<LocalXDA.CustomerAsset[]>([]);
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
-    const [showAdd, setShowAdd] = React.useState<boolean>(false);
-
     const [sortField, setSortField] = React.useState<keyof LocalXDA.CustomerAsset>('AssetName')
     const [ascending, setAscending] = React.useState<boolean>(true)
-    const [totalPages, setTotalPages] = React.useState<number>(0);
-    const [page, setPage] = React.useState<number>(0);
     const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false)
+    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
+
+    const [page, setPage] = React.useState<number>(0);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [totalRecords, setTotalRecords] = React.useState<number>(0);
+    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
 
     const [removeRecord, setRemoveRecord] = React.useState<LocalXDA.CustomerAsset | null>(null);
 
-    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
+    const [showAdd, setShowAdd] = React.useState<boolean>(false);
     const roles = useAppSelector(SelectRoles)
 
     const assetController = React.useMemo(() => new GenericController<LocalXDA.CustomerAsset>(`${homePath}api/SystemCenter/CustomerAsset`, 'AssetName', true), [])
@@ -60,7 +62,13 @@ const CustomerAssetWindow = (props: IProps) => {
             setStatus('idle')
             setTotalPages(d.NumberOfPages)
             setData(JSON.parse(d.Data as unknown as string))
-        }).fail(() => setStatus('error'))
+            setTotalRecords(d.TotalRecords);
+            setRecordsPerPage(d.RecordsPerPage);
+            if (page >= d.NumberOfPages)
+                setPage(Math.max(d.NumberOfPages - 1, 0));
+        })
+
+        h.fail(() => setStatus('error'))
 
         return () => {
             if (h != null && h.abort == null) h.abort();
@@ -100,6 +108,13 @@ const CustomerAssetWindow = (props: IProps) => {
                         <h4>Assigned Assets:</h4>
                     </div>
                 </div>
+                <div className="row">
+                    <div className="col">
+                        <p style={{ marginTop: 2, marginBottom: 2 }}>
+                            {'Could not complete Search'}
+                        </p>
+                    </div>
+                </div>
             </div>
             <div className="card-body">
                 <div style={{ width: '100%', height: '200px' }}>
@@ -118,6 +133,13 @@ const CustomerAssetWindow = (props: IProps) => {
                         <h4>Assigned Assets:</h4>
                     </div>
                 </div>
+                <div className="row">
+                    <div className="col">
+                        <p style={{ marginTop: 2, marginBottom: 2 }}>
+                            {'Loading...'}
+                        </p>
+                    </div>
+                </div>
             </div>
             <div className="card-body">
                 <div style={{ width: '100%', height: '200px' }}>
@@ -134,6 +156,13 @@ const CustomerAssetWindow = (props: IProps) => {
                 <div className="row">
                     <div className="col">
                         <h4>Assigned Assets:</h4>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <p style={{ marginTop: 2, marginBottom: 2 }}>
+                            {`Displaying Asset(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + data.length} out of ${totalRecords}`}
+                        </p>
                     </div>
                 </div>
             </div>
