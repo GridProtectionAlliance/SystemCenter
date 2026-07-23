@@ -22,39 +22,72 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import * as _ from 'lodash';
 import { useNavigate } from "react-router-dom";
-import { SystemCenter } from '@gpa-gemstone/application-typings';
-import { useAppSelector, useAppDispatch, useBoundPaging } from '../hooks';
-import { ExternalDBTablesSlice } from '../Store/Store';
-import ExternalDBTableForm from './ExternalDBTableForm';
-import { Table, Column, Paging } from '@gpa-gemstone/react-table';
+import * as _ from 'lodash';
+import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { Modal, Warning, Search } from '@gpa-gemstone/react-interactive';
+import { GenericController, Modal, Search, Warning } from '@gpa-gemstone/react-interactive';
+import { Column, Paging, Table } from '@gpa-gemstone/react-table';
+import ExternalDBTableForm from './ExternalDBTableForm';
 
-export default function ExternalDBTables(props: { ID: number }) {
+const emptyRecord: SystemCenter.Types.extDBTables = { ID: 0, TableName: '', ExtDBID: 0, Query: '' };
+
+interface IProps {
+    ID: number
+}
+
+const ExternalDBTables = (props: IProps) => {
     let navigate = useNavigate();
-    const dispatch = useAppDispatch();
 
-    const data = useAppSelector(ExternalDBTablesSlice.SearchResults);
-    const status = useAppSelector(ExternalDBTablesSlice.Status);
-    const parentID = useAppSelector(ExternalDBTablesSlice.ParentID);
-    const currentPage = useAppSelector(ExternalDBTablesSlice.CurrentPage);
-    const totalPages = useAppSelector(ExternalDBTablesSlice.TotalPages);
+    // extDBTable table
+    const [extDBTables, setExtDBTables] = React.useState<SystemCenter.Types.DetailedExtDBTables[]>([]);
+    const [extDBTablesStatus, setExtDBTablesStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [sortField, setSortField] = React.useState<keyof SystemCenter.Types.DetailedExtDBTables>('ID');
+    const [ascending, setAscending] = React.useState<boolean>(true);
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
 
-    const emptyRecord: SystemCenter.Types.extDBTables = { ID: 0, TableName: '', ExtDBID: 0, Query: '' };
+    // extDBTable pagination
+    const [page, setPage] = React.useState<number>(0);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [totalRecords, setTotalRecords] = React.useState<number>(0);
+    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
+
     const [record, setRecord] = React.useState<SystemCenter.Types.extDBTables>(emptyRecord);
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [errors, setErrors] = React.useState<string[]>([]);
-    const [sortField, setSortField] = React.useState<keyof SystemCenter.Types.extDBTables>('ID');
-    const [ascending, setAscending] = React.useState<boolean>(true);
 
-    const filters: Search.IFilter<SystemCenter.Types.extDBTables>[] = React.useMemo(() => [{ SearchText: props.ID.toString(), FieldName: 'ExtDBID', Operator: "=", IsPivotColumn: false, Type: 'string' }],[props.ID])
+    // db action statuses
+    const [deleteStatus, setDeleteStatus] = React.useState<Application.Types.Status>('idle');
+    const [createStatus, setCreateStatus] = React.useState<Application.Types.Status>('idle');
+    const [editStatus, setEditStatus] = React.useState<Application.Types.Status>('idle');
 
+    const filters: Search.IFilter<SystemCenter.Types.extDBTables>[] = React.useMemo(() => [{ SearchText: props.ID.toString(), FieldName: 'ExtDBID', Operator: "=", IsPivotColumn: false, Type: 'string' }], [props.ID])
+    const externalDBTableController = React.useMemo(() => new GenericController<SystemCenter.Types.DetailedExtDBTables>(`${homePath}api/SystemCenter/extDBTables`, "TableName", true),[])
+
+
+    // fetch data for External DB Tables table, filtered, sorted, and paged.
     React.useEffect(() => {
-        dispatch(ExternalDBTablesSlice.PagedSearch({ filter: filters, sortField, ascending, page: currentPage}));
-    }, [status, parentID, props.ID, sortField, ascending, currentPage]);
+        setExtDBTablesStatus('loading');
+        const handle = externalDBTableController.PagedSearch(filters, sortField, ascending, page);
+
+        handle.done((d) => {
+            setExtDBTables(JSON.parse(d.Data as unknown as string));
+            setTotalPages(d.NumberOfPages);
+            setTotalRecords(d.TotalRecords);
+            setRecordsPerPage(d.RecordsPerPage);
+            if (page >= d.NumberOfPages)
+                setPage(Math.max(d.NumberOfPages - 1, 0));
+            setExtDBTablesStatus('idle');
+        })
+
+        handle.fail(() => setExtDBTablesStatus('error'));
+
+        return () => {
+            if (handle != null && handle.abort != null)
+                handle.abort()
+        }
+    }, [filters, sortField, ascending, page, refreshTrigger]);
 
     React.useEffect(() => {
         let e = [];
@@ -68,8 +101,12 @@ export default function ExternalDBTables(props: { ID: number }) {
         setErrors(e);
     }, [record]);
 
-    function Delete() {
-        dispatch(ExternalDBTablesSlice.DBAction({ verb: 'DELETE', record: { ...record } }));
+    async function Delete() {
+        setDeleteStatus('loading');
+        externalDBTableController.DBAction('DELETE', record).done(() => {
+            setDeleteStatus('idle');
+            setRefreshTrigger(val => !val);
+        }).fail(() => setDeleteStatus('error'));
         setShowWarning(false);
         setRecord(emptyRecord);
     }
@@ -77,27 +114,6 @@ export default function ExternalDBTables(props: { ID: number }) {
     function handleSelect(item) {
             navigate(`${homePath}index.cshtml?name=ExternalTable&ID=${item.row.ID}`);
     }
-
-    const setPage = React.useCallback((page) => {
-        dispatch(ExternalDBTablesSlice.PagedSearch({ filter: filters, sortField, ascending, page: page - 1 }))
-    }, [sortField, ascending])
-
-    const sort = React.useCallback((d) => {
-        let asc = ascending
-        let sort = d.colField
-        if (sortField === d.colField) {
-            setAscending(!ascending)
-            asc = !ascending
-        }
-        else {
-            setSortField(d.colField)
-            setAscending(false)
-            asc = false
-        }
-        dispatch(ExternalDBTablesSlice.PagedSearch({ filter: filters, sortField: sort, ascending: asc, page: 0 }))
-    }, [ascending, sortField])
-
-    useBoundPaging(currentPage, totalPages, setPage)
 
     return (
         <div className="container-fluid d-flex h-100 flex-column">
@@ -109,6 +125,15 @@ export default function ExternalDBTables(props: { ID: number }) {
                                 <h4>Tables:</h4>
                             </div>
                         </div>
+                        <div className="row">
+                            <div className="col">
+                                <p style={{ marginTop: 2, marginBottom: 2 }}>
+                                    {extDBTablesStatus === 'error' ? 'Could not complete Search' :
+                                        extDBTablesStatus === 'loading' ? 'Loading...' :
+                                            `Displaying External DB Table(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + extDBTables.length} out of ${totalRecords}`}
+                                </p>
+                            </div>
+                        </div>
                     </div>
                     <div className="card-body" style={{ overflow: 'hidden' }}>
                         <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
@@ -116,10 +141,17 @@ export default function ExternalDBTables(props: { ID: number }) {
                                 <div className="col-12" style={{ height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
                                     <Table<SystemCenter.Types.DetailedExtDBTables>
                                         TableClass="table table-hover"
-                                        Data={data}
+                                        Data={extDBTables}
                                         SortKey={sortField}
                                         Ascending={ascending}
-                                        OnSort={sort}
+                                        OnSort={(d) => {
+                                            if (d.colKey == sortField) {
+                                                setAscending(a => !a);
+                                            }
+                                            else {
+                                                setSortField(d.colKey as keyof SystemCenter.Types.DetailedExtDBTables);
+                                            }
+                                        }}
                                         OnClick={handleSelect}
                                         TableStyle={{ padding: 0, width: '100%', height: '100%', tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
                                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
@@ -165,8 +197,8 @@ export default function ExternalDBTables(props: { ID: number }) {
                             <div className="row">
                                 <div className="col">
                                     <Paging
-                                        SetPage={setPage}
-                                        Current={currentPage + 1}
+                                        SetPage={(page) => setPage(page - 1)}
+                                        Current={page + 1}
                                         Total={totalPages}
                                     />
                                 </div>
@@ -190,10 +222,10 @@ export default function ExternalDBTables(props: { ID: number }) {
                         DisableConfirm={errors.length > 0}
                         ShowX={true} CallBack={(conf) => {
                             setShowModal(false);
-                            if (conf && record.ID > 0) 
-                                dispatch(ExternalDBTablesSlice.DBAction({ verb: 'PATCH', record }));
-                            else if (conf && record.ID == 0) 
-                                dispatch(ExternalDBTablesSlice.DBAction({ verb: 'POST', record }));
+                            if (conf && record.ID > 0)
+                                externalDBTableController.DBAction('PATCH', record).done(() => { setEditStatus('idle'); setRefreshTrigger(val => !val); }).fail(() => setEditStatus('error'));
+                            else if (conf && record.ID == 0)
+                                externalDBTableController.DBAction('POST', record).done(() => { setCreateStatus('idle'); setRefreshTrigger(val => !val); }).fail(() => setCreateStatus('error'));
                         }}
                     >
                         <ExternalDBTableForm Record={record} Setter={setRecord} SetErrors={setErrors} />
@@ -206,3 +238,5 @@ export default function ExternalDBTables(props: { ID: number }) {
     );
 
 }
+
+export default ExternalDBTables;

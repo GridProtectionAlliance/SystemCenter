@@ -25,7 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
 import { useAppSelector, useAppDispatch } from '../hooks';
-import { AdditionalFieldsSlice, ValueListGroupSlice } from '../Store/Store';
+import { AdditionalFieldsSlice } from '../Store/Store';
 import AdditionalFieldForm from '../AdditionalFields/AdditionalFieldForm';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
@@ -50,18 +50,25 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
 
     const dispatch = useAppDispatch();
 
-    // needed for the selection popup
+    // External DB Table Fields Table
+    const [fieldsInTable, setFieldsInTable] = React.useState<SystemCenter.Types.AdditionalFieldView[]>([]);
+    const [tableStatus, setTableStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [sortKey, setSortKey] = React.useState<keyof SystemCenter.Types.AdditionalFieldView>('FieldName');
+    const [asc, setAsc] = React.useState<boolean>(true);
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
+
+    // External DB Table Fields Pagination
+    const [page, setPage] = React.useState<number>(0);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [totalRecords, setTotalRecords] = React.useState<number>(0);
+    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
+
+    // silce needed for the selection popup
     const searchData = useAppSelector(AdditionalFieldsSlice.SearchResults);
     const searchStatus = useAppSelector(AdditionalFieldsSlice.SearchStatus);
 
-    const valueListGroupData = useAppSelector(ValueListGroupSlice.Data);
-    const valueListGroupStatus = useAppSelector(ValueListGroupSlice.Status);
-
-    const [fieldsInTable, setFieldsInTable] = React.useState<SystemCenter.Types.AdditionalFieldView[]>([]);
-    const parentID = React.useRef<number>(-1);
-    const [tableStatus, setTableStatus] = React.useState<Application.Types.Status>('uninitiated');
-    const [asc, setAsc] = React.useState<boolean>(true);
-    const [sortKey, setSortKey] = React.useState<keyof SystemCenter.Types.AdditionalFieldView>('FieldName');
+    const [valueListGroups, setValueListGroups] = React.useState<SystemCenter.Types.ValueListGroup[]>([]);
+    const [valueListGroupStatus, setValueListGroupStatus] = React.useState<Application.Types.Status>('uninitiated');
 
     const [record, setRecord] = React.useState<SystemCenter.Types.AdditionalFieldView>(emptyRecord);
     const [showRemove, setShowRemove] = React.useState<boolean>(false);
@@ -72,20 +79,20 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
 
     const [overWriteFields, setOverWriteFields] = React.useState<SystemCenter.Types.AdditionalFieldView[]>([]);
 
-    const [page, setPage] = React.useState<number>(0);
-    const [totalPages, setTotalPages] = React.useState<number>(0);
-    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
-
     const additionalFieldsController = React.useMemo(() => new GenericController<SystemCenter.Types.AdditionalFieldView>(`${homePath}api/SystemCenter/AdditionalFieldView`, "FieldName", true),[])
 
+    // fetch AdditionalFields associated with ExternalDBTable, sorted and paged, for table
     React.useEffect(() => {
         setTableStatus('loading');
-        parentID.current = props.ID;
         const filters: Search.IFilter<SystemCenter.Types.AdditionalFieldView>[] = [{ SearchText: props.TableName, Operator: "=", IsPivotColumn: false, FieldName: "ExternalTable", Type: 'string' }]
         const handle = additionalFieldsController.PagedSearch(filters, sortKey, asc, page)
         handle.done((results) => {
             setFieldsInTable(JSON.parse(results.Data as unknown as string));
             setTotalPages(results.NumberOfPages);
+            setTotalRecords(results.TotalRecords);
+            setRecordsPerPage(results.RecordsPerPage);
+            if (page >= results.NumberOfPages)
+                setPage(Math.max(results.NumberOfPages - 1, 0));
             setTableStatus('idle');
         });
         handle.fail(() => {
@@ -96,10 +103,23 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
         };
     }, [sortKey, asc, props.ID, page, refreshTrigger]);
 
+    // fetch ValueListGroups for Additional Field selector
     React.useEffect(() => {
-        if (valueListGroupStatus === 'uninitiated' || valueListGroupStatus === 'changed')
-            dispatch(ValueListGroupSlice.Fetch());
-    }, [valueListGroupStatus]);
+        setValueListGroupStatus('loading');
+        const handle = new GenericController<SystemCenter.Types.ValueListGroup>(`${homePath}api/ValueListGroup`, 'Name').Fetch();
+
+        handle.done((d) => {
+            setValueListGroups(d);
+            setValueListGroupStatus('idle');
+        })
+
+        handle.fail(() => setValueListGroupStatus('error'));
+
+        return () => {
+            if (handle != null && handle.abort != null)
+                handle.abort()
+        }
+    }, []);
 
     function Delete() {
         additionalFieldsController.DBAction('DELETE', { ...record }).then(() => {
@@ -132,6 +152,16 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                                 <h4>Fields:</h4>
                             </div>
                         </div>
+                        <div className="row">
+                            <div className="col">
+                                <p style={{ marginTop: 2, marginBottom: 2 }}>
+                                    {tableStatus === 'error' ? 'Could not complete Search' :
+                                        tableStatus === 'loading' ? 'Loading...' :
+                                            `Displaying Field(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + fieldsInTable.length} out of ${totalRecords}`}
+                                </p>
+                            </div>
+                        </div>
+
                     </div>
                     <div className="card-body" style={{ overflow: 'hidden' }}>
                         <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
@@ -271,14 +301,13 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                 ShowCancel={false}
                 ConfirmText={'Close'}
             >
-                <button className="btn btn-danger btn-block" onClick={() => { setTableStatus('changed'); DisassociateField(record); setShowRemove(false); }}>Remove Field From Table</button>
-                <button className="btn btn-danger btn-block" onClick={() => { setTableStatus('changed'); Delete(); setShowRemove(false); }}>Delete Field Permanently</button>
+                <button className="btn btn-danger btn-block" onClick={() => { DisassociateField(record); setShowRemove(false); }}>Remove Field From Table</button>
+                <button className="btn btn-danger btn-block" onClick={() => { Delete(); setShowRemove(false); }}>Delete Field Permanently</button>
             </Modal>
 
             <Warning Title={'Overwrite Field Association'} Show={overWriteFields.length !== 0} CallBack={c => {
                 if (c) {
                     overWriteFields.forEach((f) => AssociateField(f));
-                    setTableStatus('changed');
                 }
                 setOverWriteFields([]);
             }} Message={`Associating the selected ${overWriteFields.length} field(s) with ${props.TableName ?? 'this table'} will overwrite an existing connection in ${overWriteFields.filter(f => f.ExternalDBTableID != null).length} field(s). This cannot be undone.`} />
@@ -344,7 +373,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                                 { Value: 'string', Label: 'string' },
                                 { Value: 'integer', Label: 'integer' },
                                 { Value: 'number', Label: 'number' }
-                            ].concat(valueListGroupData.map(x => { return { Value: x.Name, Label: x.Name } }))
+                            ].concat(valueListGroups.map(x => { return { Value: x.Name, Label: x.Name } }))
                         }
                     ]}
                     SetFilter={(flds) => dispatch(AdditionalFieldsSlice.DBSearch({ filter: flds }))}
