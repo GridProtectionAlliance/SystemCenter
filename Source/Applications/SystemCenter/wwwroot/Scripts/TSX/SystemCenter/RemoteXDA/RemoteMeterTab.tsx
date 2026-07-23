@@ -27,7 +27,7 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { SystemCenter, Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { RemoteXDAMeterSlice, ByMeterSlice, RemoteXDAAssetSlice } from '../Store/Store';
-import { LoadingScreen, Modal, Search, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
+import { GenericController, LoadingScreen, Modal, Search, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
 import { ToolTip } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { BlankRemoteXDAMeter, RemoteMeterForm } from './RemoteMeterForm';
@@ -38,43 +38,34 @@ interface IProps { ID: number }
 
 
 const RemoteMeterTab = (props: IProps) => {
-    // Display Remote Meters Consts
+
+    const dispatch = useAppDispatch();
+
+    // Meters Table
+    const [meters, setMeters] = React.useState<OpenXDA.Types.RemoteXDAMeter[]>([]);
+    const [searchStatus, setSearchStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [sortKey, setSortKey] = React.useState<keyof OpenXDA.Types.RemoteXDAMeter>('LocalMeterName');
     const [ascending, setAscending] = React.useState<boolean>(true);
-    const dispatch = useAppDispatch();
-    const remoteMeterStatus = useAppSelector(RemoteXDAMeterSlice.Status) as Application.Types.Status;
-    const searchResults = useAppSelector(RemoteXDAMeterSlice.SearchResults);
-    const searchState = useAppSelector(RemoteXDAMeterSlice.SearchStatus);
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
+    const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
+
+    // Remote Meters pagination
     const [page, setPage] = React.useState<number>(0)
-    const totalPages = useAppSelector(RemoteXDAMeterSlice.TotalPages);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [totalRecords, setTotalRecords] = React.useState<number>(0);
+    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
 
-    const searchFilters: Search.IFilter<OpenXDA.Types.RemoteXDAMeter>[] =
-        [{
-            FieldName: 'RemoteXDAInstanceID',
-            SearchText: props.ID.toString(),
-            Operator: '=',
-            Type: 'number',
-            IsPivotColumn: false
-        }]
-
-    const noSameFilter: Search.IFilter<OpenXDA.Types.RemoteXDAMeter> = {
-        FieldName: 'ID',
-        SearchText: searchResults.map((r) => r.LocalXDAMeterID).join(','),
-        Operator: 'NOT IN',
-        Type: 'number',
-        IsPivotColumn: false
-    };
-    // Shared Consts
+    // Shared
     const [selectedMeter, setSelectedMeter] = React.useState<OpenXDA.Types.RemoteXDAMeter>(BlankRemoteXDAMeter);
 
-    // Edit and Delete Form Consts
+    // Edit and Delete Form
     const [newInstErrors, setNewInstErrors] = React.useState<string[]>([]);
     const [remoteMeter, setRemoteMeter] = React.useState<OpenXDA.Types.RemoteXDAMeter>(BlankRemoteXDAMeter);
     const [showEdit, setShowEdit] = React.useState<(boolean)>(false);
     const [showDelete, setShowDelete] = React.useState<(boolean)>(false);
 
-    // Add New Meter Consts
-    const meterStatus = useAppSelector(ByMeterSlice.Status) as Application.Types.Status;
+    // Add New Meter
+    const [meterStatus, setMeterStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [meterList, setMeterList] = React.useState<Array<SystemCenter.Types.DetailedMeter>>([]);
     const [showAddMeters, setShowAddMeters] = React.useState<(boolean)>(false);
 
@@ -82,22 +73,76 @@ const RemoteMeterTab = (props: IProps) => {
     const [showLoading, setShowLoading] = React.useState<(boolean)>(false);
     const [assetCount, setAssetCount] = React.useState<number>(0);
 
+    // DB Actions
+    const [remoteStatus, setRemoveStatus] = React.useState<Application.Types.Status>('idle');
+    const [addMeterStatus, setAddMeterStatus] = React.useState<Application.Types.Status>('idle');
+    const [addAssetStatus, setAddAssetStatus] = React.useState<Application.Types.Status>('idle');
+    const [editStatus, setEditStatus] = React.useState<Application.Types.Status>('idle');
+
     const roles = useAppSelector(SelectRoles);
-    const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
+
+    const remoteMeterController = React.useMemo(() => new GenericController<OpenXDA.Types.RemoteXDAMeter>(`${homePath}api/OpenXDA/RemoteXDAMeter`, "LocalMeterName", false), [])
+
+    const noSameFilter: Search.IFilter<OpenXDA.Types.RemoteXDAMeter> = {
+        FieldName: 'ID',
+        SearchText: meters.map((r) => r.LocalXDAMeterID).join(','),
+        Operator: 'NOT IN',
+        Type: 'number',
+        IsPivotColumn: false
+    };
+
+    // fetch remote meters for the XDA node, paged and sorted
+    React.useEffect(() => {
+        setSearchStatus('loading');
+
+        const searchFilters: Search.IFilter<OpenXDA.Types.RemoteXDAMeter>[] =
+            [{
+                FieldName: 'RemoteXDAInstanceID',
+                SearchText: props.ID.toString(),
+                Operator: '=',
+                Type: 'number',
+                IsPivotColumn: false
+            }]
+
+        const handle = remoteMeterController.PagedSearch(searchFilters, sortKey, ascending, page);
+
+        handle.done((d) => {
+            setMeters(JSON.parse(d.Data as unknown as string));
+            setTotalPages(d.NumberOfPages);
+            setTotalRecords(d.TotalRecords);
+            setRecordsPerPage(d.RecordsPerPage);
+            if (page >= d.NumberOfPages)
+                setPage(Math.max(d.NumberOfPages - 1, 0));
+            setSearchStatus('idle')
+        })
+
+        handle.fail(() => setSearchStatus('error'));
+
+        return () => {
+            if (handle != null && handle.abort)
+                handle.abort()
+        }
+       
+    }, [props.ID, ascending, sortKey, page, remoteMeterController, refreshTrigger]);
 
     React.useEffect(() => {
-        if (remoteMeterStatus === 'uninitiated' || remoteMeterStatus === 'changed')
-            dispatch(RemoteXDAMeterSlice.Fetch());
-    }, [dispatch, remoteMeterStatus]);
+        setMeterStatus('loading');
 
-    React.useEffect(() => {
-        if (meterStatus === 'uninitiated' || meterStatus === 'changed')
-            dispatch(ByMeterSlice.Fetch());
-    }, [dispatch, meterStatus]);
+        const handle = new GenericController<SystemCenter.Types.DetailedMeter>(`${homePath}api/OpenXDA/ByMeter`, "Name", true).Fetch();
 
-    React.useEffect(() => {
-        dispatch(RemoteXDAMeterSlice.PagedSearch({ filter: searchFilters, ascending: ascending, sortField: sortKey, page }))
-    }, [searchFilters, ascending, sortKey, page]);
+        handle.done((d) => {
+            setMeterList(d);
+            setMeterStatus('idle')
+        })
+
+        handle.fail(() => setMeterStatus('error'));
+
+        return () => {
+            if (handle != null && handle.abort)
+                handle.abort()
+        }
+    }, []);
+
 
     function isEditable(item: OpenXDA.Types.RemoteXDAMeter): boolean {
         return item.RemoteXDAMeterID <= 0;
@@ -132,9 +177,9 @@ const RemoteMeterTab = (props: IProps) => {
     }
 
     let cardBody;
-    if (remoteMeterStatus === 'error') {
+    if (searchStatus === 'error') {
         cardBody = <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
-    } else if (remoteMeterStatus === 'loading' || showLoading) {
+    } else if (searchStatus === 'loading' || showLoading) {
         cardBody = <LoadingScreen Show={true} />
     } else {
         cardBody =
@@ -142,7 +187,7 @@ const RemoteMeterTab = (props: IProps) => {
             <div className="row d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
                     <Table<OpenXDA.Types.RemoteXDAMeter>
                         TableClass="table table-hover"
-                        Data={searchResults}
+                        Data={meters}
                         SortKey={sortKey}
                         Ascending={ascending}
                         OnSort={(d) => {
@@ -292,6 +337,16 @@ const RemoteMeterTab = (props: IProps) => {
                         <h4>Remote openXDA Meters:</h4>
                     </div>
                 </div>
+                <div className="row">
+                    <div className="col">
+                        <p style={{ marginTop: 2, marginBottom: 2 }}>
+                            {searchStatus === 'error' ? 'Could not complete Search' :
+                                searchStatus === 'loading' ? 'Loading...' :
+                                    `Displaying Meters(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + meters.length} out of ${totalRecords}`}
+
+                        </p>
+                    </div>
+                </div>
             </div>
             <div className="card-body" style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
                 {cardBody}
@@ -316,13 +371,20 @@ const RemoteMeterTab = (props: IProps) => {
             </div>
             <Warning Title={"Delete " + (selectedMeter?.RemoteXDAName ?? "Remote Meter")} Show={showDelete} Message={"Are you sure you want to delete the Remote Meter for " + (selectedMeter?.LocalMeterName ?? "No Local Name") + "?"}
                 CallBack={(conf) => {
-                    if (conf) dispatch(RemoteXDAMeterSlice.DBAction({ verb: 'DELETE', record: selectedMeter }));
+                    if (conf) {
+                        setRemoveStatus('loading');
+                        remoteMeterController.DBAction('DELETE', selectedMeter).done(() => { setRemoveStatus('idle'); setRefreshTrigger(val => !val); }).fail(() => setRemoveStatus('error'));
+                    };
                     setShowDelete(false);
                 }} />
+
             <Modal Show={showEdit} Title={'Edit ' + (selectedMeter?.LocalMeterName ?? 'Remote Meter')}
                 ShowCancel={true}
                 CallBack={(conf) => {
-                    if (conf) dispatch(RemoteXDAMeterSlice.DBAction({ verb: 'PATCH', record: remoteMeter }));
+                    if (conf) {
+                        setEditStatus('loading');
+                        remoteMeterController.DBAction('PATCH', remoteMeter).done(() => { setEditStatus('idle'); setRefreshTrigger(val => !val); }).fail(() => setEditStatus('error'));
+                    }
                     setShowEdit(false);
                 }}
                 DisableConfirm={newInstErrors.length > 0}
@@ -334,15 +396,17 @@ const RemoteMeterTab = (props: IProps) => {
                 }>
                 <RemoteMeterForm OriginalMeter={selectedMeter} SetRemoteMeter={setRemoteMeter} SetErrors={setNewInstErrors} />
             </Modal>
+
             <Modal Show={assetCount > 0} Title={'Add Associated Remote Assets?'}
                 ShowCancel={true}
                 CallBack={(conf) => {
                     setAssetCount(0);
                     if (conf) {
+                        setAddAssetStatus('loading');
                         let addAssetHandle = addAssociatedAssets(selectedMeter);
-                        addAssetHandle.then((data: number) => {
-                            dispatch(RemoteXDAAssetSlice.Fetch()); // TODO: This doesn't properly reload the asset slice when switching tabs
-                        });
+                        addAssetHandle.done((data: number) => {
+                            setAddAssetStatus('idle');
+                        }).fail(() => setAddAssetStatus('error'));
                         return () => {
                             if (addAssetHandle != null && addAssetHandle.abort != null) {
                                 addAssetHandle.abort();
@@ -356,43 +420,43 @@ const RemoteMeterTab = (props: IProps) => {
                 CancelText={"No"}>
                 <p>Add {assetCount} Associated Assets?</p>
             </Modal>
+
             <DefaultSelects.Meter
                 Slice={ByMeterSlice}
                 Selection={meterList}
                 OnClose={(selected, conf) => {
                     setShowAddMeters(false);
                     setMeterList([]);
-                    if (!conf) return;
-                    selected.forEach((meter) => {
-                        setShowLoading(true);
-                        let newRemote: OpenXDA.Types.RemoteXDAMeter = {
-                            ID: -1,
-                            RemoteXDAInstanceID: props.ID,
-                            LocalXDAMeterID: meter.ID,
-                            RemoteXDAMeterID: -1,
-                            RemoteXDAName: "",
-                            RemoteXDAAssetKey: meter.AssetKey,
-                            Obsfucate: false,
-                            Synced: false,
-                            LocalAlias: "",
-                            LocalMeterName: "",
-                            LocalAssetKey: "",
-                            RemoteAlias: ""
-                        }
-                        dispatch(RemoteXDAMeterSlice.DBAction({ verb: "POST", record: newRemote }));
-                        setSelectedMeter(newRemote); // Technically, this is a race condition with setAssetCount
-                        let fetchAssetHandle = getAssociatedAssetCount(newRemote);
-                        fetchAssetHandle.then((data: number) => {
-                            setAssetCount(data);
-                            setShowLoading(false);
-                        });
-                        return () => {
-                            if (fetchAssetHandle != null && fetchAssetHandle.abort != null) {
-                                fetchAssetHandle.abort();
-                                setShowLoading(false);
-                            }
-                        };
+                    if (!conf || selected.length == 0) return;
+                    const meter = selected[0]
+                    setAddMeterStatus('loading'); // this should become the dbaction status for add
+                    const newRemote: OpenXDA.Types.RemoteXDAMeter = {
+                        ID: -1,
+                        RemoteXDAInstanceID: props.ID,
+                        LocalXDAMeterID: meter.ID,
+                        RemoteXDAMeterID: -1,
+                        RemoteXDAName: "",
+                        RemoteXDAAssetKey: meter.AssetKey,
+                        Obsfucate: false,
+                        Synced: false,
+                        LocalAlias: "",
+                        LocalMeterName: "",
+                        LocalAssetKey: "",
+                        RemoteAlias: ""
+                    }
+                    setSelectedMeter(newRemote);
+                    remoteMeterController.DBAction('POST', newRemote).done(() => { setAddMeterStatus('idle'); setRefreshTrigger(val => !val); }).fail(() => setAddMeterStatus('error'));
+                    let fetchAssetHandle = getAssociatedAssetCount(newRemote);
+                    fetchAssetHandle.then((data: number) => {
+                        setAssetCount(data);
+                        setShowLoading(false);
                     });
+                    return () => {
+                        if (fetchAssetHandle != null && fetchAssetHandle.abort != null) {
+                            fetchAssetHandle.abort();
+                            setShowLoading(false);
+                        }
+                    };
                 }}
                 Show={showAddMeters}
                 Type={'single'}
