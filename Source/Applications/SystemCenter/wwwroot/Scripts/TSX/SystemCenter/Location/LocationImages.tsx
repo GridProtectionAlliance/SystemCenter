@@ -24,7 +24,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '@gpa-gemstone/application-typings';
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { Modal, LayoutGrid } from '@gpa-gemstone/react-interactive';
 import { Paging } from '@gpa-gemstone/react-table'
 declare var homePath: string;
@@ -32,62 +32,71 @@ declare var homePath: string;
 const LocationImagesWindow = (props: { Location: OpenXDA.Types.Location }) => {
     const [images, setImages] = React.useState<string[]>([]);
     const [image, setImage] = React.useState<string>('');
+    const [imageStatus, setImageStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [page, setPage] = React.useState<number>(0);
-    const [totalPages, setTotalPages] = React.useState<number>(1)
+    const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [totalRecords, setTotalRecords] = React.useState<number>(0);
+    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
 
     React.useEffect(() => {
-        let handle = getImages();
-        handle.done(i => {
-            setImages(JSON.parse(i.Data))
-            setTotalPages(i.NumberOfPages)
-        }
-        );
+        setImageStatus('loading');
+        let handle = getImages(props.Location.ID, page);
+        handle.done(d => {
+            setImages(JSON.parse(d.Data));
+            setTotalPages(d.NumberOfPages);
+            setTotalRecords(d.TotalRecords);
+            setRecordsPerPage(d.RecordsPerPage);
+            if (page >= d.NumberOfPages)
+                setPage(Math.max(d.NumberOfPages - 1, 0));
+            setImageStatus('idle');
+        });
+        handle.fail(() => setImageStatus('error'));
 
         return () => {
-            if (handle.abort != undefined) handle.abort();
+            if (handle != null && handle.abort != null) handle.abort();
         };
     }, [props.Location.ID, page]);
-
-    function getImages(): JQuery.jqXHR {
-        return $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/Location/${props.Location.ID}/Images/${page}`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: true,
-            async: true
-        })
-    }
 
     return (
         <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="card-header">
-                <div className="col">
-                    <h4>Substation Images:</h4>
+                <div className="row">
+                    <div className="col">
+                        <h4>Substation Images:</h4>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <p style={{ marginTop: 2, marginBottom: 2 }}>
+                            {imageStatus === 'error' ? 'Could not complete Search' :
+                                imageStatus === 'loading' ? 'Loading...' :
+                                    `Displaying Image(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + images.length} out of ${totalRecords}`}
+                        </p>
+                    </div>
                 </div>
             </div>
             <div className="card-body" style={{ flex: 1, overflowY: 'auto' }}>
                 <LayoutGrid RowsPerPage={2} ColMax={4}>
                     {images.length > 0
-                    ? (images.map((img, i) => (
-                    <div className="d-flex w-100 h-100" style={{flexDirection: 'column'}}>
-                        <div className="row" style={{ flex: 1, overflow: 'hidden'}}>
-                            <div className="col-12 h-100 w-100">
-                                <img src={`${homePath}api/OpenXDA/Location/${props.Location.ID}/Images/${img}`}
-                                    alt={img}
-                                    className='img-thumbnail h-100 w-100'
-                                    onClick={() => setImage(img)}
-                                    key={i}
-                                    style={{cursor: 'pointer', objectFit: 'contain'}} />
-                            </div>
-                        </div>
-                        <div className="row">
-                            <div className="col text-center">
-                                <h6 className="caption text-truncate">{img}</h6>
-                            </div>
-                        </div>
-                        </div>)))
-                    : <div className="alert alert-info block">No images to display.</div>
+                        ? (images.map((img, i) => (
+                            <div className="d-flex w-100 h-100" style={{ flexDirection: 'column' }}>
+                                <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                                    <div className="col-12 h-100 w-100">
+                                        <img src={`${homePath}api/OpenXDA/Location/${props.Location.ID}/Images/${img}`}
+                                            alt={img}
+                                            className='img-thumbnail h-100 w-100'
+                                            onClick={() => setImage(img)}
+                                            key={i}
+                                            style={{ cursor: 'pointer', objectFit: 'contain' }} />
+                                    </div>
+                                </div>
+                                <div className="row">
+                                    <div className="col text-center">
+                                        <h6 className="caption text-truncate">{img}</h6>
+                                    </div>
+                                </div>
+                            </div>)))
+                        : <div className="alert alert-info block">No images to display.</div>
                     }
                 </LayoutGrid>
             </div>
@@ -101,7 +110,7 @@ const LocationImagesWindow = (props: { Location: OpenXDA.Types.Location }) => {
             </div>
             <Modal
                 Show={image.length > 0} ShowCancel={false} ShowX={true} ShowConfirm={false} Title={image}
-                CallBack={() => setImage('') }>
+                CallBack={() => setImage('')}>
                 <img style={{ height: '75%', display: 'block', margin: 'auto' }}
                     src={`${homePath}api/OpenXDA/Location/${props.Location.ID}/Images/${image}`} />
             </Modal>
@@ -109,3 +118,15 @@ const LocationImagesWindow = (props: { Location: OpenXDA.Types.Location }) => {
     );
 }
 export default LocationImagesWindow;
+
+
+function getImages(locationID: number, page: number): JQuery.jqXHR {
+    return $.ajax({
+        type: "GET",
+        url: `${homePath}api/OpenXDA/Location/${locationID}/Images/${page}`,
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        cache: true,
+        async: true
+    })
+}
