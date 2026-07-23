@@ -114,6 +114,8 @@ const ByLocation: Application.Types.iByComponent = (props) => {
             setTotalPages(d.NumberOfPages);
             setTotalRecords(d.TotalRecords);
             setRecordsPerPage(d.RecordsPerPage);
+            if (page >= d.NumberOfPages)
+                setPage(Math.max(d.NumberOfPages - 1, 0));
             setSearchStatus('idle');
         })
         h.fail(() => setSearchStatus('error'))

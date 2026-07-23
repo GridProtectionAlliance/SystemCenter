@@ -36,7 +36,6 @@ import AssetSelect from '../Asset/AssetSelect';
 
 declare var homePath: string;
 
-
 interface extendedAssetGroup extends OpenXDA.Types.AssetGroup { MeterList: Array<SystemCenter.Types.DetailedMeter>, AssetList: Array<SystemCenter.Types.DetailedAsset>, UserList: Array<number>, AssetGroupList: Array<OpenXDA.Types.AssetGroup> }
 
 const emptyAssetGroup: extendedAssetGroup = { ID: -1, Name: '', DisplayDashboard: true, AssetGroups: 0, Meters: 0, Assets: 0, Users: 0, MeterList: [], AssetList: [], UserList: [], AssetGroupList: [], DisplayEmail: false };
@@ -47,25 +46,32 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
 
     let navigate = useNavigate();
     const dispatch = useAppDispatch();
+
     const [data, setData] = React.useState<OpenXDA.Types.AssetGroup[]>([]);
-    const [searchFilters, setSearchFilters] = React.useState<Search.IFilter<OpenXDA.Types.AssetGroup>[]>([]);
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
-    const allAssetGroups = useAppSelector(AssetGroupSlice.Data);
-    const assetType = useAppSelector(AssetTypeSlice.Data);
-    const assetTypeStatus = useAppSelector(AssetTypeSlice.Status);
-    const [showFilter, setFilter] = React.useState<('None' | 'Meter' | 'Asset' | 'Asset Group' | 'Station')>('None');
-    const [newAssetGroup, setNewAssetGroup] = React.useState<extendedAssetGroup>(_.cloneDeep(emptyAssetGroup));
-    const [showNewGroup, setShowNewGroup] = React.useState<boolean>(false);
-    const [assetGrpErrors, setAssetGrpErrors] = React.useState<string[]>([]);
-    const [sortKey, setSortKey] = React.useState<keyof OpenXDA.Types.AssetGroup>('Name')
-    const [ascending, setAscending] = React.useState<boolean>(true)
+    const [searchFilters, setSearchFilters] = React.useState<Search.IFilter<OpenXDA.Types.AssetGroup>[]>([]);
+    const [sortKey, setSortKey] = React.useState<keyof OpenXDA.Types.AssetGroup>('Name');
+    const [ascending, setAscending] = React.useState<boolean>(true);
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
+
     const [page, setPage] = React.useState<number>(0);
     const [totalPages, setTotalPages] = React.useState<number>(0);
     const [totalRecords, setTotalRecords] = React.useState<number>(0);
     const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
 
+    const [allAssetGroups, setAllAssetGroups] = React.useState<OpenXDA.Types.AssetGroup[]>([]);
+    const [allAssetGroupStatus, setAllAssetGroupStatus] = React.useState<Application.Types.Status>('uninitiated');
+
+    const [assetTypes, setAssetTypes] = React.useState<OpenXDA.Types.AssetType[]>([]);
+    const [assetTypeStatus,  setAssetTypeStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [showFilter, setFilter] = React.useState<('None' | 'Meter' | 'Asset' | 'Asset Group' | 'Station')>('None');
+    const [newAssetGroup, setNewAssetGroup] = React.useState<extendedAssetGroup>(_.cloneDeep(emptyAssetGroup));
+    const [showNewGroup, setShowNewGroup] = React.useState<boolean>(false);
+    const [assetGrpErrors, setAssetGrpErrors] = React.useState<string[]>([]);
+
     const assetGroupController = React.useMemo(() => new GenericController<OpenXDA.Types.AssetGroup>(`${homePath}api/OpenXDA/AssetGroup`, "Name", true),[])
 
+    // fetch asset groups for table, paged, filtered, and sorted
     React.useEffect(() => {
         setStatus('loading')
         const h = assetGroupController.PagedSearch(searchFilters, sortKey, ascending, page);
@@ -74,6 +80,8 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
             setTotalPages(d.NumberOfPages);
             setTotalRecords(d.TotalRecords);
             setRecordsPerPage(d.RecordsPerPage);
+            if (page >= d.NumberOfPages)
+                setPage(Math.max(d.NumberOfPages - 1, 0));
             setStatus('idle');
         })
         h.fail(() => setStatus('error'))
@@ -81,12 +89,41 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
         return () => {
             if (h != null && h.abort != null) h.abort();
         }
-    }, [sortKey, ascending, page, searchFilters])
+    }, [sortKey, ascending, page, searchFilters, refreshTrigger])
 
+    // fetch all asset groups for validation
     React.useEffect(() => {
-        if (assetTypeStatus == 'changed' || assetTypeStatus == 'uninitiated')
-            dispatch(AssetTypeSlice.Fetch());
-    }, [assetTypeStatus]);
+        setAllAssetGroupStatus('loading');
+        const handle = assetGroupController.Fetch();
+        handle.done((d) => {
+            setAllAssetGroups(d);
+            setAllAssetGroupStatus('idle');
+        })
+        handle.fail(() => setAllAssetGroupStatus('error'));
+
+        return () => {
+            if (handle != null && handle.abort != null)
+                handle.abort()
+        }
+    }, [])
+
+    // fetch all asset types
+    React.useEffect(() => {
+        setAssetTypeStatus('loading');
+
+        const handle = new GenericController<OpenXDA.Types.AssetType>(`${homePath}api/OpenXDA/AssetType`, 'Name').Fetch();
+
+        handle.done((d) => {
+            setAssetTypes(d);
+            setAssetTypeStatus('idle');
+        })
+        handle.fail(() => setAssetTypeStatus('error'))
+
+        return () => {
+            if (handle != null && handle.abort != null)
+                handle.abort()
+        }
+    }, []);
 
     React.useEffect(() => {
         let e = [];
@@ -168,6 +205,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
 
             Promise.all([handle1,handle2, handle3]).then((x) => {
                 sessionStorage.clear();
+                setRefreshTrigger(val => !val);
                 dispatch(AssetGroupSlice.SetChanged())
                 navigate(`${homePath}index.cshtml?name=AssetGroup&AssetGroupID=${d.ID}`);
             }, (msg) => {
@@ -194,7 +232,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
 
     function getEnum(setOptions, field) {
         if (field.key == 'AssetType' && field.type == 'enum') {
-            setOptions(assetType.map((t) => ({ Value: t.Name, Label: t.Name })))
+            setOptions(assetTypes.map((t) => ({ Value: t.Name, Label: t.Name })))
             return () => { }
         }
 

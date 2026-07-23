@@ -59,6 +59,8 @@ const ByMeter: Application.Types.iByComponent = (props) => {
             setTotalPages(d.NumberOfPages);
             setRecordsPerPage(d.RecordsPerPage);
             setTotalRecords(d.TotalRecords);
+            if (page >= d.NumberOfPages)
+                setPage(Math.max(d.NumberOfPages - 1, 0));
             setStatus('idle');
         })
         h.fail(() => setStatus('error'))
