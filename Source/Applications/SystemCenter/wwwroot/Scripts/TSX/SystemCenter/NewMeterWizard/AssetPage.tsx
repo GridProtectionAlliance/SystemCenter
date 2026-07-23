@@ -188,6 +188,7 @@ export default function AssetPage(props: IProps) {
         setSelectedAssets(assetList);
     }, [props.Assets]);
 
+    // Reset to the first valid connectionPriority when the asset type changes.
     React.useEffect(() => {
             setConnectionPriority(0);
     }, [newEditAsset.AssetType]);
