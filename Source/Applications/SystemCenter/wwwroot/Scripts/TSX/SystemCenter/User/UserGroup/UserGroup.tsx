@@ -21,10 +21,10 @@
 // ******************************************************************************************************
 
 import * as React from 'react';
+import { useNavigate } from "react-router-dom";
+import * as _ from 'lodash';
 import { Application } from '@gpa-gemstone/application-typings'
 import { LoadingScreen, ServerErrorIcon, TabSelector, Warning, GenericController } from '@gpa-gemstone/react-interactive';
-import * as _ from 'lodash';
-import { useNavigate } from "react-router-dom";
 import { ISecurityGroup } from '../Types';
 import GroupInfo from './Info';
 import GroupUser from './GroupUsers';
@@ -35,12 +35,14 @@ declare type Tab = 'info' | 'users' | 'roles'
 interface IProps { GroupID: string,	Tab: Tab }
 
 function UserGroup(props: IProps) {
-	const securityGroupController = React.useMemo(() => new GenericController<ISecurityGroup>(`${homePath}api/SystemCenter/FullSecurityGroup`, "DisplayName" as keyof ISecurityGroup), [])
+
 	const navigate = useNavigate();
 	const [group, setGroup] = React.useState<ISecurityGroup|null>(null)
 	const [tab, setTab] = React.useState(getTab());
 	const [showWarning, setShowWarning] = React.useState<boolean>(false);
 	const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated')
+
+	const securityGroupController = React.useMemo(() => new GenericController<ISecurityGroup>(`${homePath}api/SystemCenter/FullSecurityGroup`, "DisplayName" as keyof ISecurityGroup), [])
 
 	function getTab(): Tab {
 		if (props.Tab != undefined) return props.Tab;
@@ -111,7 +113,7 @@ function UserGroup(props: IProps) {
 			<Warning Message={'This will permanently delete the User Group. Users in this Group will not be deleted, but may lose their roles. Are you sure you want to continue?'} Title={'Delete ' + (group?.DisplayName ?? 'User Group')} Show={showWarning} CallBack={(c) => {
 				setShowWarning(false);
 				if (c) {
-					securityGroupController.DBAction('DELETE', group).then(() => navigate(`${homePath}index.cshtml?name=Groups`) );
+					securityGroupController.DBAction('DELETE', group).done(() => navigate(`${homePath}index.cshtml?name=Groups`) ).fail(() => setStatus('error'));
 				}
 			}} />
 		</div>

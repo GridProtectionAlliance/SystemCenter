@@ -23,14 +23,13 @@
 import * as React from 'react';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { SearchBar, Search, Modal, ServerErrorIcon, LoadingScreen, GenericController } from '@gpa-gemstone/react-interactive';
+import { SearchBar, Search, Modal, LoadingScreen, GenericController } from '@gpa-gemstone/react-interactive';
 import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
 import * as _ from 'lodash';
 import UserForm from './UserForm';
 import { useNavigate } from "react-router-dom";
 import { IUserAccount } from '../Types';
 import moment from 'moment';
-import { UserAccountSlice } from '../../Store/Store'
 import { useAppDispatch } from '../../hooks';
 
 const defaultSearchcols: Search.IField<Application.Types.iUserAccount>[] = [
@@ -63,28 +62,22 @@ const newAcct: IUserAccount = {
 
 const ByUser: Application.Types.iByComponent = (props) => {
 
-    const userAccountController = React.useMemo(() => new GenericController<IUserAccount>(`${homePath}api/SystemCenter/UserAccount`, "DisplayName", true), [])
-    const userAdditionalFieldController = React.useMemo(() => new GenericController(`${homePath}api/SystemCenter/AdditionalUserField`, "User"), [])
-    const valueListController = React.useMemo(() => new GenericController(`${homePath}api/ValueList`, 'SortOrder'), [])
-    const valueListGroupController = React.useMemo(() => new GenericController(`${homePath}api/ValueListGroup`, 'Name'), [])
-
     let navigate = useNavigate();
     const dispatch = useAppDispatch();
 
-    const [filters, setFilters] = React.useState<Search.IFilter<IUserAccount>[]>([]);
-
     const [users, setUsers] = React.useState<IUserAccount[]>([]);
     const [userStatus, setUserStatus] = React.useState<Application.Types.Status>('uninitiated');
-
+    const [filters, setFilters] = React.useState<Search.IFilter<IUserAccount>[]>([]);
     const [sortField, setSortField] = React.useState<keyof IUserAccount>("DisplayName");
     const [ascending, setAscending] = React.useState<boolean>(true);
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
 
     const [page, setPage] = React.useState<number>(0);
     const [totalPages, setTotalPages] = React.useState<number>(0);
     const [totalRecords, setTotalRecords] = React.useState<number>(0);
     const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
 
-    const [adlFields, setAdlFields] = React.useState<Application.Types.iAdditionalUserField[]>([]) 
+    const [adlFields, setAdlFields] = React.useState<Application.Types.iAdditionalUserField[]>([])
     const [adlFieldStatus, setAdlFieldStatus] = React.useState<Application.Types.Status>('uninitiated');
 
     const [filterableList, setFilterableList] = React.useState<Search.IField<IUserAccount>[]>(defaultSearchcols);
@@ -102,7 +95,13 @@ const ByUser: Application.Types.iByComponent = (props) => {
 
     const [pageStatus, setPageStatus] = React.useState<Application.Types.Status>('uninitiated');
 
-    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
+    const [newUserStatus, setNewUserStatus] = React.useState<Application.Types.Status>('idle');
+
+    const userAccountController = React.useMemo(() => new GenericController<IUserAccount>(`${homePath}api/SystemCenter/UserAccount`, "DisplayName", true), [])
+    const userAdditionalFieldController = React.useMemo(() => new GenericController(`${homePath}api/SystemCenter/AdditionalUserField`, "User"), [])
+    const valueListController = React.useMemo(() => new GenericController(`${homePath}api/ValueList`, 'SortOrder'), [])
+    const valueListGroupController = React.useMemo(() => new GenericController(`${homePath}api/ValueListGroup`, 'Name'), [])
+
 
     React.useEffect(() => {
         if (userStatus === 'error' || adlFieldStatus === 'error' || valueListItemStatus === 'error' || valueListGroupStatus === 'error')
@@ -122,7 +121,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
             setRecordsPerPage(d.RecordsPerPage)
             setTotalRecords(d.TotalRecords)
             if (d.NumberOfPages <= page)
-                setPage(d.NumberOfPages > 0 ? d.NumberOfPages - 1 : 0)
+                setPage(Math.max(d.NumberOfPages - 1, 0));
             setUserStatus('idle')
         }).fail(() => setUserStatus('error'))
         return () => {
@@ -131,42 +130,33 @@ const ByUser: Application.Types.iByComponent = (props) => {
     }, [filters, sortField, ascending, page, userAccountController.PagedSearch, refreshTrigger]);
 
     React.useEffect(() => {
-        if (adlFieldStatus === 'uninitiated' || adlFieldStatus === 'changed') {
-            const h = userAdditionalFieldController.Fetch();
-            h.done((d) => {
-                setAdlFields(d as unknown as Application.Types.iAdditionalUserField[])
-                setAdlFieldStatus('idle')
-            }).fail((d) => {
-                setAdlFieldStatus('error')
-            })
-        } 
-    }, [adlFieldStatus]);
-   
-    React.useEffect(() => {
-        if (valueListItemStatus === 'uninitiated' || valueListItemStatus === 'changed') {
-            const h = valueListController.Fetch();
-            h.done((d) => {
-                setValueListItems(d as unknown as SystemCenter.Types.ValueListItem[])
-                setValueListItemStatus('idle')
-            }).fail((d) => {
-                setValueListItemStatus('error')
-            })
-        }
-    }, [valueListItemStatus]);
+        setAdlFieldStatus('loading')
+        const h = userAdditionalFieldController.Fetch();
+        h.done((d) => {
+            setAdlFields(d as unknown as Application.Types.iAdditionalUserField[])
+            setAdlFieldStatus('idle')
+        }).fail((d) => {
+            setAdlFieldStatus('error')
+        })
+        if (h.abort != undefined) h.abort();
+    }, []);
 
-     
     React.useEffect(() => {
-        if (valueListGroupStatus === 'uninitiated' || valueListGroupStatus === 'changed') {
-            const h = valueListGroupController.Fetch();
-            h.done((d) => {
-                setValueListGroups(d as unknown as SystemCenter.Types.ValueListGroup[])
-                setValueListGroupStatus('idle')
-            }).fail((d) => {
-                setValueListGroupStatus('error')
-            })
+        setValueListItemStatus('loading')
+        const h = valueListController.Fetch();
+        h.done((d) => {
+            setValueListItems(d as unknown as SystemCenter.Types.ValueListItem[])
+            setValueListItemStatus('idle')
+        }).fail((d) => {
+            setValueListItemStatus('error')
+        })
+
+        return () => {
+            if (h.abort != undefined) h.abort();
         }
-    }, [valueListGroupStatus]);
-    
+    }, []);
+
+
     React.useEffect(() => {
         function ConvertType(type: string) {
             if (type === 'string' || type === 'integer' || type === 'number' || type === 'datetime' || type === 'boolean')
@@ -179,11 +169,6 @@ const ByUser: Application.Types.iByComponent = (props) => {
 
         setFilterableList(ordered)
     }, [adlFields]);
-
-    // refresh the slice so that users don't have to refresh after selecting a newly created user.
-    React.useEffect(() => {
-        dispatch(UserAccountSlice.Fetch());
-    }, [refreshTrigger])
 
     return (
         <div className="container-fluid d-flex h-100 flex-column">
@@ -305,8 +290,10 @@ const ByUser: Application.Types.iByComponent = (props) => {
             </div>
             <Modal Show={showModal} Size={'lg'} ShowCancel={false} ShowX={true} ConfirmText={'Save'}
                 Title={'Add New User'} CallBack={(confirm) => {
-                    if (confirm) 
-                        userAccountController.DBAction('POST', act).then(() => { setRefreshTrigger((val) => !val)})
+                    if (confirm) {
+                        setNewUserStatus('loading');
+                        userAccountController.DBAction('POST', act).done(() => { setRefreshTrigger((val) => !val); setNewUserStatus('idle'); }).fail(() => setNewUserStatus('error'));
+                    }
                     setAct(newAcct);
                     setShowModal(false);
                 }}

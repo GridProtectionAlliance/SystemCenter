@@ -41,19 +41,26 @@ const emptyGroup: ISecurityGroup = { Name: "", CreatedBy: "", CreatedOn: new Dat
 
 const ByUser: Application.Types.iByComponent = (props) => {
     let navigate = useNavigate();
-    const securityGroupController = React.useMemo(() => new GenericController<ISecurityGroup>(`${homePath}api/SystemCenter/FullSecurityGroup`, "DisplayName" as keyof ISecurityGroup),[])
-    const [filters, setFilters] = React.useState<Search.IFilter<ISecurityGroup>[]>([]);
+
     const [securityGroups, setSecurityGroups] = React.useState<ISecurityGroup[]>([]);
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [filters, setFilters] = React.useState<Search.IFilter<ISecurityGroup>[]>([]);
+    const [sortField, setSortField] = React.useState<keyof ISecurityGroup>('DisplayName');
+    const [ascending, setAscending] = React.useState<boolean>(true);
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
+
     const [currentPage, setCurrentPage] = React.useState<number>(0);
     const [totalPages, setTotalPages] = React.useState<number>(0);
     const [totalRecords, setTotalRecords] = React.useState<number>(0);
-    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
-    const [sortField, setSortField] = React.useState<keyof ISecurityGroup>('DisplayName');
-    const [ascending, setAscending] = React.useState<boolean>(true);
+
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [groupError, setGroupError] = React.useState<string[]>([]);
     const [newGroup, setNewGroup] = React.useState<ISecurityGroup>(emptyGroup);
+
+    const [newGroupStatus, setNewGroupStatus] = React.useState<Application.Types.Status>('idle');
+
+    const securityGroupController = React.useMemo(() => new GenericController<ISecurityGroup>(`${homePath}api/SystemCenter/FullSecurityGroup`, "DisplayName" as keyof ISecurityGroup), [])
 
     React.useEffect(() => { 
         const h = getUserGroups(securityGroupController, filters, sortField, ascending, currentPage)
@@ -63,31 +70,13 @@ const ByUser: Application.Types.iByComponent = (props) => {
             setRecordsPerPage(d.RecordsPerPage)
             setTotalRecords(d.TotalRecords)
             if (d.NumberOfPages <= currentPage)
-                setCurrentPage(d.NumberOfPages > 0 ? d.NumberOfPages - 1 : 0)
+                setCurrentPage(Math.max(d.NumberOfPages - 1, 0));
             setStatus('idle')
         }).fail(() => setStatus('error'))
         return () => {
             if (h.abort != undefined) h.abort();
         }
-    }, [sortField, ascending, filters, currentPage, securityGroupController])
-
-    React.useEffect(() => {
-        if (status === 'changed') {
-            const h = getUserGroups(securityGroupController, filters, sortField, ascending, currentPage)
-            h.done((d) => {
-                setSecurityGroups(JSON.parse(d.Data as unknown as string))
-                setTotalPages(d.NumberOfPages)
-                setRecordsPerPage(d.RecordsPerPage)
-                setTotalRecords(d.TotalRecords)
-                if (d.NumberOfPages <= currentPage)
-                    setCurrentPage(d.NumberOfPages > 0 ? d.NumberOfPages - 1 : 0)
-                setStatus('idle')
-            }).fail(() => setStatus('error'))
-            return () => {
-                if (h.abort != undefined) h.abort();
-            }
-        }
-    }, [status, sortField, ascending, filters, currentPage, securityGroupController])
+    }, [sortField, ascending, filters, currentPage, securityGroupController, refreshTrigger])
 
     return (
         <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
@@ -193,13 +182,15 @@ const ByUser: Application.Types.iByComponent = (props) => {
             <Modal Show={showModal} Size={'lg'} ShowCancel={false} ShowX={true} ConfirmText={'Save'}
                 Title={'Add New User Group'} CallBack={(confirm) => {
                     if (confirm) {
+                        setNewGroupStatus('loading');
                         securityGroupController.DBAction(
                             'POST',
                             { ...newGroup, Name: ((newGroup.Name?.length ?? 0) > 0 ? newGroup.Name : newGroup.DisplayName) }
-                        ).then(() => {
-                            setStatus('changed');
+                        ).done(() => {
+                            setRefreshTrigger(val => !val);
+                            setNewGroupStatus('idle');
                             setShowModal(false);
-                        })
+                        }).fail(() => setNewGroupStatus('error'));
                     }
                 }}
                 ConfirmShowToolTip={groupError.length > 0}

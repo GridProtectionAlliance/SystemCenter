@@ -21,25 +21,36 @@
 // ******************************************************************************************************
 
 import * as React from 'react';
-import { Application } from '@gpa-gemstone/application-typings';
 import * as _ from 'lodash';
-import { LoadingScreen } from '@gpa-gemstone/react-interactive';
-import { UserAccountSliceRemote } from '../../Store/Store';
-import { ISecurityGroup } from '../Types';
-import { Table, Column, Paging } from '@gpa-gemstone/react-table';
+import { Application } from '@gpa-gemstone/application-typings';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
+import { LoadingScreen } from '@gpa-gemstone/react-interactive';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
+import { ISecurityGroup } from '../Types';
+import { UserAccountSliceRemote } from '../../Store/Store';
 
 const GroupUser = (props: { Group: ISecurityGroup }) => {
 
-    const [showSelect, setShowSelect] = React.useState<boolean>(false);
+    // user table
     const [users, setUsers] = React.useState<Application.Types.iUserAccount[]>([]);
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [asc, setAsc] = React.useState<boolean>(true);
     const [sortField, setSortField] = React.useState<keyof Application.Types.iUserAccount>('AccountName');
-    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
-    const [page, setPage] = React.useState<number>(0);
-    const [totalPages, setTotalPages] = React.useState<number>(0);
     const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false)
 
+    // user pagination
+    const [page, setPage] = React.useState<number>(0);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [totalRecords, setTotalRecords] = React.useState<number>(0);
+    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
+
+    // user selector
+    const [showSelect, setShowSelect] = React.useState<boolean>(false);
+
+    // db actions
+    const [addUserStatus, setAddUserStatus] = React.useState<Application.Types.Status>('idle');
+
+    // fetch group users, paged and sorted
     React.useEffect(() => {
         if (props.Group.Type != 'Database')
             return;
@@ -56,14 +67,15 @@ const GroupUser = (props: { Group: ISecurityGroup }) => {
         handle.done((d) => {
             setTotalPages(d.NumberOfPages);
             setUsers(JSON.parse(d.Data));
+            setTotalRecords(d.TotalRecords);
+            setRecordsPerPage(d.RecordsPerPage);
+            if (page >= d.NumberOfPages)
+                setPage(Math.max(d.NumberOfPages - 1, 0));
             setStatus('idle');
         }).fail(() => setStatus('error'))
 
         return () => { if (handle != null && handle.abort != null) handle.abort(); }
     }, [props.Group.ID, props.Group.Type, asc, sortField, page, refreshTrigger])
-
-    if (props.Group == null)
-        return null;
 
     return (
         <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -71,6 +83,15 @@ const GroupUser = (props: { Group: ISecurityGroup }) => {
                 <div className="row">
                     <div className="col">
                         <h4>Users:</h4>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <p style={{ marginTop: 2, marginBottom: 2 }}>
+                            {status === 'error' ? 'Could not complete Search' :
+                                status === 'loading' ? 'Loading...' :
+                                    `Displaying User(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + users.length} out of ${totalRecords}`}
+                        </p>
                     </div>
                 </div>
             </div>
@@ -176,7 +197,8 @@ const GroupUser = (props: { Group: ISecurityGroup }) => {
                 OnClose={(selected, conf) => {
                     setShowSelect(false);
                     if (!conf) return;
-                    saveUser(selected, props.Group.Type, props.Group.ID).done(() => setRefreshTrigger((val) => !val));
+                    setAddUserStatus('loading');
+                    saveUser(selected, props.Group.Type, props.Group.ID).done(() => { setRefreshTrigger(val => !val); setAddUserStatus('idle'); }).fail(() => setAddUserStatus('error'));
                 }}
                 Show={showSelect}
                 Type={'multiple'}
