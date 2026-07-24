@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { useNavigate } from "react-router-dom";
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
 import { ByMeterSlice } from '../Store/Store';
@@ -39,8 +39,13 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
     let navigate = useNavigate();
     const dispatch = useAppDispatch();
     const [meters, setMeters] = React.useState<Array<OpenXDA.Types.Meter>>([]);
-    const [sortField, setSortField] = React.useState<keyof(OpenXDA.Types.Meter)>('Name');
+    const [sortField, setSortField] = React.useState<keyof (OpenXDA.Types.Meter)>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
+    const [page, setPage] = React.useState<number>(0);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [totalRecords, setTotalRecords] = React.useState<number>(0);
+    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
     const [showAdd, setShowAdd] = React.useState<boolean>(false);
     const allMeters = useAppSelector(ByMeterSlice.Data);
     const mStatus = useAppSelector(ByMeterSlice.Status);
@@ -55,26 +60,28 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
 
 
     React.useEffect(() => {
-        getMeters();
-    }, [props.Asset]);
-
-    function getMeters(): void {
-        $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/Asset/${props.Asset.ID}/Meters`,
+        const handle = $.ajax({
+            type: "POST",
+            url: `${homePath}api/OpenXDA/Asset/${props.Asset.ID}/Meters/${page}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
-            async: true
-        }).done(meters => {
-            const sortedMeters = sortData(sortField, ascending, meters);
-            setMeters(sortedMeters);
+            async: true,
+            data: JSON.stringify({ OrderBy: sortField, Ascending: ascending })
+        }).done(d => {
+            setMeters(JSON.parse(d.Data));
+            setTotalPages(d.NumberOfPages);
+            setTotalRecords(d.TotalRecords);
+            setRecordsPerPage(d.RecordsPerPage);
+            if (page >= d.NumberOfPages)
+                setPage(Math.max(d.NumberOfPages - 1, 0));
         });
-    }
 
-    function sortData(key: keyof OpenXDA.Types.Meter, ascending: boolean, data: OpenXDA.Types.Meter[]) {
-        return _.orderBy(data, [key], [(ascending ? "asc" : "desc")]);
+        return () => {
+            if (handle != null && handle.abort != null)
+                handle.abort();
     }
+    }, [props.Asset, refreshTrigger, sortField, ascending, page]);
 
     function addMeter(meterID: number) {
         return $.ajax({
@@ -85,7 +92,7 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
             cache: true,
             async: true
         }).done(record => {
-            getMeters();
+            setRefreshTrigger(val => !val);
         }).fail((msg) => {
             if (msg.status == 500)
                 alert(msg.responseJSON.ExceptionMessage)
@@ -154,7 +161,7 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
             cache: true,
             async: true
         }).done(() => {
-            getMeters();
+            setRefreshTrigger(val => !val);
         }).fail((msg) => {
             if (msg.status == 500)
                 alert(msg.responseJSON.ExceptionMessage)
@@ -175,25 +182,24 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
                         <h4>Meters:</h4>
                     </div>
                 </div>
+                <div className="row">
+                    <div className="col">
+                        <p style={{ marginTop: 2, marginBottom: 2 }}>
+                            {`Displaying Meter(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + meters.length} out of ${totalRecords}`}
+                        </p>
             </div>
-            <div className="card-body" style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                </div>
+            </div>
+            <div className="card-body d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="row d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
                 <Table<OpenXDA.Types.Meter>
                     TableClass="table table-hover"
                     Data={meters}
                     SortKey={sortField}
                     Ascending={ascending}
                     OnSort={(d) => {
-                        if (d.colKey == sortField) {
-                            setAscending(!ascending);
-                            const ordered = _.orderBy(meters, [d.colKey], [(!ascending ? "asc" : "desc")]);
-                            setMeters(ordered);
-                        }
-                        else {
-                            setAscending(true);
-                            setSortField(d.colField);
-                            const ordered = _.orderBy(meters, [d.colKey], ["asc"]);
-                            setMeters(ordered);
-                        }
+                            if (d.colKey === sortField) setAscending(a => !a);
+                            else setSortField(d.colField);
                     }}
                     TableStyle={{ height: '100%' }}
                     TheadStyle={{ fontSize: 'smaller' }}
@@ -235,6 +241,16 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
                     > Model
                     </Column>
                 </Table>
+            </div>
+                <div className="row">
+                    <div className="col">
+                        <Paging
+                            Current={page + 1}
+                            SetPage={(p) => setPage(p - 1)}
+                            Total={totalPages}
+                        />
+                    </div>
+                </div>
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
