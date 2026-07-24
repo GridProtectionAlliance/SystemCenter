@@ -24,39 +24,62 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '@gpa-gemstone/application-typings';
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { Modal, LayoutGrid } from '@gpa-gemstone/react-interactive';
+import { Paging } from '@gpa-gemstone/react-table';
 declare var homePath: string;
 
 const LocationImagesWindow = (props: { Location: OpenXDA.Types.Location }) => {
     const [images, setImages] = React.useState<string[]>([]);
     const [image, setImage] = React.useState<string>('');
+    const [imageStatus, setImageStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [page, setPage] = React.useState<number>(0);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [totalRecords, setTotalRecords] = React.useState<number>(0);
+    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
 
     React.useEffect(() => {
-        let handle = getImages();
-        handle.done(i => {setImages(i)});
-
-        return () => {
-            if (handle.abort != undefined) handle.abort();
-        };
-    }, [props.Location.ID]);
-
-    function getImages(): JQuery.jqXHR {
-        return $.ajax({
+        setImageStatus('loading')
+        let handle = $.ajax({
             type: "GET",
-            url: `${homePath}api/OpenXDA/Location/${props.Location.ID}/Images`,
+            url: `${homePath}api/OpenXDA/Location/${props.Location.ID}/Images/${page}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
             async: true
         })
-    }
+        handle.done(d => {
+            setImages(JSON.parse(d.Data as unknown as string))
+            setTotalPages(d.NumberOfPages);
+            setTotalRecords(d.TotalRecords);
+            setRecordsPerPage(d.RecordsPerPage);
+            if (page >= d.NumberOfPages)
+                setPage(Math.max(d.NumberOfPages - 1, 0));
+            setImageStatus('idle')
+        });
+        handle.fail(() => setImageStatus('error'));
+
+        return () => {
+            if (handle.abort != undefined) handle.abort();
+        };
+    }, [props.Location.ID, page]);
 
     return (
         <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="card-header">
+                <div className="row">
                 <div className="col">
                     <h4>Substation Images:</h4>
+                </div>
+            </div>
+                <div className="row">
+                    <div className="col">
+                        <p style={{ marginTop: 2, marginBottom: 2 }}>
+                            {imageStatus === 'error' ? 'Could not complete Search' :
+                                imageStatus === 'loading' ? 'Loading...' :
+                                    `Displaying Image(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + images.length} out of ${totalRecords}`}
+                        </p>
+                    </div>
                 </div>
             </div>
             <div className="card-body" style={{ flex: 1, overflowY: 'auto' }}>
@@ -83,6 +106,13 @@ const LocationImagesWindow = (props: { Location: OpenXDA.Types.Location }) => {
                     : <div className="alert alert-info block">No images to display.</div>
                     }
                 </LayoutGrid>
+            </div>
+            <div className="card-footer">
+                <Paging
+                    SetPage={(page) => { setPage(page - 1) }}
+                    Current={page + 1}
+                    Total={totalPages}
+                />
             </div>
             <Modal
                 Show={image.length > 0} ShowCancel={false} ShowX={true} ShowConfirm={false} Title={image}
