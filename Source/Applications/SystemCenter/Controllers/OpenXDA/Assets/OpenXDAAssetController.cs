@@ -24,7 +24,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.Linq;
 using System.Transactions;
 using System.Web.Http;
@@ -33,6 +32,7 @@ using GSF.Data;
 using GSF.Data.Model;
 using GSF.Reflection;
 using GSF.Web.Model;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using openXDA.Model;
 using SystemCenter.Model;
@@ -63,6 +63,38 @@ namespace SystemCenter.Controllers.OpenXDA
             }
             else
                 return Unauthorized();
+        }
+
+        [HttpPost, Route("{assetID:int}/Locations/{page:int}")]
+        public IHttpActionResult GetAssetLocationsPaged([FromBody] PostData postData, [FromUri] int assetID, [FromUri] int page)
+        {
+            if (!GetAuthCheck())
+                return Unauthorized();
+
+            int recordsPerPage = Take ?? 50;
+
+            PagedResults results = new PagedResults();
+
+            results.RecordsPerPage = recordsPerPage;
+
+            string[] sortFields = { "Name", "LocationKey", "Latitude", "Longitude" };
+
+            if (!sortFields.Any(f => f.Equals(postData.OrderBy)))
+                return BadRequest($"{postData.OrderBy} is not a valid search field.");
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                RecordRestriction assetLocationRestriction = new RecordRestriction("ID IN (SELECT LocationID FROM AssetLocation WHERE AssetID = {0})", assetID);
+
+                int count = new TableOperations<Location>(connection).QueryRecordCount(assetLocationRestriction);
+
+                IEnumerable<Location> records = new TableOperations<Location>(connection).QueryRecords(postData.OrderBy, postData.Ascending, page + 1, recordsPerPage, assetLocationRestriction);
+
+                results.TotalRecords = count;
+                results.NumberOfPages = (count + recordsPerPage - 1) / recordsPerPage;
+                results.Data = JsonConvert.SerializeObject(records);
+            }
+            return Ok(results);
         }
 
         [HttpGet, Route("{assetID:int}/AssetLocations")]

@@ -23,8 +23,8 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '@gpa-gemstone/application-typings';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { useNavigate } from "react-router-dom";
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols'
 import { useAppSelector } from '../hooks';
@@ -37,9 +37,16 @@ declare var homePath: string;
 function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
     let navigate = useNavigate();
     const [locations, setLocations] = React.useState<Array<OpenXDA.Types.Location>>([]);
+    const [locationStatus, setLocationStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [sortField, setSortField] = React.useState<keyof (OpenXDA.Types.Location)>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
+    const [page, setPage] = React.useState<number>(0);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [totalRecords, setTotalRecords] = React.useState<number>(0);
+    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
     const [allLocations, setAllLocations] = React.useState<Array<OpenXDA.Types.Location>>([]);
+    const [allLocationStatus, setAllLocationsStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [newLocation, setNewLocation] = React.useState<OpenXDA.Types.Location>();
     const [hover, setHover] = React.useState<string|undefined>(undefined);
     const [showModal, setShowModal] = React.useState<boolean>(false);
@@ -52,47 +59,62 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
     }
 
     React.useEffect(() => {
-        getData();
-    }, [props.Asset]);
+        setAllLocationsStatus('loading');
 
-    function getData() {
-        getLocations();
-        getAllOtherLocations();
-    }
-
-    function getLocations(): void {
-        $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/Asset/${props.Asset.ID}/Locations`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: true,
-            async: true
-        }).done(data => {
-            const sortedLocations = sortData(sortField, ascending, data);
-            setLocations(sortedLocations);
-        });
-    }
-
-    function sortData(key: keyof OpenXDA.Types.Location, ascending: boolean, data: OpenXDA.Types.Location[]) {
-        return _.orderBy(data, [key], [(ascending ? "asc" : "desc")]);
-    }
-
-    function getAllOtherLocations(): void {
-        $.ajax({
+        const handle = $.ajax({
             type: "GET",
             url: `${homePath}api/OpenXDA/Asset/${props.Asset.ID}/OtherLocations`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
             async: true
-        }).done(data => {
+        })
+
+        handle.done(data => {
             let records = _.orderBy(data, ['Name'], ['asc']);
             setAllLocations(records);
             setNewLocation(records[0]);
+            setAllLocationsStatus('idle');
         });
-    }
 
+        handle.fail(() => setAllLocationsStatus('error'));
+
+        return () => { 
+            if (handle != null && handle.abort != null) handle.abort();
+        }
+    }, [props.Asset.ID, refreshTrigger]);
+
+
+    React.useEffect(() => {
+        setLocationStatus('loading');
+
+        const handle = $.ajax({
+            type: "POST",
+            url: `${homePath}api/OpenXDA/Asset/${props.Asset.ID}/Locations/${page}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true,
+            data: JSON.stringify({ OrderBy: sortField, Ascending: ascending })
+        })
+
+        handle.done((d) => {
+            setLocations(JSON.parse(d.Data));
+            setTotalPages(d.NumberOfPages);
+            setTotalRecords(d.TotalRecords);
+            setRecordsPerPage(d.RecordsPerPage);
+            if (page >= d.NumberOfPages)
+                setPage(Math.max(d.NumberOfPages - 1, 0));
+            setLocationStatus('idle')
+        });
+
+        handle.fail(() => setLocationStatus('error'));
+
+        return () => {
+            if (handle != null && handle.abort != null)
+                handle.abort();
+        }
+    }, [props.Asset.ID, sortField, ascending, page, refreshTrigger])
 
     async function deleteLocation(location: OpenXDA.Types.Location) {
         return $.ajax({
@@ -102,8 +124,8 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
             dataType: 'json',
             cache: true,
             async: true
-        }).done((assets: Array<OpenXDA.Types.Asset>) => {
-            getData();
+        }).done(() => {
+            setRefreshTrigger(val => !val);
         }).fail((msg) => {
             if (msg.status == 500)
                 alert(msg.responseJSON.ExceptionMessage)
@@ -118,8 +140,8 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
             dataType: 'json',
             cache: true,
             async: true
-        }).done(record => {
-            getData();
+        }).done(() => {
+            setRefreshTrigger(val => !val);
         }).fail((msg) => {
             if (msg.status == 500)
                 alert(msg.responseJSON.ExceptionMessage)
@@ -138,25 +160,26 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
                         <h4>Substations:</h4>
                     </div>
                 </div>
+                <div className="row">
+                    <div className="col">
+                        <p style={{ marginTop: 2, marginBottom: 2 }}>
+                            {locationStatus === 'error' ? 'Could not complete Search' :
+                                locationStatus === 'loading' ? 'Loading...' :
+                                    `Displaying Substation(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + locations.length} out of ${totalRecords}`}
+                        </p>
             </div>
-            <div className="card-body" style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                </div>
+            </div>
+            <div className="card-body d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="row d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
                 <Table<OpenXDA.Types.Location>
                     TableClass="table table-hover"
                     Data={locations}
                     SortKey={sortField}
                     Ascending={ascending}
                     OnSort={(d) => {
-                        if (d.colKey == sortField) {
-                            setAscending(!ascending);
-                            const ordered = _.orderBy(locations, [d.colKey], [(!ascending ? "asc" : "desc")]);
-                            setLocations(ordered);
-                        }
-                        else {
-                            setAscending(true);
-                            setSortField(d.colField);
-                            const ordered = _.orderBy(locations, [d.colKey], ["asc"]);
-                            setLocations(ordered);
-                        }
+                            if (d.colKey === sortField) setAscending(a => !a);
+                            else setSortField(d.colField);
                     }}
                     TableStyle={{ height: '100%' }}
                     TheadStyle={{ fontSize: 'smaller' }}
@@ -222,6 +245,16 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
                     > <p></p>
                     </Column>
                 </Table>
+            </div>
+            </div>
+            <div className="row">
+                <div className="col">
+                    <Paging
+                        Current={page + 1}
+                        SetPage={(p) => setPage(p - 1)}
+                        Total={totalPages}
+                    />
+                </div>
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
