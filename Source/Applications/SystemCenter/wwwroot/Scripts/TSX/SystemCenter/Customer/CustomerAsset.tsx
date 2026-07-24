@@ -23,42 +23,64 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA as LocalXDA } from '../global';
-import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
-import { useAppDispatch, useAppSelector } from '../hooks';
-import { CustomerAssetSlice } from '../Store/Store'
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { LoadingIcon, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
 import { ToolTip } from '@gpa-gemstone/react-forms';
+import { GenericController, LoadingIcon, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import AssetSelect from '../Asset/AssetSelect';
+import { OpenXDA as LocalXDA } from '../global';
+import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
 declare var homePath: string;
 
 interface IProps { Customer: OpenXDA.Types.Customer }
 const CustomerAssetWindow = (props: IProps) => {
-    const dispatch = useAppDispatch();
-    const data = useAppSelector(CustomerAssetSlice.Data);
-    const status = useAppSelector(CustomerAssetSlice.Status);
+
+    const [customerAssets, setCustomerAssets] = React.useState<LocalXDA.CustomerAsset[]>([]);
+    const [customerAssetStatus, setCustomerAssetStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [sortField, setSortField] = React.useState<keyof LocalXDA.CustomerAsset>('AssetName');
+    const [ascending, setAscending] = React.useState<boolean>(true);
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
+    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
+
     const [showAdd, setShowAdd] = React.useState<boolean>(false);
 
-    const sortField = useAppSelector(CustomerAssetSlice.SortField);
-    const ascending = useAppSelector(CustomerAssetSlice.Ascending);
+    const [page, setPage] = React.useState<number>(0);
+    const [pageInfo, setPageInfo] = React.useState<{ TotalPages: number, TotalRecords: number, RecordsPerPage: number }>({ TotalPages: 0, TotalRecords: 0, RecordsPerPage: 0 })
 
     const [removeRecord, setRemoveRecord] = React.useState<LocalXDA.CustomerAsset | null>(null);
 
-    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
     const roles = useAppSelector(SelectRoles)
 
+    const customerAssetController = React.useMemo(() => new GenericController<LocalXDA.CustomerAsset>(`${homePath}api/SystemCenter/CustomerAsset`, 'AssetName', true), [])
+
+    // fetch paged and sorted CustomerAssets
     React.useEffect(() => {
-        if (status == 'uninitiated' || status == 'changed')
-            dispatch(CustomerAssetSlice.Fetch());
-    }, [status]);
+
+        setCustomerAssetStatus('loading')
+        const handle = customerAssetController.PagedSearch([], sortField, ascending, page, props.Customer.ID);
+
+        handle.done((d) => {
+            setCustomerAssets(JSON.parse(d.Data as unknown as string))
+            setPageInfo({ TotalPages: d.NumberOfPages, TotalRecords: d.TotalRecords, RecordsPerPage: d.RecordsPerPage });
+            if (page >= d.NumberOfPages)
+                setPage(Math.max(d.NumberOfPages - 1, 0));
+            setCustomerAssetStatus('idle');
+        })
+
+        handle.fail(() => { setCustomerAssetStatus('error') });
+
+        return () => {
+            if (handle != null && handle.abort != null)
+                handle.abort();
+        }
+    }, [customerAssetController, sortField, ascending, page, props.Customer.ID, refreshTrigger])
 
     function saveCustomerAssets(m: SystemCenter.Types.DetailedAsset[]) {
-        m.forEach((asset) => {
-            dispatch(CustomerAssetSlice.DBAction({
-                verb: 'POST', record: {
+        Promise.all(m.map((asset) => {
+            customerAssetController.DBAction(
+                'POST', {
                     ID: 0,
                     CustomerKey: props.Customer.CustomerKey,
                     CustomerName: props.Customer.Name,
@@ -67,9 +89,8 @@ const CustomerAssetWindow = (props: IProps) => {
                     AssetName: asset.AssetName,
                     AssetType: asset.AssetType,
                     AssetID: asset.ID
-                }
-            }))
         })
+        })).then(() => setRefreshTrigger(val => !val));
     }
 
     function hasPermissions(): boolean {
@@ -78,7 +99,7 @@ const CustomerAssetWindow = (props: IProps) => {
         return true;
     }
 
-    if (status == 'error')
+    if (customerAssetStatus == 'error')
         return <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
                 <div className="row">
@@ -96,7 +117,7 @@ const CustomerAssetWindow = (props: IProps) => {
             </div>
         </div>
 
-    if (status == 'loading')
+    if (customerAssetStatus == 'loading')
         return <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
                 <div className="row">
@@ -122,18 +143,25 @@ const CustomerAssetWindow = (props: IProps) => {
                     <h4>Assigned Assets:</h4>
                 </div>
             </div>
+                <div className="row">
+                    <div className="col">
+                        <p style={{ marginTop: 2, marginBottom: 2 }}>
+                            {`Displaying Asset${customerAssets.length > 1 ? 's' : ''} ${pageInfo.TotalRecords > 0 ? (pageInfo.RecordsPerPage * page + 1) : 0} - ${pageInfo.RecordsPerPage * page + customerAssets.length} out of ${pageInfo.TotalRecords}`}
+                        </p>
         </div>
-        <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
-            <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                </div>
+
+            </div>
+            <div className="card-body d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="row d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
                 <Table<LocalXDA.CustomerAsset>
                     TableClass="table table-hover"
-                    Data={data}
+                        Data={customerAssets}
                     SortKey={sortField}
                     Ascending={ascending}
                     OnSort={(d) => {
-                        if (d.colKey == 'Remove')
-                            return;
-                        dispatch(CustomerAssetSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
+                            if (d.colKey === sortField) setAscending(a => !a);
+                            else setSortField(d.colField);
                     }}
                     TheadStyle={{ fontSize: 'smaller' }}
                     RowStyle={{ fontSize: 'smaller' }}
@@ -179,11 +207,25 @@ const CustomerAssetWindow = (props: IProps) => {
                     </Column>
                 </Table>
             </div>
+                <div className="row">
+                    <div className="col">
+                        <Paging
+                            SetPage={(p) => { setPage(p - 1) }}
+                            Total={pageInfo.TotalPages}
+                            Current={page + 1}
+                        />
         </div>
+                </div>
+            </div>
         <div className="card-footer">
             <div className="btn-group mr-2">
-                    <button className={"btn btn-info pull-right" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='AssignedAssets'
-                        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (hasPermissions())
+                    <button
+                        className={"btn btn-info pull-right" + (!hasPermissions() ? ' disabled' : '')}
+                        data-tooltip='AssignedAssets'
+                        onMouseEnter={() => setHover('Update')}
+                        onMouseLeave={() => setHover('None')}
+                        onClick={() => {
+                            if (hasPermissions())
                         setShowAdd(true);
                 }}>Add Assets</button>
             </div>
@@ -192,13 +234,22 @@ const CustomerAssetWindow = (props: IProps) => {
                 </ToolTip>
         </div>
         </div>
-        <Warning Message={'This will permanently remove the Asset from this Customer and can affect PQ Digest, PQI results, and LSCVS logic.'} Show={removeRecord != null} Title={'Remove ' + (removeRecord?.AssetName ?? 'Asset') + ' from ' + (props.Customer?.Name ?? 'Customer')} CallBack={(c) => { if (c) dispatch(CustomerAssetSlice.DBAction({ record: removeRecord, verb: 'DELETE' })); setRemoveRecord(null); }} />
-        <AssetSelect Type='multiple' StorageID='CustomerAsset' ShowModal={showAdd} SelectedAssets={[]}
+        <Warning
+            Message={'This will permanently remove the Asset from this Customer and can affect PQ Digest, PQI results, and LSCVS logic.'}
+            Show={removeRecord != null}
+            Title={'Remove ' + (removeRecord?.AssetName ?? 'Asset') + ' from ' + (props.Customer?.Name ?? 'Customer')}
+            CallBack={(c) => { if (c) customerAssetController.DBAction('DELETE', removeRecord).done(() => { setRemoveRecord(null); setRefreshTrigger(val => !val) });  }}
+        />
+        <AssetSelect
+            Type='multiple'
+            StorageID='CustomerAsset'
+            ShowModal={showAdd}
+            SelectedAssets={[]}
             Title={"Add Assets to Customer"}
             OnCloseFunction={(selected, conf) => {
                 setShowAdd(false)
                 if (!conf) return
-                saveCustomerAssets(selected.filter(items => data.findIndex(g => g.AssetID == items.ID) < 0));
+                saveCustomerAssets(selected.filter(items => customerAssets.findIndex(g => g.AssetID == items.ID) < 0));
             }} />
     </>
 }
