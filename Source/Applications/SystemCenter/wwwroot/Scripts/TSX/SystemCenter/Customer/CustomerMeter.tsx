@@ -23,13 +23,13 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { PQView, OpenXDA as LocalXDA } from '../global';
-import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
+import { OpenXDA as LocalXDA } from '../global';
+import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
 import { useAppDispatch, useAppSelector } from '../hooks';
-import { ByMeterSlice, CustomerMeterSlice } from '../Store/Store'
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { ByMeterSlice } from '../Store/Store'
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { LoadingIcon, Search, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
+import { GenericController, LoadingIcon, Search, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
 import { ToolTip } from '@gpa-gemstone/react-forms';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
 import { SelectRoles } from '../Store/UserSettings';
@@ -38,38 +38,43 @@ declare var homePath: string;
 interface IProps { Customer: OpenXDA.Types.Customer }
 const CustomerMeterWindow = (props: IProps) => {
     const dispatch = useAppDispatch();
-    const data = useAppSelector(CustomerMeterSlice.SearchResults);
-    const status = useAppSelector(CustomerMeterSlice.SearchStatus);
+    const [customerMeters, setCustomerMeters] = React.useState<LocalXDA.CustomerMeter[]>([]);
+    const [customerMeterStatus, setCustomerMeterStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [sortField, setSortField] = React.useState<keyof LocalXDA.CustomerMeter>('MeterName');
+    const [ascending, setAscending] = React.useState<boolean>(true);
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
+
     const [showAdd, setShowAdd] = React.useState<boolean>(false);
 
-    const sortField = useAppSelector(CustomerMeterSlice.SortField);
-    const ascending = useAppSelector(CustomerMeterSlice.Ascending);
+    const [page, setPage] = React.useState<number>(0);
+    const [pageInfo, setPageInfo] = React.useState<{ TotalPages: number, TotalRecords: number, RecordsPerPage: number }>({ TotalPages: 0, TotalRecords: 0, RecordsPerPage: 0 })
 
     const [removeRecord, setRemoveRecord] = React.useState<LocalXDA.CustomerMeter | null>(null);
 
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
     const roles = useAppSelector(SelectRoles);
 
-    React.useEffect(() => {
-        if (status == 'uninitiated' || status == 'changed')
-            getData();
-    }, [status])
+    const customerMeterController = React.useMemo(() => new GenericController<LocalXDA.CustomerMeter>(`${homePath}api/SystemCenter/CustomerMeter`, 'MeterName', true), []);
 
     React.useEffect(() => {
-        getData();
-    }, [props.Customer.ID])
+        setCustomerMeterStatus('loading')
+        const handle = customerMeterController.PagedSearch([], sortField, ascending, page, props.Customer.ID);
 
-    function getData() {
-        dispatch(CustomerMeterSlice.DBSearch({
-            filter: [{
-                FieldName: 'CustomerID',
-                SearchText: props.Customer.ID.toString(),
-                Operator: '=',
-                Type: 'number',
-                IsPivotColumn: false
-            }], sortField, ascending
-        }));
+        handle.done((d) => {
+            setCustomerMeters(JSON.parse(d.Data as unknown as string))
+            setPageInfo({ TotalPages: d.NumberOfPages, TotalRecords: d.TotalRecords, RecordsPerPage: d.RecordsPerPage });
+            if (page >= d.NumberOfPages)
+                setPage(Math.max(d.NumberOfPages - 1, 0));
+            setCustomerMeterStatus('idle');
+        })
+
+        handle.fail(() => { setCustomerMeterStatus('error') });
+
+        return () => {
+            if (handle != null && handle.abort != null)
+                handle.abort();
     }
+    }, [customerMeterController, sortField, ascending, page, props.Customer.ID, refreshTrigger])
 
     function getEnum(setOptions, field) {
         let handle = null;
@@ -121,9 +126,9 @@ const CustomerMeterWindow = (props: IProps) => {
     }
 
     function saveCustomerMeters(m: SystemCenter.Types.DetailedMeter[]) {
-        m.forEach((meter) => {
-            dispatch(CustomerMeterSlice.DBAction({
-                verb: 'POST', record: {
+        Promise.all(m.map((meter) => {
+            customerMeterController.DBAction(
+                'POST', {
                     ID: 0,
                     CustomerKey: props.Customer.CustomerKey,
                     CustomerName: props.Customer.Name,
@@ -133,8 +138,8 @@ const CustomerMeterWindow = (props: IProps) => {
                     MeterName: meter.Name,
                     MeterID: meter.ID
                 }
-            }))
-        })
+            )
+        })).then(() => setRefreshTrigger(val => !val));
     }
 
     function hasPermissions(): boolean {
@@ -143,7 +148,7 @@ const CustomerMeterWindow = (props: IProps) => {
         return true;
     }
 
-    if (status == 'error')
+    if (customerMeterStatus === 'error')
         return <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
                 <div className="row">
@@ -161,7 +166,7 @@ const CustomerMeterWindow = (props: IProps) => {
             </div>
         </div>
 
-    if (status == 'loading')
+    if (customerMeterStatus === 'loading')
         return <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
                 <div className="row">
@@ -187,18 +192,24 @@ const CustomerMeterWindow = (props: IProps) => {
                     <h4>Assigned Meters:</h4>
                 </div>
             </div>
+                <div className="row">
+                    <div className="col">
+                        <p style={{ marginTop: 2, marginBottom: 2 }}>
+                            {`Displaying Meter${customerMeters.length > 1 ? 's' : ''} ${pageInfo.TotalRecords > 0 ? (pageInfo.RecordsPerPage * page + 1) : 0} - ${pageInfo.RecordsPerPage * page + customerMeters.length} out of ${pageInfo.TotalRecords}`}
+                        </p>
         </div>
-        <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
-            <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                </div>
+            </div>
+            <div className="card-body d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="row d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
                 <Table<LocalXDA.CustomerMeter>
                     TableClass="table table-hover"
-                    Data={data}
+                        Data={customerMeters}
                     SortKey={sortField}
                     Ascending={ascending}
                     OnSort={(d) => {
-                        if (d.colKey == 'Remove')
-                            return;
-                        dispatch(CustomerMeterSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
+                            if (d.colKey === sortField) setAscending(a => !a);
+                            else setSortField(d.colField);
                         }}
                     TheadStyle={{ fontSize: 'smaller' }}
                     RowStyle={{ fontSize: 'smaller' }}
@@ -244,11 +255,25 @@ const CustomerMeterWindow = (props: IProps) => {
                     </Column>
                 </Table>
             </div>
+                <div className="row">
+                    <div className="col">
+                        <Paging
+                            SetPage={(p) => setPage(p - 1)}
+                            Total={pageInfo.TotalPages}
+                            Current={page + 1}
+                        />
         </div>
+                </div>
+            </div>
         <div className="card-footer">
             <div className="btn-group mr-2">
-                    <button className={"btn btn-info pull-right" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='Meters'
-                        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (hasPermissions())
+                    <button
+                        className={"btn btn-info pull-right" + (!hasPermissions() ? ' disabled' : '')}
+                        data-tooltip='Meters'
+                        onMouseEnter={() => setHover('Update')}
+                        onMouseLeave={() => setHover('None')}
+                        onClick={() => {
+                            if (hasPermissions())
                         setShowAdd(true);
                 }}>Add Meters</button>
             </div>
@@ -257,14 +282,18 @@ const CustomerMeterWindow = (props: IProps) => {
                 </ToolTip>
         </div>
         </div>
-        <Warning Message={'This will permanently remove the Meter from this Customer and can affect PQ Digest, PQI results and LSCVS logic.'} Show={removeRecord != null} Title={'Remove ' + (removeRecord?.MeterName ?? 'Meter') + ' from ' + (props.Customer?.Name ?? 'Customer')} CallBack={(c) => { if (c) dispatch(CustomerMeterSlice.DBAction({ record: removeRecord, verb: 'DELETE' })); setRemoveRecord(null); }} />
+        <Warning
+            Message={'This will permanently remove the Meter from this Customer and can affect PQ Digest, PQI results and LSCVS logic.'}
+            Show={removeRecord != null}
+            Title={'Remove ' + (removeRecord?.MeterName ?? 'Meter') + ' from ' + (props.Customer?.Name ?? 'Customer')}
+            CallBack={(c) => { if (c) customerMeterController.DBAction('DELETE', removeRecord).done(() => { setRemoveRecord(null); setRefreshTrigger(val => !val) }) }} />
         <DefaultSelects.Meter
             Slice={ByMeterSlice}
             Selection={[]}
             OnClose={(selected, conf) => {
                 setShowAdd(false)
                 if (!conf) return
-                saveCustomerMeters(selected.filter(items => data.findIndex(g => g.MeterID == items.ID) < 0))
+                saveCustomerMeters(selected.filter(items => customerMeters.findIndex(g => g.MeterID == items.ID) < 0))
             }}
             Show={showAdd}
             Type={'multiple'}
