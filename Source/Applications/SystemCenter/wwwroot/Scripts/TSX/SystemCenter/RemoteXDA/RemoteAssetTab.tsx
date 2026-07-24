@@ -24,10 +24,10 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import { RemoteXDAAssetSlice, ByAssetSlice } from '../Store/Store';
-import { LoadingScreen, Modal, Search, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
+import { LoadingScreen, Modal, Search, ServerErrorIcon, Warning, GenericController } from '@gpa-gemstone/react-interactive';
 import { ToolTip } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { BlankRemoteXDAAsset, RemoteAssetForm } from './RemoteAssetForm';
@@ -43,17 +43,14 @@ const RemoteAssetTab = (props: IProps) => {
     const [ascending, setAscending] = React.useState<boolean>(true);
     const dispatch = useAppDispatch();
     const remoteAssetStatus = useAppSelector(RemoteXDAAssetSlice.Status);
-    const searchResults = useAppSelector(RemoteXDAAssetSlice.SearchResults);
-    const searchState = useAppSelector(RemoteXDAAssetSlice.SearchStatus);
+    const [searchResults, setSearchResults] = React.useState<OpenXDA.Types.RemoteXDAAsset[]>([]);
+    const [searchState, setSearchState] = React.useState<Application.Types.Status>('uninitiated');
 
-    const searchFilters: Search.IFilter<OpenXDA.Types.RemoteXDAAsset>[] =
-    [{
-        FieldName: 'RemoteXDAInstanceID',
-        SearchText: props.ID.toString(),
-        Operator: '=',
-        Type: 'number',
-        IsPivotColumn: false
-    }]
+    const [page, setPage] = React.useState<number>(0);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [totalRecords, setTotalRecords] = React.useState<number>(0);
+    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
 
     // Edit and Delete Form Consts
     const [newInstErrors, setNewInstErrors] = React.useState<string[]>([]);
@@ -70,19 +67,37 @@ const RemoteAssetTab = (props: IProps) => {
     const roles = useAppSelector(SelectRoles);
     const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
 
+    const remoteAssetController = React.useMemo(() => new GenericController<OpenXDA.Types.RemoteXDAAsset>(`${homePath}api/OpenXDA/RemoteXDAAsset`, "LocalAssetName", false), [])
+    const filters: Search.IFilter<OpenXDA.Types.RemoteXDAAsset>[] = React.useMemo(() => [{
+        FieldName: 'RemoteXDAInstanceID',
+        SearchText: props.ID.toString(),
+        Operator: '=',
+        Type: 'number',
+        IsPivotColumn: false
+    }], [props.ID])
+
     React.useEffect(() => {
         if (remoteAssetStatus === 'uninitiated' || remoteAssetStatus === 'changed')
             dispatch(RemoteXDAAssetSlice.Fetch());
     }, [dispatch, remoteAssetStatus]);
 
     React.useEffect(() => {
-        if (searchState === 'uninitiated' || searchState === 'changed')
-            dispatch(RemoteXDAAssetSlice.DBSearch({ filter: searchFilters, ascending: ascending, sortField: sortKey }));
-    }, [dispatch, searchState]);
-
-    React.useEffect(() => {
-        dispatch(RemoteXDAAssetSlice.DBSearch({ sortField: sortKey, ascending, filter: searchFilters }))
-    }, [ascending, sortKey]);
+        setSearchState('loading');
+        const handle = remoteAssetController.PagedSearch(filters, sortKey, ascending, page);
+        handle.done((d) => {
+            setSearchResults(JSON.parse(d.Data as unknown as string));
+            setTotalPages(d.NumberOfPages);
+            setTotalRecords(d.TotalRecords);
+            setRecordsPerPage(d.RecordsPerPage);
+            if (page >= d.NumberOfPages)
+                setPage(Math.max(d.NumberOfPages - 1, 0));
+            setSearchState('idle')
+        })
+        handle.fail(() => setSearchState("error"));
+        return () => {
+            if (handle != null && handle.abort != null) handle.abort();
+        }
+    }, [filters, sortKey, ascending, page, remoteAssetController, refreshTrigger])
 
     React.useEffect(() => {
         if (assetStatus === 'uninitiated' || assetStatus === 'changed')
@@ -106,6 +121,8 @@ const RemoteAssetTab = (props: IProps) => {
         cardBody = <LoadingScreen Show={true} />
     } else {
         cardBody =
+            <>
+            <div className="row d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
             <Table<OpenXDA.Types.RemoteXDAAsset>
                 TableClass="table table-hover"
                 Data={searchResults}
@@ -220,6 +237,17 @@ const RemoteAssetTab = (props: IProps) => {
                 > <p></p>
                 </Column>
             </Table>
+            </div>
+            <div className="row">
+                <div className="col">
+                    <Paging
+                        Current={page + 1}
+                        SetPage={(p) => setPage(p - 1)}
+                        Total={totalPages}
+                    />
+                </div>
+            </div>
+            </>
     }
 
     return (
@@ -230,6 +258,15 @@ const RemoteAssetTab = (props: IProps) => {
                         <h4>Remote openXDA Assets:</h4>
                     </div>
                 </div>
+                <div className="row">
+                    <div className="col">
+                        <p style={{ marginTop: 2, marginBottom: 2 }}>
+                            {searchState === 'error' ? 'Could not complete Search' :
+                                searchState === 'loading' ? 'Loading...' :
+                                    `Displaying Asset(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + searchResults.length} out of ${totalRecords}`}
+                        </p>
+                    </div>
+            </div>
             </div>
             <div className="card-body" style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
                 {cardBody}
@@ -254,13 +291,13 @@ const RemoteAssetTab = (props: IProps) => {
             </div>
             <Warning Title={"Delete " + (selectedAsset?.RemoteXDAAssetKey ?? "Remote Asset")} Show={showDelete} Message={"Are you sure you want to delete the Remote Asset for " + (selectedAsset?.LocalAssetName ?? "No Local Name") + "?"}
                 CallBack={(conf) => {
-                    if (conf) dispatch(RemoteXDAAssetSlice.DBAction({ verb: 'DELETE', record: selectedAsset }));
+                    if (conf) remoteAssetController.DBAction('DELETE',selectedAsset).then(() => setRefreshTrigger(val => !val));
                     setShowDelete(false);
                 }} />
             <Modal Show={showEdit} Title={'Edit ' + (selectedAsset?.LocalAssetName ?? 'Remote Asset')}
                 ShowCancel={true}
                 CallBack={(conf) => {
-                    if (conf) dispatch(RemoteXDAAssetSlice.DBAction({ verb: 'PATCH', record: remoteAsset }));
+                    if (conf) remoteAssetController.DBAction('PATCH', remoteAsset).then(() => setRefreshTrigger(val => !val));
                     setShowEdit(false);
                 }}
                 DisableConfirm={newInstErrors.length > 0}
@@ -293,7 +330,7 @@ const RemoteAssetTab = (props: IProps) => {
                             RemoteAssetName: "",
                             RemoteAssetKey: ""
                         }
-                        dispatch(RemoteXDAAssetSlice.DBAction({ verb: "POST", record: newRemote }));
+                        remoteAssetController.DBAction("POST", newRemote).then(() => setRefreshTrigger(val => !val));
                     });
                 }} />
         </div>
