@@ -24,7 +24,7 @@
 import * as React from 'react';
 import NodeForm from './NodeForm';
 import NodeSettings from './NodeSettings'
-import { TabSelector, Warning, GenericController } from '@gpa-gemstone/react-interactive';
+import { TabSelector, Warning, GenericController, ServerErrorIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
 import { Application } from '@gpa-gemstone/application-typings'
 import { SystemCenter as SC } from '../global'
 import { useNavigate } from 'react-router-dom';
@@ -50,6 +50,7 @@ export default function Node(props: IProps) {
     const [nodeTypes, setNodeTypes] = React.useState<INodeType[]>([]);
     const [appHosts, setAppHosts] = React.useState<IHostRegistration[]>([])
     const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false)
+    const [deleteStatus, setDeleteStatus] = React.useState<Application.Types.Status>('idle');
 
     function hasPermissions(): boolean {
         if (props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Engineer') < 0)
@@ -58,9 +59,13 @@ export default function Node(props: IProps) {
     }
 
     function deleteNode() {
+        setDeleteStatus('loading');
         const controller = new GenericController<IOpenXDANode>(`${homePath}api/openXDA/Node`, 'ID')
-        controller.DBAction('DELETE', convertToXDANode(node, nodeTypes, appHosts))
-        navigate(`${homePath}index.cshtml?name=TaskRunners`)
+        controller.DBAction('DELETE', convertToXDANode(node, nodeTypes, appHosts)).done(() => {
+            navigate(`${homePath}index.cshtml?name=TaskRunners`);
+        }).fail(() => {
+            setDeleteStatus('error');
+        });
     }
 
     React.useEffect(() => {
@@ -121,12 +126,19 @@ export default function Node(props: IProps) {
 
     return (
         <div style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+            <ServerErrorIcon Show={status === 'error' || deleteStatus === 'error'} />
+            <LoadingScreen Show={status === 'loading' || deleteStatus === 'loading'} />
             <div className="row p-2">
                 <div className="col">
                     <h2>{node != null ? node.Name : ''}</h2>
                 </div>
                 <div className="col">
-                    <button className={"btn btn-danger pull-right"} hidden={(node == null) || !hasPermissions()} onClick={() => { if (hasPermissions()) setShowWarning(true) }}>Delete Task Runner</button>
+                    <button
+                        className={`btn btn-danger pull-right`}
+                        hidden={(node == null) || !hasPermissions()}
+                        onClick={() => { if (hasPermissions()) setShowWarning(true) }}>
+                          Delete Task Runner
+                    </button>
                 </div>
             </div>
             <hr />
@@ -134,7 +146,11 @@ export default function Node(props: IProps) {
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
             {tab === 'info' ? <NodeForm Node={node} UpdateRecord={() => setRefreshTrigger((val) => !val)} NodeTypes={nodeTypes} AppHosts={appHosts} /> : null}
             {tab === 'settings' ? <NodeSettings NodeID={node?.ID ?? props.NodeID.toString()} /> : null}
-            <Warning Title={'Delete ' + (node?.Name ?? 'Task Runner')} Show={showWarning} Message={'This will permanently delete this Task Runner.'} CallBack={(c) => { if (c) deleteNode(); setShowWarning(false) }} />
+            <Warning
+                Title={'Delete ' + (node?.Name ?? 'Task Runner')}
+                Show={showWarning}
+                Message={'This will delete this Task Runner from the system. This can have unintended consequences and cause the system to crash. Are you sure you want to continue?'}
+                CallBack={(c) => { if (c) deleteNode(); setShowWarning(false) }} />
         </div>
     )
 }
