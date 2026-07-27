@@ -185,7 +185,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
             </SearchBar>
 
             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                <div className="col">
+                <div className="col h-100">
                     <Table<IUserAccount>
                         TableClass="table table-hover"
                         Data={data}
