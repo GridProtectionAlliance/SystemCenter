@@ -196,6 +196,21 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
                 </div>
                 <div className="card-body d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
                     <div className="row d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="card-header">
+                    <div className="row">
+                        <h4>Line Source Impedances:</h4>
+                    </div>
+                    <div className="row">
+                        <div className="col">
+                            <p style={{ marginTop: 2, marginBottom: 2 }}>
+                                {sourceImpedanceStatus === 'loading' ? 'Loading...' :
+                                        `Displaying Source Impedance(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + sourceImpedances.length} out of ${totalRecords}`}
+                            </p>
+                        </div>
+                </div>
+                </div>
+                <div className="card-body d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
+                    <div className="row d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
                 <Table<OpenXDA.Types.SourceImpedance>
                     TableClass="table table-hover"
                     Data={sourceImpedances}
