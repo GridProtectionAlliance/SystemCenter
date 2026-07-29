@@ -286,14 +286,14 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
                 >
                     <li className="nav-item" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Engineer') < 0} style={{ width: '15%', paddingRight: 10 }}>
                         <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                                <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
-                                <form>
-                                    <div className="form-group">
-                                    <button className="btn btn-info btn-block" 
+                            <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
+                            <form>
+                                <div className="form-group">
+                                    <button className="btn btn-info btn-block"
                                         onClick={(event) => { event.preventDefault(); setShowNewGroup(true); }}>Add Asset Group</button>
-                                    </div>
-                                </form>
-                            </fieldset>
+                                </div>
+                            </form>
+                        </fieldset>
                     </li>
                 </SearchBar>
                 <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
