@@ -80,7 +80,7 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
                 setPage(Math.max(d.NumberOfPages - 1, 0));
             setMeterStatus('idle')
         });
-      
+
         handle.fail(() => setMeterStatus('error'))
 
         return function cleanup() {
@@ -184,7 +184,7 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
                     <div className="col">
                         <h4>Meters in Asset Group:</h4>
                     </div>
-                </div>
+                    </div>
                     <div className="row">
                         <div className="col">
                             <p style={{ marginTop: 2, marginBottom: 2 }}>
@@ -192,7 +192,7 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
                                     meterStatus === 'loading' ? 'Loading...' :
                                         `Displaying Meter(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + meterList.length} out of ${totalRecords}`}
                             </p>
-            </div>
+                        </div>
                     </div>
                 </div>
                 <div className="card-body d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>

@@ -145,7 +145,7 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                         <h4>Transmission Assets:</h4>
                     </div>
                     
-                </div>
+                    </div>
                     <div className="row">
                         <div className="col">
                             <p style={{ marginTop: 2, marginBottom: 2 }}>
@@ -153,7 +153,7 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                                     assetStatus === 'loading' ? 'Loading...' :
                                         `Displaying Asset(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + assetList.length} out of ${totalRecords}`}
                             </p>
-            </div>
+                        </div>
                     </div>
             </div>
                 <div className="card-body d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>

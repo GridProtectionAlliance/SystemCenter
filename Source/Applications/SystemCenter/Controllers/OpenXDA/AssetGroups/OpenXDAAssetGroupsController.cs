@@ -240,7 +240,7 @@ namespace SystemCenter.Controllers.OpenXDA
                             Location.Name,
                             MeterAssetGroup.AssetGroupID
                         HAVING MeterAssetGroup.AssetGroupID = {0}";
-                       
+
                         int count = connection.ExecuteScalar<int>(countSql, assetGroupID);
 
                         DataTable results = connection.RetrieveData(sql, assetGroupID);
