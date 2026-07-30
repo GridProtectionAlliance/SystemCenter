@@ -23,9 +23,9 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
+import { Application } from '@gpa-gemstone/application-typings';
 import { PhaseSlice, MeasurmentTypeSlice } from '../Store/Store'
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { useAppSelector } from '../hooks';
 import { LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
@@ -67,6 +67,10 @@ interface ChannelDetail { //TODO: Move to Gemstone
 
 const AssetChannelWindow = (props: IProps) => {
     const [assetChannels, setAssetChannels] = React.useState<ChannelDetail[]>([]);
+    const [page, setPage] = React.useState<number>(0);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [totalRecords, setTotalRecords] = React.useState<number>(0);
+    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
 
     const pStatus = useAppSelector(PhaseSlice.Status) as Application.Types.Status;
     const mtStatus = useAppSelector(MeasurmentTypeSlice.Status) as Application.Types.Status;
@@ -75,35 +79,35 @@ const AssetChannelWindow = (props: IProps) => {
     const [ascending, setAscending] = React.useState<boolean>(true);
 
     React.useEffect(() => {
-        let channelHandle = getChannels();
-
-        Promise.all([channelHandle]);
-
-        return () => {
-            if (channelHandle != null && channelHandle.abort != null)
-                channelHandle.abort();
-        }
-    }, [props.ID]);
-
-    function getChannels(): JQuery.jqXHR<ChannelDetail[]> {
         setStatus('loading');
-        return $.ajax(
+
+        const handle = $.ajax(
             {
-                type: "GET",
-                url: `${homePath}api/OpenXDA/Asset/${props.ID}/ConnectedChannels`,
+                type: "POST",
+                url: `${homePath}api/OpenXDA/Asset/${props.ID}/ConnectedChannels/${page}`,
                 contentType: "application/json; charset=utf-A",
                 dataType: 'json',
                 cache: true,
-                async: true
+                async: true,
+                data: JSON.stringify({ OrderBy: sortField, Ascending: ascending })
             }
         ).done(
-            (d: Array<ChannelDetail>) => {
-                const sortedChannels = sortData(sortField, ascending, d);
-                setAssetChannels(sortedChannels)
+            (d) => {
+                setAssetChannels(JSON.parse(d.Data))
+                setTotalPages(d.NumberOfPages);
+                setTotalRecords(d.TotalRecords);
+                setRecordsPerPage(d.RecordsPerPage);
+                if (page >= d.NumberOfPages)
+                    setPage(Math.max(d.NumberOfPages - 1, 0));
                 setStatus('idle');
             }
         ).fail(() => setStatus('error'));
+
+        return () => {
+            if (handle != null && handle.abort != null)
+                handle.abort();
     }
+    }, [props.ID, sortField, ascending, page]);
 
     function sortData(key: keyof ChannelDetail, ascending: boolean, data: ChannelDetail[]) {
         return _.orderBy(data, [key], [(ascending ? "asc" : "desc")]);
@@ -153,8 +157,17 @@ const AssetChannelWindow = (props: IProps) => {
                         <h4>Channels:</h4>
                     </div>
                 </div>
+                <div className="row">
+                    <div className="col">
+                        <p style={{ marginTop: 2, marginBottom: 2 }}>
+                            {`Displaying Asset Channel(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + assetChannels.length} out of ${totalRecords}`}
+                        </p>
+            </div>
+                </div>
             </div>
             <div className="card-body" style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                <div className="row d-flex flex-column" style={{ flex: '1 1 0%', overflow: 'hidden' }}>
+                    <div className="col d-flex flex-column" style={{ overflow: 'hidden' }}>
                 <Table<ChannelDetail>
                     TableClass="table table-hover"
                     Data={assetChannels}
@@ -163,14 +176,10 @@ const AssetChannelWindow = (props: IProps) => {
                     OnSort={(d) => {
                         if (d.colKey == sortField) {
                             setAscending(!ascending);
-                            const ordered = _.orderBy(assetChannels, [d.colKey], [(!ascending ? "asc" : "desc")]);
-                            setAssetChannels(ordered);
                         }
                         else {
                             setAscending(true);
                             setSortField(d.colField);
-                            const ordered = _.orderBy(assetChannels, [d.colKey], ["asc"]);
-                            setAssetChannels(ordered);
                         }
                     }}
                     TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
@@ -243,6 +252,17 @@ const AssetChannelWindow = (props: IProps) => {
                     > Description
                     </Column>
                 </Table>
+            </div>
+        </div>
+                <div className="row">
+                    <div className="col">
+                        <Paging
+                            Current={page + 1}
+                            Total={totalPages}
+                            SetPage={(p) => setPage(p - 1)}
+                        />
+                    </div>
+                </div>
             </div>
         </div>
     );
