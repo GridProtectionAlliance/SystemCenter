@@ -22,15 +22,15 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { useNavigate } from "react-router-dom";
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
-import { Search, Modal } from '@gpa-gemstone/react-interactive';
+import { Search, Modal, GenericController, SearchBar } from '@gpa-gemstone/react-interactive';
 import { CheckBox, Input } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { AssetGroupSlice, ByAssetSlice, ByMeterSlice, AssetTypeSlice } from '../Store/Store';
-import { DefaultSearch, DefaultSelects } from '@gpa-gemstone/common-pages';
+import { AssetGroupSlice, ByMeterSlice, AssetTypeSlice } from '../Store/Store';
+import { DefaultSelects } from '@gpa-gemstone/common-pages';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import AssetSelect from '../Asset/AssetSelect';
 
@@ -47,14 +47,19 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
 
     let navigate = useNavigate();
     const dispatch = useAppDispatch();
-    const data = useAppSelector(AssetGroupSlice.SearchResults);
-    const sortKey = useAppSelector(AssetGroupSlice.SortField);
-    const ascending = useAppSelector(AssetGroupSlice.Ascending);
-    const searchStatus = useAppSelector(AssetGroupSlice.SearchStatus);
-    const searchFields = useAppSelector(AssetGroupSlice.SearchFilters)
-    const status = useAppSelector(AssetGroupSlice.Status);
-    const allAssetGroups = useAppSelector(AssetGroupSlice.Data);
+    const [data, setData] = React.useState<OpenXDA.Types.AssetGroup[]>([]);
+    const [sortKey, setSortKey] = React.useState<keyof OpenXDA.Types.AssetGroup>('Name');
+    const [ascending, setAscending] = React.useState<boolean>(true);
+    const [searchStatus, setSearchStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [searchFields, setSearchFields] = React.useState<Search.IFilter<OpenXDA.Types.AssetGroup>[]>([]);
+    const [allAssetGroupStatus, setAllAssetGroupStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [allAssetGroups, setAllAssetGroups] = React.useState<OpenXDA.Types.AssetGroup[]>([]);
+    const [page, setPage] = React.useState<number>(0);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [totalRecords, setTotalRecords] = React.useState<number>(0);
+    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
 
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
     const assetType = useAppSelector(AssetTypeSlice.Data);
     const assetTypeStatus = useAppSelector(AssetTypeSlice.Status);
 
@@ -64,15 +69,35 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
     const [showNewGroup, setShowNewGroup] = React.useState<boolean>(false);
     const [assetGrpErrors, setAssetGrpErrors] = React.useState<string[]>([]);
 
-    React.useEffect(() => {
-        if (status == 'changed' || status == 'uninitiated')
-            dispatch(AssetGroupSlice.Fetch());
-    }, [status]);
+    const assetGroupController = React.useMemo(() => new GenericController<OpenXDA.Types.AssetGroup>(`${homePath}api/OpenXDA/AssetGroup`, "Name", true), [])
 
     React.useEffect(() => {
-        if (searchStatus == 'changed' || searchStatus == 'uninitiated')
-            dispatch(AssetGroupSlice.DBSearch({ filter: searchFields }));
-    }, [searchStatus]);
+        setAllAssetGroupStatus('loading');
+
+        const handle = assetGroupController.Fetch();
+        handle.done((d) => {
+            setAllAssetGroups(d);
+            setAllAssetGroupStatus('idle');
+        })
+        handle.fail(() => setAllAssetGroupStatus('error'))
+        return () => { if (handle != null && handle.abort != null) handle.abort() }
+    }, [assetGroupController]);
+
+    React.useEffect(() => {
+        setSearchStatus('loading');
+        const handle = assetGroupController.PagedSearch(searchFields, sortKey, ascending, page)
+        handle.done((d) => {
+            setData(JSON.parse(d.Data as unknown as string));
+            setTotalPages(d.NumberOfPages);
+            setTotalRecords(d.TotalRecords);
+            setRecordsPerPage(d.RecordsPerPage);
+            if (page >= d.NumberOfPages)
+                setPage(Math.max(d.NumberOfPages - 1, 0));
+            setSearchStatus('idle');
+        })
+        handle.fail(() => setSearchStatus('error'))
+        return () => { if (handle != null && handle.abort != null) handle.abort() }
+    }, [sortKey, ascending, searchFields, page, refreshTrigger, assetGroupController]);
 
     React.useEffect(() => {
         if (assetTypeStatus == 'changed' || assetTypeStatus == 'uninitiated')
@@ -240,7 +265,25 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
     return (
         <>
             <div className="container-fluid d-flex h-100 flex-column">
-                <DefaultSearch.AssetGroup Slice={AssetGroupSlice} GetEnum={getEnum} StorageID="AssetGroupsFilter" GetAddlFields={() => { return () => {}}} >
+                <SearchBar<OpenXDA.Types.AssetGroup>
+                    CollumnList={[
+                        { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
+                        { label: 'Number of Meters', key: 'Meters', type: 'integer', isPivotField: false },
+                        { label: 'Number of Transmission Assets', key: 'Assets', type: 'integer', isPivotField: false },
+                        { label: 'Number of Asset Groups', key: 'AssetGroups', type: 'integer', isPivotField: false },
+                        { label: 'Show in PQ Dashboard', key: 'DisplayDashboard', type: 'boolean', isPivotField: false },
+                        { label: 'Show in Email Subscription', key: 'DisplayEmail', type: 'boolean', isPivotField: false },
+                    ]}
+                    SetFilter={setSearchFields}
+                    Width={'50%'}
+                    Direction={'left'}
+                    defaultCollumn={{ label: 'Name', key: 'Name', type: 'string', isPivotField: false }}
+                    Label={'Search'}
+                    ShowLoading={searchStatus === 'loading'}
+                    ResultNote={searchStatus === 'error' ? 'Could not complete Search' : `Displaying Asset Group(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + data.length} out of ${totalRecords}`}
+                    GetEnum={getEnum}
+                    StorageID={"AssetGroupsFilter"}
+                >
                     <li className="nav-item" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Engineer') < 0} style={{ width: '15%', paddingRight: 10 }}>
                         <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                                 <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
@@ -252,7 +295,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
                                 </form>
                             </fieldset>
                     </li>
-                </DefaultSearch.AssetGroup>
+                </SearchBar>
                 <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
                     <Table<OpenXDA.Types.AssetGroup>
                         TableClass="table table-hover"
@@ -260,10 +303,12 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
                         SortKey={sortKey}
                         Ascending={ascending}
                         OnSort={(d) => {
-                            if (d.colKey === sortKey)
-                                dispatch(AssetGroupSlice.Sort({ SortField: sortKey, Ascending: ascending }));
+                            if (d.colKey == sortKey) {
+                                setAscending(!ascending);
+                            }
                             else {
-                                dispatch(AssetGroupSlice.Sort({ SortField: d.colField as keyof OpenXDA.Types.AssetGroup, Ascending: true }));
+                                setAscending(true);
+                                setSortKey(d.colKey as keyof OpenXDA.Types.AssetGroup);
                             }
                         }}
                         OnClick={handleSelect}
@@ -319,6 +364,15 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
                         > Show in PQ Dashboard
                         </Column>
                     </Table>
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <Paging
+                            Current={page + 1}
+                            Total={totalPages}
+                            SetPage={(p) => setPage(p - 1)}
+                        />
+                    </div>
                 </div>
             </div>
             <Modal Size='xlg' Show={showNewGroup} Title={'Add New Asset Group'} ShowX={true}
