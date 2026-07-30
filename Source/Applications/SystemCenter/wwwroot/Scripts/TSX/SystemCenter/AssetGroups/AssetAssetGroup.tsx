@@ -25,9 +25,9 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { useNavigate } from 'react-router-dom';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { AssetGroupSlice, AssetTypeSlice } from '../Store/Store';
-import { SystemCenter } from '@gpa-gemstone/application-typings';
+import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { Warning } from '@gpa-gemstone/react-interactive';
 import { ToolTip } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
@@ -43,9 +43,13 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
     const [sortKey, setSortKey] = React.useState<string>('AssetName');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [showAdd, setShowAdd] = React.useState<boolean>(false);
-    const [counter, setCounter] = React.useState<number>(0);
     const [removeAsset, setRemoveAsset] = React.useState<number>(-1);
-
+    const [page, setPage] = React.useState<number>(0);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [totalRecords, setTotalRecords] = React.useState<number>(0);
+    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
+    const [assetStatus, setAssetStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
     const assetType = useAppSelector(AssetTypeSlice.Data);
     const assetTypeStatus = useAppSelector(AssetTypeSlice.Status);
     const dispatch = useAppDispatch();
@@ -54,42 +58,43 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
     const roles = useAppSelector(SelectRoles);
 
     React.useEffect(() => {
-        dispatch(AssetGroupSlice.SetChanged());
-        return getData();
-    }, [props.AssetGroupID, counter]);
+        if (props.AssetGroupID == null)
+            return () => { };
+
+        setAssetStatus('loading');
+
+        let handle = $.ajax({
+            type: "POST",
+            url: `${homePath}api/OpenXDA/AssetGroup/${props.AssetGroupID}/Assets/${page}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true,
+            data: JSON.stringify({OrderBy: sortKey, Ascending: ascending})
+        })
+
+        handle.done((d) => {
+            setAssetList(JSON.parse(d.Data as unknown as string));
+            setTotalPages(d.NumberOfPages);
+            setTotalRecords(d.TotalRecords);
+            setRecordsPerPage(d.RecordsPerPage);
+            if (page >= d.NumberOfPages)
+                setPage(Math.max(d.NumberOfPages - 1, 0));
+            setAssetStatus('idle');
+        });
+      
+        handle.fail(() => setAssetStatus('error'))
+
+        return function cleanup() {
+            if (handle.abort != null)
+                handle.abort();
+        }
+    }, [props.AssetGroupID, refreshTrigger, ascending, page, sortKey]);
 
     React.useEffect(() => {
         if (assetTypeStatus == 'changed' || assetTypeStatus == 'uninitiated')
             dispatch(AssetTypeSlice.Fetch());
     }, [assetTypeStatus]);
-
-    function getData() {
-        if (props.AssetGroupID == null)
-            return () => { };
-
-        let handle = $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/AssetGroup/${props.AssetGroupID}/Assets`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: false,
-            async: true
-        })
-
-        handle.done((data: Array<SystemCenter.Types.DetailedAsset>) => {
-            const sortedData = sortData(sortKey, ascending, data);
-            setAssetList(sortedData);
-        });
-      
-        return function cleanup() {
-            if (handle.abort != null)
-                handle.abort();
-        }
-    }
-
-    function sortData(key: string, ascending: boolean, data: SystemCenter.Types.DetailedAsset[]) {
-        return _.orderBy(data, [key], [(ascending ? "asc" : "desc")]);
-    }
 
     function saveItems(items: SystemCenter.Types.DetailedAsset[]) {
 
@@ -103,7 +108,7 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
             data: JSON.stringify(items.map(e => e.ID))
         });
 
-        handle.done(d => setCounter(x => x + 1))
+        handle.done(() => setRefreshTrigger(val => !val))
 
 
     }
@@ -118,7 +123,7 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
             async: true
         });
 
-        handle.done(d => setCounter(x => x + 1))
+        handle.done(() => setRefreshTrigger(val => !val))
     }
 
     function hasPermissions(): boolean {
@@ -141,9 +146,18 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                     </div>
                     
                 </div>
+                    <div className="row">
+                        <div className="col">
+                            <p style={{ marginTop: 2, marginBottom: 2 }}>
+                                {assetStatus === 'error' ? 'Could not complete Search' :
+                                    assetStatus === 'loading' ? 'Loading...' :
+                                        `Displaying Asset(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + assetList.length} out of ${totalRecords}`}
+                            </p>
             </div>
-            <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
-                <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                    </div>
+            </div>
+                <div className="card-body d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
+                    <div className="row d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
                     <Table<SystemCenter.Types.DetailedAsset>
                         TableClass="table table-hover"
                         Data={assetList}
@@ -155,14 +169,10 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
 
                             if (d.colKey === sortKey) {
                                 setAscending(!ascending);
-                                const ordered = _.orderBy(assetList, [d.colKey], [(!ascending ? "asc" : "desc")]);
-                                setAssetList(ordered);
                             }
                             else {
                                 setAscending(true);
                                 setSortKey(d.colKey);
-                                const ordered = _.orderBy(assetList, [d.colKey], ["asc"]);
-                                setAssetList(ordered);
                             }
                         }}
                         OnClick={handleSelect}
@@ -216,6 +226,15 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                         </Column>
                     </Table>
                 </div>
+                    <div className="row">
+                        <div className="col">
+                            <Paging
+                                Current={page + 1}
+                                Total={totalPages}
+                                SetPage={(p) => setPage(p - 1) }
+                            />
+                        </div>
+                    </div>
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
