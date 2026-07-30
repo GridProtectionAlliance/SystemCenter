@@ -280,12 +280,11 @@ const ChannelScalingForm = (props: IProps) => {
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-info pull-right" + ((multiplier.Voltage == 1 && multiplier.Current == 1) ? ' disabled' : '')} onClick={() => { if (multiplier.Voltage != 1 || multiplier.Current != 1) useReplacedMultiplier(); }}
+                    <button className={"btn btn-info pull-right" + (hasPermissions() ? '' : ' disabled')} onClick={() => { if (hasPermissions()) useReplacedMultiplier(); }}
                         onMouseEnter={() => setHover('Replace')} onMouseLeave={() => setHover('None')} data-tooltip={"rep"}
                     >Replace Multipliers</button>
-                    <ToolTip Show={hover == 'Replace' && (multiplier.Voltage == 1 && multiplier.Current == 1)} Position={'top'} Target={"rep"}>
-                        {!hasPermissions() ? <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p> : null}
-                        {hasPermissions() ? <p> There are no changes to be applied. </p> : null}
+                    <ToolTip Show={hover == 'Replace' && !hasPermissions()} Position={'top'} Target={"rep"}>
+                        <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                     </ToolTip>
                 </div>
                 <div className="btn-group mr-2">
