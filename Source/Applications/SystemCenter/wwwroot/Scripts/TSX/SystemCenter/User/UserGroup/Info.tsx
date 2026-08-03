@@ -22,15 +22,13 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
+import { GenericController } from '@gpa-gemstone/react-interactive';
 import { ToolTip } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { SecurityGroupSlice } from '../../Store/Store';
-import { useAppDispatch } from '../../hooks';
 import { ISecurityGroup } from '../Types';
 import GroupForm from './GroupForm';
 
-const GroupInfo = (props: {Group: ISecurityGroup}) => {
-    const dispatch = useAppDispatch();
+const GroupInfo = (props: { Group: ISecurityGroup }) => {
 
     const [group, setGroup] = React.useState<ISecurityGroup>(props.Group);
     const [warnings, setWarning] = React.useState<string[]>([]);
@@ -76,7 +74,7 @@ const GroupInfo = (props: {Group: ISecurityGroup}) => {
             <div className="card-footer">
                 <div className="btn-group mr-2">
                     <button className="btn btn-primary"
-                        onClick={() => dispatch(SecurityGroupSlice.DBAction({ verb: 'PATCH', record: { ...group, Name: group.DisplayName } }))}
+                        onClick={() => new GenericController<ISecurityGroup>(`${homePath}api/SystemCenter/FullSecurityGroup`, "DisplayName").DBAction('PATCH',{ ...group, Name: group.DisplayName })}
                         onMouseEnter={() => setHover('Save')} onMouseLeave={() => setHover('None')}
                         data-tooltip={'Save'}
                         disabled={warnings.length === 0 || errors.length > 0 || group.Type !== 'Database'}>Save Changes</button>

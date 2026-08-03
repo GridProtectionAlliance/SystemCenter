@@ -48,7 +48,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
     const [searchStatus, setSearchStatus] = React.useState<Application.Types.Status>('uninitiated');
 
     const [sortField, setSortField] = React.useState<keyof ISecurityGroup>('DisplayName');
-    const [ascending, setAscending] = React.useState<boolean>(false);
+    const [ascending, setAscending] = React.useState<boolean>(true);
     const [page, setPage] = React.useState<number>(0);
     const [totalPages, setTotalPages] = React.useState<number>(0);
     const [totalRecords, setTotalRecords] = React.useState<number>(0);
@@ -92,7 +92,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
             <div className="row">
                 <SearchBar<ISecurityGroup> CollumnList={defaultSearchcols} SetFilter={setSearch}
                     Direction={'left'} defaultCollumn={{ label: 'Name', key: 'DisplayName', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
-                    ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + totalRecords + ' User Group(s)'}
+                    ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : `Displaying User Group(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + data.length} out of ${totalRecords}`}
                     StorageID="UsersGroupFilter"
                     GetEnum={() => {
                         return () => { }
