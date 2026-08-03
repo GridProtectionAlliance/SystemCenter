@@ -23,13 +23,11 @@
 import * as React from 'react';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { SearchBar, Search, Modal, ServerErrorIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
+import { SearchBar, Search, Modal, ServerErrorIcon, LoadingScreen, GenericController } from '@gpa-gemstone/react-interactive';
 import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
 import * as _ from 'lodash';
 import UserForm from './UserForm';
-import { useAppDispatch, useAppSelector, useBoundPaging } from '../../hooks';
 import { useNavigate } from "react-router-dom";
-import { ValueListSlice, ValueListGroupSlice, UserAdditionalFieldSlice, UserAccountSlice } from '../../Store/Store';
 import { IUserAccount } from '../Types';
 import moment from 'moment';
 
@@ -63,72 +61,109 @@ const newAcct: IUserAccount = {
 
 const ByUser: Application.Types.iByComponent = (props) => {
     let navigate = useNavigate();
-    const dispatch = useAppDispatch();
 
-    const search = useAppSelector(UserAccountSlice.SearchFilters);
+    const [search, setSearch] = React.useState<Search.IFilter<IUserAccount>[]>([])
 
-    const data = useAppSelector(UserAccountSlice.SearchResults);
-    const userStatus: Application.Types.Status = useAppSelector(UserAccountSlice.Status);
-    const searchStatus: Application.Types.Status = useAppSelector(UserAccountSlice.SearchStatus);
+    const [data, setData] = React.useState<IUserAccount[]>([]);
+    const [searchStatus, setSearchStatus] = React.useState<Application.Types.Status>('uninitiated');
 
-    const sortField = useAppSelector(UserAccountSlice.SortField)
-    const ascending = useAppSelector(UserAccountSlice.Ascending)
-    const currentPage = useAppSelector(UserAccountSlice.CurrentPage);
-    const totalPages = useAppSelector(UserAccountSlice.TotalPages);
-    const totalRecords = useAppSelector(UserAccountSlice.TotalRecords);
+    const [sortField, setSortField] = React.useState<keyof IUserAccount>('DisplayName');
+    const [ascending, setAscending] = React.useState<boolean>(true);
+    const [page, setPage] = React.useState<number>(0);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [totalRecords, setTotalRecords] = React.useState<number>(0);
+    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
 
-    const adlFields: Application.Types.iAdditionalUserField[] = useAppSelector(UserAdditionalFieldSlice.Fields)
-    const adlFieldStatus: Application.Types.Status = useAppSelector(UserAdditionalFieldSlice.FieldStatus)
+    const [adlFields, setAdlFields] = React.useState<Application.Types.iAdditionalUserField[]>([])
+    const [adlFieldStatus, setAdlFieldStatus] = React.useState<Application.Types.Status>('uninitiated');
 
     const [filterableList, setFilterableList] = React.useState<Search.IField<IUserAccount>[]>(defaultSearchcols);
 
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [userError, setUserError] = React.useState<string[]>([]);
 
-    const valueListItems: SystemCenter.Types.ValueListItem[] = useAppSelector(ValueListSlice.Data);
-    const valueListItemStatus: Application.Types.Status = useAppSelector(ValueListSlice.Status);
+    const [valueListItems, setValueListItems] = React.useState<SystemCenter.Types.ValueListItem[]>([]);
+    const [valueListItemStatus, setValueListItemStatus] = React.useState<Application.Types.Status>('uninitiated');
 
-    const valueListGroups: SystemCenter.Types.ValueListGroup[] = useAppSelector(ValueListGroupSlice.Data);
-    const valueListGroupStatus: Application.Types.Status = useAppSelector(ValueListGroupSlice.Status);
+    const [valueListGroups, setValueListGroups] = React.useState<SystemCenter.Types.ValueListGroup[]>([]);
+    const [valueListGroupStatus, setValueListGroupStatus] = React.useState<Application.Types.Status>('uninitiated');
 
     const [act, setAct] = React.useState<IUserAccount>(newAcct)
 
     const [pageStatus, setPageStatus] = React.useState<Application.Types.Status>('uninitiated');
 
+    const userAccountController = React.useMemo(() => new GenericController<IUserAccount>(`${homePath}api/SystemCenter/UserAccount`, "DisplayName", true), [])
+
     React.useEffect(() => {
-        if (userStatus === 'error' || adlFieldStatus === 'error' || valueListItemStatus === 'error' || valueListGroupStatus === 'error')
+        if (adlFieldStatus === 'error' || valueListItemStatus === 'error' || valueListGroupStatus === 'error')
             setPageStatus('error')
-        else if (userStatus === 'loading' || adlFieldStatus === 'loading' || valueListItemStatus === 'loading' || valueListGroupStatus === 'loading')
+        else if (adlFieldStatus === 'loading' || valueListItemStatus === 'loading' || valueListGroupStatus === 'loading')
             setPageStatus('loading')
         else
             setPageStatus('idle');
-    }, [userStatus, adlFieldStatus, valueListItemStatus, valueListGroupStatus])
+    }, [adlFieldStatus, valueListItemStatus, valueListGroupStatus])
 
     React.useEffect(() => {
-        if (searchStatus === 'uninitiated' || searchStatus === 'changed')
-            dispatch(UserAccountSlice.PagedSearch({ filter: search, sortField: sortField ?? "ID", ascending: ascending, page: currentPage}));
-    }, [searchStatus, search, sortField, ascending, currentPage]);
+        setAdlFieldStatus('loading')
+        const handle = new GenericController<Application.Types.iAdditionalUserField>(`${homePath}api/SystemCenter/AdditionalUserField`, "FieldName").Fetch();
+        handle.done((d) => {
+            setAdlFields(d)
+            setAdlFieldStatus('idle')
+        }).fail(() => {
+            setAdlFieldStatus('error')
+        })
+        return () => {
+            if (handle != null && handle.abort != null)
+                handle.abort()
+        };
+    }, []);
 
     React.useEffect(() => {
-        if (adlFieldStatus === 'uninitiated' || adlFieldStatus === 'changed')
-            dispatch(UserAdditionalFieldSlice.FetchField());
-    }, [adlFieldStatus]);
+        setValueListItemStatus('loading')
+        const handle = new GenericController<SystemCenter.Types.ValueListItem>(`${homePath}api/ValueList`, 'SortOrder').Fetch();
+        handle.done((d) => {
+            setValueListItems(d)
+            setValueListItemStatus('idle')
+        }).fail(() => {
+            setValueListItemStatus('error')
+        })
+
+        return () => {
+            if (handle != null && handle.abort != null) handle.abort();
+        }
+    }, []);
 
     React.useEffect(() => {
-        if (valueListItemStatus === 'uninitiated' || valueListItemStatus === 'changed')
-            dispatch(ValueListSlice.Fetch());
-    }, [valueListItemStatus]);
+        setValueListGroupStatus('loading')
+        const handle = new GenericController<SystemCenter.Types.ValueListGroup>(`${homePath}api/ValueListGroup`, 'Name').Fetch();
+        handle.done((d) => {
+            setValueListGroups(d)
+            setValueListGroupStatus('idle')
+        }).fail(() => {
+            setValueListGroupStatus('error')
+        })
+
+        return () => {
+            if (handle != null && handle.abort != null) handle.abort();
+        }
+    }, []);
 
     React.useEffect(() => {
-        if (valueListGroupStatus === 'uninitiated' || valueListGroupStatus === 'changed')
-            dispatch(ValueListGroupSlice.Fetch());
-    }, [valueListGroupStatus]);
-
-    const setPage = React.useCallback((page) => {
-        dispatch(UserAccountSlice.PagedSearch({ filter: search, sortField: sortField ?? "ID", ascending: ascending, page: page - 1 }))
-    }, [sortField, ascending, search])
-
-    useBoundPaging(currentPage, totalPages, setPage)
+        setSearchStatus('loading')
+        const handle = userAccountController.PagedSearch(search, sortField, ascending, page);
+        handle.done((d) => {
+            setData(JSON.parse(d.Data as unknown as string));
+            setTotalPages(d.NumberOfPages);
+            setTotalRecords(d.TotalRecords);
+            setRecordsPerPage(d.RecordsPerPage);
+            if (page >= d.NumberOfPages)
+                setPage(Math.max(d.NumberOfPages - 1, 0));
+            setSearchStatus('idle')
+        })
+        handle.fail(() => setSearchStatus('error'))
+        return () => { if (handle != null && handle.abort != null) handle.abort() }
+    }, [page, search, sortField, ascending, userAccountController, refreshTrigger])
 
     React.useEffect(() => {
         function ConvertType(type: string) {
@@ -143,10 +178,6 @@ const ByUser: Application.Types.iByComponent = (props) => {
         setFilterableList(ordered)
     }, [adlFields]);
 
-    const setFilters = React.useCallback((filters: Search.IFilter<IUserAccount>[]) => {
-        dispatch(UserAccountSlice.PagedSearch({ sortField: sortField ?? "ID", ascending: ascending, filter: filters, page: currentPage }))
-    }, [sortField, ascending, currentPage])
-
     if (pageStatus === 'error')
         return <div style={{ width: '100%', height: '100%' }}>
             <ServerErrorIcon Show={true} Label={'A Server Error Occurred. Please Reload the Application.'} />
@@ -155,9 +186,9 @@ const ByUser: Application.Types.iByComponent = (props) => {
     return (
         <div className="container-fluid d-flex h-100 flex-column">
             <LoadingScreen Show={pageStatus === 'loading'} />
-            <SearchBar<IUserAccount> CollumnList={filterableList} SetFilter={setFilters}
+            <SearchBar<IUserAccount> CollumnList={filterableList} SetFilter={setSearch}
                 Direction={'left'} defaultCollumn={{ label: 'Username', key: 'DisplayName', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
-                ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + totalRecords + ' User Account(s)'}
+                ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : `Displaying User(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + data.length} out of ${totalRecords}`}
                 StorageID="UsersFilter"
                 GetEnum={(setOptions, field) => {
 
@@ -192,7 +223,12 @@ const ByUser: Application.Types.iByComponent = (props) => {
                         SortKey={sortField}
                         Ascending={ascending}
                         OnSort={(d) => {
-                            dispatch(UserAccountSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
+                            if (d.colKey === sortField)
+                                setAscending(a => !a);
+                            else {
+                                setAscending(true);
+                                setSortField(d.colKey as keyof IUserAccount);
+                            }
                         }}
                         OnClick={(d) => navigate(`${homePath}index.cshtml?name=User&UserAccountID=${d.row.ID}`)}
                         TableStyle={{
@@ -259,8 +295,8 @@ const ByUser: Application.Types.iByComponent = (props) => {
             <div className="row">
                 <div className="col">
                     <Paging
-                        Current={currentPage + 1}
-                        SetPage={setPage}
+                        Current={page + 1}
+                        SetPage={(p) => setPage(p - 1)}
                         Total={totalPages}
                     />
                 </div>
@@ -268,7 +304,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
             <Modal Show={showModal} Size={'lg'} ShowCancel={false} ShowX={true} ConfirmText={'Save'}
                 Title={'Add New User'} CallBack={(confirm) => {
                     if (confirm)
-                        dispatch(UserAccountSlice.DBAction({ verb: 'POST', record: act }))
+                        userAccountController.DBAction('POST', act).then(() => setRefreshTrigger(val => !val))
                     setAct(newAcct);
                     setShowModal(false);
                 }}
