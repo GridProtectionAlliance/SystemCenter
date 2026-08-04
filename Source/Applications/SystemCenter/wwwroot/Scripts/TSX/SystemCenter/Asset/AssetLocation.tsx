@@ -50,6 +50,9 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
     const [newLocation, setNewLocation] = React.useState<OpenXDA.Types.Location>();
     const [hover, setHover] = React.useState<string|undefined>(undefined);
     const [showModal, setShowModal] = React.useState<boolean>(false);
+    const [deleteStatus, setDeleteStatus] = React.useState<Application.Types.Status>('idle');
+    const [createStatus, setCreateStatus] = React.useState<Application.Types.Status>('idle');
+    const [errorObject, setErrorObject] = React.useState<{ Message: string | null, Code: number | null }>({Message: null, Code: null})
     const roles = useAppSelector(SelectRoles);
 
     function hasPermissions(): boolean {
@@ -117,6 +120,7 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
     }, [props.Asset.ID, sortField, ascending, page, refreshTrigger])
 
     async function deleteLocation(location: OpenXDA.Types.Location) {
+        setDeleteStatus('loading');
         return $.ajax({
             type: "DELETE",
             url: `${homePath}api/OpenXDA/Asset/${props.Asset.ID}/Location/${location.ID}`,
@@ -126,13 +130,15 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
             async: true
         }).done(() => {
             setRefreshTrigger(val => !val);
+            setDeleteStatus('idle');
         }).fail((msg) => {
-            if (msg.status == 500)
-                alert(msg.responseJSON.ExceptionMessage)
+            setDeleteStatus('error');
+            setErrorObject({Message: msg.responseJSON.ExceptionMessage, Code: msg.status})
         });
     }
 
     async function addLocation() {
+        setCreateStatus('loading');
         return $.ajax({
             type: "POST",
             url: `${homePath}api/OpenXDA/Asset/${props.Asset.ID}/Location/${newLocation.ID}`,
@@ -141,10 +147,11 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
             cache: true,
             async: true
         }).done(() => {
+            setCreateStatus('idle');
             setRefreshTrigger(val => !val);
         }).fail((msg) => {
-            if (msg.status == 500)
-                alert(msg.responseJSON.ExceptionMessage)
+            setCreateStatus('error');
+            setErrorObject({ Message: msg.responseJSON.ExceptionMessage, Code: msg.status })
         });
     }
 

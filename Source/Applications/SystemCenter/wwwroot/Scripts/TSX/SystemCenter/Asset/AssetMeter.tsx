@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
+import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { useNavigate } from "react-router-dom";
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
@@ -51,6 +51,9 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
     const mStatus = useAppSelector(ByMeterSlice.Status);
     const mParentID = useAppSelector(ByMeterSlice.ParentID);
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
+    const [deleteStatus, setDeleteStatus] = React.useState<Application.Types.Status>('idle');
+    const [createStatus, setCreateStatus] = React.useState<Application.Types.Status>('idle');
+    const [errorObject, setErrorObject] = React.useState<{ Message: string | null, Code: number | null }>({ Message: null, Code: null })
     const roles = useAppSelector(SelectRoles);
 
     React.useEffect(() => {
@@ -84,6 +87,7 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
     }, [props.Asset, refreshTrigger, sortField, ascending, page]);
 
     function addMeter(meterID: number) {
+        setCreateStatus('loading');
         return $.ajax({
             type: "POST",
             url: `${homePath}api/OpenXDA/Asset/${props.Asset.ID}/Meter/${meterID}`,
@@ -92,10 +96,11 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
             cache: true,
             async: true
         }).done(record => {
+            setCreateStatus('idle')
             setRefreshTrigger(val => !val);
         }).fail((msg) => {
-            if (msg.status == 500)
-                alert(msg.responseJSON.ExceptionMessage)
+            setCreateStatus('error')
+            setErrorObject({ Message: msg.responseJSON.ExceptionMessage, Code: msg.status })
         });
     }
 
@@ -153,6 +158,7 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
     }
 
     async function deleteMeter(meter: OpenXDA.Types.Meter) {
+        setDeleteStatus('loading');
         return $.ajax({
             type: "DELETE",
             url: `${homePath}api/OpenXDA/Asset/${props.Asset.ID}/Meter/${meter.ID}`,
@@ -162,9 +168,10 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
             async: true
         }).done(() => {
             setRefreshTrigger(val => !val);
+            setDeleteStatus('idle');
         }).fail((msg) => {
-            if (msg.status == 500)
-                alert(msg.responseJSON.ExceptionMessage)
+            setDeleteStatus('error');
+            setErrorObject({ Message: msg.responseJSON.ExceptionMessage, Code: msg.status })
         });
     }
 
