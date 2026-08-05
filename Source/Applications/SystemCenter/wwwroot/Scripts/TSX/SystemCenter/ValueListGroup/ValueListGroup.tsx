@@ -21,10 +21,9 @@
 //
 //******************************************************************************************************
 
-import { TabSelector } from '@gpa-gemstone/react-interactive';
+import { TabSelector, GenericController } from '@gpa-gemstone/react-interactive';
+import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import * as React from 'react';
-import { useAppDispatch, useAppSelector } from '../hooks';
-import { ValueListGroupSlice } from '../Store/Store';
 import { ValueListGroupDelete } from './ValueListGroupDelete';
 import ValueListGroupInfo from './ValueListGroupInfo';
 import ValueListGroupItems from './ValueListGroupItem';
@@ -35,12 +34,11 @@ declare type Tab = 'info' | 'items'
 interface IProps { GroupID: number, Tab: Tab }
 
 export default function ValueListGroup(props: IProps) {
-    const dispatch = useAppDispatch();
-    const record = useAppSelector((state) => ValueListGroupSlice.Datum(state, props.GroupID));
-    const valueListGroupStatus = useAppSelector(ValueListGroupSlice.Status);
-
+    const [record, setRecord] = React.useState<SystemCenter.Types.ValueListGroup | null>(null);
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [tab, setTab] = React.useState(getTab());
     const [showRemove, setShowRemove] = React.useState<boolean>(false);
+    const valueListGroupController = React.useMemo(() => new GenericController<SystemCenter.Types.ValueListGroup>(`${homePath}api/ValueListGroup`, 'Name'), [])
 
     function getTab(): Tab {
         if (props.Tab != undefined) return props.Tab;
@@ -56,14 +54,34 @@ export default function ValueListGroup(props: IProps) {
             sessionStorage.setItem('ValueListGroup.Tab', JSON.stringify(tab));
     }, [tab]);
 
+
     React.useEffect(() => {
-        if (valueListGroupStatus == 'uninitiated' || valueListGroupStatus == 'changed')
-            dispatch(ValueListGroupSlice.Fetch());
-    }, [valueListGroupStatus]);
+        setStatus('loading');
+        const handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/ValueList/One/${props.GroupID}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        })
+        handle.done((d) => {
+            setStatus('idle');
+            setRecord(d);
+        })
+        handle.fail(() => {
+            setStatus('error')
+        })
+        return () => {
+            if (handle != null && handle.abort != null)
+                handle.abort()
+        }
+    }, [props.GroupID])
 
     function Delete() {
-        dispatch(ValueListGroupSlice.DBAction({ verb: 'DELETE', record }))
+        valueListGroupController.DBAction('DELETE', record).then(() => {
         window.location.href = homePath + 'index.cshtml?name=ValueLists';
+        })
     }
 
     if (record == null) return null;

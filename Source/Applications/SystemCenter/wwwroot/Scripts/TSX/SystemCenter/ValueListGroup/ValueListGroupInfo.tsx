@@ -25,13 +25,11 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
-import { useAppDispatch } from '../hooks';
-import { ValueListGroupSlice } from '../Store/Store';
+import { GenericController } from '@gpa-gemstone/react-interactive';
 import ValueListGroupForm from './ValueListGroupForm';
 
 const ValueListInfoWindow = (props: { Record: SystemCenter.Types.ValueListGroup }) => {
     const [record, setRecord] = React.useState<SystemCenter.Types.ValueListGroup>(props.Record);
-    const dispatch = useAppDispatch();
 
     React.useEffect(() => {
         setRecord(props.Record);
@@ -52,7 +50,7 @@ const ValueListInfoWindow = (props: { Record: SystemCenter.Types.ValueListGroup 
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className="btn btn-primary" onClick={() => dispatch(ValueListGroupSlice.DBAction({ verb: 'PATCH', record }))} hidden={record.ID == 0} disabled={record == props.Record}>Save Changes</button>
+                    <button className="btn btn-primary" onClick={() => new GenericController<SystemCenter.Types.ValueListGroup>(`${homePath}api/ValueListGroup`, 'Name').DBAction('PATCH', record)} hidden={record.ID == 0} disabled={record == props.Record}>Save Changes</button>
                 </div>
                 <div className="btn-group mr-2">
                     <button className="btn btn-warning" onClick={() => setRecord(props.Record)} disabled={record == props.Record}>Clear Changes</button>

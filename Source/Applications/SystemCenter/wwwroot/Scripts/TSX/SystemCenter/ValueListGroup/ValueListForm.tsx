@@ -22,11 +22,10 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { SystemCenter } from '@gpa-gemstone/application-typings';
+import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { Input } from '@gpa-gemstone/react-forms';
 import { IsInteger } from '@gpa-gemstone/helper-functions';
-import { useAppSelector, useAppDispatch } from '../hooks';
-import { ValueListSlice } from '../Store/Store';
+import { GenericController } from '@gpa-gemstone/react-interactive';
 
 interface IProps {
     Record: SystemCenter.Types.ValueListItem,
@@ -35,16 +34,19 @@ interface IProps {
 }
 
 export default function ValueListForm(props: IProps) {
-    const dispatch = useAppDispatch();
-
-    const data = useAppSelector(ValueListSlice.Data);
-    const status = useAppSelector(ValueListSlice.Status);
-    const parentID = useAppSelector(ValueListSlice.ParentID);
+    const [data, setData] = React.useState<SystemCenter.Types.ValueListItem[]>([]);
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 
     React.useEffect(() => {
-        if (status == 'uninitiated' || status == 'changed' || parentID != props.Record.GroupID)
-            dispatch(ValueListSlice.Fetch(props.Record.GroupID));
-    }, [status, parentID, props.Record.GroupID]);
+        setStatus('loading');
+        const handle = new GenericController<SystemCenter.Types.ValueListItem>(`${homePath}api/ValueList`, 'SortOrder').Fetch(props.Record.GroupID);
+        handle.done((d) => {
+            setStatus('idle');
+            setData(d);
+        })
+        handle.fail(() => setStatus('error'))
+        return () => { if (handle != null && handle.abort != null) handle.abort() }
+    }, [props.Record.GroupID])
 
     React.useEffect(() => {
         if (props.SetErrors == undefined)
