@@ -65,7 +65,7 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
     const roles = useAppSelector(SelectRoles);
 
-    const sourceImpedanceController = React.useMemo(() => new GenericController<OpenXDA.Types.SourceImpedance>(`${homePath}api/OpenXDA/SourceImpedance`, "AssetLocationID", false),[])
+    const sourceImpedanceController = React.useMemo(() => new GenericController<OpenXDA.Types.SourceImpedance>(`${homePath}api/OpenXDA/SourceImpedance`, "AssetLocationID", false), [])
 
     //#ToDo Swap Type to query
     React.useEffect(() => {
@@ -145,7 +145,7 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
                 <h4>Line Source Impedances:</h4>
             </div>
             <div className="card-body">
-                <ServerErrorIcon Show={true}/>
+                <ServerErrorIcon Show={true} />
             </div>
         </div>)
 
@@ -180,22 +180,7 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
 
     return (
         <>
-        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            <div className="card-header">
-                    <div className="row">
-                <h4>Line Source Impedances:</h4>
-            </div>
-                    <div className="row">
-                        <div className="col">
-                            <p style={{ marginTop: 2, marginBottom: 2 }}>
-                                {sourceImpedanceStatus === 'loading' ? 'Loading...' :
-                                        `Displaying Source Impedance(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + sourceImpedances.length} out of ${totalRecords}`}
-                            </p>
-                        </div>
-                </div>
-                </div>
-                <div className="card-body d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
-                    <div className="row d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
+            <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                 <div className="card-header">
                     <div className="row">
                         <h4>Line Source Impedances:</h4>
@@ -204,143 +189,147 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
                         <div className="col">
                             <p style={{ marginTop: 2, marginBottom: 2 }}>
                                 {sourceImpedanceStatus === 'loading' ? 'Loading...' :
-                                        `Displaying Source Impedance(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + sourceImpedances.length} out of ${totalRecords}`}
+                                    `Displaying Source Impedance(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + sourceImpedances.length} out of ${totalRecords}`}
                             </p>
                         </div>
-                </div>
+                    </div>
                 </div>
                 <div className="card-body d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
                     <div className="row d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
-                <Table<OpenXDA.Types.SourceImpedance>
-                    TableClass="table table-hover"
-                    Data={sourceImpedances}
-                    SortKey={sortKey}
-                    Ascending={ascending}
-                    OnSort={(d) => {
-                        if (d.colKey == sortKey) {
-                            setAscending(!ascending);
-                        }
-                        else {
-                            setAscending(true);
-                            setSortKey(d.colKey as keyof OpenXDA.Types.SourceImpedance);
-                        }
-                    }}
-                    TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden', height: '100%'}}
-                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
-                    RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    Selected={(item) => false}
-                    KeySelector={(item) => item.ID}
-                >
-                    <Column<OpenXDA.Types.SourceImpedance>
-                        Key={'AssetLocationID'}
-                        AllowSort={true}
-                        Field={'AssetLocationID'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                        Content={({ item }) => getLocationName(item)}
-                    > Substation
-                    </Column>
-                    <Column<OpenXDA.Types.SourceImpedance>
-                        Key={'RSrc'}
-                        AllowSort={true}
-                        Field={'RSrc'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                    > R (pu)
-                    </Column>
-                    <Column<OpenXDA.Types.SourceImpedance>
-                        Key={'XSrc'}
-                        AllowSort={true}
-                        Field={'XSrc'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                    > X (pu)
-                    </Column>
-                    <Column<OpenXDA.Types.SourceImpedance>
-                        Key={'EditDelete'}
-                        AllowSort={false}
-                        HeaderStyle={{ width: 80, paddingLeft: 0, paddingRight: 5 }}
-                        RowStyle={{ width: 80, paddingLeft: 0, paddingRight: 5 }}
-                        Content={({ item }) => <>
-                            <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
-                                onClick={(e) => {
-                                    if (hasPermissions()) {
-                                        setShowAdd(true);
-                                        setNewEditImpedance(item);
-                                        setNewEdit('Edit');
-                                    }
-                                }}><span><ReactIcons.Pencil Color="var(--warning)" Size={20} /></span></button>
-                            <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
-                                onClick={(e) => {
-                                        if (hasPermissions()) {
-                                            setNewEditImpedance(item);
-                                            setshowWarning(true);
+                        <div className="card-body d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
+                            <div className="row d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
+                                <Table<OpenXDA.Types.SourceImpedance>
+                                    TableClass="table table-hover"
+                                    Data={sourceImpedances}
+                                    SortKey={sortKey}
+                                    Ascending={ascending}
+                                    OnSort={(d) => {
+                                        if (d.colKey == sortKey) {
+                                            setAscending(!ascending);
                                         }
-                                }}><span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span></button>
-                        </> }
-                    > <p></p>
-                    </Column>
-                </Table>
-            </div>
-                    <div className="row">
-                        <div className="col">
-                            <Paging
-                                Total={totalPages}
-                                SetPage={(p) => setPage(p - 1)}
-                                Current={page + 1 }
-                            />
+                                        else {
+                                            setAscending(true);
+                                            setSortKey(d.colKey as keyof OpenXDA.Types.SourceImpedance);
+                                        }
+                                    }}
+                                    TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden', height: '100%' }}
+                                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                    TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
+                                    RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                    Selected={(item) => false}
+                                    KeySelector={(item) => item.ID}
+                                >
+                                    <Column<OpenXDA.Types.SourceImpedance>
+                                        Key={'AssetLocationID'}
+                                        AllowSort={true}
+                                        Field={'AssetLocationID'}
+                                        HeaderStyle={{ width: 'auto' }}
+                                        RowStyle={{ width: 'auto' }}
+                                        Content={({ item }) => getLocationName(item)}
+                                    > Substation
+                                    </Column>
+                                    <Column<OpenXDA.Types.SourceImpedance>
+                                        Key={'RSrc'}
+                                        AllowSort={true}
+                                        Field={'RSrc'}
+                                        HeaderStyle={{ width: 'auto' }}
+                                        RowStyle={{ width: 'auto' }}
+                                    > R (pu)
+                                    </Column>
+                                    <Column<OpenXDA.Types.SourceImpedance>
+                                        Key={'XSrc'}
+                                        AllowSort={true}
+                                        Field={'XSrc'}
+                                        HeaderStyle={{ width: 'auto' }}
+                                        RowStyle={{ width: 'auto' }}
+                                    > X (pu)
+                                    </Column>
+                                    <Column<OpenXDA.Types.SourceImpedance>
+                                        Key={'EditDelete'}
+                                        AllowSort={false}
+                                        HeaderStyle={{ width: 80, paddingLeft: 0, paddingRight: 5 }}
+                                        RowStyle={{ width: 80, paddingLeft: 0, paddingRight: 5 }}
+                                        Content={({ item }) => <>
+                                            <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
+                                                onClick={(e) => {
+                                                    if (hasPermissions()) {
+                                                        setShowAdd(true);
+                                                        setNewEditImpedance(item);
+                                                        setNewEdit('Edit');
+                                                    }
+                                                }}><span><ReactIcons.Pencil Color="var(--warning)" Size={20} /></span></button>
+                                            <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
+                                                onClick={(e) => {
+                                                    if (hasPermissions()) {
+                                                        setNewEditImpedance(item);
+                                                        setshowWarning(true);
+                                                    }
+                                                }}><span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span></button>
+                                        </>}
+                                    > <p></p>
+                                    </Column>
+                                </Table>
+                            </div>
+                            <div className="row">
+                                <div className="col">
+                                    <Paging
+                                        Total={totalPages}
+                                        SetPage={(p) => setPage(p - 1)}
+                                        Current={page + 1}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                        <div className="card-footer">
+                            <div className="btn-group mr-2">
+                                <button className={"btn btn-info" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='Source'
+                                    onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (hasPermissions()) setShowAdd(true); setNewEditImpedance(newImpedance); }}>Add Source Impedance</button>
+                            </div>
+                            <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Target={"Source"}>
+                                <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
+                            </ToolTip>
                         </div>
                     </div>
-            </div>
-            <div className="card-footer">
-                    <div className="btn-group mr-2">
-                        <button className={"btn btn-info" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='Source'
-                            onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (hasPermissions()) setShowAdd(true); setNewEditImpedance(newImpedance); }}>Add Source Impedance</button>
-                    </div>
-                    <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Target={"Source"}>
-                        <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
-                    </ToolTip>
-            </div>
-        </div>
 
-            <Warning Show={showWarning} Title={'Remove Source Impedance'} Message={'This will permanently remove the Source Impedance and cannot be undone.'}
-                CallBack={(confirm) => { if (confirm) sourceImpedanceController.DBAction('DELETE', newEditImpedance).then(() => setRefreshTrigger(val => !val)); setshowWarning(false); }} />
-            <Modal Show={showAdd} Title={newEdit == 'New' ? 'Add New Source Impedance' : 'Edit Source Impedance at' + getLocationName(newEditImpedance)} Size={'lg'} ShowX={true}
-                CallBack={(confirm) => {
-                    if (confirm && newEdit == 'Edit')
-                        sourceImpedanceController.DBAction('PATCH', newEditImpedance).then(() => setRefreshTrigger(val => !val));
-                    if (confirm && newEdit == 'New')
-                        sourceImpedanceController.DBAction('POST', newEditImpedance).then(() => setRefreshTrigger(val => !val));
-                    setShowAdd(false);
-                }}
-                CancelText={'Close'}
-                ConfirmText={'Save'}
-                DisableConfirm={validImpedance(newEditImpedance).length > 0}
-                ConfirmShowToolTip={validImpedance(newEditImpedance).length > 0}
-                ConfirmToolTipContent={validImpedance(newEditImpedance).map((t, i) => <p key={i}> <ReactIcons.CrossMark Color="var(--danger)" /> {t}</p>)}
-            >
-            <div className="row">
-                    <div className="col">
-                        <Select<OpenXDA.Types.SourceImpedance> Record={newEditImpedance} Label={'Substation'} Field={'AssetLocationID'}
-                            Options={assetLocations.map(al => ({
-                                Label: (locations.find(l => al.LocationID == l.ID) == null ? '' : locations.find(l => al.LocationID == l.ID).Name),
-                                Value: al.ID.toString()
-                            }))}
-                            EmptyOption={true} EmptyLabel={'Select Substation'}
-                            Setter={(r) => setNewEditImpedance(r)}
-                        />
-                    </div>
-                    <div className="col">
-                        <Input<OpenXDA.Types.SourceImpedance> Record={newEditImpedance} Field={'RSrc'} Label={'R (pu)'} Feedback={'A valid Resistance is required.'} Valid={valid} Setter={(r) => setNewEditImpedance(r)} />
+                    <Warning Show={showWarning} Title={'Remove Source Impedance'} Message={'This will permanently remove the Source Impedance and cannot be undone.'}
+                        CallBack={(confirm) => { if (confirm) sourceImpedanceController.DBAction('DELETE', newEditImpedance).then(() => setRefreshTrigger(val => !val)); setshowWarning(false); }} />
+                    <Modal Show={showAdd} Title={newEdit == 'New' ? 'Add New Source Impedance' : 'Edit Source Impedance at' + getLocationName(newEditImpedance)} Size={'lg'} ShowX={true}
+                        CallBack={(confirm) => {
+                            if (confirm && newEdit == 'Edit')
+                                sourceImpedanceController.DBAction('PATCH', newEditImpedance).then(() => setRefreshTrigger(val => !val));
+                            if (confirm && newEdit == 'New')
+                                sourceImpedanceController.DBAction('POST', newEditImpedance).then(() => setRefreshTrigger(val => !val));
+                            setShowAdd(false);
+                        }}
+                        CancelText={'Close'}
+                        ConfirmText={'Save'}
+                        DisableConfirm={validImpedance(newEditImpedance).length > 0}
+                        ConfirmShowToolTip={validImpedance(newEditImpedance).length > 0}
+                        ConfirmToolTipContent={validImpedance(newEditImpedance).map((t, i) => <p key={i}> <ReactIcons.CrossMark Color="var(--danger)" /> {t}</p>)}
+                    >
+                        <div className="row">
+                            <div className="col">
+                                <Select<OpenXDA.Types.SourceImpedance> Record={newEditImpedance} Label={'Substation'} Field={'AssetLocationID'}
+                                    Options={assetLocations.map(al => ({
+                                        Label: (locations.find(l => al.LocationID == l.ID) == null ? '' : locations.find(l => al.LocationID == l.ID).Name),
+                                        Value: al.ID.toString()
+                                    }))}
+                                    EmptyOption={true} EmptyLabel={'Select Substation'}
+                                    Setter={(r) => setNewEditImpedance(r)}
+                                />
+                            </div>
+                            <div className="col">
+                                <Input<OpenXDA.Types.SourceImpedance> Record={newEditImpedance} Field={'RSrc'} Label={'R (pu)'} Feedback={'A valid Resistance is required.'} Valid={valid} Setter={(r) => setNewEditImpedance(r)} />
 
+                            </div>
+                            <div className="col">
+                                <Input<OpenXDA.Types.SourceImpedance> Record={newEditImpedance} Field={'XSrc'} Label={'X (pu)'} Feedback={'A valid Reactance is required.'} Valid={valid} Setter={(r) => setNewEditImpedance(r)} />
+                            </div>
+                        </div>
+                    </Modal>
+                    <LoadingScreen Show={aLStatus == 'loading' || sourceImpedanceStatus == 'loading' || locationStatus == 'loading'} />
                 </div>
-                    <div className="col">
-                        <Input<OpenXDA.Types.SourceImpedance> Record={newEditImpedance} Field={'XSrc'} Label={'X (pu)'} Feedback={'A valid Reactance is required.'} Valid={valid} Setter={(r) => setNewEditImpedance(r)} />
-                    </div>
             </div>
-            </Modal>
-            <LoadingScreen Show={aLStatus == 'loading' || sourceImpedanceStatus == 'loading' || locationStatus == 'loading'} />
         </>
     );
 }
