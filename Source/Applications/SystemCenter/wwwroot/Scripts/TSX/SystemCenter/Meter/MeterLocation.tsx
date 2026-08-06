@@ -24,12 +24,12 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { AssetAttributes } from '../AssetAttribute/Asset';
-import { useAppDispatch, useAppSelector } from '../hooks';
+import { useAppSelector } from '../hooks';
 import { cloneDeep } from 'lodash';
 import { ToolTip } from '@gpa-gemstone/react-forms';
 import MeterLocationProperties from './PropertyUI/MeterLocationProperties';
-import { LocationSlice, ByMeterSlice } from '../Store/Store';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { GenericController } from '@gpa-gemstone/react-interactive';
 import { SelectRoles } from '../Store/UserSettings';
 
 declare var homePath: string;
@@ -38,10 +38,8 @@ interface IProps { Meter: OpenXDA.Types.Meter, StateSetter: (meter: OpenXDA.Type
 
 const LocationWindow = (props: IProps) => {
     // Location Slice consts
-    const dispatch = useAppDispatch();
-    const locationStatus = useAppSelector(LocationSlice.Status) as Application.Types.Status;
-    const locationList = useAppSelector(LocationSlice.Data) as OpenXDA.Types.Location[];
-    const [updateMeter, setUpdateMeter] = React.useState<boolean>(false);
+    const [locationStatus, setLocationStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [locationList, setLocationList] = React.useState<OpenXDA.Types.Location[]>([]);
 
     const newLocation: OpenXDA.Types.Location = {
         ID: 0,
@@ -61,13 +59,20 @@ const LocationWindow = (props: IProps) => {
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
     const roles = useAppSelector(SelectRoles);
 
-    React.useEffect(() => {
-        if (locationStatus === 'uninitiated' || locationStatus === 'changed')
-            dispatch(LocationSlice.Fetch());
-        else if (locationStatus === 'idle' && updateMeter)
-            setLocation(locationList.find((d: OpenXDA.Types.Location) => d.LocationKey === location.LocationKey) as OpenXDA.Types.Location);
+    const locationController = React.useMemo(() => new GenericController<OpenXDA.Types.Location>(`${homePath}api/OpenXDA/Location`, "LocationKey", true), []);
 
-    }, [dispatch, locationStatus, updateMeter]);
+    const isValidLocation = valid('LocationKey') && valid('Name') && valid('Alias') && valid('ShortName') && valid('Latitude') && valid('Longitude')
+
+    React.useEffect(() => {
+        setLocationStatus('loading');
+        const handle = locationController.Fetch();
+        handle.done((d) => {
+            setLocationStatus('idle');
+            setLocationList(d);
+        })
+        handle.fail(() => setLocationStatus('error'));
+        return () => { if (handle != null && handle.abort != null) handle.abort() }
+    }, [locationController])
 
     React.useEffect(() => {
         setMeter(props.Meter);
@@ -90,18 +95,6 @@ const LocationWindow = (props: IProps) => {
             setValidKey(location.ID == index[0].ID);
     }, [location, locationList]);
 
-    React.useEffect(() => {
-        if (location.ID < 1 || !updateMeter) return;
-        setUpdateMeter(false);
-        let updateMeterHandle = updateMeterLocation(location.ID);
-        return () => {
-            if (updateMeterHandle != null && updateMeterHandle.abort != null) {
-                updateMeterHandle.abort();
-            }
-        };
-
-    }, [location, updateMeter]);
-
     function valid(field: keyof OpenXDA.Types.Location): boolean {
         if (field == 'LocationKey')
             return location.LocationKey != null && location.LocationKey.length > 0 && location.LocationKey.length <= 50 && validKey;
@@ -120,11 +113,17 @@ const LocationWindow = (props: IProps) => {
         return false;
     }
 
-    const isValidLocation = valid('LocationKey') && valid('Name') && valid('Alias') && valid('ShortName') && valid('Latitude') && valid('Longitude');
-
     function postLocation() {
-        setUpdateMeter(true);
-        dispatch(LocationSlice.DBAction({ verb: (location.ID > 0 ? 'PATCH' : 'POST'), record: location }));
+        locationController.DBAction((location.ID > 0 ? 'PATCH' : 'POST'), location)
+            .then(() => {
+                locationController.Fetch()
+                    .then((data) => {
+                        setLocationList(data);
+                        const newLocation = data.find((d: OpenXDA.Types.Location) => d.LocationKey === location.LocationKey)
+                        setLocation(newLocation as OpenXDA.Types.Location);
+                        updateMeterLocation(newLocation.ID);
+                })
+            });
     }
 
     function setLocationFromMeter(locationID: number) {

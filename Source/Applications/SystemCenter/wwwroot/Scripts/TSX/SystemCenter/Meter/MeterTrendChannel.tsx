@@ -29,9 +29,8 @@ import { LoadingIcon, ServerErrorIcon, Warning, GenericController } from '@gpa-g
 import { Input, Select, ToolTip } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { IsNumber } from '@gpa-gemstone/helper-functions';
-import { TrendChannelSlice, PhaseSlice, MeasurmentTypeSlice, MeasurementCharacteristicSlice } from '../Store/Store';
 import { AssetAttributes } from '../AssetAttribute/Asset';
-import { useAppSelector, useAppDispatch } from '../hooks';
+import { useAppSelector } from '../hooks';
 import { ConfigurableTable, ConfigurableColumn, Column, Paging } from '@gpa-gemstone/react-table';
 import { SelectRoles } from '../Store/UserSettings';
 
@@ -40,7 +39,6 @@ declare var homePath: string;
 interface IProps { Meter: GemstoneOpenXDA.Types.Meter, IsVisible: boolean }
 
 const MeterTrendChannelWindow = (props: IProps) => {
-    const dispatch = useAppDispatch();
 
     const [data, setData] = React.useState<OpenXDA.TrendChannel[]>([]);
     const [sortKey, setSortKey] = React.useState<keyof OpenXDA.TrendChannel>('Name');
@@ -50,16 +48,18 @@ const MeterTrendChannelWindow = (props: IProps) => {
     const [totalPages, setTotalPages] = React.useState<number>(0);
     const [totalRecords, setTotalRecords] = React.useState<number>(0);
     const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
+
     const [recordChanges, setRecordChanges] = React.useState<Map<number, Partial<OpenXDA.TrendChannel>>>(new Map());
 
-    const phases = useAppSelector(PhaseSlice.Data) as GemstoneOpenXDA.Types.Phase[];
-    const measurementTypes = useAppSelector(MeasurmentTypeSlice.Data) as GemstoneOpenXDA.Types.MeasurementType[];
-    const measurementCharacteristics = useAppSelector(MeasurementCharacteristicSlice.Data) as GemstoneOpenXDA.Types.MeasurementCharacteristic[];
+    const [phases, setPhases] = React.useState<GemstoneOpenXDA.Types.Phase[]>([]);
+    const [measurementTypes, setMeasurementTypes] = React.useState<GemstoneOpenXDA.Types.MeasurementType[]>([]);
+    const [measurementCharacteristics, setMeasurementCharacteristics] = React.useState<GemstoneOpenXDA.Types.MeasurementCharacteristic[]>([]);
     const [assets, setAssets] = React.useState<GemstoneOpenXDA.Types.Asset[]>([]);
 
-    const phaseStatus = useAppSelector(PhaseSlice.Status) as Application.Types.Status;
-    const mtStatus = useAppSelector(MeasurmentTypeSlice.Status) as Application.Types.Status;
-    const mcStatus = useAppSelector(MeasurementCharacteristicSlice.Status) as Application.Types.Status;
+    const [phaseStatus, setPhaseStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [mtStatus, setMtStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [mcStatus, setMcStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [assetStatus, setAssetStatus] = React.useState<Application.Types.Status>('idle')
 
     const [removeRecord, setRemoveRecord] = React.useState<OpenXDA.TrendChannel | null>(null);
@@ -71,19 +71,37 @@ const MeterTrendChannelWindow = (props: IProps) => {
     const trendChannelController = React.useMemo(() => new GenericController<OpenXDA.TrendChannel>(`${homePath}api/OpenXDA/TrendChannel`, 'Name'),[])
 
     React.useEffect(() => {
-        if (phaseStatus == 'uninitiated' || phaseStatus == 'changed')
-            dispatch(PhaseSlice.Fetch());
-    }, [phaseStatus]);
+        setPhaseStatus('loading');
+        const handle = new GenericController<GemstoneOpenXDA.Types.Phase>(`${homePath}api/OpenXDA/Phase`, 'Name').Fetch();
+        handle.done((d) => {
+            setPhases(d);
+            setPhaseStatus('idle');
+        })
+        handle.fail(() => setPhaseStatus('error'))
+        return () => { if (handle != null && handle.abort != null) handle.abort() }
+    }, []);
 
     React.useEffect(() => {
-        if (mtStatus == 'uninitiated' || mtStatus == 'changed')
-            dispatch(MeasurmentTypeSlice.Fetch());
-    }, [mtStatus]);
+        setMtStatus('loading');
+        const handle = new GenericController<GemstoneOpenXDA.Types.MeasurementType>(`${homePath}api/OpenXDA/MeasurementType`, 'Name').Fetch();
+        handle.done((d) => {
+            setMeasurementTypes(d);
+            setMtStatus('idle');
+        })
+        handle.fail(() => setMtStatus('error'))
+        return () => { if (handle != null && handle.abort != null) handle.abort() }
+    }, []);
 
     React.useEffect(() => {
-        if (mcStatus == 'uninitiated' || mcStatus == 'changed')
-            dispatch(MeasurementCharacteristicSlice.Fetch());
-    }, [mcStatus]);
+        setMcStatus('loading');
+        const handle = new GenericController<GemstoneOpenXDA.Types.MeasurementCharacteristic>(`${homePath}api/OpenXDA/MeasurementCharacteristic`, 'Name').Fetch();
+        handle.done((d) => {
+            setMeasurementCharacteristics(d);
+            setMcStatus('idle');
+        })
+        handle.fail(() => setMcStatus('error'))
+        return () => { if (handle != null && handle.abort != null) handle.abort() }
+    }, []);
 
     React.useEffect(() => {
         setStatus('loading');
@@ -98,7 +116,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
             setStatus('idle');
         }).fail(() => setStatus('error'))
         return () => { if (handle != null && handle.abort != null) handle.abort() }
-    }, [props.Meter, trendChannelController, sortKey, ascending, page]);
+    }, [props.Meter, trendChannelController, sortKey, ascending, page, refreshTrigger]);
 
     React.useEffect(() => {
         if (!props.IsVisible) return;
@@ -171,7 +189,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
             const original = data.find(r => r.ID === id);
             if (original) {
                 const updatedRecord = { ...original, ...changes };
-                dispatch(TrendChannelSlice.DBAction({ record: updatedRecord, verb: 'PATCH' }));
+                trendChannelController.DBAction('PATCH', updatedRecord).then(() => setRefreshTrigger(val => !val));
             }
         });
 
@@ -583,7 +601,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                 Trend: true
                             }
 
-                            dispatch(TrendChannelSlice.DBAction({ verb: 'POST', record: newChannel }));
+                            trendChannelController.DBAction( 'POST', newChannel).then(() => setRefreshTrigger(val => !val));
                         }
                     }}>Add Channel</button>
                 </div>
@@ -609,7 +627,11 @@ const MeterTrendChannelWindow = (props: IProps) => {
                 </div>
             </div>
         </div>
-        <Warning Message={'This will permanently delete this Channel and cannot be undone.'} Show={removeRecord != null} Title={'Delete ' + (removeRecord?.Name ?? 'Channel')} CallBack={(c) => { if (c) dispatch(TrendChannelSlice.DBAction({ record: removeRecord, verb: 'DELETE' })); setRemoveRecord(null); }} />
+        <Warning
+            Message={'This will permanently delete this Channel and cannot be undone.'}
+            Show={removeRecord != null}
+            Title={'Delete ' + (removeRecord?.Name ?? 'Channel')}
+            CallBack={(c) => { if (c) trendChannelController.DBAction('DELETE', removeRecord).then(() => setRefreshTrigger(val => !val)); setRemoveRecord(null); }} />
     </>
 
 }
