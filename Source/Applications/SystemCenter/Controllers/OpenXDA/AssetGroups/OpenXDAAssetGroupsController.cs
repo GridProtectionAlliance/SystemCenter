@@ -183,8 +183,8 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
 
-        [HttpGet, Route("{assetGroupID:int}/Meters")]
-        public IHttpActionResult GetMeters(int assetGroupID)
+        [HttpPost, Route("{assetGroupID:int}/Meters/{page:int}")]
+        public IHttpActionResult GetMeters([FromBody] PostData postData, [FromUri] int assetGroupID, [FromUri] int page)
         {
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
@@ -192,7 +192,9 @@ namespace SystemCenter.Controllers.OpenXDA
                 {
                     try
                     {
-                        string sql = @"SELECT DISTINCT
+                        int recordsPerPage = Take ?? 50;
+       
+                        string sql = @$"SELECT DISTINCT
                             Meter.ID,
                             MeterAssetGroup.AssetGroupID,
                             Meter.AssetKey,
@@ -215,9 +217,41 @@ namespace SystemCenter.Controllers.OpenXDA
                             Meter.Model,
                             Location.Name,
                             MeterAssetGroup.AssetGroupID
+                        HAVING MeterAssetGroup.AssetGroupID = {{0}}
+                        ORDER BY {postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")}
+                        OFFSET {recordsPerPage * page} ROWS
+                        FETCH NEXT {recordsPerPage} ROWS ONLY"
+                        ;
+                       
+                        string countSql = @"SELECT 
+                        COUNT(DISTINCT Meter.ID)
+                        FROM
+                            Meter LEFT JOIN
+                            Location ON Meter.LocationID = Location.ID LEFT JOIN
+                            MeterAsset ON Meter.ID = MeterAsset.MeterID LEFT JOIN
+                            Asset ON MeterAsset.AssetID = Asset.ID LEFT JOIN
+                            MeterAssetGroup ON Meter.ID = MeterAssetGroup.MeterID
+                        GROUP BY
+                            Meter.ID,
+                            Meter.AssetKey,
+                            Meter.Name,
+                            Meter.Make,
+                            Meter.Model,
+                            Location.Name,
+                            MeterAssetGroup.AssetGroupID
                         HAVING MeterAssetGroup.AssetGroupID = {0}";
                        
-                        return Ok(connection.RetrieveData(sql,assetGroupID));
+                        int count = connection.ExecuteScalar<int>(countSql, assetGroupID);
+
+                        DataTable results = connection.RetrieveData(sql, assetGroupID);
+
+                        return Ok(new PagedResults()
+                        {
+                            Data = JsonConvert.SerializeObject(results),
+                            TotalRecords = count,
+                            RecordsPerPage = recordsPerPage,
+                            NumberOfPages = (count + recordsPerPage - 1) / recordsPerPage
+                        });
                     }
                     catch (Exception ex)
                     {
