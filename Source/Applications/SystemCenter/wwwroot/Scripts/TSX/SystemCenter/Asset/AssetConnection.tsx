@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import _ from 'lodash';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { useNavigate } from "react-router-dom";
 import { LoadingIcon, Modal, Search, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { ToolTip } from '@gpa-gemstone/react-forms';
@@ -53,6 +53,11 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
     const [selectedTypeID, setSelectedtypeID] = React.useState<number>(0);
     const [localAssets, setLocalAssets] = React.useState<Array<OpenXDA.Types.Asset>>([]);
 
+    const [page, setPage] = React.useState<number>(0);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [totalRecords, setTotalRecords] = React.useState<number>(0);
+    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
+
     const [sortKey, setSortKey] = React.useState<string>('AssetName');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [showModal, setShowModal] = React.useState<boolean>(false);
@@ -65,9 +70,31 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
     const roles = useAppSelector(SelectRoles);
 
     React.useEffect(() => {
-        let handle = getAssetConnections();
-        return () => { if (handle != null || handle.abort != null) handle.abort();}
-    }, [props.ID, trigger])
+        setStatus('loading');
+        let handle = $.ajax({
+            type: "POST",
+            url: `${homePath}api/OpenXDA/Asset/${props.ID}/AssetConnections/${page}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true,
+            data: JSON.stringify({ OrderBy: sortKey, Ascending: ascending })
+        })
+
+        handle.done((d) => {
+            setAssetConnections(JSON.parse(d.Data as unknown as string));
+            setTotalPages(d.NumberOfPages);
+            setTotalRecords(d.TotalRecords);
+            setRecordsPerPage(d.RecordsPerPage);
+            if (page >= d.NumberOfPages)
+                setPage(Math.max(d.NumberOfPages - 1, 0));
+            setStatus('idle');
+        })
+
+        handle.fail(() => setStatus('error'));
+
+        return () => { if (handle != null || handle.abort != null) handle.abort(); }
+    }, [props.ID, trigger, page, sortKey, ascending])
 
     React.useEffect(() => {
         if (props.ID > 0) {
@@ -108,25 +135,6 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
             setSelectedAssetID(localAssets[0].ID)
     }, [localAssets])
    
-    function getAssetConnections(): JQuery.jqXHR<OpenXDA.Types.AssetConnection> {
-        setStatus('loading');
-        return $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/Asset/${props.ID}/AssetConnections`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: true,
-            async: true
-        }).done((d) => {
-            setStatus('idle')
-            const sortedConnections = sortData(sortKey, ascending, d);
-            setAssetConnections(sortedConnections)
-        }).fail(() => setStatus('error'));
-    }
-
-    function sortData(key: string, ascending: boolean, data: AssetConnection[]) {
-        return _.orderBy(data, [key], [(ascending ? "asc" : "desc")]);
-    }
 
     function getAssets(): JQuery.jqXHR<string> {
         const filter = [
@@ -238,28 +246,24 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                         <h4>Connections:</h4>
                     </div>
                 </div>
+                <div className="row">
+                    <div className="col">
+                        <p style={{ marginTop: 2, marginBottom: 2 }}>
+                            {`Displaying Asset Connection(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + assetConnections.length} out of ${totalRecords}`}
+                        </p>
             </div>
-            <div className="card-body" style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                </div>
+            </div>
+            <div className="card-body d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="row d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
                 <Table<AssetConnection>
                     TableClass="table table-hover"
                     Data={assetConnections}
                     SortKey={sortKey}
                     Ascending={ascending}
                     OnSort={(d) => {
-                        if (d.colKey === "DeleteButton")
-                            return;
-
-                        if (d.colKey === sortKey) {
-                            setAscending(!ascending);
-                            const ordered = _.orderBy(assetConnections, [d.colKey], [(!ascending ? "asc" : "desc")]);
-                            setAssetConnections(ordered);
-                        }
-                        else {
-                            setAscending(true);
-                            setSortKey(d.colKey);
-                            const ordered = _.orderBy(assetConnections, [d.colKey], ["asc"]);
-                            setAssetConnections(ordered);
-                        }
+                            if (d.colKey === sortKey) setAscending(a => !a);
+                            else setSortKey(d.colField);
                     }}
                     TableStyle={{ height: '100%' }}
                     TheadStyle={{ fontSize: 'smaller' }}
@@ -307,6 +311,16 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                     > <p></p>
                     </Column>
                 </Table>
+            </div>
+                <div className="row">
+                    <div className="col">
+                        <Paging
+                            Current={page + 1}
+                            SetPage={(p) => setPage(p - 1)}
+                            Total={totalPages}
+                        />
+                    </div>
+                </div>
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">

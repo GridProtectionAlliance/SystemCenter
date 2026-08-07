@@ -27,9 +27,9 @@ import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { AdditionalFieldsSlice, ValueListGroupSlice } from '../Store/Store';
 import AdditionalFieldForm from '../AdditionalFields/AdditionalFieldForm';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { LoadingScreen, Modal, SearchBar, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
+import { LoadingScreen, Modal, SearchBar, ServerErrorIcon, Warning, GenericController, Search } from '@gpa-gemstone/react-interactive';
 import { SelectPopup } from '@gpa-gemstone/common-pages';
 
 const emptyRecord: SystemCenter.Types.AdditionalFieldView = {
@@ -62,7 +62,14 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
     const parentID = React.useRef<number>(-1);
     const [tableStatus, setTableStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [asc, setAsc] = React.useState<boolean>(true);
-    const [sortKey, setSortKey] = React.useState<string>('FieldName');
+    const [sortKey, setSortKey] = React.useState<keyof SystemCenter.Types.AdditionalFieldView>('FieldName');
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
+
+
+    const [page, setPage] = React.useState<number>(0);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [totalRecords, setTotalRecords] = React.useState<number>(0);
+    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
 
     const [record, setRecord] = React.useState<SystemCenter.Types.AdditionalFieldView>(emptyRecord);
     const [showRemove, setShowRemove] = React.useState<boolean>(false);
@@ -73,32 +80,26 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
 
     const [overWriteFields, setOverWriteFields] = React.useState<SystemCenter.Types.AdditionalFieldView[]>([]);
 
+    const additionalFieldsController = React.useMemo(() => new GenericController<SystemCenter.Types.AdditionalFieldView>(`${homePath}api/SystemCenter/AdditionalFieldView`, "FieldName", true), [])
+
     React.useEffect(() => {
-        if (status !== 'idle') return;
-        if (tableStatus === 'uninitiated' || tableStatus === 'changed' || parentID.current !== props.ID) {
-            setTableStatus('loading');
-            parentID.current = props.ID;
-            const handle = $.ajax({
-                type: "GET",
-                url: `${homePath}api/SystemCenter/AdditionalFieldView/${parentID.current}/${sortKey}/${asc ? '1' : '0'}`,
-                contentType: "application/json; charset=utf-8",
-                dataType: 'json',
-                cache: false,
-                async: true
-            });
-            handle.done((results) => {
-                sortData(JSON.parse(results.toString()));
+        const filters: Search.IFilter<SystemCenter.Types.AdditionalFieldView>[] = [{ SearchText: props.TableName, Operator: "=", IsPivotColumn: false, FieldName: "ExternalTable", Type: 'string' }]
+        setTableStatus('loading');
+        parentID.current = props.ID;
+        const handle = additionalFieldsController.PagedSearch(filters, sortKey, asc, page, props.ID)
+        handle.done((d) => {
+            setFieldsInTable(JSON.parse(d.Data as unknown as string));
+            setTotalPages(d.NumberOfPages);
+            setTotalRecords(d.TotalRecords);
+            setRecordsPerPage(d.RecordsPerPage);
+            if (page >= d.NumberOfPages)
+                setPage(Math.max(d.NumberOfPages - 1, 0));
                 setTableStatus('idle');
             });
             handle.fail(() => {
                 setTableStatus('error');
             });
-        }
-    }, [tableStatus, props.ID, status]);
-
-    React.useEffect(() => {
-        sortData(fieldsInTable);
-    }, [sortKey, asc]);
+    }, [props.ID, sortKey, asc, page, additionalFieldsController, refreshTrigger]);
 
     React.useEffect(() => {
         if (status === 'uninitiated' || status === 'changed')
@@ -122,22 +123,24 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
     }, [props.ID]);
     */
 
-    const sortData = React.useCallback((sortData: SystemCenter.Types.AdditionalFieldView[]) => {
-        setFieldsInTable(_.orderBy(sortData, [sortKey], [(asc ? "asc" : "desc")]));
-    }, [setFieldsInTable, sortKey, asc]);
-
     function Delete() {
-        dispatch(AdditionalFieldsSlice.DBAction({ verb: 'DELETE', record: { ...record } }));
+        additionalFieldsController.DBAction('DELETE', { ...record }).then(() => {
+            setRefreshTrigger(val => !val)
         setRecord(emptyRecord);
+        });
     }
 
     function AssociateField(fld) {
-        dispatch(AdditionalFieldsSlice.DBAction({ verb: 'PATCH', record: { ...fld, ExternalDBTableID: props.ID } }));
+        additionalFieldsController.DBAction('PATCH', { ...fld, ExternalDBTableID: props.ID }).then(() => {
+            setRefreshTrigger(val => !val)
+        });
     }
 
     function DisassociateField(fld) {
-        dispatch(AdditionalFieldsSlice.DBAction({ verb: 'PATCH', record: { ...fld, ExternalDBTableID: null } }));
+        additionalFieldsController.DBAction('PATCH', { ...fld, ExternalDBTableID: null }).then(() => {
+            setRefreshTrigger(val => !val)
         setRecord(emptyRecord);
+        });
     }
 
     return (
@@ -148,6 +151,15 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                         <div className="row">
                             <div className="col">
                                 <h4>Fields:</h4>
+                            </div>
+                        </div>
+                        <div className="row">
+                            <div className="col">
+                                <p style={{ marginTop: 2, marginBottom: 2 }}>
+                                    {tableStatus === 'error' ? 'Could not complete Search' :
+                                        tableStatus === 'loading' ? 'Loading...' :
+                                            `Displaying Field(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + fieldsInTable.length} out of ${totalRecords}`}
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -166,7 +178,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                                             OnSort={(d) => {
                                                 if (d.colKey == 'btns') return;
                                                 if (d.colKey === sortKey) setAsc(prev => !prev);
-                                                else setSortKey(d.colKey);
+                                                else setSortKey(d.colKey as keyof SystemCenter.Types.AdditionalFieldView);
                                             }}
                                             TheadStyle={{ fontSize: 'smaller' }}
                                             RowStyle={{ fontSize: 'smaller' }}
@@ -256,6 +268,15 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                                         </Table>}
                                 </div>
                             </div>
+                            <div className="row">
+                                <div className="col">
+                                    <Paging
+                                        Current={page + 1}
+                                        SetPage={(p) => setPage(p - 1)}
+                                        Total={totalPages}
+                                    />
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div className="card-footer">
@@ -310,8 +331,8 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                     setShowNew(false);
                     if (conf) {
                         setTableStatus('changed');
-                        if (record.ID > 0) dispatch(AdditionalFieldsSlice.DBAction({ verb: 'PATCH', record }));
-                        else if (record.ID == 0) dispatch(AdditionalFieldsSlice.DBAction({ verb: 'POST', record }));
+                        if (record.ID > 0) additionalFieldsController.DBAction('PATCH', record).then(() => setRefreshTrigger(val => !val));
+                        else if (record.ID == 0) additionalFieldsController.DBAction('POST', record).then(() => setRefreshTrigger(val => !val));
                     }
                 }}
             >
@@ -358,6 +379,9 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                     ResultNote={searchStatus == 'error' ? 'Could not complete Search' : 'Found ' + searchData.length + ' Additional Field(s)'}
                 >
                     {children}
+                </SearchBar>
+                }
+            >
                     <Column Key="FieldName" Field="FieldName" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
                     >Name</Column>
                     <Column Key="ParentTable" Field="ParentTable" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
@@ -380,9 +404,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                     <Column Key="IsKey" Field="IsKey" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
                         Content={row => row.item ? <ReactIcons.CheckMark Color="var(--success)" /> : <ReactIcons.CrossMark Color="var(--danger)" />}
                     >Key</Column>
-                </SearchBar>
-                }
-            />            
+            </SelectPopup>
         </div>
 
 

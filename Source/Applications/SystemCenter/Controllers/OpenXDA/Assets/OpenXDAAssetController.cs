@@ -32,6 +32,7 @@ using GSF.Data;
 using GSF.Data.Model;
 using GSF.Reflection;
 using GSF.Web.Model;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using openXDA.Model;
 using SystemCenter.Model;
@@ -62,6 +63,38 @@ namespace SystemCenter.Controllers.OpenXDA
             }
             else
                 return Unauthorized();
+        }
+
+        [HttpPost, Route("{assetID:int}/Locations/{page:int}")]
+        public IHttpActionResult GetAssetLocationsPaged([FromBody] PostData postData, [FromUri] int assetID, [FromUri] int page)
+        {
+            if (!GetAuthCheck())
+                return Unauthorized();
+
+            int recordsPerPage = Take ?? 50;
+
+            PagedResults results = new PagedResults();
+
+            results.RecordsPerPage = recordsPerPage;
+
+            string[] sortFields = { "Name", "LocationKey", "Latitude", "Longitude" };
+
+            if (!sortFields.Any(f => f.Equals(postData.OrderBy)))
+                return BadRequest($"{postData.OrderBy} is not a valid search field.");
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                RecordRestriction assetLocationRestriction = new RecordRestriction("ID IN (SELECT LocationID FROM AssetLocation WHERE AssetID = {0})", assetID);
+
+                int count = new TableOperations<Location>(connection).QueryRecordCount(assetLocationRestriction);
+
+                IEnumerable<Location> records = new TableOperations<Location>(connection).QueryRecords(postData.OrderBy, postData.Ascending, page + 1, recordsPerPage, assetLocationRestriction);
+
+                results.TotalRecords = count;
+                results.NumberOfPages = (count + recordsPerPage - 1) / recordsPerPage;
+                results.Data = JsonConvert.SerializeObject(records);
+            }
+            return Ok(results);
         }
 
         [HttpGet, Route("{assetID:int}/AssetLocations")]
@@ -122,8 +155,8 @@ namespace SystemCenter.Controllers.OpenXDA
             return Unauthorized();
         }
 
-        [HttpGet, Route("{assetID:int}/AssetConnections")]
-        public IHttpActionResult GetAssetAssetConnections(int assetID)
+        [HttpPost, Route("{assetID:int}/Meters/{page:int}")]
+        public IHttpActionResult GetAssetMetersPaged([FromBody] PostData postData, [FromUri] int assetID, [FromUri] int page)
         {
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
@@ -131,7 +164,70 @@ namespace SystemCenter.Controllers.OpenXDA
                 {
                     try
                     {
-                        DataTable records = connection.RetrieveData(@"
+                        int recordsPerPage = Take ?? 50;
+
+                        string[] sortFields = { "AssetKey", "Name", "Make", "Model" };
+
+                        if (!sortFields.Any(f => f.Equals(postData.OrderBy, StringComparison.OrdinalIgnoreCase)))
+                            return BadRequest($"{postData.OrderBy} is not a valid search field.");
+
+                        RecordRestriction assetMeterRestriction = new RecordRestriction("ID IN (SELECT MeterID FROM MeterAsset WHERE AssetID = {0})", assetID);
+
+                        int count = new TableOperations<Meter>(connection).QueryRecordCount(assetMeterRestriction);
+
+                        IEnumerable<Meter> records = new TableOperations<Meter>(connection).QueryRecords(postData.OrderBy, postData.Ascending, page + 1, recordsPerPage, assetMeterRestriction);
+
+                        return Ok(new PagedResults()
+                        {
+                            RecordsPerPage = recordsPerPage,
+                            TotalRecords = count,
+                            NumberOfPages = (count + recordsPerPage - 1) / recordsPerPage,
+                            Data = JsonConvert.SerializeObject(records)
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        return InternalServerError(ex);
+                    }
+                }
+            }
+            return Unauthorized();
+        }
+
+
+        [HttpPost, Route("{assetID:int}/AssetConnections/{page:int}")]
+        public IHttpActionResult GetAssetAssetConnections([FromBody] PostData postData, [FromUri] int assetID, [FromUri] int page)
+        {
+            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    try
+                    {
+                        int recordsPerPage = Take ?? 50;
+
+                        string[] sortFields = { "AssetName", "AssetKey", "Name" };
+
+                        if (!sortFields.Any(f => f.Equals(postData.OrderBy, StringComparison.OrdinalIgnoreCase)))
+                            return BadRequest($"{postData.OrderBy} is not a valid search field.");
+
+                        int count = connection.ExecuteScalar<int>(@"
+                        SELECT
+                            COUNT(AssetRelationship.ID)
+                        FROM
+	                        AssetRelationship JOIN
+	                        AssetRelationshipType ON AssetRelationship.AssetRelationshipTypeID = AssetRelationshipType.ID JOIN
+	                        ASset ON Asset.ID = (
+		                        CASE 
+			                        WHEN ParentID = {0} THEN AssetRelationship.ChildID
+			                        ELSE AssetRelationship.ParentID
+		                        END
+	                        )
+                        WHERE
+   	                        ParentID = {0} OR ChildID = {0}
+                        ", assetID);
+
+                        DataTable records = connection.RetrieveData(@$"
                         SELECT
 	                        AssetRelationship.AssetRelationshipTypeID,
 	                        AssetRelationshipType.Name,
@@ -143,15 +239,25 @@ namespace SystemCenter.Controllers.OpenXDA
 	                        AssetRelationshipType ON AssetRelationship.AssetRelationshipTypeID = AssetRelationshipType.ID JOIN
 	                        ASset ON Asset.ID = (
 		                        CASE 
-			                        WHEN ParentID = {0} THEN AssetRelationship.ChildID
+			                        WHEN ParentID = {{0}} THEN AssetRelationship.ChildID
 			                        ELSE AssetRelationship.ParentID
 		                        END
 	                        )
                         WHERE
-	                        ParentID = {0} OR ChildID = {0}
+	                        ParentID = {{0}} OR ChildID = {{0}}
+                        ORDER BY {postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")}
+                        OFFSET {page * recordsPerPage} ROWS FETCH NEXT {recordsPerPage} ROWS ONLY
                     ", assetID);
 
-                        return Ok(records);
+                        PagedResults results = new PagedResults() 
+                        { 
+                            RecordsPerPage = recordsPerPage,
+                            TotalRecords = count,
+                            NumberOfPages = (count + recordsPerPage - 1) / recordsPerPage,
+                            Data = JsonConvert.SerializeObject(records)
+                        };
+
+                        return Ok(results);
                     }
                     catch (Exception ex)
                     {
