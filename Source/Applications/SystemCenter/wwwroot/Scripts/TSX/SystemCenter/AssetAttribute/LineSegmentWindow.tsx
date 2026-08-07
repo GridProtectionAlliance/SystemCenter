@@ -24,10 +24,9 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import LineSegmentWizard from './FawgLineSegmentWizard/LineSegmentWizard';
-import moment from 'moment';
 import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
 import { ToolTip } from '@gpa-gemstone/react-forms';
@@ -37,33 +36,38 @@ function LineSegmentWindow(props: IProps): JSX.Element {
     const [segments, setSegments] = React.useState<Array<OpenXDA.Types.LineSegment>>([]);
     const [sortKey, setSortKey] = React.useState<string>('AssetName');
     const [ascending, setAscending] = React.useState<boolean>(true);
+    const [page, setPage] = React.useState<number>(0);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [totalRecords, setTotalRecords] = React.useState<number>(0);
+    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
+    const [segmentStatus, setSegmentStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [showFawg, setShowFawg] = React.useState<boolean>(false);
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
     const roles = useAppSelector(SelectRoles);
 
     React.useEffect(() => {
-        const h = getSegments();
-        return () => { if (h != null && h.abort != null) h.abort(); }
-    }, [props.ID]);
-
-    function getSegments() {
-       return $.ajax({
-           type: "GET",
-           url: `${homePath}api/OpenXDA/Line/${props.ID}/LineSegments?_=${moment()}`,
+        setSegmentStatus('loading');
+        const h = $.ajax({
+            type: "POST",
+            url: `${homePath}api/OpenXDA/Line/${props.ID}/LineSegments/${page}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
-            async: true
-       }).done((data: Array<OpenXDA.Types.LineSegment>) => {
-           const sortedSegments = sortData(sortKey, ascending, data);
-           setSegments(sortedSegments)
+            async: true,
+            data: JSON.stringify({ orderBy: sortKey, ascending: ascending, searches: [] })
+        }).done((d) => {
+            setTotalPages(d.NumberOfPages);
+            setTotalRecords(d.TotalRecords);
+            setRecordsPerPage(d.RecordsPerPage);
+            if (page >= d.NumberOfPages)
+                setPage(Math.max(d.NumberOfPages - 1, 0));
+            setSegments(JSON.parse(d.Data))
+            setSegmentStatus('idle');
            props.OnChange();
-       });
-    }
-
-    function sortData(key: string, ascending: boolean, data: OpenXDA.Types.LineSegment[]) {
-        return _.orderBy(data, [key], [(ascending ? "asc" : "desc")]);
-    }
+        }).fail(() => setSegmentStatus('error'));
+        return () => { if (h != null && h.abort != null) h.abort(); }
+    }, [props.ID, page, ascending, sortKey, refreshTrigger]);
 
     function hasPermissions(): boolean {
         if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0)
@@ -71,7 +75,22 @@ function LineSegmentWindow(props: IProps): JSX.Element {
         return true;
     }
 
-    let header = (<h4 style={(props.InnerOnly ?? false) ? { width: '100%', padding: '10px' } : null}>{"Line Segments: "}</h4>);
+    let header = ( <>
+        <div className="row">
+            <div className="col">
+                <h4 style={(props.InnerOnly ?? false) ? { width: '100%', padding: '10px' } : null}>{"Line Segments: "}</h4>
+            </div>
+        </div>
+        <div className="row">
+            <div className="col">
+                <p style={{ marginTop: 2, marginBottom: 2 }}>
+                    {segmentStatus === 'error' ? 'Could not complete Search' :
+                        segmentStatus === 'loading' ? 'Loading...' :
+                            `Displaying Line Segment(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + segments.length} out of ${totalRecords}`}
+                </p>
+            </div>
+        </div>
+    </>)
     const tableContent = (
         <>
             <Table<OpenXDA.Types.LineSegment>
@@ -82,14 +101,10 @@ function LineSegmentWindow(props: IProps): JSX.Element {
                 OnSort={(d) => {
                     if (d.colKey == sortKey) {
                         setAscending(!ascending);
-                        const ordered = _.orderBy(segments, [d.colKey], [(!ascending ? "asc" : "desc")]);
-                        setSegments(ordered);
                     }
                     else {
                         setAscending(true);
                         setSortKey(d.colField);
-                        const ordered = _.orderBy(segments, [d.colKey], ["asc"]);
-                        setSegments(ordered);
                     }
                 }}
                 TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
@@ -181,7 +196,7 @@ function LineSegmentWindow(props: IProps): JSX.Element {
                 > End?
                 </Column>
             </Table>
-            {showFawg ? <LineSegmentWizard LineID={props.ID} LineKey={props.LineKey} LineName={props.LineName} closeWizard={() => { setShowFawg(false); getSegments(); }} /> : null}
+            {showFawg ? <LineSegmentWizard LineID={props.ID} LineKey={props.LineKey} LineName={props.LineName} closeWizard={() => { setShowFawg(false); setRefreshTrigger(val => !val)}} /> : null}
         </>);
     const wizardButton = (<button className={"btn btn-info" + ((props.InnerOnly ?? false) ? " pull-right" : "") + (!hasPermissions() ? ' disabled' : '')} data-tooltip='LineSegWiz'
         onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={(evt) => { if (hasPermissions()) setShowFawg(true)}}>Line Segment Wizard</button>);
@@ -199,8 +214,21 @@ function LineSegmentWindow(props: IProps): JSX.Element {
             <div className="card-header">
                     {header}
             </div>
-            <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
+            <div className="card-body" style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                <div className="row d-flex flex-column" style={{ flex: '1 1 0%', overflow: 'hidden' }}>
+                    <div className="col d-flex flex-column" style={{ overflow: 'hidden' }}>
                     {tableContent}
+            </div>
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <Paging
+                            Current={page + 1}
+                            Total={totalPages}
+                            SetPage={(p) => setPage(p -1)}
+                        />
+                    </div>
+                </div>
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
