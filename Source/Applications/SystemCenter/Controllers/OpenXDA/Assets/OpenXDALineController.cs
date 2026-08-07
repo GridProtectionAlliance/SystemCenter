@@ -31,6 +31,7 @@ using System.Web.Http;
 using GSF.Data;
 using GSF.Data.Model;
 using GSF.Web.Model;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using openXDA.Model;
 using SystemCenter.Model;
@@ -87,6 +88,38 @@ namespace SystemCenter.Controllers.OpenXDA
                     List<LineSegment> record = new TableOperations<LineSegment>(connection).QueryRecordsWhere("ID in (select ChildID from AssetRelationship where AssetRelationshipTypeID = (SELECT ID FROM AssetRelationshipType WHERE Name = 'Line-LineSegment') AND ParentID = {0})", lineID).ToList();
                     record = record.Concat(new TableOperations<LineSegment>(connection).QueryRecordsWhere("ID in (select ParentID from AssetRelationship where AssetRelationshipTypeID = (SELECT ID FROM AssetRelationshipType WHERE Name = 'Line-LineSegment') AND ChildID = {0})", lineID)).ToList();
                     return Ok(record);
+                }
+            }
+            else
+                return Unauthorized();
+
+        }
+
+        [HttpPost, Route("{lineID:int}/LineSegments/{page:int}")]
+        public IHttpActionResult GetLineSegmentsForLinePaged([FromBody] PostData postData, [FromUri] int lineID, [FromUri] int page)
+        {
+            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
+            {
+                int recordsPerPage = Take ?? 50;
+
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    RecordRestriction restriction = new RecordRestriction(@"ID in (select ChildID from AssetRelationship where AssetRelationshipTypeID = (SELECT ID FROM AssetRelationshipType WHERE Name = 'Line-LineSegment') AND ParentID = {0})
+                                                    OR ID in (select ParentID from AssetRelationship where AssetRelationshipTypeID = (SELECT ID FROM AssetRelationshipType WHERE Name = 'Line-LineSegment') AND ChildID = {0})", lineID);
+
+                    TableOperations<LineSegment> tbl = new TableOperations<LineSegment>(connection);
+
+                    int count = tbl.QueryRecordCount(restriction);
+
+                    IEnumerable<LineSegment> records = tbl.QueryRecords(postData.OrderBy, postData.Ascending, page + 1, recordsPerPage, restriction);
+
+                    return Ok(new PagedResults()
+                    {
+                        Data = JsonConvert.SerializeObject(records),
+                        RecordsPerPage = recordsPerPage,
+                        TotalRecords = count,
+                        NumberOfPages = (count + recordsPerPage - 1) / recordsPerPage
+                    });
                 }
             }
             else
