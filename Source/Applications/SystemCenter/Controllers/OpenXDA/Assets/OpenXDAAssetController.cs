@@ -24,7 +24,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.Linq;
 using System.Transactions;
 using System.Web.Http;
@@ -852,6 +851,7 @@ namespace SystemCenter.Controllers.OpenXDA
             lineSegment.X1 = record["X1"].ToObject<double>();
             lineSegment.Length = record["Length"].ToObject<double>();
             lineSegment.ThermalRating = record["ThermalRating"].ToObject<double>();
+            lineSegment.IsEnd = record["IsEnd"].ToObject<bool>();
         }
 
         private void CreateBreakerFromJToken(Breaker breaker, JToken record)

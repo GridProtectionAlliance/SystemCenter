@@ -21,15 +21,6 @@
 //
 //******************************************************************************************************
 
-using GSF;
-using GSF.Collections;
-using GSF.Data;
-using GSF.Data.Model;
-using GSF.Security.Model;
-using GSF.Web.Model;
-using Newtonsoft.Json.Linq;
-using openXDA.Model;
-using openXDA.Model.SystemCenter;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -38,9 +29,11 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Web.Http;
-using System.Windows.Forms;
-using SystemCenter.Controllers;
-using SystemCenter.Model;
+using GSF.Collections;
+using GSF.Data;
+using GSF.Data.Model;
+using openXDA.Model;
+using openXDA.Model.SystemCenter;
 
 [RoutePrefix("api/LineSegmentWizard")]
 public class LineSegmentWizardController : ApiController
@@ -269,68 +262,86 @@ public class LineSegmentWizardController : ApiController
     [HttpPost, Route("Save/{id:int}")]
     public IHttpActionResult PostData(int id, [FromBody] LineConfiguration record)
     {
-        if (!base.User.IsInRole(PostRoles))
+        if (!User.IsInRole(PostRoles))
             return Unauthorized();
 
-        using (AdoDataConnection connection = new AdoDataConnection(Connection))
+        using (AdoDataConnection connection = new(Connection))
         {
-            Line line = (new TableOperations<Line>(connection)).QueryRecordWhere("ID = {0}", id);
+            Line line = new TableOperations<Line>(connection).QueryRecordWhere("ID = {0}", id)
+                ?? throw new InvalidOperationException($"Line with ID {id} does not exist");
+
             line.ConnectionFactory = () => new AdoDataConnection(Connection);
-            if (line is null)
-                throw new InvalidOperationException($"Line with ID {id} does not exist");
 
-            int lineToSegmentConnectionID = new TableOperations<AssetConnectionType>(connection).QueryRecordWhere("Name = {0}", "Line-LineSegment").ID;
-            List<Segment> updatedSegments = record.Sections.SelectMany(s => s.Segments).Where(s => s.ID > 0).ToList();
-            TableOperations<LineSegment> segmentTbl = new TableOperations<LineSegment>(connection);
-            TableOperations<LineSegmentConnections> segmentCxnTbl = new TableOperations<LineSegmentConnections>(connection);
-            TableOperations<AssetLocation> assetLocationTbl = new TableOperations<AssetLocation>(connection);
+            TableOperations<AssetConnection> assetConnectionTable = new(connection);
+            TableOperations<AssetConnectionType> assetConnectionTypeTable = new(connection);
+            TableOperations<LineSegment> segmentTbl = new(connection);
+            TableOperations<LineSegmentConnections> segmentCxnTbl = new(connection);
+            TableOperations<AssetLocation> assetLocationTbl = new(connection);
 
-            // Remove any segments that are no longer there, and update existing Segments
-            foreach (LineSegment oldSegment in line.Segments)
+            List<Segment> allSegments = [.. record.Sections
+                .SelectMany(s => s.Segments)];
+
+            // Remove any segments that are no longer there
+            IEnumerable<LineSegment> removedSegments = line.Segments
+                .GroupJoin(allSegments, s => s.ID, s => s.ID, (Segment, grouping) => (Segment, Removed: !grouping.Any()))
+                .Where(tuple => tuple.Removed)
+                .Select(tuple => tuple.Segment);
+
+            foreach (LineSegment segment in removedSegments)
+                connection.ExecuteNonQuery($"EXEC UniversalCascadeDelete 'Asset', 'ID = {segment.ID}'");
+
+            // Update existing segments
+            IEnumerable<(LineSegment, Segment)> updatedSegments = line.Segments
+                .Join(allSegments, s => s.ID, s => s.ID, (old, updated) => (old, updated));
+
+            foreach ((LineSegment oldSegment, Segment updatedSeg) in updatedSegments)
             {
-                Segment updatedSeg = updatedSegments.Find(item => item.ID == oldSegment.ID);
-                if (updatedSeg is null)
-                    connection.ExecuteNonQuery($"EXEC UniversalCascadeDelete 'Asset', 'ID = {oldSegment.ID}'");
-                else
-                {
-                    oldSegment.R0 = updatedSeg.R0;
-                    oldSegment.R1 = updatedSeg.R1;
-                    oldSegment.X1 = updatedSeg.X1;
-                    oldSegment.X0 = updatedSeg.X0;
-                    oldSegment.Length = updatedSeg.Length;
-                    oldSegment.AssetKey = updatedSeg.AssetKey;
-                    oldSegment.AssetName = updatedSeg.AssetName;
-                    oldSegment.FromBus= updatedSeg.FromBus;
-                    oldSegment.ToBus= updatedSeg.ToBus;
-                    oldSegment.Description= updatedSeg.Description;
-                    oldSegment.ThermalRating= updatedSeg.ThermalRating;
+                oldSegment.R0 = updatedSeg.R0;
+                oldSegment.R1 = updatedSeg.R1;
+                oldSegment.X1 = updatedSeg.X1;
+                oldSegment.X0 = updatedSeg.X0;
+                oldSegment.Length = updatedSeg.Length;
+                oldSegment.AssetKey = updatedSeg.AssetKey;
+                oldSegment.AssetName = updatedSeg.AssetName;
+                oldSegment.FromBus = updatedSeg.FromBus;
+                oldSegment.ToBus = updatedSeg.ToBus;
+                oldSegment.Description = updatedSeg.Description;
+                oldSegment.ThermalRating = updatedSeg.ThermalRating;
 
-                    segmentTbl.UpdateRecord(oldSegment);
-                    oldSegment.connectedSegments.ForEach(cxn => segmentCxnTbl.DeleteRecord(cxn));
-                    oldSegment.AssetLocations.ForEach(loc => assetLocationTbl.DeleteRecord(loc));
+                segmentTbl.UpdateRecord(oldSegment);
+                oldSegment.ConnectedSegments.ForEach(cxn => segmentCxnTbl.DeleteRecord(cxn));
+                oldSegment.AssetLocations.ForEach(loc => assetLocationTbl.DeleteRecord(loc));
+            }
+
+            // Add any new segments
+            int lineToSegmentConnectionID = assetConnectionTypeTable.QueryRecordWhere("Name = {0}", "Line-LineSegment").ID;
+            IEnumerable<Segment> newSegments = [.. allSegments.Where(s => s.ID == 0)];
+
+            IEnumerable<string> GenerateKeys()
+            {
+                string prefix = $"{line.AssetKey}-S";
+                TableOperations<Asset> assetTable = new TableOperations<Asset>(connection);
+
+                HashSet<string> segmentKeys = [.. assetTable
+                    .QueryRecordsWhere("AssetKey LIKE {0}", $"{prefix}%")
+                    .Select(asset => asset.AssetKey)];
+
+                int i = 1;
+
+                while (true)
+                {
+                    string key = $"{prefix}{i:00}";
+
+                    if (!segmentKeys.Contains(key))
+                        yield return key;
+
+                    i++;
                 }
             }
 
-            Func<string> generatekey = () =>
+            foreach ((string key, Segment newSegment) in newSegments.Zip(GenerateKeys(), (segment, key) => (key, segment)))
             {
-                int i = 1;
-                string key = line.AssetKey + "-S" + i.ToString("00");
-                TableOperations<Asset> assetTbl = new TableOperations<Asset>(connection);
-                while (assetTbl.QueryRecordCountWhere("Assetkey = {0}", key) > 0)
-                {
-                    i++;
-                    key = line.AssetKey + "-S" + i.ToString("00");
-                }
-                return i.ToString("00");
-            };
-
-            // Add any new Segments
-            List<Segment> newSegments = record.Sections.SelectMany(s => s.Segments).Where(s => s.ID == 0).ToList();
-            foreach (Segment newSegment in newSegments)
-            {
-                string num = generatekey();
-                string key = line.AssetKey + "-S" + num;
-                LineSegment segment = new LineSegment()
+                LineSegment segment = new()
                 {
                     R0 = newSegment.R0,
                     R1 = newSegment.R1,
@@ -350,7 +361,7 @@ public class LineSegmentWizardController : ApiController
                 newSegment.ID = segmentTbl.QueryRecordWhere("AssetKey = {0}", key).ID;
                 newSegment.AssetKey = key;
 
-                new TableOperations<AssetConnection>(connection).AddNewRecord(new AssetConnection()
+                assetConnectionTable.AddNewRecord(new AssetConnection()
                 {
                     ChildID = newSegment.ID,
                     ParentID = line.ID,
@@ -358,99 +369,79 @@ public class LineSegmentWizardController : ApiController
                 });
             }
 
-
-            // Walk through Sections to set up connections
+            // Walk through sections to set up connections between segments in the same section
             foreach (Section section in record.Sections)
             {
-                if (section.Segments.Count < 2) continue;
-                int i = 1;
-                while (i < section.Segments.Count)
+                IEnumerable<(Segment, Segment)> connections = section.Segments
+                    .Skip(1)
+                    .Zip(section.Segments, (next, previous) => (previous, next));
+
+                foreach ((Segment previous, Segment next) in connections)
                 {
-                    int previousID = section.Segments[i - 1].ID;
-                    if (previousID == 0)
-                        previousID = newSegments.Find(s => s.AssetKey == section.Segments[i - 1].AssetKey).ID;
-
-                    int nextID = section.Segments[i].ID;
-                    if (nextID == 0)
-                        nextID = newSegments.Find(s => s.AssetKey == section.Segments[i].AssetKey).ID;
-
-                    segmentCxnTbl.AddNewRecord(new LineSegmentConnections() { 
-                        ChildSegment = previousID,
-                        ParentSegment = nextID
+                    segmentCxnTbl.AddNewRecord(new LineSegmentConnections()
+                    {
+                        ChildSegment = previous.ID,
+                        ParentSegment = next.ID
                     });
-                    i++;
                 }
             }
 
-            // Walk through Taps to set up connections and FROMBus ends
-            foreach (Tap tap in record.Taps)
+            // Walk through taps to set up asset locations
+            IEnumerable<(Segment, string)> startBuses = record.Sections.Select(section => (section.Segments[0], section.StartBus));
+            IEnumerable<(Segment, string)> endBuses = record.Sections.Select(section => (section.Segments.Last(), section.EndBus));
+            IEnumerable<(Segment Segment, string Bus)> allBuses = startBuses.Concat(endBuses);
+
+            IEnumerable<(Tap Tap, Segment Segment)> locationMap = record.Taps
+                .Where(tap => tap.StationID is not null)
+                .Join(allBuses, tap => tap.Bus, tuple => tuple.Bus, (tap, tuple) => (tap, tuple.Segment));
+
+            foreach ((Tap tap, Segment segment) in locationMap)
             {
-                List<LineSegment> segments = record.Sections.Where(s => s.StartBus == tap.Bus)
-                    .Select(s => s.Segments.First())
-                    .Select(s => segmentTbl.QueryRecordWhere("Assetkey = {0}", s.AssetKey)).ToList();
-
-               
-                if (!(tap.StationID is null) && segments.Count > 0)
+                assetLocationTbl.AddNewRecord(new AssetLocation()
                 {
-                    segments.ForEach(s =>
-                    {
-                        s.IsEnd = true;
-                        segmentTbl.UpdateRecord(s);
-                        assetLocationTbl.AddNewRecord(new AssetLocation()
-                        {
-                            AssetID = s.ID,
-                            LocationID = tap.StationID ?? -1
-                        });
-                    });
-                }
-
-                segments.AddRange(record.Sections.Where(s => s.EndBus == tap.Bus)
-                   .Select(s => s.Segments.Last())
-                   .Select(s => segmentTbl.QueryRecordWhere("Assetkey = {0}", s.AssetKey)).ToList());
-
-
-                for (int j = 0; j < segments.Count; j++)
-                    for (int k = 0; k < segments.Count; k++)
-                    {
-                        if (k >= j) break;
- 
-                        int previousID = segments[j].ID;
-                        if (previousID == 0)
-                            previousID = newSegments.Find(s => s.AssetKey == segments[j].AssetKey).ID;
-
-                        int nextID = segments[k].ID;
-                        if (nextID == 0)
-                            nextID = newSegments.Find(s => s.AssetKey == segments[k].AssetKey).ID;
-
-                        segmentCxnTbl.AddNewRecord(new LineSegmentConnections()
-                        {
-                            ChildSegment = previousID,
-                            ParentSegment = nextID
-                        });
-                    }
-                
-            }
-
-            // Walk through Taps to set up ToBus ends
-            foreach (Tap tap in record.Taps)
-            {
-                List<LineSegment> segments = record.Sections.Where(s => s.EndBus == tap.Bus)
-                  .Select(s => s.Segments.Last())
-                  .Select(s => segmentTbl.QueryRecordWhere("Assetkey = {0}", s.AssetKey)).ToList();
-
-                if ((tap.StationID is null) || segments.Count == 0)
-                    continue;
-                
-                segments.ForEach(s =>
-                {
-                    s.IsEnd = true;
-                    segmentTbl.UpdateRecord(s);
-                    assetLocationTbl.AddNewRecord(new AssetLocation()
-                    {
-                        AssetID = s.ID,
-                        LocationID = tap.StationID ?? -1
-                    });
+                    AssetID = segment.ID,
+                    LocationID = tap.StationID.GetValueOrDefault()
                 });
+            }
+
+            // Walk through buses to set up connections between distinct sections
+            foreach (IGrouping<string, Segment> grouping in allBuses.GroupBy(tuple => tuple.Bus, tuple => tuple.Segment))
+            {
+                IEnumerable<(Segment, Segment)> pairs = grouping
+                    .SelectMany(_ => grouping, (Left, Right) => (Left, Right))
+                    .Where(tuple => tuple.Left.ID < tuple.Right.ID);
+
+                foreach ((Segment child, Segment parent) in pairs)
+                {
+                    segmentCxnTbl.AddNewRecord(new LineSegmentConnections()
+                    {
+                        ChildSegment = child.ID,
+                        ParentSegment = parent.ID
+                    });
+                }
+            }
+
+            // Recreate the line to reload line segments from the database
+            Line reloader = new()
+            {
+                ID = line.ID,
+                ConnectionFactory = line.ConnectionFactory
+            };
+
+            // Walk through buses to set up ends
+            IEnumerable<Segment> endSegments = allBuses
+                .GroupBy(tuple => tuple.Bus, tuple => tuple.Segment)
+                .Where(grouping => !grouping.Skip(1).Any())
+                .SelectMany(grouping => grouping);
+
+            IEnumerable<(LineSegment, bool)> endFlagUpdates = reloader.Segments
+                .GroupJoin(endSegments, s => s.ID, s => s.ID, (Segment, grouping) => (Segment, IsEnd: grouping.Any()))
+                .Where(tuple => tuple.Segment.IsEnd != tuple.IsEnd);
+
+            foreach ((LineSegment segment, bool isEnd) in endFlagUpdates)
+            {
+                segment.IsEnd = isEnd;
+                segmentTbl.UpdateRecord(segment);
             }
         }
 
