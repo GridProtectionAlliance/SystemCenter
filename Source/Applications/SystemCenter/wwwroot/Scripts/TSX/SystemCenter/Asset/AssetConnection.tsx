@@ -315,9 +315,9 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                 <div className="row">
                     <div className="col">
                         <Paging
-                            Current={1}
-                            SetPage={() => { }}
-                            Total={1}
+                            Current={page + 1}
+                            SetPage={(p) => setPage(p - 1)}
+                            Total={totalPages}
                         />
                     </div>
                 </div>

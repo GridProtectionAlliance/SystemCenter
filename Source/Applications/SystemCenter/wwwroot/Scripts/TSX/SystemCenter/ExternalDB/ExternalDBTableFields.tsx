@@ -83,12 +83,10 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
     const additionalFieldsController = React.useMemo(() => new GenericController<SystemCenter.Types.AdditionalFieldView>(`${homePath}api/SystemCenter/AdditionalFieldView`, "FieldName", true), [])
 
     React.useEffect(() => {
-        if (status !== 'idle') return;
-
         const filters: Search.IFilter<SystemCenter.Types.AdditionalFieldView>[] = [{ SearchText: props.TableName, Operator: "=", IsPivotColumn: false, FieldName: "ExternalTable", Type: 'string' }]
-            setTableStatus('loading');
-            parentID.current = props.ID;
-        const handle = additionalFieldsController.PagedSearch(filters, sortKey, asc, page)
+        setTableStatus('loading');
+        parentID.current = props.ID;
+        const handle = additionalFieldsController.PagedSearch(filters, sortKey, asc, page, props.ID)
         handle.done((d) => {
             setFieldsInTable(JSON.parse(d.Data as unknown as string));
             setTotalPages(d.NumberOfPages);
@@ -101,7 +99,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
             handle.fail(() => {
                 setTableStatus('error');
             });
-    }, [props.ID, status, sortKey, asc, page, additionalFieldsController, refreshTrigger]);
+    }, [props.ID, sortKey, asc, page, additionalFieldsController, refreshTrigger]);
 
     React.useEffect(() => {
         if (status === 'uninitiated' || status === 'changed')
