@@ -24,19 +24,18 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-import { AssetAttributes } from './Asset';
-import LineSegmentAttributes from './LineSegment';
-import { LoadingScreen, Modal, Warning, Search, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { LoadingScreen, Modal, Warning, Search, ServerErrorIcon, GenericController } from '@gpa-gemstone/react-interactive';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import moment from 'moment';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import { LocationSlice, SourceImpedanceSlice } from '../Store/Store';
-import { IsInteger, IsNumber } from '@gpa-gemstone/helper-functions';
+import { LocationSlice } from '../Store/Store';
+import { IsNumber } from '@gpa-gemstone/helper-functions';
 import { Input, Select, ToolTip } from '@gpa-gemstone/react-forms';
 import { SelectRoles } from '../Store/UserSettings';
 
 const newImpedance: OpenXDA.Types.SourceImpedance = { RSrc: 0, XSrc: 0, AssetLocationID: null, ID: 0 }
+
+const sourceImpedanceController = new GenericController<OpenXDA.Types.SourceImpedance>(`${homePath}api/OpenXDA/SourceImpedance`, "AssetLocationID", false);
 
 function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
     const dispatch = useAppDispatch();
@@ -46,13 +45,18 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
     const [assetLocations, setAssetLocations] = React.useState<OpenXDA.Types.AssetLocation[]>([]);
     const [aLStatus, setALStatus] = React.useState<Application.Types.Status>('uninitiated');
 
-    const sourceImpedances = useAppSelector(SourceImpedanceSlice.SearchResults);
-    const sourceImpedanceStatus = useAppSelector(SourceImpedanceSlice.SearchStatus);
+    const [sourceImpedances, setSourceImpedances] = React.useState<OpenXDA.Types.SourceImpedance[]>([]);
+    const [sourceImpedanceStatus, setSourceImpedanceStatus] = React.useState<Application.Types.Status>('uninitiated');
 
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [sortKey, setSortKey] = React.useState<keyof OpenXDA.Types.SourceImpedance>('AssetLocationID');
-    const [data, setData] = React.useState<OpenXDA.Types.SourceImpedance[]>([]);
 
+    const [page, setPage] = React.useState<number>(0);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [totalRecords, setTotalRecords] = React.useState<number>(0);
+    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
+
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
 
     const [showAdd, setShowAdd] = React.useState<boolean>(false);
     const [showWarning, setshowWarning] = React.useState<boolean>(false);
@@ -65,16 +69,29 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
 
     //#ToDo Swap Type to query
     React.useEffect(() => {
+        setSourceImpedanceStatus('loading');
         const filter = [
             { FieldName: "AssetLocationID", Operator: "IN", Type: "query", IsPivotColumn: false, SearchText: `(SELECT ID FROM AssetLocation WHERE AssetID=${props.ID})` }
         ] as Search.IFilter<OpenXDA.Types.SourceImpedance>[]
-        dispatch(SourceImpedanceSlice.DBSearch({ filter }))
-    }, [props.ID]);
 
-    React.useEffect(() => {
-        const sortedData = sortData(sortKey, ascending, sourceImpedances);
-        setData(sortedData);
-    }, [sourceImpedances]);
+        const handle = sourceImpedanceController.PagedSearch(filter, sortKey, ascending, page);
+
+        handle.done((d) => {
+            setSourceImpedances(JSON.parse(d.Data as unknown as string));
+            setTotalPages(d.NumberOfPages);
+            setTotalRecords(d.TotalRecords);
+            setRecordsPerPage(d.RecordsPerPage);
+            if (page >= d.NumberOfPages)
+                setPage(Math.max(d.NumberOfPages - 1, 0));
+            setSourceImpedanceStatus('idle');
+        })
+
+        handle.fail(() => setSourceImpedanceStatus('error'))
+
+        return () => {
+            if (handle != null && handle.abort != null) handle.abort();
+        }
+    }, [props.ID, sortKey, ascending, sourceImpedanceController, page, refreshTrigger]);
 
     React.useEffect(() => {
         const h = getAssetLocations(props.ID);
@@ -85,15 +102,6 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
         if (locationStatus == 'changed' || locationStatus == 'uninitiated')
             dispatch(LocationSlice.Fetch());
     }, [locationStatus])
-
-    React.useEffect(() => {
-        if (sourceImpedanceStatus == 'changed' || sourceImpedanceStatus == 'uninitiated') {
-            const filter = [
-                { FieldName: "AssetLocationID", Operator: "IN", Type: "query", IsPivotColumn: false, SearchText: `(SELECT ID FROM AssetLocation WHERE AssetID=${props.ID})` }
-            ] as Search.IFilter<OpenXDA.Types.SourceImpedance>[]
-            dispatch(SourceImpedanceSlice.DBSearch({ filter }))
-        }
-    }, [sourceImpedanceStatus])
 
     function getAssetLocations(assetID: number) {
         setALStatus('loading');
@@ -109,10 +117,6 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
         }).fail(() => {
             setALStatus('error');
         });
-    }
-
-    function sortData(key: keyof OpenXDA.Types.SourceImpedance, ascending: boolean, data: OpenXDA.Types.SourceImpedance[]) {
-        return _.orderBy(data, [key], [(ascending ? "asc" : "desc")]);
     }
 
     function getLocationName(si: OpenXDA.Types.SourceImpedance) {
@@ -169,25 +173,32 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
         <>
         <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="card-header">
-                <h4>Line Source Impedances:</h4>
-            </div>
-            <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="row">
+                    <h4>Line Source Impedances:</h4>
+                </div>
+                    <div className="row">
+                        <div className="col">
+                            <p style={{ marginTop: 2, marginBottom: 2 }}>
+                                {sourceImpedanceStatus === 'loading' ? 'Loading...' :
+                                        `Displaying Source Impedance(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + sourceImpedances.length} out of ${totalRecords}`}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div className="card-body d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
+                    <div className="row d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
                 <Table<OpenXDA.Types.SourceImpedance>
                     TableClass="table table-hover"
-                    Data={data}
+                    Data={sourceImpedances}
                     SortKey={sortKey}
                     Ascending={ascending}
                     OnSort={(d) => {
                         if (d.colKey == sortKey) {
                             setAscending(!ascending);
-                            const ordered = _.orderBy(data, [d.colKey], [(!ascending ? "asc" : "desc")]);
-                            setData(ordered);
                         }
                         else {
                             setAscending(true);
                             setSortKey(d.colKey as keyof OpenXDA.Types.SourceImpedance);
-                            const ordered = _.orderBy(data, [d.colKey], ["asc"]);
-                            setData(ordered);
                         }
                     }}
                     TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden', height: '100%'}}
@@ -248,6 +259,16 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
                     </Column>
                 </Table>
             </div>
+                    <div className="row">
+                        <div className="col">
+                            <Paging
+                                Total={totalPages}
+                                SetPage={(p) => setPage(p - 1)}
+                                Current={page + 1 }
+                            />
+                        </div>
+                    </div>
+            </div>
             <div className="card-footer">
                     <div className="btn-group mr-2">
                         <button className={"btn btn-info" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='Source'
@@ -260,13 +281,13 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
         </div>
 
             <Warning Show={showWarning} Title={'Remove Source Impedance'} Message={'This will permanently remove the Source Impedance and cannot be undone.'}
-                CallBack={(confirm) => { if (confirm) dispatch(SourceImpedanceSlice.DBAction({ verb: 'DELETE', record: newEditImpedance })); setshowWarning(false); }} />
+                CallBack={(confirm) => { if (confirm) sourceImpedanceController.DBAction('DELETE', newEditImpedance).then(() => setRefreshTrigger(val => !val)); setshowWarning(false); }} />
             <Modal Show={showAdd} Title={newEdit == 'New' ? 'Add New Source Impedance' : 'Edit Source Impedance at' + getLocationName(newEditImpedance)} Size={'lg'} ShowX={true}
                 CallBack={(confirm) => {
                     if (confirm && newEdit == 'Edit')
-                        dispatch(SourceImpedanceSlice.DBAction({ verb: 'PATCH', record: newEditImpedance }));
+                        sourceImpedanceController.DBAction('PATCH', newEditImpedance).then(() => setRefreshTrigger(val => !val));
                     if (confirm && newEdit == 'New')
-                        dispatch(SourceImpedanceSlice.DBAction({ verb: 'POST', record: newEditImpedance }));
+                        sourceImpedanceController.DBAction('POST', newEditImpedance).then(() => setRefreshTrigger(val => !val));
                     setShowAdd(false);
                 }}
                 CancelText={'Close'}
