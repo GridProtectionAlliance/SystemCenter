@@ -21,13 +21,12 @@
 //
 //******************************************************************************************************
 
-import { useAppDispatch, useAppSelector } from '../../hooks';
 import * as React from 'react';
-import { Modal } from '@gpa-gemstone/react-interactive';
+import { Modal, GenericController } from '@gpa-gemstone/react-interactive';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { IDataSourceScheduledEmailType, IScheduledDataSource, IScheduledEmailDataSourceSetting } from '../../global';
-import { ScheduledDataSourceSettingSlice, ScheduledDataSourceSlice, ScheduledEmailDataSourceSlice } from '../../Store';
 import { Select } from '@gpa-gemstone/react-forms';
+import { Application } from '@gpa-gemstone/application-typings';
 import SQLDataSource from './SQLDataSource';
 import AzureDataSource from './AzureDataSource';
 import { cloneDeep } from 'lodash';
@@ -43,30 +42,55 @@ interface IProps {
 
 
 const DataSourceModal = (props: IProps) => {
-    const dispatch = useAppDispatch();
-    const typeStatus = useAppSelector(ScheduledDataSourceSlice.Status);
-    const types: IScheduledDataSource[] = useAppSelector(ScheduledDataSourceSlice.Data);
+    const [typeStatus, setTypeStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [types, setTypes] = React.useState<IScheduledDataSource[]>([]);
     const [record, setRecord] = React.useState<IDataSourceScheduledEmailType>();
 
-    const originalsettings: IScheduledEmailDataSourceSetting[] = useAppSelector(ScheduledDataSourceSettingSlice.Data);
-    const settingStatus = useAppSelector(ScheduledDataSourceSettingSlice.Status);
-    const settingsParentID = useAppSelector(ScheduledDataSourceSettingSlice.ParentID);
+    const [originalsettings, setOriginalSettings] = React.useState<IScheduledEmailDataSourceSetting[]>([]);
+    const [settingStatus, setSettingStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [currentSettings, setCurrentSettings] = React.useState<IScheduledEmailDataSourceSetting[]>([]);
 
     const [errors, setErrors] = React.useState<string[]>([]);
     const [changes, setChanges] = React.useState<string[]>([]);
 
-      React.useEffect(() => {
-          if (typeStatus == 'uninitiated' || typeStatus == 'changed')
-              dispatch(ScheduledDataSourceSlice.Fetch());
-      }, [typeStatus]);
+    const scheduledDataSourceSettingController = React.useMemo(() => new GenericController<IScheduledEmailDataSourceSetting>(`${homePath}api/OpenXDA/ScheduledEmailDataSourceSetting`, "Name", false), [])
+    const dataSourceScheduledEmailTypeController = React.useMemo(() => new GenericController<IDataSourceScheduledEmailType>(`${homePath}api/OpenXDA/ScheduledEmailDataSourceEmailType`, "ScheduledEmailDataSourceName", false), []);
+    const scheduledDataSourceController = React.useMemo(() => new GenericController<IScheduledDataSource>(`${homePath}api/OpenXDA/ScheduledEmailDataSource`, "Name", false), []);
+
+    React.useEffect(() => {
+        const h = scheduledDataSourceController.Fetch();
+        setTypeStatus('loading');
+        h.done((d) => {
+            setTypeStatus('idle');
+            setTypes(d);
+        })
+        h.fail(() => setTypeStatus('error'))
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+    }, [scheduledDataSourceController.Fetch]);
 
     React.useEffect(() => {
         if (props.Record == null)
             return
-        if (settingStatus == 'uninitiated' || settingStatus == 'changed' || settingsParentID != props.Record.ID)
-            dispatch(ScheduledDataSourceSettingSlice.Fetch(props.Record.ID));
-    }, [settingStatus, props.Record]);
+
+        setSettingStatus('loading')
+        const h = scheduledDataSourceSettingController.Fetch(props.Record.ID);
+        
+        h.done((d) => {
+            setOriginalSettings(d)
+            setSettingStatus('idle')
+        });
+        h.fail(() => setSettingStatus('error'));
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+
+    }, [props.Record, scheduledDataSourceSettingController.Fetch]);
 
     React.useEffect(() => {
         if (props.Record == null)
@@ -172,11 +196,11 @@ const DataSourceModal = (props: IProps) => {
         <Modal Show={props.Show} Title={'Data Source'} ShowCancel={false} ShowX={true} ConfirmText={'Save'} Size={'lg'}
             CallBack={(c) => {
                 if (c && record.ID < 0) {
-                    dispatch(ScheduledEmailDataSourceSlice.DBAction({ verb: 'POST', record: { ...record, Settings: currentSettings.filter(s => s.Value != null) } }))
+                    dataSourceScheduledEmailTypeController.DBAction('POST',{ ...record, Settings: currentSettings.filter(s => s.Value != null) } )
                 }
                 if (c && record.ID >= 0) {
-                    dispatch(ScheduledEmailDataSourceSlice.DBAction({ verb: 'PATCH', record }))
-                    currentSettings.forEach((s) => { if (s.Value != null) dispatch(ScheduledDataSourceSettingSlice.DBAction({ verb: s.ID == 0 ? 'POST' : 'PATCH', record: s }));});
+                    dataSourceScheduledEmailTypeController.DBAction('PATCH', record )
+                    currentSettings.forEach((s) => { if (s.Value != null) scheduledDataSourceSettingController.DBAction( s.ID == 0 ? 'POST' : 'PATCH',  s );});
                 }
                 if (!c)
                     setCurrentSettings(originalsettings);

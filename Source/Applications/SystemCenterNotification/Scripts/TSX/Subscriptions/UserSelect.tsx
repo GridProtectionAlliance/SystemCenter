@@ -21,12 +21,10 @@
 //
 //******************************************************************************************************
 
-import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
-import { UserAccountSlice } from '../Store';
-import { Table, Column, Paging } from '@gpa-gemstone/react-table';
-import { SearchBar, Search } from '@gpa-gemstone/react-interactive'
 import { Application } from '@gpa-gemstone/application-typings'
+import { SearchBar, Search, GenericController } from '@gpa-gemstone/react-interactive'
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 
 declare var homePath;
 declare var version;
@@ -43,27 +41,44 @@ const defaultSearchcols: Search.IField<Application.Types.iUserAccount>[] = [
 ];
 
 const UserSelect = (props: IProps) => {
-    const dispatch = useAppDispatch();
-    const data = useAppSelector(UserAccountSlice.SearchResults);
-    const searchStatus = useAppSelector(UserAccountSlice.SearchStatus);
+    const [data, setData] = React.useState<Application.Types.iUserAccount[]>([]);
+    const [searchStatus, setSearchStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [sortField, setSortField] = React.useState<keyof Application.Types.iUserAccount>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
+    const [filters, setFilters] = React.useState<Search.IFilter<Application.Types.iUserAccount>[]>([]);
     const [page, setPage] = React.useState<number>(0);
-    const totalPages = useAppSelector(UserAccountSlice.TotalPages);
-    const totalRecords = useAppSelector(UserAccountSlice.TotalRecords);
-    const recordsPerPage = useAppSelector(UserAccountSlice.RecordsPerPage);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [totalRecords, setTotalRecords] = React.useState<number>(0);
+    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
+
+    const userAccountController = React.useMemo(() => new GenericController<Application.Types.iUserAccount>(`${homePath}api/OpenXDA/UserAccount`, "Name", true),[])
 
     React.useEffect(() => {
-        const filters = undefined // setting filter to undefined uses the filter set on the slice by default search.
-        dispatch(UserAccountSlice.PagedSearch({filter: filters, sortField: sortField, ascending: ascending, page: page}))
-    }, [sortField, ascending, page])
+        setSearchStatus('loading');
+
+        const h = userAccountController.PagedSearch(filters, sortField, ascending, page);
+
+        h.done((d) => {
+            setSearchStatus('idle');
+            setData(JSON.parse(d.Data));
+            setTotalPages(d.NumberOfPages);
+            setTotalRecords(d.TotalRecords);
+            setRecordsPerPage(d.RecordsPerPage);
+        })
+        h.fail(() => setSearchStatus('error'))
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+    }, [sortField, ascending, page, filters, userAccountController.PagedSearch])
 
     return (
         <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
             <div className="row">
                 <div className="col">
                     <SearchBar<Application.Types.iUserAccount> CollumnList={defaultSearchcols}
-                        SetFilter={(flds) => dispatch(UserAccountSlice.PagedSearch({ filter: flds }))}
+                        SetFilter={setFilters}
                         Direction={'left'} defaultCollumn={{ key: 'Name', label: 'Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
                         ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : `Displaying User(s) ${totalRecords > 0 ? recordsPerPage * page + 1 : 0}-${recordsPerPage * page + data.length} out of ${totalRecords}`}
                         GetEnum={() => {

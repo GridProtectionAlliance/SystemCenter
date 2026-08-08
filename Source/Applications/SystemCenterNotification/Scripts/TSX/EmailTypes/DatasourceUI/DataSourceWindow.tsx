@@ -23,13 +23,13 @@
 
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import * as React from 'react';
+import { Application } from '@gpa-gemstone/application-typings';
 import { EmailType, IDataSourceTriggeredEmailType } from '../../global';
-import { TriggeredEmailDataSourceSlice } from '../../Store';
 import DataSourceModal from './DataSourceModal';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import DataSourceTesting from './DataSourceTesting';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { Warning, Search } from '@gpa-gemstone/react-interactive';
+import { GenericController, Search, Warning } from '@gpa-gemstone/react-interactive';
 
 
 declare var homePath;
@@ -40,21 +40,35 @@ interface IProps { Record: EmailType}
 
 const DataSourceWindow = (props: IProps) => {
     const dispatch = useAppDispatch();
-    const status = useAppSelector(TriggeredEmailDataSourceSlice.Status);
-    const data = useAppSelector(TriggeredEmailDataSourceSlice.SearchResults);
-    const emailID = useAppSelector(TriggeredEmailDataSourceSlice.ParentID);
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [data, setData] = React.useState<IDataSourceTriggeredEmailType[]>([]);
     const [dataSource, setDataSource] = React.useState<null | IDataSourceTriggeredEmailType>(null);
     const [showTest, setShowTest] = React.useState<boolean>(false);
     const [showRemoveWarning, setShowRemoveWarning] = React.useState<boolean>(false);
     const [showDataSourceModal, setShowDataSourceModal] = React.useState<boolean>(false);
     const [page, setPage] = React.useState<number>(0);
-    const totalPages = useAppSelector(TriggeredEmailDataSourceSlice.TotalPages);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
     const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
+
+    const triggeredEmailDataSourceController = React.useMemo(() => new GenericController<IDataSourceTriggeredEmailType>(`${homePath}api/OpenXDA/TriggeredEmailDataSourceEmailType`, "TriggeredEmailDataSourceName", false),[])
 
     React.useEffect(() => {
         const filters: Search.IFilter<IDataSourceTriggeredEmailType>[] = [{ FieldName: "EmailTypeID", SearchText: props.Record.ID.toString(), Operator: "=", IsPivotColumn: false, Type: 'string' }]
-        dispatch(TriggeredEmailDataSourceSlice.PagedSearch({ filter: filters, sortField: 'TriggeredEmailDataSourceName', ascending: true, page: page}));
-    }, [status, props.Record.ID, emailID, dataSource, page, refreshTrigger]);
+        const h = triggeredEmailDataSourceController.PagedSearch(filters, 'TriggeredEmailDataSourceName', true, page);
+        setStatus('loading');
+
+        h.done((d) => {
+            setStatus('idle');
+            setData(JSON.parse(d.Data));
+            setTotalPages(d.NumberOfPages);
+        })
+        h.fail(() => setStatus('error'))
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+    }, [props.Record.ID, dataSource, page, refreshTrigger]);
 
     return (
         <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
@@ -162,9 +176,9 @@ const DataSourceWindow = (props: IProps) => {
             <Warning Show={showRemoveWarning} Title={'Remove Source'} Message={`Are you sure you want to remove this data source?`}
                 CallBack={(c) => {
                     if (c) 
-                        dispatch(TriggeredEmailDataSourceSlice.DBAction({
-                            verb: 'DELETE', record: dataSource
-                        })).then(() => setRefreshTrigger((val) => !val));
+                        triggeredEmailDataSourceController.DBAction(
+                            'DELETE', dataSource
+                        ).then(() => setRefreshTrigger((val) => !val));
                    setShowRemoveWarning(false);
                     
                 }}

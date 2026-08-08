@@ -21,16 +21,14 @@
 //
 //******************************************************************************************************
 
-import { useAppDispatch, useAppSelector } from '../hooks';
-import * as React from 'react';
-import { LoadingScreen, Search } from '@gpa-gemstone/react-interactive';
-import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { ScheduledEmailType, SubscribeScheduledEmails } from '../global';
-import { ReportSubscriptionSlice } from '../Store';
-import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import * as $ from 'jquery';
+import * as React from 'react';
 import { Application } from '@gpa-gemstone/application-typings';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { ToolTip } from '@gpa-gemstone/react-forms';
+import { GenericController, LoadingScreen, Search } from '@gpa-gemstone/react-interactive';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
+import { ScheduledEmailType, SubscribeScheduledEmails } from '../global';
 
 declare var homePath;
 declare var version;
@@ -39,23 +37,37 @@ interface IProps { Record: ScheduledEmailType }
 
 
 const Subscriptions = (props: IProps) => {
-    const dispatch = useAppDispatch();
 
-    const subscriptions = useAppSelector(ReportSubscriptionSlice.SearchResults);
-    const status = useAppSelector(ReportSubscriptionSlice.SearchStatus);
-    const parentID = useAppSelector(ReportSubscriptionSlice.ParentID);
+    const [subscriptions, setSubscriptions] = React.useState<SubscribeScheduledEmails[]>([]);
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [ascending, setAscending] = React.useState<boolean>(false);
     const [sortField, setSortField] = React.useState<keyof SubscribeScheduledEmails>('FirstName');
     const [page, setPage] = React.useState<number>(0);
-    const totalPages = useAppSelector(ReportSubscriptionSlice.TotalPages);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
     const [hover, setHover] = React.useState<string>('none');
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
 
     const [approvalStatus, setApprovalStatus] = React.useState<Application.Types.Status>('idle');
 
+    const reportSubscriptionController = React.useMemo(() => new GenericController<SubscribeScheduledEmails>(`${homePath}api/ReportSubscription`, 'Email'),[])
+
     React.useEffect(() => {
         const filters: Search.IFilter<SubscribeScheduledEmails>[] = [{FieldName: "ScheduledEmailID", IsPivotColumn: false, SearchText: props.Record.ID.toString(), Operator: "=", Type: 'string'}];
-        dispatch(ReportSubscriptionSlice.PagedSearch({filter: filters, sortField: sortField, ascending: ascending, page: page}))
-    }, [props.Record, parentID, ascending, sortField, page])
+        const h = reportSubscriptionController.PagedSearch(filters, sortField, ascending, page);
+
+        h.done((d) => {
+            setSubscriptions(JSON.parse(d.Data));
+            setTotalPages(d.NumberOfPages);
+            setStatus('idle')
+        })
+        h.fail(() => setStatus('error'))
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+
+    }, [props.Record.ID, ascending, sortField, page, refreshTrigger])
 
     function approve(record: SubscribeScheduledEmails) {
         setApprovalStatus('loading')
@@ -67,7 +79,7 @@ const Subscriptions = (props: IProps) => {
             async: true
         }).then((d) => {
             setApprovalStatus('idle');
-            dispatch(ReportSubscriptionSlice.Fetch(props.Record.ID))
+            setRefreshTrigger(val => !val);
         }, () => { setApprovalStatus('error'); });
     }
 
@@ -83,7 +95,7 @@ const Subscriptions = (props: IProps) => {
 
         Promise.all(handles).then((d) => {
             setApprovalStatus('idle');
-            dispatch(ReportSubscriptionSlice.Fetch(props.Record.ID));
+            setRefreshTrigger(val => !val);
         }, () => { setApprovalStatus('error'); });
     }
 

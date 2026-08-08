@@ -21,12 +21,12 @@
 //
 //******************************************************************************************************
 
-import { useAppDispatch, useAppSelector } from '../hooks';
+import * as $ from 'jquery'
 import * as React from 'react';
-import { LoadingScreen, TabSelector, Warning } from '@gpa-gemstone/react-interactive';
+import { LoadingScreen, TabSelector, Warning, GenericController } from '@gpa-gemstone/react-interactive';
 import { Application } from '@gpa-gemstone/application-typings';
-import { EmailCategorySlice } from '../Store';
 import EmailCategoryWindow from './EmailCategoryWindow';
+import { EmailCategory } from '../global';
 import EmailList from './EmailList';
 
 interface IProps { useParams: { id: string } }
@@ -39,12 +39,11 @@ const Tabs = [
 
 
 const EmailCategoryPage = (props: IProps) => {
-    const dispatch = useAppDispatch();
-
+    const emailCategoryController = React.useMemo(() => new GenericController<EmailCategory>(`${homePath}api/OpenXDA/EmailCategory`, "Name", true), []);
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
 
-    const category = useAppSelector((state) => EmailCategorySlice.Datum(state, parseInt(props.useParams.id)));
-    const status: Application.Types.Status = useAppSelector(EmailCategorySlice.Status);
+    const [category, setCategory] = React.useState<EmailCategory | null>(null); 
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 
     const getTab = React.useCallback(() => {
         if (sessionStorage.hasOwnProperty('EmailCategory.Tab'))
@@ -55,15 +54,33 @@ const EmailCategoryPage = (props: IProps) => {
     const [tab, setTab] = React.useState<Tab>(getTab());
 
     React.useEffect(() => {
-        if (status == 'uninitiated' || status == 'changed')
-            dispatch(EmailCategorySlice.Fetch());
-    }, [status]);
-
-    React.useEffect(() => {
         const saved = getTab();
         if (saved !== tab)
             sessionStorage.setItem('EmailCategory.Tab', JSON.stringify(tab));
     }, [tab]);
+
+    React.useEffect(() => {
+        setStatus('loading')
+        const h = $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/EmailCategory/One/${props.useParams.id}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true
+        })
+        h.done((d) => {
+            setCategory(d);
+            setStatus('idle')
+        })
+        h.fail(() => {
+            setStatus('error')
+        })
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+    }, [props.useParams.id])
 
     return (
         <div className="container-fluid d-flex h-100 flex-column">
@@ -104,7 +121,7 @@ const EmailCategoryPage = (props: IProps) => {
                     Title={`Delete ${category?.Name ?? 'Email Category'}`}
                     CallBack={(conf) => {
                         if (conf) {
-                            dispatch(EmailCategorySlice.DBAction({ verb: 'DELETE', record: category }));
+                            emailCategoryController.DBAction('DELETE',category);
                             window.location.href = `${homePath}/Categories`;
                         }
                         setShowDelete(false);

@@ -21,14 +21,12 @@
 //
 //******************************************************************************************************
 
-import { Select } from '@gpa-gemstone/react-forms';
-import { GenericController, LoadingIcon } from '@gpa-gemstone/react-interactive';
 import * as $ from 'jquery';
 import * as React from 'react';
-import { EmailTypeSlice } from '../../Store';
-import { EmailCategory, EmailType } from '../../global';
-import { useAppDispatch, useAppSelector } from '../../hooks';
 import { Application } from '@gpa-gemstone/application-typings';
+import { Select } from '@gpa-gemstone/react-forms';
+import { GenericController, LoadingIcon } from '@gpa-gemstone/react-interactive';
+import { EmailCategory, EmailType } from '../../global';
 
 
 const emptyEmailType: EmailType = {
@@ -54,17 +52,17 @@ interface IProps {
 }
 
 const EmailSelect = (props: IProps) => {
-    const dispatch = useAppDispatch();
 
     const [emailCategories, setEmailCategories] = React.useState<EmailCategory[]>([]);
     const [emailCategoryStatus, setEmailCategoryStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [selectedCategory, setSelectedCategory] = React.useState<EmailCategory>(emptyCategory);
 
-    const emailTypeStatus = useAppSelector(EmailTypeSlice.Status);
-    const emailTypes = useAppSelector(EmailTypeSlice.Data);
-    const emailTypeParentID = useAppSelector(EmailTypeSlice.ParentID);
+    const [emailTypeStatus, setEmailTypeStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [emailTypes, setEmailTypes] = React.useState<EmailType[]>([]);
 
     const [selectedEmailType, setSelectedEmailType] = React.useState<EmailType>(emptyEmailType);
+
+    const emailTypeController = React.useMemo(() => new GenericController<EmailType>(`${homePath}api/OpenXDA/EmailType`, "Name", true), []);
 
     React.useEffect(() => {
         setEmailCategoryStatus('loading')
@@ -95,9 +93,19 @@ const EmailSelect = (props: IProps) => {
     }, [emailCategories]);
 
     React.useEffect(() => {
-        if (selectedCategory.ID != emailTypeParentID || emailTypeStatus == 'uninitiated' || emailTypeStatus == 'changed')
-            dispatch(EmailTypeSlice.Fetch(selectedCategory.ID));
-    }, [selectedCategory, emailTypeParentID, emailTypeStatus])
+        setEmailTypeStatus('loading');
+        const h = emailTypeController.Fetch(selectedCategory.ID);
+        h.done((d) => {
+            setEmailTypes(d);
+            setEmailTypeStatus('idle');
+        });
+        h.fail(() => setEmailTypeStatus('error'));
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+    }, [selectedCategory.ID, emailTypeController.Fetch])
 
     React.useEffect(() => {
         if (emailTypes.filter(e => e.ShowSubscription).length > 0)
