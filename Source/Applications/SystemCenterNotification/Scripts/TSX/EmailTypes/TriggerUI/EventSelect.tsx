@@ -54,7 +54,6 @@ const EventSelect = (props: IProps) => {
 
     React.useEffect(() => { props.SetStatus(suceeded, loading); }, [loading, suceeded])
     React.useEffect(() => {
-
         // Shortest possible is SELECT 1 which is 8 Characters
         if (props.TriggerSQL == null || props.TriggerSQL.length < 8) {
             setLoading(false);
@@ -120,7 +119,7 @@ const EventSelect = (props: IProps) => {
                                             tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
                                         }}
                                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                                        TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
                                         RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
                                         Selected={(item) => item.EventID == props.SelectedEventID }
                                         KeySelector={(item, index) => index }

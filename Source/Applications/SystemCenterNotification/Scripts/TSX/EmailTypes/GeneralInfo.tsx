@@ -21,32 +21,47 @@
 //
 //******************************************************************************************************
 
-import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
-import { ToolTip } from '@gpa-gemstone/react-forms';
+import { Application } from '@gpa-gemstone/application-typings';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import {  EmailType } from '../global';
-import {  EmailTypeSlice } from '../Store';
 import { IsNumber } from '@gpa-gemstone/helper-functions';
+import { GenericController } from '@gpa-gemstone/react-interactive';
+import { ToolTip } from '@gpa-gemstone/react-forms';
+import {  EmailType } from '../global';
 import EmailForm from './EmailForm';
 
 declare var homePath;
 declare var version;
 
-interface IProps { Record: EmailType}
+interface IProps { Record: EmailType }
 
-
+const emailTypeController = new GenericController<EmailType>(`${homePath}api/OpenXDA/EmailType`, "Name", true);
 
 const GeneralInfo = (props: IProps) => {
-    const dispatch = useAppDispatch();
 
     const [email, setEmail] = React.useState<EmailType>(props.Record);
     const [hasChanged, setHasChanged] = React.useState<boolean>(false);
     const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
 
-    const allEmails = useAppSelector(EmailTypeSlice.Data);
+    const [allEmails, setAllEmails] = React.useState<EmailType[]>([]);
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 
     const [errors, setErrors] = React.useState<string[]>([]);
+
+    React.useEffect(() => {
+        setStatus('loading')
+        const h = emailTypeController.Fetch();
+        h.done((d) => {
+            setAllEmails(d)
+            setStatus('idle')
+        });
+        h.fail(() => setStatus('error'));
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+    }, []);
 
     React.useEffect(() => {
         let e = [];
@@ -109,7 +124,7 @@ const GeneralInfo = (props: IProps) => {
                     <div className="card-footer">
                         <div className="btn-group mr-2">
                             <button className={"btn btn-primary" + (errors.length == 0 && hasChanged ? '' : ' disabled')} type="submit"
-                                onClick={() => { if (errors.length == 0 && hasChanged) dispatch(EmailTypeSlice.DBAction({ verb: 'PATCH', record: email })); }}
+                                onClick={() => { if (errors.length == 0 && hasChanged) emailTypeController.DBAction('PATCH', email); }}
                                 data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
                         </div>
                         <div className="btn-group mr-2">
