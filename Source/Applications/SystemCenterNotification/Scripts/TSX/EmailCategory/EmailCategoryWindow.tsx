@@ -21,28 +21,45 @@
 //
 //******************************************************************************************************
 
-import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
-import { Warning } from '@gpa-gemstone/react-interactive';
+import { Warning, GenericController } from '@gpa-gemstone/react-interactive';
 import { ToolTip } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { EmailCategory } from '../global';
-import { EmailCategorySlice } from '../Store';
 import EmailCategoryForm from './EmailCategoryForm';
+import { Application } from '@gpa-gemstone/application-typings';
 
 interface IProps { Category: EmailCategory }
 
 
+const emailCategoryController = new GenericController<EmailCategory>(`${homePath}api/OpenXDA/EmailCategory`, "Name", true);
+
 const EmailCategoryWindow = (props: IProps) => {
-    const dispatch = useAppDispatch();
 
     const [category, setCategory] = React.useState<EmailCategory>(props.Category);
     const [hasChanged, setHasChanged] = React.useState<boolean>(false);
     const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
 
-    const categories = useAppSelector(EmailCategorySlice.Data);
+    const [categories, setCategories] = React.useState<EmailCategory[]>([])
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 
     const [errors, setErrors] = React.useState<string[]>([]);
+
+    React.useEffect(() => {
+        setStatus('loading')
+        const h = emailCategoryController.Fetch();
+        h.done((d) => {
+            setCategories(d)
+            setStatus('idle')
+        });
+        h.fail(() => setStatus('error'));
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+
+    }, []);
 
     React.useEffect(() => {
         let e = [];
@@ -78,7 +95,7 @@ const EmailCategoryWindow = (props: IProps) => {
                     <div className="card-footer">
                         <div className="btn-group mr-2">
                             <button className={"btn btn-primary" + (errors.length == 0 && hasChanged ? '' : ' disabled')} type="submit"
-                                onClick={() => { if (errors.length == 0 && hasChanged) dispatch(EmailCategorySlice.DBAction({ verb: 'PATCH', record: category })); }}
+                                onClick={() => { if (errors.length == 0 && hasChanged) emailCategoryController.DBAction('PATCH',category); }}
                                 data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
                         </div>
                         <div className="btn-group mr-2">
