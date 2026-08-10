@@ -21,18 +21,21 @@
 //
 //******************************************************************************************************
 
+import * as $ from 'jquery';
 import * as React from 'react';
+import { Application } from '@gpa-gemstone/application-typings';
 import { ProgressBar } from '@gpa-gemstone/react-interactive';
 import { ToolTip } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import EmailSelect from './EmailSelect';
+import { useAppSelector } from '../../hooks';
+import { EmailType } from '../../global';
+import { UserInfoSlice } from '../../Store';
 import AssetGroupSelection from '../AssetGroupSelection';
+import ConfirmPhoneCarrier from '../ConfirmCarrier';
 import ConfirmEmail from '../ConfirmEmail';
 import ConfirmPhone from '../ConfirmPhone';
-import { EmailTypeSlice, UserInfoSlice } from '../../Store';
-import { useAppSelector } from '../../hooks';
+import EmailSelect from './EmailSelect';
 import Success from './Success';
-import ConfirmPhoneCarrier from '../ConfirmCarrier';
 
 declare var homePath;
 declare var version;
@@ -47,9 +50,34 @@ const NewEventSubscription = (props: {}) => {
 
     const [emailTypeID, setEmailTypeID] = React.useState<number>(-1);
     const [assetGroupID, setAssetGroupID] = React.useState<number[]>([]);
-    const isText = useAppSelector((state) => (EmailTypeSlice.Datum(state, emailTypeID) == null ? false : EmailTypeSlice.Datum(state, emailTypeID).SMS));
+    const [isText, setIsText] = React.useState<boolean>(false);
+    const [emailTypeStatus, setEmailTypeStatus] = React.useState<Application.Types.Status>('uninitiated');
 
     const carrierID = useAppSelector(UserInfoSlice.CellCarrierID);
+
+    React.useEffect(() => {
+        if (emailTypeID < 0) return
+        setEmailTypeStatus('loading')
+        const h = $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/EmailType/One/${emailTypeID}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true
+        })
+        h.done((d) => {
+            setIsText(d.SMS);
+            setEmailTypeStatus('idle');
+        });
+        h.fail(() => setEmailTypeStatus('error'));
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+
+    }, [emailTypeID])
 
     const PhoneSteps = [
         { short: 'Notification', long: 'Select Notification', id: 'Selection' },
@@ -118,13 +146,11 @@ const NewEventSubscription = (props: {}) => {
             setCurrentStep('Selection');
     }
 
-
     function disableNext(): boolean {
         if (currentStep == 'Selection' || currentStep == 'Carrier') 
             return error.length > 0
         return true;
     }
-
 
     return (
         <div className="container-fluid d-flex h-100 flex-column">
