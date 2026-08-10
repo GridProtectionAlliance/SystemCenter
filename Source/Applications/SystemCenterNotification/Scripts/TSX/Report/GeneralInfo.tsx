@@ -21,13 +21,13 @@
 //
 //******************************************************************************************************
 
-import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
-import { ToolTip } from '@gpa-gemstone/react-forms';
+import { Application } from '@gpa-gemstone/application-typings';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { ScheduledEmailType } from '../global';
-import { ScheduledEmailTypeSlice } from '../Store';
 import { IsCron } from '@gpa-gemstone/helper-functions';
+import { ToolTip } from '@gpa-gemstone/react-forms';
+import { GenericController } from '@gpa-gemstone/react-interactive';
+import { ScheduledEmailType } from '../global';
 import ReportForm from './ReportForm';
 
 declare var homePath;
@@ -35,23 +35,40 @@ declare var version;
 
 interface IProps { Record: ScheduledEmailType }
 
+const scheduledEmailTypeController = new GenericController<ScheduledEmailType>(`${homePath}api/OpenXDA/ScheduledEmailType`, "Name", true);
 
 const GeneralInfo = (props: IProps) => {
-    const dispatch = useAppDispatch();
 
     const [email, setEmail] = React.useState<ScheduledEmailType>(props.Record);
     const [hasChanged, setHasChanged] = React.useState<boolean>(false);
     const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
 
-    const allEmails = useAppSelector(ScheduledEmailTypeSlice.Data);
+    const [scheduledEmails, setScheduledEmails] = React.useState<ScheduledEmailType[]>([]);
+    const [scheduledEmailStatus, setScheduledEmailStatus] = React.useState<Application.Types.Status>('uninitiated');
 
     const [errors, setErrors] = React.useState<string[]>([]);
+
+    React.useEffect(() => {
+        setScheduledEmailStatus('loading')
+        const h = scheduledEmailTypeController.Fetch();
+        h.done((d) => {
+            setScheduledEmails(d)
+            setScheduledEmailStatus('idle')
+        });
+        h.fail(() => setScheduledEmailStatus('error'));
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+
+    }, []);
 
     React.useEffect(() => {
         let e = [];
         if (email.Name == undefined || email.Name.length < 1)
             e.push('A Name is required');
-        if (allEmails.findIndex(s => s.Name === email.Name && s.ID !== email.ID) >= 0)
+        if (scheduledEmails.findIndex(s => s.Name === email.Name && s.ID !== email.ID) >= 0)
             e.push('An Email with this Name already exists');
         if (email.EmailCategoryID < 0)
             e.push('A Category must be selected.');
@@ -98,7 +115,7 @@ const GeneralInfo = (props: IProps) => {
                             <button className={"btn btn-primary" + (errors.length == 0 && hasChanged ? '' : ' disabled')} type="submit"
                                 onClick={() => {
                                     if (errors.length == 0 && hasChanged) {
-                                        dispatch(ScheduledEmailTypeSlice.DBAction({ verb: 'PATCH', record: email }));
+                                       scheduledEmailTypeController.DBAction('PATCH', email);
                                     }
                                 }}
                                 data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>

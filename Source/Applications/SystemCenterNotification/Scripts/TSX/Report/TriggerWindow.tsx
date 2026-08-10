@@ -21,12 +21,11 @@
 //
 //******************************************************************************************************
 
-import { useAppDispatch } from '../hooks';
 import * as React from 'react';
 import { TextArea, ToolTip } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { ScheduledEmailType } from '../global';
-import { ScheduledEmailTypeSlice } from '../Store';
+import { GenericController } from '@gpa-gemstone/react-interactive';
 import moment from 'moment';
 
 declare var homePath;
@@ -37,7 +36,6 @@ interface IProps { Record: ScheduledEmailType }
 
 
 const TriggerWindow = (props: IProps) => {
-    const dispatch = useAppDispatch();
 
     const [email, setEmail] = React.useState<ScheduledEmailType>(props.Record);
     const [hasChanged, setHasChanged] = React.useState<boolean>(false);
@@ -114,7 +112,7 @@ const TriggerWindow = (props: IProps) => {
                                 type="submit"
                                 onClick={() => {
                                     if ((triggerStatus == 'valid' || triggerStatus == 'idle') && hasChanged)
-                                        dispatch(ScheduledEmailTypeSlice.DBAction({ verb: 'PATCH', record: email }));
+                                        new GenericController<ScheduledEmailType>(`${homePath}api/OpenXDA/ScheduledEmailType`, "Name", true).DBAction('PATCH', email);
                                 }}
                                 data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
                         </div>

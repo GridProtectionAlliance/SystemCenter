@@ -21,13 +21,11 @@
 //
 //******************************************************************************************************
 
-import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
-import { LoadingScreen, Modal, Search, SearchBar } from '@gpa-gemstone/react-interactive'
+import { LoadingScreen, Modal, Search, SearchBar, GenericController } from '@gpa-gemstone/react-interactive'
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
-import { ScheduledEmailType } from '../global';
-import { EmailCategorySlice, ScheduledEmailTypeSlice } from '../Store';
+import { ScheduledEmailType, EmailCategory } from '../global';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { IsCron } from '@gpa-gemstone/helper-functions';
 import ReportForm from './ReportForm';
@@ -47,20 +45,19 @@ const emptyEmail: ScheduledEmailType = {
     FilePath: ''
 };
 
-interface IProps {}
+interface IProps { }
+
+const scheduledEmailTypeController = new GenericController<ScheduledEmailType>(`${homePath}api/OpenXDA/ScheduledEmailType`, "Name", true);
 
 const ByReport = (props: IProps) => {
-    const dispatch = useAppDispatch();
     const navigate = useNavigate();
-
-    const search: Search.IFilter<ScheduledEmailType>[] = useAppSelector(ScheduledEmailTypeSlice.SearchFilters);
-    const status: Application.Types.Status = useAppSelector(ScheduledEmailTypeSlice.Status);
-    const searchStatus: Application.Types.Status = useAppSelector(ScheduledEmailTypeSlice.SearchStatus);
-    const data: ScheduledEmailType[] = useAppSelector(ScheduledEmailTypeSlice.SearchResults);
-    const allData: ScheduledEmailType[] = useAppSelector(ScheduledEmailTypeSlice.Data);
-    const categoryStatus = useAppSelector(EmailCategorySlice.Status);
-    const categories = useAppSelector(EmailCategorySlice.Data);
-    const parentID = useAppSelector(ScheduledEmailTypeSlice.ParentID);
+    const [filters, setFilters] = React.useState<Search.IFilter<ScheduledEmailType>[]>([]) 
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [searchStatus, setSearchStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [data, setData] = React.useState<ScheduledEmailType[]>([]);
+    const [allData, setAllData] = React.useState<ScheduledEmailType[]>([]);
+    const [categoryStatus, setCategoryStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [categories, setCategories] = React.useState<EmailCategory[]>([]);
 
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [errors, setErrors] = React.useState<string[]>([]);
@@ -71,24 +68,57 @@ const ByReport = (props: IProps) => {
     const [ascending, setAscending] = React.useState<boolean>(false);
 
     const [page, setPage] = React.useState<number>(0);
-    const totalPages = useAppSelector(ScheduledEmailTypeSlice.TotalPages);
-    const totalRecords = useAppSelector(ScheduledEmailTypeSlice.TotalRecords);
-    const recordsPerPage = useAppSelector(ScheduledEmailTypeSlice.RecordsPerPage);
-
+    const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [totalRecords, setTotalRecords] = React.useState<number>(0);
+    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
     const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
 
     React.useEffect(() => {
-        if (categoryStatus == 'uninitiated' || categoryStatus == 'changed')
-            dispatch(EmailCategorySlice.Fetch());
+        setCategoryStatus('loading')
+        const h = new GenericController<EmailCategory>(`${homePath}api/OpenXDA/EmailCategory`, "Name", true).Fetch();
+        h.done((d) => {
+            setCategories(d)
+            setCategoryStatus('idle')
+        });
+        h.fail(() => setCategoryStatus('error'));
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+
     }, []);
 
     React.useEffect(() => {
-        dispatch(ScheduledEmailTypeSlice.Fetch());
-    }, [parentID, refreshTrigger]);
+        setStatus('uninitiated')
+        const h = scheduledEmailTypeController.Fetch();
+        h.done((d) => {
+            setAllData(d)
+            setStatus('idle')
+        });
+        h.fail(() => setStatus('error'))
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+    }, [refreshTrigger]);
 
     React.useEffect(() => {
-        dispatch(ScheduledEmailTypeSlice.PagedSearch({ filter: undefined, sortField, ascending: ascending, page: page }));
-    }, [sortField, ascending, page, refreshTrigger])
+        setSearchStatus('loading')
+        const h = scheduledEmailTypeController.PagedSearch(filters, sortField, ascending, page);
+        h.done((d) => {
+            setData(JSON.parse(d.Data as unknown as string))
+            setTotalPages(d.NumberOfPages);
+            setRecordsPerPage(d.RecordsPerPage);
+            setTotalRecords(d.TotalRecords);
+            setSearchStatus('idle');
+        });
+        h.fail(() => setSearchStatus('error'))
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+    }, [sortField, filters, ascending, page, refreshTrigger])
 
     React.useEffect(() => {
         let e = [];
@@ -122,7 +152,7 @@ const ByReport = (props: IProps) => {
             <div className="row">
                 <div className="col">
                     <SearchBar<ScheduledEmailType> CollumnList={searchFields}
-                        SetFilter={(flds) => dispatch(ScheduledEmailTypeSlice.PagedSearch({ filter: flds }))}
+                        SetFilter={setFilters}
                         Direction={'left'} defaultCollumn={{ key: 'Name', label: 'Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
                         ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : `Displaying Report(s) ${totalRecords > 0 ? recordsPerPage * page + 1 : 0}-${recordsPerPage * page + data.length} out of ${totalRecords}`}
                         GetEnum={() => {
@@ -228,7 +258,7 @@ const ByReport = (props: IProps) => {
                 Show={showModal} ShowX={true} Size={'lg'} ShowCancel={false} ConfirmText={'Add'}
                 CallBack={(conf, isBtn) => {
                     if (conf)
-                        dispatch(ScheduledEmailTypeSlice.DBAction({ verb: "POST", record: newEmail })).then(() => setRefreshTrigger((val) => !val))
+                        scheduledEmailTypeController.DBAction("POST", newEmail).then(() => setRefreshTrigger((val) => !val))
                     setShowModal(false);
                 }}
                 DisableConfirm={errors.length > 0}
