@@ -71,7 +71,7 @@ namespace SystemCenter.Controllers.OpenXDA
             if (!GetAuthCheck())
                 return Unauthorized();
 
-            int recordsPerPage = Take ?? 50;
+            int recordsPerPage = PageSize ?? 50;
 
             PagedResults results = new PagedResults();
 
@@ -164,7 +164,7 @@ namespace SystemCenter.Controllers.OpenXDA
                 {
                     try
                     {
-                        int recordsPerPage = Take ?? 50;
+                        int recordsPerPage = PageSize ?? 50;
 
                         string[] sortFields = { "AssetKey", "Name", "Make", "Model" };
 
@@ -204,7 +204,7 @@ namespace SystemCenter.Controllers.OpenXDA
                 {
                     try
                     {
-                        int recordsPerPage = Take ?? 50;
+                        int recordsPerPage = PageSize ?? 50;
 
                         string[] sortFields = { "AssetName", "AssetKey", "Name" };
 

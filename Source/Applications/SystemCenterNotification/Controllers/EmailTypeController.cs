@@ -440,7 +440,7 @@ namespace SystemCenter.Notifications.Controllers
         public IHttpActionResult SentEmailTimelinePaged([FromBody] PostData postData, [FromUri] int sentEmailID, [FromUri] int page)
         {
             PagedResults pagedResults = new PagedResults();
-            int recordsPerPage = Take ?? 50;
+            int recordsPerPage = PageSize ?? 50;
 
             List<TimelineItem> timeline = GetEmailTimeline(postData, sentEmailID);
             int totalRecords = timeline.Count;

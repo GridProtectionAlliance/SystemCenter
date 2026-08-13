@@ -633,7 +633,7 @@ namespace SystemCenter.Controllers
             {
                 string orderByExpression = DefaultSort;
 
-                int recordsPerPage = Take ?? 50;
+                int recordsPerPage = PageSize ?? 50;
 
                 if (sort != null && sort != string.Empty)
                     orderByExpression = $"{sort} {(ascending == 1 ? "ASC" : "DESC")}";

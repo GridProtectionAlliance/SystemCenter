@@ -30,7 +30,7 @@ using openXDA.Model;
 
 namespace SystemCenter.Model
 {
-    [TableName("Node"), ReturnLimit(50),
+    [TableName("Node"),
      CustomView(@"
     SELECT 
 	    Node.ID,
