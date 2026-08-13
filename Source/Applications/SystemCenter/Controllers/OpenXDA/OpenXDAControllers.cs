@@ -111,7 +111,7 @@ namespace SystemCenter.Controllers.OpenXDA
             if (!GetAuthCheck())
                 return Unauthorized();
 
-            int recordsPerPage = Take ?? 50;
+            int recordsPerPage = PageSize ?? 50;
 
             List<object> param = new();
 

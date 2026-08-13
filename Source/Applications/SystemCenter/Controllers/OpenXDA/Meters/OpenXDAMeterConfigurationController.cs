@@ -45,7 +45,7 @@ namespace SystemCenter.Controllers.OpenXDA
         [HttpGet, Route("Meter/{meterID:int}/{page:int}")]
         public IHttpActionResult GetMeterConfigurationsForMeter(int meterID, int page)
         {
-            int recordsPerPage = 50;
+            int recordsPerPage = PageSize ?? 50;
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
@@ -93,7 +93,7 @@ namespace SystemCenter.Controllers.OpenXDA
         [HttpGet, Route("{meterConfigurationID:int}/FilesProcessed/{page:int}")]
         public IHttpActionResult GetFilesProcessedForMeterConfigurations(int meterConfigurationID, int page)
         {
-            int recordsPerPage = 50;
+            int recordsPerPage = PageSize ?? 50;
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
