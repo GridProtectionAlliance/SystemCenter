@@ -39,6 +39,7 @@ using System.Web.Http;
 using GSF.Data;
 using GSF.Data.Model;
 using GSF.Web.Model;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using openXDA.Model;
 using SystemCenter.Model;
@@ -57,8 +58,8 @@ namespace SystemCenter.Controllers.OpenXDA
 
         }
      
-        [HttpGet, Route("{assetGroupID:int}/Assets")]
-        public IHttpActionResult GetAssets(int assetGroupID)
+        [HttpPost, Route("{assetGroupID:int}/Assets/{page:int}")]
+        public IHttpActionResult GetAssets([FromBody] PostData postData, [FromUri] int assetGroupID, [FromUri] int page)
         {
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
@@ -66,7 +67,9 @@ namespace SystemCenter.Controllers.OpenXDA
                 {
                     try
                     {
-                        string sql = @"SELECT   
+                        int recordsPerPage = PageSize ?? 50;
+
+                        string sql = @$"SELECT   
                             DISTINCT
                                 Asset.ID,
                                 AssetAssetGroup.AssetGroupID,
@@ -91,9 +94,30 @@ namespace SystemCenter.Controllers.OpenXDA
                                 Asset.VoltageKV,
                                 AssetType.Name,
                                 AssetAssetGroup.AssetGroupID
-                            HAVING AssetAssetGroup.AssetGroupID = {0}";
+                            HAVING AssetAssetGroup.AssetGroupID = {{0}}
+                            ORDER BY {postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")}
+                            OFFSET {recordsPerPage * page} ROWS
+                            FETCH NEXT {recordsPerPage} ROWS ONLY
+                            ";
 
-                        return Ok(connection.RetrieveData(sql,assetGroupID));
+                        string countSql = @"SELECT   
+                                COUNT(DISTINCT AssetID)
+                            FROM
+                               AssetAssetGroup
+                            WHERE
+                               AssetGroupID = {0}";
+
+                        int count = connection.ExecuteScalar<int>(countSql, assetGroupID);
+
+                        DataTable results = connection.RetrieveData(sql, assetGroupID);
+
+                        return Ok(new PagedResults()
+                        {
+                            Data = JsonConvert.SerializeObject(results),
+                            NumberOfPages = (count + recordsPerPage - 1) / recordsPerPage,
+                            TotalRecords = count,
+                            RecordsPerPage = recordsPerPage
+                        });
                     }
                     catch (Exception ex)
                     {
