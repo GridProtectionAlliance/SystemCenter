@@ -686,8 +686,8 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
 
-        [HttpGet, Route("{assetID:int}/ConnectedChannels")]
-        public IHttpActionResult GetAssetChannels(int assetID)
+        [HttpPost, Route("{assetID:int}/ConnectedChannels/{page:int}")]
+        public IHttpActionResult GetAssetChannels([FromBody] PostData postData, [FromUri] int assetID, [FromUri] int page)
         {
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
@@ -695,6 +695,8 @@ namespace SystemCenter.Controllers.OpenXDA
                 {
                     using (AdoDataConnection connection = new AdoDataConnection(Connection))
                     {
+                        int recordsPerPage = PageSize ?? 50;
+
                         Asset asset = new TableOperations<Asset>(connection).QueryRecordWhere("ID={0}", assetID);
                         if (asset is null)
                             throw (new Exception($"Asset ID={assetID} not found in OpenXDA database"));
@@ -706,17 +708,43 @@ namespace SystemCenter.Controllers.OpenXDA
 
                         if (connectedChannels.Count > 0)
                         {
-                            TableOperations<ChannelDetail> tableOp = new TableOperations<ChannelDetail>(connection);
-                            // Channels get triplicated from Series Type ID in ChannelDetail View
-                            IEnumerable<ChannelDetail> uniqueChannels = new TableOperations<ChannelDetail>(connection)
-                            .QueryRecordsWhere($"ID in ({string.Join(", ", connectedChannels.Select(channels => channels.ID))})")
-                            .DistinctBy(c => c.ID);
 
-                            return Ok(uniqueChannels);
+                            string countSql = $@"
+                                SELECT COUNT(*)
+                                FROM ChannelDetail
+                                WHERE ID in ({string.Join(", ", connectedChannels.Select(channels => channels.ID))})
+                            ";
+
+                            string sql = @$"
+                                SELECT *
+                                FROM ChannelDetail
+                                WHERE ID in ({string.Join(", ", connectedChannels.Select(channels => channels.ID))})
+                                ORDER BY {postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")}
+                                OFFSET {page * recordsPerPage} ROWS
+                                FETCH NEXT {recordsPerPage} ROWS ONLY
+                            ";
+
+                            int count = connection.ExecuteScalar<int>(countSql);
+
+                            DataTable results = connection.RetrieveData(sql);
+
+                            return Ok(new PagedResults()
+                            {
+                                Data = JsonConvert.SerializeObject(results),
+                                RecordsPerPage = recordsPerPage,
+                                TotalRecords = count,
+                                NumberOfPages = (count + recordsPerPage - 1) / recordsPerPage
+                            });
                         }
                         else
                         {
-                            return Ok(new List<ChannelDetail>());
+                            return Ok(new PagedResults()
+                            {
+                                Data = JsonConvert.SerializeObject(new List<string>()), // just return an empty list
+                                RecordsPerPage = recordsPerPage,
+                                TotalRecords = 0,
+                                NumberOfPages = 0
+                            });
                         }
                     }
                 } catch (Exception ex)
