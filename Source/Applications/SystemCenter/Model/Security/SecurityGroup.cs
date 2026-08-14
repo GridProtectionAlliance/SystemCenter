@@ -107,9 +107,9 @@ namespace SystemCenter.Model.Security
             if (!GetAuthCheck())
                 return Unauthorized();
 
-            String[] sortFields = { "Phone", "Email", "FirstName", "LastName", "AccountName" };
-            if (!sortFields.Any(f => f.Equals(postData.OrderBy, StringComparison.OrdinalIgnoreCase)))
-                return BadRequest("Invalid 'OrderBy' field.");
+            HashSet<string> sortFields = new HashSet<string> { "phone", "email", "firstname", "lastname", "accountname" };
+            if (!sortFields.Contains(postData.OrderBy.ToLower()))
+                return BadRequest($"{postData.OrderBy} is not a valid sort field.");
 
             int recordsPerPage = PageSize ?? 50;
 

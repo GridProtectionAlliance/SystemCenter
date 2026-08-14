@@ -200,6 +200,11 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
+                HashSet<string> validSortFields = new HashSet<string> { "assetname", "assetkey", "name" };
+
+                if (!validSortFields.Contains(postData.OrderBy.ToLower()))
+                    return BadRequest($"{postData.OrderBy} is not a valid sort field.");
+
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
                     try
