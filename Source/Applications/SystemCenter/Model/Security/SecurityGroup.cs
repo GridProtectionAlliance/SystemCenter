@@ -101,6 +101,40 @@ namespace SystemCenter.Model.Security
         }
 
         [HttpPost]
+        [Route("Users/PagedList/{groupID}/{page:int}")]
+        public IHttpActionResult GetPagedUsers([FromBody] PostData postData, [FromUri] String groupID, [FromUri] int page)
+        {
+            if (!GetAuthCheck())
+                return Unauthorized();
+
+            String[] sortFields = { "Phone", "Email", "FirstName", "LastName", "AccountName" };
+            if (!sortFields.Any(f => f.Equals(postData.OrderBy, StringComparison.OrdinalIgnoreCase)))
+                return BadRequest("Invalid 'OrderBy' field.");
+
+            int recordsPerPage = PageSize ?? 50;
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                string sql = $@"SELECT UserAccount.*, UserAccount.Name as AccountName 
+                                FROM SecurityGroupUserAccount JOIN UserAccount ON UserAccountID = UserAccount.ID WHERE SecurityGroupID = {{0}} 
+                                ORDER BY {postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")} 
+                                OFFSET {page * recordsPerPage} ROWS FETCH NEXT {recordsPerPage} ROWS ONLY";
+                string countSql = "SELECT COUNT(*) FROM SecurityGroupUserAccount JOIN UserAccount ON UserAccountID = UserAccount.ID WHERE SecurityGroupID = {0}";
+
+                DataTable results = connection.RetrieveData(sql, groupID.ToString());
+                int count = connection.ExecuteScalar<int>(countSql, groupID);
+
+                return Ok(new PagedResults()
+                {
+                    Data= JsonConvert.SerializeObject(results),
+                    TotalRecords = count,
+                    NumberOfPages = (count + recordsPerPage - 1) / recordsPerPage,
+                    RecordsPerPage = recordsPerPage
+                });
+            }
+        }
+
+        [HttpPost]
         [Route("{groupID}/PostRoles")]
         public IHttpActionResult PostGroupRoles([FromBody] IEnumerable<JObject> record, string groupID)
         {
