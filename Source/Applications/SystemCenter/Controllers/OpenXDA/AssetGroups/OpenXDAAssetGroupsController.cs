@@ -341,8 +341,8 @@ namespace SystemCenter.Controllers.OpenXDA
                 return Unauthorized();
         }
 
-        [HttpGet, Route("{assetGroupID:int}/AssetGroups")]
-        public IHttpActionResult GetSubGroups(int assetGroupID)
+        [HttpPost, Route("{assetGroupID:int}/AssetGroups/{page:int}")]
+        public IHttpActionResult GetSubGroupsPaged([FromBody] PostData postData, [FromUri] int assetGroupID, [FromUri] int page)
         {
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
@@ -350,9 +350,23 @@ namespace SystemCenter.Controllers.OpenXDA
                 {
                     try
                     {
-                        IEnumerable<AssetGroupView> records = new TableOperations<AssetGroupView>(connection).QueryRecordsWhere("ID in (SELECT ChildAssetGroupID FROM AssetGroupAssetGroupView WHERE ParentAssetGroupID = {0})", assetGroupID);
+                        int recordsPerPage = PageSize ?? 50;
 
-                        return Ok(records);
+                        TableOperations<AssetGroupView> table = new TableOperations<AssetGroupView>(connection);
+
+                        RecordRestriction recordRestriction = new RecordRestriction("ID in (SELECT ChildAssetGroupID FROM AssetGroupAssetGroupView WHERE ParentAssetGroupID = {0})", assetGroupID);
+
+                        int count = table.QueryRecordCount(recordRestriction);
+
+                        IEnumerable<AssetGroupView> records = new TableOperations<AssetGroupView>(connection).QueryRecords(postData.OrderBy, postData.Ascending, page + 1, recordsPerPage, recordRestriction);
+
+                        return Ok(new PagedResults()
+                        {
+                            Data = JsonConvert.SerializeObject(records),
+                            TotalRecords = count,
+                            RecordsPerPage = recordsPerPage,
+                            NumberOfPages = (count + recordsPerPage - 1) / recordsPerPage
+                        });
                     }
                     catch (Exception ex)
                     {
