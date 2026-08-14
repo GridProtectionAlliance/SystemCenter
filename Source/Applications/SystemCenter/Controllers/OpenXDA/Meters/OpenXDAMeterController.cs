@@ -305,13 +305,15 @@ namespace SystemCenter.Controllers.OpenXDA
             return Ok("Completed without errors");
         }
 
-        [HttpGet, Route("{meterID:int}/Channels/{filter=All}")]
-        public IHttpActionResult GetMeterChannels(int meterID, string filter)
+        [HttpGet, Route("{meterID:int}/Channels/{page:int}/{filter=All}")]
+        public IHttpActionResult GetMeterChannels(int meterID, int page, string filter)
         {
             if (GetRoles != string.Empty && !User.IsInRole(GetRoles))
                 return Unauthorized();
 
-            const string ChannelQuery =
+            int recordsPerPage = PageSize ?? 50;
+
+            string ChannelQuery =
             "SELECT " +
             "    Channel.ID, " +
             "    Meter.AssetKey AS Meter, " +
@@ -336,7 +338,8 @@ namespace SystemCenter.Controllers.OpenXDA
             "    MeasurementType ON Channel.MeasurementTypeID = MeasurementType.ID JOIN " +
             "    MeasurementCharacteristic ON Channel.MeasurementCharacteristicID = MeasurementCharacteristic.ID JOIN " +
             "    Phase ON Channel.PhaseID = Phase.ID " +
-            "WHERE MeterID = {0}";
+            "WHERE MeterID = {0} " +
+            $"ORDER BY Channel.Name ASC OFFSET {page * recordsPerPage} ROWS FETCH NEXT {recordsPerPage} ROWS ONLY";
 
             const string SeriesQuery =
                 "SELECT " +
@@ -350,11 +353,15 @@ namespace SystemCenter.Controllers.OpenXDA
                 "    Channel ON Series.ChannelID = Channel.ID " +
                 "WHERE Channel.MeterID = {0}";
 
+            string countQuery = "SELECT COUNT(Channel.ID) FROM Channel WHERE MeterID = {0}";
+
         using (AdoDataConnection connection = ConnectionFactory())
         {
-            DataTable channelTable = connection.RetrieveData(ChannelQuery, meterID);
-            string channelJSON = JsonConvert.SerializeObject(channelTable);
-            JArray channelArray = JArray.Parse(channelJSON);
+                int channelCount = connection.ExecuteScalar<int>(countQuery, meterID);
+
+                DataTable channelTable = connection.RetrieveData(ChannelQuery, meterID);
+                string channelJSON = JsonConvert.SerializeObject(channelTable);
+                JArray channelArray = JArray.Parse(channelJSON);
 
                 DataTable seriesTable = connection.RetrieveData(SeriesQuery, meterID);
                 string seriesJSON = JsonConvert.SerializeObject(seriesTable);
@@ -395,7 +402,13 @@ namespace SystemCenter.Controllers.OpenXDA
                     }
                 }
 
-                return Ok(FilterChannels());
+                return Ok(new PagedResults()
+                {
+                    Data = JsonConvert.SerializeObject(FilterChannels()),
+                    TotalRecords = channelCount,
+                    NumberOfPages = (channelCount + recordsPerPage - 1) / recordsPerPage,
+                    RecordsPerPage = recordsPerPage
+                });
             }
         
             

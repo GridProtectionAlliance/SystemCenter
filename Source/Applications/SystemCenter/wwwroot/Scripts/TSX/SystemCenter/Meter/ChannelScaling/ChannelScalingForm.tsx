@@ -29,7 +29,7 @@ import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { useAppSelector, useAppDispatch } from '../../hooks';
 import { MeasurementCharacteristicSlice, MeasurmentTypeSlice, PhaseSlice } from '../../Store/Store';
 import { LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
-import { Table, Column } from '@gpa-gemstone/react-table';
+import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ChannelScalingWrapper, ChannelScalingType, IMultiplier } from './ChannelScalingWrapper';
 import { Input, ToolTip } from '@gpa-gemstone/react-forms';
 import { SelectRoles } from '../../Store/UserSettings';
@@ -40,7 +40,10 @@ interface IProps {
     Channels: OpenXDA.Types.Channel[],
     UpdateChannels: (channels: OpenXDA.Types.Channel[]) => void,
     ChannelStatus?: Application.Types.Status,
-    Key?: string
+    Key?: string,
+    Page?: number,
+    SetPage?: React.Dispatch<React.SetStateAction<number>>,
+    TotalPages?: number
 }
 
 
@@ -201,7 +204,7 @@ const ChannelScalingForm = (props: IProps) => {
                             }} Valid={(f) => true} />
                     </div>
                 </div>
-                <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden'}}>
+                <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
                     <Table<ChannelScalingWrapper>
                         TableClass="table table-hover"
                         Data={Wrappers}
@@ -270,7 +273,16 @@ const ChannelScalingForm = (props: IProps) => {
                         > If Adjusted
                         </Column>
                     </Table>
-                </div> 
+                    {props.Page != null && props.SetPage != null && props.TotalPages != null ?
+                        <div className="row">
+                            <div className="col">
+                                <Paging
+                                    Current={props.Page + 1}
+                                    Total={props.TotalPages}
+                                    SetPage={(p) => props.SetPage(p - 1)} />
+                            </div>
+                        </div> : null}
+                </div>
             </>
 
     return (
