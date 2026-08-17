@@ -28,6 +28,8 @@
   },
   "dependencies": {
     "@gpa-gemstone/react-graph": "1.0.113",
+    "@turf/turf": "7.4.0",
+    "@arcgis/core": "5.1.17",
     "proj4leaflet": "^1.0.2",
     "@gpa-gemstone/common-pages": "0.0.185",
     "@reduxjs/toolkit": "1.8.3",
