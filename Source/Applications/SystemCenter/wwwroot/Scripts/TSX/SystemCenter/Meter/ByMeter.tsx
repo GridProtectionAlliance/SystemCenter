@@ -110,7 +110,7 @@ const ByMeter: Application.Types.iByComponent = (props) => {
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
-            async: truegit stat
+            async: true
         });
 
         handle.done(d => setOptions(d.map(item => ({ Value: item.ID, Label: item.Value }))))

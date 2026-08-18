@@ -120,7 +120,7 @@ const ExternalDBUpdate = (props: {
         return () => {
             if (handle?.abort != undefined) handle.abort();
         }
-    }, [props.Type, reload, asc, sort]);
+    }, [props.Type, asc, sort]);
 
     return (
         <>
