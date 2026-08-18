@@ -721,15 +721,20 @@ namespace SystemCenter.Controllers.OpenXDA
                         {
 
                             string countSql = $@"
-                                SELECT COUNT(*)
+                                SELECT COUNT(DISTINCT ID)
                                 FROM ChannelDetail
                                 WHERE ID in ({string.Join(", ", connectedChannels.Select(channels => channels.ID))})
                             ";
 
                             string sql = @$"
                                 SELECT *
-                                FROM ChannelDetail
-                                WHERE ID in ({string.Join(", ", connectedChannels.Select(channels => channels.ID))})
+                                FROM (
+                                    SELECT *,
+                                            ROW_NUMBER() OVER (PARTITION BY ID ORDER BY SeriesTypeID DESC) as rn
+                                    FROM ChannelDetail
+                                        WHERE ID in ({string.Join(", ", connectedChannels.Select(channels => channels.ID))})
+                                ) t
+                                WHERE rn = 1
                                 ORDER BY {postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")}
                                 OFFSET {page * recordsPerPage} ROWS
                                 FETCH NEXT {recordsPerPage} ROWS ONLY
@@ -738,6 +743,8 @@ namespace SystemCenter.Controllers.OpenXDA
                             int count = connection.ExecuteScalar<int>(countSql);
 
                             DataTable results = connection.RetrieveData(sql);
+
+                            results.Columns.Remove("rn");
 
                             return Ok(new PagedResults()
                             {
