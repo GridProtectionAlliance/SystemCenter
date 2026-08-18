@@ -56,17 +56,20 @@ namespace SystemCenter.ScheduledProcesses
         public const string RegexPattern = "[{][^{}]*[}]";
         public const string RegexIllegal = @"[\s]";
         private static IDictionary<Type, string> TypeTableNameDict;
-        private const string fieldCountSQL = @"
-                SELECT SUM(RecordCount*(AF + XF)) AS CT FROM (SELECT (SELECT COUNT(ID) FROM {1}) AS RecordCount,
-                (SELECT COUNT(ID) FROM AdditionalField WHERE AdditionalField.ParentTable LIKE '{1}' AND ExternalDBTableID = extDBTables.ID AND IsKey = 0) AS AF, 
-                (SELECT COUNT(ID) FROM ExternalOpenXDAField WHERE ExternalOpenXDAField.ParentTable LIKE '{1}' AND ExternalOpenXDAField.ExternalDBTableID = extDBTables.ID ) AS XF
-                FROM extDBTables WHERE ExtDBID = {0}) T";
+        private static string FieldCountSQL(string tableName) {
+            return $@"
+                SELECT SUM(RecordCount*(AF + XF)) AS CT FROM (SELECT (SELECT COUNT(ID) FROM {tableName}) AS RecordCount,
+                (SELECT COUNT(ID) FROM AdditionalField WHERE AdditionalField.ParentTable LIKE '{tableName}' AND ExternalDBTableID = extDBTables.ID AND IsKey = 0) AS AF, 
+                (SELECT COUNT(ID) FROM ExternalOpenXDAField WHERE ExternalOpenXDAField.ParentTable LIKE '{tableName}' AND ExternalOpenXDAField.ExternalDBTableID = extDBTables.ID ) AS XF
+                FROM extDBTables WHERE ExtDBID = {{0}}) T";
+        } 
         public class ExtDBTaskStatus
         {
             public string Message { get; set; }
             public string Status { get; set; }
             public int PercentFinished { get; set; }
             public int RowsAffected { get; set; }
+            public int RecordsAffected { get; set; }
         }
         #endregion
 
@@ -98,6 +101,7 @@ namespace SystemCenter.ScheduledProcesses
                 // Calling static method
                 int rows = Run(ExternalDB);
                 Log.Info($"Ran External Database Fetch Task: {ExternalDB.ID}, {rows} affected");
+
             }
             catch (Exception ex)
             {
@@ -133,7 +137,8 @@ namespace SystemCenter.ScheduledProcesses
                     foreach (Type t in CheckedTypes)
                     {
                         int typeIndex = CheckedTypes.ToList().FindIndex(checkedType => checkedType == t);
-                        totalFields += externalConnection.ExecuteScalar<int>(fieldCountSQL, extDB.ID, TableNames[typeIndex]);
+                        string tableName = TableNames[typeIndex];
+                        totalFields += externalConnection.ExecuteScalar<int>(FieldCountSQL(tableName), extDB.ID);
                     }
 
                     foreach (Type t in CheckedTypes)
@@ -146,6 +151,13 @@ namespace SystemCenter.ScheduledProcesses
                 }
                 extDB.LastDataUpdate = DateTime.UtcNow;
                 new TableOperations<ExternalDatabases>(xdaConnection).UpdateRecord(extDB);
+                logQueue!.Enqueue(new ExtDBTaskStatus()
+                {
+                    RowsAffected = rowsAffected,
+                    PercentFinished = 100,
+                    Status = "Info",
+                    Message = $"Finished updating external database ${extDB.Name}: {rowsAffected} rows affected."
+                });
                 return rowsAffected;
             }
         }
@@ -192,7 +204,7 @@ namespace SystemCenter.ScheduledProcesses
                 int rowsAffected = 0;
                 using (AdoDataConnection externalConnection = GetExternalConnection(extDB))
                 {
-                    int totalFields = externalConnection.ExecuteScalar<int>(fieldCountSQL, extDB.ID, parentTable);
+                    int totalFields = externalConnection.ExecuteScalar<int>(FieldCountSQL(parentTable), extDB.ID);
                     foreach (extDBTables extTable in extTables)
                     {
                         rowsAffected += RunOnType(tableType, extTable, addlFieldsTable, addlValueTable, xdaFieldTable, context, xdaConnection, externalConnection, totalFields, rowsAffected, logQueue, parentID);
@@ -200,6 +212,13 @@ namespace SystemCenter.ScheduledProcesses
                 }
                 extDB.LastDataUpdate = DateTime.UtcNow;
                 new TableOperations<ExternalDatabases>(xdaConnection).UpdateRecord(extDB);
+                logQueue!.Enqueue(new ExtDBTaskStatus()
+                {
+                    RowsAffected = rowsAffected,
+                    PercentFinished = 100,
+                    Status = "Info",
+                    Message = $"Finished updating external database ${extDB.Name}: {rowsAffected} rows affected."
+                });
                 return rowsAffected;
             }
         }

@@ -52,6 +52,7 @@ using GSF.EMAX;
 using GSF.PQDIF.Logical;
 using GSF.SELEventParser;
 using GSF.Web.Model;
+using Microsoft.Owin;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using openXDA.Configuration;
@@ -1868,17 +1869,10 @@ namespace SystemCenter.Controllers
                 return response;
             }
 
-            if (HttpContext.Current.IsWebSocketRequest)
-            {
-                HttpContext.Current.AcceptWebSocketRequest(WebSocketHandler);
-            }
-            else
-            {
-                response.StatusCode = HttpStatusCode.BadRequest;
-                return response;
-            }
+            IDictionary<string, object> owinEnvironment = Request.GetOwinEnvironment();
 
-            
+            if (!owinEnvironment.TryGetValue("websocket.Accept", out object acceptObject))
+                return Request.CreateResponse(HttpStatusCode.BadRequest);
 
             ExternalDatabases? extDB;
             using (AdoDataConnection connection = ConnectionFactory())
@@ -1894,76 +1888,77 @@ namespace SystemCenter.Controllers
 
             ConcurrentQueue<ExtDBTaskStatus> logQueue = new ConcurrentQueue<ExtDBTaskStatus>();
 
-            ScheduledExtDBTask.Run(extDB, logQueue);
+            Task runTask = Task.Run(() => ScheduledExtDBTask.Run(extDB, logQueue));
 
-            response.Content = new PushStreamContent(async (outputStream, httpContent, transportContext) =>
+            Action<IDictionary<string, object>, Func<IDictionary<string, object>, Task>> acceptWebSocket = (Action<IDictionary<string, object>, Func<IDictionary<string, object>, Task>>)acceptObject;
+
+            acceptWebSocket(null, async (IDictionary<string, object> webSocketEnvironment) =>
             {
+                Func<ArraySegment<byte>, int, bool, CancellationToken, Task> sendAsync = (Func<ArraySegment<byte>, int, bool, CancellationToken, Task>)webSocketEnvironment["websocket.SendAsync"];
+
+                Func<int, string, CancellationToken, Task> closeAsync = (Func<int, string, CancellationToken, Task>)webSocketEnvironment["websocket.CloseAsync"];
+
+                //CancellationToken cancellationToken = (CancellationToken)webSocketEnvironment["websocket.CallCancelled"];
+
                 try
                 {
-                    using (StreamWriter writer = new StreamWriter(outputStream, Encoding.UTF8))
-                        while (true)
+                    while (true)
+                    {
+                        if (!logQueue.TryDequeue(out ExtDBTaskStatus? msg))
                         {
-                            if (!logQueue.TryDequeue(out ExtDBTaskStatus? msg))
-                            {
-                                await Task.Delay(250);
-                                continue;
-                            }
-                            await writer.WriteLineAsync(JsonConvert.SerializeObject(msg));
-                            await writer.FlushAsync();
-                            if (msg.PercentFinished == 100)
-                                break;
+                            await Task.Delay(250);
+                            continue;
+                        }
+
+                        byte[] bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(msg));
+
+                        await sendAsync(new ArraySegment<byte>(bytes), 0x1, true, CancellationToken.None);
+
+                        if (msg.PercentFinished == 100)
+                            break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    await closeAsync(1000, "", CancellationToken.None);
+                }
+                finally
+                {
+                    await closeAsync(1000, "", CancellationToken.None);
+                }
+            });
+
+            /*HttpContext.Current.AcceptWebSocketRequest(async (context) =>
+            {
+                WebSocket socket = context.WebSocket;
+                try
+                {
+                    while (socket.State == WebSocketState.Open && !runTask.IsCompleted)
+                    {
+                        if (!logQueue.TryDequeue(out ExtDBTaskStatus? msg))
+                        {
+                            await Task.Delay(250);
+                            continue;
+                        }
+                        byte[] bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(msg));
+
+                        await socket.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, new CancellationTokenSource().Token);
+                        if (msg.PercentFinished == 100)
+                            break;
                     }
                     
                 }
                 catch (Exception ex)
                 {
-                    // Log error if needed
+                   
                 }
                 finally
                 {
-                    outputStream.Close();
+                    await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "", CancellationToken.None);
                 }
-            }, "application/json");
+            });*/
 
-            /**
-            using WebSocket webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
-            */
-            response.StatusCode = HttpStatusCode.OK;
-
-            return response;
-            
-        }
-
-        private async Task WebSocketHandler(AspNetWebSocketContext context)
-        {
-            WebSocket socket = context.WebSocket;
-            byte[] buffer = new byte[1024];
-
-            while (socket.State == WebSocketState.Open)
-            {
-                try
-                {
-                    var result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-
-                    if (result.MessageType == WebSocketMessageType.Close)
-                    {
-                        await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
-                    }
-                    else
-                    {
-                        string receivedText = System.Text.Encoding.UTF8.GetString(buffer, 0, result.Count);
-                        string responseText = $"Server received: {receivedText}";
-
-                        byte[] responseBuffer = System.Text.Encoding.UTF8.GetBytes(responseText);
-                        await socket.SendAsync(new ArraySegment<byte>(responseBuffer), WebSocketMessageType.Text, true, CancellationToken.None);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    // Log error and close socket
-                    await socket.CloseAsync(WebSocketCloseStatus.InternalServerError, ex.Message, CancellationToken.None);
-                }
-            }
+            return Request.CreateResponse(HttpStatusCode.SwitchingProtocols);       
         }
 
         [HttpGet, Route("UnscheduledUpdate/{recordID:int}/{parentTable}/{parentID:int}")]
