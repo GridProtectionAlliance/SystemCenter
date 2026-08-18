@@ -87,6 +87,13 @@ export namespace SystemCenter {
         HostRegistrationKey: string;
         AssignedHostRegistrationKey: string;
     }
+
+    interface ExtDBTaskStatus {
+        Message: string
+        Status: 'Info' | 'Error' | 'Warning'
+        RowsAffected: number
+        PercentFinished: number
+    }
 }
 
 // OpenXDA Models

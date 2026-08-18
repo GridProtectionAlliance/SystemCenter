@@ -29,6 +29,8 @@ import { Table, Column } from '@gpa-gemstone/react-table';
 import * as React from 'react';
 import _ from 'lodash';
 import moment from 'moment';
+import ExtDBTaskStatusModal from '../CommonComponents/ExtDBTaskStatusModal';
+import { SystemCenter as SC } from '../global';
 
 const ExternalDBUpdate = React.memo((props: {
     Type: 'Asset' | 'Meter' | 'Location' | 'Customer' | OpenXDA.Types.AssetTypeName,
@@ -45,6 +47,9 @@ const ExternalDBUpdate = React.memo((props: {
     const [asc, setAsc] = React.useState<boolean>(true);
     const [sort, setSort] = React.useState<keyof SystemCenter.Types.DetailedExternalDatabases>('Name');
 
+    const [extDBTaskStatuses, setExtDBTaskStatuses] = React.useState<SC.ExtDBTaskStatus[]>([]);
+    const [showExtDBTaskStatus, setShowExtDBTaskStatus] = React.useState<boolean>(false);
+
     const updateMap = React.useCallback((id: number, status: Application.Types.Status) => {
         setStatusMap((oldMap) => {
             const newMap = new Map(oldMap);
@@ -56,13 +61,14 @@ const ExternalDBUpdate = React.memo((props: {
     const updateExternalDB = React.useCallback((record: SystemCenter.Types.ExternalDatabases) => {
         updateMap(record.ID, 'loading');
         const handle = $.ajax({
-            type: "POST",
-            url: `${homePath}api/SystemCenter/ExternalDatabases/UnscheduledUpdate/${props.Type}${props.ID === undefined ? '' : "/" + props.ID}`,
+            type: "GET",
+            url: `${homePath}api/SystemCenter/ExternalDatabases/UnscheduledUpdate/${record.ID}/${props.Type}${props.ID === undefined ? '' : "/" + props.ID}`,
             contentType: "application/json; charset=utf-8",
             cache: false,
-            async: true,
-            data: JSON.stringify(record),
-        }).done(() => {
+            async: true
+        }).done((newExtDBTaskStatuses: SC.ExtDBTaskStatus[]) => {
+            setExtDBTaskStatuses(newExtDBTaskStatuses);
+            setShowExtDBTaskStatus(true);
             updateMap(record.ID, 'idle');
         }).fail(() => { updateMap(record.ID, 'error'); });
 
@@ -181,7 +187,7 @@ const ExternalDBUpdate = React.memo((props: {
                         RowStyle={{ width: 'auto' }}
                         Content={({ item }) => {
                             if (statusMap.get(item.ID) === 'loading') return <LoadingIcon Show={true} Label={`Performing update for ${props.Type}s on connected to ${item.Name}...`} />
-                            if (statusMap.get(item.ID) === 'error') return <ServerErrorIcon Show={true} Label="Could not complete update. Please contact an administartor..." />
+                            if (statusMap.get(item.ID) === 'error') return <ServerErrorIcon Show={true} Label="Could not complete update. Please contact an administrator..." />
                             return (
                                 <button className="btn btn-info pull-right" data-tooltip={item.ID} onClick={() => {
                                     const handle = updateExternalDB(item);
@@ -197,6 +203,12 @@ const ExternalDBUpdate = React.memo((props: {
                 </Table>
             }
             <LoadingScreen Show={status === 'loading'} />
+            <ExtDBTaskStatusModal
+                Show={showExtDBTaskStatus}
+                ExtDBTaskStatuses={extDBTaskStatuses}
+                CallBack={() => setShowExtDBTaskStatus(false)}
+                RecordType={'Meters'}
+            />
         </>
     );
 });

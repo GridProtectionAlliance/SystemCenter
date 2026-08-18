@@ -22,6 +22,7 @@
 //******************************************************************************************************
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
@@ -30,9 +31,18 @@ using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Net.WebSockets;
+using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Web;
 using System.Web.Http;
+using System.Web.Http.Controllers;
 using System.Web.Http.Results;
+using System.Web.WebSockets;
 using FaultData.DataReaders;
 using FaultData.DataSets;
 using GSF.Configuration;
@@ -50,6 +60,7 @@ using openXDA.Model.SystemCenter;
 using SEBrowser.Model;
 using SystemCenter.Model;
 using SystemCenter.ScheduledProcesses;
+using static SystemCenter.ScheduledProcesses.ScheduledExtDBTask;
 using ConfigurationLoader = SystemCenter.Model.ConfigurationLoader;
 using Customer = SystemCenter.Model.Customer;
 using Phase = GSF.PQDIF.Logical.Phase;
@@ -1829,34 +1840,154 @@ namespace SystemCenter.Controllers
             return testDatabaseStatus;
         }
 
-        [HttpPost, Route("UnscheduledUpdate")]
-        public IHttpActionResult UnscheduledUpdate([FromBody] JObject record)
+        [HttpGet, Route("UnscheduledUpdate/{recordID:int}")]
+        public IHttpActionResult UnscheduledUpdate(int recordID)
         {
             if (!PostAuthCheck())
                 return Unauthorized();
 
-            ExternalDatabases extDB = record.ToObject<ExternalDatabases>();
-            return Ok(ScheduledExtDBTask.Run(extDB));
+            using (AdoDataConnection connection = ConnectionFactory())
+            {
+                ExternalDatabases? extDB = new TableOperations<ExternalDatabases>(connection).QueryRecordWhere("ID = {0}", recordID);
+
+                if (extDB == null)
+                    return NotFound();
+
+                return Ok(ScheduledExtDBTask.Run(extDB));
+            }
         }
 
-        [HttpPost, Route("UnscheduledUpdate/{parentTable}")]
-        public IHttpActionResult UnscheduledUpdate([FromBody] JObject record, string parentTable)
+        [HttpGet, Route("UnscheduledUpdate/{recordID:int}/{parentTable}")]
+        public HttpResponseMessage UnscheduledUpdate(int recordID, string parentTable)
         {
-            if (!PostAuthCheck())
-                return Unauthorized();
+            HttpResponseMessage response = Request.CreateResponse();
 
-            ExternalDatabases extDB = record.ToObject<ExternalDatabases>();
-            return Ok(ScheduledExtDBTask.Run(extDB, parentTable));
+            if (!PostAuthCheck())
+            {
+                response.StatusCode = HttpStatusCode.Unauthorized;
+                return response;
+            }
+
+            if (HttpContext.Current.IsWebSocketRequest)
+            {
+                HttpContext.Current.AcceptWebSocketRequest(WebSocketHandler);
+            }
+            else
+            {
+                response.StatusCode = HttpStatusCode.BadRequest;
+                return response;
+            }
+
+            
+
+            ExternalDatabases? extDB;
+            using (AdoDataConnection connection = ConnectionFactory())
+            {
+                extDB = new TableOperations<ExternalDatabases>(connection).QueryRecordWhere("ID = {0}", recordID);
+
+                if (extDB == null)
+                {
+                    response.StatusCode = HttpStatusCode.NotFound;
+                    return response;
+                }
+            }
+
+            ConcurrentQueue<ExtDBTaskStatus> logQueue = new ConcurrentQueue<ExtDBTaskStatus>();
+
+            ScheduledExtDBTask.Run(extDB, logQueue);
+
+            response.Content = new PushStreamContent(async (outputStream, httpContent, transportContext) =>
+            {
+                try
+                {
+                    using (StreamWriter writer = new StreamWriter(outputStream, Encoding.UTF8))
+                        while (true)
+                        {
+                            if (!logQueue.TryDequeue(out ExtDBTaskStatus? msg))
+                            {
+                                await Task.Delay(250);
+                                continue;
+                            }
+                            await writer.WriteLineAsync(JsonConvert.SerializeObject(msg));
+                            await writer.FlushAsync();
+                            if (msg.PercentFinished == 100)
+                                break;
+                    }
+                    
+                }
+                catch (Exception ex)
+                {
+                    // Log error if needed
+                }
+                finally
+                {
+                    outputStream.Close();
+                }
+            }, "application/json");
+
+            /**
+            using WebSocket webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
+            */
+            response.StatusCode = HttpStatusCode.OK;
+
+            return response;
+            
         }
 
-        [HttpPost, Route("UnscheduledUpdate/{parentTable}/{parentID:int}")]
-        public IHttpActionResult UnscheduledUpdate([FromBody] JObject record, string parentTable, int parentID)
+        private async Task WebSocketHandler(AspNetWebSocketContext context)
+        {
+            WebSocket socket = context.WebSocket;
+            byte[] buffer = new byte[1024];
+
+            while (socket.State == WebSocketState.Open)
+            {
+                try
+                {
+                    var result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+
+                    if (result.MessageType == WebSocketMessageType.Close)
+                    {
+                        await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
+                    }
+                    else
+                    {
+                        string receivedText = System.Text.Encoding.UTF8.GetString(buffer, 0, result.Count);
+                        string responseText = $"Server received: {receivedText}";
+
+                        byte[] responseBuffer = System.Text.Encoding.UTF8.GetBytes(responseText);
+                        await socket.SendAsync(new ArraySegment<byte>(responseBuffer), WebSocketMessageType.Text, true, CancellationToken.None);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Log error and close socket
+                    await socket.CloseAsync(WebSocketCloseStatus.InternalServerError, ex.Message, CancellationToken.None);
+                }
+            }
+        }
+
+        [HttpGet, Route("UnscheduledUpdate/{recordID:int}/{parentTable}/{parentID:int}")]
+        public IHttpActionResult UnscheduledUpdate(int recordID, string parentTable, int parentID)
         {
             if (!PostAuthCheck())
                 return Unauthorized();
 
-            ExternalDatabases extDB = record.ToObject<ExternalDatabases>();
-            return Ok(ScheduledExtDBTask.Run(extDB, parentTable, parentID));
+            using (AdoDataConnection connection = ConnectionFactory())
+            {
+                ExternalDatabases? extDB = new TableOperations<ExternalDatabases>(connection).QueryRecordWhere("ID = {0}", recordID);
+
+                if (extDB == null)
+                    return NotFound();
+
+                return Ok(ScheduledExtDBTask.Run(extDB, parentTable, parentID));
+            }
+        }
+        private bool IsStreamRequest()
+        {
+            return Request.Headers.Accept
+               .Any(h => h.MediaType.Equals("application/octet-stream", StringComparison.OrdinalIgnoreCase) ||
+                         h.MediaType.StartsWith("video/", StringComparison.OrdinalIgnoreCase) ||
+                         h.MediaType.StartsWith("audio/", StringComparison.OrdinalIgnoreCase));
         }
     }
 
@@ -2044,7 +2175,6 @@ namespace SystemCenter.Controllers
                 SQL = $"{fieldName} {search.Operator} {{0}}"
             };
         }
-
     }
 
     [RoutePrefix("api/SEbrowser/Widget")]
