@@ -117,7 +117,7 @@ namespace SystemCenter.ScheduledProcesses
                 if (extTables.Count() == 0)
                 {
                     Log.Warn($"No tables found connected to external database ${extDB.Name}.");
-                    logQueue!.Enqueue(new ExtDBTaskStatus() {
+                    logQueue?.Enqueue(new ExtDBTaskStatus() {
                         RowsAffected = 0,
                         PercentFinished = 100,
                         Status = "Error",
@@ -151,7 +151,7 @@ namespace SystemCenter.ScheduledProcesses
                 }
                 extDB.LastDataUpdate = DateTime.UtcNow;
                 new TableOperations<ExternalDatabases>(xdaConnection).UpdateRecord(extDB);
-                logQueue!.Enqueue(new ExtDBTaskStatus()
+                logQueue?.Enqueue(new ExtDBTaskStatus()
                 {
                     RowsAffected = rowsAffected,
                     PercentFinished = 100,
