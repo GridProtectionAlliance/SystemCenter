@@ -321,7 +321,7 @@ namespace SystemCenter.Model
                 }).ToArray();
 
             int recordCount = CountSearchResults(postData);
-            int recordPerPage = Take ?? 50;
+            int recordPerPage = PageSize ?? 50;
             return Ok(new PagedResults()
             {
                 Data = JsonConvert.SerializeObject(results),
@@ -360,7 +360,7 @@ namespace SystemCenter.Model
                 }).ToArray();
 
             int recordCount = CountSearchResults(postData);
-            int recordPerPage = Take ?? 50;
+            int recordPerPage = PageSize ?? 50;
             return Ok(new PagedResults()
             {
                 Data = JsonConvert.SerializeObject(results),
@@ -398,7 +398,7 @@ namespace SystemCenter.Model
                 }).ToArray();
 
             int recordCount = CountSearchResults(postData);
-            int recordPerPage = Take ?? 50;
+            int recordPerPage = PageSize ?? 50;
             return Ok(new PagedResults()
             {
                 Data = JsonConvert.SerializeObject(results),

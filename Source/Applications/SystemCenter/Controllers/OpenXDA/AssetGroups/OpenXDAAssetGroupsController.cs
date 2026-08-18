@@ -39,6 +39,7 @@ using System.Web.Http;
 using GSF.Data;
 using GSF.Data.Model;
 using GSF.Web.Model;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using openXDA.Model;
 using SystemCenter.Model;
@@ -57,16 +58,24 @@ namespace SystemCenter.Controllers.OpenXDA
 
         }
      
-        [HttpGet, Route("{assetGroupID:int}/Assets")]
-        public IHttpActionResult GetAssets(int assetGroupID)
+        [HttpPost, Route("{assetGroupID:int}/Assets/{page:int}")]
+        public IHttpActionResult GetAssets([FromBody] PostData postData, [FromUri] int assetGroupID, [FromUri] int page)
         {
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
+
+                HashSet<string> validSortFields = new HashSet<string> { "assetname", "assetkey", "assettype" };
+
+                if (!validSortFields.Contains(postData.OrderBy.ToLower()))
+                    return BadRequest($"{postData.OrderBy} is not a valid sort field.");
+
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
                     try
                     {
-                        string sql = @"SELECT   
+                        int recordsPerPage = PageSize ?? 50;
+
+                        string sql = @$"SELECT   
                             DISTINCT
                                 Asset.ID,
                                 AssetAssetGroup.AssetGroupID,
@@ -91,9 +100,30 @@ namespace SystemCenter.Controllers.OpenXDA
                                 Asset.VoltageKV,
                                 AssetType.Name,
                                 AssetAssetGroup.AssetGroupID
-                            HAVING AssetAssetGroup.AssetGroupID = {0}";
+                            HAVING AssetAssetGroup.AssetGroupID = {{0}}
+                            ORDER BY {postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")}
+                            OFFSET {recordsPerPage * page} ROWS
+                            FETCH NEXT {recordsPerPage} ROWS ONLY
+                            ";
 
-                        return Ok(connection.RetrieveData(sql,assetGroupID));
+                        string countSql = @"SELECT   
+                                COUNT(DISTINCT AssetID)
+                            FROM
+                               AssetAssetGroup
+                            WHERE
+                               AssetGroupID = {0}";
+
+                        int count = connection.ExecuteScalar<int>(countSql, assetGroupID);
+
+                        DataTable results = connection.RetrieveData(sql, assetGroupID);
+
+                        return Ok(new PagedResults()
+                        {
+                            Data = JsonConvert.SerializeObject(results),
+                            NumberOfPages = (count + recordsPerPage - 1) / recordsPerPage,
+                            TotalRecords = count,
+                            RecordsPerPage = recordsPerPage
+                        });
                     }
                     catch (Exception ex)
                     {
@@ -159,16 +189,23 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
 
-        [HttpGet, Route("{assetGroupID:int}/Meters")]
-        public IHttpActionResult GetMeters(int assetGroupID)
+        [HttpPost, Route("{assetGroupID:int}/Meters/{page:int}")]
+        public IHttpActionResult GetMeters([FromBody] PostData postData, [FromUri] int assetGroupID, [FromUri] int page)
         {
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
+                string[] validSortFields = { "name", "location" };
+
+                if (!validSortFields.Any(field => String.Equals(field, postData.OrderBy.ToLower())))
+                    return BadRequest($"{postData.OrderBy} is not a valid sort field.");
+
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
                     try
                     {
-                        string sql = @"SELECT DISTINCT
+                        int recordsPerPage = PageSize ?? 50;
+       
+                        string sql = @$"SELECT DISTINCT
                             Meter.ID,
                             MeterAssetGroup.AssetGroupID,
                             Meter.AssetKey,
@@ -191,9 +228,41 @@ namespace SystemCenter.Controllers.OpenXDA
                             Meter.Model,
                             Location.Name,
                             MeterAssetGroup.AssetGroupID
+                        HAVING MeterAssetGroup.AssetGroupID = {{0}}
+                        ORDER BY {postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")}
+                        OFFSET {recordsPerPage * page} ROWS
+                        FETCH NEXT {recordsPerPage} ROWS ONLY"
+                        ;
+                       
+                        string countSql = @"SELECT 
+                        COUNT(DISTINCT Meter.ID)
+                        FROM
+                            Meter LEFT JOIN
+                            Location ON Meter.LocationID = Location.ID LEFT JOIN
+                            MeterAsset ON Meter.ID = MeterAsset.MeterID LEFT JOIN
+                            Asset ON MeterAsset.AssetID = Asset.ID LEFT JOIN
+                            MeterAssetGroup ON Meter.ID = MeterAssetGroup.MeterID
+                        GROUP BY
+                            Meter.ID,
+                            Meter.AssetKey,
+                            Meter.Name,
+                            Meter.Make,
+                            Meter.Model,
+                            Location.Name,
+                            MeterAssetGroup.AssetGroupID
                         HAVING MeterAssetGroup.AssetGroupID = {0}";
                        
-                        return Ok(connection.RetrieveData(sql,assetGroupID));
+                        int count = connection.ExecuteScalar<int>(countSql, assetGroupID);
+
+                        DataTable results = connection.RetrieveData(sql, assetGroupID);
+
+                        return Ok(new PagedResults()
+                        {
+                            Data = JsonConvert.SerializeObject(results),
+                            TotalRecords = count,
+                            RecordsPerPage = recordsPerPage,
+                            NumberOfPages = (count + recordsPerPage - 1) / recordsPerPage
+                        });
                     }
                     catch (Exception ex)
                     {
@@ -283,8 +352,8 @@ namespace SystemCenter.Controllers.OpenXDA
                 return Unauthorized();
         }
 
-        [HttpGet, Route("{assetGroupID:int}/AssetGroups")]
-        public IHttpActionResult GetSubGroups(int assetGroupID)
+        [HttpPost, Route("{assetGroupID:int}/AssetGroups/{page:int}")]
+        public IHttpActionResult GetSubGroupsPaged([FromBody] PostData postData, [FromUri] int assetGroupID, [FromUri] int page)
         {
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
@@ -292,9 +361,23 @@ namespace SystemCenter.Controllers.OpenXDA
                 {
                     try
                     {
-                        IEnumerable<AssetGroupView> records = new TableOperations<AssetGroupView>(connection).QueryRecordsWhere("ID in (SELECT ChildAssetGroupID FROM AssetGroupAssetGroupView WHERE ParentAssetGroupID = {0})", assetGroupID);
+                        int recordsPerPage = PageSize ?? 50;
 
-                        return Ok(records);
+                        TableOperations<AssetGroupView> table = new TableOperations<AssetGroupView>(connection);
+
+                        RecordRestriction recordRestriction = new RecordRestriction("ID in (SELECT ChildAssetGroupID FROM AssetGroupAssetGroupView WHERE ParentAssetGroupID = {0})", assetGroupID);
+
+                        int count = table.QueryRecordCount(recordRestriction);
+
+                        IEnumerable<AssetGroupView> records = new TableOperations<AssetGroupView>(connection).QueryRecords(postData.OrderBy, postData.Ascending, page + 1, recordsPerPage, recordRestriction);
+
+                        return Ok(new PagedResults()
+                        {
+                            Data = JsonConvert.SerializeObject(records),
+                            TotalRecords = count,
+                            RecordsPerPage = recordsPerPage,
+                            NumberOfPages = (count + recordsPerPage - 1) / recordsPerPage
+                        });
                     }
                     catch (Exception ex)
                     {

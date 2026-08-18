@@ -27,9 +27,6 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import ChannelScalingForm from './ChannelScalingForm';
-import { TrendChannelSlice } from '../../Store/Store';
-import { useAppDispatch } from '../../hooks';
-import { SetChanged } from '../../Store/EventChannelSlice';
 
 declare let homePath: string;
 
@@ -41,18 +38,19 @@ interface IProps {
 const ChannelScalingWindow = (props: IProps) => {
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [channels, setChannels] = React.useState<OpenXDA.Types.Channel[]>([]);
-    const dispatch = useAppDispatch();
+    const [page, setPage] = React.useState<number>(0);
+    const [pageInfo, setPageInfo] = React.useState<{ TotalPages: number, TotalRecords: number, RecordsPerPage: number }>({ TotalPages: 0, TotalRecords: 0, RecordsPerPage: 0 })
 
     React.useEffect(() => {
         if (props.IsVisible)
-            return loadChannels();
-    }, [props.IsVisible]);
+            return loadChannels(page);
+    }, [props.IsVisible, page]);
 
-    function loadChannels() {
+    function loadChannels(page: number) {
         setStatus('loading');
         const handle = $.ajax({
             type: "GET",
-            url: `${homePath}api/OpenXDA/Meter/${props.Meter.ID}/Channels`,
+            url: `${homePath}api/OpenXDA/Meter/${props.Meter.ID}/Channels/${page}`,
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             cache: false,
@@ -60,8 +58,11 @@ const ChannelScalingWindow = (props: IProps) => {
         });
 
         handle.done((d) => {
-            setChannels(d);
+            setChannels(JSON.parse(d.Data));
             setStatus('idle');
+            setPageInfo({ TotalPages: d.NumberOfPages, TotalRecords: d.TotalRecords, RecordsPerPage: d.RecordsPerPage })
+            if (page >= d.NumberOfPages)
+                setPage(Math.max(d.NumberOfPages - 1, 0));
         });
 
         handle.fail(() => { setStatus('error'); });
@@ -84,12 +85,9 @@ const ChannelScalingWindow = (props: IProps) => {
         h.done(() => {
             setStatus('idle');
             setChannels(channels);
-            dispatch(TrendChannelSlice.SetChanged());
-            // This one is for event channels
-            dispatch(SetChanged());
         });
         h.fail(() => setStatus('error'));
-    
+
     }
 
     return (
@@ -100,8 +98,17 @@ const ChannelScalingWindow = (props: IProps) => {
                         <h4>Channel Scaling:</h4>
                     </div>
                 </div>
+                <div className="row">
+                    <div className="col">
+                        <p style={{ marginTop: 2, marginBottom: 2 }}>
+                            {status === 'error' ? 'Could not complete Search' :
+                                status === 'loading' ? 'Loading...' :
+                                    `Displaying Channel(s) ${pageInfo.TotalRecords > 0 ? (pageInfo.RecordsPerPage * page + 1) : 0} - ${pageInfo.RecordsPerPage * page + channels.length} out of ${pageInfo.TotalRecords}`}
+                        </p>
+                    </div>
+                </div>
             </div>
-            <ChannelScalingForm UpdateChannels={updateChannels} ChannelStatus={status} Channels={channels}/>
+            <ChannelScalingForm UpdateChannels={updateChannels} ChannelStatus={status} Channels={channels} Page={page} SetPage={setPage} TotalPages={pageInfo.TotalPages} />
         </div>
     );
 }

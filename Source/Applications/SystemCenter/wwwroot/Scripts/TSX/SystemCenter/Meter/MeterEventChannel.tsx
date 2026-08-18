@@ -23,19 +23,17 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { Application, OpenXDA as GemstoneOpenXDA} from '@gpa-gemstone/application-typings';
+import { Application, OpenXDA as GemstoneOpenXDA } from '@gpa-gemstone/application-typings';
 import { PhaseSlice, MeasurmentTypeSlice } from '../Store/Store'
 import { useAppSelector, useAppDispatch } from '../hooks';
-import { LoadingIcon, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
+import { LoadingIcon, ServerErrorIcon, Warning, GenericController } from '@gpa-gemstone/react-interactive';
 import { Input, Select, ToolTip } from '@gpa-gemstone/react-forms';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { OpenXDA } from '../global';
-import { SelectAscending, SelectSortKey, SelectEventChannels, SelectEventChannelStatus, SelectMeterID, dBAction } from '../Store/EventChannelSlice';
-import { FetchChannels } from '../Store/EventChannelSlice';
 import { IsNumber } from '@gpa-gemstone/helper-functions';
 import { cloneDeep } from 'lodash';
-import { ConfigurableTable, ConfigurableColumn, Column } from '@gpa-gemstone/react-table';
+import { ConfigurableTable, ConfigurableColumn, Column, Paging } from '@gpa-gemstone/react-table';
 import { SelectRoles } from '../Store/UserSettings';
 
 declare var homePath: string;
@@ -43,16 +41,21 @@ declare var homePath: string;
 interface IProps { Meter: GemstoneOpenXDA.Types.Meter, IsVisible: boolean }
 type RecordChange = Map<number, Map<keyof OpenXDA.EventChannel, string | number>>;
 
+const EventChannelController = new GenericController<OpenXDA.EventChannel>(`${homePath}api/OpenXDA/EventChannel`, "Name");
+
 const MeterEventChannelWindow = (props: IProps) => {
     const dispatch = useAppDispatch();
 
-    const data = useAppSelector(SelectEventChannels);
-    const sortKey = useAppSelector(SelectSortKey)
-    const ascending = useAppSelector(SelectAscending)
-    const status = useAppSelector(SelectEventChannelStatus);
-    const meterID = useAppSelector(SelectMeterID);
-
+    const [data, setData] = React.useState<OpenXDA.EventChannel[]>([]);
+    const [sortKey, setSortKey] = React.useState<keyof OpenXDA.EventChannel>('Name');
+    const [ascending, setAscending] = React.useState<boolean>(false);
+    const [page, setPage] = React.useState<number>(0);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [totalRecords, setTotalRecords] = React.useState<number>(0);
+    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
     const [recordChanges, setRecordChanges] = React.useState<RecordChange>(new Map<number, Map<keyof OpenXDA.EventChannel, number | string>>());
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
 
     const phases = useAppSelector(PhaseSlice.Data) as GemstoneOpenXDA.Types.Phase[];
     const measurementTypes = useAppSelector(MeasurmentTypeSlice.Data) as GemstoneOpenXDA.Types.MeasurementType[];
@@ -62,13 +65,11 @@ const MeterEventChannelWindow = (props: IProps) => {
     const mtStatus = useAppSelector(MeasurmentTypeSlice.Status) as Application.Types.Status;
     const [assetStatus, setAssetStatus] = React.useState<Application.Types.Status>('idle')
 
-    const [removeRecord, setRemoveRecord] = React.useState<OpenXDA.EventChannel|null>(null);
+    const [removeRecord, setRemoveRecord] = React.useState<OpenXDA.EventChannel | null>(null);
 
     const [errors, setErrors] = React.useState<string[]>([]);
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None' | 'Add')>('None');
     const roles = useAppSelector(SelectRoles);
-
-
 
     React.useEffect(() => {
         if (pStatus == 'uninitiated' || pStatus == 'changed')
@@ -81,9 +82,19 @@ const MeterEventChannelWindow = (props: IProps) => {
     }, [mtStatus])
 
     React.useEffect(() => {
-        if (status == 'uninitiated' || meterID !== props.Meter.ID || status == 'changed')
-            dispatch(FetchChannels({ meterId: props.Meter.ID }));
-    }, [props.Meter,status])
+        setStatus('loading');
+        const handle = EventChannelController.PagedSearch([], sortKey, ascending, page, props.Meter.ID);
+        handle.done((d) => {
+            setData(JSON.parse(d.Data as unknown as string));
+            setTotalPages(d.NumberOfPages);
+            setTotalRecords(d.TotalRecords);
+            setRecordsPerPage(d.RecordsPerPage);
+            if (page >= d.NumberOfPages)
+                setPage(Math.max(d.NumberOfPages - 1, 0));
+            setStatus('idle');
+        }).fail(() => setStatus('error'))
+        return () => { if (handle != null && handle.abort != null) handle.abort() }
+    }, [props.Meter, sortKey, ascending, page, refreshTrigger])
 
     React.useEffect(() => {
         if (!props.IsVisible)
@@ -111,7 +122,7 @@ const MeterEventChannelWindow = (props: IProps) => {
                 if (k == 'ConnectionPriority' && val != null && !AssetAttributes.isRealNumber(val))
                     e.push('All Connection Priorities must be numeric values.')
 
-                 if(k == 'Adder' && val == null)
+                if (k == 'Adder' && val == null)
                     e.push('All Channels must have an Adder.')
                 if (k == 'Multiplier' && val == null)
                     e.push('All Channels must have a Multiplier.')
@@ -151,7 +162,7 @@ const MeterEventChannelWindow = (props: IProps) => {
             for (let k of recordChanges.get(id).keys()) {
                 original[k] = (recordChanges.get(id).get(k as keyof OpenXDA.EventChannel)) as any
             }
-            dispatch(dBAction({ record: original, verb: 'PATCH' }));
+            EventChannelController.DBAction("PATCH", original).then(() => setRefreshTrigger(val => !val));
         }
 
         setRecordChanges(new Map<number, Map<keyof OpenXDA.EventChannel, number | string>>());
@@ -172,7 +183,7 @@ const MeterEventChannelWindow = (props: IProps) => {
             let update = cloneDeep(original);
             if (!update.has(record.ID))
                 update.set(record.ID, new Map<keyof OpenXDA.EventChannel, string | number>());
-            update.get(record.ID).set(field, record[field] as string|number);
+            update.get(record.ID).set(field, record[field] as string | number);
             return update;
         })
 
@@ -206,6 +217,13 @@ const MeterEventChannelWindow = (props: IProps) => {
                         <h4>Event Channels:</h4>
                     </div>
                 </div>
+                <div className="row">
+                    <div className="col">
+                        <p style={{ marginTop: 2, marginBottom: 2 }}>
+                            {'Could not complete Search'}
+                        </p>
+                    </div>
+                </div>
             </div>
             <div className="card-body">
                 <div style={{ width: '100%', height: '200px' }}>
@@ -222,6 +240,13 @@ const MeterEventChannelWindow = (props: IProps) => {
                 <div className="row">
                     <div className="col">
                         <h4>Event Channels:</h4>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <p style={{ marginTop: 2, marginBottom: 2 }}>
+                            {'Loading...'}
+                        </p>
                     </div>
                 </div>
             </div>
@@ -242,9 +267,16 @@ const MeterEventChannelWindow = (props: IProps) => {
                         <h4>Event Channels:</h4>
                     </div>
                 </div>
+                <div className="row">
+                    <div className="col">
+                        <p style={{ marginTop: 2, marginBottom: 2 }}>
+                            {`Displaying Event Channel(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + data.length} out of ${totalRecords}`}
+                        </p>
+                    </div>
+                </div>
             </div>
-            <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
-                <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <div className="card-body d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="row d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
                     <ConfigurableTable<OpenXDA.EventChannel>
                         LocalStorageKey="MeterEventChannelConfigTable"
                         TableClass="table table-hover"
@@ -258,10 +290,8 @@ const MeterEventChannelWindow = (props: IProps) => {
                         SortKey={sortKey}
                         Ascending={ascending}
                         OnSort={(d) => {
-                            if (d.colKey === sortKey)
-                                dispatch(FetchChannels({ sortField: d.colField, ascending: !ascending, meterId: props.Meter.ID }));
-                            else
-                                dispatch(FetchChannels({ sortField: d.colField, ascending: true, meterId: props.Meter.ID }));
+                            if (d.colKey === sortKey) setAscending(a => !a);
+                            else setSortKey(d.colField);
                         }}
                     >
                         <ConfigurableColumn Key='SourceIndices' Label='Channel' Default={true}>
@@ -272,7 +302,7 @@ const MeterEventChannelWindow = (props: IProps) => {
                                     Record={item} Field={'SourceIndices'}
                                     Label={''}
                                     Setter={(r) => createChange(r, 'SourceIndices')}
-                                    Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()}/>}>
+                                    Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()} />}>
                                 Identifier</Column>
                         </ConfigurableColumn >
                         <Column<OpenXDA.EventChannel>
@@ -293,7 +323,7 @@ const MeterEventChannelWindow = (props: IProps) => {
                                 Content={({ item }) => <Select Record={item} Field={'MeasurementTypeID'}
                                     Label={''}
                                     Options={measurementTypes.map(d => ({ Label: d.Name, Value: d.ID.toString() }))}
-                                    Setter={(r) => createChange(r, 'MeasurementTypeID')} Disabled={!hasPermissions()}/>}>
+                                    Setter={(r) => createChange(r, 'MeasurementTypeID')} Disabled={!hasPermissions()} />}>
                                 Type
                             </Column>
                         </ConfigurableColumn >
@@ -305,7 +335,7 @@ const MeterEventChannelWindow = (props: IProps) => {
                                 RowStyle={{ width: '10%' }}
                                 Content={({ item }) => <Select Record={item} Field={'PhaseID'}
                                     Label={''} Options={phases.map(d => ({ Label: d.Name, Value: d.ID.toString() }))}
-                                    Setter={(r) => createChange(r, 'PhaseID')} Disabled={!hasPermissions()}/>}>
+                                    Setter={(r) => createChange(r, 'PhaseID')} Disabled={!hasPermissions()} />}>
                             </Column>
                         </ConfigurableColumn >
                         <ConfigurableColumn Key='Adder' Label='Adder' Default={true}>
@@ -317,7 +347,7 @@ const MeterEventChannelWindow = (props: IProps) => {
                                 Content={({ item }) => <Input<OpenXDA.EventChannel>
                                     Record={item} Field={'Adder'} Type={'number'}
                                     Label={''} Setter={(r) => createChange(r, 'Adder')}
-                                    Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()}/>}>
+                                    Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()} />}>
                             </Column>
                         </ConfigurableColumn >
                         <ConfigurableColumn Key='Multiplier' Label='Multiplier' Default={true}>
@@ -329,7 +359,7 @@ const MeterEventChannelWindow = (props: IProps) => {
                                 Content={({ item }) => <Input<OpenXDA.EventChannel>
                                     Record={item} Field={'Multiplier'} Type={'number'}
                                     Label={''} Setter={(r) => createChange(r, 'Multiplier')}
-                                    Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()}/>}>
+                                    Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()} />}>
                             </Column>
                         </ConfigurableColumn >
                         <ConfigurableColumn Key='PerUnitValue' Label='Per Unit' Default={false}>
@@ -360,7 +390,7 @@ const MeterEventChannelWindow = (props: IProps) => {
                                 Content={({ item }) => <Select Record={item}
                                     Field={'AssetID'} Label={''}
                                     Options={assets.map(d => ({ Label: d.AssetKey, Value: d.ID.toString() }))}
-                                    Setter={(r) => createChange(r, 'AssetID')} Disabled={!hasPermissions()}/>}>
+                                    Setter={(r) => createChange(r, 'AssetID')} Disabled={!hasPermissions()} />}>
 
                             </Column>
                         </ConfigurableColumn >
@@ -402,7 +432,15 @@ const MeterEventChannelWindow = (props: IProps) => {
                             <p></p>
                         </Column>
                     </ConfigurableTable>
-
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <Paging
+                            Current={page + 1}
+                            SetPage={(p) => setPage(p - 1)}
+                            Total={totalPages}
+                        />
+                    </div>
                 </div>
             </div>
             <div className="card-footer">
@@ -438,7 +476,7 @@ const MeterEventChannelWindow = (props: IProps) => {
                                 Trend: false
                             }
 
-                            dispatch(dBAction({ verb: 'POST', record: newChannel }));
+                            EventChannelController.DBAction('POST', newChannel).then(() => setRefreshTrigger(val => !val));
                         }
                     }}>Add Channel</button>
                 </div>
@@ -447,10 +485,10 @@ const MeterEventChannelWindow = (props: IProps) => {
                     {assets.length == 0 ? <p>Must connect assets to meter.</p> : null}
                 </ToolTip>
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-primary" + (errors.length > 0 || recordChanges.size == 0 ? ' disabled' : '')} onClick={() => { if (errors.length === 0 && recordChanges.size > 0 && hasPermissions())  applyUpdates()}}
+                    <button className={"btn btn-primary" + (errors.length > 0 || recordChanges.size == 0 ? ' disabled' : '')} onClick={() => { if (errors.length === 0 && recordChanges.size > 0 && hasPermissions()) applyUpdates() }}
                         onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} data-tooltip={'save'}>Save Changes</button>
                     <ToolTip Show={hover == 'Update' && (errors.length > 0 || recordChanges.size == 0)} Position={'top'} Target={"save"}>
-                        {recordChanges.size == 0 && hasPermissions()? <p> No changes have been made. </p> : null}
+                        {recordChanges.size == 0 && hasPermissions() ? <p> No changes have been made. </p> : null}
                         {!hasPermissions() ? <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p> : null}
                         {errors.length > 0 ? errors.map((e, i) => <> <ReactIcons.CrossMark Color="var(--danger)" /> <p key={i}> {e} </p> </>) : null}
                     </ToolTip>
@@ -458,7 +496,7 @@ const MeterEventChannelWindow = (props: IProps) => {
                 <div className="btn-group mr-2">
                     <button className={"btn btn-warning" + (recordChanges.size == 0 ? ' disabled' : '')} onClick={() => { if (recordChanges.size > 0 && hasPermissions()) setRecordChanges(new Map<number, Map<keyof OpenXDA.EventChannel, number | string>>()); }}
                         onMouseEnter={() => setHover('Reset')} onMouseLeave={() => setHover('None')} data-tooltip={"clr"}>Clear Changes</button>
-                <ToolTip Show={hover == 'Reset' && (recordChanges.size  > 0)} Position={'top'} Target={"clr"}>
+                    <ToolTip Show={hover == 'Reset' && (recordChanges.size > 0)} Position={'top'} Target={"clr"}>
                         <p> There are {recordChanges.size} channels with changes that will be lost. </p>
                     </ToolTip>
                     <ToolTip Show={hover == 'Reset' && (recordChanges.size == 0)} Position={'top'} Target={"clr"}>
@@ -467,7 +505,11 @@ const MeterEventChannelWindow = (props: IProps) => {
                 </div>
             </div>
         </div>
-        <Warning Message={'This will permanently delete this Channel and cannot be undone.'} Show={removeRecord != null} Title={'Delete ' + (removeRecord?.Name ?? 'Channel')} CallBack={(c) => { if (c) dispatch(dBAction({ record: removeRecord, verb: 'DELETE' })); setRemoveRecord(null); }} />
+        <Warning
+            Message={'This will permanently delete this Channel and cannot be undone.'}
+            Show={removeRecord != null}
+            Title={'Delete ' + (removeRecord?.Name ?? 'Channel')}
+            CallBack={(c) => { if (c) EventChannelController.DBAction("DELETE", removeRecord).then(() => { setRemoveRecord(null); setRefreshTrigger(val => !val) }); }} />
     </>
 
 }

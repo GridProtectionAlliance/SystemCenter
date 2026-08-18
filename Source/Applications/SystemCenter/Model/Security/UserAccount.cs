@@ -242,7 +242,7 @@ namespace SystemCenter.Model.Security
 
             if (page is int p)// page manually, because filtering post-search requires it.
             {
-                int recordsPerPage = Take ?? 50;
+                int recordsPerPage = PageSize ?? 50;
                 DataRow[] rows = dataTable.AsEnumerable()
                     .Skip((p) * recordsPerPage)
                     .Take(recordsPerPage)

@@ -217,7 +217,7 @@ namespace SystemCenter.Controllers.OpenXDA
             if (!string.IsNullOrEmpty(GetRoles) && User.IsInRole(GetRoles))
                 return Unauthorized();
 
-            int recordsPerPage = 50;
+            int recordsPerPage = PageSize ?? 50;
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
                 int totalRecords = connection.ExecuteScalar<int>($@"
@@ -256,7 +256,7 @@ namespace SystemCenter.Controllers.OpenXDA
         [HttpGet, Route("{locationID:int}/Assets/{page:int}/{asc:int}/{orderBy}")]
         public IHttpActionResult GetAssetsForLocation(int locationID, int page, int asc, string orderBy)
         {
-            int recordsPerPage = 50;
+            int recordsPerPage = PageSize ?? 50;
 
             if (!string.IsNullOrEmpty(GetRoles) && User.IsInRole(GetRoles))
                 return Unauthorized();
@@ -323,7 +323,7 @@ namespace SystemCenter.Controllers.OpenXDA
                         if (Directory.Exists(Path.Combine(path, key)))
                         {
                                 IEnumerable<string> imagePaths = Directory.GetFiles(Path.Combine(path, key)).Select(fp => new FileInfo(fp).Name);
-                                return Ok(PageImagePaths(imagePaths, page, Take ?? 50));
+                                return Ok(PageImagePaths(imagePaths, page, PageSize ?? 50));
                         }
                         else
                             return Ok(new PagedResults()
@@ -331,7 +331,7 @@ namespace SystemCenter.Controllers.OpenXDA
                                 Data = JsonConvert.SerializeObject(new string[0]),
                                 TotalRecords = 0,
                                 NumberOfPages = 0,
-                                RecordsPerPage = Take ?? 50
+                                RecordsPerPage = PageSize ?? 50
                             });
                     }
                 else
