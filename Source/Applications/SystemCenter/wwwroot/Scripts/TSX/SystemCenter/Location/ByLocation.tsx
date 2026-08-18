@@ -304,11 +304,11 @@ const ByLocation: Application.Types.iByComponent = (props) => {
                 </div>
             </Modal>
             <Modal Show={showEXTModal} Size={'xlg'} Title={'Substation External Database Fields'} ShowX={true}
-                ShowCancel={false} ConfirmText={'Update All'} ConfirmBtnClass={'btn-info'} CallBack={(c) => {
-                    if (c && extDbUpdateAll.current !== undefined) extDbUpdateAll.current();
+                ShowCancel={false} ShowConfirm={false} CallBack={(c) => {
+                    
                     if (!c) setShowExtModal(false);
                 }}>
-                <ExternalDBUpdate Type={'Location'} UpdateAll={extDbUpdateAll} />
+                <ExternalDBUpdate Type={'Location'} />
             </Modal>
         </div>
     )

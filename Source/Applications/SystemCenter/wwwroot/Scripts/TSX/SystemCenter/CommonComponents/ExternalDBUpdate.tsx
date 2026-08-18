@@ -32,17 +32,16 @@ import moment from 'moment';
 import ExtDBTaskStatusModal from '../CommonComponents/ExtDBTaskStatusModal';
 import { SystemCenter as SC } from '../global';
 
-const ExternalDBUpdate = React.memo((props: {
+const ExternalDBUpdate = (props: {
     Type: 'Asset' | 'Meter' | 'Location' | 'Customer' | OpenXDA.Types.AssetTypeName,
     ID?: number,
-    UpdateAll?: React.MutableRefObject<() => (() => void)>
 }) => {
     // All externals and associated statuses
     const [statusMap, setStatusMap] = React.useState<Map<number, Application.Types.Status>>(new Map<number, Application.Types.Status>());
     const [externalDB, setExternalDB] = React.useState<Array<SystemCenter.Types.DetailedExternalDatabases>>([]);
     // Status/reload for whole page
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
-    const [reload, reloadExternals] = React.useState<number>(0);
+
     // Table Controls
     const [asc, setAsc] = React.useState<boolean>(true);
     const [sort, setSort] = React.useState<keyof SystemCenter.Types.DetailedExternalDatabases>('Name');
@@ -50,42 +49,43 @@ const ExternalDBUpdate = React.memo((props: {
     const [extDBTaskStatuses, setExtDBTaskStatuses] = React.useState<SC.ExtDBTaskStatus[]>([]);
     const [showExtDBTaskStatus, setShowExtDBTaskStatus] = React.useState<boolean>(false);
 
-    const updateMap = React.useCallback((id: number, status: Application.Types.Status) => {
+
+    const [activeUpdate, setActiveUpdate] = React.useState<SystemCenter.Types.DetailedExternalDatabases | undefined>(undefined)
+
+    const updateMap = (id: number, status: Application.Types.Status) => {
         setStatusMap((oldMap) => {
             const newMap = new Map(oldMap);
             newMap.set(id, status);
             return newMap;
         });
-    }, []);
+    };
 
-    const updateExternalDB = React.useCallback((record: SystemCenter.Types.ExternalDatabases) => {
-        updateMap(record.ID, 'loading');
-        const handle = $.ajax({
-            type: "GET",
-            url: `${homePath}api/SystemCenter/ExternalDatabases/UnscheduledUpdate/${record.ID}/${props.Type}${props.ID === undefined ? '' : "/" + props.ID}`,
-            contentType: "application/json; charset=utf-8",
-            cache: false,
-            async: true
-        }).done((newExtDBTaskStatuses: SC.ExtDBTaskStatus[]) => {
-            setExtDBTaskStatuses(newExtDBTaskStatuses);
-            setShowExtDBTaskStatus(true);
-            updateMap(record.ID, 'idle');
-        }).fail(() => { updateMap(record.ID, 'error'); });
+    React.useEffect(() => {
 
-        return handle;
-    }, [updateMap, props.Type]);
+        if (activeUpdate == undefined)
+            return;
 
-    const updateAllExternalDB = React.useCallback(() => {
-        // Promise that all db's will be updated
-        const allPromises = externalDB.map(db => updateExternalDB(db));
+        updateMap(activeUpdate.ID, 'loading');
 
-        // Cancel all promises if we need to
-        return () => {
-            allPromises.forEach(handle => {
-                if (handle?.abort != null) handle.abort();
-            });
+        const path = `${homePath}api/SystemCenter/ExternalDatabases/UnscheduledUpdate/${activeUpdate.ID}/${props.Type}${props.ID === undefined ? '' : "/" + props.ID}`;
+        setShowExtDBTaskStatus(true);
+
+        const socket = new WebSocket(path);
+
+        socket.onopen = () => { console.log('h'); }
+
+        socket.onmessage = (event) => {
+            const data: SC.ExtDBTaskStatus = JSON.parse(event.data);
+            setExtDBTaskStatuses(prev => [data, ...prev])
         }
-    }, [externalDB, updateExternalDB]);
+        socket.onclose = (e) => { console.log(e); updateMap(activeUpdate.ID, 'idle'); }
+        socket.onerror = (e) => { console.log(e); updateMap(activeUpdate.ID, 'error'); };
+
+        return () => {
+        }
+
+    }, [props.Type, props.ID, activeUpdate]);
+
 
     React.useEffect(() => {
         setStatus('loading');
@@ -114,23 +114,13 @@ const ExternalDBUpdate = React.memo((props: {
             extDbs.forEach(db => newMap.set(db.ID, 'idle'));
             setStatusMap(newMap);
             setStatus('idle');
-            const ordered = _.orderBy(extDbs, [sort], [(!asc ? "asc" : "desc")]);
-            setExternalDB(ordered);
+            setExternalDB(extDbs);
         }).fail(() => { setStatus('error') });
 
         return () => {
             if (handle?.abort != undefined) handle.abort();
         }
-    }, [props.Type, reload]);
-
-    React.useEffect(() => {
-        const ordered = _.orderBy(externalDB, [sort], [(!asc ? "asc" : "desc")]);
-        setExternalDB(ordered);
-    }, [asc, sort]);
-
-    React.useEffect(() => {
-        if (props.UpdateAll !== undefined) props.UpdateAll.current = updateAllExternalDB;
-    }, [updateAllExternalDB, props.UpdateAll]);
+    }, [props.Type, reload, asc, sort]);
 
     return (
         <>
@@ -190,11 +180,7 @@ const ExternalDBUpdate = React.memo((props: {
                             if (statusMap.get(item.ID) === 'error') return <ServerErrorIcon Show={true} Label="Could not complete update. Please contact an administrator..." />
                             return (
                                 <button className="btn btn-info pull-right" data-tooltip={item.ID} onClick={() => {
-                                    const handle = updateExternalDB(item);
-                                    handle.then(() => { reloadExternals(n => n + 1); });
-                                    return () => {
-                                        if (handle?.abort != undefined) handle.abort();
-                                    }
+                                    setActiveUpdate(item);
                                 }}>{`Update ${item.Name}`}</button>
                             );
                         }}
@@ -207,10 +193,10 @@ const ExternalDBUpdate = React.memo((props: {
                 Show={showExtDBTaskStatus}
                 ExtDBTaskStatuses={extDBTaskStatuses}
                 CallBack={() => setShowExtDBTaskStatus(false)}
-                RecordType={'Meters'}
+                RecordType={props.Type}
             />
         </>
     );
-});
+}
 
 export default ExternalDBUpdate;

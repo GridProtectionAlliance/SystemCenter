@@ -93,6 +93,7 @@ export namespace SystemCenter {
         Status: 'Info' | 'Error' | 'Warning'
         RowsAffected: number
         PercentFinished: number
+        RecordsAffected: number
     }
 }
 
