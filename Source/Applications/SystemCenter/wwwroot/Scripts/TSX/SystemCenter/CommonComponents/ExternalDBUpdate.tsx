@@ -52,36 +52,80 @@ const ExternalDBUpdate = (props: {
 
     const [activeUpdate, setActiveUpdate] = React.useState<SystemCenter.Types.DetailedExternalDatabases | undefined>(undefined)
 
-    const updateMap = (id: number, status: Application.Types.Status) => {
-        setStatusMap((oldMap) => {
-            const newMap = new Map(oldMap);
-            newMap.set(id, status);
-            return newMap;
-        });
-    };
 
     React.useEffect(() => {
-
         if (activeUpdate == undefined)
             return;
+
+        const updateMap = (id: number, status: Application.Types.Status) => {
+            setStatusMap((oldMap) => {
+                const newMap = new Map(oldMap);
+                newMap.set(id, status);
+                return newMap;
+            });
+        };
 
         updateMap(activeUpdate.ID, 'loading');
 
         const path = `${homePath}api/SystemCenter/ExternalDatabases/UnscheduledUpdate/${activeUpdate.ID}/${props.Type}${props.ID === undefined ? '' : "/" + props.ID}`;
         setShowExtDBTaskStatus(true);
 
-        const socket = new WebSocket(path);
+        const abortController = new AbortController();
 
-        socket.onopen = () => { console.log('h'); }
+        const runUpdate = async () => {
+            try {
+                const response = await fetch(path, {
+                    headers: { Accept: 'application/x-ndjson' },
+                    signal: abortController.signal
+                });
 
-        socket.onmessage = (event) => {
-            const data: SC.ExtDBTaskStatus = JSON.parse(event.data);
-            setExtDBTaskStatuses(prev => [data, ...prev])
-        }
-        socket.onclose = (e) => { console.log(e); updateMap(activeUpdate.ID, 'idle'); }
-        socket.onerror = (e) => { console.log(e); updateMap(activeUpdate.ID, 'error'); };
+                if (!response.ok)
+                    throw new Error(`External database update failed with status ${response.status}.`);
+
+                const reader = response.body?.getReader();
+
+                if (reader == null)
+                    throw new Error('Streaming responses are not supported by this browser.');
+
+                const decoder = new TextDecoder();
+                let buffer = '';
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    buffer += decoder.decode(value, { stream: !done });
+
+                    const messages = buffer.split('\n');
+                    buffer = messages.pop() ?? '';
+
+                    messages.filter(message => message.trim().length > 0).forEach(message => {
+                        const data: SC.ExtDBTaskStatus = JSON.parse(message);
+                        setExtDBTaskStatuses(prev => [data, ...prev]);
+                    });
+
+                    if (done)
+                        break;
+                }
+
+                if (buffer.trim().length > 0) {
+                    const data: SC.ExtDBTaskStatus = JSON.parse(buffer);
+                    setExtDBTaskStatuses(prev => [data, ...prev]);
+                }
+
+                updateMap(activeUpdate.ID, 'idle');
+            }
+            catch (error) {
+                if (abortController.signal.aborted)
+                    return;
+
+                console.log(error);
+                updateMap(activeUpdate.ID, 'error');
+            }
+        };
+
+        runUpdate();
 
         return () => {
+            abortController.abort();
         }
 
     }, [props.Type, props.ID, activeUpdate]);
