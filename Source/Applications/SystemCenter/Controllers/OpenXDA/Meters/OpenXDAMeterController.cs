@@ -305,8 +305,102 @@ namespace SystemCenter.Controllers.OpenXDA
             return Ok("Completed without errors");
         }
 
+        [HttpGet, Route("{meterID:int}/Channels/{filter=All}")]
+        public IHttpActionResult GetMeterChannels(int meterID, string filter)
+        {
+            if (GetRoles != string.Empty && !User.IsInRole(GetRoles))
+                return Unauthorized();
+
+            const string ChannelQuery =
+            "SELECT " +
+            "    Channel.ID, " +
+            "    Meter.AssetKey AS Meter, " +
+            "    Asset.AssetKey AS Asset, " +
+            "    MeasurementType.Name AS MeasurementType, " +
+            "    MeasurementCharacteristic.Name AS MeasurementCharacteristic, " +
+            "    Phase.Name AS Phase, " +
+            "    Channel.Name, " +
+            "    Channel.Adder, " +
+            "    Channel.Multiplier, " +
+            "    Channel.SamplesPerHour, " +
+            "    Channel.PerUnitValue, " +
+            "    Channel.HarmonicGroup, " +
+            "    Channel.Description, " +
+            "    Channel.Enabled, " +
+            "    Channel.ConnectionPriority, " +
+            "    Channel.Trend " +
+            "FROM " +
+            "    Channel JOIN " +
+            "    Asset ON Channel.AssetID = Asset.ID JOIN " +
+            "    Meter ON Channel.MeterID = Meter.ID JOIN " +
+            "    MeasurementType ON Channel.MeasurementTypeID = MeasurementType.ID JOIN " +
+            "    MeasurementCharacteristic ON Channel.MeasurementCharacteristicID = MeasurementCharacteristic.ID JOIN " +
+            "    Phase ON Channel.PhaseID = Phase.ID " +
+            "WHERE MeterID = {0}";
+
+            const string SeriesQuery =
+                "SELECT " +
+                "    Series.ID, " +
+                "    Series.ChannelID, " +
+                "    SeriesType.Name AS SeriesType, " +
+                "    Series.SourceIndexes " +
+                "FROM " +
+                "    Series JOIN " +
+                "    SeriesType ON Series.SeriesTypeID = SeriesType.ID JOIN " +
+                "    Channel ON Series.ChannelID = Channel.ID " +
+                "WHERE Channel.MeterID = {0}";
+
+            using (AdoDataConnection connection = ConnectionFactory())
+            {
+                DataTable channelTable = connection.RetrieveData(ChannelQuery, meterID);
+                string channelJSON = JsonConvert.SerializeObject(channelTable);
+                JArray channelArray = JArray.Parse(channelJSON);
+
+                DataTable seriesTable = connection.RetrieveData(SeriesQuery, meterID);
+                string seriesJSON = JsonConvert.SerializeObject(seriesTable);
+                JArray seriesArray = JArray.Parse(seriesJSON);
+
+                int GetChannelID(JToken channel) => channel.Value<int>("ID");
+                int GetSeriesChannelID(JToken series) => series.Value<int>("ChannelID");
+
+                var groupings = channelArray
+                    .GroupJoin(seriesArray, GetChannelID, GetSeriesChannelID, (Channel, Series) => new { Channel, Series });
+
+                foreach (var grouping in groupings)
+                    grouping.Channel["Series"] = new JArray(grouping.Series);
+
+                bool IsInstantaneous(JToken channel) =>
+                    channel.Value<string>("MeasurementCharacteristic") == "Instantaneous";
+
+                bool IsSeriesTypeValues(JToken series) =>
+                    series.Value<string>("SeriesType") == "Values" ||
+                    series.Value<string>("SeriesType") == "Instantaneous";
+
+                bool IsEventChannel(JToken channel) =>
+                    IsInstantaneous(channel) &&
+                    channel["Series"] is JArray series &&
+                    series.Count == 1 &&
+                    series.Any(IsSeriesTypeValues);
+
+                bool IsTrendChannel(JToken channel) =>
+                    !IsEventChannel(channel);
+
+                IEnumerable<JToken> FilterChannels()
+                {
+                    switch (filter.ToLower())
+                    {
+                        case "event": return channelArray.Where(IsEventChannel);
+                        case "trend": return channelArray.Where(IsTrendChannel);
+                        default: return channelArray;
+                    }
+                }
+
+                return Ok(FilterChannels());
+            }
+        }
+
         [HttpGet, Route("{meterID:int}/Channels/{page:int}/{filter=All}")]
-        public IHttpActionResult GetMeterChannels(int meterID, int page, string filter)
+        public IHttpActionResult GetMeterChannelsPaged(int meterID, int page, string filter)
         {
             if (GetRoles != string.Empty && !User.IsInRole(GetRoles))
                 return Unauthorized();
