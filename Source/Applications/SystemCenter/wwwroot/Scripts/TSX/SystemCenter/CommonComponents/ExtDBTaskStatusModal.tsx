@@ -40,7 +40,7 @@ const ExtDBTaskStatusModal = (props: IProps) => {
 
     React.useEffect(() => {
         if (props.ExtDBTaskStatuses.length == 0) return;
-        const mostRecentStatus = props.ExtDBTaskStatuses[props.ExtDBTaskStatuses.length - 1];
+        const mostRecentStatus = props.ExtDBTaskStatuses[0];
         setRecordsUpdated(mostRecentStatus.RowsAffected);
         setFieldsUpdated(mostRecentStatus.RowsAffected);
         setPercentComplete(mostRecentStatus.PercentFinished);
