@@ -1877,7 +1877,7 @@ namespace SystemCenter.Controllers
 
             ConcurrentQueue<ExtDBTaskStatus> logQueue = new ConcurrentQueue<ExtDBTaskStatus>();
 
-            Task runTask = Task.Run(() => ScheduledExtDBTask.Run(extDB, logQueue));
+            Task runTask = Task.Run(() => ScheduledExtDBTask.Run(extDB, parentTable, null, logQueue));
 
             response.Content = new PushStreamContent(async (stream, content, context) =>
             {

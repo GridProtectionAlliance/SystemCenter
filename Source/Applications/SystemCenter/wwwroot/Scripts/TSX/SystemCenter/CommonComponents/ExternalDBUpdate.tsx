@@ -67,7 +67,7 @@ const ExternalDBUpdate = (props: {
 
         updateMap(activeUpdate.ID, 'loading');
 
-        const path = `${homePath}api/SystemCenter/ExternalDatabases/UnscheduledUpdate/${activeUpdate.ID}/${props.Type}${props.ID === undefined ? '' : "/" + props.ID}`;
+        const path = `${homePath}api/SystemCenter/ExternalDatabases/UnscheduledUpdate/${activeUpdate.ID}/${(props.Type == 'CapacitorBank' ? 'CapBank' : (props.Type == 'CapacitorBankRelay' ? 'CapBankRelay' : props.Type))}${props.ID === undefined ? '' : "/" + props.ID}`;
         setShowExtDBTaskStatus(true);
 
         const abortController = new AbortController();
@@ -145,7 +145,7 @@ const ExternalDBUpdate = (props: {
                         FROM AdditionalField INNER JOIN 
                         extDBTables ON AdditionalField.ExternalDBTableID = extDBTables.ID INNER JOIN 
                         ExternalDatabases ON extDBTables.ExtDBID = ExternalDatabases.ID 
-                        WHERE AdditionalField.ParentTable = '${props.Type}')`,
+                        WHERE AdditionalField.ParentTable = '${(props.Type == 'CapacitorBank' ? 'CapBank' : (props.Type == 'CapacitorBankRelay' ? 'CapBankRelay' : props.Type)) }')`,
                     Operator: 'IN',
                     IsPivotColumn: false
                 }], OrderBy: sort, Ascending: asc }),

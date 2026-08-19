@@ -46,17 +46,18 @@ import StationBatteryAttributes from '../AssetAttribute/StationBattery';
 
 
 
-declare type AssetTab = 'Bus' | 'Line' | 'Transformer' | 'CapacitorBank' | 'Breaker' | 'Generation' | 'StationAux' | 'StationBattery';
+declare type AssetTab = 'Bus' | 'Line' | 'Transformer' | 'CapacitorBank' | 'Breaker' | 'Generation' | 'StationAux' | 'StationBattery' | 'CapacitorBankRelay';
 const PagingID = 'ByAssetPage';
 const extDBTabList = [
     { Label: 'Buses', Id: 'Bus' },
     { Label: 'Lines', Id: 'Line' },
     { Label: 'Breakers', Id: 'Breaker' },
     { Label: 'Transformers', Id: 'Transformer' },
-    { Label: 'Cap Banks', Id: 'CapacitorBank' },
+    { Label: 'Capacitor Bank', Id: 'CapacitorBank' },
     { Label: 'Generation', Id: 'Generation' },
     { Label: 'Station Auxiliary', Id: 'StationAux' },
     { Label: 'Station Battery', Id: 'StationBattery' },
+    { Label: 'Capacitor Bank Relay', Id:'CapacitorBankRelay'}
 ];
 const AssetController = new GenericController<SystemCenter.Types.DetailedAsset>(`${homePath}api/OpenXDA/ByRestrictedDetailedAsset`, "AssetName", true);
 

@@ -93,7 +93,7 @@ const ExtDBTaskStatusModal = (props: IProps) => {
                                             </Alert>
                                         </div>
                                     )
-                                }).reverse()
+                                })
                             }
                         </div>
                     </div>
