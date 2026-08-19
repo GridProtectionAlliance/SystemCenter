@@ -30,7 +30,6 @@ import * as React from 'react';
 import _ from 'lodash';
 import moment from 'moment';
 import ExtDBTaskStatusModal from '../CommonComponents/ExtDBTaskStatusModal';
-import { SystemCenter as SC } from '../global';
 
 const ExternalDBUpdate = (props: {
     Type: 'Asset' | 'Meter' | 'Location' | 'Customer' | OpenXDA.Types.AssetTypeName,
@@ -38,7 +37,7 @@ const ExternalDBUpdate = (props: {
 }) => {
     // All externals and associated statuses
     const [statusMap, setStatusMap] = React.useState<Map<number, Application.Types.Status>>(new Map<number, Application.Types.Status>());
-    const [externalDB, setExternalDB] = React.useState<Array<SystemCenter.Types.DetailedExternalDatabases>>([]);
+    const [externalDB, setExternalDB] = React.useState<SystemCenter.Types.DetailedExternalDatabases[]>([]);
     // Status/reload for whole page
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 
@@ -46,91 +45,17 @@ const ExternalDBUpdate = (props: {
     const [asc, setAsc] = React.useState<boolean>(true);
     const [sort, setSort] = React.useState<keyof SystemCenter.Types.DetailedExternalDatabases>('Name');
 
-    const [extDBTaskStatuses, setExtDBTaskStatuses] = React.useState<SC.ExtDBTaskStatus[]>([]);
-    const [showExtDBTaskStatus, setShowExtDBTaskStatus] = React.useState<boolean>(false);
-
-
     const [activeUpdate, setActiveUpdate] = React.useState<SystemCenter.Types.DetailedExternalDatabases | undefined>(undefined)
 
-
-    React.useEffect(() => {
-        if (activeUpdate == undefined)
-            return;
-
-        const updateMap = (id: number, status: Application.Types.Status) => {
+    const updateStatus = React.useCallback((status: Application.Types.Status) => {
+        if (activeUpdate != undefined)
             setStatusMap((oldMap) => {
                 const newMap = new Map(oldMap);
-                newMap.set(id, status);
+                newMap.set(activeUpdate.ID, status);
                 return newMap;
             });
-        };
-
-        updateMap(activeUpdate.ID, 'loading');
-
-        const path = `${homePath}api/SystemCenter/ExternalDatabases/UnscheduledUpdate/${activeUpdate.ID}/${(props.Type == 'CapacitorBank' ? 'CapBank' : (props.Type == 'CapacitorBankRelay' ? 'CapBankRelay' : props.Type))}${props.ID === undefined ? '' : "/" + props.ID}`;
-        setShowExtDBTaskStatus(true);
-
-        const abortController = new AbortController();
-
-        const runUpdate = async () => {
-            if (activeUpdate == undefined) return
-            try {
-                const response = await fetch(path, {
-                    headers: { Accept: 'application/x-ndjson' },
-                    signal: abortController.signal
-                });
-
-                if (!response.ok)
-                    throw new Error(`External database update failed with status ${response.status}.`);
-
-                const reader = response.body?.getReader();
-
-                if (reader == null)
-                    throw new Error('Streaming responses are not supported by this browser.');
-
-                const decoder = new TextDecoder();
-                let buffer = '';
-
-                while (true) {
-                    const { done, value } = await reader.read();
-                    buffer += decoder.decode(value, { stream: !done });
-
-                    const messages = buffer.split('\n');
-                    buffer = messages.pop() ?? '';
-
-                    messages.filter(message => message.trim().length > 0).forEach(message => {
-                        const data: SC.ExtDBTaskStatus = JSON.parse(message);
-                        setExtDBTaskStatuses(prev => [data, ...prev]);
-                    });
-
-                    if (done)
-                        break;
-                }
-
-                if (buffer.trim().length > 0) {
-                    const data: SC.ExtDBTaskStatus = JSON.parse(buffer);
-                    setExtDBTaskStatuses(prev => [data, ...prev]);
-                }
-
-                updateMap(activeUpdate.ID, 'idle');
-            }
-            catch (error) {
-                if (abortController.signal.aborted)
-                    return;
-
-                console.log(error);
-                updateMap(activeUpdate.ID, 'error');
-            }
-        };
-
-        runUpdate();
-
-        return () => {
-            abortController.abort();
-        }
-
-    }, [props.Type, props.ID, activeUpdate]);
-
+        }, [activeUpdate])
+  
 
     React.useEffect(() => {
         setStatus('loading');
@@ -235,10 +160,11 @@ const ExternalDBUpdate = (props: {
             }
             <LoadingScreen Show={status === 'loading'} />
             <ExtDBTaskStatusModal
-                Show={showExtDBTaskStatus}
-                ExtDBTaskStatuses={extDBTaskStatuses}
-                CallBack={() => { setShowExtDBTaskStatus(false); setExtDBTaskStatuses([]); setActiveUpdate(undefined); }}
+                Record={activeUpdate}
+                ParentID={props.ID}
+                CallBack={() => { setActiveUpdate(undefined); }}
                 RecordType={props.Type}
+                SetStatus={updateStatus}
             />
         </>
     );

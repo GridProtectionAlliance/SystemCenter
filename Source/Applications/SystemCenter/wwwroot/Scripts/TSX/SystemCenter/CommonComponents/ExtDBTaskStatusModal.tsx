@@ -23,73 +23,150 @@
 
 import * as React from 'react';
 import { Modal, Alert, StatusProgressBar } from '@gpa-gemstone/react-interactive';
-import { SystemCenter as SC } from '../global'
+import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
+import { SystemCenter as SC } from '../global';
 
 interface IProps {
-    Show: boolean
-    ExtDBTaskStatuses: SC.ExtDBTaskStatus[]
-    CallBack: () => void
-    RecordType: string
+    CallBack: () => void,
+    Record: SystemCenter.Types.DetailedExternalDatabases | undefined,
+    RecordType: 'Asset' | 'Meter' | 'Location' | 'Customer' | OpenXDA.Types.AssetTypeName,
+    ParentID?: number,
+    SetStatus: (s: Application.Types.Status) => void
 }
 
 const ExtDBTaskStatusModal = (props: IProps) => {
 
-    const [recordsUpdated, setRecordsUpdated] = React.useState<number>(0);
-    const [fieldsUpdated, setFieldsUpdated] = React.useState<number>(0);
-    const [percentComplete, setPercentComplete] = React.useState<number>(0);
+
+    const [messages, setMesssages] = React.useState<SC.ExtDBTaskStatus[]>([]);
+    const [complete, setComplete] = React.useState<boolean>(false);
+
+
+    const recordsUpdated = React.useMemo(() => messages.length > 0? Math.max(...messages.map(m => m.RecordsAffected)) : 0, [messages]);
+    const fieldsUpdated = React.useMemo(() => messages.length > 0 ? Math.max(...messages.map(m => m.RowsAffected)) : 0, [messages]);
+    const percentComplete = React.useMemo(() => messages.length > 0 ? Math.max(...messages.map(m => m.PercentFinished)) : 0, [messages]);
+
 
     React.useEffect(() => {
-        if (props.ExtDBTaskStatuses.length == 0) return;
-        const mostRecentStatus = props.ExtDBTaskStatuses[0];
-        setRecordsUpdated(mostRecentStatus.RowsAffected);
-        setFieldsUpdated(mostRecentStatus.RowsAffected);
-        setPercentComplete(mostRecentStatus.PercentFinished);
-    }, [props.ExtDBTaskStatuses])
+        if (props.Record == undefined)
+            return;
+
+
+        props.SetStatus('loading');
+
+        const path = `${homePath}api/SystemCenter/ExternalDatabases/UnscheduledUpdate/${props.Record.ID}/${(props.RecordType == 'CapacitorBank' ? 'CapBank' : (props.RecordType == 'CapacitorBankRelay' ? 'CapBankRelay' : props.RecordType))}${props.ParentID === undefined ? '' : "/" + props.ParentID}`;
+
+        const abortController = new AbortController();
+
+        const runUpdate = async () => {
+            if (props.Record == undefined) return
+            try {
+                const response = await fetch(path, {
+                    headers: { Accept: 'application/x-ndjson' },
+                    signal: abortController.signal
+                });
+
+                if (!response.ok) {
+                    throw new Error(`External database update failed with status ${response.status}.`);
+                }
+
+                const reader = response.body?.getReader();
+
+                if (reader == null)
+                    throw new Error('Streaming responses are not supported by this browser.');
+
+                const decoder = new TextDecoder();
+                let buffer = '';
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    buffer += decoder.decode(value, { stream: !done });
+
+                    const messages = buffer.split('\n');
+                    buffer = messages.pop() ?? '';
+
+                    messages.filter(message => message.trim().length > 0).forEach(message => {
+                        const data: SC.ExtDBTaskStatus = JSON.parse(message);
+                        setMesssages(prev => [data, ...prev]);
+                    });
+
+                    if (done) {
+                        setComplete(true)
+                        break;
+                    }
+                }
+
+                if (buffer.trim().length > 0) {
+                    const data: SC.ExtDBTaskStatus = JSON.parse(buffer);
+                    setMesssages(prev => [data, ...prev]);
+                }
+
+                props.SetStatus('idle');
+            }
+            catch (error) {
+                setComplete(true)
+                if (abortController.signal.aborted)
+                    return;
+
+                console.log(error);
+                props.SetStatus('error');
+            }
+        };
+
+        runUpdate();
+
+        return () => {
+            setComplete(true)
+            abortController.abort();
+        }
+
+    }, [props.RecordType, props.Record, props.ParentID, props.SetStatus]);
+
+    
 
     return (
         <Modal
-            Show={props.Show}
+            Show={props.Record != undefined}
             Size={"lg"}
-            Title={"External Database Task Status"}
+            Title={"External Database Update Status"}
             CallBack={() => {
                 props.CallBack();
-                setRecordsUpdated(0);
-                setFieldsUpdated(0);
-                setPercentComplete(0);
+                setMesssages([]);
+                setComplete(false)
             }}
-            ShowX={percentComplete == 100}
+            ShowX={complete}
             ShowCancel={false}
             ShowConfirm={false}
             BodyStyle={{ overflow: 'hidden', height: 'calc(100vh - 210px)', display: 'flex', flexDirection: 'column' }}
         >
             <div className="row" style={{ flex: '1 1 0%', overflow: 'hidden' }}>
-                <div className="col-12" style={{ height: '100%' }}>
+                <div className="col-12 d-flex flex-column" style={{ height: '100%' }}>
 
                     <div className="row">
+                        <div className='col-12'>
                         <StatusProgressBar
                             CurrentPercentage={percentComplete}
                             Class={"w-100"}
-                        />
+                            />
+                        </div>
                     </div>
                     <div className="row" >
-                        <div className="col d-flex justify-content-center h-100">
-                            <h6>{`${props.RecordType} updated: ${recordsUpdated}`}</h6>
+                        <div className="col d-flex justify-content-center">
+                            <h6>{`${props.RecordType}s updated: ${recordsUpdated}`}</h6>
                         </div>
-                        <div className="col d-flex justify-content-center h-100">
+                        <div className="col d-flex justify-content-center">
                             <h6>{`Fields updated: ${fieldsUpdated}`}</h6>
                         </div>
                     </div>
-                    <div className="row h-100" >
-                        <div className="col d-flex flex-column h-100" style={{ overflow: 'auto', flex: 1, paddingBottom: 40}} >
-                            {props.ExtDBTaskStatuses.length == 0 ? <></> :
-                                props.ExtDBTaskStatuses.map((extDBTaskStatus) => {
+                    <div className="row" style={{ overflow: 'auto', flex: 1, paddingBottom: 40 }} >
+                        <div className="col d-flex flex-column h-100" >
+                            {messages.map((extDBTaskStatus) => {
                                     return (
-                                        <div className="row my-0 d-flex align-items-center" >
+                                        <div className="row" >
                                             <Alert
                                                 Class={getAlertClass(extDBTaskStatus.Status)}
                                                 Style={{ justifyContent: 'center', width: '100%', height: '100%', alignItems: 'center', marginBottom: 0 }}
                                             >
-                                                <h5>{extDBTaskStatus.Message}</h5>
+                                                {extDBTaskStatus.Message}
                                             </Alert>
                                         </div>
                                     )
@@ -105,7 +182,7 @@ const ExtDBTaskStatusModal = (props: IProps) => {
 
 export default ExtDBTaskStatusModal;
 
-const getAlertClass = (taskStatusType: 'Error' | 'Warning' | 'Info') => {
+const getAlertClass = (taskStatusType: 'Error' | 'Warning' | 'Info' | 'Success') => {
     switch (taskStatusType) {
         case 'Error':
             return 'alert-danger';
@@ -113,5 +190,7 @@ const getAlertClass = (taskStatusType: 'Error' | 'Warning' | 'Info') => {
             return 'alert-info';
         case 'Warning':
             return 'alert-warning'
+        case 'Success':
+            return 'alert-success'
     }
 }
