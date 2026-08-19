@@ -116,12 +116,12 @@ namespace SystemCenter.ScheduledProcesses
                 IEnumerable<extDBTables> extTables = tblTable.QueryRecordsWhere("ExtDBID = {0}", extDB.ID);
                 if (extTables.Count() == 0)
                 {
-                    Log.Warn($"No tables found connected to external database ${extDB.Name}.");
+                    Log.Warn($"No tables found connected to external database {extDB.Name}.");
                     logQueue?.Enqueue(new ExtDBTaskStatus() {
                         RowsAffected = 0,
                         PercentFinished = 100,
                         Status = "Error",
-                        Message = $"No tables found connected to external database ${extDB.Name}."
+                        Message = $"No tables found connected to external database {extDB.Name}."
                     });
                     return 0;
                 }
@@ -156,7 +156,7 @@ namespace SystemCenter.ScheduledProcesses
                     RowsAffected = rowsAffected,
                     PercentFinished = 100,
                     Status = "Info",
-                    Message = $"Finished updating external database ${extDB.Name}: {rowsAffected} rows affected."
+                    Message = $"Finished updating external database {extDB.Name}: {rowsAffected} rows affected."
                 });
                 return rowsAffected;
             }
@@ -187,13 +187,13 @@ namespace SystemCenter.ScheduledProcesses
                 IEnumerable<extDBTables> extTables = tblTable.QueryRecordsWhere("ExtDBID = {0}", extDB.ID);
                 if (extTables.Count() == 0)
                 {
-                    Log.Warn($"No tables found connected to external database ${extDB.Name}.");
+                    Log.Warn($"No tables found connected to external database {extDB.Name}.");
                     logQueue!.Enqueue(new ExtDBTaskStatus()
                     {
                         RowsAffected = 0,
                         PercentFinished = 100,
                         Status = "Error",
-                        Message = $"No tables found connected to external database ${extDB.Name}."
+                        Message = $"No tables found connected to external database {extDB.Name}."
                     });
                     return 0;
                 }
@@ -217,7 +217,7 @@ namespace SystemCenter.ScheduledProcesses
                     RowsAffected = rowsAffected,
                     PercentFinished = 100,
                     Status = "Info",
-                    Message = $"Finished updating external database ${extDB.Name}: {rowsAffected} rows affected."
+                    Message = $"Finished updating external database {extDB.Name}: {rowsAffected} rows affected."
                 });
                 return rowsAffected;
             }
