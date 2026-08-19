@@ -73,6 +73,7 @@ const ExternalDBUpdate = (props: {
         const abortController = new AbortController();
 
         const runUpdate = async () => {
+            if (activeUpdate == undefined) return
             try {
                 const response = await fetch(path, {
                     headers: { Accept: 'application/x-ndjson' },
@@ -236,7 +237,7 @@ const ExternalDBUpdate = (props: {
             <ExtDBTaskStatusModal
                 Show={showExtDBTaskStatus}
                 ExtDBTaskStatuses={extDBTaskStatuses}
-                CallBack={() => { setShowExtDBTaskStatus(false); setExtDBTaskStatuses([]) }}
+                CallBack={() => { setShowExtDBTaskStatus(false); setExtDBTaskStatuses([]); setActiveUpdate(undefined); }}
                 RecordType={props.Type}
             />
         </>
