@@ -236,7 +236,7 @@ const ExternalDBUpdate = (props: {
             <ExtDBTaskStatusModal
                 Show={showExtDBTaskStatus}
                 ExtDBTaskStatuses={extDBTaskStatuses}
-                CallBack={() => setShowExtDBTaskStatus(false)}
+                CallBack={() => { setShowExtDBTaskStatus(false); setExtDBTaskStatuses([]) }}
                 RecordType={props.Type}
             />
         </>

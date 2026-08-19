@@ -51,7 +51,12 @@ const ExtDBTaskStatusModal = (props: IProps) => {
             Show={props.Show}
             Size={"lg"}
             Title={"External Database Task Status"}
-            CallBack={props.CallBack}
+            CallBack={() => {
+                props.CallBack();
+                setRecordsUpdated(0);
+                setFieldsUpdated(0);
+                setPercentComplete(0);
+            }}
             ShowX={percentComplete == 100}
             ShowCancel={false}
             ShowConfirm={false}
