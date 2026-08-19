@@ -46,17 +46,18 @@ import StationBatteryAttributes from '../AssetAttribute/StationBattery';
 
 
 
-declare type AssetTab = 'Bus' | 'Line' | 'Transformer' | 'CapacitorBank' | 'Breaker' | 'Generation' | 'StationAux' | 'StationBattery';
+declare type AssetTab = 'Bus' | 'Line' | 'Transformer' | 'CapacitorBank' | 'Breaker' | 'Generation' | 'StationAux' | 'StationBattery' | 'CapacitorBankRelay';
 const PagingID = 'ByAssetPage';
 const extDBTabList = [
     { Label: 'Buses', Id: 'Bus' },
     { Label: 'Lines', Id: 'Line' },
     { Label: 'Breakers', Id: 'Breaker' },
     { Label: 'Transformers', Id: 'Transformer' },
-    { Label: 'Cap Banks', Id: 'CapacitorBank' },
+    { Label: 'Capacitor Bank', Id: 'CapacitorBank' },
     { Label: 'Generation', Id: 'Generation' },
     { Label: 'Station Auxiliary', Id: 'StationAux' },
     { Label: 'Station Battery', Id: 'StationBattery' },
+    { Label: 'Capacitor Bank Relay', Id:'CapacitorBankRelay'}
 ];
 const AssetController = new GenericController<SystemCenter.Types.DetailedAsset>(`${homePath}api/OpenXDA/ByRestrictedDetailedAsset`, "AssetName", true);
 
@@ -89,7 +90,6 @@ const ByAsset: Application.Types.iByComponent = (props) => {
     const [showNewModal, setShowNewModal] = React.useState<boolean>(false);
 
     const [extDBTab, setExtDBTab] = React.useState<OpenXDA.Types.AssetTypeName>(getExtDBTab());
-    const extDbUpdateAll = React.useRef<() => (() => void)>(undefined);
 
     const [assetErrors, setAssetErrors] = React.useState<string[]>([]);
 
@@ -409,9 +409,8 @@ const ByAsset: Application.Types.iByComponent = (props) => {
             </Modal>
            
             <Modal Show={showEXTModal} Size={'xlg'} Title={'Update Asset External Fields'} ShowX={true}
-                ShowCancel={false} ConfirmText={'Update All'} ConfirmBtnClass={'btn-info'} CallBack={(c) => {
-                    if (c && extDbUpdateAll.current !== undefined) extDbUpdateAll.current();
-                    if (!c) setShowExtModal(false);
+                ShowCancel={false} ShowConfirm={false} ConfirmBtnClass={'btn-info'} CallBack={(c) => {
+                   setShowExtModal(false);
                 }}>
                 <TabSelector
                     Tabs={extDBTabList}
@@ -421,7 +420,7 @@ const ByAsset: Application.Types.iByComponent = (props) => {
                 <div className="container-fluid d-flex h-100 flex-column">
                     <div className="tab-content row" style={{ flex: 1, overflow: 'hidden' }}>
                         <div className={"tab-pane active"}>
-                            <ExternalDBUpdate Type={extDBTab} UpdateAll={extDbUpdateAll} />
+                            <ExternalDBUpdate Type={extDBTab} />
                         </div>
                     </div>
                 </div>

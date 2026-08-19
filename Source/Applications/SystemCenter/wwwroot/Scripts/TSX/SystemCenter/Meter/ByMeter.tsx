@@ -223,11 +223,10 @@ const ByMeter: Application.Types.iByComponent = (props) => {
                 </div>
             </div>
             <Modal Show={showEXTModal} Size={'xlg'} Title={'Meter External Database Fields'}
-                ShowCancel={false} ShowX={true} ConfirmText={'Update All'} ConfirmBtnClass={'btn-info'} CallBack={(c) => {
-                    if (c && extDbUpdateAll.current !== undefined) extDbUpdateAll.current();
+                ShowCancel={false} ShowX={true} ShowConfirm={false}  CallBack={(c) => {
                     if (!c) setShowExtModal(false);
                 }}>
-                <ExternalDBUpdate Type='Meter' UpdateAll={extDbUpdateAll} />
+                <ExternalDBUpdate Type='Meter'/>
             </Modal>
         </div>
     )

@@ -68,7 +68,7 @@ function AdditionalFieldsTable(props: IProps): JSX.Element {
 
         const fieldHandle = $.ajax({
             type: "GET",
-            url: `${homePath}api/SystemCenter/AdditionalFieldView/ParentTable/${props.Type}/${sortKey}/${(ascending ? '1' : '0')}/${page}`,
+            url: `${homePath}api/SystemCenter/AdditionalFieldView/ParentTable/${(props.Type == 'CapacitorBank' ? 'CapBank' : (props.Type == 'CapacitorBankRelay' ? 'CapBankRelay' : props.Type))}/${sortKey}/${(ascending ? '1' : '0')}/${page}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,

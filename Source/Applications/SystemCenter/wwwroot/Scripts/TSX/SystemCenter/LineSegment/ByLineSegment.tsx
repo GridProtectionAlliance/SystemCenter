@@ -49,8 +49,6 @@ const ByLineSegment: Application.Types.iByComponent = (props) => {
 
     const [showEXTModal, setShowExtModal] = React.useState<boolean>(false);
 
-    const extDbUpdateAll = React.useRef<() => (() => void)>(undefined);
-
     React.useEffect(() => {
         let storedInfo = JSON.parse(localStorage.getItem(PagingID) as string);
         if (storedInfo == null || storedInfo == 0) return; // page 0 means it's on a real page
@@ -230,11 +228,11 @@ const ByLineSegment: Application.Types.iByComponent = (props) => {
                 <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p - 1)} />
             </div>
             <Modal Show={showEXTModal} Size={'xlg'} Title={'Update Line Segment External Fields'}
-                ShowX={true} ShowCancel={false} ConfirmText={'Update All'} ConfirmBtnClass={'btn-info'} CallBack={(c) => {
-                    if (c && extDbUpdateAll.current !== undefined) extDbUpdateAll.current();
+                ShowX={true} ShowCancel={false} ShowConfirm={false} CallBack={(c) => {
+                   
                     if (!c) setShowExtModal(false);
                 }}>
-                <ExternalDBUpdate Type={'LineSegment'} UpdateAll={extDbUpdateAll} />
+                <ExternalDBUpdate Type={'LineSegment'} />
             </Modal>
         </div>
     )

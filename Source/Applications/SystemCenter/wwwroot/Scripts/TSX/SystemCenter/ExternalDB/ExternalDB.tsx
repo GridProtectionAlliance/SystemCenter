@@ -29,6 +29,7 @@ import { useAppSelector, useAppDispatch } from '../hooks';
 import { ExternalDatabasesSlice } from '../Store/Store';
 import { LoadingScreen, Modal, TabSelector, Warning } from '@gpa-gemstone/react-interactive';
 import { Application } from '@gpa-gemstone/application-typings';
+import { SystemCenter as SC } from '../global';
 
 declare var homePath: string;
 declare type Tab = 'info' | 'tables';
@@ -43,6 +44,7 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
     const [showRemove, setShowRemove] = React.useState<boolean>(false);
 
     const [requestStatus, setRequestStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [extDBTaskStatuses, setExtDBTaskStatuses] = React.useState<SC.ExtDBTaskStatus[]>([]);
 
     const Tabs = [
         { Id: "info", Label: "Info" },
@@ -75,15 +77,15 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
     const RequestUpdate = React.useCallback(() => {
         setRequestStatus('loading');
         let handle = $.ajax({
-            type: "POST",
-            url: `${homePath}api/SystemCenter/ExternalDatabases/UnscheduledUpdate`,
+            type: "GET",
+            url: `${homePath}api/SystemCenter/ExternalDatabases/UnscheduledUpdate/${record.ID}`,
             contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(record),
             dataType: 'json',
             cache: false,
             async: true
         });
-        handle.done(() => {
+        handle.done((newExtDBTaskStatuses: SC.ExtDBTaskStatus[]) => {
+            setExtDBTaskStatuses(newExtDBTaskStatuses);
             setRequestStatus('idle');
         });
         handle.fail(() => {

@@ -21,18 +21,6 @@
 //
 //******************************************************************************************************
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Configuration;
-using System.Data;
-using System.Data.SqlClient;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Text.RegularExpressions;
-using System.Web.Http;
-using System.Web.Http.Results;
 using FaultData.DataReaders;
 using FaultData.DataSets;
 using GSF.Configuration;
@@ -48,8 +36,26 @@ using openXDA.Configuration;
 using openXDA.Model;
 using openXDA.Model.SystemCenter;
 using SEBrowser.Model;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Configuration;
+using System.Data;
+using System.Data.SqlClient;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Results;
 using SystemCenter.Model;
 using SystemCenter.ScheduledProcesses;
+using static SystemCenter.ScheduledProcesses.ScheduledExtDBTask;
 using ConfigurationLoader = SystemCenter.Model.ConfigurationLoader;
 using Customer = SystemCenter.Model.Customer;
 using Phase = GSF.PQDIF.Logical.Phase;
@@ -1829,34 +1835,107 @@ namespace SystemCenter.Controllers
             return testDatabaseStatus;
         }
 
-        [HttpPost, Route("UnscheduledUpdate")]
-        public IHttpActionResult UnscheduledUpdate([FromBody] JObject record)
+        [HttpGet, Route("UnscheduledUpdate/{recordID:int}")]
+        public IHttpActionResult UnscheduledUpdate(int recordID)
         {
             if (!PostAuthCheck())
                 return Unauthorized();
 
-            ExternalDatabases extDB = record.ToObject<ExternalDatabases>();
-            return Ok(ScheduledExtDBTask.Run(extDB));
+            using (AdoDataConnection connection = ConnectionFactory())
+            {
+                ExternalDatabases? extDB = new TableOperations<ExternalDatabases>(connection).QueryRecordWhere("ID = {0}", recordID);
+
+                if (extDB == null)
+                    return NotFound();
+
+                return Ok(ScheduledExtDBTask.Run(extDB));
+            }
         }
 
-        [HttpPost, Route("UnscheduledUpdate/{parentTable}")]
-        public IHttpActionResult UnscheduledUpdate([FromBody] JObject record, string parentTable)
+        [HttpGet, Route("UnscheduledUpdate/{recordID:int}/{parentTable}")]
+        public HttpResponseMessage UnscheduledUpdate(int recordID, string parentTable)
         {
-            if (!PostAuthCheck())
-                return Unauthorized();
+            HttpResponseMessage response = Request.CreateResponse();
 
-            ExternalDatabases extDB = record.ToObject<ExternalDatabases>();
-            return Ok(ScheduledExtDBTask.Run(extDB, parentTable));
+            if (!PostAuthCheck())
+            {
+                response.StatusCode = HttpStatusCode.Unauthorized;
+                return response;
+            }
+
+            ExternalDatabases? extDB;
+            using (AdoDataConnection connection = ConnectionFactory())
+            {
+                extDB = new TableOperations<ExternalDatabases>(connection).QueryRecordWhere("ID = {0}", recordID);
+
+                if (extDB == null)
+                {
+                    response.StatusCode = HttpStatusCode.NotFound;
+                    return response;
+                }
+            }
+
+            ConcurrentQueue<ExtDBTaskStatus> logQueue = new ConcurrentQueue<ExtDBTaskStatus>();
+
+            Task runTask = Task.Run(() => ScheduledExtDBTask.Run(extDB, parentTable, null, logQueue));
+
+            response.Content = new PushStreamContent(async (stream, content, context) =>
+            {
+                try
+                {
+                    while (!runTask.IsCompleted || !logQueue.IsEmpty)
+                    {
+                        if (!logQueue.TryDequeue(out ExtDBTaskStatus? msg))
+                        {
+                            await Task.Delay(250);
+                            continue;
+                        }
+
+                        byte[] bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(msg) + "\n");
+                        await stream.WriteAsync(bytes, 0, bytes.Length);
+                        await stream.FlushAsync();
+                    }
+
+                    if (runTask.IsFaulted)
+                    {
+                        ExtDBTaskStatus errorMessage = new ExtDBTaskStatus()
+                        {
+                            PercentFinished = 100,
+                            Status = "Error",
+                            Message = runTask.Exception.GetBaseException().Message
+                        };
+
+                        byte[] bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(errorMessage) + "\n");
+                        await stream.WriteAsync(bytes, 0, bytes.Length);
+                        await stream.FlushAsync();
+                    }
+                }
+                finally
+                {
+                    stream.Close();
+                }
+            }, "application/x-ndjson");
+
+            response.Headers.CacheControl = new CacheControlHeaderValue() { NoCache = true };
+            response.Headers.TransferEncodingChunked = true;
+            return response;
         }
 
-        [HttpPost, Route("UnscheduledUpdate/{parentTable}/{parentID:int}")]
-        public IHttpActionResult UnscheduledUpdate([FromBody] JObject record, string parentTable, int parentID)
+        [HttpGet, Route("UnscheduledUpdate/{recordID:int}/{parentTable}/{parentID:int}")]
+        public IHttpActionResult UnscheduledUpdate(int recordID, string parentTable, int parentID)
         {
             if (!PostAuthCheck())
                 return Unauthorized();
 
-            ExternalDatabases extDB = record.ToObject<ExternalDatabases>();
-            return Ok(ScheduledExtDBTask.Run(extDB, parentTable, parentID));
+            using (AdoDataConnection connection = ConnectionFactory())
+            {
+                ExternalDatabases? extDB = new TableOperations<ExternalDatabases>(connection).QueryRecordWhere("ID = {0}", recordID);
+
+                if (extDB == null)
+                    return NotFound();
+
+                return Ok(ScheduledExtDBTask.Run(extDB, parentTable, parentID));
+            }
         }
     }
 
@@ -2044,7 +2123,6 @@ namespace SystemCenter.Controllers
                 SQL = $"{fieldName} {search.Operator} {{0}}"
             };
         }
-
     }
 
     [RoutePrefix("api/SEbrowser/Widget")]

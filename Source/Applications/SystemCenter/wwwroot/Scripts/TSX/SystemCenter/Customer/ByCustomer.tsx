@@ -50,7 +50,6 @@ const emptyCustomer: OpenXDA.Types.Customer = { ID: 0, CustomerKey: '', Name: ''
 
 const ByCustomer: Application.Types.iByComponent = (props) => {
     let navigate = useNavigate();
-    const extDbUpdateAll = React.useRef<() => (() => void)>(undefined);
 
     const [newCustomer, setNewCustomer] = React.useState<OpenXDA.Types.Customer>(emptyCustomer);
 
@@ -115,13 +114,12 @@ const ByCustomer: Application.Types.iByComponent = (props) => {
                 Title={'Customer External Database Fields'}
                 ShowCancel={false}
                 ShowX={true}
-                ConfirmText={'Update All'}
-                ConfirmBtnClass={'btn-info'}
+                ShowConfirm={false}
                 CallBack={(c) => {
-                    if (c && extDbUpdateAll.current !== undefined) extDbUpdateAll.current();
+                    
                     if (!c) setShowExtModal(false);
                 }}>
-                <ExternalDBUpdate Type='Customer' UpdateAll={extDbUpdateAll} />
+                <ExternalDBUpdate Type='Customer'/>
             </Modal>
         </GenericByPage>
     )
