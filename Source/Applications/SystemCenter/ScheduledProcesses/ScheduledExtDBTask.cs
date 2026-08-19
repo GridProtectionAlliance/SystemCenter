@@ -174,7 +174,7 @@ namespace SystemCenter.ScheduledProcesses
                 {
                     Log.Error($"Type {parentTable} is not a recognized xda parent table.");
 
-                    logQueue!.Enqueue(new ExtDBTaskStatus()
+                    logQueue?.Enqueue(new ExtDBTaskStatus()
                     {
                         RowsAffected = 0,
                         PercentFinished = 100,
@@ -187,8 +187,8 @@ namespace SystemCenter.ScheduledProcesses
                 IEnumerable<extDBTables> extTables = tblTable.QueryRecordsWhere("ExtDBID = {0}", extDB.ID);
                 if (extTables.Count() == 0)
                 {
-                    Log.Warn($"No tables found connected to external database {extDB.Name}.");
-                    logQueue!.Enqueue(new ExtDBTaskStatus()
+                    Log.Warn($"No tables found connected to external database ${extDB.Name}.");
+                    logQueue?.Enqueue(new ExtDBTaskStatus()
                     {
                         RowsAffected = 0,
                         PercentFinished = 100,
@@ -212,7 +212,7 @@ namespace SystemCenter.ScheduledProcesses
                 }
                 extDB.LastDataUpdate = DateTime.UtcNow;
                 new TableOperations<ExternalDatabases>(xdaConnection).UpdateRecord(extDB);
-                logQueue!.Enqueue(new ExtDBTaskStatus()
+                logQueue?.Enqueue(new ExtDBTaskStatus()
                 {
                     RowsAffected = rowsAffected,
                     PercentFinished = 100,
@@ -271,7 +271,7 @@ namespace SystemCenter.ScheduledProcesses
                     catch
                     {
                         Log.Warn($"Additional field with no field in external database found: ID {field.ID}, Name {field.FieldName}, External Table {extTable.TableName}");
-                        logQueue!.Enqueue(new ExtDBTaskStatus()
+                        logQueue?.Enqueue(new ExtDBTaskStatus()
                         {
                             RowsAffected = tableFieldOffset + rows,
                             PercentFinished = ((tableFieldOffset + rows) / totalFields) * 100,
@@ -309,8 +309,8 @@ namespace SystemCenter.ScheduledProcesses
                     catch
                     {
                         Log.Warn($"External OpenXDA field with no field in external database found: ID {field.ID}, Name {field.FieldName}, External Table {extTable.TableName}");
-                        logQueue!.Enqueue(new ExtDBTaskStatus()
-                        {
+                        logQueue.Enqueue(new ExtDBTaskStatus()
+                        {   
                             RowsAffected = tableFieldOffset + rows,
                             PercentFinished = ((tableFieldOffset + rows) / totalFields) * 100,
                             Status = "Warning",
@@ -322,7 +322,7 @@ namespace SystemCenter.ScheduledProcesses
                     if (fieldPropInfo is null)
                     {
                         Log.Error($"External OpenXDA field defined that does not exist on the xda model {field.FieldName} on table {field.ParentTable}");
-                        logQueue!.Enqueue(new ExtDBTaskStatus()
+                        logQueue.Enqueue(new ExtDBTaskStatus()
                         {
                             RowsAffected = tableFieldOffset + rows,
                             PercentFinished = ((tableFieldOffset + rows) / totalFields) * 100,
@@ -337,7 +337,7 @@ namespace SystemCenter.ScheduledProcesses
                     hasXdaChanges = true;
                 }
                 if (hasXdaChanges) rows += table.UpdateRecord(record);
-                logQueue!.Enqueue(new ExtDBTaskStatus()
+                logQueue.Enqueue(new ExtDBTaskStatus()
                 {
                     RowsAffected = tableFieldOffset + rows,
                     PercentFinished = ((tableFieldOffset + rows) / totalFields) * 100,
@@ -345,7 +345,7 @@ namespace SystemCenter.ScheduledProcesses
                     Message = $"Record updated successfully."
                 });
             }
-            logQueue!.Enqueue(new ExtDBTaskStatus()
+            logQueue.Enqueue(new ExtDBTaskStatus()
             {
                 RowsAffected = tableFieldOffset + rows,
                 PercentFinished = ((tableFieldOffset + rows) / totalFields) * 100,
