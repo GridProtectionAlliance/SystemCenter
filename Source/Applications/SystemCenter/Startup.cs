@@ -47,7 +47,7 @@ namespace SystemCenter
             app.Use(async (context, next) =>
             {
                 context.Request.Environment["AuthenticationOptions"] = AuthenticationOptions.Readonly;
-                context.Response.Headers.Add("Content-Security-Policy", ["frame-ancestors 'none'"]);
+                //context.Response.Headers.Add("Content-Security-Policy", ["frame-ancestors 'none'"]);
                 await next.Invoke();
                 context.Response.Headers.Remove("Server");
             });
