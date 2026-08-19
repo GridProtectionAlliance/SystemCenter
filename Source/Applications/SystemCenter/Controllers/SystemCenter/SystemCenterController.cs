@@ -1937,13 +1937,6 @@ namespace SystemCenter.Controllers
                 return Ok(ScheduledExtDBTask.Run(extDB, parentTable, parentID));
             }
         }
-        private bool IsStreamRequest()
-        {
-            return Request.Headers.Accept
-               .Any(h => h.MediaType.Equals("application/octet-stream", StringComparison.OrdinalIgnoreCase) ||
-                         h.MediaType.StartsWith("video/", StringComparison.OrdinalIgnoreCase) ||
-                         h.MediaType.StartsWith("audio/", StringComparison.OrdinalIgnoreCase));
-        }
     }
 
     [RoutePrefix("api/SystemCenter/extDBTables")]
