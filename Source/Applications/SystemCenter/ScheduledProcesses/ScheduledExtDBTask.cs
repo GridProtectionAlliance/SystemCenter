@@ -138,7 +138,7 @@ namespace SystemCenter.ScheduledProcesses
                     {
                         int typeIndex = CheckedTypes.ToList().FindIndex(checkedType => checkedType == t);
                         string tableName = TableNames[typeIndex];
-                        totalFields += externalConnection.ExecuteScalar<int>(FieldCountSQL(tableName), extDB.ID);
+                        totalFields += xdaConnection.ExecuteScalar<int>(FieldCountSQL(tableName), extDB.ID);
                     }
 
                     foreach (Type t in CheckedTypes)
@@ -204,7 +204,8 @@ namespace SystemCenter.ScheduledProcesses
                 int rowsAffected = 0;
                 using (AdoDataConnection externalConnection = GetExternalConnection(extDB))
                 {
-                    int totalFields = externalConnection.ExecuteScalar<int>(FieldCountSQL(parentTable), extDB.ID);
+                    string sql = FieldCountSQL(parentTable);
+                    int totalFields = xdaConnection.ExecuteScalar<int>(sql, extDB.ID);
                     foreach (extDBTables extTable in extTables)
                     {
                         rowsAffected += RunOnType(tableType, extTable, addlFieldsTable, addlValueTable, xdaFieldTable, context, xdaConnection, externalConnection, totalFields, rowsAffected, logQueue, parentID);
