@@ -28,8 +28,9 @@ import ExternalDBTables from './ExternalDBTables';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { ExternalDatabasesSlice } from '../Store/Store';
 import { LoadingScreen, Modal, TabSelector, Warning } from '@gpa-gemstone/react-interactive';
-import { Application } from '@gpa-gemstone/application-typings';
+import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { SystemCenter as SC } from '../global';
+import ExtDBTaskStatusModal from '../CommonComponents/ExtDBTaskStatusModal';
 
 declare var homePath: string;
 declare type Tab = 'info' | 'tables';
@@ -44,7 +45,7 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
     const [showRemove, setShowRemove] = React.useState<boolean>(false);
 
     const [requestStatus, setRequestStatus] = React.useState<Application.Types.Status>('uninitiated');
-    const [extDBTaskStatuses, setExtDBTaskStatuses] = React.useState<SC.ExtDBTaskStatus[]>([]);
+    const [activeUpdate, setActiveUpdate] = React.useState<SystemCenter.Types.DetailedExternalDatabases | undefined>(undefined);
 
     const Tabs = [
         { Id: "info", Label: "Info" },
@@ -74,32 +75,6 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
         window.location.href = homePath + 'index.cshtml?name=ByExternalDB';
     }
 
-    const RequestUpdate = React.useCallback(() => {
-        setRequestStatus('loading');
-        let handle = $.ajax({
-            type: "GET",
-            url: `${homePath}api/SystemCenter/ExternalDatabases/UnscheduledUpdate/${record.ID}`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: false,
-            async: true
-        });
-        handle.done((newExtDBTaskStatuses: SC.ExtDBTaskStatus[]) => {
-            setExtDBTaskStatuses(newExtDBTaskStatuses);
-            setRequestStatus('idle');
-        });
-        handle.fail(() => {
-            setRequestStatus('error');
-        });
-        return () => {
-            if (handle != null && handle.abort != null) handle.abort();
-        };
-    }, [record]);
-
-    const ClosePopup = React.useCallback(() => {
-        setRequestStatus('uninitiated');
-    }, [setRequestStatus]);
-
     if (record == null) return null;
     return (
         <div className="container-fluid d-flex h-100 flex-column">
@@ -112,7 +87,7 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
                     <button className="btn btn-danger pull-right" hidden={record == null}
                         onClick={() => setShowRemove(true)}>Delete External DB</button>
                     <button className="btn btn-info pull-right mr-2" hidden={record == null}
-                        onClick={RequestUpdate}>Update Fields</button>
+                        onClick={() => setActiveUpdate(record)}>Update Fields</button>
                 </div>
             </div>
 
@@ -133,10 +108,11 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
                 Message={'This will permanently delete this External Database and cannot be undone.'}
                 Show={showRemove} Title={'Delete ' + (record?.Name ?? 'External Database')}
                 CallBack={(conf) => { if (conf) Delete(); setShowRemove(false); }} />
-            <Modal Title="Update Results" Show={requestStatus === 'idle' || requestStatus === 'error'} ConfirmBtnClass={requestStatus === 'idle' ? 'btn-success' : 'btn-danger'} ConfirmText={'Close'}
-                ShowX={true} ShowCancel={false} Size={'sm'} CallBack={ClosePopup}>
-                <p>{requestStatus === 'idle' ? "Unscheduled update successful." : "Unscheduled Update Failure."}</p>
-            </Modal>
+            <ExtDBTaskStatusModal
+                CallBack={() => { setActiveUpdate(undefined) }}
+                SetStatus={setRequestStatus}
+                Record={activeUpdate}
+            />
         </div>
     )
 }

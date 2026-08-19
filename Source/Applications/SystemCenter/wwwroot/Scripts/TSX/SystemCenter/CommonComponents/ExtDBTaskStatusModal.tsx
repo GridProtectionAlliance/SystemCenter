@@ -29,7 +29,7 @@ import { SystemCenter as SC } from '../global';
 interface IProps {
     CallBack: () => void,
     Record: SystemCenter.Types.DetailedExternalDatabases | undefined,
-    RecordType: 'Asset' | 'Meter' | 'Location' | 'Customer' | OpenXDA.Types.AssetTypeName,
+    RecordType?: 'Asset' | 'Meter' | 'Location' | 'Customer' | OpenXDA.Types.AssetTypeName,
     ParentID?: number,
     SetStatus: (s: Application.Types.Status) => void
 }
@@ -53,7 +53,7 @@ const ExtDBTaskStatusModal = (props: IProps) => {
 
         props.SetStatus('loading');
 
-        const path = `${homePath}api/SystemCenter/ExternalDatabases/UnscheduledUpdate/${props.Record.ID}/${(props.RecordType == 'CapacitorBank' ? 'CapBank' : (props.RecordType == 'CapacitorBankRelay' ? 'CapBankRelay' : props.RecordType))}${props.ParentID === undefined ? '' : "/" + props.ParentID}`;
+        const path = `${homePath}api/SystemCenter/ExternalDatabases/UnscheduledUpdate/${props.Record.ID}/${(props.RecordType == 'CapacitorBank' ? 'CapBank' : (props.RecordType == 'CapacitorBankRelay' ? 'CapBankRelay' : props.RecordType)) ?? ''}${props.ParentID === undefined ? '' : "/" + props.ParentID}`;
 
         const abortController = new AbortController();
 
@@ -151,7 +151,7 @@ const ExtDBTaskStatusModal = (props: IProps) => {
                     </div>
                     <div className="row" >
                         <div className="col d-flex justify-content-center">
-                            <h6>{`${props.RecordType}s updated: ${recordsUpdated}`}</h6>
+                            <h6>{`${props.RecordType ?? 'Record'}s updated: ${recordsUpdated}`}</h6>
                         </div>
                         <div className="col d-flex justify-content-center">
                             <h6>{`Fields updated: ${fieldsUpdated}`}</h6>

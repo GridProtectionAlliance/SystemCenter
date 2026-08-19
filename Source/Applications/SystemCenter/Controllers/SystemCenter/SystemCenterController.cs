@@ -1836,20 +1836,72 @@ namespace SystemCenter.Controllers
         }
 
         [HttpGet, Route("UnscheduledUpdate/{recordID:int}")]
-        public IHttpActionResult UnscheduledUpdate(int recordID)
+        public HttpResponseMessage UnscheduledUpdate(int recordID)
         {
-            if (!PostAuthCheck())
-                return Unauthorized();
+            HttpResponseMessage response = Request.CreateResponse();
 
+            if (!PostAuthCheck())
+            {
+                response.StatusCode = HttpStatusCode.Unauthorized;
+                return response;
+            }
+
+            ExternalDatabases? extDB;
             using (AdoDataConnection connection = ConnectionFactory())
             {
-                ExternalDatabases? extDB = new TableOperations<ExternalDatabases>(connection).QueryRecordWhere("ID = {0}", recordID);
+                extDB = new TableOperations<ExternalDatabases>(connection).QueryRecordWhere("ID = {0}", recordID);
 
                 if (extDB == null)
-                    return NotFound();
-
-                return Ok(ScheduledExtDBTask.Run(extDB));
+                {
+                    response.StatusCode = HttpStatusCode.NotFound;
+                    return response;
+                }
             }
+
+            ConcurrentQueue<ExtDBTaskStatus> logQueue = new ConcurrentQueue<ExtDBTaskStatus>();
+
+            Task runTask = Task.Run(() => ScheduledExtDBTask.Run(extDB, logQueue));
+
+            response.Content = new PushStreamContent(async (stream, content, context) =>
+            {
+                try
+                {
+                    while (!runTask.IsCompleted || !logQueue.IsEmpty)
+                    {
+                        if (!logQueue.TryDequeue(out ExtDBTaskStatus? msg))
+                        {
+                            await Task.Delay(250);
+                            continue;
+                        }
+
+                        byte[] bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(msg) + "\n");
+                        await stream.WriteAsync(bytes, 0, bytes.Length);
+                        await stream.FlushAsync();
+                    }
+
+                    if (runTask.IsFaulted)
+                    {
+                        ExtDBTaskStatus errorMessage = new ExtDBTaskStatus()
+                        {
+                            PercentFinished = 100,
+                            Status = "Error",
+                            Message = runTask.Exception.GetBaseException().Message
+                        };
+
+                        byte[] bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(errorMessage) + "\n");
+                        await stream.WriteAsync(bytes, 0, bytes.Length);
+                        await stream.FlushAsync();
+                    }
+                }
+                finally
+                {
+                    stream.Close();
+                }
+            }, "application/x-ndjson");
+
+            response.Headers.CacheControl = new CacheControlHeaderValue() { NoCache = true };
+            response.Headers.TransferEncodingChunked = true;
+            return response;
         }
 
         [HttpGet, Route("UnscheduledUpdate/{recordID:int}/{parentTable}")]
@@ -1922,20 +1974,72 @@ namespace SystemCenter.Controllers
         }
 
         [HttpGet, Route("UnscheduledUpdate/{recordID:int}/{parentTable}/{parentID:int}")]
-        public IHttpActionResult UnscheduledUpdate(int recordID, string parentTable, int parentID)
+        public HttpResponseMessage UnscheduledUpdate(int recordID, string parentTable, int parentID)
         {
-            if (!PostAuthCheck())
-                return Unauthorized();
+            HttpResponseMessage response = Request.CreateResponse();
 
+            if (!PostAuthCheck())
+            {
+                response.StatusCode = HttpStatusCode.Unauthorized;
+                return response;
+            }
+
+            ExternalDatabases? extDB;
             using (AdoDataConnection connection = ConnectionFactory())
             {
-                ExternalDatabases? extDB = new TableOperations<ExternalDatabases>(connection).QueryRecordWhere("ID = {0}", recordID);
+                extDB = new TableOperations<ExternalDatabases>(connection).QueryRecordWhere("ID = {0}", recordID);
 
                 if (extDB == null)
-                    return NotFound();
-
-                return Ok(ScheduledExtDBTask.Run(extDB, parentTable, parentID));
+                {
+                    response.StatusCode = HttpStatusCode.NotFound;
+                    return response;
+                }
             }
+
+            ConcurrentQueue<ExtDBTaskStatus> logQueue = new ConcurrentQueue<ExtDBTaskStatus>();
+
+            Task runTask = Task.Run(() => ScheduledExtDBTask.Run(extDB, parentTable, parentID, logQueue));
+
+            response.Content = new PushStreamContent(async (stream, content, context) =>
+            {
+                try
+                {
+                    while (!runTask.IsCompleted || !logQueue.IsEmpty)
+                    {
+                        if (!logQueue.TryDequeue(out ExtDBTaskStatus? msg))
+                        {
+                            await Task.Delay(250);
+                            continue;
+                        }
+
+                        byte[] bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(msg) + "\n");
+                        await stream.WriteAsync(bytes, 0, bytes.Length);
+                        await stream.FlushAsync();
+                    }
+
+                    if (runTask.IsFaulted)
+                    {
+                        ExtDBTaskStatus errorMessage = new ExtDBTaskStatus()
+                        {
+                            PercentFinished = 100,
+                            Status = "Error",
+                            Message = runTask.Exception.GetBaseException().Message
+                        };
+
+                        byte[] bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(errorMessage) + "\n");
+                        await stream.WriteAsync(bytes, 0, bytes.Length);
+                        await stream.FlushAsync();
+                    }
+                }
+                finally
+                {
+                    stream.Close();
+                }
+            }, "application/x-ndjson");
+
+            response.Headers.CacheControl = new CacheControlHeaderValue() { NoCache = true };
+            response.Headers.TransferEncodingChunked = true;
+            return response;
         }
     }
 
