@@ -81,9 +81,9 @@ namespace SystemCenter.ScheduledProcesses
         {
             public string Message { get; set; }
             public string Status { get; set; }
-            public int PercentFinished { get; set; }
-            public int RowsAffected { get; set; }
-            public int RecordsAffected { get; set; }
+            public int PercentFinished { get; set; } 
+            public int RowsAffected { get; set; } 
+            public int RecordsAffected { get; set; } 
         }
         #endregion
 
@@ -161,7 +161,7 @@ namespace SystemCenter.ScheduledProcesses
                     PercentFinished = 100,
                     RecordsAffected = 0,
                     Status = "Success",
-                    Message = $"Finished updating external database {extDB.Name}: {rowsAffected} rows affected."
+                    Message = $"Finished retrieving data from External Database {extDB.Name}: {rowsAffected} Field(s) updated."
                 });
                 return rowsAffected;
             }
@@ -228,7 +228,7 @@ namespace SystemCenter.ScheduledProcesses
                     PercentFinished = 100,
                     RecordsAffected = 0,
                     Status = "Success",
-                    Message = $"Finished updating external database {extDB.Name}: {rowsAffected} rows affected."
+                    Message = $"Finished retrieving data from External Database {extDB.Name}: {rowsAffected} Field(s) updated."
                 });
                 return rowsAffected;
             }
@@ -299,7 +299,8 @@ namespace SystemCenter.ScheduledProcesses
                 int recordID = GetID(record);
                 int rowsBeforeRecord = rows;
                 if (recordID == -1) continue; // Should be impossible to trigger without huge overhauling of openXDA
-                DataRowCollection data = RetrieveDataRecord(record, extTable, table, addlFieldsTable, addlValuesTable, context, extConnection);
+                int percentComplete = ((tableFieldOffset + rows) / totalFields) * 100;
+                DataRowCollection data = RetrieveDataRecord(record, extTable, table, addlFieldsTable, addlValuesTable, context, extConnection, logQueue, percentComplete, rows, updatedRecords);
                 // null means no specific record was found
                 if (data is null) continue;
                 foreach (AdditionalField field in addlFields)
@@ -337,7 +338,7 @@ namespace SystemCenter.ScheduledProcesses
                     {
                         if (fieldValue == addlValue.Value) continue;
                         addlValue.Value = fieldValue;
-                        rows += addlValuesTable.UpdateRecord(addlValue); // message for record update? field update?
+                        rows += addlValuesTable.UpdateRecord(addlValue); 
                     }
                 }
                 bool hasXdaChanges = false;
@@ -387,7 +388,7 @@ namespace SystemCenter.ScheduledProcesses
                     RecordsAffected = updatedRecords,
                     PercentFinished = ((tableFieldOffset + rows) / totalFields) * 100,
                     Status = "Info",
-                    Message = $"{(userTableName)} \"{GetName(record)}\" updated successfully for {rows - rowsBeforeRecord} fields."
+                    Message = $"Successfully updated {userTableName} \"{GetName(record)}\" with data from {extTable.TableName}: {rows - rowsBeforeRecord} Field(s) updated."
                 });
                 updatedRecords += 1;
             }
@@ -397,7 +398,7 @@ namespace SystemCenter.ScheduledProcesses
                 RecordsAffected = updatedRecords,
                 PercentFinished = ((tableFieldOffset + rows) / totalFields) * 100,
                 Status = "Info",
-                Message = $"Table {userTableName} updated successfully for {updatedRecords} records and {rows} fields."
+                Message = $"Finished retrieving {userTableName} data from Table {extTable.TableName}: {updatedRecords} {userTableName}(s) and {rows} Field(s) updated."
             });
             return rows;
         }
@@ -442,10 +443,22 @@ namespace SystemCenter.ScheduledProcesses
 
         public static DataRowCollection RetrieveDataRecord<T>(T record, extDBTables extTable,
             TableOperations<T> table, TableOperations<AdditionalField> addlTable, TableOperations<AdditionalFieldValue> addlValuesTable,
-            ExpressionContext context, AdoDataConnection externalConnection) where T : class, new()
+            ExpressionContext context, AdoDataConnection externalConnection, ConcurrentQueue<ExtDBTaskStatus> logQueue, int percentComplete, int rowsAffected, int recordsAffected) where T : class, new()
         {
             DataRowCollection data = RetrieveDataRecordTable(record, extTable, table, addlTable, addlValuesTable, context, externalConnection)?.Rows;
-            if (data is null || data.Count != 1) return null;
+            if (data is null) return null;
+            if (data.Count != 1)
+            {
+                logQueue.Enqueue(new ExtDBTaskStatus()
+                {
+                    PercentFinished = percentComplete,
+                    RowsAffected = rowsAffected,
+                    RecordsAffected = recordsAffected,
+                    Status = "Warning",
+                    Message = $"Table {extTable.TableName} contains {data.Count} results matching {GetUserRecordType(table.TableName)} {GetName(record)}"
+                });
+                return null;
+            }
             return data;
         }
 
@@ -650,6 +663,9 @@ namespace SystemCenter.ScheduledProcesses
 
         #region [ Static ]
         private static readonly ILog Log = LogManager.GetLogger(typeof(ExternalDatabases));
+
+        private static string GetUserRecordType(string recordType) => (recordType == "Location" ? "Substation" : recordType);
+
         #endregion
 
     }
