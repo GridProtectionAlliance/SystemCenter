@@ -390,7 +390,8 @@ namespace SystemCenter.ScheduledProcesses
                     Status = "Info",
                     Message = $"Successfully updated {userTableName} \"{GetName(record)}\" with data from {extTable.TableName}: {rows - rowsBeforeRecord} Field(s) updated."
                 });
-                updatedRecords += 1;
+                if (rows != rowsBeforeRecord)
+                    updatedRecords += 1;
             }
             logQueue.Enqueue(new ExtDBTaskStatus()
             {
