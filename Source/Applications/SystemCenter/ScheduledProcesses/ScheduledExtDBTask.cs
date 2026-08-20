@@ -34,12 +34,6 @@ using openXDA.Model;
 using System.Reflection;
 using System.Data;
 using GSF.Collections;
-using System.Web.Http.Filters;
-using Microsoft.Graph.ExternalConnectors;
-using System.Data.Common;
-using System.Runtime.Remoting.Contexts;
-using System.Web.Services.Description;
-using System.Web.UI.WebControls;
 using System.Collections.Concurrent;
 
 namespace SystemCenter.ScheduledProcesses
@@ -640,7 +634,7 @@ namespace SystemCenter.ScheduledProcesses
                 if (context.Variables[variableComponents[0]] is null) return "null";
                 if (variableComponents.Length > 2 && string.Equals(variableComponents[1], "Field", StringComparison.OrdinalIgnoreCase))
                     variable = RemoveIllegalCharacters(variableComponents[2]);
-                string stringExpression = $"if({variable} <> null, {variable}.toString(), null)";
+                string stringExpression = $"if({variable}.toString() <> null, {variable}.toString(), null)";
                 IGenericExpression<string> expression = context.CompileGeneric<string>(stringExpression);
                 string eval = expression.Evaluate();
                 if (eval is null) return "null";
