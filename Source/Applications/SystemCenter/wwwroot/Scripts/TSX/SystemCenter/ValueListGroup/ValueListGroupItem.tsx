@@ -60,6 +60,8 @@ export default function ValueListGroupItems(props: IProps) {
     const [countDictionary, setCountDictionary] = React.useState<{ [key: string]: number }>({});
     const [hover, setHover] = React.useState<string>('');
 
+    const controller = React.useMemo(() => new GenericController<SystemCenter.Types.ValueListItem>(`${homePath}api/ValueList`, 'SortOrder'), []);
+
     const disallowReason = React.useCallback((ID: string) => {
         if (!RequiredValueLists.includes(props.Record?.Name))
             return null;
