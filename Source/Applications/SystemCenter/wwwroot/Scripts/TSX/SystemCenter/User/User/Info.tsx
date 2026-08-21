@@ -23,16 +23,20 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import UserForm from './UserForm';
+import { Application } from '@gpa-gemstone/application-typings';
 import { ToolTip } from '@gpa-gemstone/react-forms';
+import { GenericController } from '@gpa-gemstone/react-interactive'
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { UserAccountSlice } from '../../Store/Store';
-import { useAppDispatch, useAppSelector } from '../../hooks';
 import { IUserAccount } from '../Types';
 
 const UserInfo = (props: { AccountId: string }) => {
-    const dispatch = useAppDispatch();
 
-    const currentUser = useAppSelector((state) => UserAccountSlice.Datum(state,props.AccountId));
+    // the user as represented in the database
+    const [currentUser, setCurrentUser] = React.useState<IUserAccount | null>(null)
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
+
+    // the user as represented in the form
     const [user, setUser] = React.useState<IUserAccount>(currentUser);
     const [warnings, setWarning] = React.useState<string[]>([]);
     const [hover, setHover] = React.useState<('None' | 'Clear')>('None');
@@ -69,8 +73,31 @@ const UserInfo = (props: { AccountId: string }) => {
 
     React.useEffect(() => { setUser(currentUser) }, [currentUser])
 
+    React.useEffect(() => {
+        setStatus('loading');
+        const handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/SystemCenter/UserAccount/One/${props.AccountId}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        })
+        handle.done((d) => {
+            setStatus('idle');
+            setCurrentUser(d);
+        })
+        handle.fail(() => {
+            setStatus('error')
+        })
+        return () => {
+            if (handle != null && handle.abort != null)
+                handle.abort()
+        }
+    }, [props.AccountId, refreshTrigger])
+
     function updateUser() {
-        dispatch(UserAccountSlice.DBAction({ verb: 'PATCH', record: user }))
+        new GenericController<IUserAccount>(`${homePath}api/SystemCenter/UserAccount`, "DisplayName", true).DBAction( 'PATCH', user).then(() => setRefreshTrigger(val => !val))
     }
 
     return (

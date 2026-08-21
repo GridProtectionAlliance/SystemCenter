@@ -21,15 +21,14 @@
 // ******************************************************************************************************
 
 import * as React from 'react';
-import { LoadingScreen, ServerErrorIcon, TabSelector, Warning } from '@gpa-gemstone/react-interactive';
+import { LoadingScreen, ServerErrorIcon, TabSelector, Warning, GenericController } from '@gpa-gemstone/react-interactive';
 import { Application } from '@gpa-gemstone/application-typings';
 import * as _ from 'lodash';
 import UserInfo from './Info';
 import UserPermissions from './Permissions';
-import AdditionalField from '../AdditionalUserFieldsWindow'
-import { useAppDispatch, useAppSelector } from '../../hooks';
+import AdditionalField from '../AdditionalUserFieldsWindow';
+import { IUserAccount } from '../Types';
 import { CheckBox } from '@gpa-gemstone/react-forms';
-import { UserAccountSlice } from '../../Store/Store';
 import { useNavigate } from "react-router-dom";
 
 declare type Tab = 'userInfo' | 'permissions' | 'additionalFields'
@@ -38,9 +37,8 @@ interface IProps { UserID: string, Tab: Tab }
 
 function User(props: IProps) {
 	const navigate = useNavigate();
-	const dispatch = useAppDispatch();
-	const user = useAppSelector((state) => UserAccountSlice.Datum(state, props.UserID));
-	const status: Application.Types.Status = useAppSelector(UserAccountSlice.Status);
+	const [user, setUser] = React.useState<IUserAccount | null>(null);
+	const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 	const [tab, setTab] = React.useState(getTab());
 	const [showWarning, setShowWarning] = React.useState<boolean>(false);
 
@@ -59,9 +57,27 @@ function User(props: IProps) {
 	}, [tab]);
 
 	React.useEffect(() => {
-		if (status === 'uninitiated' || status === 'changed')
-			dispatch(UserAccountSlice.Fetch());
-	}, [status]);
+		setStatus('loading');
+		const handle = $.ajax({
+			type: "GET",
+			url: `${homePath}api/SystemCenter/UserAccount/One/${props.UserID}`,
+			contentType: "application/json; charset=utf-8",
+			dataType: 'json',
+			cache: true,
+			async: true
+		})
+		handle.done((d) => {
+			setStatus('idle');
+			setUser(d);
+		})
+		handle.fail(() => {
+			setStatus('error')
+		})
+		return () => {
+			if (handle != null && handle.abort != null)
+				handle.abort()
+		}
+	}, [props.UserID])
 
 	if (status === 'error')
 		return <div style={{ width: '100%', height: '100%' }}>
@@ -107,12 +123,12 @@ function User(props: IProps) {
 				(user == null || user.Type == 'Database' ? 'This will permanently remove the User. Are you sure you want to continue?' :
 					'This will remove the User from openXDA. The User may still have rights and the ability to log in to the system if they are in an Azure or Active Directory group. Contact your domain administrator to have the User removed from Azure or AD.')
 					} Title={'Delete ' + (user?.AccountName ?? 'User')} Show={showWarning} CallBack={(c) => {
-				setShowWarning(false);
-				if (c) {
-					dispatch(UserAccountSlice.DBAction({ verb: 'DELETE', record: user }));
-					navigate(`${homePath}index.cshtml?name=Users`);
+					setShowWarning(false);
+					if (c) {
+						new GenericController<IUserAccount>(`${homePath}api/SystemCenter/UserAccount`, "DisplayName", true).DBAction('DELETE', user).then(() => navigate(`${homePath}index.cshtml?name=Users`))
+					};
 				}
-			}} />
+			} />
 		</div>
 	)
 }

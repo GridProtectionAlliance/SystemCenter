@@ -23,15 +23,14 @@
 import * as React from 'react';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { Modal, ServerErrorIcon, Warning as WarningModal } from '@gpa-gemstone/react-interactive';
+import { Modal, ServerErrorIcon, Warning as WarningModal, GenericController } from '@gpa-gemstone/react-interactive';
 import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
 import * as _ from 'lodash';
 import { CheckBox, Input, Select, ToolTip } from '@gpa-gemstone/react-forms';
-import { UserAdditionalFieldSlice, ValueListSlice, ValueListGroupSlice } from '../Store/Store';
-import { useAppDispatch, useAppSelector } from '../hooks';
 import { IsInteger, IsNumber } from '@gpa-gemstone/helper-functions';
 
 interface IProps {
+	// the ID of the user account
 	Id: string | number,
 	EmptyField: Application.Types.iAdditionalUserField
 	GetFieldValueIndex: (field: Application.Types.iAdditionalUserField, values: Application.Types.iAdditionalUserFieldValue[]) => number,
@@ -41,28 +40,28 @@ interface IProps {
 	CreateValue: (field: Application.Types.iAdditionalUserField) => Application.Types.iAdditionalUserFieldValue,
 	FieldUI: (field: Application.Types.iAdditionalUserField, setField: (field: Application.Types.iAdditionalUserField) => void) => JSX.Element
 }
+const additionalUserFieldController = new GenericController<Application.Types.iAdditionalUserField>(`${homePath}api/SystemCenter/AdditionalUserField`, "FieldName");
 
 function AdditionalField(props: IProps) {
-	const dispatch = useAppDispatch();
 
-	const valueListItems = useAppSelector(ValueListSlice.Data);
-	const valueListItemStatus = useAppSelector(ValueListSlice.Status);
+	const [valueListItems, setValueListItems] = React.useState<SystemCenter.Types.ValueListItem[]>([]);
+	const [valueListItemStatus, setValueListItemStatus] = React.useState<Application.Types.Status>('uninitiated');
 
-	const valueListGroups = useAppSelector(ValueListGroupSlice.Data);
-	const valueListGroupStatus= useAppSelector(ValueListGroupSlice.Status);
+	const [valueListGroups, setValueListGroups] = React.useState<SystemCenter.Types.ValueListGroup[]>([]);
+	const [valueListGroupStatus, setValueListGroupStatus] = React.useState<Application.Types.Status>('uninitiated');
 
-	const fields = useAppSelector(UserAdditionalFieldSlice.Fields);
-	const values = useAppSelector(UserAdditionalFieldSlice.Values);
-	const fieldStatus = useAppSelector(UserAdditionalFieldSlice.FieldStatus);
-	const valueStatus = useAppSelector(UserAdditionalFieldSlice.ValueStatus);
-	const valueParentID = useAppSelector(UserAdditionalFieldSlice.ValueParentId);
+	const [fields, setFields] = React.useState<Application.Types.iAdditionalUserField[]>([]);
+	const [fieldStatus, setFieldStatus] = React.useState<Application.Types.Status>('uninitiated');
+	const [values, setValues] = React.useState<Application.Types.iAdditionalUserFieldValue[]>([]);
+	const [valueStatus, setValueStatus] = React.useState<Application.Types.Status>('uninitiated');
 
 	const [pageStatus, setPageStatus] = React.useState<Application.Types.Status>('uninitiated');
 
 	const [editValues, setEditValues] = React.useState<Application.Types.iAdditionalUserFieldValue[]>([]);
 
-	const sortField = useAppSelector(UserAdditionalFieldSlice.SortField);
-	const ascending = useAppSelector(UserAdditionalFieldSlice.Ascending);
+	const [sortField, setSortField] = React.useState<keyof Application.Types.iAdditionalUserField>('FieldName');
+	const [ascending, setAscending] = React.useState<boolean>(true);
+	const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
 
 	const [newField, setNewField] = React.useState<Application.Types.iAdditionalUserField>(props.EmptyField);
 	const [showWarning, setShowWarning] = React.useState<boolean>(false);
@@ -88,24 +87,70 @@ function AdditionalField(props: IProps) {
 	}, [fieldStatus, valueStatus, valueListGroupStatus, valueListItemStatus])
 
 	React.useEffect(() => {
-		if (fieldStatus === 'uninitiated' || fieldStatus === 'changed')
-			dispatch(UserAdditionalFieldSlice.FetchField());
-	}, [dispatch, fieldStatus]);
+		setFieldStatus('loading');
+		const handle = $.ajax({
+			type: 'GET',
+			url: `${homePath}api/SystemCenter/AdditionalUserField/${sortField}/${ascending ? 1 : 0}`,
+			contentType: "application/json; charset=utf-8",
+			dataType: 'json',
+			cache: true,
+			async: true
+		})
+		handle.done((d) => {
+			setFields(JSON.parse(d));
+			setFieldStatus('idle');
+		})
+		handle.fail(() => {
+			setFieldStatus('error');
+		})
+		return () => { if (handle != null && handle.abort != null) handle.abort() }
+	}, [sortField, ascending, refreshTrigger])
 
 	React.useEffect(() => {
-		if (valueStatus === 'uninitiated' || valueStatus === 'changed' || props.Id !== valueParentID)
-			dispatch(UserAdditionalFieldSlice.FetchValues(props.Id));
-	}, [dispatch, valueStatus, props.Id, valueParentID]);
+		setValueStatus('loading');
+		const handle = $.ajax({
+			type: 'GET',
+			url: `${homePath}api/SystemCenter/AdditionalUserFieldValue/${props.Id}`,
+			contentType: "application/json; charset=utf-8",
+			dataType: 'json',
+			cache: true,
+			async: true
+		})
+		handle.done((d) => {
+			setValues(d);
+			setValueStatus('idle');
+		})
+		handle.fail(() => setValueStatus('error'))
+		return () => { if (handle != null && handle.abort != null) handle.abort() }
+	}, [props.Id, refreshTrigger])
 
 	React.useEffect(() => {
-		if (valueListItemStatus === 'uninitiated' || valueListItemStatus === 'changed')
-			dispatch(ValueListSlice.Fetch());
-	}, [dispatch, valueListItemStatus]);
+		setValueListItemStatus('loading')
+		const handle = new GenericController<SystemCenter.Types.ValueListItem>(`${homePath}api/ValueList`, 'SortOrder').Fetch();
+		handle.done((d) => {
+			setValueListItems(d)
+			setValueListItemStatus('idle')
+		}).fail(() => {
+			setValueListItemStatus('error')
+		})
+		return () => {
+			if (handle != null && handle.abort != null) handle.abort();
+		}
+	}, []);
 
 	React.useEffect(() => {
-		if (valueListGroupStatus === 'uninitiated' || valueListGroupStatus === 'changed')
-			dispatch(ValueListGroupSlice.Fetch());
-	}, [dispatch, valueListGroupStatus]);
+		setValueListGroupStatus('loading')
+		const handle = new GenericController<SystemCenter.Types.ValueListGroup>(`${homePath}api/ValueListGroup`, 'Name').Fetch();
+		handle.done((d) => {
+			setValueListGroups(d)
+			setValueListGroupStatus('idle')
+		}).fail(() => {
+			setValueListGroupStatus('error')
+		})
+		return () => {
+			if (handle != null && handle.abort != null) handle.abort();
+		}
+	}, []);
 
 	React.useEffect(() => { setEditValues(values) }, [values])
 
@@ -141,6 +186,19 @@ function AdditionalField(props: IProps) {
 		setErrorFields(e);
 		setChangedFields(c)
 	}, [values, editValues])
+
+	async function updateValues(d: Application.Types.iAdditionalUserFieldValue[], userID: string) {
+		const data = d.map(v => ({ ...v, UserAccountID: userID }));
+		return $.ajax({
+            type: "PATCH",
+            url: `${homePath}api/SystemCenter/AdditionalUserFieldValue/Array`,
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(data),
+            dataType: 'json',
+            cache: true,
+            async: true
+		})
+	}
 
 	if (pageStatus === 'error')
 		return <div className="card" style={{ marginBottom: 10, maxHeight: window.innerHeight - 215 }}>
@@ -186,9 +244,11 @@ function AdditionalField(props: IProps) {
 					Ascending={ascending}
 					OnSort={(d) => {
 						if (d.colKey === sortField)
-							dispatch(UserAdditionalFieldSlice.Sort({ SortField: d.colField, Ascending: !ascending }))
-						else
-							dispatch(UserAdditionalFieldSlice.Sort({ SortField: d.colField, Ascending: true }))
+							setAscending(a => !a);
+						else {
+							setAscending(true);
+							setSortField(d.colKey as keyof Application.Types.iAdditionalUserField);
+						}
 					}}
 					TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
 					TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
@@ -215,7 +275,7 @@ function AdditionalField(props: IProps) {
 					</Column>
 					<Column<Application.Types.iAdditionalUserField>
 						Key={'Value'}
-						AllowSort={true}
+						AllowSort={false}
 						HeaderStyle={{ width: 'auto' }}
 						RowStyle={{ width: 'auto' }}
 						Content={({ item }) => {
@@ -266,7 +326,8 @@ function AdditionalField(props: IProps) {
 					<p> To add a new Field, switch to Edit mode by clicking on the Edit button on the upper right corner.</p>
 				</ToolTip>
 				<div className="btn-group mr-2">
-					<button className={"btn btn-primary" + (changedFields.length === 0 || mode === 'View' || errorFields.length > 0 ? ' disabled' : '')} onClick={() => { if (errorFields.length === 0 && changedFields.length > 0 && mode === 'Edit') dispatch(UserAdditionalFieldSlice.UpdateValues({ ParentID: props.Id, Values: editValues })); }}
+					<button className={"btn btn-primary" + (changedFields.length === 0 || mode === 'View' || errorFields.length > 0 ? ' disabled' : '')}
+						onClick={() => { if (errorFields.length === 0 && changedFields.length > 0 && mode === 'Edit') updateValues(editValues, props.Id.toString()).then(() => setRefreshTrigger(val => !val)); }}
 						onMouseEnter={() => setHover('Save')} onMouseLeave={() => setHover('None')} data-tooltip={'SaveValues'}>Save Changes</button>
 				</div>
 				<ToolTip Show={hover === 'Save' && (mode === 'View' || changedFields.length > 0)} Position={'top'} Target={"SaveValues"}>
@@ -290,7 +351,7 @@ function AdditionalField(props: IProps) {
 			</div>
 			<WarningModal Show={showWarning} Title={'Delete ' + (newField?.FieldName ?? 'Additional Field')}
 				Message={"This will delete the Field '" + (newField?.FieldName ?? "<No Name>") + "' from all Users and all Values assigned to it."}
-				CallBack={(confirm: boolean) => { if (confirm) dispatch(UserAdditionalFieldSlice.FieldAction({ Verb: 'DELETE', Record: newField })); setShowWarning(false) }} />
+				CallBack={(confirm: boolean) => { if (confirm) additionalUserFieldController.DBAction('DELETE', newField).then(() => setRefreshTrigger(val => !val)); setShowWarning(false) }} />
 
 			<Modal
 				Title={editNew === 'Edit' ? "Edit " + (newField?.FieldName ?? "Additional Field") : "Add Additional Field"} ConfirmText={'Save'} ShowX={true} ShowCancel={false}
@@ -299,9 +360,9 @@ function AdditionalField(props: IProps) {
 				CallBack={(confirmation) => {
 					if (confirmation) {
 						if (props.FieldKeySelector(newField) === "new")
-							dispatch(UserAdditionalFieldSlice.FieldAction({ Verb: "POST", Record: newField }))
+							additionalUserFieldController.DBAction("POST", newField).then(() => setRefreshTrigger(val => !val));
 						else
-							dispatch(UserAdditionalFieldSlice.FieldAction({ Verb: "PATCH", Record: newField }))
+							additionalUserFieldController.DBAction("PATCH", newField).then(() => setRefreshTrigger(val => !val));
 					}
 
 					setShowEdit(false);
