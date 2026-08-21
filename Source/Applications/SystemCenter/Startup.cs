@@ -31,6 +31,7 @@ using GSF.Web.Hosting;
 using GSF.Web.Security;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Json;
+using Microsoft.Owin;
 using Microsoft.Owin.Cors;
 using Microsoft.Owin.Extensions;
 using Newtonsoft.Json;
@@ -46,8 +47,10 @@ namespace SystemCenter
         {
             app.Use(async (context, next) =>
             {
+                PathString loginPath = new PathString(AuthenticationOptions.GetFullLoginPath(""));
+                string frameAncestor = context.Request.Path.Equals(loginPath) ? "self" : "none";
                 context.Request.Environment["AuthenticationOptions"] = AuthenticationOptions.Readonly;
-                //context.Response.Headers.Add("Content-Security-Policy", ["frame-ancestors 'none'"]);
+                context.Response.Headers.Add("Content-Security-Policy", [$"frame-ancestors '{frameAncestor}'"]);
                 await next.Invoke();
                 context.Response.Headers.Remove("Server");
             });
