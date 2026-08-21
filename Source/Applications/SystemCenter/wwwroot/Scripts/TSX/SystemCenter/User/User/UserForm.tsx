@@ -21,13 +21,13 @@
 // ******************************************************************************************************
 
 import * as React from 'react';
-import { Input, DatePicker, CheckBox } from '@gpa-gemstone/react-forms'
+import { Input, DatePicker, CheckBox } from '@gpa-gemstone/react-forms';
+import { GenericController } from '@gpa-gemstone/react-interactive';
 import * as _ from 'lodash';
-import { UserAccountSlice } from '../../Store/Store';
-import { useAppDispatch, useAppSelector } from '../../hooks';
 import { IUserAccount } from '../Types';
 import * as CryptoJS from 'crypto-js';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { Application } from '@gpa-gemstone/application-typings';
 import moment from 'moment';
 
 interface IProps {
@@ -38,18 +38,28 @@ interface IProps {
 }
 
 function UserForm(props: IProps) {
-    const dispatch = useAppDispatch();
 
-    const allUsers = useAppSelector(UserAccountSlice.Data);
-    const userStatus = useAppSelector(UserAccountSlice.Status);
+    const [allUsers, setAllUsers] = React.useState<IUserAccount[]>([]);
+    const [userStatus, setUserStatus] = React.useState<Application.Types.Status>('uninitiated');
 
     const [errors, setErrors] = React.useState<string[]>([]);
     const [valid, setValid] = React.useState<'valid' | 'resolving' | 'invalid' | 'unknown'>("valid")
 
     React.useEffect(() => {
-        if (userStatus === 'uninitiated' || userStatus === 'changed')
-            dispatch(UserAccountSlice.Fetch());
-    }, [userStatus]);
+        setUserStatus('loading');
+        const handle = new GenericController<IUserAccount>(`${homePath}api/SystemCenter/UserAccount`, "DisplayName", true).Fetch();
+        handle.done((d) => {
+            setAllUsers(d);
+            setUserStatus('idle');
+        })
+        handle.fail(() => {
+            setUserStatus('error');
+        })
+        return () => {
+            if (handle != null && handle.abort != null)
+                handle.abort()
+        }
+    }, []);
 
     React.useEffect(() => {
         if (props.SetErrors !== undefined)
