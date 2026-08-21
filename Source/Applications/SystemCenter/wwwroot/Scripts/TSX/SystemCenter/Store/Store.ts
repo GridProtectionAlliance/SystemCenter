@@ -28,14 +28,13 @@ import { GenericSlice } from '@gpa-gemstone/react-interactive'
 import { EventChannelSlice } from './EventChannelSlice';
 import { SystemCenter, OpenXDA, Application, PQBrowser } from '@gpa-gemstone/application-typings';
 import NoteSlice from './NoteSlice';
-import AdditionalUserFieldSlice from './AdditionalUserFieldSlice';
 import ConfigurationSlice from './ConfigurationSlice';
 import { PQApplications } from '../ApplicationCategory/Applications';
 import { DBCleanup } from '../DB/DBCleanup';
 import { ApplicationCategory } from '../ApplicationCategory/ByApplicationCategory';
 import { OpenXDA as LocalXDA, SystemCenter as LocalSystemCenter } from '../global'
 import PQISlice from './PQISlice';
-import { IApplicationRole, ISecurityGroup, IUserAccount } from '../User/Types';
+import { IApplicationRole } from '../User/Types';
 import UserSettingsReducer from './UserSettings';
 import { EventWidget } from '../../../../../EventWidgets/TSX/global';
 import { IAPIAccessKey } from '../APIAccessKeys/APIAccessKeys'
@@ -107,11 +106,8 @@ export const MeterNoteSlice = new NoteSlice('Meter');
 export const UserNoteSlice = new NoteSlice('User');
 export const LocationNoteSlice = new NoteSlice('Location');
 export const CustomerNoteSlice = new NoteSlice('Customer');
-export const UserAccountSlice = new GenericSlice<IUserAccount>('UserAccounts', `${homePath}api/SystemCenter/UserAccount`, "DisplayName", true);
-export const UserAdditionalFieldSlice = new AdditionalUserFieldSlice('AdditionalUserFields', `${homePath}api/SystemCenter`);
 
 export const SourceImpedanceSlice = new GenericSlice<OpenXDA.Types.SourceImpedance>("SourceImpedance", `${homePath}api/OpenXDA/SourceImpedance`, "AssetLocationID", false);
-export const SecurityGroupSlice = new GenericSlice<ISecurityGroup>("SecurityGroup", `${homePath}api/SystemCenter/FullSecurityGroup`, "DisplayName", true)
 export const ApplicationRoleSlice = new GenericSlice<IApplicationRole>("ApplicationRole", `${homePath}api/SystemCenter/ApplicationRole`, "Name", false)
 
 export const WidgetCategorySlice = new GenericSlice<LocalXDA.IWidgetCategory>("WidgetCategory", `${homePath}api/SystemCenter/WidgetCategory`, "OrderBy", true)
@@ -171,8 +167,6 @@ const store = configureStore({
         UserNote: UserNoteSlice.Reducer,
         LocationNote: LocationNoteSlice.Reducer,
         CustomerNote: CustomerNoteSlice.Reducer,
-        UserAccounts: UserAccountSlice.Reducer,
-        AdditionalUserFields: UserAdditionalFieldSlice.Reducer,
         EventType: EventTypeSlice.Reducer,
         MeasurementCharacteristic: MeasurementCharacteristicSlice.Reducer,
         DataOperation: DataOperationSlice.Reducer,
@@ -191,7 +185,6 @@ const store = configureStore({
         CustomerAsset: CustomerAssetSlice.Reducer,
         PQI: PQISlice,
         SourceImpedance: SourceImpedanceSlice.Reducer,
-        SecurityGroup: SecurityGroupSlice.Reducer,
         WidgetCategory: WidgetCategorySlice.Reducer,
         ApplicationRole: ApplicationRoleSlice.Reducer,
         SEBrowserWidget: SEBrowserWidgetSlice.Reducer,
