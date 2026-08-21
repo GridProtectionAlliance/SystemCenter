@@ -21,14 +21,13 @@
 //
 //******************************************************************************************************
 
-import { useAppDispatch } from '../../hooks';
 import * as React from 'react';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { EmailType } from '../../global';
-import { EmailTypeSlice } from '../../Store';
-import EventSelect from './EventSelect';
-import EventDetails from './EventDetails';
 import { TextArea, ToolTip } from '@gpa-gemstone/react-forms';
+import { GenericController } from '@gpa-gemstone/react-interactive';
+import { EmailType } from '../../global';
+import EventDetails from './EventDetails';
+import EventSelect from './EventSelect';
 
 declare var homePath;
 declare var version;
@@ -37,7 +36,6 @@ interface IProps { Record: EmailType}
 
 
 const TriggerWindow = (props: IProps) => {
-    const dispatch = useAppDispatch();
 
     const [email, setEmail] = React.useState<EmailType>(props.Record);
     const [hasChanged, setHasChanged] = React.useState<boolean>(false);
@@ -85,14 +83,20 @@ const TriggerWindow = (props: IProps) => {
                         <div className="row h-100">
                             <div className="col h-100">
                                 <EditSection
-                                    SetCombineSQL={setAggregaterSQL} SetTriggerSQL={setTriggerSQL} ValidCombine={aggregateStatus != 'invalid'}
-                                    TriggerSQL={triggerSQL} CombineSQL={aggregateSQL} ValidTrigger={triggerStatus != 'invalid'}
+                                    SetCombineSQL={setAggregaterSQL}
+                                    SetTriggerSQL={setTriggerSQL}
+                                    ValidCombine={aggregateStatus != 'invalid'}
+                                    TriggerSQL={triggerSQL}
+                                    CombineSQL={aggregateSQL}
+                                    ValidTrigger={triggerStatus != 'invalid'}
                                 />
                             </div>
                             <div className="col h-100">
                                 <div className="row h-50 pb-1">
                                     <div className="col h-100">
-                                        <EventSelect TriggerSQL={triggerSQL} SetStatus={(v, l) => {
+                                        <EventSelect
+                                            TriggerSQL={triggerSQL}
+                                            SetStatus={(v, l) => {
                                             if (l) setTriggerStatus('loading');
                                             else if (v) setTriggerStatus('valid');
                                             else setTriggerStatus('invalid');
@@ -104,7 +108,9 @@ const TriggerWindow = (props: IProps) => {
                                 </div>
                                 <div className="row h-50 pb-1">
                                     <div className="col h-100">
-                                        <EventDetails CombineSQL={aggregateSQL} SetStatus={(v, l) => {
+                                        <EventDetails
+                                            CombineSQL={aggregateSQL}
+                                            SetStatus={(v, l) => {
                                             if (l) setAggregateStatus('loading');
                                             else if (v) setAggregateStatus('valid');
                                             else setAggregateStatus('invalid');
@@ -125,23 +131,37 @@ const TriggerWindow = (props: IProps) => {
                                     if ((triggerStatus == 'valid' || triggerStatus == 'idle') &&
                                         (aggregateStatus == 'valid' || aggregateStatus == 'idle')
                                         && hasChanged)
-                                        dispatch(EmailTypeSlice.DBAction({ verb: 'PATCH', record: email }));
+                                        new GenericController<EmailType>(`${homePath}api/OpenXDA/EmailType`, "Name", true).DBAction('PATCH', email );
                                 }}
-                                data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
+                                data-tooltip='submit'
+                                onMouseEnter={() => setHover('submit')}
+                                onMouseLeave={() => setHover('none')}
+                            >Save Changes
+                            </button>
                         </div>
                         <div className="btn-group mr-2">
-                            <button className={"btn btn-danger" + (hasChanged ? '' : ' disabled')} data-tooltip="clear"
+                            <button className={"btn btn-danger" + (hasChanged ? '' : ' disabled')}
+                                data-tooltip="clear"
                                 onClick={() => { setEmail(props.Record); setHasChanged(false); }}
-                                onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')} >Clear Changes</button>
+                                onMouseEnter={() => setHover('clear')}
+                                onMouseLeave={() => setHover('none')}
+                            >Clear Changes
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
-            <ToolTip Show={(triggerStatus == 'invalid' || aggregateStatus == 'invalid') && hover == 'submit'} Position={'top'} Target={"submit"}>
+            <ToolTip
+                Show={(triggerStatus == 'invalid' || aggregateStatus == 'invalid') && hover == 'submit'}
+                Position={'top'}
+                Target={"submit"}>
                 {triggerStatus == 'invalid' ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> Trigger SQL is invalid.</p> : null}
                 {aggregateStatus == 'invalid' ? <p> <ReactIcons.CrossMark Color="var(--danger)" /> Suppression SQL is invalid.</p> : null}
             </ToolTip>
-            <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Target={"clear"}>
+            <ToolTip
+                Show={hasChanged && hover == 'clear'}
+                Position={'top'}
+                Target={"clear"}>
                 {props.Record.TriggerEmailSQL != email.TriggerEmailSQL ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to Trigger SQL will be discarded.</p> : null}
                 {props.Record.CombineEventsSQL != email.CombineEventsSQL ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to Suppression SQL will be discarded.</p> : null}
             </ToolTip>

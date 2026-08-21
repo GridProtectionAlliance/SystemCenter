@@ -21,34 +21,52 @@
 //
 //******************************************************************************************************
 
-import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
-import { EmailCategory, EmailType } from '../global';
-import { EmailCategorySlice, EmailTypeSlice } from '../Store';
+import { Application } from '@gpa-gemstone/application-typings';
+import { IsNumber } from '@gpa-gemstone/helper-functions';
 import { CheckBox, Input, Select } from '@gpa-gemstone/react-forms';
-import { IsNumber } from '@gpa-gemstone/helper-functions'
+import { GenericController } from '@gpa-gemstone/react-interactive';
+import { EmailCategory, EmailType } from '../global';
 
 interface IProps { record: EmailType, setRecord: (d: EmailType) => void }
 
 const EmailForm = (props: IProps) => {
-    const dispatch = useAppDispatch();
-    const emails = useAppSelector(EmailTypeSlice.Data);
-    const status = useAppSelector(EmailTypeSlice.Status);
+    const [emails, setEmails] = React.useState<EmailType[]>([]);
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 
-    const categoryStatus = useAppSelector(EmailCategorySlice.Status);
-    const categories = useAppSelector(EmailCategorySlice.Data);
-
+    const [categoryStatus, setCategoryStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [categories, setCategories] = React.useState<EmailCategory[]>([]);
 
     React.useEffect(() => {
-        if (categoryStatus == 'uninitiated' || categoryStatus == 'changed')
-            dispatch(EmailCategorySlice.Fetch());
-    }, [categoryStatus]);
+        setCategoryStatus('loading')
+        const h = new GenericController<EmailCategory>(`${homePath}api/OpenXDA/EmailCategory`, "Name", true).Fetch();
+        h.done((d) => {
+            setCategories(d)
+            setCategoryStatus('idle')
+        });
+        h.fail(() => setCategoryStatus('error'));
 
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+
+    }, []);
 
     React.useEffect(() => {
-        if (status == 'uninitiated' || status == 'changed')
-            dispatch(EmailTypeSlice.Fetch());
-    }, [status]);
+        setStatus('loading')
+        const h = new GenericController<EmailType>(`${homePath}api/OpenXDA/EmailType`, "Name", true).Fetch();
+        h.done((d) => {
+            setEmails(d)
+            setStatus('idle')
+        });
+        h.fail(() => setStatus('error'));
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+    }, []);
 
     function Valid(field: keyof EmailType) {
         if (field == 'Name')

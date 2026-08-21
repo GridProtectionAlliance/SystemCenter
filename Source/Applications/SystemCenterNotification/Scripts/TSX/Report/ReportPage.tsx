@@ -21,17 +21,17 @@
 //
 //******************************************************************************************************
 
-import { useAppDispatch, useAppSelector } from '../hooks';
+import * as $ from 'jquery'
 import * as React from 'react';
-import { TabSelector, Warning, LoadingScreen, ServerErrorIcon, Modal } from '@gpa-gemstone/react-interactive'
 import { Application } from '@gpa-gemstone/application-typings';
-import { ScheduledEmailTypeSlice } from '../Store';
+import { GenericController, LoadingScreen, ServerErrorIcon, TabSelector, Warning } from '@gpa-gemstone/react-interactive';
+import { ScheduledEmailType } from '../global';
+import DataSourceWindow from './DatasourceUI/DataSourceWindow';
 import GeneralInfo from './GeneralInfo';
 import Subscriptions from './Subscriptions';
-import TriggerWindow from './TriggerWindow';
-import DataSourceWindow from './DatasourceUI/DataSourceWindow';
 import Template from './Template';
 import TestEmail from './TestEmail';
+import TriggerWindow from './TriggerWindow';
 
 declare var homePath;
 declare var version;
@@ -49,13 +49,12 @@ const Tabs = [
 
 
 const EmailPage = (props: IProps) => {
-    const dispatch = useAppDispatch();
 
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
     const [showTest, setShowTest] = React.useState<boolean>(false);
 
-    const email = useAppSelector((state) => ScheduledEmailTypeSlice.Datum(state, parseInt(props.useParams.id)));
-    const status: Application.Types.Status = useAppSelector(ScheduledEmailTypeSlice.Status);
+    const [scheduledEmail, setScheduledEmail] = React.useState<ScheduledEmailType | null>(null);
+    const [scheduledEmailStatus, setScheduledEmailStatus] = React.useState<Application.Types.Status>('uninitiated');
 
     const getTab = React.useCallback(() => {
         if (sessionStorage.hasOwnProperty('ReportPage.Tab'))
@@ -66,9 +65,27 @@ const EmailPage = (props: IProps) => {
     const [tab, setTab] = React.useState<Tab>(getTab());
 
     React.useEffect(() => {
-        if (status == 'uninitiated' || status == 'changed')
-            dispatch(ScheduledEmailTypeSlice.Fetch());
-    }, [status]);
+        setScheduledEmailStatus('loading')
+        const h = $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/ScheduledEmailType/One/${props.useParams.id}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true
+        })
+        h.done((d) => {
+            setScheduledEmail(d)
+            setScheduledEmailStatus('idle')
+        });
+        h.fail(() => setScheduledEmailStatus('error'));
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+
+    }, [props.useParams.id])
 
     React.useEffect(() => {
         const saved = getTab();
@@ -79,12 +96,12 @@ const EmailPage = (props: IProps) => {
 
     return (
         <div className="container-fluid d-flex h-100 flex-column">
-            <ServerErrorIcon Show={status == 'error'} Label={'An error occured. Please reload this page.'} />
-            <LoadingScreen Show={status == 'loading' || status == 'uninitiated' || email == undefined} />
-            {!email ? <></> : <>
+            <ServerErrorIcon Show={scheduledEmailStatus == 'error'} Label={'An error occured. Please reload this page.'} />
+            <LoadingScreen Show={scheduledEmailStatus == 'loading' || scheduledEmailStatus == 'uninitiated' || scheduledEmail == undefined} />
+            {!scheduledEmail ? <></> : <>
                 <div className="row">
                     <div className="col-6 align-self-center">
-                        <h2>{email != null ? email.Name : ''}</h2>
+                        <h2>{scheduledEmail != null ? scheduledEmail.Name : ''}</h2>
                     </div>
                     <div className="col-6 align-self-center">
                         <button className="btn btn-danger float-right" onClick={() => setShowDelete(true)}>Delete Report</button>
@@ -99,38 +116,40 @@ const EmailPage = (props: IProps) => {
                         <div className="tab-content" style={{ height: '100%' }}>
                             {tab == "settings" ?
                                 <div className="tab-pane active" style={{ height: 'inherit' }}>
-                                    <GeneralInfo Record={email} />
+                                    <GeneralInfo Record={scheduledEmail} />
                                 </div>
                                 : <></>}
                             {tab == "template" ?
                                 <div className="tab-pane active" style={{ height: 'inherit' }}>
-                                    <Template Record={email} />
+                                    <Template Record={scheduledEmail} />
                                 </div>
                                 : <></>}
                             {tab == "dataSources" ?
                                 <div className="tab-pane active" style={{ height: 'inherit' }}>
-                                    <DataSourceWindow Record={email} />
+                                    <DataSourceWindow Record={scheduledEmail} />
                                 </div>
                                 : <></>}
                             {tab == 'condition' ?
                                 <div className="tab-pane active" style={{ height: 'inherit' }}>
-                                    <TriggerWindow Record={email} />
+                                    <TriggerWindow Record={scheduledEmail} />
                                 </div>
                                 : <></>}
                             {tab == 'subscriptions' ?
                                 <div className="tab-pane active" style={{ height: 'inherit' }}>
-                                    <Subscriptions Record={email} />
+                                    <Subscriptions Record={scheduledEmail} />
                                 </div>
                                 : <></>}
                         </div>
                     </div>
                 </div>
-                <TestEmail show={showTest} OnClose={() => setShowTest(false)} record={email} />
-                <Warning Message={'This will permanently delete this report and can not be undone.'} Show={showDelete} Title={'Delete ' + (email !== undefined ? email.Name : '')}
+                <TestEmail show={showTest} OnClose={() => setShowTest(false)} record={scheduledEmail} />
+                <Warning Message={'This will permanently delete this report and can not be undone.'} Show={showDelete} Title={'Delete ' + (scheduledEmail !== undefined ? scheduledEmail.Name : '')}
                     CallBack={(conf) => {
                         if (conf) {
-                            dispatch(ScheduledEmailTypeSlice.DBAction({ verb: 'DELETE', record: email }));
-                            window.location.href = homePath + 'ReportEmails';
+                            new GenericController<ScheduledEmailType>(`${homePath}api/OpenXDA/ScheduledEmailType`, "Name", true).DBAction('DELETE', scheduledEmail)
+                                .then(() => {
+                                    window.location.href = homePath + 'ReportEmails';
+                                })
                         }
                         setShowDelete(false);
                     }} />

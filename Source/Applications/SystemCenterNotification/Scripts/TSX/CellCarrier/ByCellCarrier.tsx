@@ -22,16 +22,12 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { LoadingScreen, Modal, Search, SearchBar } from '@gpa-gemstone/react-interactive'
+import { LoadingScreen, Modal, Search, SearchBar, GenericController } from '@gpa-gemstone/react-interactive'
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
-import moment from 'moment';
 import { ICellCarrier } from '../global';
-import { CellCarrierSlice } from '../Store';
-import { useAppDispatch, useAppSelector } from '../hooks';
 import { Input } from '@gpa-gemstone/react-forms';
-import { castArray } from 'lodash';
 
 
 declare var homePath;
@@ -43,37 +39,60 @@ const searchFields: Search.IField<ICellCarrier>[] = [
     { key: "Transform", label: "Transform", type: "string", isPivotField: false },
 ];
 
+const cellCarrierController = new GenericController<ICellCarrier>(`${homePath}api/OpenXDA/CellCarrier`, "Name", true);
+
 interface IProps {}
 
 const ByCellCarrier = (props: IProps) => {
-    const dispatch = useAppDispatch();
-
-    const searchStatus: Application.Types.Status = useAppSelector(CellCarrierSlice.SearchStatus);
-    const status: Application.Types.Status = useAppSelector(CellCarrierSlice.Status);
-    const data: ICellCarrier[] = useAppSelector(CellCarrierSlice.SearchResults);
-    const allData: ICellCarrier[] = useAppSelector(CellCarrierSlice.Data);
+    const [searchStatus, setSearchStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [fetchStatus, setFetchStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [data, setData] = React.useState<ICellCarrier[]>([]);
+    const [allData, setAllData] = React.useState<ICellCarrier[]>([]);
     const [sortField, setSortField] = React.useState<keyof ICellCarrier>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [filters, setFilters] = React.useState<Search.IFilter<ICellCarrier>[]>([]);
     const [showModal, setShowModal] = React.useState<'New' | 'Edit' | 'Hide'>('Hide');
     const [carrier, setCarrier] = React.useState<ICellCarrier>(emptyCarrier);
     const [page, setPage] = React.useState<number>(0);
-    const totalPages = useAppSelector(CellCarrierSlice.TotalPages)
-    const recordsPerPage = useAppSelector(CellCarrierSlice.RecordsPerPage);
-    const totalRecords = useAppSelector(CellCarrierSlice.TotalRecords);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
+    const [totalRecords, setTotalRecords] = React.useState<number>(0);
     const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
 
     React.useEffect(() => {
-         dispatch(CellCarrierSlice.PagedSearch({ filter: filters, sortField, ascending: ascending, page: page }));
+        setSearchStatus('uninitiated')
+        const h = cellCarrierController.PagedSearch(filters, sortField, ascending, page);
+        h.done((d) => {
+            setData(JSON.parse(d.Data as unknown as string));
+            setTotalPages(d.NumberOfPages);
+            setTotalRecords(d.TotalRecords);
+            setRecordsPerPage(d.RecordsPerPage);
+            setSearchStatus('idle');
+        })
+        h.fail(() => setSearchStatus('error'))
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
     }, [page, filters, sortField, ascending, refreshTrigger])
 
     React.useEffect(() => {
-        dispatch(CellCarrierSlice.Fetch());
-    }, [refreshTrigger])
+        setFetchStatus('uninitiated')
+        const h = cellCarrierController.Fetch();
+        h.done((d) => {
+            setAllData(d)
+            setFetchStatus('idle')
+        })
+        h.fail(() => setFetchStatus('error'))
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+    }, [refreshTrigger, cellCarrierController.Fetch])
 
     return (
         <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit', padding: 0 }}>
-            <LoadingScreen Show={status === 'loading'} />
+            <LoadingScreen Show={fetchStatus === 'loading'} />
             <div className="row">
                 <div className="col">
                     <SearchBar<ICellCarrier> CollumnList={searchFields}
@@ -161,11 +180,11 @@ const ByCellCarrier = (props: IProps) => {
                 </>}
                 ConfirmBtnClass={'btn-primary'} CallBack={(c, b) => {
                     if (showModal == 'New' && c)
-                        dispatch(CellCarrierSlice.DBAction({ verb: 'POST', record: carrier })).then(() => setRefreshTrigger((val) => !val));
+                        cellCarrierController.DBAction('POST', carrier).then(() => setRefreshTrigger((val) => !val));
                     if (showModal == 'Edit' && c)
-                        dispatch(CellCarrierSlice.DBAction({ verb: 'PATCH', record: carrier })).then(() => setRefreshTrigger((val) => !val));
+                        cellCarrierController.DBAction('PATCH', carrier).then(() => setRefreshTrigger((val) => !val));
                     if (showModal == 'Edit' && b && !c)
-                        dispatch(CellCarrierSlice.DBAction({ verb: 'DELETE', record: carrier })).then(() => setRefreshTrigger((val) => !val));
+                        cellCarrierController.DBAction('DELETE', carrier).then(() => setRefreshTrigger((val) => !val));
 
                     setShowModal('Hide');
                 }}

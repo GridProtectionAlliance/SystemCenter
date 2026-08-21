@@ -21,18 +21,19 @@
 //
 //******************************************************************************************************
 
+import * as $ from 'jquery';
 import * as React from 'react';
-import { ProgressBar } from '@gpa-gemstone/react-interactive';
-import { ToolTip } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import ReportSelect from './ReportSelect';
+import { ToolTip } from '@gpa-gemstone/react-forms';
+import { ProgressBar } from '@gpa-gemstone/react-interactive';
+import { useAppSelector } from '../../hooks';
+import { UserInfoSlice } from '../../Store';
 import AssetGroupSelection from '../AssetGroupSelection';
+import ConfirmPhoneCarrier from '../ConfirmCarrier';
 import ConfirmEmail from '../ConfirmEmail';
 import ConfirmPhone from '../ConfirmPhone';
-import { EmailTypeSlice, UserInfoSlice } from '../../Store';
-import { useAppSelector } from '../../hooks';
+import ReportSelect from './ReportSelect';
 import Success from './Success';
-import ConfirmPhoneCarrier from '../ConfirmCarrier';
 
 declare var homePath;
 declare var version;
@@ -47,9 +48,30 @@ const NewReportSubscription = (props: {}) => {
 
     const [emailTypeID, setEmailTypeID] = React.useState<number>(-1);
     const [assetGroupID, setAssetGroupID] = React.useState<number[]>([]);
-    const isText = useAppSelector((state) => (EmailTypeSlice.Datum(state, emailTypeID) == null ? false : EmailTypeSlice.Datum(state, emailTypeID).SMS));
+    const [isText, setIsText] = React.useState<boolean>(false);
 
     const carrierID = useAppSelector(UserInfoSlice.CellCarrierID);
+
+    React.useEffect(() => {
+        if (emailTypeID < 0) return
+        const h = $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/EmailType/One/${emailTypeID}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true
+        })
+        h.done((d) => {
+            setIsText(d.SMS);
+        });
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+
+    }, [emailTypeID])
 
     const PhoneSteps = [
         { short: 'Notification', long: 'Select Notification', id: 'Selection' },

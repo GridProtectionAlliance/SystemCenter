@@ -21,15 +21,14 @@
 //
 //******************************************************************************************************
 
-import { useAppDispatch, useAppSelector } from '../../hooks';
 import * as React from 'react';
-import { ScheduledEmailType, IDataSourceScheduledEmailType } from '../../global';
-import { ScheduledEmailDataSourceSlice } from '../../Store';
-import DataSourceModal from './DataSourceModal';
-import { Table, Column, Paging } from '@gpa-gemstone/react-table';
-import DataSourceTesting from './DataSourceTesting';
+import { Application } from '@gpa-gemstone/application-typings';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { Warning, Search } from '@gpa-gemstone/react-interactive';
+import { GenericController, Search, Warning } from '@gpa-gemstone/react-interactive';
+import { Column, Paging, Table } from '@gpa-gemstone/react-table';
+import { ScheduledEmailType, IDataSourceScheduledEmailType } from '../../global';
+import DataSourceModal from './DataSourceModal';
+import DataSourceTesting from './DataSourceTesting';
 
 
 declare var homePath;
@@ -37,24 +36,38 @@ declare var version;
 
 interface IProps { Record: ScheduledEmailType }
 
+const dataSourceScheduledEmailTypeController = new GenericController<IDataSourceScheduledEmailType>(`${homePath}api/OpenXDA/ScheduledEmailDataSourceEmailType`, "ScheduledEmailDataSourceName", false);
 
 const DataSourceWindow = (props: IProps) => {
-    const dispatch = useAppDispatch();
-    const status = useAppSelector(ScheduledEmailDataSourceSlice.Status);
-    const data = useAppSelector(ScheduledEmailDataSourceSlice.SearchResults);
-    const emailID = useAppSelector(ScheduledEmailDataSourceSlice.ParentID);
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [data, setData] = React.useState<IDataSourceScheduledEmailType[]>([]);
     const [dataSource, setDataSource] = React.useState<null | IDataSourceScheduledEmailType>(null);
     const [showTest, setShowTest] = React.useState<boolean>(false);
     const [showRemoveWarning, setShowRemoveWarning] = React.useState<boolean>(false);
     const [showDataSourceModal, setShowDataSourceModal] = React.useState<boolean>(false);
     const [page, setPage] = React.useState<number>(0);
-    const totalPages = useAppSelector(ScheduledEmailDataSourceSlice.TotalPages);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
     const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
 
     React.useEffect(() => {
-        const filters: Search.IFilter<IDataSourceScheduledEmailType>[] = [{ FieldName: "ScheduledEmailTypeID", SearchText: props.Record.ID.toString(), Operator: "=", IsPivotColumn: false, Type: 'string' }]
-        dispatch(ScheduledEmailDataSourceSlice.PagedSearch({ filter: filters, sortField: 'ScheduledEmailDataSourceName', ascending: true, page: page }));
-    }, [status, props.Record.ID, emailID, dataSource, page, refreshTrigger]);
+        const filters: Search.IFilter<IDataSourceScheduledEmailType>[] = [{ FieldName: "ScheduledEmailTypeID", SearchText: props.Record.ID.toString(), Operator: "=", IsPivotColumn: false, Type: 'string' }];
+        setStatus('loading');
+
+        const h = dataSourceScheduledEmailTypeController.PagedSearch(filters, 'ID', true, page)
+
+        h.done((d) => {
+            setStatus('idle');
+            setData(JSON.parse(d.Data));
+            setTotalPages(d.NumberOfPages);
+        })
+
+        h.fail(() => setStatus('error'))
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+    }, [props.Record.ID, dataSource, page, refreshTrigger]);
 
     return (
         <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
@@ -154,9 +167,9 @@ const DataSourceWindow = (props: IProps) => {
             <Warning Show={showRemoveWarning} Title={'Remove Source'} Message={`Are you sure you want to remove this data source?`}
                 CallBack={(c) => {
                     if (c)
-                        dispatch(ScheduledEmailDataSourceSlice.DBAction({
-                            verb: 'DELETE', record: dataSource
-                        })).then(() => setRefreshTrigger((val) => !val));
+                        dataSourceScheduledEmailTypeController.DBAction(
+                            'DELETE', dataSource
+                        ).then(() => setRefreshTrigger((val) => !val));
                     setShowRemoveWarning(false);
 
                 }}
