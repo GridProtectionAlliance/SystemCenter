@@ -33,13 +33,12 @@ import TransformerAttributes from '../AssetAttribute/Transformer';
 import { useNavigate } from 'react-router-dom';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { getAssetTypes, getAssetWithAdditionalFields } from '../../../TS/Services/Asset';
-import { DBActionAsset, DBMeterAction, SelectAssetStatus } from '../Store/AssetSlice'
 import { ConfigurableTable, ConfigurableColumn, Column, Paging } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Warning, Modal, LoadingScreen, GenericController, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { ToolTip } from '@gpa-gemstone/react-forms';
 import DERAttributes from '../AssetAttribute/DER';
-import { useAppDispatch, useAppSelector } from '../hooks';
+import { useAppSelector } from '../hooks';
 import AssetSelect from '../Asset/AssetSelect';
 import { SelectRoles } from '../Store/UserSettings';
 import GenerationAttributes from '../AssetAttribute/Generation';
@@ -53,7 +52,7 @@ interface IProps { Meter: OpenXDA.Types.Meter }
 const MeterAssetWindow = (props: IProps) => {
     const navigate = useNavigate();
 
-    const MeterAssetController = new GenericController<OpenXDA.Types.MeterAsset>(`${homePath}api/OpenXDA/DetailedMeterAsset/${props.Meter.ID}`, "AssetName", true);
+    const MeterAssetController = React.useMemo(() => new GenericController<OpenXDA.Types.MeterAsset>(`${homePath}api/OpenXDA/DetailedMeterAsset/${props.Meter.ID}`, "AssetName", true), [props.Meter.ID]);
     const PagingID = 'MeterAssetPage'
 
     const [assetTypes, setAssetTypes] = React.useState<OpenXDA.Types.AssetType[]>([]);
@@ -65,12 +64,10 @@ const MeterAssetWindow = (props: IProps) => {
 
     const [showSelect, setShowSelect] = React.useState<boolean>(false);
 
-    // Asset Slice Consts
     const [data, setData] = React.useState<OpenXDA.Types.MeterAsset[]>([]);
-    const dispatch = useAppDispatch();
-    const status = useAppSelector(SelectAssetStatus) as Application.Types.Status;
     const [sortKey, setSortKey] = React.useState<keyof OpenXDA.Types.MeterAsset>('AssetName');
     const [ascending, setAscending] = React.useState<boolean>(true);
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
 
     const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
     const roles = useAppSelector(SelectRoles);
@@ -113,7 +110,7 @@ const MeterAssetWindow = (props: IProps) => {
             setPageState('idle');
         }).fail(() => setPageState('error'));
         return () => { if (handle != null && handle?.abort != null) handle.abort(); }
-    }, [sortKey, ascending, page, status])
+    }, [sortKey, ascending, page, refreshTrigger])
 
     function setActiveAsset(assetID: number, assetType: OpenXDA.Types.AssetTypeName) {
         if (assetID == 0) {
@@ -143,6 +140,15 @@ const MeterAssetWindow = (props: IProps) => {
                     <div className="row">
                         <div className="col">
                             <h4>Assets:</h4>
+                        </div>
+                    </div>
+                    <div className="row">
+                        <div className="col">
+                            <p style={{ marginTop: 2, marginBottom: 2 }}>
+                                {pageState === 'error' ? 'Could not complete Search' :
+                                    pageState === 'loading' ? 'Loading...' :
+                                        `Displaying Asset(s) ${pageInfo.TotalRecords > 0 ? (pageInfo.RecordsPerPage * page + 1) : 0} - ${pageInfo.RecordsPerPage * page + data.length} out of ${pageInfo.TotalRecords}`}
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -258,7 +264,10 @@ const MeterAssetWindow = (props: IProps) => {
                             > <p></p>
                             </Column>
                         </ConfigurableTable>
-                        <Warning Show={showDeleteWarning} CallBack={(confirmed) => { if (confirmed) dispatch(DBMeterAction({ verb: 'DELETE', assetID: activeAsset.ID, meterID: props.Meter.ID, locationID: props.Meter.LocationID })); setShowDeleteWarning(false); }} Title={'Remove ' + (activeAsset?.AssetName ?? 'Asset') + ' from ' + (props.Meter?.Name ?? 'Meter')} Message={'This will permanently remove the Asset from this Meter.'} />
+                        <Warning Show={showDeleteWarning}
+                            CallBack={(confirmed) => { if (confirmed) removeAsset(activeAsset.ID, props.Meter.ID, props.Meter.LocationID).then(() => setRefreshTrigger(val => !val)); setShowDeleteWarning(false); }}
+                            Title={'Remove ' + (activeAsset?.AssetName ?? 'Asset') + ' from ' + (props.Meter?.Name ?? 'Meter')}
+                            Message={'This will permanently remove the Asset from this Meter.'} />
                         <LoadingScreen Show={pageState == 'loading'} />
                         <ServerErrorIcon Show={pageState == 'error'} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
                         <div className="row">
@@ -275,7 +284,7 @@ const MeterAssetWindow = (props: IProps) => {
                             CallBack={(confirm) => {
                                 setShoweditNew(false);
                                 if (confirm) {
-                                    dispatch(DBActionAsset({ verb: 'POST', record: activeAsset, meterID: props.Meter.ID, locationID: props.Meter.LocationID }));
+                                    addNewAsset(activeAsset, props.Meter.ID, props.Meter.LocationID).then(() => setRefreshTrigger(val => !val));
                                 }
                             }}
                             ConfirmShowToolTip={AssetAttributes.AttributeError(activeAsset).length > 0}
@@ -324,7 +333,7 @@ const MeterAssetWindow = (props: IProps) => {
                 OnCloseFunction={(selected, confirm) => {
                     setShowSelect(false);
                     if (confirm)
-                        dispatch(DBMeterAction({ verb: 'POST', assetID: selected[0].ID, meterID: props.Meter.ID, locationID: props.Meter.LocationID }));
+                        addExistingAsset(selected[0].ID, props.Meter.ID, props.Meter.LocationID).then(() => setRefreshTrigger(val => !val));
                 }}
             />
         </>
@@ -356,3 +365,40 @@ const MeterAssetWindow = (props: IProps) => {
 }
 
 export default MeterAssetWindow;
+
+function addExistingAsset(assetID: number, meterID: number, locationID: number) {
+    return $.ajax({
+        type: "POST",
+        url: `${homePath}api/OpenXDA/Meter/${meterID}/Asset/${assetID}/${locationID}`,
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        data: JSON.stringify(''),
+        cache: false,
+        async: true
+    });
+}
+
+function addNewAsset(asset: OpenXDA.Types.Asset, meterID: number, locationID: number) {
+    const route = `${homePath}api/OpenXDA/Asset/New/Meter/${meterID}/${locationID}`;
+    return $.ajax({
+        type: "POST",
+        url: route,
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        data: JSON.stringify({ Asset: asset }),
+        cache: false,
+        async: true
+    })
+}
+
+function removeAsset(assetID: number, meterID: number, locationID: number) {
+    return $.ajax({
+        type: "DELETE",
+        url: `${homePath}api/OpenXDA/Meter/${meterID}/Asset/${assetID}/${locationID}`,
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        data: JSON.stringify(''),
+        cache: false,
+        async: true
+    });
+}
