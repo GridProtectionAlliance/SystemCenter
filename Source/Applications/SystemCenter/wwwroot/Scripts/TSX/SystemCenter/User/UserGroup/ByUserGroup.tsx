@@ -23,14 +23,11 @@
 import * as React from 'react';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { SearchBar, Search, Modal, ServerErrorIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
+import { SearchBar, Search, Modal, ServerErrorIcon, LoadingScreen, GenericController } from '@gpa-gemstone/react-interactive';
 import { Application } from '@gpa-gemstone/application-typings';
 import * as _ from 'lodash';
-import { useAppDispatch, useBoundPaging } from '../../hooks';
 import { useNavigate } from "react-router-dom";
-import { SecurityGroupSlice } from '../../Store/Store';
 import { ISecurityGroup } from '../Types';
-import { useSelector } from 'react-redux';
 import GroupForm from './GroupForm';
 
 const defaultSearchcols: Search.IField<Application.Types.iSecurityGroup>[] = [
@@ -41,23 +38,24 @@ const defaultSearchcols: Search.IField<Application.Types.iSecurityGroup>[] = [
 
 const emptyGroup: ISecurityGroup = { Name: "", CreatedBy: "", CreatedOn: new Date(), Description: "", DisplayName: "", ID: "00000000-0000-0000-0000-000000000000", Type: "Database", UpdatedOn: new Date() };
 
+const SecurityGroupController = new GenericController<ISecurityGroup>(`${homePath}api/SystemCenter/FullSecurityGroup`, "DisplayName" as keyof ISecurityGroup);
 
 const ByUser: Application.Types.iByComponent = (props) => {
     let navigate = useNavigate();
-    const dispatch = useAppDispatch();
 
-    const search = useSelector(SecurityGroupSlice.SearchFilters);
-    const data = useSelector(SecurityGroupSlice.SearchResults);
-    const currentPage = useSelector(SecurityGroupSlice.CurrentPage);
-    const totalPages = useSelector(SecurityGroupSlice.TotalPages);
-    const totalRecords = useSelector(SecurityGroupSlice.TotalRecords);
+    const [search, setSearch] = React.useState<Search.IFilter<ISecurityGroup>[]>([]);
+    const [data, setData] = React.useState<ISecurityGroup[]>([]);
 
-    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
-    const searchStatus = useSelector(SecurityGroupSlice.SearchStatus);
+    const [searchStatus, setSearchStatus] = React.useState<Application.Types.Status>('uninitiated');
 
-    const sortField = useSelector(SecurityGroupSlice.SortField);
-    const ascending = useSelector(SecurityGroupSlice.Ascending);
+    const [sortField, setSortField] = React.useState<keyof ISecurityGroup>('DisplayName');
+    const [ascending, setAscending] = React.useState<boolean>(true);
+    const [page, setPage] = React.useState<number>(0);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [totalRecords, setTotalRecords] = React.useState<number>(0);
+    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
 
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [groupError, setGroupError] = React.useState<string[]>([]);
 
@@ -65,42 +63,35 @@ const ByUser: Application.Types.iByComponent = (props) => {
 
     const [pageStatus, setPageStatus] = React.useState<Application.Types.Status>('uninitiated');
 
+    // fetch data paged and sorted for the table
     React.useEffect(() => {
-        if (status === 'error')
-            setPageStatus('error')
-        else if (status === 'loading' )
-            setPageStatus('loading')
-        else
-            setPageStatus('idle');
-    }, [status])
+        setSearchStatus('loading');
+        const handle = SecurityGroupController.PagedSearch(search, sortField, ascending, page);
+        handle.done((d) => {
+            setData(JSON.parse(d.Data as unknown as string))
+            setTotalPages(d.NumberOfPages);
+            setTotalRecords(d.TotalRecords);
+            setRecordsPerPage(d.RecordsPerPage);
+            if (page >= d.NumberOfPages)
+                setPage(Math.max(d.NumberOfPages - 1, 0));
+            setSearchStatus('idle')
+        }).fail(() => setSearchStatus('error'));
 
-    React.useEffect(() => {
-        if (searchStatus == 'uninitiated' || searchStatus == 'changed')
-            dispatch(SecurityGroupSlice.PagedSearch({ sortField, ascending, filter: search, page: currentPage}))
-    }, [searchStatus, sortField, ascending, search, currentPage])
-
-    const setFilters = React.useCallback((filters: Search.IFilter<ISecurityGroup>[]) => {
-        dispatch(SecurityGroupSlice.PagedSearch({ sortField, ascending, filter: filters, page: currentPage}))
-    }, [sortField, ascending, currentPage])
-
-    const setPage = React.useCallback((page) => {
-        dispatch(SecurityGroupSlice.PagedSearch({ filter: search, sortField: sortField ?? "ID", ascending: ascending, page: page - 1 }))
-    }, [sortField, ascending, search])
+        return () => { if (handle != null && handle.abort != null) handle.abort() }
+    }, [sortField, ascending, search, page, refreshTrigger])
 
     if (pageStatus === 'error')
         return <div style={{ width: '100%', height: '100%' }}>
             <ServerErrorIcon Show={true} Label={'A Server Error Occurred. Please Reload the Application.'} />
         </div>;
 
-    useBoundPaging(currentPage, totalPages, setPage)
-
     return (
         <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
             <LoadingScreen Show={pageStatus === 'loading'} />
             <div className="row">
-                <SearchBar<ISecurityGroup> CollumnList={defaultSearchcols} SetFilter={setFilters}
+                <SearchBar<ISecurityGroup> CollumnList={defaultSearchcols} SetFilter={setSearch}
                     Direction={'left'} defaultCollumn={{ label: 'Name', key: 'DisplayName', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
-                    ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + totalRecords + ' User Group(s)'}
+                    ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : `Displaying User Group(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + data.length} out of ${totalRecords}`}
                     StorageID="UsersGroupFilter"
                     GetEnum={() => {
                         return () => { }
@@ -125,7 +116,12 @@ const ByUser: Application.Types.iByComponent = (props) => {
                         SortKey={sortField}
                         Ascending={ascending}
                         OnSort={(d) => {
-                            dispatch(SecurityGroupSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
+                            if (d.colKey === sortField)
+                                setAscending(a => !a);
+                            else {
+                                setAscending(true);
+                                setSortField(d.colKey as keyof ISecurityGroup);
+                            }
                         }}
                         OnClick={(d) => navigate(`${homePath}index.cshtml?name=Group&GroupID=${d.row.ID}`)}
                         TableStyle={{
@@ -184,8 +180,8 @@ const ByUser: Application.Types.iByComponent = (props) => {
             <div className="row">
                 <div className="col">
                     <Paging
-                        Current={currentPage + 1}
-                        SetPage={setPage}
+                        Current={page + 1}
+                        SetPage={(p) => setPage(p - 1)}
                         Total={totalPages}
                     />
                 </div>
@@ -193,10 +189,10 @@ const ByUser: Application.Types.iByComponent = (props) => {
             <Modal Show={showModal} Size={'lg'} ShowCancel={false} ShowX={true} ConfirmText={'Save'}
                 Title={'Add New User Group'} CallBack={(confirm) => {
                     if (confirm)
-                        dispatch(SecurityGroupSlice.DBAction({ 
-                            verb: 'POST', 
-                            record: { ...newGroup, Name: ((newGroup.Name?.length ?? 0) > 0? newGroup.Name : newGroup.DisplayName) }
-                         }))
+                        SecurityGroupController.DBAction(
+                            'POST',
+                            { ...newGroup, Name: ((newGroup.Name?.length ?? 0) > 0 ? newGroup.Name : newGroup.DisplayName) }
+                        ).then(() => setRefreshTrigger(val => !val));
                     setShowModal(false);
                 }}
                 ConfirmShowToolTip={groupError.length > 0}

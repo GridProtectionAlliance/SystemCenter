@@ -21,11 +21,10 @@
 // ******************************************************************************************************
 
 import * as React from 'react';
-import { LoadingScreen, ServerErrorIcon, TabSelector, Warning } from '@gpa-gemstone/react-interactive';
+import { LoadingScreen, ServerErrorIcon, TabSelector, Warning, GenericController } from '@gpa-gemstone/react-interactive';
 import * as _ from 'lodash';
-import { useAppDispatch, useAppSelector } from '../../hooks';
+import { Application } from '@gpa-gemstone/application-typings';
 import { useNavigate } from "react-router-dom";
-import { SecurityGroupSlice } from '../../Store/Store';
 import { ISecurityGroup } from '../Types';
 import GroupInfo from './Info';
 import GroupUser from './GroupUsers';
@@ -37,9 +36,8 @@ interface IProps { GroupID: string,	Tab: Tab }
 
 function UserGroup(props: IProps) {
 	const navigate = useNavigate();
-	const dispatch = useAppDispatch();
-	const group: ISecurityGroup = useAppSelector((state) => SecurityGroupSlice.Datum(state, props.GroupID) as ISecurityGroup);
-	const status = useAppSelector(SecurityGroupSlice.Status);
+	const [group, setGroup] = React.useState<ISecurityGroup | null>(null)
+	const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 	const [tab, setTab] = React.useState(getTab());
 	const [showWarning, setShowWarning] = React.useState<boolean>(false);
 
@@ -52,15 +50,33 @@ function UserGroup(props: IProps) {
 	}
 
 	React.useEffect(() => {
+		setStatus('loading');
+		const handle = $.ajax({
+			type: "GET",
+			url: `${homePath}api/SystemCenter/FullSecurityGroup/One/${props.GroupID}`,
+			contentType: "application/json; charset=utf-8",
+			dataType: 'json',
+			cache: true,
+			async: true
+		})
+		handle.done((d) => {
+			setStatus('idle');
+			setGroup(d);
+		})
+		handle.fail(() => {
+			setStatus('error')
+		})
+		return () => {
+			if (handle != null && handle.abort != null)
+				handle.abort()
+		}
+	}, [props.GroupID])
+
+	React.useEffect(() => {
 		const saved = getTab();
 		if (saved !== tab)
 			sessionStorage.setItem('UserGroup.Tab', JSON.stringify(tab));
 	}, [tab]);
-
-	React.useEffect(() => {
-		if (status == 'uninitiated' || status == 'changed')
-			dispatch(SecurityGroupSlice.Fetch());
-	}, [status])
 
 	if (status === 'error')
 		return <div style={{ width: '100%', height: '100%' }}>
@@ -94,8 +110,7 @@ function UserGroup(props: IProps) {
 			<Warning Message={'This will permanently delete the User Group. Users in this Group will not be deleted, but may lose their roles. Are you sure you want to continue?'} Title={'Delete ' + (group?.DisplayName ?? 'User Group')} Show={showWarning} CallBack={(c) => {
 				setShowWarning(false);
 				if (c) {
-					dispatch(SecurityGroupSlice.DBAction({ verb: 'DELETE', record: group }));
-					navigate(`${homePath}index.cshtml?name=Groups`);
+					new GenericController<ISecurityGroup>(`${homePath}api/SystemCenter/FullSecurityGroup`, "DisplayName").DBAction('DELETE', group).then(() => navigate(`${homePath}index.cshtml?name=Groups`));
 				}
 			}} />
 		</div>
