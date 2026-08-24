@@ -35,7 +35,7 @@ import { DBCleanup } from '../DB/DBCleanup';
 import { ApplicationCategory } from '../ApplicationCategory/ByApplicationCategory';
 import { OpenXDA as LocalXDA, SystemCenter as LocalSystemCenter } from '../global'
 import PQISlice from './PQISlice';
-import { IApplicationRole, ISecurityGroup, IUserAccount } from '../User/Types';
+import { IApplicationRole } from '../User/Types';
 import UserSettingsReducer from './UserSettings';
 import { EventWidget } from '../../../../../EventWidgets/TSX/global';
 import { IAPIAccessKey } from '../APIAccessKeys/APIAccessKeys'
@@ -100,18 +100,15 @@ export const ByMeterSlice = new GenericSlice<SystemCenter.Types.DetailedMeter>("
 export const RemoteXDAInstanceSlice = new GenericSlice<OpenXDA.Types.RemoteXDAInstance>("remoteXDAInstance", `${homePath}api/OpenXDA/remoteXDAInstance`, "Name", false);
 export const RemoteXDAMeterSlice = new GenericSlice<OpenXDA.Types.RemoteXDAMeter>("RemoteXDAMeter", `${homePath}api/OpenXDA/RemoteXDAMeter`, "LocalMeterName", false);
 export const RemoteXDAAssetSlice = new GenericSlice<OpenXDA.Types.RemoteXDAAsset>("RemoteXDAAsset", `${homePath}api/OpenXDA/RemoteXDAAsset`, "LocalAssetName", false);
-export const UserAccountSliceRemote = new GenericSlice<Application.Types.iUserAccount>("UserAccountRemote", `${homePath}api/SystemCenter/RemoteUserAccount`, "Name", false);
 
 export const AssetNoteSlice = new NoteSlice('Asset');
 export const MeterNoteSlice = new NoteSlice('Meter');
 export const UserNoteSlice = new NoteSlice('User');
 export const LocationNoteSlice = new NoteSlice('Location');
 export const CustomerNoteSlice = new NoteSlice('Customer');
-export const UserAccountSlice = new GenericSlice<IUserAccount>('UserAccounts', `${homePath}api/SystemCenter/UserAccount`, "DisplayName", true);
 export const UserAdditionalFieldSlice = new AdditionalUserFieldSlice('AdditionalUserFields', `${homePath}api/SystemCenter`);
 
 export const SourceImpedanceSlice = new GenericSlice<OpenXDA.Types.SourceImpedance>("SourceImpedance", `${homePath}api/OpenXDA/SourceImpedance`, "AssetLocationID", false);
-export const SecurityGroupSlice = new GenericSlice<ISecurityGroup>("SecurityGroup", `${homePath}api/SystemCenter/FullSecurityGroup`, "DisplayName", true)
 export const ApplicationRoleSlice = new GenericSlice<IApplicationRole>("ApplicationRole", `${homePath}api/SystemCenter/ApplicationRole`, "Name", false)
 
 export const WidgetCategorySlice = new GenericSlice<LocalXDA.IWidgetCategory>("WidgetCategory", `${homePath}api/SystemCenter/WidgetCategory`, "OrderBy", true)
@@ -171,7 +168,6 @@ const store = configureStore({
         UserNote: UserNoteSlice.Reducer,
         LocationNote: LocationNoteSlice.Reducer,
         CustomerNote: CustomerNoteSlice.Reducer,
-        UserAccounts: UserAccountSlice.Reducer,
         AdditionalUserFields: UserAdditionalFieldSlice.Reducer,
         EventType: EventTypeSlice.Reducer,
         MeasurementCharacteristic: MeasurementCharacteristicSlice.Reducer,
@@ -181,7 +177,6 @@ const store = configureStore({
         remoteXDAInstance: RemoteXDAInstanceSlice.Reducer,
         RemoteXDAAsset: RemoteXDAAssetSlice.Reducer,
         RemoteXDAMeter: RemoteXDAMeterSlice.Reducer,
-        UserAccountRemote: UserAccountSliceRemote.Reducer,
         ApplicationNode: ApplicationNodeSlice.Reducer,
         PQApplicationCategory: ApplicationCategorySlice.Reducer,
         PQApplications: PQApplicationsSlice.Reducer,
@@ -191,7 +186,6 @@ const store = configureStore({
         CustomerAsset: CustomerAssetSlice.Reducer,
         PQI: PQISlice,
         SourceImpedance: SourceImpedanceSlice.Reducer,
-        SecurityGroup: SecurityGroupSlice.Reducer,
         WidgetCategory: WidgetCategorySlice.Reducer,
         ApplicationRole: ApplicationRoleSlice.Reducer,
         SEBrowserWidget: SEBrowserWidgetSlice.Reducer,
