@@ -55,7 +55,7 @@ function AdditionalFieldsProperties(props: IProps): JSX.Element {
         const filt: Search.IFilter<SystemCenter.Types.AdditionalFieldView>[] = [{
             FieldName: 'ParentTable',
             Operator: '=',
-            SearchText: props.ParentTable,
+            SearchText: (props.ParentTable == "CapacitorBank" ? "CapBank" : (props.ParentTable == "CapacitorBankRelay" ? "CapBankRelay" : props.ParentTable)),
             Type: "string",
             IsPivotColumn: false
         }, {

@@ -34,12 +34,6 @@ using openXDA.Model;
 using System.Reflection;
 using System.Data;
 using GSF.Collections;
-using System.Web.Http.Filters;
-using Microsoft.Graph.ExternalConnectors;
-using System.Data.Common;
-using System.Runtime.Remoting.Contexts;
-using System.Web.Services.Description;
-using System.Web.UI.WebControls;
 using System.Collections.Concurrent;
 
 namespace SystemCenter.ScheduledProcesses
@@ -49,27 +43,41 @@ namespace SystemCenter.ScheduledProcesses
         #region [ Member ]
         public ExternalDatabases ExternalDB { get; set; }
         public static readonly Func<AdoDataConnection> ConnectionFactory = () => new AdoDataConnection("systemSettings");
+
         // Line segment excluded, special case
-        public static readonly Type[] CheckedTypes = new Type[] { typeof(Meter), typeof(Location), typeof(Model.Customer),
-            typeof(Line), typeof(Breaker), typeof(Bus), typeof(CapBank), typeof(Transformer), typeof(CapBankRelay), typeof(DER), typeof(Asset), typeof(Generation), typeof(StationAux), typeof(StationBattery) };
-        public static readonly string[] TableNames = { "Meter", "Location", "Customer", "Line", "Breaker", "Bus", "CapBank", "Transformer", "CapBankRelay", "DER", "Asset", "Generation", "StationAux", "StationBattery" }; // temporary 
+        public static readonly Dictionary<Type, string> TableNames = new Dictionary<Type, string> { 
+            {typeof(Meter),"Meter" }, 
+            {typeof(Location), "Location"}, 
+            {typeof(Model.Customer), "Customer"},
+            {typeof(Line), "Line"},
+            {typeof(Breaker), "Breaker"}, 
+            {typeof(Bus), "Bus"}, 
+            {typeof(CapBank), "CapBank"}, 
+            {typeof(Transformer), "Transformer"}, 
+            {typeof(CapBankRelay), "CapBankRelay"}, 
+            {typeof(DER), "DER"}, 
+            {typeof(Asset), "Asset"}, 
+            {typeof(Generation), "Generation"},
+            {typeof(StationAux), "StationAux"}, 
+            {typeof(StationBattery), "StationBattery"}
+        };
         public const string RegexPattern = "[{][^{}]*[}]";
         public const string RegexIllegal = @"[\s]";
-        private static IDictionary<Type, string> TypeTableNameDict;
-        private static string FieldCountSQL(string tableName) {
+
+        private static string FieldCountSQL(Type type) {
             return $@"
-                SELECT SUM(RecordCount*(AF + XF)) AS CT FROM (SELECT (SELECT COUNT(ID) FROM {tableName}) AS RecordCount,
-                (SELECT COUNT(ID) FROM AdditionalField WHERE AdditionalField.ParentTable LIKE '{tableName}' AND ExternalDBTableID = extDBTables.ID AND IsKey = 0) AS AF, 
-                (SELECT COUNT(ID) FROM ExternalOpenXDAField WHERE ExternalOpenXDAField.ParentTable LIKE '{tableName}' AND ExternalOpenXDAField.ExternalDBTableID = extDBTables.ID ) AS XF
+                SELECT SUM(RecordCount*(AF + XF)) AS CT FROM (SELECT (SELECT COUNT(ID) FROM {TableNames[type]}) AS RecordCount,
+                (SELECT COUNT(ID) FROM AdditionalField WHERE AdditionalField.ParentTable LIKE '{TableNames[type]}' AND ExternalDBTableID = extDBTables.ID AND IsKey = 0) AS AF, 
+                (SELECT COUNT(ID) FROM ExternalOpenXDAField WHERE ExternalOpenXDAField.ParentTable LIKE '{TableNames[type]}' AND ExternalOpenXDAField.ExternalDBTableID = extDBTables.ID ) AS XF
                 FROM extDBTables WHERE ExtDBID = {{0}}) T";
         } 
         public class ExtDBTaskStatus
         {
             public string Message { get; set; }
             public string Status { get; set; }
-            public int PercentFinished { get; set; }
-            public int RowsAffected { get; set; }
-            public int RecordsAffected { get; set; }
+            public int PercentFinished { get; set; } 
+            public int RowsAffected { get; set; } 
+            public int RecordsAffected { get; set; } 
         }
         #endregion
 
@@ -79,16 +87,6 @@ namespace SystemCenter.ScheduledProcesses
             ExternalDB = task;
         }
 
-        static ScheduledExtDBTask()
-        {
-            TypeTableNameDict = new Dictionary<Type, string>();
-            foreach (Type type in CheckedTypes)
-            {
-                Type tableOp = typeof(TableOperations<>).MakeGenericType(type);
-                MethodInfo getTableName = tableOp.GetMethod("GetTableName", BindingFlags.Static | BindingFlags.Public);
-                TypeTableNameDict.Add(type, (string)getTableName.Invoke(null, new object[] { }));
-            }
-        }
         #endregion
 
         #region [ Methods ]
@@ -120,6 +118,7 @@ namespace SystemCenter.ScheduledProcesses
                     logQueue?.Enqueue(new ExtDBTaskStatus() {
                         RowsAffected = 0,
                         PercentFinished = 100,
+                        RecordsAffected = 0,
                         Status = "Error",
                         Message = $"No tables found connected to external database {extDB.Name}."
                     });
@@ -134,14 +133,13 @@ namespace SystemCenter.ScheduledProcesses
                 using (AdoDataConnection externalConnection = GetExternalConnection(extDB))
                 {
                     // total count += in a foreach Type t
-                    foreach (Type t in CheckedTypes)
+                    foreach (Type t in TableNames.Keys)
                     {
-                        int typeIndex = CheckedTypes.ToList().FindIndex(checkedType => checkedType == t);
-                        string tableName = TableNames[typeIndex];
-                        totalFields += xdaConnection.ExecuteScalar<int>(FieldCountSQL(tableName), extDB.ID);
+                        string tableName = TableNames[t];
+                        totalFields += xdaConnection.ExecuteScalar<int>(FieldCountSQL(t), extDB.ID);
                     }
 
-                    foreach (Type t in CheckedTypes)
+                    foreach (Type t in TableNames.Keys)
                     {
                         foreach (extDBTables extTable in extTables)
                         {
@@ -155,34 +153,38 @@ namespace SystemCenter.ScheduledProcesses
                 {
                     RowsAffected = rowsAffected,
                     PercentFinished = 100,
-                    Status = "Info",
-                    Message = $"Finished updating external database {extDB.Name}: {rowsAffected} rows affected."
+                    RecordsAffected = 0,
+                    Status = "Success",
+                    Message = $"Finished retrieving data from External Database {extDB.Name}: {rowsAffected} Field(s) updated."
                 });
                 return rowsAffected;
             }
         }
         public static int Run(ExternalDatabases extDB, string parentTable, int? parentID = null, ConcurrentQueue<ExtDBTaskStatus> logQueue = null)
         {
+            Type tableType;
+            try
+            {
+                tableType = TableNames.First(item => item.Value == parentTable).Key;
+            }
+            catch (InvalidOperationException ex)
+            {
+                Log.Error($"Type {parentTable} is not a recognized xda parent table.");
+
+                logQueue?.Enqueue(new ExtDBTaskStatus()
+                {
+                    RowsAffected = 0,
+                    PercentFinished = 100,
+                    RecordsAffected = 0,
+                    Status = "Error",
+                    Message = $"Type {parentTable} is not a recognized xda parent table."
+                });
+                return 0;
+            }
+
             using (AdoDataConnection xdaConnection = ConnectionFactory())
             {
-                Type tableType;
-                try
-                {
-                    tableType = TypeTableNameDict.First(x => x.Value == parentTable).Key;
-                }
-                catch (InvalidOperationException ex)
-                {
-                    Log.Error($"Type {parentTable} is not a recognized xda parent table.");
-
-                    logQueue?.Enqueue(new ExtDBTaskStatus()
-                    {
-                        RowsAffected = 0,
-                        PercentFinished = 100,
-                        Status = "Error",
-                        Message = $"Type {parentTable} is not a recognized xda parent table."
-                    });
-                    return 0;
-                }
+                
                 TableOperations<extDBTables> tblTable = new TableOperations<extDBTables>(xdaConnection);
                 IEnumerable<extDBTables> extTables = tblTable.QueryRecordsWhere("ExtDBID = {0}", extDB.ID);
                 if (extTables.Count() == 0)
@@ -192,6 +194,7 @@ namespace SystemCenter.ScheduledProcesses
                     {
                         RowsAffected = 0,
                         PercentFinished = 100,
+                        RecordsAffected = 0,
                         Status = "Error",
                         Message = $"No tables found connected to external database {extDB.Name}."
                     });
@@ -204,7 +207,7 @@ namespace SystemCenter.ScheduledProcesses
                 int rowsAffected = 0;
                 using (AdoDataConnection externalConnection = GetExternalConnection(extDB))
                 {
-                    string sql = FieldCountSQL(parentTable);
+                    string sql = FieldCountSQL(tableType);
                     int totalFields = xdaConnection.ExecuteScalar<int>(sql, extDB.ID);
                     foreach (extDBTables extTable in extTables)
                     {
@@ -217,8 +220,9 @@ namespace SystemCenter.ScheduledProcesses
                 {
                     RowsAffected = rowsAffected,
                     PercentFinished = 100,
-                    Status = "Info",
-                    Message = $"Finished updating external database {extDB.Name}: {rowsAffected} rows affected."
+                    RecordsAffected = 0,
+                    Status = "Success",
+                    Message = $"Finished retrieving data from External Database {extDB.Name}: {rowsAffected} Field(s) updated."
                 });
                 return rowsAffected;
             }
@@ -232,9 +236,36 @@ namespace SystemCenter.ScheduledProcesses
             int totalFields, int tableFieldOffset, ConcurrentQueue<ExtDBTaskStatus> logQueue,
             int? parentID = null)
         {
-            var updateMethods = typeof(ScheduledExtDBTask).GetMethod("UpdateData", BindingFlags.Static | BindingFlags.Public);
-            var typedUpdateMethod = updateMethods.MakeGenericMethod(new[] { type });
-            return (int)typedUpdateMethod.Invoke(null, new object[] { extTable, addlFieldsTable, addlValuesTable, xdaFieldTable, context, xdaConnection, extConnection, totalFields, tableFieldOffset, logQueue, parentID });
+            if (type == typeof(Meter))
+                return UpdateData<Meter>(extTable, addlFieldsTable, addlValuesTable, xdaFieldTable, context, xdaConnection, extConnection, totalFields, tableFieldOffset, logQueue, parentID);
+            else if (type == typeof(Location))
+                return UpdateData<Location>(extTable, addlFieldsTable, addlValuesTable, xdaFieldTable, context, xdaConnection, extConnection, totalFields, tableFieldOffset, logQueue, parentID);
+            else if (type == typeof(Model.Customer))
+                return UpdateData<Model.Customer>(extTable, addlFieldsTable, addlValuesTable, xdaFieldTable, context, xdaConnection, extConnection, totalFields, tableFieldOffset, logQueue, parentID);
+            else if (type == typeof(Line))
+                return UpdateData<Line>(extTable, addlFieldsTable, addlValuesTable, xdaFieldTable, context, xdaConnection, extConnection, totalFields, tableFieldOffset, logQueue, parentID);
+            else if (type == typeof(Breaker))
+                return UpdateData<Breaker>(extTable, addlFieldsTable, addlValuesTable, xdaFieldTable, context, xdaConnection, extConnection, totalFields, tableFieldOffset, logQueue, parentID);
+            else if (type == typeof(Bus))
+                return UpdateData<Bus>(extTable, addlFieldsTable, addlValuesTable, xdaFieldTable, context, xdaConnection, extConnection, totalFields, tableFieldOffset, logQueue, parentID);
+            else if (type == typeof(CapBank))
+                return UpdateData<CapBank>(extTable, addlFieldsTable, addlValuesTable, xdaFieldTable, context, xdaConnection, extConnection, totalFields, tableFieldOffset, logQueue, parentID);
+            else if (type == typeof(Transformer))
+                return UpdateData<Transformer>(extTable, addlFieldsTable, addlValuesTable, xdaFieldTable, context, xdaConnection, extConnection, totalFields, tableFieldOffset, logQueue, parentID);
+            else if (type == typeof(CapBankRelay))
+                return UpdateData<CapBankRelay>(extTable, addlFieldsTable, addlValuesTable, xdaFieldTable, context, xdaConnection, extConnection, totalFields, tableFieldOffset, logQueue, parentID);
+            else if (type == typeof(DER))
+                return UpdateData<DER>(extTable, addlFieldsTable, addlValuesTable, xdaFieldTable, context, xdaConnection, extConnection, totalFields, tableFieldOffset, logQueue, parentID);
+            else if (type == typeof(Asset))
+                return UpdateData<Asset>(extTable, addlFieldsTable, addlValuesTable, xdaFieldTable, context, xdaConnection, extConnection, totalFields, tableFieldOffset, logQueue, parentID);
+            else if (type == typeof(Generation))
+                return UpdateData<Generation>(extTable, addlFieldsTable, addlValuesTable, xdaFieldTable, context, xdaConnection, extConnection, totalFields, tableFieldOffset, logQueue, parentID);
+            else if (type == typeof(StationAux))
+                return UpdateData<StationAux>(extTable, addlFieldsTable, addlValuesTable, xdaFieldTable, context, xdaConnection, extConnection, totalFields, tableFieldOffset, logQueue, parentID);
+            else if (type == typeof(StationBattery))
+                return UpdateData<StationBattery>(extTable, addlFieldsTable, addlValuesTable, xdaFieldTable, context, xdaConnection, extConnection, totalFields, tableFieldOffset, logQueue, parentID);
+            // shouldn't be possible
+            throw new ArgumentOutOfRangeException($"{type} is not recognized as an XDA parent table.");
         }
 
         public static int UpdateData<T>(extDBTables extTable,
@@ -249,17 +280,21 @@ namespace SystemCenter.ScheduledProcesses
             // Ignore key fields, since those don't make sense to not be auto updated
             IEnumerable<AdditionalField> addlFields = addlFieldsTable.QueryRecordsWhere("ParentTable = {0} AND ExternalDBTableID = {1} AND IsKey = 0", table.TableName, extTable.ID);
             IEnumerable<ExternalOpenXDAField> xdaFields = xdaFieldTable.QueryRecordsWhere("ParentTable = {0} AND ExternalDBTableID = {1}", table.TableName, extTable.ID);
-            // Todo: add external xda table to this, is put off for now
+
             if (!addlFields.Any() && !xdaFields.Any()) return 0;
             IEnumerable<T> allRecords;
             if (parentID is not null) allRecords = table.QueryRecordsWhere("ID = {0}", parentID);
             else allRecords = table.QueryRecords();
             int rows = 0;
+            int updatedRecords = 0;
+            string userTableName = (table.TableName == "Location" ? "Substation" : table.TableName);
             foreach (T record in allRecords)
             {
                 int recordID = GetID(record);
+                int rowsBeforeRecord = rows;
                 if (recordID == -1) continue; // Should be impossible to trigger without huge overhauling of openXDA
-                DataRowCollection data = RetrieveDataRecord(record, extTable, table, addlFieldsTable, addlValuesTable, context, extConnection);
+                int percentComplete = ((tableFieldOffset + rows) / totalFields) * 100;
+                DataRowCollection data = RetrieveDataRecord(record, extTable, table, addlFieldsTable, addlValuesTable, context, extConnection, logQueue, percentComplete, rows, updatedRecords);
                 // null means no specific record was found
                 if (data is null) continue;
                 foreach (AdditionalField field in addlFields)
@@ -275,6 +310,7 @@ namespace SystemCenter.ScheduledProcesses
                         logQueue?.Enqueue(new ExtDBTaskStatus()
                         {
                             RowsAffected = tableFieldOffset + rows,
+                            RecordsAffected = updatedRecords,
                             PercentFinished = ((tableFieldOffset + rows) / totalFields) * 100,
                             Status = "Warning",
                             Message = $"Additional field with no field in external database found: ID {field.ID}, Name {field.FieldName}, External Table {extTable.TableName}"
@@ -296,7 +332,7 @@ namespace SystemCenter.ScheduledProcesses
                     {
                         if (fieldValue == addlValue.Value) continue;
                         addlValue.Value = fieldValue;
-                        rows += addlValuesTable.UpdateRecord(addlValue); // message for record update? field update?
+                        rows += addlValuesTable.UpdateRecord(addlValue); 
                     }
                 }
                 bool hasXdaChanges = false;
@@ -313,6 +349,7 @@ namespace SystemCenter.ScheduledProcesses
                         logQueue.Enqueue(new ExtDBTaskStatus()
                         {   
                             RowsAffected = tableFieldOffset + rows,
+                            RecordsAffected = updatedRecords,
                             PercentFinished = ((tableFieldOffset + rows) / totalFields) * 100,
                             Status = "Warning",
                             Message = $"External OpenXDA field with no field in external database found: ID {field.ID}, Name {field.FieldName}, External Table {extTable.TableName}"
@@ -326,6 +363,7 @@ namespace SystemCenter.ScheduledProcesses
                         logQueue.Enqueue(new ExtDBTaskStatus()
                         {
                             RowsAffected = tableFieldOffset + rows,
+                            RecordsAffected = updatedRecords,
                             PercentFinished = ((tableFieldOffset + rows) / totalFields) * 100,
                             Status = "Warning",
                             Message = $"External OpenXDA field defined that does not exist on the xda model {field.FieldName} on table {field.ParentTable}"
@@ -341,17 +379,21 @@ namespace SystemCenter.ScheduledProcesses
                 logQueue.Enqueue(new ExtDBTaskStatus()
                 {
                     RowsAffected = tableFieldOffset + rows,
+                    RecordsAffected = updatedRecords,
                     PercentFinished = ((tableFieldOffset + rows) / totalFields) * 100,
                     Status = "Info",
-                    Message = $"Record updated successfully."
+                    Message = $"Successfully updated {userTableName} \"{GetName(record)}\" with data from {extTable.TableName}: {rows - rowsBeforeRecord} Field(s) updated."
                 });
+                if (rows != rowsBeforeRecord)
+                    updatedRecords += 1;
             }
             logQueue.Enqueue(new ExtDBTaskStatus()
             {
                 RowsAffected = tableFieldOffset + rows,
+                RecordsAffected = updatedRecords,
                 PercentFinished = ((tableFieldOffset + rows) / totalFields) * 100,
                 Status = "Info",
-                Message = $"Table {table.TableName} updated successfully."
+                Message = $"Finished retrieving {userTableName} data from Table {extTable.TableName}: {updatedRecords} {userTableName}(s) and {rows} Field(s) updated."
             });
             return rows;
         }
@@ -396,10 +438,22 @@ namespace SystemCenter.ScheduledProcesses
 
         public static DataRowCollection RetrieveDataRecord<T>(T record, extDBTables extTable,
             TableOperations<T> table, TableOperations<AdditionalField> addlTable, TableOperations<AdditionalFieldValue> addlValuesTable,
-            ExpressionContext context, AdoDataConnection externalConnection) where T : class, new()
+            ExpressionContext context, AdoDataConnection externalConnection, ConcurrentQueue<ExtDBTaskStatus> logQueue, int percentComplete, int rowsAffected, int recordsAffected) where T : class, new()
         {
             DataRowCollection data = RetrieveDataRecordTable(record, extTable, table, addlTable, addlValuesTable, context, externalConnection)?.Rows;
-            if (data is null || data.Count != 1) return null;
+            if (data is null) return null;
+            if (data.Count != 1)
+            {
+                logQueue.Enqueue(new ExtDBTaskStatus()
+                {
+                    PercentFinished = percentComplete,
+                    RowsAffected = rowsAffected,
+                    RecordsAffected = recordsAffected,
+                    Status = "Warning",
+                    Message = $"Table {extTable.TableName} contains {data.Count} results matching {GetUserRecordType(table.TableName)} {GetName(record)}"
+                });
+                return null;
+            }
             return data;
         }
 
@@ -436,10 +490,10 @@ namespace SystemCenter.ScheduledProcesses
             context.Variables.DefineVariable("key", typeof(string));
             context.Variables["key"] = null;
             // Define all vars that could be pulled from openXDA
-            foreach(Type type in CheckedTypes)
+            foreach(Type type in TableNames.Keys)
             {
                 string tableName;
-                if (!TypeTableNameDict.TryGetValue(type, out tableName))
+                if (!TableNames.TryGetValue(type, out tableName))
                 {
                     Log.Warn($"Type {type.Name} checked in Scheduled DB Task could not find associated table name.");
                     continue;
@@ -560,6 +614,17 @@ namespace SystemCenter.ScheduledProcesses
             return (int) idObj.GetValue(record);
         }
 
+        private static string GetName<T>(T record) where T: class, new()
+        {
+            HashSet<Type> nonAssetTypes = new HashSet<Type>() { typeof(Meter), typeof(Model.Customer), typeof(Location) };
+            string propertyName = "AssetName";
+            if (nonAssetTypes.Contains(typeof(T)))
+                propertyName = "Name";
+            PropertyInfo nameObj = record.GetType().GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+            if (nameObj is null) return "";
+            return (string)nameObj.GetValue(record);
+        }
+
         private static string RegexReplaceFunction(Match match, ExpressionContext context, List<object> parameters)
         {
             try
@@ -569,7 +634,7 @@ namespace SystemCenter.ScheduledProcesses
                 if (context.Variables[variableComponents[0]] is null) return "null";
                 if (variableComponents.Length > 2 && string.Equals(variableComponents[1], "Field", StringComparison.OrdinalIgnoreCase))
                     variable = RemoveIllegalCharacters(variableComponents[2]);
-                string stringExpression = $"if({variable} <> null, {variable}.toString(), null)";
+                string stringExpression = $"if({variable}.toString() <> null, {variable}.toString(), null)";
                 IGenericExpression<string> expression = context.CompileGeneric<string>(stringExpression);
                 string eval = expression.Evaluate();
                 if (eval is null) return "null";
@@ -593,6 +658,9 @@ namespace SystemCenter.ScheduledProcesses
 
         #region [ Static ]
         private static readonly ILog Log = LogManager.GetLogger(typeof(ExternalDatabases));
+
+        private static string GetUserRecordType(string recordType) => (recordType == "Location" ? "Substation" : recordType);
+
         #endregion
 
     }
