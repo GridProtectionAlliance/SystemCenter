@@ -34,6 +34,7 @@ const GroupUser = (props: { Group: ISecurityGroup }) => {
 
     const [showSelect, setShowSelect] = React.useState<boolean>(false);
     const [users, setUsers] = React.useState<Application.Types.iUserAccount[]>([]);
+    const [groupUsers, setGroupUsers] = React.useState<Application.Types.iUserAccount[]>([]);
     const [asc, setAsc] = React.useState<boolean>(true);
     const [sortField, setSortField] = React.useState<keyof Application.Types.iUserAccount>('AccountName');
 
@@ -45,7 +46,9 @@ const GroupUser = (props: { Group: ISecurityGroup }) => {
     const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
 
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [groupStatus, setGroupStatus] = React.useState<Application.Types.Status>('uninitiated');
 
+    // fetch group's users, paged and sorted for the table
     React.useEffect(() => {
         if (props.Group.Type != 'Database')
             return;
@@ -71,6 +74,27 @@ const GroupUser = (props: { Group: ISecurityGroup }) => {
 
         return () => { if (handle != null && handle.abort != null) handle.abort(); }
     }, [props.Group.ID, props.Group.Type, asc, sortField, page, refreshTrigger])
+
+    // fetch all of group's users to use as the base 'selected' users in the selection popup.
+    React.useEffect(() => {
+        if (props.Group.Type != 'Database')
+            return;
+
+        setGroupStatus('loading')
+
+        const handle = $.ajax({
+            type: "POST",
+            url: `${homePath}api/SystemCenter/FullSecurityGroup/Users/${props.Group.ID}`,
+            contentType: "application/json; charset=utf-8",
+            cache: false,
+            async: true
+        }).done((d) => {
+            setGroupUsers(JSON.parse(d.Data as unknown as string));
+            setGroupStatus('idle');
+        }).fail(() => setGroupStatus('error'));
+
+        return () => { if (handle != null && handle.abort != null) handle.abort(); }
+    }, [props.Group.ID, props.Group.Type, refreshTrigger])
 
     function saveUser(u) {
         if (props.Group.Type != 'Database')
@@ -207,7 +231,7 @@ const GroupUser = (props: { Group: ISecurityGroup }) => {
             </div>
             <ControllerSelectPopup<Application.Types.iUserAccount>
                 Controller={RemoteUserAccountController}
-                Selection={users}
+                Selection={groupUsers}
                 OnClose={(selected, conf) => {
                     setShowSelect(false);
                     if (!conf) return;
