@@ -54,17 +54,10 @@ export const ValueListSlice = new GenericSlice<SystemCenter.Types.ValueListItem>
 export const LocationDrawingSlice = new GenericSlice<SystemCenter.Types.LocationDrawing>('LocationDrawing', `${homePath}api/LocationDrawing`, 'Name');
 
 export const ChannelGroupSlice = new GenericSlice<SystemCenter.Types.ChannelGroup>('ChannelGroup', `${homePath}api/ChannelGroup`, 'Name');
-export const ChannelGroupViewSlice = new GenericSlice<LocalSystemCenter.ChannelGroupView>('ChannelGroupView', `${homePath}api/ChannelGroup`, 'Name');
 
 export const ChannelGroupDetailsSlice = new GenericSlice<SystemCenter.Types.ChannelGroupDetails>('ChannelGroupDetails', `${homePath}api/ChannelGroupDetails`, 'DisplayName');
 
 export const SystemCenterSettingSlice = new GenericSlice<SystemCenter.Types.Setting>('SystemCenterSetting', `${homePath}api/Setting`, 'Name');
-export const OpenXDASettingSlice = new GenericSlice<SystemCenter.Types.Setting>('OpenXDASetting', `${homePath}api/OpenXDA/Setting`, 'Name');
-export const MiMDSettingSlice = new GenericSlice<SystemCenter.Types.Setting>('MiMDSetting', `${homePath}api/MiMD/Setting`, 'Name');
-export const OpenSEESettingSlice = new GenericSlice<SystemCenter.Types.Setting>('OpenSEESetting', `${homePath}api/OpenSEE/Setting`, 'Name');
-export const SEBrowserSettingSlice = new GenericSlice<LocalSystemCenter.SEBrowserSetting>('SEBrowserSetting', `${homePath}api/SEBrowser/Setting`, 'Name');
-export const PQDigestSettingSlice = new GenericSlice<SystemCenter.Types.Setting>('PQDigestSetting', `${homePath}api/PQDigest/Setting`, 'Name');
-
 
 export const AssetConnectionTypeSlice = new GenericSlice<OpenXDA.Types.AssetConnectionType>("AssetConnectionType", `${homePath}api/OpenXDA/AssetConnectionType`, 'Name');
 export const AssetTypeSlice = new GenericSlice<OpenXDA.Types.AssetType>("AssetType", `${homePath}api/OpenXDA/AssetType`, 'Name');
@@ -74,14 +67,10 @@ export const MeasurementCharacteristicSlice = new GenericSlice<OpenXDA.Types.Mea
 
 export const EventTypeAssetTypeSlice = new GenericSlice<OpenXDA.Types.EventTypeAssetType>("EventTypeAssetType", `${homePath}api/OpenXDA/EventTypeAssetType`, "ID", false);
 export const CustomerSlice = new GenericSlice<OpenXDA.Types.Customer>("Customer", `${homePath}api/SystemCenter/Customer`, "Name", true);
-export const CustomerMeterSlice = new GenericSlice<LocalXDA.CustomerMeter>('CustomerMeter', `${homePath}api/SystemCenter/CustomerMeter`, 'MeterName', true);
-export const CustomerAssetSlice = new GenericSlice<LocalXDA.CustomerAsset>('CustomerAsset', `${homePath}api/SystemCenter/CustomerAsset`, 'AssetName', true);
-
 
 export const EventTypeSlice = new GenericSlice<OpenXDA.Types.EventType>("EventType", `${homePath}api/OpenXDA/EventType`, "Name");
 export const LocationSlice = new GenericSlice<OpenXDA.Types.Location>("Location", `${homePath}api/OpenXDA/Location`, "LocationKey", true);
 export const DataOperationSlice = new GenericSlice<OpenXDA.Types.DataOperation>("DataOperation", `${homePath}api/OpenXDA/DataOperation`, "LoadOrder");
-export const DataReaderSlice = new GenericSlice<OpenXDA.Types.DataReader>("DataReader", `${homePath}api/OpenXDA/DataReader`, "LoadOrder");
 export const ExternalDatabasesSlice = new GenericSlice<SystemCenter.Types.DetailedExternalDatabases>("ExternalDatabases", `${homePath}api/SystemCenter/ExternalDatabases`, "Name", false);
 export const ExternalDBTablesSlice = new GenericSlice<SystemCenter.Types.DetailedExtDBTables>("ExternalDataBaseTable", `${homePath}api/SystemCenter/extDBTables`, "TableName", true);
 export const AdditionalFieldsSlice = new GenericSlice<SystemCenter.Types.AdditionalFieldView>("AdditionalFields", `${homePath}api/SystemCenter/AdditionalFieldView`, "FieldName", true);
@@ -108,7 +97,6 @@ export const LocationNoteSlice = new NoteSlice('Location');
 export const CustomerNoteSlice = new NoteSlice('Customer');
 export const UserAdditionalFieldSlice = new AdditionalUserFieldSlice('AdditionalUserFields', `${homePath}api/SystemCenter`);
 
-export const SourceImpedanceSlice = new GenericSlice<OpenXDA.Types.SourceImpedance>("SourceImpedance", `${homePath}api/OpenXDA/SourceImpedance`, "AssetLocationID", false);
 export const ApplicationRoleSlice = new GenericSlice<IApplicationRole>("ApplicationRole", `${homePath}api/SystemCenter/ApplicationRole`, "Name", false)
 
 export const WidgetCategorySlice = new GenericSlice<LocalXDA.IWidgetCategory>("WidgetCategory", `${homePath}api/SystemCenter/WidgetCategory`, "OrderBy", true)
@@ -118,7 +106,6 @@ export const PQDigestHomeScreenSlice = new GenericSlice<LocalXDA.IHomeScreenWidg
 
 
 export const SEBrowserWidgetViewSlice = new GenericSlice<PQBrowser.Types.IWidgetView>("SEBrowserWidgetView", `${homePath}api/SEbrowser/WidgetView`, "Name", true)
-export const MagDurCurveSlice = new GenericSlice<OpenXDA.Types.MagDurCurve>('MagDurCurve', `${homePath}api/SystemCenter/StandardMagDurCurve`, 'Name');
 export const APIAccessKeySlice = new GenericSlice<IAPIAccessKey>('APIAccessKey', `${homePath}api/OpenXDA/APIAccessKey`, 'RegistrationKey');
 
 
@@ -128,8 +115,6 @@ export const EventTagSlice = new GenericSlice<OpenXDA.Types.EventTag>("EventTag"
 export const MATLABAnalyticSlice = new GenericSlice<OpenXDA.Types.MATLABAnalytic>("MATLABAnalytic", `${homePath}api/OpenXDA/MATLABAnalytic`, 'LoadOrder');
 export const MATLABAnalyticEventTypeSlice = new GenericSlice<OpenXDA.Types.MATLABAnalyticEventType>("MATLABAnalyticEventType", `${homePath}api/OpenXDA/MATLABAnalyticEventType`, 'ID');
 export const MATLABAnalyticAssetTypeSlice = new GenericSlice<OpenXDA.Types.MATLABAnalyticAssetType>("MATLABAnalyticAssetType", `${homePath}api/OpenXDA/MATLABAnalyticAssetType`, 'ID');
-
-export const TrendChannelSlice = new GenericSlice<LocalXDA.TrendChannel>('TrendChannels', `${homePath}api/OpenXDA/TrendChannel`, 'Name');
 
 export const ChannelTemplateSlice = new GenericSlice<LocalSystemCenter.ChannelTemplateFile>('ChannelTemplate', `${homePath}api/SystemCenter/ChannelTemplateFile`, 'ID', true);
 
@@ -156,11 +141,6 @@ const store = configureStore({
         ChannelGroupDetails: ChannelGroupDetailsSlice.Reducer,
         LocationDrawing: LocationDrawingSlice.Reducer,
         SystemCenterSetting: SystemCenterSettingSlice.Reducer,
-        OpenXDASetting: OpenXDASettingSlice.Reducer,
-        MiMDSetting: MiMDSettingSlice.Reducer,
-        OpenSEESetting: OpenSEESettingSlice.Reducer,
-        SEBrowserSetting: SEBrowserSettingSlice.Reducer,
-        PQDigestSetting: PQDigestSettingSlice.Reducer,
         AssetType: AssetTypeSlice.Reducer,
         Customer: CustomerSlice.Reducer,
         AssetNote: AssetNoteSlice.Reducer,
@@ -172,7 +152,6 @@ const store = configureStore({
         EventType: EventTypeSlice.Reducer,
         MeasurementCharacteristic: MeasurementCharacteristicSlice.Reducer,
         DataOperation: DataOperationSlice.Reducer,
-        DataReader: DataReaderSlice.Reducer,
         ExternalDataBaseTable: ExternalDBTablesSlice.Reducer,
         remoteXDAInstance: RemoteXDAInstanceSlice.Reducer,
         RemoteXDAAsset: RemoteXDAAssetSlice.Reducer,
@@ -182,17 +161,13 @@ const store = configureStore({
         PQApplications: PQApplicationsSlice.Reducer,
         DBCleanup: DBCleanupSlice.Reducer,
         EventChannels: EventChannelSlice.reducer,
-        CustomerMeter: CustomerMeterSlice.Reducer,
-        CustomerAsset: CustomerAssetSlice.Reducer,
         PQI: PQISlice,
-        SourceImpedance: SourceImpedanceSlice.Reducer,
         WidgetCategory: WidgetCategorySlice.Reducer,
         ApplicationRole: ApplicationRoleSlice.Reducer,
         SEBrowserWidget: SEBrowserWidgetSlice.Reducer,
         PQDigestWidget: PQDigestWidgetSlice.Reducer,
         PQDigestHomeScreenWidget: PQDigestHomeScreenSlice.Reducer,
         SEBrowserWidgetView: SEBrowserWidgetViewSlice.Reducer,
-        MagDurCurve: MagDurCurveSlice.Reducer,
         APIAccessKey: APIAccessKeySlice.Reducer,
         ExternalDatabases: ExternalDatabasesSlice.Reducer,
         AdditionalFields: AdditionalFieldsSlice.Reducer,
@@ -201,9 +176,7 @@ const store = configureStore({
         MATLABAnalytic: MATLABAnalyticSlice.Reducer,
         MATLABAnalyticEventType: MATLABAnalyticEventTypeSlice.Reducer,
         MATLABAnalyticAssetType: MATLABAnalyticAssetTypeSlice.Reducer,
-        TrendChannels: TrendChannelSlice.Reducer,
         ChannelTemplate: ChannelTemplateSlice.Reducer,
-        ChannelGroupView: ChannelGroupViewSlice.Reducer,
         ValueListGroupView: ValueListGroupViewSlice.Reducer,
         Config: ConfigSlice.Reducer
     }
