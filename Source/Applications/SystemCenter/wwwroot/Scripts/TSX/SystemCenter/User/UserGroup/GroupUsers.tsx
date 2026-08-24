@@ -23,11 +23,12 @@
 import * as React from 'react';
 import { Application } from '@gpa-gemstone/application-typings';
 import * as _ from 'lodash';
-import { LoadingScreen } from '@gpa-gemstone/react-interactive';
-import { UserAccountSliceRemote } from '../../Store/Store';
+import { LoadingScreen, GenericController, SearchBar } from '@gpa-gemstone/react-interactive';
 import { ISecurityGroup } from '../Types';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
-import { DefaultSelects } from '@gpa-gemstone/common-pages';
+import ControllerSelectPopup from '../../CommonComponents/ControllerSelectPopup'
+
+const RemoteUserAccountController = new GenericController<Application.Types.iUserAccount>(`${homePath}api/SystemCenter/RemoteUserAccount`, "Name", false);
 
 const GroupUser = (props: { Group: ISecurityGroup }) => {
 
@@ -204,9 +205,8 @@ const GroupUser = (props: { Group: ISecurityGroup }) => {
                         disabled={props.Group.Type !== 'Database'}>Add Users</button>
                 </div>
             </div>
-
-            <DefaultSelects.User
-                Slice={UserAccountSliceRemote}
+            <ControllerSelectPopup<Application.Types.iUserAccount>
+                Controller={RemoteUserAccountController}
                 Selection={users}
                 OnClose={(selected, conf) => {
                     setShowSelect(false);
@@ -216,8 +216,20 @@ const GroupUser = (props: { Group: ISecurityGroup }) => {
                 Show={showSelect}
                 Type={'multiple'}
                 Title={"Add Users to " + props.Group.Name}
-                GetEnum={() => () => { }}
-                GetAddlFields={() => () => { }}
+                Searchbar={(children, setFilters) => <SearchBar<Application.Types.iUserAccount>
+                    SetFilter={setFilters}
+                    CollumnList={[
+                        { label: 'First Name', key: 'FirstName', type: 'string', isPivotField: false },
+                        { label: 'Last Name', key: 'LastName', type: 'string', isPivotField: false },
+                        { label: 'Email', key: 'Email', type: 'string', isPivotField: false }
+                    ]}
+                    Direction={'left'}
+                    defaultCollumn={{ label: 'Username', key: 'Name', type: 'string', isPivotField: false }}
+                    Width={'50%'}
+                    Label={'Search'}
+                >
+                    {children}
+                </SearchBar>}
             >
                 <Column Key="Name" Field="Name" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: '10%' }}
                 >Username</Column>
@@ -229,8 +241,7 @@ const GroupUser = (props: { Group: ISecurityGroup }) => {
                 >Phone</Column>
                 <Column Key="Email" Field="Email" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
                 >Email</Column>
-            </DefaultSelects.User>
-
+            </ControllerSelectPopup>
         </div>
     );
 
