@@ -279,6 +279,7 @@ const ByLocation: Application.Types.iByComponent = (props) => {
                     if (conf)
                         dispatch(ByLocationSlice.DBAction({ verb: "POST", record: newLocation }))
                     setShowNew(false);
+                    setNewLocation(getNewLocation());
                 }}
                 ConfirmShowToolTip={newLocationErrors.length > 0}
                 ConfirmToolTipContent={
