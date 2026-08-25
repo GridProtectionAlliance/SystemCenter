@@ -23,16 +23,18 @@
 import * as React from 'react';
 import { Application } from '@gpa-gemstone/application-typings';
 import * as _ from 'lodash';
-import { LoadingScreen } from '@gpa-gemstone/react-interactive';
-import { UserAccountSliceRemote } from '../../Store/Store';
+import { LoadingScreen, GenericController, SearchBar } from '@gpa-gemstone/react-interactive';
 import { ISecurityGroup } from '../Types';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
-import { DefaultSelects } from '@gpa-gemstone/common-pages';
+import ControllerSelectPopup from '../../CommonComponents/ControllerSelectPopup'
+
+const RemoteUserAccountController = new GenericController<Application.Types.iUserAccount>(`${homePath}api/SystemCenter/RemoteUserAccount`, "Name", false);
 
 const GroupUser = (props: { Group: ISecurityGroup }) => {
 
     const [showSelect, setShowSelect] = React.useState<boolean>(false);
     const [users, setUsers] = React.useState<Application.Types.iUserAccount[]>([]);
+    const [groupUsers, setGroupUsers] = React.useState<Application.Types.iUserAccount[]>([]);
     const [asc, setAsc] = React.useState<boolean>(true);
     const [sortField, setSortField] = React.useState<keyof Application.Types.iUserAccount>('AccountName');
 
@@ -44,7 +46,9 @@ const GroupUser = (props: { Group: ISecurityGroup }) => {
     const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
 
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [groupStatus, setGroupStatus] = React.useState<Application.Types.Status>('uninitiated');
 
+    // fetch group's users, paged and sorted for the table
     React.useEffect(() => {
         if (props.Group.Type != 'Database')
             return;
@@ -70,6 +74,27 @@ const GroupUser = (props: { Group: ISecurityGroup }) => {
 
         return () => { if (handle != null && handle.abort != null) handle.abort(); }
     }, [props.Group.ID, props.Group.Type, asc, sortField, page, refreshTrigger])
+
+    // fetch all of group's users to use as the base 'selected' users in the selection popup.
+    React.useEffect(() => {
+        if (props.Group.Type != 'Database')
+            return;
+
+        setGroupStatus('loading')
+
+        const handle = $.ajax({
+            type: "POST",
+            url: `${homePath}api/SystemCenter/FullSecurityGroup/Users/${props.Group.ID}`,
+            contentType: "application/json; charset=utf-8",
+            cache: false,
+            async: true
+        }).done((d) => {
+            setGroupUsers(JSON.parse(d.Data as unknown as string));
+            setGroupStatus('idle');
+        }).fail(() => setGroupStatus('error'));
+
+        return () => { if (handle != null && handle.abort != null) handle.abort(); }
+    }, [props.Group.ID, props.Group.Type, refreshTrigger])
 
     function saveUser(u) {
         if (props.Group.Type != 'Database')
@@ -204,10 +229,9 @@ const GroupUser = (props: { Group: ISecurityGroup }) => {
                         disabled={props.Group.Type !== 'Database'}>Add Users</button>
                 </div>
             </div>
-
-            <DefaultSelects.User
-                Slice={UserAccountSliceRemote}
-                Selection={users}
+            <ControllerSelectPopup<Application.Types.iUserAccount>
+                Controller={RemoteUserAccountController}
+                Selection={groupUsers}
                 OnClose={(selected, conf) => {
                     setShowSelect(false);
                     if (!conf) return;
@@ -216,8 +240,20 @@ const GroupUser = (props: { Group: ISecurityGroup }) => {
                 Show={showSelect}
                 Type={'multiple'}
                 Title={"Add Users to " + props.Group.Name}
-                GetEnum={() => () => { }}
-                GetAddlFields={() => () => { }}
+                Searchbar={(children, setFilters) => <SearchBar<Application.Types.iUserAccount>
+                    SetFilter={setFilters}
+                    CollumnList={[
+                        { label: 'First Name', key: 'FirstName', type: 'string', isPivotField: false },
+                        { label: 'Last Name', key: 'LastName', type: 'string', isPivotField: false },
+                        { label: 'Email', key: 'Email', type: 'string', isPivotField: false }
+                    ]}
+                    Direction={'left'}
+                    defaultCollumn={{ label: 'Username', key: 'Name', type: 'string', isPivotField: false }}
+                    Width={'50%'}
+                    Label={'Search'}
+                >
+                    {children}
+                </SearchBar>}
             >
                 <Column Key="Name" Field="Name" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: '10%' }}
                 >Username</Column>
@@ -229,8 +265,7 @@ const GroupUser = (props: { Group: ISecurityGroup }) => {
                 >Phone</Column>
                 <Column Key="Email" Field="Email" HeaderStyle={{ width: 'auto' }} RowStyle={{ width: 'auto' }}
                 >Email</Column>
-            </DefaultSelects.User>
-
+            </ControllerSelectPopup>
         </div>
     );
 
