@@ -24,7 +24,7 @@
 import * as React from 'react';
 import { Application } from '@gpa-gemstone/application-typings';
 import { ServerErrorIcon, Search, LoadingScreen } from '@gpa-gemstone/react-interactive';
-import { Paging, ConfigurableTable, ConfigurableColumn, Column } from '@gpa-gemstone/react-table';
+import { Paging, ConfigurableTable, ConfigurableColumn, Column, FilterableColumn } from '@gpa-gemstone/react-table';
 import StatusDetails from '../../CommonComponents/StatusDetails'
 import { SystemCenter as SC } from '../../global'
 import * as _ from 'lodash';
@@ -108,7 +108,7 @@ export default function ResultDisplay(props: IProps) {
                         RowStyle={{ fontSize: 'smaller' }}
                         Selected={(item) => props.Selected === undefined ? false : props.Selected!(item) ?? false}
                         KeySelector={item => item.__tempXdaKey__}
-                        TableStyle={{ height: '100%'} }
+                        TableStyle={{ height: '100%' }}
                         SortKey={sortExt}
                         Ascending={ascExt}
                         SetFilters={setFilters}
@@ -127,11 +127,15 @@ export default function ResultDisplay(props: IProps) {
                         {
                             cols.map(col => 
                                 <ConfigurableColumn Key={col} Default={true} Label={col} key={col}>
-                                    <Column<any> key={col}
-                                        Key={col} Field={col}
-                                        AllowSort={true} Adjustable={false}
+                                    <FilterableColumn<any>
+                                        key={col}
+                                        Key={col}
+                                        Field={col}
+                                        AllowSort={true}
+                                        Adjustable={false}
+                                        Type={'string'}
                                     >{col}
-                                    </Column>
+                                    </FilterableColumn>
                                 </ConfigurableColumn>
                             )}
                     </ConfigurableTable>}
