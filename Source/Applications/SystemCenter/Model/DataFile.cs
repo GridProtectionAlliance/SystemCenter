@@ -84,7 +84,7 @@ namespace SystemCenter.Model
 	        FileGroup.DataStartTime,
 	        FileGroup.MeterID
         FROM
-	        FileGroupAnalysisJob OUTER JOIN
+	        FileGroupAnalysisJob LEFT OUTER JOIN
             DATAFILE ON FileGroupAnalysisJob.FileGroupID = DataFile.FileGroupID LEFT JOIN
 	        FileGroup ON DataFile.FileGroupID = FileGroup.ID
     ")]
