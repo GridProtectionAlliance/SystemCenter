@@ -278,13 +278,13 @@ namespace SystemCenter.Model
 
             String sqlQuery = @"
             SELECT
-	            FORMAT (FileGroup.ProcessingStartTime, 'yyyy-MM-dd HH') AS Hour,
+	            FORMAT (FileGroupAnalysisJob.ProcessingStartTime, 'yyyy-MM-dd HH') AS Hour,
 	            COUNT(DataFile.ID) as Count
             FROM
-	            DataFile JOIN FileGroup ON DataFile.FileGroupID = FileGroup.ID
+	            DataFile JOIN FileGroupAnalysisJob ON DataFile.FileGroupID = FileGroupAnalysisJob.FileGroupID
             WHERE
-	            FileGroup.ProcessingStartTime > DATEADD(HOUR, DATEDIFF(HOUR, 0, GETDATE()) - 48, 0)
-	            GROUP BY FORMAT (FileGroup.ProcessingStartTime, 'yyyy-MM-dd HH');";
+	            FileGroupAnalysisJob.ProcessingStartTime > DATEADD(HOUR, DATEDIFF(HOUR, 0, GETDATE()) - 48, 0)
+	            GROUP BY FORMAT (FileGroupAnalysisJob.ProcessingStartTime, 'yyyy-MM-dd HH');";
             DataTable result;
             using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
             {
