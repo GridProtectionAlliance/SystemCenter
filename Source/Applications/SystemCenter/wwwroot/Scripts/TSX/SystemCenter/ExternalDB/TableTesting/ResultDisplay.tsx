@@ -126,7 +126,7 @@ export default function ResultDisplay(props: IProps) {
                     >
                         {
                             cols.map(col => 
-                                <ConfigurableColumn Key={col} Default={true} Label={col} key={col} IsFiltered={(filters.find((flt) => flt.FieldName === col) != null ? true : false)}> // if filters contains a filter where fieldname = col key
+                                <ConfigurableColumn Key={col} Default={true} Label={col} key={col} IsFiltered={(filters.find((flt) => flt.FieldName === col) != null ? true : false)}>
                                     <FilterableColumn<any>
                                         key={col}
                                         Key={col}
