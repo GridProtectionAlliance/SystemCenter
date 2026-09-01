@@ -115,8 +115,6 @@ namespace SystemCenter.Controllers.OpenXDA
 
             List<object> param = new();
 
-            List<SQLSearchFilter> searchFilters = new List<SQLSearchFilter>();
-
             string conditions;
 
             // resolves ambiguous column name 'FileGroupID' - if there's a more elegant solution I'm open to it, but there's only one case the client should send this. (selecting a file group from the files processed table)
