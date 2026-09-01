@@ -28,9 +28,15 @@ import { Plot, Line } from '@gpa-gemstone/react-graph'
 import { ErrorBoundary } from '@gpa-gemstone/common-pages'
 import { LoadingIcon } from '@gpa-gemstone/react-interactive'
 
+// keys automatically assigned to what is in XDA a tuple<int, int>
+interface IQueueLengthByPriority {
+    m_Item1: number,
+    m_Item2: number
+}
+
 interface IQueueLength {
     Time: string,
-    QueueLengthByPriority: [number, number][],
+    QueueLengthByPriority: IQueueLengthByPriority[],
     TimeStamp?: number
 }
 
@@ -74,11 +80,11 @@ const FilesProcessedGraph = (props: IProps) => {
 
 
                 c.QueueLengthByPriority.forEach(qlbp => {
-                    const i = dat.findIndex(item => item.Priority == qlbp[0])
+                    const i = dat.findIndex(item => item.Priority == qlbp.m_Item1)
                     if (i > -1)
-                        dat[i].Data.push([c.TimeStamp, qlbp[1]]);
+                        dat[i].Data.push([c.TimeStamp, qlbp.m_Item2]);
                     else
-                        dat.push({ Priority: qlbp[0], Data: [[c.TimeStamp, qlbp[1]]] })
+                        dat.push({ Priority: qlbp.m_Item1, Data: [[c.TimeStamp, qlbp.m_Item2]] })
                 });
             }
             )

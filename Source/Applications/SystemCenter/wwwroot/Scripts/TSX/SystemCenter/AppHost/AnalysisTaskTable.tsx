@@ -93,8 +93,6 @@ const AnalysisTaskTable = () => {
                         Key={'MeterName'}
                         AllowSort={false}
                         Field={'MeterName'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
                     >
                         Meter
                     </Column>
@@ -103,8 +101,6 @@ const AnalysisTaskTable = () => {
                         Key={'DataStartTime'}
                         AllowSort={true}
                         Field={'DataStartTime'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto', textAlign: 'center' }}
                         Content={({ item, field }) => {
                             if (item[field] == "0001-01-01T00:00:00")
                                 return 'N/A'
@@ -118,8 +114,6 @@ const AnalysisTaskTable = () => {
                         Key={'DataEndTime'}
                         AllowSort={true}
                         Field={'DataEndTime'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto', textAlign: 'center' }}
                         Content={({ item, field }) => {
                             if (item[field] == "0001-01-01T00:00:00")
                                 return 'N/A'
@@ -129,11 +123,21 @@ const AnalysisTaskTable = () => {
                         Data End
                     </Column>
                     <Column<OpenXDA.AnalysisTask>
+                        Key={'TimeQueued'}
+                        AllowSort={true}
+                        Field={'TimeQueued'}
+                        Content={({ item, field }) => {
+                            if (item[field] == "0001-01-01T00:00:00")
+                                return 'N/A'
+                            return <span className={`badge badge-pill badge-info`}>{moment(item[field]).format('MM/DD/YYYY hh:mm')}</span>
+                        }}
+                    >
+                        Time Queued
+                    </Column>
+                    <Column<OpenXDA.AnalysisTask>
                         Key={'Priority'}
                         AllowSort={true}
                         Field={'Priority'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto', textAlign: 'center' }}
                         Content={({ item, field }) =>
                             <Priority
                                 priority={item[field] as number}
