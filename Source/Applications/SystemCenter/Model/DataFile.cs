@@ -79,14 +79,17 @@ namespace SystemCenter.Model
     [ReturnLimit(50),
     CustomView(@"
         SELECT
-	        FileGroupAnalysisJob.*,
-            DataFile.FilePath,
-	        FileGroup.DataStartTime,
-	        FileGroup.MeterID
+            FileGroupAnalysisJob.*,
+            CONCAT(LEFT(
+                DataFile.FilePath,
+                LEN(DataFile.FilePath) - CHARINDEX('.', REVERSE(DataFile.FilePath)) + 1
+                ),'*') AS FilePath,
+            FileGroup.DataStartTime,
+            FileGroup.MeterID
         FROM
-	        FileGroupAnalysisJob OUTER JOIN
-            DATAFILE ON FileGroupAnalysisJob.FileGroupID = DataFile.FileGroupID LEFT JOIN
-	        FileGroup ON DataFile.FileGroupID = FileGroup.ID
+            FileGroupAnalysisJob
+            CROSS APPLY (SELECT TOP 1 FilePath, FileGroupID FROM DataFile WHERE DataFile.FileGroupID = FileGroupAnalysisJob.FileGroupID ORDER BY FileSize DESC) DataFile LEFT JOIN
+            FileGroup ON FileGroupAnalysisJob.FileGroupID = FileGroup.ID
     ")]
     [AllowSearch]
     public class ProcessedFile : FileGroupAnalysisJob
@@ -278,13 +281,13 @@ namespace SystemCenter.Model
 
             String sqlQuery = @"
             SELECT
-	            FORMAT (FileGroup.ProcessingStartTime, 'yyyy-MM-dd HH') AS Hour,
+	            FORMAT (FileGroupAnalysisJob.ProcessingStartTime, 'yyyy-MM-dd HH') AS Hour,
 	            COUNT(DataFile.ID) as Count
             FROM
-	            DataFile JOIN FileGroup ON DataFile.FileGroupID = FileGroup.ID
+	            DataFile JOIN FileGroupAnalysisJob ON DataFile.FileGroupID = FileGroupAnalysisJob.FileGroupID
             WHERE
-	            FileGroup.ProcessingStartTime > DATEADD(HOUR, DATEDIFF(HOUR, 0, GETDATE()) - 48, 0)
-	            GROUP BY FORMAT (FileGroup.ProcessingStartTime, 'yyyy-MM-dd HH');";
+	            FileGroupAnalysisJob.ProcessingStartTime > DATEADD(HOUR, DATEDIFF(HOUR, 0, GETDATE()) - 48, 0)
+	            GROUP BY FORMAT (FileGroupAnalysisJob.ProcessingStartTime, 'yyyy-MM-dd HH');";
             DataTable result;
             using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
             {

@@ -98,8 +98,6 @@ const FilesProcessedTable = (props: IProps) => {
                         Key={'FileName'}
                         AllowSort={false}
                         Field={'FileName'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
                         Content={({ item, field }) => {
                             return <>
                                 <p
@@ -124,8 +122,6 @@ const FilesProcessedTable = (props: IProps) => {
                         Key={'DataStartTime'}
                         AllowSort={true}
                         Field={'DataStartTime'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto', textAlign: 'center' }}
                         Content={({ item, field }) => {
                             if (item[field] == "0001-01-01T00:00:00")
                                 return 'N/A'
@@ -138,8 +134,6 @@ const FilesProcessedTable = (props: IProps) => {
                         Key={'ProcessingStartTime'}
                         AllowSort={true}
                         Field={'ProcessingStartTime'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto', textAlign: 'center' }}
                         Content={({ item, field }) => {
                             if (item[field] == null || item[field] == undefined)
                                 return 'N/A'
@@ -152,8 +146,6 @@ const FilesProcessedTable = (props: IProps) => {
                         Key={'ProcessingEndTime'}
                         AllowSort={true}
                         Field={'ProcessingEndTime'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto', textAlign: 'center' }}
                         Content={({ item, field }) => {
                             if (item[field] == "0001-01-01T00:00:00")
                                 return 'N/A'
@@ -166,8 +158,6 @@ const FilesProcessedTable = (props: IProps) => {
                         Key={'TaskPriority'}
                         AllowSort={true}
                         Field={'TaskPriority'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto', textAlign: 'center' }}
                         Content={({ item, field }) =>
                             <Priority
                                 priority={item[field] as number}
@@ -181,8 +171,6 @@ const FilesProcessedTable = (props: IProps) => {
                         Key={'ProcessingVersion'}
                         AllowSort={true}
                         Field={'ProcessingVersion'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto', textAlign: 'center' }}
                     >
                         Version
                     </Column>

@@ -115,7 +115,19 @@ namespace SystemCenter.Controllers.OpenXDA
 
             List<object> param = new();
 
-            string conditions = BuildWhereClause(postData.Searches, param);
+            string conditions;
+
+            // resolves ambiguous column name 'FileGroupID' - if there's a more elegant solution I'm open to it, but there's only one case the client should send this. (selecting a file group from the files processed table)
+            if (postData.Searches.Count() == 1 && postData.Searches.First().FieldName == "FileGroupID")
+            {
+                conditions = "FileGroupAnalysisJob.FileGroupID = {0}";
+                param.Add(postData.Searches.First().SearchText);
+            }
+            else
+            {
+                conditions = BuildWhereClause(postData.Searches, param);
+            }
+
 
             string problemOrderBy = "";
 
