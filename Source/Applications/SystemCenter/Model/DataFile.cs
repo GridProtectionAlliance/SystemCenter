@@ -79,14 +79,17 @@ namespace SystemCenter.Model
     [ReturnLimit(50),
     CustomView(@"
         SELECT
-	        FileGroupAnalysisJob.*,
-            DataFile.FilePath,
-	        FileGroup.DataStartTime,
-	        FileGroup.MeterID
+            FileGroupAnalysisJob.*,
+            CONCAT(LEFT(
+                DataFile.FilePath,
+                LEN(DataFile.FilePath) - CHARINDEX('.', REVERSE(DataFile.FilePath)) + 1
+                ),'*') AS FilePath,
+            FileGroup.DataStartTime,
+            FileGroup.MeterID
         FROM
-	        FileGroupAnalysisJob LEFT OUTER JOIN
-            DATAFILE ON FileGroupAnalysisJob.FileGroupID = DataFile.FileGroupID LEFT JOIN
-	        FileGroup ON DataFile.FileGroupID = FileGroup.ID
+            FileGroupAnalysisJob
+            CROSS APPLY (SELECT TOP 1 FilePath, FileGroupID FROM DataFile WHERE DataFile.FileGroupID = FileGroupAnalysisJob.FileGroupID ORDER BY FileSize DESC) DataFile LEFT JOIN
+            FileGroup ON FileGroupAnalysisJob.FileGroupID = FileGroup.ID
     ")]
     [AllowSearch]
     public class ProcessedFile : FileGroupAnalysisJob
