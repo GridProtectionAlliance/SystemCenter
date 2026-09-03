@@ -171,13 +171,13 @@ const Priority = ({ priority }: { priority: number }) => {
 
     const text = React.useMemo(() => {
         if (priority == 1)
-            return "Enumeration";
+            return "Enumerator";
         if (priority == 2)
             return "Normal";
         if (priority == 3)
             return "High";
         if (priority == 2)
-            return "Manual";
+            return "Requeue";
 
         return "Unknown";
     }, [priority]);
