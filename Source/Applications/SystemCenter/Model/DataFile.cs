@@ -23,14 +23,6 @@
 
 
 
-using GSF.Data;
-using GSF.Data.Model;
-using GSF.IO;
-using GSF.Web.Model;
-using Newtonsoft.Json;
-using openXDA.APIAuthentication;
-using openXDA.Configuration;
-using openXDA.Model;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -42,6 +34,13 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
+using GSF.Data;
+using GSF.Data.Model;
+using GSF.Web.Model;
+using Newtonsoft.Json;
+using openXDA.APIAuthentication;
+using openXDA.Configuration;
+using openXDA.Model;
 using SystemCenter.Controllers;
 
 namespace SystemCenter.Model
@@ -154,14 +153,19 @@ namespace SystemCenter.Model
         }
 
         [Route("Reprocess/{id:int}"), HttpGet]
-        public IHttpActionResult Reprocess(int id)
+        public async Task<IHttpActionResult> Reprocess(int id)
         {
             if (PatchAuthCheck())
             {
                 if (!XDAAPIHelper.TryRefreshSettings())
                     throw new InvalidOperationException("Unable to refresh static XDA API credentials.");
 
-                XDAAPIHelper.GetResponseTask($"api/Workbench/DataFiles/ReprocessFile/{id}", new StringContent(""));
+                using (HttpContent httpContent = new StringContent(""))
+                using (HttpResponseMessage responseMessage = await XDAAPIHelper.GetResponseTask($"api/Workbench/DataFiles/ReprocessFile/{id}", httpContent))
+                {
+                    responseMessage.EnsureSuccessStatusCode();
+                }
+
                 return Ok(1);
             }
             else
