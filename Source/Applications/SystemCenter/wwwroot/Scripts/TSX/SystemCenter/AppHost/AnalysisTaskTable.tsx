@@ -28,7 +28,8 @@ import moment from 'moment'
 import { Application } from '@gpa-gemstone/application-typings';
 import { LoadingIcon, GenericController, Search } from '@gpa-gemstone/react-interactive'
 import { ErrorBoundary } from '@gpa-gemstone/common-pages'
-import { ToolTip } from '@gpa-gemstone/react-forms'
+import FileGroupAnalysisJobPriority from '../CommonComponents/FileGroupAnalysisJobPriority';
+
 
 const FileController = new GenericController<OpenXDA.AnalysisTask>(`${homePath}api/OpenXDA/AnalysisTask`, "TimeQueued", false);
 
@@ -139,7 +140,7 @@ const AnalysisTaskTable = () => {
                         AllowSort={true}
                         Field={'Priority'}
                         Content={({ item, field }) =>
-                            <Priority
+                            <FileGroupAnalysisJobPriority
                                 priority={item[field] as number}
                             />
                         }
@@ -154,36 +155,3 @@ const AnalysisTaskTable = () => {
 }
 
 export default AnalysisTaskTable
-
-const Priority = ({ priority }: { priority: number }) => {
-
-    const visual = React.useMemo(() => {
-        if (priority == 3) // High Priority
-            return "badge-light";
-        if (priority == 2) //Normal Priority
-            return "badge-info";
-        if (priority == 1) // Enumeration
-            return "badge-primary";
-        if (priority == 4) // Manual Requeue
-            return "badge-warning";
-        return "badge-warning";
-    }, [priority]);
-
-    const text = React.useMemo(() => {
-        if (priority == 1)
-            return "Enumerator";
-        if (priority == 2)
-            return "Normal";
-        if (priority == 3)
-            return "High";
-        if (priority == 2)
-            return "Requeue";
-
-        return "Unknown";
-    }, [priority]);
-
-    return <span className={`"badge badge-pill ${visual}`}>
-        {text}
-    </span>
-}
-
