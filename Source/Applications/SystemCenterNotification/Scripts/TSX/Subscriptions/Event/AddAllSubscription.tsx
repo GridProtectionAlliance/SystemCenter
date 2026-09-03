@@ -22,13 +22,12 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { Modal } from '@gpa-gemstone/react-interactive'
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import EmailSelect from './EmailSelect';
+import { GenericController, Modal } from '@gpa-gemstone/react-interactive';
 import AssetGroupSelection from '../AssetGroupSelection';
+import EmailSelect from './EmailSelect';
 import UserSelect from '../UserSelect';
-import { ActiveSubscriptionSlice } from '../../Store';
-import { useAppDispatch } from '../../hooks';
+import { ActiveSubscription } from '../../global';
 
 declare var homePath;
 declare var version;
@@ -39,7 +38,6 @@ interface IProps {
 }
 
 const AddAllSubscription = (props: IProps) => {
-    const dispatch = useAppDispatch();
 
     const [step, setStep] = React.useState<('Email'|'User')>('User');
     const [error, setError] = React.useState<string[]>([]);
@@ -69,9 +67,10 @@ const AddAllSubscription = (props: IProps) => {
     }, [props.show]) 
 
     function save() {
+        const activeSubscriptionController = new GenericController<ActiveSubscription>(`${homePath}api/ActiveSubscription`, 'LastSent');
         assetGroupIDs.forEach((id) => {
-            dispatch(ActiveSubscriptionSlice.DBAction({
-                verb: 'POST', record: {
+            activeSubscriptionController.DBAction(
+                'POST', {
                     ID: 0,
                     UserAccountID: userAccountID,
                     EmailTypeID: emailTypeID,
@@ -88,7 +87,7 @@ const AddAllSubscription = (props: IProps) => {
                     LastName: '',
                     RequireApproval: false
                 }
-            }));
+            );
         });
         props.OnClose();
     }

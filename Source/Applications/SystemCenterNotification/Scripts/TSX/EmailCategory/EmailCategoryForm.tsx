@@ -21,24 +21,33 @@
 //
 //******************************************************************************************************
 
-import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
 import { EmailCategory } from '../global';
-import { EmailCategorySlice } from '../Store';
 import { CheckBox, Input } from '@gpa-gemstone/react-forms';
+import { GenericController } from '@gpa-gemstone/react-interactive';
+import { Application } from '@gpa-gemstone/application-typings';
 
 
 interface IProps { record: EmailCategory, setRecord: (d: EmailCategory) => void }
 
 const EmailCategoryForm = (props: IProps) => {
-    const dispatch = useAppDispatch();
-    const emailCategories = useAppSelector(EmailCategorySlice.Data);
-    const status = useAppSelector(EmailCategorySlice.Status);
+    const [emailCategories, setEmailCategories] = React.useState<EmailCategory[]>([]);
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 
     React.useEffect(() => {
-        if (status == 'uninitiated' || status == 'changed')
-            dispatch(EmailCategorySlice.Fetch());
-    }, [status]);
+        setStatus('loading')
+        const h = new GenericController<EmailCategory>(`${homePath}api/OpenXDA/EmailCategory`, "Name", true).Fetch();
+        h.done((d) => {
+            setEmailCategories(d)
+            setStatus('idle')
+        });
+        h.fail(() => setStatus('error'));
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+    }, []);
 
     return ( 
         <div className="row">

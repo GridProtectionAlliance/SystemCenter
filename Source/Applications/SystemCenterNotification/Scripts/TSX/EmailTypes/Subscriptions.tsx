@@ -21,16 +21,14 @@
 //
 //******************************************************************************************************
 
-import { useAppDispatch, useAppSelector } from '../hooks';
-import * as React from 'react';
-import { LoadingScreen, Search } from '@gpa-gemstone/react-interactive'
-import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { EmailType, SubscribeEmails } from '../global';
-import { EventSubscriptionSlice } from '../Store';
-import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import * as $ from 'jquery';
+import * as React from 'react';
 import { Application } from '@gpa-gemstone/application-typings';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { ToolTip } from '@gpa-gemstone/react-forms';
+import { GenericController, LoadingScreen, Search } from '@gpa-gemstone/react-interactive';
+import { Column, Table, Paging } from '@gpa-gemstone/react-table';
+import { EmailType, SubscribeEmails } from '../global';
 
 declare var homePath;
 declare var version;
@@ -40,11 +38,9 @@ interface IProps { Record: EmailType}
 
 
 const Subscriptions = (props: IProps) => {
-    const dispatch = useAppDispatch();
 
-    const subscriptions = useAppSelector(EventSubscriptionSlice.SearchResults);
-    const status = useAppSelector(EventSubscriptionSlice.Status);
-    const parentID = useAppSelector(EventSubscriptionSlice.ParentID);
+    const [subscriptions, setSubscriptions] = React.useState<SubscribeEmails[]>([]);
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [ascending, setAscending] = React.useState<boolean>(false);
     const [sortField, setSortField] = React.useState<keyof SubscribeEmails>('FirstName');
     const [hover, setHover] = React.useState<string>('none');
@@ -52,13 +48,27 @@ const Subscriptions = (props: IProps) => {
     const [approvalStatus, setApprovalStatus] = React.useState<Application.Types.Status>('idle');
 
     const [page, setPage] = React.useState<number>(0);
-    const totalPages = useAppSelector(EventSubscriptionSlice.TotalPages);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
     const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
 
     React.useEffect(() => {
-        const filters: Search.IFilter<SubscribeEmails>[] = [{FieldName: "EmailID", SearchText: props.Record.ID.toString(), Operator: '=', Type: 'string', IsPivotColumn: false}]
-        dispatch(EventSubscriptionSlice.PagedSearch({filter: filters, sortField: sortField, ascending: ascending, page: page}))
-    }, [props.Record.ID, sortField, ascending, page, refreshTrigger, parentID])
+        setStatus('loading');
+        const filters: Search.IFilter<SubscribeEmails>[] = [{ FieldName: "EmailID", SearchText: props.Record.ID.toString(), Operator: '=', Type: 'string', IsPivotColumn: false }];
+        const h = new GenericController<SubscribeEmails>(`${homePath}api/EventSubscription`, 'Email').PagedSearch(filters, sortField, ascending, page);
+
+        h.done((d) => {
+            setSubscriptions(JSON.parse(d.Data));
+            setTotalPages(d.NumberOfPages);
+            setStatus('idle');
+        })
+        h.fail(() => setStatus('error'))
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+
+    }, [props.Record.ID, sortField, ascending, page, refreshTrigger])
 
     function approve(record: SubscribeEmails) {
         setApprovalStatus('loading')

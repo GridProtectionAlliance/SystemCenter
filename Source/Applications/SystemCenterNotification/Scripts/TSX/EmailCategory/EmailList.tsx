@@ -21,34 +21,45 @@
 //
 //******************************************************************************************************
 
-import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
+import { Application } from '@gpa-gemstone/application-typings'
+import { GenericController, Search } from '@gpa-gemstone/react-interactive'
+import { Column, Paging, Table } from '@gpa-gemstone/react-table';
 import { EmailType } from '../global';
-import { EmailTypeSlice } from '../Store';
-import { Table, Column, Paging } from '@gpa-gemstone/react-table';
-import { Search } from '@gpa-gemstone/react-interactive'
 
 interface IProps { CategoryID: number}
 
 
 const EmailList = (props: IProps) => {
-    const dispatch = useAppDispatch();
 
-    const emails = useAppSelector(EmailTypeSlice.SearchResults);
-    const status = useAppSelector(EmailTypeSlice.SearchStatus);
-
-    const parentID = useAppSelector(EmailTypeSlice.ParentID);
+    const [emails, setEmails] = React.useState<EmailType[]>([]);
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 
     const [sortField, setSortField] = React.useState<keyof EmailType>('Name');
     const [ascending, setAscending] = React.useState<boolean>(false);
 
     const [page, setPage] = React.useState<number>(0);
-    const totalPages = useAppSelector(EmailTypeSlice.TotalPages);
+    const [totalPages, setTotalPages] = React.useState<number>(0);
 
     React.useEffect(() => {
-        const filters: Search.IFilter<EmailType>[] = [{ FieldName: "EmailCategoryID", Type: 'number', Operator: '=', SearchText: props.CategoryID.toString(), IsPivotColumn: false}]
-        dispatch(EmailTypeSlice.PagedSearch({ filter: filters, sortField: sortField, ascending: ascending, page: page }));
-    }, [parentID, props.CategoryID, sortField, ascending, page])
+        setStatus('loading')
+
+        const filters: Search.IFilter<EmailType>[] = [{ FieldName: "EmailCategoryID", Type: 'number', Operator: '=', SearchText: props.CategoryID.toString(), IsPivotColumn: false }];
+        const h = new GenericController<EmailType>(`${homePath}api/OpenXDA/EmailType`, "Name", true).PagedSearch(filters, sortField, ascending, page);
+
+        h.done((d) => {
+            setEmails(JSON.parse(d.Data));
+            setTotalPages(d.NumberOfPages);
+            setStatus('idle')
+        })
+        h.fail(() => setStatus('error'))
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+
+    }, [props.CategoryID, sortField, ascending, page])
 
     return (
         <div className="container-fluid d-flex h-100 flex-column">

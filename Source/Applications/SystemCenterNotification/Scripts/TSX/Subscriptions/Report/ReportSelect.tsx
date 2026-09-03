@@ -22,12 +22,10 @@
 //******************************************************************************************************
 
 import { Select } from '@gpa-gemstone/react-forms';
-import { LoadingIcon } from '@gpa-gemstone/react-interactive';
+import { LoadingIcon, GenericController } from '@gpa-gemstone/react-interactive';
 import * as $ from 'jquery';
 import * as React from 'react';
 import { EmailCategory, ScheduledEmailType } from '../../global';
-import { useAppDispatch, useAppSelector } from '../../hooks';
-import { ScheduledEmailTypeSlice } from '../../Store';
 import { Application } from '@gpa-gemstone/application-typings';
 
 const emptyReport: ScheduledEmailType = {
@@ -51,15 +49,13 @@ interface IProps {
 }
 
 const ReportSelect = (props: IProps) => {
-    const dispatch = useAppDispatch();
 
     const [emailCategories, setEmailCategories] = React.useState<EmailCategory[]>([]);
     const [emailCategoryStatus, setEmailCategoryStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [selectedCategory, setSelectedCategory] = React.useState<EmailCategory>(emptyCategory);
 
-    const reportTypeStatus = useAppSelector(ScheduledEmailTypeSlice.Status);
-    const reportTypes = useAppSelector(ScheduledEmailTypeSlice.Data);
-    const reportTypeParentID = useAppSelector(ScheduledEmailTypeSlice.ParentID);
+    const [scheduledEmailStatus, setScheduledEmailStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [scheduledEmails, setScheduledEmails] = React.useState<ScheduledEmailType[]>([]);
 
     const [selectedReport, setSelectedReport] = React.useState<ScheduledEmailType>(emptyReport);
 
@@ -91,16 +87,27 @@ const ReportSelect = (props: IProps) => {
     }, [emailCategories]);
 
     React.useEffect(() => {
-        if (selectedCategory.ID !== reportTypeParentID || reportTypeStatus == 'uninitiated' || reportTypeStatus == 'changed')
-            dispatch(ScheduledEmailTypeSlice.Fetch(selectedCategory.ID));
-    }, [selectedCategory, reportTypeParentID, reportTypeStatus])
+        setScheduledEmailStatus('loading')
+        const h = new GenericController<ScheduledEmailType>(`${homePath}api/OpenXDA/ScheduledEmailType`, "Name", true).Fetch(selectedCategory.ID);
+        h.done((d) => {
+            setScheduledEmails(d)
+            setScheduledEmailStatus('idle')
+        });
+        h.fail(() => setScheduledEmailStatus('error'));
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+
+    }, [selectedCategory]);
 
     React.useEffect(() => {
-        if (reportTypes.length > 0)
-            props.SetScheduledEmailTypeID(reportTypes[0].ID)
+        if (scheduledEmails.length > 0)
+            props.SetScheduledEmailTypeID(scheduledEmails[0].ID)
         else
             props.SetScheduledEmailTypeID(-1);
-    }, [reportTypes])
+    }, [scheduledEmails])
 
     React.useEffect(() => {
         if (selectedCategory.ID != -1)
@@ -113,7 +120,7 @@ const ReportSelect = (props: IProps) => {
 
 
     return (<>
-        <LoadingIcon Show={emailCategoryStatus == 'loading' || reportTypeStatus == 'loading'} />
+        <LoadingIcon Show={emailCategoryStatus == 'loading' || scheduledEmailStatus == 'loading'} />
         <div className="col">
             <div className="row">
                 <div className="col">
@@ -126,7 +133,7 @@ const ReportSelect = (props: IProps) => {
             <div className="row">
                 <div className="col">
                     <Select<ScheduledEmailType> Record={selectedReport} Field={'ID'} Label='Notification Template' Setter={(record) => setSelectedReport({ ...record, ID: typeof record.ID == 'string' ? parseInt(record.ID) : record.ID })}
-                        Options={reportTypes
+                        Options={scheduledEmails
                             .filter(e => e.ShowSubscription)
                             .map((e) => ({ Label: e.Name, Value: e.ID.toString() }))
                         } />

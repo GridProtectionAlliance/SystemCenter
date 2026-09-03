@@ -24,11 +24,13 @@
 import * as React from 'react';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import { CellCarrierSlice, UserInfoSlice } from '../Store';
+import { UserInfoSlice } from '../Store';
 import { IsInteger } from '@gpa-gemstone/helper-functions';
+import { Application } from '@gpa-gemstone/application-typings';
 import EmailConfirm from '../Subscriptions/ConfirmEmail';
 import { ICellCarrier } from '../global';
 import { Select, Input, ToolTip } from '@gpa-gemstone/react-forms';
+import { GenericController } from '@gpa-gemstone/react-interactive';
 
 declare var homePath;
 declare var version;
@@ -44,19 +46,29 @@ const ByUserInformation = (props: IProps) => {
     const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
 
     const [validPhone, setValidPhone] = React.useState<boolean>(false);
-    
-    const carriers = useAppSelector(CellCarrierSlice.Data);
-    const carrierStatus = useAppSelector(CellCarrierSlice.Status);
+
+    const [carriers, setCarriers] = React.useState<ICellCarrier[]>([]);
+    const [carrierStatus, setCarrierStatus] = React.useState<Application.Types.Status>('uninitiated');
     const userPhone = useAppSelector(UserInfoSlice.CellPhone);
     const userCarrier = useAppSelector(UserInfoSlice.CellCarrierID);
     const emailConfirmed = useAppSelector(UserInfoSlice.ConfirmedEmail);
 
-    
-
     React.useEffect(() => {
-        if (carrierStatus == 'uninitiated' || carrierStatus == 'changed')
-            dispatch(CellCarrierSlice.Fetch());
-    }, [carrierStatus]);
+        setCarrierStatus('loading');
+        const h = new GenericController<ICellCarrier>(`${homePath}api/OpenXDA/CellCarrier`, "Name", true).Fetch();
+        h.done((d) => {
+            setCarrierStatus('idle');
+            setCarriers(d);
+        })
+        h.fail(() => {
+            setCarrierStatus('error');
+        })
+
+        return function cleanup() {
+            if (h != null && h.abort != null)
+                h.abort();
+        }
+    }, []);
 
     React.useEffect(() => {
         if (userPhone != null && userPhone.length > 0)
