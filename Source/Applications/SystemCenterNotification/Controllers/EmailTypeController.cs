@@ -520,7 +520,7 @@ namespace SystemCenter.Notifications.Controllers
                     id++;
                 }
 
-                DataOperationFailure[] dataOperationFailureRecords = new TableOperations<DataOperationFailure>(connection).QueryRecordsWhere("FileGroupID = {0}", fileGroupRecord.ID).ToArray();
+                DataOperationFailure[] dataOperationFailureRecords = new TableOperations<DataOperationFailure>(connection).QueryRecordsWhere("FileGroupAnalysisJobID = {0}", fileGroupRecord.ID).ToArray();
 
                 foreach (DataOperationFailure dataOperationFailure in dataOperationFailureRecords)
                 {
