@@ -493,7 +493,7 @@ namespace SystemCenter.Notifications.Controllers
 
                 id++;
 
-                FileGroupAnalysisJob fileGroupAnalysisJobRecord = new TableOperations<FileGroupAnalysisJob>(connection).QueryRecordWhere("FileGroupID = {0}", fileGroupRecord.ID);
+                FileGroupAnalysisJob fileGroupAnalysisJobRecord = new TableOperations<FileGroupAnalysisJob>(connection).QueryRecord("ProcessingVersion DESC", new RecordRestriction("FileGroupID = {0}", fileGroupRecord.ID));
 
                 timeline.Add(new TimelineItem()
                 {
