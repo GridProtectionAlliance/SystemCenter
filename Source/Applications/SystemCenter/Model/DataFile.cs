@@ -87,7 +87,7 @@ namespace SystemCenter.Model
             FileGroup.MeterID
         FROM
             FileGroupAnalysisJob
-            CROSS APPLY (SELECT TOP 1 FilePath, FileGroupID FROM DataFile WHERE DataFile.FileGroupID = FileGroupAnalysisJob.FileGroupID ORDER BY FileSize DESC) DataFile LEFT JOIN
+            CROSS APPLY (SELECT TOP 1 FilePath FROM DataFile WHERE DataFile.FileGroupID = FileGroupAnalysisJob.FileGroupID) DataFile LEFT JOIN
             FileGroup ON FileGroupAnalysisJob.FileGroupID = FileGroup.ID
     ")]
     [AllowSearch]
@@ -122,7 +122,7 @@ namespace SystemCenter.Model
 	        FileGroupAnalysisJob ON AnalysisTask.TimeQueued = FileGroupAnalysisJob.TaskQueuedTime AND
 		        AnalysisTask.FileGroupID = FileGroupAnalysisJob.FileGroupID AND 
 		        AnalysisTask.NodeID IS NOT NULL
-            CROSS APPLY (SELECT TOP 1 FilePath FROM DataFile WHERE DataFile.FileGroupID = FileGroup.ID ORDER BY FileSize DESC) DataFile
+            CROSS APPLY (SELECT TOP 1 FilePath FROM DataFile WHERE DataFile.FileGroupID = FileGroup.ID) DataFile
     ")]
     [AllowSearch]
     public class AnalysisTask : openXDA.Model.AnalysisTask
