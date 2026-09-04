@@ -105,7 +105,7 @@ const EmailCategoryPage = (props: IProps) => {
                     CallBack={(conf) => {
                         if (conf) {
                             dispatch(EmailCategorySlice.DBAction({ verb: 'DELETE', record: category }));
-                            window.location.href = `${homePath}/Categories`;
+                            window.location.href = `${homePath}Categories`;
                         }
                         setShowDelete(false);
                     }} />

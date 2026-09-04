@@ -493,11 +493,13 @@ namespace SystemCenter.Notifications.Controllers
 
                 id++;
 
+                FileGroupAnalysisJob fileGroupAnalysisJobRecord = new TableOperations<FileGroupAnalysisJob>(connection).QueryRecord("ProcessingVersion DESC", new RecordRestriction("FileGroupID = {0}", fileGroupRecord.ID));
+
                 timeline.Add(new TimelineItem()
                 {
                     Description = "File Group Processing",
-                    Start = fileGroupRecord.ProcessingStartTime,
-                    End = fileGroupRecord.ProcessingEndTime,
+                    Start = fileGroupAnalysisJobRecord.ProcessingStartTime,
+                    End = fileGroupAnalysisJobRecord.ProcessingEndTime,
                     ID = id
                 });
 
@@ -520,7 +522,7 @@ namespace SystemCenter.Notifications.Controllers
                     id++;
                 }
 
-                DataOperationFailure[] dataOperationFailureRecords = new TableOperations<DataOperationFailure>(connection).QueryRecordsWhere("FileGroupID = {0}", fileGroupRecord.ID).ToArray();
+                DataOperationFailure[] dataOperationFailureRecords = new TableOperations<DataOperationFailure>(connection).QueryRecordsWhere("FileGroupAnalysisJobID = {0}", fileGroupAnalysisJobRecord.ID).ToArray();
 
                 foreach (DataOperationFailure dataOperationFailure in dataOperationFailureRecords)
                 {
