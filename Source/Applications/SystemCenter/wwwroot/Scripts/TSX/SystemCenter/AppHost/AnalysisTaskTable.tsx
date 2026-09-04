@@ -98,6 +98,19 @@ const AnalysisTaskTable = () => {
                     >
                         Meter
                     </Column>
+
+                    <Column<OpenXDA.AnalysisTask>
+                        Key={'FilePath'}
+                        AllowSort={true}
+                        Field={'FilePath'}
+                        Content={({ item, field }) => {
+                            const normalizedPath = item[field].toString().replace(/\\/g, "/");
+                            const splitPath = normalizedPath.split("/");
+                            return splitPath[splitPath.length - 1]
+                        }}
+                    >
+                        File Group Task 
+                    </Column>
                 
                     <Column<OpenXDA.AnalysisTask>
                         Key={'DataStartTime'}

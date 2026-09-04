@@ -221,7 +221,8 @@ export namespace OpenXDA {
         MeterID: number,
         FileGroupID: number,
         TimeInQueue: number,
-        ProcessingTime: number
+        ProcessingTime: number,
+        FilePath: string
     }
 }
 
