@@ -87,7 +87,7 @@ namespace SystemCenter.Model
             FileGroup.MeterID
         FROM
             FileGroupAnalysisJob
-            CROSS APPLY (SELECT TOP 1 FilePath, FileGroupID FROM DataFile WHERE DataFile.FileGroupID = FileGroupAnalysisJob.FileGroupID ORDER BY FileSize DESC) DataFile LEFT JOIN
+            CROSS APPLY (SELECT TOP 1 FilePath FROM DataFile WHERE DataFile.FileGroupID = FileGroupAnalysisJob.FileGroupID) DataFile LEFT JOIN
             FileGroup ON FileGroupAnalysisJob.FileGroupID = FileGroup.ID
     ")]
     [AllowSearch]
@@ -103,26 +103,38 @@ namespace SystemCenter.Model
         public string FileName => Path.GetFileName(FilePath);
     }
 
-    [ReturnLimit(50),
-    CustomView(@"
-        SELECT
-	        AnalysisTask.*,
-	        FileGroup.DataStartTime,
+    [CustomView(@"
+       SELECT
+            AnalysisTask.*,
+            FileGroup.DataStartTime,
             FileGroup.DataEndTime,
-	        Meter.Name AS MeterName
+            Meter.Name AS MeterName,
+            CONCAT(LEFT(
+                RIGHT(DataFile.FilePath, CHARINDEX('\', REVERSE(DataFile.FilePath)) - 1),
+                LEN(RIGHT(DataFile.FilePath, CHARINDEX('\', REVERSE(DataFile.FilePath)) - 1)) - CHARINDEX('.', REVERSE(DataFile.FilePath)) + 1
+                ),'*') AS FileName,
+	        DATEDIFF(SECOND, AnalysisTask.TimeQueued, COALESCE(FileGroupAnalysisJob.ProcessingStartTime, GETDATE())) AS TimeInQueue,
+	        DATEDIFF(SECOND, COALESCE(FileGroupAnalysisJob.ProcessingStartTime, GETDATE()), GETDATE()) AS ProcessingTime
         FROM
-	        AnalysisTask JOIN
-	        FileGroup ON AnalysisTask.FileGroupID = FileGroup.ID JOIN
-            Meter ON FileGroup.MeterID = Meter.ID 
+            AnalysisTask JOIN
+            FileGroup ON AnalysisTask.FileGroupID = FileGroup.ID JOIN
+            Meter ON FileGroup.MeterID = Meter.ID LEFT JOIN
+	        FileGroupAnalysisJob ON AnalysisTask.TimeQueued = FileGroupAnalysisJob.TaskQueuedTime AND
+		        AnalysisTask.FileGroupID = FileGroupAnalysisJob.FileGroupID AND 
+		        AnalysisTask.NodeID IS NOT NULL
+            CROSS APPLY (SELECT TOP 1 FilePath FROM DataFile WHERE DataFile.FileGroupID = FileGroup.ID) DataFile
     ")]
     [AllowSearch]
-    public class AnalysisTask: openXDA.Model.AnalysisTask
+    public class AnalysisTask : openXDA.Model.AnalysisTask
     {
         public DateTime DataStartTime { get; set; }
         public DateTime DataEndTime { get; set; }
         public string MeterName { get; set; }
+        public string FileName { get; set; }
+        public double TimeInQueue { get; set; }
+        public double ProcessingTime { get; set; }
+        
     }
-
 
     [RoutePrefix("api/OpenXDA/DataFile")]
     public class OpenXDADataFileController : ModelController<DataFile> {
@@ -341,7 +353,7 @@ namespace SystemCenter.Model
     }
 
     [RoutePrefix("api/OpenXDA/ProcessedFiles")]
-    public class OpenXDAProcessedileController : ModelController<ProcessedFile>
+    public class OpenXDAProcessedFileController : ModelController<ProcessedFile>
     {
         [Route("PagedResults"), HttpPost]
         public override IHttpActionResult GetPagedList([FromBody] PostData postData, int page)
@@ -401,7 +413,10 @@ namespace SystemCenter.Model
                     TimeQueued = row.Field<DateTime>("TimeQueued"),
                     Priority = row.Field<int>("Priority"),
                     DataEndTime = row.Field<DateTime>("DataEndTime"),
-                    MeterName = row.Field<string>("MeterName")
+                    MeterName = row.Field<string>("MeterName"),
+                    TimeInQueue = row.Field<int>("TimeInQueue"),
+                    ProcessingTime = row.Field<int>("ProcessingTime"),
+                    FileName = row.Field<string>("FileName")
                 }).ToArray();
 
             int recordCount = CountSearchResults(postData);
