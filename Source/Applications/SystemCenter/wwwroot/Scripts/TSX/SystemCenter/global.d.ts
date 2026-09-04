@@ -220,6 +220,8 @@ export namespace OpenXDA {
         Priority: number,
         MeterID: number,
         FileGroupID: number,
+        TimeInQueue: number,
+        ProcessingTime: number
     }
 }
 
