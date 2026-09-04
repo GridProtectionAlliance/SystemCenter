@@ -105,24 +105,32 @@ namespace SystemCenter.Model
 
     [ReturnLimit(50),
     CustomView(@"
-        SELECT
-	        AnalysisTask.*,
-	        FileGroup.DataStartTime,
+       SELECT
+            AnalysisTask.*,
+            FileGroup.DataStartTime,
             FileGroup.DataEndTime,
-	        Meter.Name AS MeterName
+            Meter.Name AS MeterName,
+	        DATEDIFF(SECOND, AnalysisTask.TimeQueued, COALESCE(FileGroupAnalysisJob.ProcessingStartTime, GETDATE())) AS TimeInQueue,
+	        DATEDIFF(SECOND, COALESCE(FileGroupAnalysisJob.ProcessingStartTime, GETDATE()), GETDATE()) AS ProcessingTime
         FROM
-	        AnalysisTask JOIN
-	        FileGroup ON AnalysisTask.FileGroupID = FileGroup.ID JOIN
-            Meter ON FileGroup.MeterID = Meter.ID 
+            AnalysisTask JOIN
+            FileGroup ON AnalysisTask.FileGroupID = FileGroup.ID JOIN
+            Meter ON FileGroup.MeterID = Meter.ID LEFT JOIN
+	        FileGroupAnalysisJob ON AnalysisTask.TimeQueued = FileGroupAnalysisJob.TaskQueuedTime AND
+		        AnalysisTask.FileGroupID = FileGroupAnalysisJob.FileGroupID AND 
+		        AnalysisTask.NodeID IS NOT NULL
     ")]
     [AllowSearch]
-    public class AnalysisTask: openXDA.Model.AnalysisTask
+    public class AnalysisTask : openXDA.Model.AnalysisTask
     {
         public DateTime DataStartTime { get; set; }
         public DateTime DataEndTime { get; set; }
         public string MeterName { get; set; }
-    }
 
+        public double TimeInQueue { get; set; }
+
+        public double ProcessingTime { get; set; }
+    }
 
     [RoutePrefix("api/OpenXDA/DataFile")]
     public class OpenXDADataFileController : ModelController<DataFile> {
@@ -341,7 +349,7 @@ namespace SystemCenter.Model
     }
 
     [RoutePrefix("api/OpenXDA/ProcessedFiles")]
-    public class OpenXDAProcessedileController : ModelController<ProcessedFile>
+    public class OpenXDAProcessedFileController : ModelController<ProcessedFile>
     {
         [Route("PagedResults"), HttpPost]
         public override IHttpActionResult GetPagedList([FromBody] PostData postData, int page)
@@ -401,7 +409,9 @@ namespace SystemCenter.Model
                     TimeQueued = row.Field<DateTime>("TimeQueued"),
                     Priority = row.Field<int>("Priority"),
                     DataEndTime = row.Field<DateTime>("DataEndTime"),
-                    MeterName = row.Field<string>("MeterName")
+                    MeterName = row.Field<string>("MeterName"),
+                    TimeInQueue = row.Field<int>("TimeInQueue"),
+                    ProcessingTime = row.Field<int>("ProcessingTime")
                 }).ToArray();
 
             int recordCount = CountSearchResults(postData);
