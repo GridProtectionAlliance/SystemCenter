@@ -222,7 +222,7 @@ export namespace OpenXDA {
         FileGroupID: number,
         TimeInQueue: number,
         ProcessingTime: number,
-        FilePath: string
+        FileName: string
     }
 }
 

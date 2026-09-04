@@ -100,14 +100,9 @@ const AnalysisTaskTable = () => {
                     </Column>
 
                     <Column<OpenXDA.AnalysisTask>
-                        Key={'FilePath'}
+                        Key={'FileName'}
                         AllowSort={true}
-                        Field={'FilePath'}
-                        Content={({ item, field }) => {
-                            const normalizedPath = item[field].toString().replace(/\\/g, "/");
-                            const splitPath = normalizedPath.split("/");
-                            return splitPath[splitPath.length - 1]
-                        }}
+                        Field={'FileName'}
                     >
                         File Group Task 
                     </Column>

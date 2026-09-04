@@ -110,9 +110,9 @@ namespace SystemCenter.Model
             FileGroup.DataEndTime,
             Meter.Name AS MeterName,
             CONCAT(LEFT(
-                DataFile.FilePath,
-                LEN(DataFile.FilePath) - CHARINDEX('.', REVERSE(DataFile.FilePath)) + 1
-                ),'*') AS FilePath,
+                RIGHT(DataFile.FilePath, CHARINDEX('\', REVERSE(DataFile.FilePath)) - 1),
+                LEN(RIGHT(DataFile.FilePath, CHARINDEX('\', REVERSE(DataFile.FilePath)) - 1)) - CHARINDEX('.', REVERSE(DataFile.FilePath)) + 1
+                ),'*') AS FileName,
 	        DATEDIFF(SECOND, AnalysisTask.TimeQueued, COALESCE(FileGroupAnalysisJob.ProcessingStartTime, GETDATE())) AS TimeInQueue,
 	        DATEDIFF(SECOND, COALESCE(FileGroupAnalysisJob.ProcessingStartTime, GETDATE()), GETDATE()) AS ProcessingTime
         FROM
@@ -130,7 +130,7 @@ namespace SystemCenter.Model
         public DateTime DataStartTime { get; set; }
         public DateTime DataEndTime { get; set; }
         public string MeterName { get; set; }
-        public string FilePath { get; set; }
+        public string FileName { get; set; }
         public double TimeInQueue { get; set; }
         public double ProcessingTime { get; set; }
         
@@ -416,7 +416,7 @@ namespace SystemCenter.Model
                     MeterName = row.Field<string>("MeterName"),
                     TimeInQueue = row.Field<int>("TimeInQueue"),
                     ProcessingTime = row.Field<int>("ProcessingTime"),
-                    FilePath = row.Field<string>("FilePath")
+                    FileName = row.Field<string>("FileName")
                 }).ToArray();
 
             int recordCount = CountSearchResults(postData);
