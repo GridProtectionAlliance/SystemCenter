@@ -103,13 +103,16 @@ namespace SystemCenter.Model
         public string FileName => Path.GetFileName(FilePath);
     }
 
-    [ReturnLimit(50),
-    CustomView(@"
+    [CustomView(@"
        SELECT
             AnalysisTask.*,
             FileGroup.DataStartTime,
             FileGroup.DataEndTime,
             Meter.Name AS MeterName,
+            CONCAT(LEFT(
+                DataFile.FilePath,
+                LEN(DataFile.FilePath) - CHARINDEX('.', REVERSE(DataFile.FilePath)) + 1
+                ),'*') AS FilePath,
 	        DATEDIFF(SECOND, AnalysisTask.TimeQueued, COALESCE(FileGroupAnalysisJob.ProcessingStartTime, GETDATE())) AS TimeInQueue,
 	        DATEDIFF(SECOND, COALESCE(FileGroupAnalysisJob.ProcessingStartTime, GETDATE()), GETDATE()) AS ProcessingTime
         FROM
@@ -119,6 +122,7 @@ namespace SystemCenter.Model
 	        FileGroupAnalysisJob ON AnalysisTask.TimeQueued = FileGroupAnalysisJob.TaskQueuedTime AND
 		        AnalysisTask.FileGroupID = FileGroupAnalysisJob.FileGroupID AND 
 		        AnalysisTask.NodeID IS NOT NULL
+            CROSS APPLY (SELECT TOP 1 FilePath FROM DataFile WHERE DataFile.FileGroupID = FileGroup.ID ORDER BY FileSize DESC) DataFile
     ")]
     [AllowSearch]
     public class AnalysisTask : openXDA.Model.AnalysisTask
@@ -126,10 +130,10 @@ namespace SystemCenter.Model
         public DateTime DataStartTime { get; set; }
         public DateTime DataEndTime { get; set; }
         public string MeterName { get; set; }
-
+        public string FilePath { get; set; }
         public double TimeInQueue { get; set; }
-
         public double ProcessingTime { get; set; }
+        
     }
 
     [RoutePrefix("api/OpenXDA/DataFile")]
@@ -411,7 +415,8 @@ namespace SystemCenter.Model
                     DataEndTime = row.Field<DateTime>("DataEndTime"),
                     MeterName = row.Field<string>("MeterName"),
                     TimeInQueue = row.Field<int>("TimeInQueue"),
-                    ProcessingTime = row.Field<int>("ProcessingTime")
+                    ProcessingTime = row.Field<int>("ProcessingTime"),
+                    FilePath = row.Field<string>("FilePath")
                 }).ToArray();
 
             int recordCount = CountSearchResults(postData);
