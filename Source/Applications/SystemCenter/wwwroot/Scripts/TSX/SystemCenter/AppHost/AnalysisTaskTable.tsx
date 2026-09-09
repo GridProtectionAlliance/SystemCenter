@@ -26,7 +26,8 @@ import { Table, Paging, Column } from '@gpa-gemstone/react-table'
 import { OpenXDA } from '../global';
 import moment from 'moment'
 import { Application } from '@gpa-gemstone/application-typings';
-import { LoadingIcon, GenericController, Search } from '@gpa-gemstone/react-interactive'
+import { LoadingIcon, GenericController } from '@gpa-gemstone/react-interactive'
+import { FormatDuration } from '@gpa-gemstone/helper-functions';
 import { ErrorBoundary } from '@gpa-gemstone/common-pages'
 import FileGroupAnalysisJobPriority from '../CommonComponents/FileGroupAnalysisJobPriority';
 
@@ -97,6 +98,14 @@ const AnalysisTaskTable = () => {
                     >
                         Meter
                     </Column>
+
+                    <Column<OpenXDA.AnalysisTask>
+                        Key={'FileName'}
+                        AllowSort={true}
+                        Field={'FileName'}
+                    >
+                        File Group Task 
+                    </Column>
                 
                     <Column<OpenXDA.AnalysisTask>
                         Key={'DataStartTime'}
@@ -146,6 +155,28 @@ const AnalysisTaskTable = () => {
                         }
                     >
                         Priority
+                    </Column>
+                    <Column<OpenXDA.AnalysisTask>
+                        Key={'TimeInQueue'}
+                        AllowSort={true}
+                        Field={'TimeInQueue'}
+                        Content={({ item, field }) => {
+                            if (item[field] == 0 || item[field] == null) return 'N/A'
+                            return FormatDuration(item[field] as number * 1000)
+                        }}
+                    >
+                        Time In Queue
+                    </Column>
+                    <Column<OpenXDA.AnalysisTask>
+                        Key={'ProcessingTime'}
+                        AllowSort={true}
+                        Field={'ProcessingTime'}
+                        Content={({ item, field }) => { 
+                            if (item[field] == 0 || item[field] == null) return 'N/A'
+                            return FormatDuration(item[field] as number * 1000)
+                        }}
+                    >
+                        Processing Time
                     </Column>
                 </Table>
                 <Paging Current={page + 1} Total={totalPages} SetPage={(p) => setPage(p - 1)} />
