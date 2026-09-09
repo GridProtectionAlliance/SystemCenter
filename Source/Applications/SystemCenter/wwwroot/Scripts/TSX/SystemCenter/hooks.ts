@@ -21,9 +21,12 @@
 //
 //******************************************************************************************************
 
-import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from './Store/Store';
 import * as React from 'react';
+import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
+import { Application } from '@gpa-gemstone/application-typings';
+import { GenericController } from '@gpa-gemstone/react-interactive';
+import { AppDispatch, RootState } from './Store/Store';
+
 
 export const useAppDispatch: () => AppDispatch = useDispatch;
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
@@ -39,3 +42,37 @@ export const useBoundPaging = (currentPage: number, totalPages: number, setPage:
     }, [totalPages, currentPage])
 
 }
+
+export function useControllerFetch<T,>(controller: GenericController<T>, sortField?: keyof T, ascending?: boolean, parentID?: string|number, refreshCount?: number,) {
+
+    const fetchHandle = React.useRef<JQuery.jqXHR<T[]> | null>(null);
+    const [fetchData, setFetchData] = React.useState<T[]>([]);
+    const [fetchStatus, setFetchStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const sortKey = sortField ?? controller.DefaultSort;
+    const asc = ascending ?? controller.Ascending;
+
+    const refetchData = React.useCallback(() => {
+        setFetchStatus('loading');
+
+        fetchHandle.current = controller.Fetch(parentID, sortKey, asc)
+            .done((data: T[]) => {
+                setFetchData(data);
+                setFetchStatus('idle');
+            })
+            .fail(() => setFetchStatus('error'))
+        const cleanup = () => {
+            if (fetchHandle.current?.abort != null) fetchHandle.current.abort();
+        }
+        return cleanup
+    }, [controller, parentID, sortKey, asc])
+
+    React.useEffect(() => {
+        const cleanup = refetchData();
+        return cleanup;
+    }, [refetchData, refreshCount])
+
+    return {
+        Data: fetchData,
+        Status: fetchStatus
+    }
+} 
