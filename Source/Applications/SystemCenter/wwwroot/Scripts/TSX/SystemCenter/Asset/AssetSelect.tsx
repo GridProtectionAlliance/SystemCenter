@@ -24,11 +24,11 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { ByAssetSlice, AssetTypeSlice } from '../Store/Store';
+import { ByAssetSlice } from '../Store/Store';
 import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
-import { Search } from '@gpa-gemstone/react-interactive';
+import { Search, GenericController } from '@gpa-gemstone/react-interactive';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
-import { useAppDispatch, useAppSelector } from '../hooks';
+import { useControllerFetch } from '../hooks';
 import { Column } from '@gpa-gemstone/react-table';
 
 declare var homePath: string;
@@ -44,10 +44,11 @@ interface IProps {
     children?: React.ReactNode
 }
 
+const AssetTypeController = new GenericController<OpenXDA.Types.AssetType>(`${homePath}api/OpenXDA/AssetType`, 'Name');
+
 export default function AssetSelect(props: IProps) {
-    const assetType = useAppSelector(AssetTypeSlice.Data);
-    const assetTypeStatus = useAppSelector(AssetTypeSlice.Status);
-    const dispatch = useAppDispatch();
+
+    const { Data: assetType } = useControllerFetch(AssetTypeController);
 
     const lineSegmentFilter: Search.IFilter<SystemCenter.Types.DetailedAsset> =
     {
@@ -57,11 +58,6 @@ export default function AssetSelect(props: IProps) {
         Type: 'string',
         IsPivotColumn: false
     };
-
-    React.useEffect(() => {
-        if (assetTypeStatus == 'changed' || assetTypeStatus == 'uninitiated')
-            dispatch(AssetTypeSlice.Fetch());
-    }, [assetTypeStatus]);
 
     function getEnum(setOptions, field) {
         if (field.key == 'AssetType' && field.type == 'enum') {

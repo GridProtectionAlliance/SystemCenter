@@ -23,8 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
-import { CreateGuid } from '@gpa-gemstone/helper-functions';
+import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import BreakerAttributes from '../AssetAttribute/Breaker';
 import BusAttributes from '../AssetAttribute/Bus';
 import CapBankAttributes from '../AssetAttribute/CapBank';
@@ -32,16 +31,15 @@ import LineAttributes from '../AssetAttribute/Line';
 import TransformerAttributes from '../AssetAttribute/Transformer';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import CapBankRelayAttributes from '../AssetAttribute/CapBankRelay';
-import { useAppDispatch, useAppSelector } from '../hooks';
-import { ByAssetSlice, AssetTypeSlice } from '../Store/Store';
+import { useAppDispatch, useAppSelector, useControllerFetch } from '../hooks';
+import { ByAssetSlice } from '../Store/Store';
 import { SelectAssetStatus, FetchAsset, SelectAssets } from '../Store/AssetSlice';
-import { Modal, Search, TabSelector } from '@gpa-gemstone/react-interactive';
+import { Modal, Search, TabSelector, GenericController } from '@gpa-gemstone/react-interactive';
 import DERAttributes from '../AssetAttribute/DER';
 import AssetSelect from '../Asset/AssetSelect';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { getAssetWithAdditionalFields } from '../../../TS/Services/Asset';
 import LocationDrawings from '../Meter/PropertyUI/LocationDrawings';
-import { GetNodeSize } from '@gpa-gemstone/helper-functions';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import GenerationAttributes from '../AssetAttribute/Generation';
 import StationAuxAttributes from '../AssetAttribute/StationAux';
@@ -65,12 +63,14 @@ interface IProps {
 // temp key for new assets, this should never make it out of here
 const tempKey = "Something_is_wrong_with_NMW";
 
+const AssetTypeController = new GenericController<OpenXDA.Types.AssetType>(`${homePath}api/OpenXDA/AssetType`, 'Name');
+
 type AssetType = OpenXDA.Types.DetailedAsset
 export default function AssetPage(props: IProps) {
     const dispatch = useAppDispatch();
 
-    const assetTypes = useAppSelector(AssetTypeSlice.Data);
-    const atStatus = useAppSelector(AssetTypeSlice.Status);
+    const { Data: assetTypes } = useControllerFetch(AssetTypeController);
+
     const assets = useAppSelector(SelectAssets);
     const aStatus = useAppSelector(SelectAssetStatus);
     const byAssetStatus = useAppSelector(ByAssetSlice.Status);
@@ -151,14 +151,6 @@ export default function AssetPage(props: IProps) {
     React.useEffect(() => {
         setChannelsWorking(props.Channels);
     }, [props.Channels]);
-
-    React.useEffect(() => {
-        if (atStatus === 'uninitiated' || atStatus === 'changed') {
-            dispatch(AssetTypeSlice.Fetch());
-            return function () {
-            }
-        }
-    }, [atStatus]);
 
     React.useEffect(() => {
         if (aStatus === 'uninitiated' || aStatus === 'changed') {
