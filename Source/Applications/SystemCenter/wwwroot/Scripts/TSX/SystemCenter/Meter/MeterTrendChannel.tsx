@@ -29,9 +29,8 @@ import { LoadingIcon, ServerErrorIcon, Warning, GenericController } from '@gpa-g
 import { Input, Select, ToolTip } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { IsNumber } from '@gpa-gemstone/helper-functions';
-import { PhaseSlice, MeasurmentTypeSlice, MeasurementCharacteristicSlice } from '../Store/Store';
 import { AssetAttributes } from '../AssetAttribute/Asset';
-import { useAppSelector, useAppDispatch } from '../hooks';
+import { useAppSelector, useControllerFetch } from '../hooks';
 import { ConfigurableTable, ConfigurableColumn, Column, Paging } from '@gpa-gemstone/react-table';
 import { SelectRoles } from '../Store/UserSettings';
 
@@ -40,9 +39,11 @@ declare var homePath: string;
 interface IProps { Meter: GemstoneOpenXDA.Types.Meter, IsVisible: boolean }
 
 const TrendChannelController = new GenericController<OpenXDA.TrendChannel>(`${homePath}api/OpenXDA/TrendChannel`, 'Name');
+const PhaseController = new GenericController<GemstoneOpenXDA.Types.Phase>(`${homePath}api/OpenXDA/Phase`, 'Name');
+const MeasurementTypeController = new GenericController<GemstoneOpenXDA.Types.MeasurementType>(`${homePath}api/OpenXDA/MeasurementType`, 'Name');
+const MeasurementCharacteristicController = new GenericController<GemstoneOpenXDA.Types.MeasurementCharacteristic>(`${homePath}api/OpenXDA/MeasurementCharacteristic`, 'Name');
 
 const MeterTrendChannelWindow = (props: IProps) => {
-    const dispatch = useAppDispatch();
 
     const [data, setData] = React.useState<OpenXDA.TrendChannel[]>([]);
     const [sortKey, setSortKey] = React.useState<keyof OpenXDA.TrendChannel>('Name');
@@ -55,14 +56,12 @@ const MeterTrendChannelWindow = (props: IProps) => {
     const [recordChanges, setRecordChanges] = React.useState<Map<number, Partial<OpenXDA.TrendChannel>>>(new Map());
     const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
 
-    const phases = useAppSelector(PhaseSlice.Data) as GemstoneOpenXDA.Types.Phase[];
-    const measurementTypes = useAppSelector(MeasurmentTypeSlice.Data) as GemstoneOpenXDA.Types.MeasurementType[];
-    const measurementCharacteristics = useAppSelector(MeasurementCharacteristicSlice.Data) as GemstoneOpenXDA.Types.MeasurementCharacteristic[];
+    const { Data: phases, Status: phaseStatus } = useControllerFetch(PhaseController);
+    const { Data: measurementTypes, Status: mtStatus } = useControllerFetch(MeasurementTypeController);
+    const { Data: measurementCharacteristics, Status: mcStatus } = useControllerFetch(MeasurementCharacteristicController);
+
     const [assets, setAssets] = React.useState<GemstoneOpenXDA.Types.Asset[]>([]);
 
-    const phaseStatus = useAppSelector(PhaseSlice.Status) as Application.Types.Status;
-    const mtStatus = useAppSelector(MeasurmentTypeSlice.Status) as Application.Types.Status;
-    const mcStatus = useAppSelector(MeasurementCharacteristicSlice.Status) as Application.Types.Status;
     const [assetStatus, setAssetStatus] = React.useState<Application.Types.Status>('idle')
 
     const [removeRecord, setRemoveRecord] = React.useState<OpenXDA.TrendChannel | null>(null);
@@ -70,21 +69,6 @@ const MeterTrendChannelWindow = (props: IProps) => {
     const [errors, setErrors] = React.useState<string[]>([]);
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None' | 'Add')>('None');
     const roles = useAppSelector(SelectRoles);
-
-    React.useEffect(() => {
-        if (phaseStatus == 'uninitiated' || phaseStatus == 'changed')
-            dispatch(PhaseSlice.Fetch());
-    }, [phaseStatus]);
-
-    React.useEffect(() => {
-        if (mtStatus == 'uninitiated' || mtStatus == 'changed')
-            dispatch(MeasurmentTypeSlice.Fetch());
-    }, [mtStatus]);
-
-    React.useEffect(() => {
-        if (mcStatus == 'uninitiated' || mcStatus == 'changed')
-            dispatch(MeasurementCharacteristicSlice.Fetch());
-    }, [mcStatus]);
 
     React.useEffect(() => {
         setStatus('loading');
@@ -219,7 +203,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
         return true;
     }
 
-    if (assetStatus == 'error' || phaseStatus == 'error' || mcStatus == 'error' || status == 'error')
+    if (assetStatus == 'error' || phaseStatus == 'error' || mcStatus == 'error' || mtStatus === 'error' || status == 'error')
         return <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
                 <div className="row">
@@ -244,7 +228,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
             </div>
         </div>
 
-    if (assetStatus == 'loading' || phaseStatus == 'loading' || mcStatus == 'loading' || status == 'loading')
+    if (assetStatus == 'loading' || phaseStatus == 'loading' || mcStatus == 'loading' || mtStatus === "loading" || status == 'loading')
         return <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
                 <div className="row">
