@@ -25,7 +25,6 @@ import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { SystemCenter } from '../global';
 import { GenericController, Modal, Warning } from '@gpa-gemstone/react-interactive';
 import * as React from 'react';
-import { DataOperationSlice } from '../Store/Store';
 import GenericByPage from '../CommonComponents/GenericByPage';
 import { Input } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
@@ -155,7 +154,6 @@ const DataOperations: Application.Types.iByComponent = (props) => {
                 CallBack={(conf) => {
                     if (conf)
                         DataOperationController.DBAction("DELETE", editnewSetting).done(() => refreshData(x => x + 1));
-                        DataOperationSlice.DBAction({ verb: 'DELETE', record: editnewSetting });
                     setShowWarning(false);
                 }}
             />
