@@ -23,14 +23,10 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA, Application } from '@gpa-gemstone/application-typings';
-import CFGParser from '../../../TS/CFGParser';
 import { CheckBox, Input, ToolTip } from '@gpa-gemstone/react-forms';
 import { Modal, LoadingIcon } from '@gpa-gemstone/react-interactive';
-import PARParser from '../../../TS/PARParser';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import ChannelScalingForm from '../Meter/ChannelScaling/ChannelScalingForm';
-import { MeasurementCharacteristicSlice, MeasurmentTypeSlice, PhaseSlice, ChannelTemplateSlice } from '../Store/Store';
+import { ChannelTemplateSlice } from '../Store/Store';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { Table, Column } from '@gpa-gemstone/react-table';
 import { SystemCenter } from '../global';

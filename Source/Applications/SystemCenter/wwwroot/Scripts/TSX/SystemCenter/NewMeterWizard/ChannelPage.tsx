@@ -26,13 +26,12 @@ import * as _ from 'lodash';
 import { OpenXDA, Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import CFGParser from '../../../TS/CFGParser';
 import { Input, Select, TextArea } from '@gpa-gemstone/react-forms';
-import { Modal, Warning, ServerErrorIcon, BtnDropdown } from '@gpa-gemstone/react-interactive';
+import { Modal, Warning, ServerErrorIcon, BtnDropdown, GenericController } from '@gpa-gemstone/react-interactive';
 import PARParser from '../../../TS/PARParser';
 import { ConfigurableTable, ConfigurableColumn, Column } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import ChannelScalingForm from '../Meter/ChannelScaling/ChannelScalingForm';
-import { MeasurementCharacteristicSlice, MeasurmentTypeSlice, PhaseSlice } from '../Store/Store';
-import { useAppDispatch, useAppSelector } from '../hooks';
+import { useControllerFetch } from '../hooks';
 import TemplateWindow from './TemplateWindow';
 import VirtualChannelModal from './VirtualChannelModal';
 declare var homePath: string;
@@ -47,9 +46,11 @@ interface IProps {
     TrendChannels: boolean,
     IsEngineer: boolean,
 }
+const PhaseController = new GenericController<OpenXDA.Types.Phase>(`${homePath}api/OpenXDA/Phase`, 'Name');
+const MeasurementTypeController = new GenericController<OpenXDA.Types.MeasurementType>(`${homePath}api/OpenXDA/MeasurementType`, 'Name');
+const MeasurementCharacteristicController = new GenericController<OpenXDA.Types.MeasurementCharacteristic>(`${homePath}api/OpenXDA/MeasurementCharacteristic`, 'Name');
 
 export default function ChannelPage(props: IProps) {
-    const dispatch = useAppDispatch();
     const fileInput = React.useRef(null);
 
     const [showCFGError, setShowCFGError] = React.useState<boolean>(false);
@@ -64,17 +65,14 @@ export default function ChannelPage(props: IProps) {
     const [showVirtualChannelModal, setShowVirtualChannelModal] = React.useState<boolean>(false);
     const [spareList, setSpareList] = React.useState<string[]>([]);
     const [listStatus, setListStatus] = React.useState<Application.Types.Status>('idle');
+    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
 
     const [sortKey, setSortKey] = React.useState<string>('Series');
     const [asc, setAsc] = React.useState<boolean>(true);
 
-    const phases = useAppSelector(PhaseSlice.Data);
-    const measurementCharateristics = useAppSelector(MeasurementCharacteristicSlice.Data);
-    const measurementTypes = useAppSelector(MeasurmentTypeSlice.Data);
-
-    const pStatus = useAppSelector(PhaseSlice.Status);
-    const mCStatus = useAppSelector(MeasurementCharacteristicSlice.Status);
-    const mTStatus = useAppSelector(MeasurmentTypeSlice.Status);
+    const { Data: phases, Status: pStatus } = useControllerFetch(PhaseController);
+    const { Data: measurementTypes, Status: mTStatus } = useControllerFetch(MeasurementTypeController);
+    const { Data: measurementCharateristics, Status: mCStatus } = useControllerFetch(MeasurementCharacteristicController);
 
     const baseWarnings: string[] = ["Ensure all Scaling values are correct.", "Ensure all virtual Channels are configured."];
     const serverParsedExtensions: string[] = ['pqd', 'sel', 'cev', 'eve', 'ctl', 'txt'];
@@ -100,22 +98,7 @@ export default function ChannelPage(props: IProps) {
         return () => {
             if (handle != null && handle.abort != null) handle.abort();
         }
-    }, []);
-
-    React.useEffect(() => {
-        if (mTStatus == 'uninitiated' || mTStatus == 'changed')
-            dispatch(MeasurmentTypeSlice.Fetch()); 
-    }, [mTStatus]);
-
-    React.useEffect(() => {
-        if (mCStatus == 'uninitiated' || mCStatus == 'changed')
-            dispatch(MeasurementCharacteristicSlice.Fetch()); 
-    }, [mCStatus]);
-
-    React.useEffect(() => {
-        if (pStatus == 'uninitiated' || pStatus == 'changed')
-            dispatch(PhaseSlice.Fetch()); 
-    }, [pStatus]);
+    }, [refreshTrigger]);
 
     React.useEffect(() => {
         props.SetWarning(baseWarnings)
@@ -134,7 +117,7 @@ export default function ChannelPage(props: IProps) {
         return () => {
             $(".custom-file-input").off('change');
         }
-    }, [props.TrendChannels])
+    }, [props.TrendChannels, refreshTrigger])
 
     React.useEffect(() => {
         setSelectedFile('');
@@ -200,9 +183,7 @@ export default function ChannelPage(props: IProps) {
                 const channels = sortChannels(data);
                 handleParsedChannels(channels);
                 // Need to fetch these after since the server parser will add new things to these if it spots them
-                dispatch(PhaseSlice.SetChanged());
-                dispatch(MeasurementCharacteristicSlice.SetChanged());
-                dispatch(MeasurmentTypeSlice.SetChanged());
+                setRefreshTrigger(val => !val);
             }).fail(() => {
                 setChannelStatus('error');
             });
