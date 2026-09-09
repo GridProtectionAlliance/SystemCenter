@@ -23,10 +23,10 @@
 import * as React from 'react';
 import { Input, TextArea } from '@gpa-gemstone/react-forms'
 import * as _ from 'lodash';
-import { SecurityGroupSlice } from '../../Store/Store';
-import { useAppDispatch, useAppSelector } from '../../hooks';
 import { ISecurityGroup } from '../Types';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { GenericController } from '@gpa-gemstone/react-interactive';
+import { Application } from '@gpa-gemstone/application-typings';
 
 interface IProps {
     Group: ISecurityGroup,
@@ -36,18 +36,26 @@ interface IProps {
 }
 
 function GroupForm(props: IProps) {
-    const dispatch = useAppDispatch();
     
-    const allGroups = useAppSelector(SecurityGroupSlice.Data);
-    const groupStatus = useAppSelector(SecurityGroupSlice.Status);
+    const [allGroups, setAllGroups] = React.useState<ISecurityGroup[]>([]);
+    const [groupStatus, setGroupStatus] = React.useState<Application.Types.Status>('uninitiated');
 
     const [errors, setErrors] = React.useState<string[]>([]);
     const [valid, setValid] = React.useState<'valid' | 'resolving' | 'invalid' | 'unknown'>("valid")
 
     React.useEffect(() => {
-        if (groupStatus === 'uninitiated' || groupStatus === 'changed')
-            dispatch(SecurityGroupSlice.Fetch());
-    }, [groupStatus]);
+        setGroupStatus('loading')
+        const handle = new GenericController<ISecurityGroup>(`${homePath}api/SystemCenter/FullSecurityGroup`, "DisplayName").Fetch();
+        handle.done((d) => {
+            setAllGroups(d);
+            setGroupStatus('idle')
+        })
+        handle.fail(() => setGroupStatus('error'))
+        return () => {
+            if (handle != null && handle.abort != null)
+                handle.abort();
+        }
+    }, [])
 
     React.useEffect(() => {
         if (props.SetErrors !== undefined)
