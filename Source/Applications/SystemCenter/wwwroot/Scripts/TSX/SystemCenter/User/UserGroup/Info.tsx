@@ -28,13 +28,18 @@ import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { ISecurityGroup } from '../Types';
 import GroupForm from './GroupForm';
 
-const GroupInfo = (props: { Group: ISecurityGroup }) => {
+interface IProps {
+    Group: ISecurityGroup,
+    SetRefreshTrigger: React.Dispatch<React.SetStateAction<boolean>>,
+    RefreshTrigger: boolean
+}
+
+const GroupInfo = (props: IProps) => {
 
     const [group, setGroup] = React.useState<ISecurityGroup>(props.Group);
     const [warnings, setWarning] = React.useState<string[]>([]);
     const [errors, setError] = React.useState<string[]>([]);
     const [hover, setHover] = React.useState<('None' | 'Clear' | 'Save')>('None');
-    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
 
     React.useEffect(() => {
         if (group == null || props.Group == null)
@@ -47,7 +52,7 @@ const GroupInfo = (props: { Group: ISecurityGroup }) => {
             w.push('Changes to Name will be lost.')
 
         setWarning(w);
-    }, [group, props.Group, refreshTrigger])
+    }, [group, props.Group, props.RefreshTrigger])
 
     React.useEffect(() => { setGroup(props.Group) }, [props.Group])
 
@@ -74,7 +79,7 @@ const GroupInfo = (props: { Group: ISecurityGroup }) => {
             <div className="card-footer">
                 <div className="btn-group mr-2">
                     <button className="btn btn-primary"
-                        onClick={() => new GenericController<ISecurityGroup>(`${homePath}api/SystemCenter/FullSecurityGroup`, "DisplayName").DBAction('PATCH',{ ...group, Name: group.DisplayName }).then(() => setRefreshTrigger(val => !val))}
+                        onClick={() => new GenericController<ISecurityGroup>(`${homePath}api/SystemCenter/FullSecurityGroup`, "DisplayName").DBAction('PATCH',{ ...group, Name: group.DisplayName }).then(() => props.SetRefreshTrigger(val => !val))}
                         onMouseEnter={() => setHover('Save')} onMouseLeave={() => setHover('None')}
                         data-tooltip={'Save'}
                         disabled={warnings.length === 0 || errors.length > 0 || group.Type !== 'Database'}>Save Changes</button>
@@ -91,8 +96,6 @@ const GroupInfo = (props: { Group: ISecurityGroup }) => {
                     {errors.map((t, i) => <p key={i}><ReactIcons.CrossMark Color="var(--danger)" /> {t}</p>)}
                 </ToolTip>
             </div>
-
-
         </div>
     );
 
