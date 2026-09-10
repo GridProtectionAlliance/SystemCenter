@@ -90,7 +90,7 @@ const GroupUser = (props: { Group: ISecurityGroup }) => {
             async: true
         }).done((d) => {
             setGroupStatus('idle');
-            setGroupUsers(JSON.parse(d.Data as unknown as string));
+            setGroupUsers(d);
         }).fail(() => setGroupStatus('error'));
 
         return () => { if (handle != null && handle.abort != null) handle.abort(); }
