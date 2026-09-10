@@ -65,14 +65,14 @@ export default function ChannelPage(props: IProps) {
     const [showVirtualChannelModal, setShowVirtualChannelModal] = React.useState<boolean>(false);
     const [spareList, setSpareList] = React.useState<string[]>([]);
     const [listStatus, setListStatus] = React.useState<Application.Types.Status>('idle');
-    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
+    const [refreshCount, refreshData] = React.useState<number>(0);
 
     const [sortKey, setSortKey] = React.useState<string>('Series');
     const [asc, setAsc] = React.useState<boolean>(true);
 
-    const { Data: phases, Status: pStatus } = useControllerFetch(PhaseController);
-    const { Data: measurementTypes, Status: mTStatus } = useControllerFetch(MeasurementTypeController);
-    const { Data: measurementCharateristics, Status: mCStatus } = useControllerFetch(MeasurementCharacteristicController);
+    const { Data: phases, Status: pStatus } = useControllerFetch(PhaseController, undefined, undefined, undefined, refreshCount);
+    const { Data: measurementTypes, Status: mTStatus } = useControllerFetch(MeasurementTypeController, undefined, undefined, undefined, refreshCount);
+    const { Data: measurementCharateristics, Status: mCStatus } = useControllerFetch(MeasurementCharacteristicController, undefined, undefined, undefined, refreshCount);
 
     const baseWarnings: string[] = ["Ensure all Scaling values are correct.", "Ensure all virtual Channels are configured."];
     const serverParsedExtensions: string[] = ['pqd', 'sel', 'cev', 'eve', 'ctl', 'txt'];
@@ -98,7 +98,7 @@ export default function ChannelPage(props: IProps) {
         return () => {
             if (handle != null && handle.abort != null) handle.abort();
         }
-    }, [refreshTrigger]);
+    }, [refreshCount]);
 
     React.useEffect(() => {
         props.SetWarning(baseWarnings)
@@ -117,7 +117,7 @@ export default function ChannelPage(props: IProps) {
         return () => {
             $(".custom-file-input").off('change');
         }
-    }, [props.TrendChannels, refreshTrigger])
+    }, [props.TrendChannels, refreshCount])
 
     React.useEffect(() => {
         setSelectedFile('');
@@ -183,7 +183,7 @@ export default function ChannelPage(props: IProps) {
                 const channels = sortChannels(data);
                 handleParsedChannels(channels);
                 // Need to fetch these after since the server parser will add new things to these if it spots them
-                setRefreshTrigger(val => !val);
+                refreshData(val => val + 1);
             }).fail(() => {
                 setChannelStatus('error');
             });
