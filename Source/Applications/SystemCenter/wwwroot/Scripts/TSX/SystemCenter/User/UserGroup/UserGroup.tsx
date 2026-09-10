@@ -40,6 +40,7 @@ function UserGroup(props: IProps) {
 	const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
 	const [tab, setTab] = React.useState(getTab());
 	const [showWarning, setShowWarning] = React.useState<boolean>(false);
+	const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
 
 	function getTab(): Tab {
 		if (props.Tab != undefined) return props.Tab;
@@ -70,7 +71,7 @@ function UserGroup(props: IProps) {
 			if (handle != null && handle.abort != null)
 				handle.abort()
 		}
-	}, [props.GroupID])
+	}, [props.GroupID, refreshTrigger])
 
 	React.useEffect(() => {
 		const saved = getTab();
@@ -103,7 +104,7 @@ function UserGroup(props: IProps) {
 			<hr />
 
 			<TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
-			{tab === "info" ? <GroupInfo Group={group} /> : null}
+			{tab === "info" ? <GroupInfo Group={group} SetRefreshTrigger={setRefreshTrigger} RefreshTrigger={refreshTrigger} /> : null}
 			{tab === "users" ? (group == null ? null : <GroupUser Group={group} />) : null}
 			{tab === "roles" ? (group != null ? <GroupPermission GroupID={group.ID} /> : null) : null}
 
@@ -115,7 +116,6 @@ function UserGroup(props: IProps) {
 			}} />
 		</div>
 	)
-
 
 }
 
