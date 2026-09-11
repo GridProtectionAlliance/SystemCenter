@@ -24,8 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA as GemstoneOpenXDA } from '@gpa-gemstone/application-typings';
-import { PhaseSlice, MeasurmentTypeSlice } from '../Store/Store'
-import { useAppSelector, useAppDispatch } from '../hooks';
+import { useAppSelector, useControllerFetch } from '../hooks';
 import { LoadingIcon, ServerErrorIcon, Warning, GenericController } from '@gpa-gemstone/react-interactive';
 import { Input, Select, ToolTip } from '@gpa-gemstone/react-forms';
 import { AssetAttributes } from '../AssetAttribute/Asset';
@@ -42,9 +41,10 @@ interface IProps { Meter: GemstoneOpenXDA.Types.Meter, IsVisible: boolean }
 type RecordChange = Map<number, Map<keyof OpenXDA.EventChannel, string | number>>;
 
 const EventChannelController = new GenericController<OpenXDA.EventChannel>(`${homePath}api/OpenXDA/EventChannel`, "Name");
+const PhaseController = new GenericController<GemstoneOpenXDA.Types.Phase>(`${homePath}api/OpenXDA/Phase`, 'Name');
+const MeasurementTypeController = new GenericController<GemstoneOpenXDA.Types.MeasurementType>(`${homePath}api/OpenXDA/MeasurementType`, 'Name');
 
 const MeterEventChannelWindow = (props: IProps) => {
-    const dispatch = useAppDispatch();
 
     const [data, setData] = React.useState<OpenXDA.EventChannel[]>([]);
     const [sortKey, setSortKey] = React.useState<keyof OpenXDA.EventChannel>('Name');
@@ -57,12 +57,12 @@ const MeterEventChannelWindow = (props: IProps) => {
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
 
-    const phases = useAppSelector(PhaseSlice.Data) as GemstoneOpenXDA.Types.Phase[];
-    const measurementTypes = useAppSelector(MeasurmentTypeSlice.Data) as GemstoneOpenXDA.Types.MeasurementType[];
+
+    const { Data: phases, Status: pStatus } = useControllerFetch(PhaseController);
+    const { Data: measurementTypes, Status: mtStatus } = useControllerFetch(MeasurementTypeController);
+
     const [assets, setAssets] = React.useState<GemstoneOpenXDA.Types.Asset[]>([]);
 
-    const pStatus = useAppSelector(PhaseSlice.Status) as Application.Types.Status;
-    const mtStatus = useAppSelector(MeasurmentTypeSlice.Status) as Application.Types.Status;
     const [assetStatus, setAssetStatus] = React.useState<Application.Types.Status>('idle')
 
     const [removeRecord, setRemoveRecord] = React.useState<OpenXDA.EventChannel | null>(null);
@@ -70,16 +70,6 @@ const MeterEventChannelWindow = (props: IProps) => {
     const [errors, setErrors] = React.useState<string[]>([]);
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None' | 'Add')>('None');
     const roles = useAppSelector(SelectRoles);
-
-    React.useEffect(() => {
-        if (pStatus == 'uninitiated' || pStatus == 'changed')
-            dispatch(PhaseSlice.Fetch());
-    }, [pStatus])
-
-    React.useEffect(() => {
-        if (mtStatus == 'uninitiated' || mtStatus == 'changed')
-            dispatch(MeasurmentTypeSlice.Fetch());
-    }, [mtStatus])
 
     React.useEffect(() => {
         setStatus('loading');

@@ -26,12 +26,12 @@ import { Table, Column } from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { useNavigate } from "react-router-dom";
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
-import { Search, Modal } from '@gpa-gemstone/react-interactive';
+import { Search, Modal, GenericController } from '@gpa-gemstone/react-interactive';
 import { CheckBox, Input } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { AssetGroupSlice, ByAssetSlice, ByMeterSlice, AssetTypeSlice } from '../Store/Store';
+import { AssetGroupSlice, ByMeterSlice } from '../Store/Store';
 import { DefaultSearch, DefaultSelects } from '@gpa-gemstone/common-pages';
-import { useAppDispatch, useAppSelector } from '../hooks';
+import { useAppDispatch, useAppSelector, useControllerFetch } from '../hooks';
 import AssetSelect from '../Asset/AssetSelect';
 
 declare var homePath: string;
@@ -40,6 +40,8 @@ declare var homePath: string;
 interface extendedAssetGroup extends OpenXDA.Types.AssetGroup { MeterList: Array<SystemCenter.Types.DetailedMeter>, AssetList: Array<SystemCenter.Types.DetailedAsset>, UserList: Array<number>, AssetGroupList: Array<OpenXDA.Types.AssetGroup> }
 
 const emptyAssetGroup: extendedAssetGroup = { ID: -1, Name: '', DisplayDashboard: true, AssetGroups: 0, Meters: 0, Assets: 0, Users: 0, MeterList: [], AssetList: [], UserList: [], AssetGroupList: [], DisplayEmail: false };
+
+const AssetTypeController = new GenericController<OpenXDA.Types.AssetType>(`${homePath}api/OpenXDA/AssetType`, 'Name');
 
 declare var homePath: string;
 
@@ -55,8 +57,8 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
     const status = useAppSelector(AssetGroupSlice.Status);
     const allAssetGroups = useAppSelector(AssetGroupSlice.Data);
 
-    const assetType = useAppSelector(AssetTypeSlice.Data);
-    const assetTypeStatus = useAppSelector(AssetTypeSlice.Status);
+    const { Data: assetType } = useControllerFetch(AssetTypeController);
+
 
     const [showFilter, setFilter] = React.useState<('None' | 'Meter' | 'Asset' | 'Asset Group' | 'Station')>('None');
 
@@ -73,11 +75,6 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
         if (searchStatus == 'changed' || searchStatus == 'uninitiated')
             dispatch(AssetGroupSlice.DBSearch({ filter: searchFields }));
     }, [searchStatus]);
-
-    React.useEffect(() => {
-        if (assetTypeStatus == 'changed' || assetTypeStatus == 'uninitiated')
-            dispatch(AssetTypeSlice.Fetch());
-    }, [assetTypeStatus]);
 
     React.useEffect(() => {
         let e = [];

@@ -27,9 +27,9 @@ import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { GenericController, Modal, Warning } from '@gpa-gemstone/react-interactive';
 import { Application } from '@gpa-gemstone/application-typings';
 import { SystemCenter } from '../global';
-import { DBCleanupSlice } from '../Store/Store';
 import GenericByPage from '../CommonComponents/GenericByPage';
-import { useAppSelector } from '../hooks';
+import { useControllerFetch } from '../hooks';
+
 export interface DBCleanup {
     ID: number;
     Name: string;
@@ -46,8 +46,8 @@ const controllerPath = `${homePath}api/OpenXDA/DBCleanup`
 const DBCleanupController = new GenericController<DBCleanup>(controllerPath, "ID", true);
 
 const DBCleanup: Application.Types.iByComponent = (props) => {
-    const allDBCleanup: DBCleanup[] = useAppSelector(DBCleanupSlice.Data);
     const emptyDBCleanup = { ID: 0, Name: '', SQLCommand: '', Schedule: '' };
+
 
     const [editNewDBCleanup, setEditNewDBCleanup] = React.useState<DBCleanup>(emptyDBCleanup);
     const [editNew, setEditNew] = React.useState<Application.Types.NewEdit>('New');
@@ -57,6 +57,8 @@ const DBCleanup: Application.Types.iByComponent = (props) => {
     const [errors, setErrors] = React.useState<string[]>([]);
     const [refreshCount, refreshData] = React.useState<number>(0);
 
+    const { Data: dbCleanup, Status: dbCleanupStatus } = useControllerFetch<DBCleanup>(DBCleanupController, undefined, undefined, undefined, refreshCount);
+
     React.useEffect(() => { setHasChanged(false) }, [showModal]);
 
     React.useEffect(() => {
@@ -65,7 +67,7 @@ const DBCleanup: Application.Types.iByComponent = (props) => {
             e.push("A Schedule is required.");
         if (editNewDBCleanup.Name == null || editNewDBCleanup.Name.length === 0)
             e.push("A Name is required.");
-        if (editNewDBCleanup.Name != null && editNewDBCleanup.Name.length > 0 && allDBCleanup.findIndex(s => s.Name.toLowerCase() === editNewDBCleanup.Name.toLowerCase() && s.ID !== editNewDBCleanup.ID) > -1)
+        if (editNewDBCleanup.Name != null && editNewDBCleanup.Name.length > 0 && dbCleanup.findIndex(s => s.Name.toLowerCase() === editNewDBCleanup.Name.toLowerCase() && s.ID !== editNewDBCleanup.ID) > -1)
             e.push('Name must be unique.')
         if (editNewDBCleanup.SQLCommand == null || editNewDBCleanup.SQLCommand.length === 0)
             e.push("A SQL Command is required.");

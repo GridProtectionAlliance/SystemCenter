@@ -23,10 +23,13 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { useAppSelector, useAppDispatch } from '../hooks';
-import { MATLABAnalyticEventTypeSlice, MATLABAnalyticAssetTypeSlice, EventTypeSlice, AssetTypeSlice } from '../Store/Store';
+import { useAppSelector, useAppDispatch, useControllerFetch } from '../hooks';
+import { MATLABAnalyticEventTypeSlice, MATLABAnalyticAssetTypeSlice, EventTypeSlice } from '../Store/Store';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { Input, MultiCheckBoxSelect } from '@gpa-gemstone/react-forms';
+import { GenericController } from '@gpa-gemstone/react-interactive';
+
+const AssetTypeController = new GenericController<OpenXDA.Types.AssetType>(`${homePath}api/OpenXDA/AssetType`, 'Name');
 
 export default function MATLABAnalyticForm(props: {
     Record: OpenXDA.Types.MATLABAnalytic,
@@ -48,8 +51,8 @@ export default function MATLABAnalyticForm(props: {
 
     const allEventTypes = useAppSelector(EventTypeSlice.Data);
     const allEventTypesStatus = useAppSelector(EventTypeSlice.Status);
-    const allAssetTypes = useAppSelector(AssetTypeSlice.Data);
-    const allAssetTypesStatus = useAppSelector(AssetTypeSlice.Status);
+
+    const { Data: allAssetTypes } = useControllerFetch(AssetTypeController);
 
     const eventTypeParentID = useAppSelector(MATLABAnalyticEventTypeSlice.ParentID);
     const assetTypeParentID = useAppSelector(MATLABAnalyticAssetTypeSlice.ParentID);
@@ -58,11 +61,6 @@ export default function MATLABAnalyticForm(props: {
         if (allEventTypesStatus == 'uninitiated' || allEventTypesStatus == 'changed')
             dispatch(EventTypeSlice.Fetch());
     }, [allEventTypesStatus]);
-
-    React.useEffect(() => {
-        if (allAssetTypesStatus == 'uninitiated' || allAssetTypesStatus == 'changed')
-            dispatch(AssetTypeSlice.Fetch());
-    }, [allAssetTypesStatus]);
 
     React.useEffect(() => {
         if (eventTypeStatus == 'uninitiated' || eventTypeStatus == 'changed' || eventTypeParentID != props.Record.ID)
