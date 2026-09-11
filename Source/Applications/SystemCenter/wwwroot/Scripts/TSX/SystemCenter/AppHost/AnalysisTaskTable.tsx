@@ -185,4 +185,4 @@ const AnalysisTaskTable = () => {
     </ErrorBoundary>
 }
 
-export default AnalysisTaskTable
+export default AnalysisTaskTable;

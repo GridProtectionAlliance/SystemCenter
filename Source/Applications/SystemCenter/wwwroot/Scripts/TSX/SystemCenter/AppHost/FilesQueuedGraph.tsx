@@ -139,7 +139,7 @@ const FilesProcessedGraph = (props: IProps) => {
                                     color={getPriorityColor(a.Priority)}
                                     showPoints={true}
                                     key={a.Priority}
-                                    lineStyle={'-'}
+                                    lineStyle={getPriorityLineStyle(a.Priority)}
                                 >
                                 </Line>
                             )}
@@ -162,21 +162,32 @@ const getPriorityText = (priority: number ) => {
         return "Normal";
     if (priority == 3)
         return "High";
-    if (priority == 2)
+    if (priority == 4)
         return "Manual";
-
     return "Unknown";
 }
 
 
 const getPriorityColor = (priority: number) => {
-    if (priority == 3) // High Priority
-        return "#f8f9fa";
-    if (priority == 2) //Normal Priority
-        return "#0dcaf0";
     if (priority == 1) // Enumeration
+        return "#6c757d";
+    if (priority == 2) // Normal Priority
+        return "#0dcaf0";
+    if (priority == 3) // High Priority
         return "#0d6efd";
     if (priority == 4) // Manual Requeue
         return "#ffc107";
     return "#ffc107";
+}
+
+const getPriorityLineStyle = (priority: number) => {
+    if (priority == 1) // Enumeration
+        return "solid";
+    if (priority == 2) // Normal Priority
+        return "short-dash";
+    if (priority == 3) // High Priority
+        return "dash";
+    if (priority == 4) // Manual Requeue
+        return "long-dash";
+    return "solid";
 }
