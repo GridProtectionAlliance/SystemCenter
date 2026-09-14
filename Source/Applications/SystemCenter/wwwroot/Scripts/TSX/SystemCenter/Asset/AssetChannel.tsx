@@ -24,9 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { Application } from '@gpa-gemstone/application-typings';
-import { PhaseSlice, MeasurmentTypeSlice } from '../Store/Store'
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
-import { useAppSelector } from '../hooks';
 import { LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 
@@ -64,16 +62,12 @@ interface ChannelDetail { //TODO: Move to Gemstone
     Trend: boolean
 }
 
-
 const AssetChannelWindow = (props: IProps) => {
     const [assetChannels, setAssetChannels] = React.useState<ChannelDetail[]>([]);
     const [page, setPage] = React.useState<number>(0);
     const [totalPages, setTotalPages] = React.useState<number>(0);
     const [totalRecords, setTotalRecords] = React.useState<number>(0);
     const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
-
-    const pStatus = useAppSelector(PhaseSlice.Status) as Application.Types.Status;
-    const mtStatus = useAppSelector(MeasurmentTypeSlice.Status) as Application.Types.Status;
     const [status, setStatus] = React.useState<Application.Types.Status>('idle');
     const [sortField, setSortField] = React.useState<keyof (ChannelDetail)>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
@@ -109,7 +103,7 @@ const AssetChannelWindow = (props: IProps) => {
         }
     }, [props.ID, sortField, ascending, page]);
 
-    if (status == 'error' || pStatus == 'error' || mtStatus == 'error')
+    if (status == 'error')
         return <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
                 <div className="row">
@@ -127,7 +121,7 @@ const AssetChannelWindow = (props: IProps) => {
             </div>
         </div>
 
-    if (status == 'loading' || pStatus == 'loading' || mtStatus == 'loading')
+    if (status == 'loading')
         return <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
                 <div className="row">

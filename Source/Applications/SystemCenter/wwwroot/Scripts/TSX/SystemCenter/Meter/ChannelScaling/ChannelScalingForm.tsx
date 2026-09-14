@@ -26,9 +26,8 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-import { useAppSelector, useAppDispatch } from '../../hooks';
-import { MeasurementCharacteristicSlice, MeasurmentTypeSlice, PhaseSlice } from '../../Store/Store';
-import { LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { useAppSelector, useControllerFetch } from '../../hooks';
+import { LoadingIcon, ServerErrorIcon, GenericController } from '@gpa-gemstone/react-interactive';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ChannelScalingWrapper, ChannelScalingType, IMultiplier } from './ChannelScalingWrapper';
 import { Input, ToolTip } from '@gpa-gemstone/react-forms';
@@ -46,20 +45,18 @@ interface IProps {
     TotalPages?: number
 }
 
+const PhaseController = new GenericController<OpenXDA.Types.Phase>(`${homePath}api/OpenXDA/Phase`, 'Name');
+const MeasurementTypeController = new GenericController<OpenXDA.Types.MeasurementType>(`${homePath}api/OpenXDA/MeasurementType`, 'Name');
+const MeasurementCharacteristicController = new GenericController<OpenXDA.Types.MeasurementCharacteristic>(`${homePath}api/OpenXDA/MeasurementCharacteristic`, 'Name');
 
 const ChannelScalingForm = (props: IProps) => {
-    const dispatch = useAppDispatch();
-
     const [multiplier, setMultiplier] = React.useState<IMultiplier>({ Voltage: 1, Current: 1 });
     const [Wrappers, setWrappers] = React.useState<ChannelScalingWrapper[]>([]);
 
-    const phases = useAppSelector(PhaseSlice.Data) as OpenXDA.Types.Phase[];
-    const measurementTypes = useAppSelector(MeasurmentTypeSlice.Data) as OpenXDA.Types.MeasurementType[];
-    const measurementCharacteristics = useAppSelector(MeasurementCharacteristicSlice.Data) as OpenXDA.Types.MeasurementCharacteristic[];
+    const { Data: phases, Status: pStatus } = useControllerFetch(PhaseController);
+    const { Data: measurementTypes, Status: mtStatus } = useControllerFetch(MeasurementTypeController);
+    const { Data: measurementCharacteristics, Status: mcStatus } = useControllerFetch(MeasurementCharacteristicController);
 
-    const pStatus = useAppSelector(PhaseSlice.Status) as Application.Types.Status;
-    const mtStatus = useAppSelector(MeasurmentTypeSlice.Status) as Application.Types.Status;
-    const mcStatus = useAppSelector(MeasurementCharacteristicSlice.Status) as Application.Types.Status;
     const [status, setStatus] = React.useState<Application.Types.Status>('idle');
 
     const [hover, setHover] = React.useState<('Reset' | 'None' | 'Replace' | 'Adjust')>('None');
@@ -99,21 +96,6 @@ const ChannelScalingForm = (props: IProps) => {
         localStorage.setItem('SystemCenter.ChannelScaling.' + props.Key + '.V', multiplier.Voltage.toString());
         localStorage.setItem('SystemCenter.ChannelScaling.' + props.Key + '.I', multiplier.Current.toString());
     }, [multiplier.Voltage, multiplier.Current]);
-
-    React.useEffect(() => {
-        if (pStatus == 'uninitiated' || pStatus == 'changed')
-            dispatch(PhaseSlice.Fetch());
-    }, [pStatus])
-
-    React.useEffect(() => {
-        if (mtStatus == 'uninitiated' || pStatus == 'changed')
-            dispatch(MeasurmentTypeSlice.Fetch());
-    }, [mtStatus])
-
-    React.useEffect(() => {
-        if (mcStatus == 'uninitiated' || pStatus == 'changed')
-            dispatch(MeasurementCharacteristicSlice.Fetch());
-    }, [mcStatus])
 
     React.useEffect(() => {
         initializeWrappers();

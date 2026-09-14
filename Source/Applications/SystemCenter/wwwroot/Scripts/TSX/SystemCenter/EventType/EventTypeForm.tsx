@@ -22,10 +22,11 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { useAppSelector, useAppDispatch } from '../hooks';
-import { Input, CheckBox, TextArea } from '@gpa-gemstone/react-forms';
-import { AssetTypeSlice, EventTypeAssetTypeSlice, EventTypeSlice  } from '../Store/Store';
+import { useAppSelector, useAppDispatch, useControllerFetch } from '../hooks';
+import { Input, CheckBox } from '@gpa-gemstone/react-forms';
+import { EventTypeAssetTypeSlice  } from '../Store/Store';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
+import { GenericController } from '@gpa-gemstone/react-interactive';
 
 interface IProps {
     Record: OpenXDA.Types.EventType,
@@ -33,6 +34,8 @@ interface IProps {
     setErrors?: (e: string[]) => void,
     setAssetTypeETs: (records: OpenXDA.Types.EventTypeAssetType[]) => void
 }
+
+const AssetTypeController = new GenericController<OpenXDA.Types.AssetType>(`${homePath}api/OpenXDA/AssetType`, 'Name');
 
 export default function EventTypeForm(props: IProps) {
     React.useEffect(() => {
@@ -80,8 +83,7 @@ function EventTypeAssetTypeForm(props: IRightProps) {
 
     const dispatch = useAppDispatch();
 
-    const assetTypes = useAppSelector(AssetTypeSlice.Data) as OpenXDA.Types.AssetType[];
-    const atStatus = useAppSelector(AssetTypeSlice.Status) as Application.Types.Status;
+    const { Data: assetTypes } = useControllerFetch(AssetTypeController);
 
     const eventTypeAssetTypeData = useAppSelector(EventTypeAssetTypeSlice.Data);
     const eventTypeAssettypeParentID = useAppSelector(EventTypeAssetTypeSlice.ParentID);
@@ -93,11 +95,6 @@ function EventTypeAssetTypeForm(props: IRightProps) {
     }, [eventTypeAssetTypeData])
 
     React.useEffect(() => { props.SetAssetTypeETs(etAt); }, [etAt]);
-
-    React.useEffect(() => {
-        if (atStatus == 'uninitiated' || atStatus == 'changed')
-            dispatch(AssetTypeSlice.Fetch());
-    }, [atStatus]);
 
     React.useEffect(() => {
         if (atetStatus == 'uninitiated' || atetStatus == 'changed' || eventTypeAssettypeParentID != props?.ID)

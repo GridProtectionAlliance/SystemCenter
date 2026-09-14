@@ -36,9 +36,8 @@ import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 import CapBankRelayAttributes from '../AssetAttribute/CapBankRelay';
 import { Search, Modal, LoadingIcon, ServerErrorIcon, TabSelector, SearchBar, GenericController } from '@gpa-gemstone/react-interactive';
 import { Paging, Table, Column } from '@gpa-gemstone/react-table';
-import { useAppDispatch, useAppSelector } from '../hooks';
+import { useAppDispatch, useAppSelector, useControllerFetch } from '../hooks';
 import { SelectAssetStatus, FetchAsset, SelectAssets } from '../Store/AssetSlice';
-import { AssetTypeSlice } from '../Store/Store';
 import DERAttributes from '../AssetAttribute/DER';
 import GenerationAttributes from '../AssetAttribute/Generation';
 import StationAuxAttributes from '../AssetAttribute/StationAux';
@@ -60,6 +59,7 @@ const extDBTabList = [
     { Label: 'Capacitor Bank Relay', Id:'CapacitorBankRelay'}
 ];
 const AssetController = new GenericController<SystemCenter.Types.DetailedAsset>(`${homePath}api/OpenXDA/ByRestrictedDetailedAsset`, "AssetName", true);
+const AssetTypeController = new GenericController<OpenXDA.Types.AssetType>(`${homePath}api/OpenXDA/AssetType`, 'Name');
 
 declare var homePath: string;
 
@@ -67,8 +67,7 @@ const ByAsset: Application.Types.iByComponent = (props) => {
     let navigate = useNavigate();
     const dispatch = useAppDispatch();
 
-    const assetType = useAppSelector(AssetTypeSlice.Data);
-    const assetTypeStatus = useAppSelector(AssetTypeSlice.Status);
+    const { Data: assetType } = useControllerFetch(AssetTypeController);
 
     const [data, setData] = React.useState<SystemCenter.Types.DetailedAsset[]>([]);
     const [ascending, setAscending] = React.useState<boolean>(true);
@@ -92,11 +91,6 @@ const ByAsset: Application.Types.iByComponent = (props) => {
     const [extDBTab, setExtDBTab] = React.useState<OpenXDA.Types.AssetTypeName>(getExtDBTab());
 
     const [assetErrors, setAssetErrors] = React.useState<string[]>([]);
-
-    React.useEffect(() => {
-        if (assetTypeStatus == 'changed' || assetTypeStatus == 'uninitiated')
-            dispatch(AssetTypeSlice.Fetch());
-    }, [assetTypeStatus]);
 
     React.useEffect(() => {
         if (assetType.length == 0)

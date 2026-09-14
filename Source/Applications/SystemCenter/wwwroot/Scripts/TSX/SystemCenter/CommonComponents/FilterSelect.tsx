@@ -24,11 +24,11 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { ByMeterSlice, ByAssetSlice, AssetTypeSlice, ByLocationSlice, CustomerSlice } from '../Store/Store';
+import { ByMeterSlice, ByAssetSlice, ByLocationSlice, CustomerSlice } from '../Store/Store';
 import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
-import { Search } from '@gpa-gemstone/react-interactive';
+import { Search, GenericController } from '@gpa-gemstone/react-interactive';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
-import { useAppDispatch, useAppSelector } from '../hooks';
+import { useAppSelector, useControllerFetch } from '../hooks';
 import { Column } from '@gpa-gemstone/react-table';
 
 declare var homePath: string;
@@ -46,10 +46,11 @@ interface IProps {
 
 type Data = (SystemCenter.Types.DetailedMeter | SystemCenter.Types.DetailedLocation | OpenXDA.Types.Customer |SystemCenter.Types.DetailedAsset);
 
+const AssetTypeController = new GenericController<OpenXDA.Types.AssetType>(`${homePath}api/OpenXDA/AssetType`, 'Name');
+
 export default function FilterSelect(props: IProps) {
-    const assetType = useAppSelector(AssetTypeSlice.Data);
-    const assetTypeStatus = useAppSelector(AssetTypeSlice.Status);
-    const dispatch = useAppDispatch();
+
+    const { Data: assetType } = useControllerFetch(AssetTypeController);
 
     const select = React.useMemo(() => {
         switch (props.Type) {
@@ -68,11 +69,6 @@ export default function FilterSelect(props: IProps) {
     React.useEffect(() => {
         setSelectedData(data.filter(i => props.Selected.has(i.ID)));
     }, [data, props.Selected]);
-
-    React.useEffect(() => {
-        if (assetTypeStatus == 'changed' || assetTypeStatus == 'uninitiated')
-            dispatch(AssetTypeSlice.Fetch());
-    }, [assetTypeStatus]);
 
     const closeCallback = React.useCallback((selected: Data[], confirmed: boolean) => {
         const newSelected = new Set<number>();

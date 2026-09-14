@@ -26,12 +26,11 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { useNavigate } from 'react-router-dom';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
-import { AssetTypeSlice } from '../Store/Store';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { Warning } from '@gpa-gemstone/react-interactive';
 import { ToolTip } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { useAppDispatch, useAppSelector } from '../hooks';
+import { useAppSelector } from '../hooks';
 import AssetSelect from '../Asset/AssetSelect';
 import { SelectRoles } from '../Store/UserSettings';
 
@@ -50,9 +49,6 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number }) {
     const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
     const [assetStatus, setAssetStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
-    const assetType = useAppSelector(AssetTypeSlice.Data);
-    const assetTypeStatus = useAppSelector(AssetTypeSlice.Status);
-    const dispatch = useAppDispatch();
 
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
     const roles = useAppSelector(SelectRoles);
@@ -91,11 +87,6 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number }) {
         }
     }, [props.AssetGroupID, refreshTrigger, ascending, page, sortKey]);
 
-    React.useEffect(() => {
-        if (assetTypeStatus == 'changed' || assetTypeStatus == 'uninitiated')
-            dispatch(AssetTypeSlice.Fetch());
-    }, [assetTypeStatus]);
-
     function saveItems(items: SystemCenter.Types.DetailedAsset[]) {
 
         let handle = $.ajax({
@@ -109,8 +100,6 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number }) {
         });
 
         handle.done(() => setRefreshTrigger(val => !val))
-
-
     }
 
     function removeItem(id: number) {

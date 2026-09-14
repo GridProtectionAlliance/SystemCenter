@@ -22,11 +22,11 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { SystemCenter } from '@gpa-gemstone/application-typings';
+import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import { Input, Select } from '@gpa-gemstone/react-forms';
-import { MeasurmentTypeSlice, MeasurementCharacteristicSlice, ValueListSlice, ValueListGroupSlice } from '../Store/Store';
-import { useAppSelector, useAppDispatch } from '../hooks';
-import { LoadingIcon } from '@gpa-gemstone/react-interactive';
+import { ValueListSlice, ValueListGroupSlice } from '../Store/Store';
+import { useAppSelector, useAppDispatch, useControllerFetch } from '../hooks';
+import { LoadingIcon, GenericController } from '@gpa-gemstone/react-interactive';
 
 interface IProps {
     Record: SystemCenter.Types.ChannelGroupDetails,
@@ -34,13 +34,13 @@ interface IProps {
     SetErrors?: (e: string[]) => void
 }
 
+const MeasurementTypeController = new GenericController<OpenXDA.Types.MeasurementType>(`${homePath}api/OpenXDA/MeasurementType`, 'Name');
+const MeasurementCharacteristicController = new GenericController<OpenXDA.Types.MeasurementCharacteristic>(`${homePath}api/OpenXDA/MeasurementCharacteristic`, 'Name');
+
 export default function ChannelGroupItemForm(props: IProps) {
     const dispatch = useAppDispatch();
-
-    const measurementTypeData = useAppSelector(MeasurmentTypeSlice.Data);
-    const measurementTypeStatus = useAppSelector(MeasurmentTypeSlice.Status);
-    const measurementCharacteristicData = useAppSelector(MeasurementCharacteristicSlice.Data);
-    const measurementCharacteristicStatus = useAppSelector(MeasurementCharacteristicSlice.Status);
+    const { Data: measurementTypeData, Status: measurementTypeStatus } = useControllerFetch(MeasurementTypeController);
+    const { Data: measurementCharacteristicData, Status: measurementCharacteristicStatus } = useControllerFetch(MeasurementCharacteristicController);
     const valueListData = useAppSelector(ValueListSlice.Data);
     const valueListStatus = useAppSelector(ValueListSlice.Status);
     const valueListGroupData = useAppSelector(ValueListGroupSlice.Data);
@@ -55,16 +55,6 @@ export default function ChannelGroupItemForm(props: IProps) {
         if (valueListStatus == 'uninitiated' || valueListStatus == 'changed')
             dispatch(ValueListSlice.Fetch());
     }, [valueListStatus]);
-
-    React.useEffect(() => {
-        if (measurementTypeStatus == 'uninitiated' || measurementTypeStatus == 'changed')
-            dispatch(MeasurmentTypeSlice.Fetch());
-    }, [measurementTypeStatus]);
-
-    React.useEffect(() => {
-        if (measurementCharacteristicStatus == 'uninitiated' || measurementCharacteristicStatus == 'changed')
-            dispatch(MeasurementCharacteristicSlice.Fetch());
-    }, [measurementCharacteristicStatus]);
 
     function Valid(field: keyof (SystemCenter.Types.ChannelGroupDetails)): boolean {
         if (field == 'DisplayName')

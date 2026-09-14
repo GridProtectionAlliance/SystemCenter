@@ -32,11 +32,10 @@ import BusAttributes from '../AssetAttribute/Bus';
 import CapBankAttributes from '../AssetAttribute/CapBank';
 import LineAttributes from '../AssetAttribute/Line';
 import TransformerAttributes from '../AssetAttribute/Transformer';
-import { useAppSelector, useAppDispatch } from '../hooks';
+import { useAppSelector, useAppDispatch, useControllerFetch } from '../hooks';
 import { FetchAsset, SelectAssets, SelectAssetStatus } from '../Store/AssetSlice';
-import { AssetTypeSlice } from '../Store/Store';
 import { getAssetWithAdditionalFields, editExistingAsset } from '../../../TS/Services/Asset';
-import { LoadingIcon, Modal, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { LoadingIcon, Modal, ServerErrorIcon, GenericController } from '@gpa-gemstone/react-interactive';
 import { ToolTip } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import GenerationAttributes from '../AssetAttribute/Generation';
@@ -46,6 +45,8 @@ import { SelectRoles } from '../Store/UserSettings';
 
 declare var homePath: string;
 const PagingID = 'LocationAssetPage';
+
+const AssetTypeController = new GenericController<OpenXDA.Types.AssetType>(`${homePath}api/OpenXDA/AssetType`, 'Name');
 
 function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.Element{
     let navigate = useNavigate();
@@ -67,21 +68,15 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
     const [lStatus, setLStatus] = React.useState<'error' | 'loading' | 'idle'>('idle');
 
     const aStatus = useAppSelector(SelectAssetStatus);
-    const atStatus = useAppSelector(AssetTypeSlice.Status);
-
-    const assetTypes = useAppSelector(AssetTypeSlice.Data);
     const allAssets = useAppSelector(SelectAssets);
+
+    const { Data: assetTypes, Status: atStatus } = useControllerFetch(AssetTypeController);
 
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
     const roles = useAppSelector(SelectRoles);
 
     const [page, setPage] = React.useState<number>(0);
     const [pageInfo, setPageInfo] = React.useState<{ RecordsPerPage: number, NumberOfPages: number, TotalRecords: number }>({ RecordsPerPage: 0, NumberOfPages: 0, TotalRecords: 0 });
-
-    React.useEffect(() => {
-        if (atStatus == 'uninitiated' || atStatus == 'changed')
-            dispatch(AssetTypeSlice.Fetch());
-    }, []);
 
     React.useEffect(() => {
         if (aStatus == 'uninitiated' || aStatus == 'changed')

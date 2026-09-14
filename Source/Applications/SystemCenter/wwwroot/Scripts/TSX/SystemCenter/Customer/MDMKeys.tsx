@@ -21,27 +21,20 @@
 //
 //******************************************************************************************************
 
-import { Application, OpenXDA, SystemCenter } from "@gpa-gemstone/application-typings";
+import { SystemCenter } from "@gpa-gemstone/application-typings";
 import { ReactIcons } from "@gpa-gemstone/gpa-symbols";
 import { Input, ToolTip } from "@gpa-gemstone/react-forms";
-import { Modal, Search } from "@gpa-gemstone/react-interactive";
+import { Modal, GenericController, LoadingScreen, ServerErrorIcon } from "@gpa-gemstone/react-interactive";
 import { Table, Column } from "@gpa-gemstone/react-table";
 import React from "react";
-import { useAppDispatch, useAppSelector } from "../hooks";
-import { LSCVSAccountSlice } from "../Store/Store";
+import { useAppSelector, useControllerFetch } from "../hooks";
 import { SelectRoles } from "../Store/UserSettings";
 
 interface IProps {CustomerID: number}
 
+const MDMKeyController = new GenericController<SystemCenter.Types.LSCVSAccount>(`${homePath}api/LSCVSAccount`, "AccountID", false);
+
 function MDMKeys(props: IProps) {
-
-    const searchStatus: Application.Types.Status = useAppSelector(LSCVSAccountSlice.SearchStatus);
-    const search: Search.IFilter<SystemCenter.Types.LSCVSAccount>[] = useAppSelector(LSCVSAccountSlice.SearchFilters);
-    const status: Application.Types.Status = useAppSelector(LSCVSAccountSlice.Status);
-    const data: SystemCenter.Types.LSCVSAccount[] = useAppSelector(LSCVSAccountSlice.SearchResults);
-    const parentID = useAppSelector(LSCVSAccountSlice.ParentID);
-    const dispatch = useAppDispatch();
-
 
     const emptyLSCVS = { ID: 0, AccountID: '', CustomerID: props.CustomerID };
     const [ascending, setAscending] = React.useState<boolean>(false);
@@ -49,23 +42,11 @@ function MDMKeys(props: IProps) {
     const [showAdd, setShowAdd] = React.useState<boolean>(false);
     const [sortField, setSortField] = React.useState<keyof SystemCenter.Types.LSCVSAccount>('AccountID');
     const [errors, setErrors] = React.useState<string[]>([]);
-
+    const [refreshCount, refreshData] = React.useState<number>(0);
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
     const roles = useAppSelector(SelectRoles);
 
-    React.useEffect(() => {
-        if (status === 'uninitiated' || status === 'changed' || parentID != props.CustomerID)
-            dispatch(LSCVSAccountSlice.Fetch(props.CustomerID));
-    }, [status, props.CustomerID, parentID]);
-
-    React.useEffect(() => {
-        if (searchStatus === 'uninitiated' || status === 'changed')
-            dispatch(LSCVSAccountSlice.DBSearch({ filter: search, sortField, ascending }));
-    }, [searchStatus, status]);
-
-    React.useEffect(() => {
-            dispatch(LSCVSAccountSlice.DBSearch({ filter: search, sortField, ascending }));
-    }, [ascending]);
+    const { Data: mdmKeys, Status: mdmKeyStatus } = useControllerFetch(MDMKeyController, sortField, ascending, props.CustomerID, refreshCount);
 
     React.useEffect(() => {
         const e: string[] = [];
@@ -87,6 +68,8 @@ function MDMKeys(props: IProps) {
 
     return (
         <>
+            <LoadingScreen Show={mdmKeyStatus === 'loading'} />
+            <ServerErrorIcon Show={mdmKeyStatus === 'error' } />
             <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                 <div className="card-header">
                     <div className="row">
@@ -99,7 +82,7 @@ function MDMKeys(props: IProps) {
                     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
                         <Table<SystemCenter.Types.LSCVSAccount>
                             TableClass="table table-hover"
-                            Data={data}
+                            Data={mdmKeys}
                             SortKey={sortField}
                             Ascending={ascending}
                             OnSort={(d) => {
@@ -140,7 +123,7 @@ function MDMKeys(props: IProps) {
                     ShowX={true}
                     CallBack={(conf, isBtn) => {
                         if (conf && errors.length == 0)
-                            dispatch(LSCVSAccountSlice.DBAction({ verb: 'POST', record: newLSCVSAccount }))
+                            MDMKeyController.DBAction('POST', newLSCVSAccount).then(() => refreshData(x => x + 1));
                         setShowAdd(false);
                     }}
                     DisableConfirm={errors.length > 0}
