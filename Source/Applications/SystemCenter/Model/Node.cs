@@ -42,8 +42,8 @@ namespace SystemCenter.Model
     FROM
 	    Node 
 		    JOIN NodeType ON Node.NodeTypeID = NodeType.ID
-		    LEFT JOIN HostRegistration hostRegistration ON Node.HostRegistrationID = HostRegistration.ID
-		    LEFT JOIN HostRegistration assignedHostRegistration ON Node.AssignedHostRegistrationID = HostRegistration.ID
+		    LEFT JOIN HostRegistration hostRegistration ON Node.HostRegistrationID = hostRegistration.ID
+		    LEFT JOIN HostRegistration assignedHostRegistration ON Node.AssignedHostRegistrationID = assignedHostRegistration.ID
     ")]
     [AllowSearch]
     public class Node
