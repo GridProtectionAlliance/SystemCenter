@@ -618,8 +618,13 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\Restrictions\EditionLockPage.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\Restrictions\EditionLockModal.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\AssetGroupWindow.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\ControllerSelectPopup.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\ExtDBTaskStatusModal.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\FileGroupAnalysisJobPriority.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\GenericForm.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\GenericInfo.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\GenericRecord.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\GenericRelation.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\ProcessingStatus.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\Restrictions\EditionRestrictionTooltip.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\Restrictions\RoleRestrictionTooltip.tsx" />
@@ -818,6 +823,7 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Store\AdditionalUserFieldSlice.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Matcher.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Store\ConfigurationSlice.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\UserSettings.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\User\AdditionalUserFieldsWindow.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\User\UserGroup\ByUserGroup.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\User\User\Permissions.tsx" />
