@@ -23,113 +23,26 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { useAppDispatch, useAppSelector } from '../hooks';
-import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-import { RemoteXDAInstanceSlice } from '../Store/Store';
-import { LoadingScreen, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
-import { ToolTip } from '@gpa-gemstone/react-forms';
-import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import { RemoteXDAInstanceForm} from './RemoteXDAInstanceForm';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
+import { RemoteXDAInstanceForm } from './RemoteXDAInstanceForm';
+import GenericInfo from '../CommonComponents/GenericInfo';
 
-interface IProps { ID: number }
-
+interface IProps {
+    RemoteXDAInsance: OpenXDA.Types.RemoteXDAInstance,
+    Patch: (record: OpenXDA.Types.RemoteXDAInstance) => void
+}
 
 const SystemSettingsTab = (props: IProps) => {
-    const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
-
-    const dispatch = useAppDispatch();
-    const instStatus = useAppSelector(RemoteXDAInstanceSlice.Status) as Application.Types.Status;
-    const connection = useAppSelector((state) => RemoteXDAInstanceSlice.Datum(state, props.ID));
-
-    const [newInstErrors, setNewInstErrors] = React.useState<string[]>([]);
-    const [baseInstance, setBaseInstance] = React.useState<OpenXDA.Types.RemoteXDAInstance>(connection);
-    const [formInstance, setFormInstance] = React.useState<OpenXDA.Types.RemoteXDAInstance>(connection);
-
-
-    React.useEffect(() => {
-        if (instStatus === 'uninitiated' || instStatus === 'changed')
-            dispatch(RemoteXDAInstanceSlice.Fetch());
-    }, [dispatch, instStatus]);
-
-    React.useEffect(() => {
-        setFormInstance(connection);
-        setBaseInstance(connection);
-    }, [connection]);
-
-    if (connection == null)
-        return null;
-
-    let cardBody;
-    if (instStatus === 'error') {
-        cardBody = <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
-    } else if (instStatus === 'loading') {
-        cardBody = <LoadingScreen Show={true} />
-    } else {
-        cardBody = <RemoteXDAInstanceForm BaseInstance={baseInstance} SetInstance={setFormInstance} SetErrors={setNewInstErrors} />
-    }
-
     return (
-        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            <div className="card-header">
-                <div className="row">
-                    <div className="col">
-                        <h4>Remote openXDA Instance Connection Information:</h4>
-                    </div>
-                </div>
-            </div>
-            <div className="card-body" style={{ flex: 1, overflowY: 'auto' }}>
-                {cardBody}
-            </div>
-            <div className="card-footer">
-                <div className="btn-group mr-2">
-                    <button
-                        className={"btn btn-primary" + ((newInstErrors.length !== 0 || _.isEqual(baseInstance, formInstance)) ? ' disabled' : '')}
-                        type="submit"
-                        onClick={() => {
-                            if (newInstErrors.length === 0 && !_.isEqual(baseInstance, formInstance)) {
-                                dispatch(RemoteXDAInstanceSlice.DBAction({ verb: 'PATCH', record: formInstance }));
-                            }
-                        }}
-                        data-tooltip='submit'
-                        onMouseEnter={() => setHover('submit')}
-                        onMouseLeave={() => setHover('none')}>
-                        Save Changes
-                    </button>
-                </div>
-                <ToolTip
-                    Show={(newInstErrors.length != 0) && hover == 'submit'}
-                    Position={'top'}
-                    Target={"submit"}>
-                    {newInstErrors.map((t, i) =>
-                        <p key={i}> <ReactIcons.CrossMark Color="var(--danger)" /> {t} </p>
-                    )}
-                </ToolTip>
-                <div className="btn-group mr-2">
-                    <button
-                        className={"btn btn-warning" + (_.isEqual(baseInstance, formInstance) ? ' disabled' : '')}
-                        data-tooltip="clear" onClick={() => {
-                            setBaseInstance(_.cloneDeep(connection));
-                        }}
-                        onMouseEnter={() => setHover('clear')}
-                        onMouseLeave={() => setHover('none')}>
-                        Clear Changes
-                    </button>
-                </div>
-                <ToolTip
-                    Show={!_.isEqual(baseInstance, formInstance) && hover == 'clear'}
-                    Position={'top'}
-                    Target={"clear"}>
-
-                    {baseInstance.Name != formInstance.Name ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to Name will be discarded.</p> : null}
-                    {baseInstance.Address != formInstance.Address ? <p> <ReactIcons.Warning Color= "var(--warning)" /> Changes to Address will be discarded.</p> : null}
-                    {baseInstance.Frequency != formInstance.Frequency ? <p> <ReactIcons.Warning Color="var(--warning)" /> Changes to Frequency will be discarded.</p> : null}
-                </ToolTip>
-            </div>
-
-        </div>
-    );
-
-
+        <GenericInfo<OpenXDA.Types.RemoteXDAInstance>
+            Record={props.RemoteXDAInsance}
+            RecordType={"Remote XDA Instance"}
+            Patch={props.Patch}
+            Forms={[(record, setter, setErrors) => <RemoteXDAInstanceForm BaseInstance={record} SetInstance={setter} SetErrors={setErrors} />]}
+            AdditionalErrors={[]}
+            AdditionalWarnings={[]}
+        />
+    )
 }
 
 export default SystemSettingsTab;

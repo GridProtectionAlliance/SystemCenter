@@ -23,51 +23,32 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { useAppDispatch, useAppSelector } from '../hooks';
-import { Table, Column, Paging } from '@gpa-gemstone/react-table';
-import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
-import { RemoteXDAAssetSlice, ByAssetSlice } from '../Store/Store';
-import { LoadingScreen, Modal, Search, ServerErrorIcon, Warning, GenericController } from '@gpa-gemstone/react-interactive';
-import { ToolTip } from '@gpa-gemstone/react-forms';
+import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
+import { Search, GenericController } from '@gpa-gemstone/react-interactive';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { BlankRemoteXDAAsset, RemoteAssetForm } from './RemoteAssetForm';
 import AssetSelect from '../Asset/AssetSelect';
-import { SelectRoles } from '../Store/UserSettings';
+import GenericRelation from '../CommonComponents/GenericRelation';
+import { SystemCenter as SC } from '../global';
 
 interface IProps { ID: number }
 
+const RemoteXDAAssetController = new GenericController<OpenXDA.Types.RemoteXDAAsset>(`${homePath}api/OpenXDA/RemoteXDAAsset`, "LocalAssetName", false);
+
+const Columns: SC.IByCol<OpenXDA.Types.RemoteXDAAsset>[] = [
+    { Field: "LocalAssetName", Label: "Local Name", Type: "string" },
+    { Field: "LocalAssetKey", Label: "Local Key", Type: "string" },
+    { Field: "RemoteAssetName", Label: "Remote Name", Type: "string" },
+    { Field: "RemoteAssetKey", Label: "Remote Key", Type: "string" },
+    { Field: "Obsfucate", Label: "Obfuscated", Type: "string", Content: ({ item }) => item.Obsfucate ? <ReactIcons.CheckMark Color="var(--success)" /> : null },
+    { Field: "Synced", Label: "Synced", Type: "string", Content: ({ item }) => item.Synced ? <ReactIcons.CheckMark Color="var(--success)" /> : null }
+]
 
 const RemoteAssetTab = (props: IProps) => {
-    // Display Remote Assets Consts
-    const [sortKey, setSortKey] = React.useState<keyof OpenXDA.Types.RemoteXDAAsset>('LocalAssetName');
-    const [ascending, setAscending] = React.useState<boolean>(true);
-    const dispatch = useAppDispatch();
-    const remoteAssetStatus = useAppSelector(RemoteXDAAssetSlice.Status);
-    const [searchResults, setSearchResults] = React.useState<OpenXDA.Types.RemoteXDAAsset[]>([]);
-    const [searchState, setSearchState] = React.useState<Application.Types.Status>('uninitiated');
+    const [assetList, setAssetList] = React.useState<SystemCenter.Types.DetailedAsset[]>([]);
+    const [showAddAssets, setShowAddAssets] = React.useState<boolean>(false);
+    const [refreshCount, refreshData] = React.useState<number>(0);
 
-    const [page, setPage] = React.useState<number>(0);
-    const [totalPages, setTotalPages] = React.useState<number>(0);
-    const [totalRecords, setTotalRecords] = React.useState<number>(0);
-    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
-    const [refreshTrigger, setRefreshTrigger] = React.useState<boolean>(false);
-
-    // Edit and Delete Form Consts
-    const [newInstErrors, setNewInstErrors] = React.useState<string[]>([]);
-    const [remoteAsset, setRemoteAsset] = React.useState<OpenXDA.Types.RemoteXDAAsset>(BlankRemoteXDAAsset);
-    const [selectedAsset, setSelectedAsset] = React.useState<OpenXDA.Types.RemoteXDAAsset>(BlankRemoteXDAAsset);
-    const [showEdit, setShowEdit] = React.useState<(boolean)>(false);
-    const [showDelete, setShowDelete] = React.useState<(boolean)>(false);
-
-    // Add New Asset Consts
-    const assetStatus = useAppSelector(ByAssetSlice.Status) as Application.Types.Status;
-    const [assetList, setAssetList] = React.useState<Array<SystemCenter.Types.DetailedAsset>>([]);
-    const [showAddAssets, setShowAddAssets] = React.useState<(boolean)>(false);
-
-    const roles = useAppSelector(SelectRoles);
-    const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
-
-    const remoteAssetController = React.useMemo(() => new GenericController<OpenXDA.Types.RemoteXDAAsset>(`${homePath}api/OpenXDA/RemoteXDAAsset`, "LocalAssetName", false), [])
     const filters: Search.IFilter<OpenXDA.Types.RemoteXDAAsset>[] = React.useMemo(() => [{
         FieldName: 'RemoteXDAInstanceID',
         SearchText: props.ID.toString(),
@@ -76,239 +57,21 @@ const RemoteAssetTab = (props: IProps) => {
         IsPivotColumn: false
     }], [props.ID])
 
-    React.useEffect(() => {
-        if (remoteAssetStatus === 'uninitiated' || remoteAssetStatus === 'changed')
-            dispatch(RemoteXDAAssetSlice.Fetch());
-    }, [dispatch, remoteAssetStatus]);
-
-    React.useEffect(() => {
-        setSearchState('loading');
-        const handle = remoteAssetController.PagedSearch(filters, sortKey, ascending, page);
-        handle.done((d) => {
-            setSearchResults(JSON.parse(d.Data as unknown as string));
-            setTotalPages(d.NumberOfPages);
-            setTotalRecords(d.TotalRecords);
-            setRecordsPerPage(d.RecordsPerPage);
-            if (page >= d.NumberOfPages)
-                setPage(Math.max(d.NumberOfPages - 1, 0));
-            setSearchState('idle')
-        })
-        handle.fail(() => setSearchState("error"));
-        return () => {
-            if (handle != null && handle.abort != null) handle.abort();
-        }
-    }, [filters, sortKey, ascending, page, remoteAssetController, refreshTrigger])
-
-    React.useEffect(() => {
-        if (assetStatus === 'uninitiated' || assetStatus === 'changed')
-            dispatch(ByAssetSlice.Fetch());
-    }, [dispatch, assetStatus]);
-
-    function isEditable(item: OpenXDA.Types.RemoteXDAAsset): boolean {
-        return item.RemoteXDAAssetID <= 0;
-    }
-
-    function hasPermissions(): boolean {
-        if (roles.indexOf('Administrator') < 0)
-            return false;
-        return true;
-    }
-
-    let cardBody;
-    if (remoteAssetStatus === 'error') {
-        cardBody = <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
-    } else if (remoteAssetStatus === 'loading') {
-        cardBody = <LoadingScreen Show={true} />
-    } else {
-        cardBody =
-            <>
-            <div className="row d-flex flex-column" style={{ flex: 1, overflow: 'hidden' }}>
-            <Table<OpenXDA.Types.RemoteXDAAsset>
-                TableClass="table table-hover"
-                Data={searchResults}
-                SortKey={sortKey}
-                Ascending={ascending}
-                OnSort={(d) => {
-                    if (d.colKey == 'Edit' || d.colKey == 'Delete') return;
-                    if (d.colKey === sortKey)
-                        setAscending(!ascending);
-                    else {
-                        setAscending(true);
-                        setSortKey(d.colField);
-                    }
-                }}
-                TheadStyle={{ fontSize: 'smaller' }}
-                RowStyle={{ fontSize: 'smaller' }}
-                Selected={(item) => false}
-                KeySelector={(item) => item.ID}
-            >
-                <Column<OpenXDA.Types.RemoteXDAAsset>
-                    Key={'LocalAssetName'}
-                    AllowSort={true}
-                    Field={'LocalAssetName'}
-                    HeaderStyle={{ width: 'auto' }}
-                    RowStyle={{ width: 'auto' }}
-                > Local Name
-                </Column>
-                <Column<OpenXDA.Types.RemoteXDAAsset>
-                    Key={'LocalAssetKey'}
-                    AllowSort={true}
-                    Field={'LocalAssetKey'}
-                    HeaderStyle={{ width: 'auto' }}
-                    RowStyle={{ width: 'auto' }}
-                > Local Key
-                </Column>
-                <Column<OpenXDA.Types.RemoteXDAAsset>
-                    Key={'RemoteAssetName'}
-                    AllowSort={true}
-                    Field={'RemoteAssetName'}
-                    HeaderStyle={{ width: 'auto' }}
-                    RowStyle={{ width: 'auto' }}
-                > Remote Name
-                </Column>
-                <Column<OpenXDA.Types.RemoteXDAAsset>
-                    Key={'RemoteAssetKey'}
-                    AllowSort={true}
-                    Field={'RemoteAssetKey'}
-                    HeaderStyle={{ width: 'auto' }}
-                    RowStyle={{ width: 'auto' }}
-                > Remote Key
-                </Column>
-                <Column<OpenXDA.Types.RemoteXDAAsset>
-                    Key={'Obsfucate'}
-                    AllowSort={true}
-                    Field={'Obsfucate'}
-                    HeaderStyle={{ width: 'auto' }}
-                    RowStyle={{ width: 'auto' }}
-                    Content={({ item }) => item.Obsfucate ? <ReactIcons.CheckMark Color="var(--success)" /> : null }
-                > Obfuscated
-                </Column>
-                <Column<OpenXDA.Types.RemoteXDAAsset>
-                    Key={'Synced'}
-                    AllowSort={true}
-                    Field={'Synced'}
-                    HeaderStyle={{ width: 'auto' }}
-                    RowStyle={{ width: 'auto' }}
-                    Content={({ item }) => item.Synced ? <ReactIcons.CheckMark Color="var(--success)" /> : null}
-                > Synced
-                </Column>
-                <Column<OpenXDA.Types.RemoteXDAAsset>
-                    Key={'Edit'}
-                    AllowSort={false}
-                    HeaderStyle={{ width: '10%' }}
-                    RowStyle={{ width: '10%' }}
-                    Content={({ item }) => (isEditable(item) ?
-                        <button
-                            className={"btn btn-edit" + (isEditable(item) ? '' : ' disabled') + (hasPermissions() ? '' : ' disabled')}
-                            onClick={(e) => {
-                                if (hasPermissions()) {
-                                    e.preventDefault();
-                                    if (isEditable(item)) {
-                                        setSelectedAsset(item);
-                                        setShowEdit(true);
-                                    }
-                                }
-                            }}>
-                            <span><ReactIcons.Pencil Color="var(--warning)" Size={20} /></span>
-                        </button> : null)
-                    }
-                > <p></p>
-                </Column>
-                <Column<OpenXDA.Types.RemoteXDAAsset>
-                    Key={'Delete'}
-                    AllowSort={false}
-                    HeaderStyle={{ width: '10%' }}
-                    RowStyle={{ width: '10%' }}
-                    Content={({ item }) => (isEditable(item) ?
-                        <button
-                            className={"btn btn-delete" + (isEditable(item) ? '' : ' disabled') + (hasPermissions() ? '' : ' disabled')}
-                            onClick={(e) => {
-                                if (hasPermissions()) {
-                                    e.preventDefault();
-                                    if (isEditable(item)) {
-                                        setSelectedAsset(item);
-                                        setShowDelete(true);
-                                    }
-                                }
-                            }}>
-                            <span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span>
-                        </button> : null)
-                    }
-                > <p></p>
-                </Column>
-            </Table>
-            </div>
-            <div className="row">
-                <div className="col">
-                    <Paging
-                        Current={page + 1}
-                        SetPage={(p) => setPage(p - 1)}
-                        Total={totalPages}
-                    />
-                </div>
-            </div>
-            </>
-    }
-
     return (
-        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            <div className="card-header">
-                <div className="row">
-                    <div className="col">
-                        <h4>Remote openXDA Assets:</h4>
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col">
-                        <p style={{ marginTop: 2, marginBottom: 2 }}>
-                            {searchState === 'error' ? 'Could not complete Search' :
-                                searchState === 'loading' ? 'Loading...' :
-                                    `Displaying Asset(s) ${totalRecords > 0 ? (recordsPerPage * page + 1) : 0} - ${recordsPerPage * page + searchResults.length} out of ${totalRecords}`}
-                        </p>
-                    </div>
-            </div>
-            </div>
-            <div className="card-body" style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
-                {cardBody}
-            </div>
-            <div className="card-footer">
-                <div className="add-new-asset">
-                    <button
-                        className={"btn btn-info" + (hasPermissions() ? '' : ' disabled')}
-                        type="submit" data-tooltip='AddAssets' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}
-                        onClick={(e) => {
-                            if (hasPermissions()) {
-                                e.preventDefault();
-                                setShowAddAssets(true);
-                            }
-                        }}>
-                        Add Assets
-                    </button>
-                </div>
-                <ToolTip Show={hover == 'submit' && !hasPermissions()} Position={'top'} Target={"AddAssets"}>
-                    <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
-                </ToolTip>
-            </div>
-            <Warning Title={"Delete " + (selectedAsset?.RemoteXDAAssetKey ?? "Remote Asset")} Show={showDelete} Message={"Are you sure you want to delete the Remote Asset for " + (selectedAsset?.LocalAssetName ?? "No Local Name") + "?"}
-                CallBack={(conf) => {
-                    if (conf) remoteAssetController.DBAction('DELETE',selectedAsset).then(() => setRefreshTrigger(val => !val));
-                    setShowDelete(false);
-                }} />
-            <Modal Show={showEdit} Title={'Edit ' + (selectedAsset?.LocalAssetName ?? 'Remote Asset')}
-                ShowCancel={true}
-                CallBack={(conf) => {
-                    if (conf) remoteAssetController.DBAction('PATCH', remoteAsset).then(() => setRefreshTrigger(val => !val));
-                    setShowEdit(false);
-                }}
-                DisableConfirm={newInstErrors.length > 0}
-                ShowX={true}
-                Size={"lg"}
-                ConfirmShowToolTip={newInstErrors.length > 0}
-                ConfirmToolTipContent={
-                    newInstErrors.map((t, i) => <p key={i}> <ReactIcons.CrossMark Color="var(--danger)" /> {t} </p>)
-                }>
-                <RemoteAssetForm OriginalAsset={selectedAsset} SetRemoteAsset={setRemoteAsset} SetErrors={setNewInstErrors} />
-            </Modal>
+        <>
+            <GenericRelation<OpenXDA.Types.RemoteXDAAsset>
+                Controller={RemoteXDAAssetController}
+                RecordType={'Remote XDA Asset'}
+                Columns={Columns}
+                Filters={filters}
+                IsEditable={(item) => item.RemoteXDAAssetID <= 0}
+                DeleteColumn={true}
+                GetName={(record) => record.LocalAssetName}
+                BlankRecord={BlankRemoteXDAAsset}
+                RefreshCount={refreshCount}
+                AddNew={() => setShowAddAssets(true)}
+                EditForm={(record, setter, setErrors) => <RemoteAssetForm OriginalAsset={record} SetRemoteAsset={setter} SetErrors={setErrors} /> }
+            />
             <AssetSelect Type='multiple' StorageID='RemoteAssetTab' ShowModal={showAddAssets} SelectedAssets={assetList}
                 Title={"Add Assets to Remote openXDA Instance:"}
                 OnCloseFunction={(selected, conf) => {
@@ -330,13 +93,12 @@ const RemoteAssetTab = (props: IProps) => {
                             RemoteAssetName: "",
                             RemoteAssetKey: ""
                         }
-                        remoteAssetController.DBAction("POST", newRemote).then(() => setRefreshTrigger(val => !val));
+                        RemoteXDAAssetController.DBAction("POST", newRemote).then(() => refreshData(x => x+1));
                     });
                 }} />
-        </div>
-    );
-
-
+        </>
+    )
+    
 }
 
 export default RemoteAssetTab;
