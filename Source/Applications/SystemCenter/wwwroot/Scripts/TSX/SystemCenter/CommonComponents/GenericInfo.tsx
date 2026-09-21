@@ -28,14 +28,44 @@ import { ToolTip } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 
 interface IProps<T> {
+    /**
+     * The record as it exists in the database.
+     */
     Record: T
+    /**
+     * User-facing name for the type of record.
+     */
     RecordType: string
+    /**
+     * Callback for saving changes to the record
+     * @param record
+     * @returns
+     */
     Patch: (record: T) => void
+    /**
+     * Callback for clearing changes to the record.
+     * @returns
+     */
     Clear?: () => void
+    /**
+     * Forms to display within the tab.
+     */
     Forms: Array<(record: T, setter: React.Dispatch<React.SetStateAction<T>>, setErrors: React.Dispatch<React.SetStateAction<string[]>>, setChanged: React.Dispatch<React.SetStateAction<string[]>>) => React.ReactNode>
+    /**
+     * Errors outside of the record of type T. For example, additional fields would propagate their errors through this list.
+     */
     AdditionalErrors: string[] 
+    /**
+     * Warnings of changed fields outside of the record of type T. For example, changed additional fields would add a warning to this list.
+     */
     AdditionalWarnings: string[]
 }
+
+/**
+ * A generic tab for record of type T for viewing and editing fields of the record.
+ * @param props
+ * @returns
+ */
 function GenericInfo<T,>(props: React.PropsWithChildren<IProps<T>>) {
     const [record, setRecord] = React.useState<T>(props.Record);
     const [warnings, setWarning] = React.useState<string[]>([]);

@@ -35,26 +35,90 @@ interface U {
 }
 
 interface IProps<T extends U> {
+    /**
+     * User-facing name for the relation, i.e. Customer Asset or Remote XDA Meter 
+     */
     RecordType: string
+    /**
+     * Controller for relation.
+     */
     Controller: GenericController<T>
+    /**
+     * Default filters for the table.
+     */
     Filters?: Search.IFilter<T>[]
-    Ascending?: boolean
+    /**
+     * Default sort field for the table. If not provided, uses the default sort property of the controller.
+     */
     DefaultSort?: keyof T
+    /**
+     * ParentID for the table.
+     */
     ParentID?: string | number
+    /**
+     * Relation table's columns, except for the edit and delete columns.
+     */
     Columns: SC.IByCol<T>[]
+    /**
+     * If provided, will add an edit column to the table, which displays the ReactElement resulting from this function.
+     * 
+     * @param record
+     * @param recordSetter
+     * @param setErrors
+     * @returns
+     */
     EditForm?: (record: T, recordSetter: (record: T) => void, setErrors: (errors: string[]) => void) => React.ReactElement;
+    /**
+     * Whether or not to include a delete column.
+     */
     DeleteColumn?: boolean
+    /**
+     * If provided, adds an "Add New" button to the relation, and uses this prop as the callback.
+     * @returns
+     */
     AddNew?: () => void
+    /**
+     * A callback to push search results up to parent component.
+     * @param results
+     * @returns
+     */
     SetSearchResults?: (results: T[]) => void
+    /**
+     * Function to use to determine whether or not a user may edit a relation.
+     * @param item
+     * @returns
+     */
     IsEditable: (item: T) => boolean
+    /**
+     * Function to derive the user-facing name of the relation from the relation's record.
+     * @param record
+     * @returns
+     */
     GetName: (record: T) => string
+    /**
+     * Refresh trigger for the table.
+     */
     RefreshCount?: number
+    /**
+     * Blank record containing default values for the form provided in "Edit Form."
+     */
     BlankRecord: T
 }
 
+/**
+ * A tab for a System Center record for a record's relation (of type T) to other records.
+ * Includes a sortable and paged table in the tabbed-card layout, with settings for a button to add new relations,
+ * and also columns that allow for deleting or editing existing relations.
+ * For example, an Asset Group record might have relation tabs for Meters, Assets, and Asset Groups,
+ * each of which would feature a sortable and paged table of records in that group.
+ * If there are special attributes to the relation, or if the user simply wants to edit the records in this context,
+ * we can provide that functionality with the edit column. 
+ * @param props
+ * @returns
+ */
 function GenericRelation<T extends U>(props: IProps<T>) {
     const [filters, setFilters] = React.useState<Search.IFilter<T>[]>(props.Filters ?? []);
-    const [ascending, setAscending] = React.useState<boolean>(props.Ascending ?? true);
+    const [ascending, setAscending] = React.useState<boolean>(props.Controller.Ascending);
     const [sortField, setSortField] = React.useState<keyof T>(props.DefaultSort ?? props.Controller.DefaultSort);
     const [page, setPage] = React.useState<number>(0);
     const [hover, setHover] = React.useState<string>("");
@@ -62,8 +126,8 @@ function GenericRelation<T extends U>(props: IProps<T>) {
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
     const [showEdit, setShowEdit] = React.useState<boolean>(false);
     const [selectedRecord, setSelectedRecord] = React.useState<T | null>(null);
-    const [newRecord, setNewRecord] = React.useState<T>(props.BlankRecord);
-    const [newRecordErrors, setNewRecordErrors] = React.useState<string[]>([]);
+    const [editRecord, setEditRecord] = React.useState<T>(props.BlankRecord);
+    const [editRecordErrors, setEditRecordErrors] = React.useState<string[]>([]);
 
     const { Data: pagedData, Status: pagedStatus, RecordsPerPage: recordsPerPage, TotalPages: totalPages, TotalRecords: totalRecords } = usePagedSearch<T>(props.Controller, filters, sortField, ascending, page, props.ParentID, refreshCount);
 
@@ -246,17 +310,17 @@ function GenericRelation<T extends U>(props: IProps<T>) {
                     <Modal Show={showEdit} Title={'Edit ' + (selectedRecord != null ? props.GetName(selectedRecord) : props.RecordType)}
                         ShowCancel={true}
                         CallBack={(conf) => {
-                            if (conf) props.Controller.DBAction('PATCH', newRecord).then(() => refreshData(x => x + 1));
+                            if (conf) props.Controller.DBAction('PATCH', editRecord).then(() => refreshData(x => x + 1));
                             setShowEdit(false);
                         }}
-                        DisableConfirm={newRecordErrors.length > 0}
+                        DisableConfirm={editRecordErrors.length > 0}
                         ShowX={true}
                         Size={"lg"}
-                        ConfirmShowToolTip={newRecordErrors.length > 0}
+                        ConfirmShowToolTip={editRecordErrors.length > 0}
                         ConfirmToolTipContent={
-                            newRecordErrors.map((t, i) => <p key={i}> <ReactIcons.CrossMark Color="var(--danger)" /> {t} </p>)
+                            editRecordErrors.map((t, i) => <p key={i}> <ReactIcons.CrossMark Color="var(--danger)" /> {t} </p>)
                         }>
-                        {props.EditForm(selectedRecord, setNewRecord, setNewRecordErrors)}
+                        {props.EditForm(selectedRecord, setEditRecord, setEditRecordErrors)}
                     </Modal>
                     : null}
             </div>
