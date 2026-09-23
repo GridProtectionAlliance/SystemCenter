@@ -602,6 +602,7 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\FawgLineSegmentWizard\TapSelect.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\SourceImpedanceWindow.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\AdditionalFieldsKeyModal.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetGroups\AssetGroupRelation.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\AdditionalFieldsValueField.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ChannelGroup\ByChannelGroup.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ChannelGroup\ChannelGroupItemForm.tsx" />
@@ -632,6 +633,7 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\StatusDetails.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\StatusGroup.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\StatusItem.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Customer\CustomerRelation.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\DeviceHealthReport\AppStatus.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDBTable.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDBTableFields.tsx" />
