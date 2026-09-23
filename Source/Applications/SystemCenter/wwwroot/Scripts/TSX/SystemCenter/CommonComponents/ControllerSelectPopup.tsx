@@ -75,7 +75,12 @@ export default function ControllerSelectPopup<T extends U>(props: IProps<T>) {
     }
 
     return (<>
-        <Modal Show={props.Show} Title={props.Title} ShowX={true} Size={'xlg'} CallBack={(conf) => props.OnClose(selectedData, conf)}
+        <Modal
+            Show={props.Show}
+            Title={props.Title}
+            ShowX={true}
+            Size={'xlg'}
+            CallBack={(conf) => props.OnClose(selectedData, conf)}
             DisableConfirm={props.MinSelection !== undefined && selectedData.length < props.MinSelection || (props.DisableConfirm ?? false)}
             ConfirmShowToolTip={props.MinSelection !== undefined && selectedData.length < props.MinSelection}
             ConfirmToolTipContent={<p><ReactIcons.CrossMark /> At least {props.MinSelection} items must be selected. </p>}
