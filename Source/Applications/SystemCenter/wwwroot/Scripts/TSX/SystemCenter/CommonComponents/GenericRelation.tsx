@@ -19,7 +19,7 @@
 //  09/16/2026 - Natalie Beatty
 //       Generated original version of source code.
 //
-//******************************************************************************************************s
+//******************************************************************************************************
 
 import * as React from 'react';
 import { GenericController, Search, LoadingScreen, ServerErrorIcon, Warning, Modal } from '@gpa-gemstone/react-interactive';
@@ -197,52 +197,52 @@ function GenericRelation<T extends U>(props: IProps<T>) {
                                 >{col.Label}
                                 </Column>
                             ))
-                    }
-                    {props.DeleteColumn ?? false ? <Column<T>
-                        Key={'Delete'}
-                        AllowSort={false}
-                        HeaderStyle={{ width: '10%' }}
-                        RowStyle={{ width: '10%' }}
-                        Content={({ item }) => (
-                            (props.IsEditable != null ? props.IsEditable(item) : true) ?
-                            <button
+                        }
+                        {props.DeleteColumn ?? false ? <Column<T>
+                            Key={'Delete'}
+                            AllowSort={false}
+                            HeaderStyle={{ width: '10%' }}
+                            RowStyle={{ width: '10%' }}
+                            Content={({ item }) => (
+
+                                <button
                                     className={"btn btn-delete" + (props.IsEditable(item) ? '' : ' disabled') + (hasPermissions() ? '' : ' disabled')}
-                                onClick={(e) => {
-                                    if (hasPermissions()) {
-                                        e.preventDefault();
-                                        if (props.IsEditable(item)) {
-                                            setSelectedRecord(item);
-                                            setShowDelete(true);
+                                    onClick={(e) => {
+                                        if (hasPermissions()) {
+                                            e.preventDefault();
+                                            if (props.IsEditable(item)) {
+                                                setSelectedRecord(item);
+                                                setShowDelete(true);
+                                            }
                                         }
-                                    }
-                                }}>
-                                <span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span>
-                            </button> : null)
-                        }
-                    > <p></p>
-                    </Column> : null}
-                    {props.EditForm != null ? <Column<T>
-                        Key={'Edit'}
-                        AllowSort={false}
-                        HeaderStyle={{ width: '10%' }}
-                        RowStyle={{ width: '10%' }}
-                        Content={({ item }) => (props.IsEditable(item) ?
-                            <button
-                                className={"btn btn-edit" + (props.IsEditable(item) ? '' : ' disabled') + (hasPermissions() ? '' : ' disabled')}
-                                onClick={(e) => {
-                                    if (hasPermissions()) {
-                                        e.preventDefault();
-                                        if (props.IsEditable(item)) {
-                                            setSelectedRecord(item);
-                                            setShowEdit(true);
+                                    }}>
+                                    <span><ReactIcons.TrashCan Color="var(--danger)" Size={20} /></span>
+                                </button>)
+                            }
+                        > <p></p>
+                        </Column> : null}
+                        {props.EditForm != null ? <Column<T>
+                            Key={'Edit'}
+                            AllowSort={false}
+                            HeaderStyle={{ width: '10%' }}
+                            RowStyle={{ width: '10%' }}
+                            Content={({ item }) => (props.IsEditable(item) ?
+                                <button
+                                    className={"btn btn-edit" + (props.IsEditable(item) ? '' : ' disabled') + (hasPermissions() ? '' : ' disabled')}
+                                    onClick={(e) => {
+                                        if (hasPermissions()) {
+                                            e.preventDefault();
+                                            if (props.IsEditable(item)) {
+                                                setSelectedRecord(item);
+                                                setShowEdit(true);
+                                            }
                                         }
-                                    }
-                                }}>
-                                <span><ReactIcons.Pencil Color="var(--warning)" Size={20} /></span>
-                            </button> : null)
-                        }
-                    > <p></p>
-                    </Column> : null }
+                                    }}>
+                                    <span><ReactIcons.Pencil Color="var(--warning)" Size={20} /></span>
+                                </button> : null)
+                            }
+                        > <p></p>
+                        </Column> : null}
                     </Table>
                 </div>
                 <div className="row">
@@ -303,10 +303,10 @@ function GenericRelation<T extends U>(props: IProps<T>) {
                 {props.DeleteColumn ?? false ?
                     <Warning Title={"Delete " + (selectedRecord != null ? props.GetName(selectedRecord) : props.RecordType)} Show={showDelete} Message={`Are you sure you want to delete the ${props.RecordType} for ` + (selectedRecord != null ? props.GetName(selectedRecord) : "this " + props.RecordType) + "?"}
                         CallBack={(conf) => {
-                            if (conf) props.Controller.DBAction('DELETE', selectedRecord).then(() => { refreshData(x => x+1)}); 
+                            if (conf) props.Controller.DBAction('DELETE', selectedRecord).then(() => refreshData(x => x + 1));
                             setShowDelete(false);
                         }} /> : null}
-                {props.EditForm != null ? 
+                {props.EditForm != null ?
                     <Modal Show={showEdit} Title={'Edit ' + (selectedRecord != null ? props.GetName(selectedRecord) : props.RecordType)}
                         ShowCancel={true}
                         CallBack={(conf) => {
