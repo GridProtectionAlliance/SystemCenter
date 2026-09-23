@@ -531,4 +531,9 @@ namespace SystemCenter.Controllers.OpenXDA
         }
     }
 
+    [RoutePrefix("api/OpenXDA/MeterAssetGroup")]
+    public class MeterAssetGroupController : ModelController<MeterAssetGroup> { }
+
+    [RoutePrefix("api/OpenXDA/AssetAssetGroup")]
+    public class AssetAssetGroupController : ModelController<AssetAssetGroup> { }
 }

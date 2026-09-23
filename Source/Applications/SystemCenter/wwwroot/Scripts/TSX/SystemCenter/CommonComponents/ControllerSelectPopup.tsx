@@ -39,6 +39,7 @@ interface IProps<T extends U> {
     MinSelection?: number,
     children?: React.ReactNode,
     DisableConfirm?: boolean
+    Filters?: Search.IFilter<T>[]
 }
 
 
@@ -64,8 +65,9 @@ export default function ControllerSelectPopup<T extends U>(props: IProps<T>) {
     }, [props.Selection])
 
     React.useEffect(() => {
-        setFilters([]); // initialize filter list, which should add additional filters
-    }, [])
+        if (props.Filters != null) setFilters(props.Filters)
+        else setFilters([]); // initialize filter list, which should add additional filters
+    }, [props.Filters])
 
     function AddCurrentList() {
         const updatedData = selectedData.concat(data);
@@ -73,7 +75,12 @@ export default function ControllerSelectPopup<T extends U>(props: IProps<T>) {
     }
 
     return (<>
-        <Modal Show={props.Show} Title={props.Title} ShowX={true} Size={'xlg'} CallBack={(conf) => props.OnClose(selectedData, conf)}
+        <Modal
+            Show={props.Show}
+            Title={props.Title}
+            ShowX={true}
+            Size={'xlg'}
+            CallBack={(conf) => props.OnClose(selectedData, conf)}
             DisableConfirm={props.MinSelection !== undefined && selectedData.length < props.MinSelection || (props.DisableConfirm ?? false)}
             ConfirmShowToolTip={props.MinSelection !== undefined && selectedData.length < props.MinSelection}
             ConfirmToolTipContent={<p><ReactIcons.CrossMark /> At least {props.MinSelection} items must be selected. </p>}
