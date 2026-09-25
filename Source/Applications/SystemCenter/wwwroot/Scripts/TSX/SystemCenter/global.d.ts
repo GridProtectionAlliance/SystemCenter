@@ -95,6 +95,22 @@ export namespace SystemCenter {
         PercentFinished: number
         RecordsAffected: number
     }
+
+    interface IRecordContext<T> {
+        OriginalRecord: T,
+        SelectedRecord: T,
+        SetSelectedRecord: React.Dispatch<React.SetStateAction<T>>,
+        Errors: string[],
+        SetErrors: (errors: string[]) => void
+        Warnings: string[],
+        SetWarnings: (warnings: string[]) => void
+        RecordType: string
+        GetName: (record: T) => string
+        RefreshCount: number
+        SetRefreshCount: (count: number) => void
+        ClearChanges: () => void
+        Patch: () => void
+    }
 }
 
 // OpenXDA Models

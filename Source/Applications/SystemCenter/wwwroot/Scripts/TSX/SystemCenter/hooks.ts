@@ -24,12 +24,18 @@
 import * as React from 'react';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import { Application } from '@gpa-gemstone/application-typings';
-import { GenericController } from '@gpa-gemstone/react-interactive';
+import { GenericController, Search } from '@gpa-gemstone/react-interactive';
 import { AppDispatch, RootState } from './Store/Store';
-
 
 export const useAppDispatch: () => AppDispatch = useDispatch;
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
+
+interface IPagedResult<T> {
+    Data: T[],
+    NumberOfPages: number,
+    TotalRecords: number,
+    RecordsPerPage: number
+}
 
 export const useBoundPaging = (currentPage: number, totalPages: number, setPage: (number) => void): void => {
     React.useEffect(() => {
@@ -43,7 +49,47 @@ export const useBoundPaging = (currentPage: number, totalPages: number, setPage:
 
 }
 
-export function useControllerFetch<T,>(controller: GenericController<T>, sortField?: keyof T, ascending?: boolean, parentID?: string|number, refreshCount?: number,) {
+export function usePagedSearch<T,>(controller: GenericController<T>, filters: Search.IFilter<T>[], page: number, sortField?: keyof T, ascending?: boolean, parentID?: string | number, refreshCount?: number) {
+
+    const [pagedData, setPagedData] = React.useState<T[]>([]);
+    const [pagedStatus, setPagedStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [totalRecords, setTotalRecords] = React.useState<number>(0);
+    const [recordsPerPage, setRecordsPerPage] = React.useState<number>(0);
+    const sortKey = sortField ?? controller.DefaultSort;
+    const asc = ascending ?? controller.Ascending;
+
+    const refetchData = React.useCallback(() => {
+        setPagedStatus('loading');
+
+        const handle = controller.PagedSearch(filters, sortKey, asc, page, parentID)
+            .done((data: IPagedResult<T>) => {
+                setPagedData(JSON.parse(data.Data as unknown as string));
+                setTotalPages(data.NumberOfPages);
+                setTotalRecords(data.TotalRecords);
+                setRecordsPerPage(data.RecordsPerPage);
+                setPagedStatus('idle');
+            })
+            .fail(() => setPagedStatus('error')); 
+
+        return () => { if (handle != null && handle.abort != null) handle.abort() }
+
+    }, [controller, filters, sortKey, asc, page, parentID])
+
+    React.useEffect(() => {
+        return refetchData();
+    }, [refetchData, refreshCount])
+
+    return {
+        Data: pagedData,
+        Status: pagedStatus,
+        TotalPages: totalPages,
+        TotalRecords: totalRecords,
+        RecordsPerPage: recordsPerPage
+    }
+}
+
+export function useControllerFetch<T,>(controller: GenericController<T>, sortField?: keyof T, ascending?: boolean, parentID?: string|number, refreshCount?: number) {
 
     const fetchHandle = React.useRef<JQuery.jqXHR<T[]> | null>(null);
     const [fetchData, setFetchData] = React.useState<T[]>([]);
@@ -76,3 +122,40 @@ export function useControllerFetch<T,>(controller: GenericController<T>, sortFie
         Status: fetchStatus
     }
 } 
+
+export function useGetOne<T,>(apiPath: string, recordID: string|number, refreshCount?: number) {
+    const [record, setRecord] = React.useState<T | null>(null);
+    const [recordStatus, setRecordStatus] = React.useState<Application.Types.Status>('uninitiated');
+
+    const refetchData = React.useCallback(() => {
+        setRecordStatus('loading');
+
+        const handle = $.ajax({
+            type: "GET",
+            url: apiPath + recordID.toString(),
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        })
+            .done((record: T) => {
+                setRecord(record);
+                setRecordStatus('idle');
+            })
+            .fail(() => setRecordStatus('error'))
+
+        return () => {
+            if (handle != null && handle.abort != null) handle.abort();
+        }
+        
+    }, [apiPath, recordID])
+
+    React.useEffect(() => {
+        return refetchData();
+    }, [refetchData, refreshCount])
+
+    return {
+        Data: record,
+        Status: recordStatus
+    }
+}
