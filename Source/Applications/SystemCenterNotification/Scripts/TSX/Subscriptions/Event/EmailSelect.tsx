@@ -50,7 +50,8 @@ const emptyCategory: EmailCategory = { ID: -1, Name: '', SelfSubscribe: false };
 
 interface IProps {
     SetEmailTypeID: (id: number) => void,
-    emailTypeID: number
+    emailTypeID: number,
+    ShowSubscriptionOverride?: boolean
 }
 
 const EmailSelect = (props: IProps) => {
@@ -70,7 +71,7 @@ const EmailSelect = (props: IProps) => {
         setEmailCategoryStatus('loading')
         const handle = $.ajax<EmailCategory[]>({
             type: "GET",
-            url: `${homePath}api/OpenXDA/EmailCategory/SubscribeDropdown/Event`,
+            url: `${homePath}api/OpenXDA/EmailCategory/SubscribeDropdown/Event${props.ShowSubscriptionOverride ? '/true' : "/false"}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
@@ -100,11 +101,12 @@ const EmailSelect = (props: IProps) => {
     }, [selectedCategory, emailTypeParentID, emailTypeStatus])
 
     React.useEffect(() => {
-        if (emailTypes.filter(e => e.ShowSubscription).length > 0)
-            props.SetEmailTypeID(emailTypes.filter(e => e.ShowSubscription)[0].ID)
+        const availableEmailTypes = props.ShowSubscriptionOverride ? emailTypes : emailTypes.filter(e => e.ShowSubscription);
+        if (availableEmailTypes.length > 0)
+            props.SetEmailTypeID(availableEmailTypes[0].ID)
         else
             props.SetEmailTypeID(-1);
-    }, [emailTypes])
+    }, [emailTypes, props.ShowSubscriptionOverride])
 
     React.useEffect(() => {
         if (selectedCategory.ID != -1)
@@ -123,9 +125,7 @@ const EmailSelect = (props: IProps) => {
                     .map((e) => ({ Label: e.Name, Value: e.ID.toString() }))
                 } />
             <Select<EmailType> Record={selectedEmailType} Field={'ID'} Label='Notification Template' Setter={(record) => setSelectedEmailType({ ...record, ID: typeof record.ID == 'string' ? parseInt(record.ID) : record.ID })}
-                Options={emailTypes
-                    .filter(e => e.ShowSubscription)
-                    .map((e) => ({ Label: e.Name, Value: e.ID.toString() }))
+                Options={emailTypes.filter(e => props.ShowSubscriptionOverride ? true : e.ShowSubscription).map((e) => ({ Label: e.Name, Value: e.ID.toString() }))
                 } />
         </div>
     </>);
