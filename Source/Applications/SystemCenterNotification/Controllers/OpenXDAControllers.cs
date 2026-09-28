@@ -49,7 +49,7 @@ namespace SystemCenter.Notifications.Controllers
         public IHttpActionResult GetCategoriesReport() => GetCategories<ScheduledEmailType>(false);
 
         [HttpGet, Route("SubscribeDropdown/Event/{Override:bool?}")]
-        public IHttpActionResult GetCategoriesEvent(bool? Override) => GetCategories<EmailType>(Override ?? false);
+        public IHttpActionResult GetCategoriesEvent(bool? Override) => GetCategories<EmailType>(Override == true && User.IsInRole("Administrator"));
 
         private IHttpActionResult GetCategories<T>(bool ShowSubscriptionOverride) where T : class, new()
         {
