@@ -35,7 +35,8 @@ declare var version;
 
 interface IProps {
     show: boolean,
-    OnClose: () => void
+    OnClose: () => void,
+    ShowSubscriptionOverride?: boolean
 }
 
 const AddAllSubscription = (props: IProps) => {
@@ -124,7 +125,7 @@ const AddAllSubscription = (props: IProps) => {
                 {step == 'Email' ? 
                     <div className="row h-100">
                         <AssetGroupSelection assetGroupID={assetGroupIDs} SetAssetGroupID={setAssetGroupIDs} />
-                        <EmailSelect emailTypeID={emailTypeID} SetEmailTypeID={setEmailTypeID} />
+                        <EmailSelect emailTypeID={emailTypeID} SetEmailTypeID={setEmailTypeID} ShowSubscriptionOverride={props.ShowSubscriptionOverride} />
                     </div> : null}
                 {step == 'User' ? <UserSelect UserAccountID={userAccountID} SetUserAccountID={setUserAccountID} /> : null}
             </Modal>

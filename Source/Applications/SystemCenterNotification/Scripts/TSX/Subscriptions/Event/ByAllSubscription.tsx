@@ -270,7 +270,7 @@ const ByAllSubscription = (props: IProps) => {
                 CallBack={(c) => { setShowApproveWarning(false); if (c) approveAll(); }} />
             <Warning Show={showRemoveWarning} Title={'Remove Subscription'} Message={`Are you sure you want to remove this subscription?`}
                 CallBack={(c) => { setShowRemoveWarning(false); if (c) removeSubscription(); }} />
-            <AddAllSubscription OnClose={() => { setShowModal(false); setRefreshTrigger((val) => !val) }} show={showModal} />
+            <AddAllSubscription OnClose={() => { setShowModal(false); setRefreshTrigger((val) => !val) }} show={showModal} ShowSubscriptionOverride={true} />
             <ToolTip Show={hover.match(/_approve$/) != null} Position={'top'} Target={hover}>
                 Click to approve this subscription.
             </ToolTip>

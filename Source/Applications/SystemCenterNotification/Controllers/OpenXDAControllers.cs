@@ -46,12 +46,12 @@ namespace SystemCenter.Notifications.Controllers
     public class EmailCategoryController : ModelController<EmailCategory> 
     { 
         [HttpGet, Route("SubscribeDropdown/Report")]
-        public IHttpActionResult GetCategoriesReport() => GetCategories<ScheduledEmailType>();
+        public IHttpActionResult GetCategoriesReport() => GetCategories<ScheduledEmailType>(false);
 
-        [HttpGet, Route("SubscribeDropdown/Event")]
-        public IHttpActionResult GetCategoriesEvent() => GetCategories<EmailType>();
+        [HttpGet, Route("SubscribeDropdown/Event/{Override:bool?}")]
+        public IHttpActionResult GetCategoriesEvent(bool? Override) => GetCategories<EmailType>(Override == true && User.IsInRole("Administrator"));
 
-        private IHttpActionResult GetCategories<T>() where T : class, new()
+        private IHttpActionResult GetCategories<T>(bool ShowSubscriptionOverride) where T : class, new()
         {
             if (!GetAuthCheck())
                 return Unauthorized();
@@ -60,8 +60,8 @@ namespace SystemCenter.Notifications.Controllers
             {
                 string tableName = TableOperations<T>.GetTableName();
                 string sql = $@"SELECT DISTINCT EmailCategory.*
-	                FROM EmailCategory JOIN {tableName} ON EmailCategory.ID = {tableName}.EmailCategoryID AND {tableName}.ShowSubscription = 1
-	                Where EmailCategory.SelfSubscribe = 1";
+	                FROM EmailCategory JOIN {tableName} ON EmailCategory.ID = {tableName}.EmailCategoryID 
+                    {(ShowSubscriptionOverride ? "" : $"AND {tableName}.ShowSubscription = 1 Where EmailCategory.SelfSubscribe = 1")}";
 
                 return Ok(connection.RetrieveData(sql));
             }
