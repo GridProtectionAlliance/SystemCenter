@@ -235,22 +235,9 @@ namespace SystemCenter.Controllers.OpenXDA
                         ;
                        
                         string countSql = @"SELECT 
-                        COUNT(DISTINCT Meter.ID)
-                        FROM
-                            Meter LEFT JOIN
-                            Location ON Meter.LocationID = Location.ID LEFT JOIN
-                            MeterAsset ON Meter.ID = MeterAsset.MeterID LEFT JOIN
-                            Asset ON MeterAsset.AssetID = Asset.ID LEFT JOIN
-                            MeterAssetGroup ON Meter.ID = MeterAssetGroup.MeterID
-                        GROUP BY
-                            Meter.ID,
-                            Meter.AssetKey,
-                            Meter.Name,
-                            Meter.Make,
-                            Meter.Model,
-                            Location.Name,
-                            MeterAssetGroup.AssetGroupID
-                        HAVING MeterAssetGroup.AssetGroupID = {0}";
+                            COUNT(DISTINCT MeterAssetGroup.MeterID)
+                            FROM MeterAssetGroup
+                            WHERE MeterAssetGroup.AssetGroupID = {0}";
                        
                         int count = connection.ExecuteScalar<int>(countSql, assetGroupID);
 
