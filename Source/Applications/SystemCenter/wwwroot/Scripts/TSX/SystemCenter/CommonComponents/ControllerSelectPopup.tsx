@@ -42,7 +42,6 @@ interface IProps<T extends U> {
     Filters?: Search.IFilter<T>[]
 }
 
-
 export default function ControllerSelectPopup<T extends U>(props: IProps<T>) {
     const [filters, setFilters] = React.useState<Search.IFilter<T>[]>([]);
     const [sortField, setSortField] = React.useState<keyof T>('ID')

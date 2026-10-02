@@ -22,12 +22,16 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { GenericController, LoadingScreen, ServerErrorIcon, TabSelector, Warning } from '@gpa-gemstone/react-interactive'
+import { GenericController, LoadingScreen, ServerErrorIcon, TabSelector, Warning, Modal } from '@gpa-gemstone/react-interactive'
 import { useGetOne } from '../hooks';
-import { RecordContext } from './RecordContext';
-import { SystemCenter as SC } from '../global';
+import { Application } from '@gpa-gemstone/application-typings';
+import { IError } from '@gpa-gemstone/common-pages/lib/Gemstone/GenericSlices/ReadOnlyGenericSlice';
 
 declare var homePath: string;
+
+interface Error {
+    Message: string
+}
 
 interface IProps<T> {
     /**
@@ -76,6 +80,14 @@ interface IProps<T> {
      * Callback to determine whether or not user has permission to delete record.
      */
     HasDeletePermission: () => boolean
+    /**
+     * Callback to determine whether or not user has patch permission for the record.
+     */
+    HasPatchPermission: () => boolean
+    /**
+     * Initial tab to render, overriding locally stored tab.
+     */
+    InitialTab?: string
 }
 
 interface ITab {
@@ -83,8 +95,13 @@ interface ITab {
     Id: string
 }
 
+interface IErrorMessage {
+    ExceptionMessage: string
+    ExceptionType: string
+}
+
 export interface IRecordTab<T> extends ITab {
-    Content: (record: T, setRecord: React.Dispatch<React.SetStateAction<T>>, patch: () => void, clearChanges: () => void) => React.ReactNode
+    Content: (record: T, setRecord: React.Dispatch<React.SetStateAction<T>>, patch: () => void, clearChanges: () => void, errors: string[], setErrors: React.Dispatch<React.SetStateAction<string[]>>, warnings: string[]) => React.ReactNode
 }
 
 /**
@@ -106,31 +123,36 @@ function GenericRecord<T>({
     Redirect,
     GetName,
     Tabs,
-    HasDeletePermission
+    HasDeletePermission,
+    HasPatchPermission,
+    InitialTab
 }: IProps<T>) {
-    const [tab, setTab] = React.useState<string>(() => getTab(TabLocalStorage, DefaultTab));
+    const [tab, setTab] = React.useState<string>(() => getTab(TabLocalStorage, DefaultTab, InitialTab));
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
     const [refreshCount, refreshData] = React.useState<number>(0);
     const [selectedRecord, setSelectedRecord] = React.useState<T | null>(null);
-    const [warnings, setWarnings] = React.useState<string[]>([]);
-    const [errors, setErrors] = React.useState<string[]>([]);
     const { Data: originalRecord, Status: originalRecordStatus } = useGetOne<T>(GetOnePath, RecordID, refreshCount);
+    const [deleteStatus, setDeleteStatus] = React.useState<Application.Types.Status>('idle');
+    const [patchStatus, setPatchStatus] = React.useState<Application.Types.Status>('idle');
+    const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+    const [errors, setErrors] = React.useState<string[]>([]);
 
     React.useEffect(() => {
         setSelectedRecord(originalRecord);
     }, [originalRecord])
-    
-    React.useEffect(() => {
+
+    const warnings: string[] = React.useMemo(() => {
+        const result: string[] = [];
         if (selectedRecord == null) return
         Object.keys(selectedRecord).forEach((key) => {
             if (!(key in (selectedRecord as object))) return
             const originalValue = originalRecord[key];
             const warning = `Changes to ${key} will be lost.`;
-            if (originalValue != selectedRecord[key]) setWarnings(warns => warns.findIndex(warn => warn === warning) < 0 ? [...warns, warning] : warns);
-            else setWarnings(warnings => warnings.filter(warn => warn != warning))
+            if (originalValue != selectedRecord[key]) result.push(warning);
         })
+        return result;
     }, [originalRecord, selectedRecord])
-    
+
     const setAndSaveTab = React.useCallback((tabID: string) => {
         const saved = getTab(TabLocalStorage, DefaultTab);
         if (saved != tabID) sessionStorage.setItem(TabLocalStorage, JSON.stringify(tabID));
@@ -142,39 +164,35 @@ function GenericRecord<T>({
     }, [originalRecord])
 
     const patch = React.useCallback(() => {
+        if (!HasPatchPermission()) return
+        setPatchStatus('loading');
         new GenericController<T>(ControllerPath, DefaultSort).DBAction("PATCH", selectedRecord)
-            .then(() => refreshData(x => x + 1))
+            .done(() => { setPatchStatus('idle'), refreshData(x => x + 1) })
+            .fail((error) => {
+                setPatchStatus('error');
+                const errorResponse: IErrorMessage = error.responseJSON;
+                setErrorMessage(errorResponse.ExceptionMessage);
+            })
     }, [ControllerPath, DefaultSort, selectedRecord])
 
     const card = React.useMemo(() => {
         if (selectedRecord == null) return null
         const i = Tabs.findIndex(t => t.Id === tab)
         if (i < 0) return null
-        return Tabs[i].Content(selectedRecord, setSelectedRecord, patch, clearChanges);
+        return Tabs[i].Content(selectedRecord, setSelectedRecord, patch, clearChanges, errors, setErrors, warnings);
     }, [tab, Tabs, selectedRecord]);
 
     function deleteRecord() {
+        if (!HasDeletePermission()) return
+        setDeleteStatus('loading');
         new GenericController<T>(ControllerPath, DefaultSort).DBAction("DELETE", originalRecord)
-            .then(() => window.location.href = Redirect)
+            .done(() => window.location.href = Redirect)
+            .fail((error) => {
+                setDeleteStatus('error');
+                const errorResponse: IErrorMessage = error.responseJSON;
+                setErrorMessage(errorResponse.ExceptionMessage);
+            })
     }
-
-    const recordContextValue: SC.IRecordContext<T> = React.useMemo(() => {
-        return {
-            SelectedRecord: selectedRecord,
-            SetSelectedRecord: setSelectedRecord,
-            OriginalRecord: originalRecord,
-            ClearChanges: clearChanges,
-            Patch: patch,
-            Errors: errors,
-            SetErrors: setErrors,
-            Warnings: warnings,
-            SetWarnings: setWarnings,
-            GetName: GetName,
-            RecordType: RecordType,
-            RefreshCount: refreshCount,
-            SetRefreshCount: refreshData
-        }
-    }, [selectedRecord, originalRecord, clearChanges, patch, errors, warnings, GetName, RecordType, refreshCount])
 
     if (originalRecordStatus == 'uninitiated' || originalRecordStatus == 'loading')
         return <LoadingScreen Show={true} />;
@@ -186,29 +204,31 @@ function GenericRecord<T>({
         return null;
 
     return (
-        <RecordContext.Provider value={recordContextValue}>
-            <div style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-                <div className="row p-2">
-                    <div className="col">
-                        <h2>{GetName(originalRecord)}</h2>
-                    </div>
-                    <div className="col">
-                        <button className={"btn btn-danger pull-right"} hidden={(originalRecord == null) || !HasDeletePermission()} onClick={() => { if (HasDeletePermission()) setShowWarning(true) }}>Delete {RecordType}</button>
-                    </div>
+        <div style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+            <div className="row p-2">
+                <div className="col">
+                    <h2>{GetName(originalRecord)}</h2>
                 </div>
-                <hr />
-
-                <TabSelector CurrentTab={tab} SetTab={(t) => setAndSaveTab(t)} Tabs={Tabs} />
-                {card}
-                <Warning Title={'Delete ' + (GetName(originalRecord))} Show={showWarning} Message={`This will permanently delete this ${RecordType}.`} CallBack={(c) => { if (c) deleteRecord(); setShowWarning(false) }} />
+                <div className="col">
+                    <button className={"btn btn-danger pull-right"} hidden={(originalRecord == null) || !HasDeletePermission()} onClick={() => { if (HasDeletePermission()) setShowWarning(true) }}>Delete {RecordType}</button>
+                </div>
             </div>
-        </RecordContext.Provider>
+            <hr />
+
+            <TabSelector CurrentTab={tab} SetTab={(t) => setAndSaveTab(t)} Tabs={Tabs} />
+            {card}
+            <Warning Title={'Delete ' + (GetName(originalRecord))} Show={showWarning} Message={`This will permanently delete this ${RecordType}.`} CallBack={(c) => { if (c) deleteRecord(); setShowWarning(false) }} />
+            <Modal Title={deleteStatus === 'error' ? 'Delete Error' : patchStatus === 'error' ? 'Save Error' : 'Error'} CallBack={() => { setErrorMessage(null); setDeleteStatus('idle'); setPatchStatus('idle') }} Show={errorMessage != null} ShowConfirm={false} ShowCancel={false} ShowX={true}>
+                <div><p>{errorMessage}</p></div>
+            </Modal>
+        </div>
     )
 }
 
 export default GenericRecord;
 
-function getTab(storage: string, defaultTab: string): string {
+function getTab(storage: string, defaultTab: string, initialTab?: string): string {
+    if (initialTab != null) return initialTab;
     const localTab = JSON.parse(sessionStorage.getItem(storage));
     if (localTab != null) return localTab;
     return defaultTab;

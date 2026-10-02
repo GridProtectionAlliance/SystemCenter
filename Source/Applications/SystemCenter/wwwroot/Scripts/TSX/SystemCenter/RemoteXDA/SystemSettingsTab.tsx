@@ -26,16 +26,30 @@ import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { RemoteXDAInstanceForm } from './RemoteXDAInstanceForm';
 import GenericInfo from '../CommonComponents/GenericInfo';
-import { useRecordContext } from '../CommonComponents/RecordContext';
 
+interface IProps {
+    SelectedRecord: OpenXDA.Types.RemoteXDAInstance
+    SetSelectedRecord: React.Dispatch<React.SetStateAction<OpenXDA.Types.RemoteXDAInstance>>
+    Errors: string[]
+    SetErrors: React.Dispatch<React.SetStateAction<string[]>>
+    Warnings: string[]
+    ClearChanges: () => void
+    Patch: () => void
+}
 
-const SystemSettingsTab = () => {
-    const context = useRecordContext<OpenXDA.Types.RemoteXDAInstance>();
-    if (context.SelectedRecord == null) return null;
+const SystemSettingsTab = (props: IProps) => {
     return (
         <GenericInfo<OpenXDA.Types.RemoteXDAInstance>
             Forms={[(record, setter, setErrors) => <RemoteXDAInstanceForm BaseInstance={record} SetInstance={setter} SetErrors={setErrors} />]}
-            HasPermissions={() => true} // currently, the SystemSettingsTab in the master branch does not check permissions before edits.
+            HasPermissions={() => true}
+            RecordType={'Remote XDA Instance'}
+            SelectedRecord={props.SelectedRecord}
+            SetSelectedRecord={props.SetSelectedRecord}
+            Errors={props.Errors}
+            SetErrors={props.SetErrors}
+            Warnings={props.Warnings}
+            ClearChanges={props.ClearChanges}
+            Patch={props.Patch}
         />
     )
 }
