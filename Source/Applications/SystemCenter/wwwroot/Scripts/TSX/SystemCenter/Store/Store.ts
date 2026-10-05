@@ -31,7 +31,6 @@ import NoteSlice from './NoteSlice';
 import AdditionalUserFieldSlice from './AdditionalUserFieldSlice';
 import ConfigurationSlice from './ConfigurationSlice';
 import { PQApplications } from '../ApplicationCategory/Applications';
-import { DBCleanup } from '../DB/DBCleanup';
 import { ApplicationCategory } from '../ApplicationCategory/ByApplicationCategory';
 import { OpenXDA as LocalXDA, SystemCenter as LocalSystemCenter } from '../global'
 import PQISlice from './PQISlice';
@@ -79,10 +78,6 @@ export const AssetGroupSlice = new GenericSlice<OpenXDA.Types.AssetGroup>("Asset
 export const ByAssetSlice = new GenericSlice<SystemCenter.Types.DetailedAsset>("ByAsset", `${homePath}api/OpenXDA/ByAsset`, "AssetName", true);
 export const ByLocationSlice = new GenericSlice<SystemCenter.Types.DetailedLocation>("ByLocation", `${homePath}api/OpenXDA/ByLocation`, "Name", true);
 export const ByMeterSlice = new GenericSlice<SystemCenter.Types.DetailedMeter>("ByMeter", `${homePath}api/OpenXDA/ByMeter`, "Name", true);
-
-export const RemoteXDAInstanceSlice = new GenericSlice<OpenXDA.Types.RemoteXDAInstance>("remoteXDAInstance", `${homePath}api/OpenXDA/remoteXDAInstance`, "Name", false);
-export const RemoteXDAMeterSlice = new GenericSlice<OpenXDA.Types.RemoteXDAMeter>("RemoteXDAMeter", `${homePath}api/OpenXDA/RemoteXDAMeter`, "LocalMeterName", false);
-export const RemoteXDAAssetSlice = new GenericSlice<OpenXDA.Types.RemoteXDAAsset>("RemoteXDAAsset", `${homePath}api/OpenXDA/RemoteXDAAsset`, "LocalAssetName", false);
 
 export const AssetNoteSlice = new NoteSlice('Asset');
 export const MeterNoteSlice = new NoteSlice('Meter');
@@ -142,9 +137,6 @@ const store = configureStore({
         EventType: EventTypeSlice.Reducer,
         MeasurementCharacteristic: MeasurementCharacteristicSlice.Reducer,
         ExternalDataBaseTable: ExternalDBTablesSlice.Reducer,
-        remoteXDAInstance: RemoteXDAInstanceSlice.Reducer,
-        RemoteXDAAsset: RemoteXDAAssetSlice.Reducer,
-        RemoteXDAMeter: RemoteXDAMeterSlice.Reducer,
         ApplicationNode: ApplicationNodeSlice.Reducer,
         PQApplicationCategory: ApplicationCategorySlice.Reducer,
         PQApplications: PQApplicationsSlice.Reducer,
