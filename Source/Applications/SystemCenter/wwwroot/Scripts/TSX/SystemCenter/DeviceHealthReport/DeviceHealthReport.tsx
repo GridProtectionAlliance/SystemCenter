@@ -31,7 +31,7 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 import { SystemCenterSettingSlice } from '../Store/Store';
 import moment from 'moment';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-import AppStatus from './AppStatus'
+import AppStatus from '../CommonComponents/AppStatus';
 import { ToolTip } from '@gpa-gemstone/react-forms'
 
 interface IPagedResult {
@@ -191,12 +191,12 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
 
                                 <AppStatus
                                     Name="openMIC"
-                                    Endpoint="OpenMICStatus"
+                                    Endpoint={`${homePath}api/DeviceHealthReport/OpenMICStatus`}
                                     IsCondensed={true}
                                 />
                                 <AppStatus
                                     Name="SCADA Trigger"
-                                    Endpoint="ScadaTriggerStatus"
+                                    Endpoint={`${homePath}api/DeviceHealthReport/ScadaTriggerStatus`}
                                     IsCondensed={false}
                                 />
 
