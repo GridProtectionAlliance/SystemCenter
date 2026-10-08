@@ -39,8 +39,8 @@ interface IProps<T extends U> {
     MinSelection?: number,
     children?: React.ReactNode,
     DisableConfirm?: boolean
+    Filters?: Search.IFilter<T>[]
 }
-
 
 export default function ControllerSelectPopup<T extends U>(props: IProps<T>) {
     const [filters, setFilters] = React.useState<Search.IFilter<T>[]>([]);
@@ -64,8 +64,9 @@ export default function ControllerSelectPopup<T extends U>(props: IProps<T>) {
     }, [props.Selection])
 
     React.useEffect(() => {
-        setFilters([]); // initialize filter list, which should add additional filters
-    }, [])
+        if (props.Filters != null) setFilters(props.Filters)
+        else setFilters([]); // initialize filter list, which should add additional filters
+    }, [props.Filters])
 
     function AddCurrentList() {
         const updatedData = selectedData.concat(data);

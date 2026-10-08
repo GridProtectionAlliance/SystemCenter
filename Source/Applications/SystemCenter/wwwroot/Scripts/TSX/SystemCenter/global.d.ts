@@ -95,6 +95,7 @@ export namespace SystemCenter {
         PercentFinished: number
         RecordsAffected: number
     }
+
 }
 
 // OpenXDA Models

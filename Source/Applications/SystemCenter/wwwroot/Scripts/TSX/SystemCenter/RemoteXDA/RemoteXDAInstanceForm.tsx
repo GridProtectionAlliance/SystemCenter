@@ -45,7 +45,8 @@ const BlankRemoteXDAInstance: OpenXDA.Types.RemoteXDAInstance = {
 interface IProps {
     BaseInstance: OpenXDA.Types.RemoteXDAInstance,
     SetInstance: (instance: OpenXDA.Types.RemoteXDAInstance) => void,
-    SetErrors?: (e: string[]) => void, RenderPortalId?: string
+    SetErrors?: (e: string[]) => void,
+    RenderPortalId?: string
 }
 
 export default function RemoteXDAInstanceForm(props: IProps) {
