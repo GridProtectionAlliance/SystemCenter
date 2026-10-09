@@ -57,6 +57,8 @@ const defaultSearchcols: Search.IField<SCGlobal.DeviceHealthReport>[] = [
 
 ];
 
+const DeviceHealthReportEndpoint = `${homePath}api/DeviceHealthReport/`;
+
 const DeviceHealthReport: Application.Types.iByComponent = (props) => {
     let dispatch = useAppDispatch();
 
@@ -191,12 +193,12 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
 
                                 <AppStatus
                                     Name="openMIC"
-                                    Endpoint={`${homePath}api/DeviceHealthReport/OpenMICStatus`}
+                                    Endpoint={`${DeviceHealthReportEndpoint}/OpenMICStatus`}
                                     IsCondensed={true}
                                 />
                                 <AppStatus
                                     Name="SCADA Trigger"
-                                    Endpoint={`${homePath}api/DeviceHealthReport/ScadaTriggerStatus`}
+                                    Endpoint={`${DeviceHealthReportEndpoint}/ScadaTriggerStatus`}
                                     IsCondensed={false}
                                 />
 
