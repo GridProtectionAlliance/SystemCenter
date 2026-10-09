@@ -28,8 +28,10 @@ using GSF.Data;
 using GSF.Data.Model;
 using GSF.EMAX;
 using GSF.PQDIF.Logical;
+using GSF.Security;
 using GSF.SELEventParser;
 using GSF.Web.Model;
+using Microsoft.Graph;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using openXDA.Configuration;
@@ -118,7 +120,6 @@ namespace SystemCenter.Controllers
 
     [RoutePrefix("api/LSCVSAccount")]
     public class LSCVSAccountController : ModelController<LSCVSAccount> { }
-
 
     [RoutePrefix("api/OpenXDA/DBCleanup")]
     public class DBCleanupController : ModelController<DBCleanup>
@@ -2078,7 +2079,7 @@ namespace SystemCenter.Controllers
             {
                 AppStatus status = new AppStatus()
                 {
-                    Details = [new StatusItem() { Description=e.Message, Status="Error"}],
+                    Details = [new StatusItem() { Description = e.Message, Status = "Error" }],
                     Status = "Error"
                 };
 
@@ -2293,4 +2294,226 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/OpenXDA/MATLABAnalyticAssetType"), HttpEditionFilter(Edition.Enterprise)]
     public class MATLABAnalyticAssetTypeController : ModelController<openXDA.Model.MATLABAnalyticAssetType> { }
 
+    [RoutePrefix("api/SystemCenter/Azure")]
+    public class AzureConnectionController : ApiController
+    {
+        [HttpGet, Route("CheckConnection")]
+        public IHttpActionResult CheckAzureConnection()
+        {
+            if (!User.IsInRole("Administrator")) // "GET" requests for User or User Groups are only allowed for administrators.
+                return Unauthorized();
+
+            AppStatus azureStatus = new AppStatus()
+            {
+                Details = new List<StatusItem>(),
+                Status = "N/A"
+            };
+
+            GraphServiceClient graphClient;
+            string tenantID;
+            try
+            {
+                AzureADSettings azureADSettings = AzureADSettings.Load();
+                graphClient = azureADSettings.GetGraphClient();
+                tenantID = azureADSettings.TenantID;
+            }
+            catch (ArgumentException sax)
+            {
+                azureStatus.Status = "Error";
+                azureStatus.Details.Add(new StatusItem()
+                {
+                    Description = "Missing TenantID.",
+                    Status = "Error"
+                });
+                return Ok(azureStatus);
+            }
+            catch (Exception ex)
+            {
+                azureStatus.Status = "Error";
+                azureStatus.Details.Add(new StatusItem()
+                {
+                    Description = ex.Message, // these are descriptive and user-friendly enough to display to the user - from GSF.Security - though sometimes they can be misleading
+                    Status = "Error"
+                });
+                return Ok(azureStatus);
+            }
+
+            if (graphClient is null)
+            {
+                azureStatus.Status = "N/A";
+                azureStatus.Details.Add(new StatusItem()
+                {
+                    Description = "Error",
+                    Status = "No Azure Graph Client configured."
+                });
+                return Ok(azureStatus);
+            }
+            else
+            {
+                azureStatus.Details.Add(new StatusItem()
+                {
+                    Description = "Azure Graph Client configured.",
+                    Status = "Success"
+                });
+            }
+
+            // check tenant id
+            string url = $"https://login.microsoftonline.com/{tenantID}/v2.0/.well-known/openid-configuration";
+            HttpClient httpClient = new HttpClient();
+            HttpResponseMessage response = httpClient.GetAsync(url).Result;
+            if (response.IsSuccessStatusCode)
+            {
+                azureStatus.Details.Add(new StatusItem()
+                {
+                    Description = "TenantID recognized.",
+                    Status = "Success"
+                });
+            }
+            else
+            {
+                azureStatus.Status = "Error";
+                azureStatus.Details.Add(new StatusItem()
+                {
+                    Description = "TenantID not recognized.",
+                    Status = "Error"
+                });
+            }
+
+            try
+            {
+                Microsoft.Graph.User user = graphClient.Users.Request().GetAsync().Result.FirstOrDefault();
+                azureStatus.Status = "Success";
+                azureStatus.Details.Add(new StatusItem()
+                {
+                    Description = "Connected to Azure.",
+                    Status = "Success"
+                });
+            }
+            catch (ServiceException serEx)
+            {
+                if (serEx.Error.Code == "Request_ResourceNotFound")
+                {
+                    azureStatus.Status = "Success";
+                    azureStatus.Details.Add(new StatusItem()
+                    {
+                        Description = "Connected to Azure.",
+                        Status = "Success"
+                    });
+                }
+                else
+                {
+                    azureStatus.Status = "Error";
+                    azureStatus.Details.Add(new StatusItem()
+                    {
+                        Description = "Failed to connect to Azure.",
+                        Status = "Error"
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                Exception azureException = ex.InnerException.InnerException; // the first exception is the failed request, the second is an aggregate, and the third is the actual exception with the message we want to check.
+                if (azureException.Message.Contains("AADSTS70001"))
+                {
+                    azureStatus.Status = "Error";
+                    azureStatus.Details.Add(new StatusItem()
+                    {
+                        Description = "Unauthorized Client: Client making the request does not match the application configuration in the Azure AD tenant.",
+                        Status = "Error"
+                    });
+                }
+                else if (azureException.Message.Contains("AADSTS900023"))
+                {
+                    azureStatus.Status = "Error";
+                    azureStatus.Details.Add(new StatusItem()
+                    {
+                        Description = "Specified tenant identifier is not a valid external domain. (If TenantID is recognized, try checking the 'Instance' value in appsettings.json)",
+                        Status = "Error"
+                    });
+                }
+                else if (azureException.Message.Contains("AADSTS90023"))
+                {
+                    azureStatus.Status = "Error";
+                    azureStatus.Details.Add(new StatusItem()
+                    {
+                        Description = "Invalid request.",
+                        Status = "Error"
+                    });
+                }
+                else if (azureException.Message.Contains("AADSTS70000"))
+                {
+                    azureStatus.Status = "Error";
+                    azureStatus.Details.Add(new StatusItem()
+                    {
+                        Description = "Invalid Grant: The authenticated client isn't authorized to use this authorization grant type.",
+                        Status = "Error"
+                    });
+                }
+                else if (azureException.Message.Contains("AADSTS70002"))
+                {
+                    azureStatus.Status = "Error";
+                    azureStatus.Details.Add(new StatusItem()
+                    {
+                        Description = "Invalid Client: Client authentication failed.",
+                        Status = "Error"
+                    });
+                }
+                else if (azureException.Message.Contains("AADSTS70003"))
+                {
+                    azureStatus.Status = "Error";
+                    azureStatus.Details.Add(new StatusItem()
+                    {
+                        Description = "Unsupported Grant Type: The authorization server doesn't support the authorization grant type.",
+                        Status = "Error"
+                    });
+                }
+                else if (azureException.Message.Contains("AADSTS50001"))
+                {
+                    azureStatus.Status = "Error";
+                    azureStatus.Details.Add(new StatusItem()
+                    {
+                        Description = "Invalid Resource: The resource is disabled or doesn't exist. Check your app's code to ensure that you have specified the exact resource URL for the resource you're trying to access.",
+                        Status = "Error"
+                    });
+                }
+                else if (azureException.Message.Contains("AADSTS16000"))
+                {
+                    azureStatus.Status = "Error";
+                    azureStatus.Details.Add(new StatusItem()
+                    {
+                        Description = "Interaction Required: User account needs to be added as an external user in the tenant first.",
+                        Status = "Error"
+                    });
+                }
+                else if (azureException.Message.Contains("AADSTS50020"))
+                {
+                    azureStatus.Status = "Error";
+                    azureStatus.Details.Add(new StatusItem()
+                    {
+                        Description = "User Account Not Found: The user account does not exist in the tenant.",
+                        Status = "Error"
+                    });
+                }
+                else if (azureException.Message.Contains("AADSTS90006"))
+                {
+                    azureStatus.Status = "Error";
+                    azureStatus.Details.Add(new StatusItem()
+                    {
+                        Description = "The service is temporarily unavailable.",
+                        Status = "Error"
+                    });
+                }
+                else
+                {
+                    azureStatus.Status = "Error";
+                    azureStatus.Details.Add(new StatusItem()
+                    {
+                        Description = "Failed to connect to Azure.",
+                        Status = "Error"
+                    });
+                }
+            }
+            return Ok(azureStatus);
+        }
+    }
 }

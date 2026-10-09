@@ -30,6 +30,7 @@ import UserForm from './UserForm';
 import { useNavigate } from "react-router-dom";
 import { IUserAccount } from '../Types';
 import moment from 'moment';
+import AppStatus from '../../CommonComponents/AppStatus';
 
 const defaultSearchcols: Search.IField<Application.Types.iUserAccount>[] = [
     { label: 'Username', key: 'DisplayName', type: 'string', isPivotField: false },
@@ -213,6 +214,19 @@ const ByUser: Application.Types.iByComponent = (props) => {
                         </form>
                     </fieldset>
                 </li>
+                <li className="nav-item">
+                    <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                        <legend className="w-auto" style={{ fontSize: 'large' }}>Connection Status:</legend>
+                        <div className="form-group">
+                            <AppStatus
+                                Name="Azure Connection"
+                                Endpoint={`${homePath}api/SystemCenter/Azure/CheckConnection`}
+                                IsCondensed={false}
+                            />
+                        </div>
+                    </fieldset>
+                </li>
+
             </SearchBar>
 
             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
