@@ -29,6 +29,7 @@ import * as _ from 'lodash';
 import { useNavigate } from "react-router-dom";
 import { ISecurityGroup } from '../Types';
 import GroupForm from './GroupForm';
+import AppStatus from '../../CommonComponents/AppStatus';
 
 const defaultSearchcols: Search.IField<Application.Types.iSecurityGroup>[] = [
     { label: 'Name', key: 'DisplayName', type: 'string', isPivotField: false },
@@ -104,7 +105,19 @@ const ByUser: Application.Types.iByComponent = (props) => {
                             <button className="btn btn-info btn-block" onClick={(event) => { event.preventDefault(); setShowModal(true) }}>Add User Group</button>
                         </form>
                     </fieldset>
-                </li>
+                    </li>
+                    <li className="nav-item">
+                        <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                            <legend className="w-auto" style={{ fontSize: 'large' }}>Connection Status:</legend>
+                            <div className="form-group">
+                                <AppStatus
+                                    Name="Azure Connection"
+                                    Endpoint={`${homePath}api/SystemCenter/Azure/CheckConnection`}
+                                    IsCondensed={false}
+                                />
+                            </div>
+                        </fieldset>
+                    </li>
             </SearchBar>
             </div>
 

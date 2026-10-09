@@ -627,7 +627,7 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\StatusDetails.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\StatusGroup.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\StatusItem.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\DeviceHealthReport\AppStatus.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\AppStatus.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDBTable.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDBTableFields.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDBTableForm.tsx" />

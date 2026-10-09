@@ -72,7 +72,7 @@ const GroupInfo = (props: IProps) => {
                     Information for Azure Groups cannot be edited in System Center. To edit these fields, please contact your Azure Administrator.
                 </div> : null}
                 {group.Type == 'AD'? <div className="alert alert-info">
-                    Information for Active Directoy Groups cannot be edited in System Center. To edit these fields, please contact your AD Administrator.
+                    Information for Active Directory Groups cannot be edited in System Center. To edit these fields, please contact your AD Administrator.
                 </div> : null}
                 <GroupForm Group={group} Setter={(u) => setGroup(u)} Edit={true} SetErrors={setError} />
             </div>

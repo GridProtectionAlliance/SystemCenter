@@ -30,6 +30,7 @@ using GSF.Security.Model;
 using GSF.Web.Model;
 using Microsoft.Graph;
 using Newtonsoft.Json.Linq;
+using openXDA.Model.SystemCenter;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -97,12 +98,56 @@ namespace SystemCenter.Model.Security
         /// <summary>
         /// Gets Azure AD settings.
         /// </summary>
-        public AzureADSettings AzureADSettings => m_azureADSettings ??= AzureADSettings.Load();
+        public AzureADSettings AzureADSettings
+        {
+            get
+            {
+                if (m_azureADSettings != null)
+                    return m_azureADSettings;
+
+                try
+                {
+                    // Attempt to load settings — may throw if misconfigured
+                    m_azureADSettings = AzureADSettings.Load();
+                }
+                catch (Exception)
+                {
+                    // Swallow exceptions here to avoid bringing down the page when Azure is misconfigured. It should be exposed to the user through the SystemCenter Azure controller.
+                    m_azureADSettings = null;
+                }
+
+                return m_azureADSettings;
+            }
+        }
 
         /// <summary>
         /// Gets Graph client.
         /// </summary>
-        public GraphServiceClient GraphClient => m_graphClient ??= AzureADSettings.GetGraphClient();
+        public GraphServiceClient GraphClient
+        {
+            get
+            {
+                if (m_graphClient != null)
+                    return m_graphClient;
+
+                try
+                {
+                    var settings = AzureADSettings;
+                    if (settings == null)
+                        return null;
+
+                    m_graphClient = settings.GetGraphClient();
+                }
+                catch (Exception)
+                {
+                    // If Graph client creation fails due to misconfiguration, return null.
+                    // Avoid throwing here so UI/page remains functional.
+                    m_graphClient = null;
+                }
+
+                return m_graphClient;
+            }
+        }
 
         protected override IEnumerable<UserAccount> QueryRecords(string sortBy, bool ascending)
         {
@@ -296,14 +341,11 @@ namespace SystemCenter.Model.Security
             }
             catch (ServiceException ex)
             {
-                if (ex.Error.Code == "Request_ResourceNotFound")
-                    return false;
-                else
-                    throw new Exception("Unable to query Azure", ex);
+                return false;
             }
             catch (Exception ex)
             {
-                throw new Exception("Exception attempting to query Azure", ex);
+                return false; 
             }
         }
 
@@ -344,7 +386,6 @@ namespace SystemCenter.Model.Security
         private UserAccount LoadAzureUser(string username)
         {
             GraphServiceClient graphClient = GraphClient;
-
 
             IGraphServiceUsersCollectionRequest request = graphClient.Users.Request().Filter($"mail eq '{username}'");
 
@@ -467,8 +508,5 @@ namespace SystemCenter.Model.Security
                 return Ok(result);
             }
         }
-
-
-
     }
 }

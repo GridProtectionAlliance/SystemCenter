@@ -26,7 +26,7 @@ import { ToolTip } from '@gpa-gemstone/react-forms';
 import { Application } from '@gpa-gemstone/application-typings';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { ServerErrorIcon, LoadingIcon } from '@gpa-gemstone/react-interactive'
-import { GetStatusSymbol, GetStatusItemAlertClass } from '../CommonComponents/StatusItem'
+import { GetStatusSymbol, GetStatusItemAlertClass } from './StatusItem'
 import { ErrorBoundary } from '@gpa-gemstone/common-pages'
 
 interface IOpenMICStatus {
@@ -64,7 +64,7 @@ const AppStatus = (props: { Name: string, Endpoint: string, IsCondensed: boolean
 
         return $.ajax({
             type: "Get",
-            url: `${homePath}api/DeviceHealthReport/${props.Endpoint}`,
+            url: props.Endpoint,
             contentType: "application/json; charset=utf-8",
             cache: false,
             async: true

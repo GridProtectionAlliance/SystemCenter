@@ -31,18 +31,13 @@ using GSF.Security.Model;
 using GSF.Web.Model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using openXDA.Model.SystemCenter;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Data;
-using System.Globalization;
 using System.Linq;
-using System.Net.Http;
-using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
-using SystemCenter.Controllers;
 using Microsoft.Graph;
 
 namespace SystemCenter.Model.Security
@@ -388,24 +383,31 @@ namespace SystemCenter.Model.Security
         private async Task<bool> IsValidAzureADGroupName(string groupName)
         {
             GraphServiceClient graphClient = GraphClient;
-
+            
             if (graphClient is null)
                 return false;
-
-            IGraphServiceGroupsCollectionPage groups = await graphClient.Groups.Request().GetAsync();
-
-            while (groups.Count > 0)
+            
+            try
             {
-                if (groups.Any(group => group.DisplayName.Equals(groupName, StringComparison.OrdinalIgnoreCase)))
-                    return true;
+                IGraphServiceGroupsCollectionPage groups = await graphClient.Groups.Request().GetAsync();
 
-                if (groups.NextPageRequest is not null)
-                    groups = await groups.NextPageRequest.GetAsync();
-                else
-                    break;
+                while (groups.Count > 0)
+                {
+                    if (groups.Any(group => group.DisplayName.Equals(groupName, StringComparison.OrdinalIgnoreCase)))
+                        return true;
+
+                    if (groups.NextPageRequest is not null)
+                        groups = await groups.NextPageRequest.GetAsync();
+                    else
+                        break;
+                }
+
+                return false;
             }
-
-            return false;
+            catch (Exception ex)
+            {
+                return false;
+            }
         }
 
         private bool IsInDatabase(string collumn)
