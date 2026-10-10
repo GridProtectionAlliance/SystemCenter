@@ -27,9 +27,10 @@
 import * as React from 'react';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
-import { SystemCenter as SC } from '../global'
-import StatusDetails from '../CommonComponents/StatusDetails'
-import { INamedStatusItem } from '../CommonComponents/StatusItem'
+import { SystemCenter as SC } from '../global';
+import StatusDetails from '../CommonComponents/StatusDetails';
+import { INamedStatusItem } from '../CommonComponents/StatusItem';
+import moment from 'moment';
 
 const statStyle: React.CSSProperties = {
     fontSize: "1em",
@@ -51,7 +52,8 @@ const NodeHealth = (props: IProps) => {
 
     const [statInfo, setStatInfo] = React.useState<string>('');
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
-    const [openMICStatus, setOpenMICStatus] = React.useState<INamedStatusItem>({ Name: 'openMIC', Status: 'Loading', Details: []});
+    const [openMICStatus, setOpenMICStatus] = React.useState<INamedStatusItem>({ Name: 'openMIC', Status: 'Loading', Details: [] });
+    const [lastSuccess, setLastSuccess] = React.useState<number | null>(null);
 
     React.useEffect(() => {
         if (props.ApplicationType === 'openMIC') {
@@ -65,6 +67,7 @@ const NodeHealth = (props: IProps) => {
         setStatus('loading');
         let statHandle: JQuery.jqXHR<string>;
         const intervalHandle = setInterval(() => {
+            setStatus('loading');
             if (statHandle != null && statHandle?.abort != null) statHandle.abort();
 
             statHandle = $.ajax({
@@ -77,6 +80,7 @@ const NodeHealth = (props: IProps) => {
                 setStatus('idle');
                 // Regex remove wrapping quotes, carriage return, and format \\ to \
                 setStatInfo(stat.replace(/^\"+|\"+$/g, '').replace(/\\r\\n/g, '\n').replace(/\\\\/g, '\\'));
+                setLastSuccess(moment().valueOf());
             }).fail((_a, _b, e) => {
                 setStatus('error');
             });
@@ -112,10 +116,19 @@ const NodeHealth = (props: IProps) => {
     }
 
     return (
-        <fieldset className="border h-100" style={{ padding: '10px', flex: '1 1 0%', display: 'flex', flexDirection: 'column', overflow: 'auto'}}>
-            <legend className="w-auto" style={{ fontSize: 'large' }}>{props.ApplicationType} Health:</legend>
-
-            {status === "error" ?
+        <fieldset className="border h-100" style={{ padding: '10px', flex: '1 1 0%', display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
+            <legend className="w-auto" style={{ fontSize: 'large' }}>{props.ApplicationType} Health: </legend>
+            {openMICStatus.Status != 'Loading' ? null // used to prevent this from being shown for openMIC.
+                : <>
+                    {status === 'idle' ? <label className="small pull-left" ><small><em>Up to date.</em></small> </label> : null}
+                    {status === 'loading' ? <label className="small pull-left" ><small><em>Updating...</em></small> </label> : null}
+                    {status === 'error' ? <label className="small pull-left" ><small><em>Failed to update {props.ApplicationType} health.</em></small> </label> : null}
+                    {lastSuccess != null ?
+                        <label className="small pull-left" ><small><em>{`Last update ${moment(lastSuccess).format('MM/DD/YYYY HH:mm')}`}</em></small> </label>
+                        : null}
+                </>
+            }
+            {status === "error" && statInfo === '' ?
 
                 <div className={`col-12 d-flex alert-danger`}>
                     <span className={"my-3"}>
@@ -127,14 +140,14 @@ const NodeHealth = (props: IProps) => {
                         Failed to get {props.ApplicationType} health.
                     </h5>
                 </div> :
-                status === "loading" ?
+                status === "loading" && statInfo === '' ?
                     <ReactIcons.SpiningIcon /> :
                     props.ApplicationType === 'XDA' ?
                         <div className="w-100 h-100">
-                                <pre style={statStyle}>
-                                    {statInfo}
-                                </pre>
-                            </div>
+                            <pre style={statStyle}>
+                                {statInfo}
+                            </pre>
+                        </div>
                         : props.ApplicationType === 'openMIC'
                             ? <StatusDetails
                                 StatusItem={openMICStatus}
