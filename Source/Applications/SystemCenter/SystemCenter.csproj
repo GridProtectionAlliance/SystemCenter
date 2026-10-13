@@ -602,6 +602,7 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\FawgLineSegmentWizard\TapSelect.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\SourceImpedanceWindow.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\AdditionalFieldsKeyModal.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetGroups\AssetGroupRelation.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\AdditionalFieldsValueField.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ChannelGroup\ByChannelGroup.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ChannelGroup\ChannelGroupItemForm.tsx" />
@@ -617,9 +618,12 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\GenericByPage.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\Restrictions\EditionLockPage.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\Restrictions\EditionLockModal.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\AssetGroupWindow.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\ControllerSelectPopup.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\ExtDBTaskStatusModal.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\FileGroupAnalysisJobPriority.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\GenericInfo.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\GenericRecord.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\GenericRelation.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\ProcessingStatus.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\Restrictions\EditionRestrictionTooltip.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\Restrictions\RoleRestrictionTooltip.tsx" />
@@ -628,6 +632,7 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\StatusGroup.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\StatusItem.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\AppStatus.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Customer\CustomerRelation.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDBTable.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDBTableFields.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDBTableForm.tsx" />

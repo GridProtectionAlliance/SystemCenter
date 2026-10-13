@@ -40,9 +40,11 @@ import { LoadingScreen, TabSelector, Warning } from '@gpa-gemstone/react-interac
 import SourceImpedanceWindow from '../AssetAttribute/SourceImpedanceWindow';
 import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
+import AssetGroupRelation from '../AssetGroups/AssetGroupRelation';
+import CustomerRelation from '../Customer/CustomerRelation';
 
 declare var homePath: string;
-declare type Tab = 'notes' | 'assetInfo' | 'substations' | 'meters' | 'connections' | 'additionalFields' | 'extDB' | 'segments' | 'sourceImpedances' | 'channels';
+declare type Tab = 'notes' | 'assetInfo' | 'substations' | 'meters' | 'connections' | 'additionalFields' | 'extDB' | 'segments' | 'sourceImpedances' | 'channels' | 'assetGroups' | 'customers';
 
 interface IProps { AssetID: number, Tab: Tab }
 
@@ -144,6 +146,8 @@ function Asset(props: IProps) {
         { Id: "meters", Label: "Meters" },
         { Id: "channels", Label: "Channels" },
         { Id: "connections", Label: "Connections" },
+        { Id: "assetGroups", Label: "Asset Groups" },
+        { Id: "customers", Label: "Customers"}
     ];
 
     if (assetType == 'Line') {
@@ -180,7 +184,9 @@ function Asset(props: IProps) {
             {tab === "channels" ? <AssetChannelWindow Name={asset.AssetName} ID={asset.ID} />: null}
             {tab === 'connections' ? <AssetConnectionWindow Name={asset.AssetName} ID={asset.ID} TypeID={asset["AssetTypeID"]} />: null}
             {tab === 'sourceImpedances' ? <SourceImpedanceWindow ID={asset.ID} />: null}
-            {tab === 'segments' ? <LineSegmentWindow ID={asset.ID} LineKey={asset.AssetKey} LineName={asset.AssetName} OnChange={() => { setForceReload(x => !x) }} />: null}
+            {tab === 'segments' ? <LineSegmentWindow ID={asset.ID} LineKey={asset.AssetKey} LineName={asset.AssetName} OnChange={() => { setForceReload(x => !x) }} /> : null}
+            {tab === 'assetGroups' ? <AssetGroupRelation Record={asset} /> : null}
+            {tab === 'customers' ? <CustomerRelation Record={asset} /> : null }
 
             <Warning Message={'This will permanently delete this Asset and cannot be undone.'} Show={showDelete} Title={'Delete ' + (asset?.AssetName ?? 'Asset')} CallBack={(conf) => { if (conf) deleteAsset(); setShowDelete(false); }} />
             <LoadingScreen Show={loadDelete} />
