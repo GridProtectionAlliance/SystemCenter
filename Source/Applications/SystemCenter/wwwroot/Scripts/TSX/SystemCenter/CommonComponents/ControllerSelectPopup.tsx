@@ -44,7 +44,7 @@ interface IProps<T> {
 }
 
 export default function ControllerSelectPopup<T>({ Controller, PrimaryKey, Selection, OnClose, Show, Searchbar, Type, Title, MinSelection, children, DisableConfirm, Filters, BaseFilters }: IProps<T>) {
-    const [searchFilters, setSearchFilters] = React.useState<Search.IFilter<T>[]>(Filters);
+    const [searchFilters, setSearchFilters] = React.useState<Search.IFilter<T>[]>(Filters ?? []);
     const [sortField, setSortField] = React.useState<keyof T>(PrimaryKey)
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [data, setData] = React.useState<T[]>([]);
