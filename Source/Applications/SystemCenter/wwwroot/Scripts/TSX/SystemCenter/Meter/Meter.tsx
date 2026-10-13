@@ -47,7 +47,7 @@ import AssetGroupRelation from '../AssetGroups/AssetGroupRelation';
 import CustomerRelation from '../Customer/CustomerRelation';
  
 declare var homePath: string;
-declare type Tab = 'notes' | 'meterInfo' | 'additionalFields' | 'substation' | 'assets' | 'eventChannels' | 'trendChannels' | 'channelScaling' | 'configurationHistory' | 'extDB' | 'maintenance' | 'dataRescue' | 'dataMerge' | 'dataDelete' | 'assetGroups' 
+declare type Tab = 'notes' | 'meterInfo' | 'additionalFields' | 'substation' | 'assets' | 'eventChannels' | 'trendChannels' | 'channelScaling' | 'configurationHistory' | 'extDB' | 'maintenance' | 'dataRescue' | 'dataMerge' | 'dataDelete' | 'assetGroups' | 'customers';
 
 interface IProps { MeterID: number, Tab: Tab }
 
@@ -169,7 +169,8 @@ function Meter(props: IProps) {
         { Id: "channelScaling", Label: "Scale Channels" },
         { Id: "configurationHistory", Label: "Configuration History" },
         { Id: "maintenance", Label: "Maintenance" },
-        { Id: "assetGroups", Label: "Asset Groups" }
+        { Id: "assetGroups", Label: "Asset Groups" },
+        { Id: "customers", Label: "Customers" }
     ];
 
     return (
@@ -199,6 +200,7 @@ function Meter(props: IProps) {
             {tab === 'dataDelete' ? dataDeleteWindow : null}
             {tab === 'maintenance' ? <MeterMaintenanceWindow Meter={meter} /> : null}
             {tab === 'assetGroups' ? <AssetGroupRelation Record={meter} /> : null}
+            {tab === 'customers' ? <CustomerRelation Record={meter} /> : null}
 
             <Modal Title={'Advanced Options'} Show={showAdvanced} CallBack={() => setShowAdvanced(false)} ShowCancel={false} ShowConfirm={false} ShowX={true}>
                 <button className="btn btn-info btn-block" onClick={showDataRescueWindow}>Data Rescue</button>
