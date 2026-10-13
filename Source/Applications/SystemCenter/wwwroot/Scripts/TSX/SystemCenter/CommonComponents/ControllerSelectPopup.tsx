@@ -25,11 +25,11 @@ import * as React from 'react';
 import { Modal, GenericController, Search } from "@gpa-gemstone/react-interactive";
 import * as _ from "lodash";
 import { ReactIcons } from "@gpa-gemstone/gpa-symbols";
+import { useStringMemonization } from '@gpa-gemstone/helper-functions';
 
-interface U { ID: number | string }
-
-interface IProps<T extends U> {
+interface IProps<T> {
     Controller: GenericController<T>,
+    PrimaryKey: keyof T,
     Selection: T[],
     OnClose: (selected: T[], conf: boolean) => void
     Show: boolean,
@@ -39,50 +39,53 @@ interface IProps<T extends U> {
     MinSelection?: number,
     children?: React.ReactNode,
     DisableConfirm?: boolean
+    Filters?: Search.IFilter<T>[]
+    BaseFilters?: Search.IFilter<T>[]
 }
 
-
-export default function ControllerSelectPopup<T extends U>(props: IProps<T>) {
-    const [filters, setFilters] = React.useState<Search.IFilter<T>[]>([]);
-    const [sortField, setSortField] = React.useState<keyof T>('ID')
+export default function ControllerSelectPopup<T>({ Controller, PrimaryKey, Selection, OnClose, Show, Searchbar, Type, Title, MinSelection, children, DisableConfirm, Filters, BaseFilters }: IProps<T>) {
+    const [searchFilters, setSearchFilters] = React.useState<Search.IFilter<T>[]>(Filters);
+    const [sortField, setSortField] = React.useState<keyof T>(PrimaryKey)
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [data, setData] = React.useState<T[]>([]);
-
-    const [selectedData, setSelectedData] = React.useState<T[]>(props.Selection);
+    const [selectedData, setSelectedData] = React.useState<T[]>(Selection);
 
     const [sortKeySelected, setSortKeySelected] = React.useState<string>('');
     const [ascendingSelected, setAscendingSelected] = React.useState<boolean>(false);
+    const baseFilters = useStringMemonization<Search.IFilter<T>[] | undefined>(BaseFilters);
+    const filters = React.useMemo(() => { return [...baseFilters, ...searchFilters] }, [searchFilters, baseFilters])
 
     React.useEffect(() => {
-        const handle = props.Controller.DBSearch(filters, sortField, ascending);
+        const handle = Controller.DBSearch(filters, sortField, ascending);
         handle.done((d) => setData(d));
         return () => { if (handle != null && handle.abort != null) handle.abort() }
-    }, [props.Controller, ascending, sortField, filters])
+    }, [Controller, ascending, sortField, filters])
 
     React.useEffect(() => {
-        setSelectedData(props.Selection);
-    }, [props.Selection])
-
-    React.useEffect(() => {
-        setFilters([]); // initialize filter list, which should add additional filters
-    }, [])
+        setSelectedData(Selection);
+    }, [Selection])
 
     function AddCurrentList() {
         const updatedData = selectedData.concat(data);
-        setSelectedData(_.uniqBy(updatedData, (d) => d.ID));
+        setSelectedData(_.uniqBy(updatedData, (d) => d[PrimaryKey]));
     }
 
     return (<>
-        <Modal Show={props.Show} Title={props.Title} ShowX={true} Size={'xlg'} CallBack={(conf) => props.OnClose(selectedData, conf)}
-            DisableConfirm={props.MinSelection !== undefined && selectedData.length < props.MinSelection || (props.DisableConfirm ?? false)}
-            ConfirmShowToolTip={props.MinSelection !== undefined && selectedData.length < props.MinSelection}
-            ConfirmToolTipContent={<p><ReactIcons.CrossMark /> At least {props.MinSelection} items must be selected. </p>}
+        <Modal
+            Show={Show}
+            Title={Title}
+            ShowX={true}
+            Size={'xlg'}
+            CallBack={(conf) => OnClose(selectedData, conf)}
+            DisableConfirm={MinSelection !== undefined && selectedData.length < MinSelection || (DisableConfirm ?? false)}
+            ConfirmShowToolTip={MinSelection !== undefined && selectedData.length < MinSelection}
+            ConfirmToolTipContent={<p><ReactIcons.CrossMark /> At least {MinSelection} items must be selected. </p>}
         >
             <div className="row">
                 <div className="col">
-                    {props.Searchbar(
+                    {Searchbar(
                         <>
-                            {props.Type === 'multiple' ? <li className="nav-item" style={{ width: '20%', paddingRight: 10 }}>
+                            {Type === 'multiple' ? <li className="nav-item" style={{ width: '20%', paddingRight: 10 }}>
                                 <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                                     <legend className="w-auto" style={{ fontSize: 'large' }}>Quick Selects:</legend>
                                     <form>
@@ -95,7 +98,7 @@ export default function ControllerSelectPopup<T extends U>(props: IProps<T>) {
                                     </form>
                                 </fieldset>
                             </li> : null}
-                            {React.Children.map(props.children, (e) => {
+                            {React.Children.map(children, (e) => {
                                 if (React.isValidElement(e)) {
                                     if (((e as React.ReactElement).type === FilterableColumn) ||
                                         ((e as React.ReactElement).type === Column) ||
@@ -105,11 +108,12 @@ export default function ControllerSelectPopup<T extends U>(props: IProps<T>) {
                                 }
                                 return null;
                             })}
-                        </>, setFilters)}
+                        </>, setSearchFilters
+                    )}
                 </div>
             </div>
             <div className="row">
-                <div className="col" style={{ width: (props.Type === undefined || props.Type === 'single' ? '100%' : '60%') }}>
+                <div className="col" style={{ width: (Type === undefined || Type === 'single' ? '100%' : '60%') }}>
                     <Table<T>
                         TableClass="table table-hover"
                         Data={data}
@@ -126,18 +130,18 @@ export default function ControllerSelectPopup<T extends U>(props: IProps<T>) {
                             }
                         }}
                         OnClick={(d) => {
-                            if (props.Type === undefined || props.Type === 'single')
+                            if (Type === undefined || Type === 'single')
                                 setSelectedData([d.row])
                             else
-                                setSelectedData((s) => [...s.filter(item => item.ID !== d.row.ID), d.row])
+                                setSelectedData((s) => [...s.filter(item => item[PrimaryKey] !== d.row[PrimaryKey]), d.row])
                         }}
-                        Selected={(item) => selectedData.findIndex(d => d.ID === item.ID) > -1}
-                        KeySelector={item => item.ID}
+                        Selected={(item) => selectedData.findIndex(d => d[PrimaryKey] === item[PrimaryKey]) > -1}
+                        KeySelector={item => item[PrimaryKey] as string|number}
                     >
-                        {props.children}
+                        {children}
                     </Table>
                 </div>
-                {props.Type === 'multiple' ? <div className="col" style={{ width: '40%' }}>
+                {Type === 'multiple' ? <div className="col" style={{ width: '40%' }}>
                     <div style={{ width: '100%' }}>
                         <h3> Current Selection </h3>
                     </div>
@@ -159,11 +163,11 @@ export default function ControllerSelectPopup<T extends U>(props: IProps<T>) {
                                 setSortKeySelected(d.colKey);
                             }
                         }}
-                        OnClick={(d) => setSelectedData([...selectedData.filter(item => item.ID !== d.row.ID)])}
+                        OnClick={(d) => setSelectedData([...selectedData.filter(item => item[PrimaryKey] !== d.row[PrimaryKey])])}
                         Selected={() => false}
-                        KeySelector={item => item.ID}
+                        KeySelector={item => item[PrimaryKey] as string|number}
                     >
-                        {props.children}
+                        {children}
                     </Table>
                 </div> : null}
             </div>
