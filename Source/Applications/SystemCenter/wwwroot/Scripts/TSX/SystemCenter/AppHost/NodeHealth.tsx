@@ -25,11 +25,12 @@
 
 
 import * as React from 'react';
-import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
-import { SystemCenter as SC } from '../global'
-import StatusDetails from '../CommonComponents/StatusDetails'
-import { INamedStatusItem } from '../CommonComponents/StatusItem'
+import { Console } from '@gpa-gemstone/react-interactive';
+import { SystemCenter as SC } from '../global';
+import StatusDetails from '../CommonComponents/StatusDetails';
+import { INamedStatusItem } from '../CommonComponents/StatusItem';
+import moment from 'moment';
 
 const statStyle: React.CSSProperties = {
     fontSize: "1em",
@@ -51,7 +52,8 @@ const NodeHealth = (props: IProps) => {
 
     const [statInfo, setStatInfo] = React.useState<string>('');
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
-    const [openMICStatus, setOpenMICStatus] = React.useState<INamedStatusItem>({ Name: 'openMIC', Status: 'Loading', Details: []});
+    const [openMICStatus, setOpenMICStatus] = React.useState<INamedStatusItem>({ Name: 'openMIC', Status: 'Loading', Details: [] });
+    const [lastSuccess, setLastSuccess] = React.useState<number | null>(null);
 
     React.useEffect(() => {
         if (props.ApplicationType === 'openMIC') {
@@ -65,6 +67,7 @@ const NodeHealth = (props: IProps) => {
         setStatus('loading');
         let statHandle: JQuery.jqXHR<string>;
         const intervalHandle = setInterval(() => {
+            setStatus('loading');
             if (statHandle != null && statHandle?.abort != null) statHandle.abort();
 
             statHandle = $.ajax({
@@ -77,6 +80,7 @@ const NodeHealth = (props: IProps) => {
                 setStatus('idle');
                 // Regex remove wrapping quotes, carriage return, and format \\ to \
                 setStatInfo(stat.replace(/^\"+|\"+$/g, '').replace(/\\r\\n/g, '\n').replace(/\\\\/g, '\\'));
+                setLastSuccess(moment().valueOf());
             }).fail((_a, _b, e) => {
                 setStatus('error');
             });
@@ -111,38 +115,20 @@ const NodeHealth = (props: IProps) => {
         }
     }
 
+    if (props.ApplicationType === 'openMIC') {
+        return (
+            <StatusDetails
+                StatusItem={openMICStatus}
+            />
+        )
+    }
+
     return (
-        <fieldset className="border h-100" style={{ padding: '10px', flex: '1 1 0%', display: 'flex', flexDirection: 'column', overflow: 'auto'}}>
-            <legend className="w-auto" style={{ fontSize: 'large' }}>{props.ApplicationType} Health:</legend>
-
-            {status === "error" ?
-
-                <div className={`col-12 d-flex alert-danger`}>
-                    <span className={"my-3"}>
-                        <ReactIcons.CircledX Color="var(--danger)" />
-                    </span>
-                    <h5
-                        className={"m-3"}
-                    >
-                        Failed to get {props.ApplicationType} health.
-                    </h5>
-                </div> :
-                status === "loading" ?
-                    <ReactIcons.SpiningIcon /> :
-                    props.ApplicationType === 'XDA' ?
-                        <div className="w-100 h-100">
-                                <pre style={statStyle}>
-                                    {statInfo}
-                                </pre>
-                            </div>
-                        : props.ApplicationType === 'openMIC'
-                            ? <StatusDetails
-                                StatusItem={openMICStatus}
-                            /> :
-                            null}
-
-        </fieldset>
+        <div className="d-flex flex-column h-100" style={{ flex: 1 }}>
+            <Console Status={status} LastSuccess={lastSuccess != null ? moment(lastSuccess).format('MM/DD/YYYY HH:mm') : "N/A"}>
+            <span style={{ color: 'white' }}>{statInfo}</span>
+            </Console>
+        </div>
     )
 }
-
 export default NodeHealth;
