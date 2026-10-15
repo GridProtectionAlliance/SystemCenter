@@ -1554,6 +1554,23 @@ namespace SystemCenter.Controllers
             }
         }
 
+        public override IHttpActionResult Patch([FromBody] WidgetView record)
+        {
+            if (!PatchAuthCheck())
+                return Unauthorized();
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                TableOperations<WidgetWidgetCategory> tbl = new TableOperations<WidgetWidgetCategory>(connection);
+                WidgetWidgetCategory model = tbl.QueryRecordWhere("WidgetID = {0} AND CategoryID = {1}", record.ID, record.CategoryID);
+                if (model is null)
+                    return InternalServerError();
+
+                model.SortOrder = record.SortOrder;
+                return Ok(tbl.UpdateRecord(model));
+            }
+        }
+
         public override IHttpActionResult Post([FromBody] JObject record)
         {
             if (!PostAuthCheck())
@@ -1565,7 +1582,8 @@ namespace SystemCenter.Controllers
                 tbl.AddNewRecord(new WidgetWidgetCategory()
                 {
                     CategoryID = record["CategoryID"].Value<int>(),
-                    WidgetID = record["ID"].Value<int>()
+                    WidgetID = record["ID"].Value<int>(),
+                    SortOrder = record["SortOrder"]?.ToObject<int?>() ?? 0
                 });
 
                 return Ok(1);

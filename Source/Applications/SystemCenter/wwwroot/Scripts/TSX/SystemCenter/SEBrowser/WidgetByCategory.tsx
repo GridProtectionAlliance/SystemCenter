@@ -29,7 +29,12 @@ import { Table, Column } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { LoadingIcon, Modal, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
 import { PQBrowser } from '@gpa-gemstone/application-typings';
-import { Select } from '@gpa-gemstone/react-forms';
+import { Input, Select } from '@gpa-gemstone/react-forms';
+
+//TODO: remove this interface and use interface from gemstone when new gemstone application-typing is published (check for it being used anywhere else too)
+export interface IWidgetView extends PQBrowser.Types.IWidgetView {
+    SortOrder: number
+}
 
 interface IProps { CategoryID: number }
 
@@ -43,7 +48,8 @@ const WidgetByCategory = (props: IProps) => {
 
     const sortField = useAppSelector(SEBrowserWidgetViewSlice.SortField);
     const ascending = useAppSelector(SEBrowserWidgetViewSlice.Ascending);
-    const [record, setRecord] = React.useState<PQBrowser.Types.IWidgetView>(null);
+    const [record, setRecord] = React.useState<IWidgetView | null>(null);
+    const [editRecord, setEditRecord] = React.useState<IWidgetView | null>(null);
     const allWidgets = useAppSelector(SEBrowserWidgetSlice.Data);
     const allWidgetStatus = useAppSelector(SEBrowserWidgetSlice.Status);
 
@@ -56,7 +62,7 @@ const WidgetByCategory = (props: IProps) => {
         if (allWidgets.length == 0)
             return;
         if (record == null)
-            return setRecord({ ...allWidgets[0], CategoryID: props.CategoryID });
+            return setRecord({ ...allWidgets[0], CategoryID: props.CategoryID, SortOrder: 0 });
     }, [allWidgets])
 
     React.useEffect(() => {
@@ -111,7 +117,7 @@ const WidgetByCategory = (props: IProps) => {
         </div>
         <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
             <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', padding: 0 }}>
-                <Table<PQBrowser.Types.IWidgetView>
+                <Table<IWidgetView>
                     TableClass="table table-hover"
                     Data={data}
                     SortKey={sortField}
@@ -122,12 +128,13 @@ const WidgetByCategory = (props: IProps) => {
 
                         dispatch(SEBrowserWidgetViewSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                         }}
+                    OnClick={(item) => setEditRecord(item.row)}
                     TheadStyle={{ fontSize: 'smaller' }}
                     RowStyle={{ fontSize: 'smaller' }}
                     Selected={(item) => false}
                     KeySelector={(item) => item.ID}
                 >
-                    <Column<PQBrowser.Types.IWidgetView>
+                    <Column<IWidgetView>
                         Key={'Name'}
                         AllowSort={true}
                         Field={'Name'}
@@ -135,7 +142,7 @@ const WidgetByCategory = (props: IProps) => {
                         RowStyle={{ width: 'auto' }}
                     > Name
                     </Column>
-                    <Column<PQBrowser.Types.IWidgetView>
+                    <Column<IWidgetView>
                         Key={'Type'}
                         AllowSort={true}
                         Field={'Type'}
@@ -143,7 +150,15 @@ const WidgetByCategory = (props: IProps) => {
                         RowStyle={{ width: 'auto' }}
                     > Type
                     </Column>
-                    <Column<PQBrowser.Types.IWidgetView>
+                    <Column<IWidgetView>
+                        Key={'SortOrder'}
+                        AllowSort={true}
+                        Field={'SortOrder'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                    > Sort Order
+                    </Column>
+                    <Column<IWidgetView>
                         Key={'Remove'}
                         AllowSort={false}
                         HeaderStyle={{ width: 'auto' }}
@@ -151,6 +166,7 @@ const WidgetByCategory = (props: IProps) => {
                         Content={({ item }) => <>
                             <button className="btn btn-sm"
                                 onClick={(e) => {
+                                    e.stopPropagation();
                                     setRecord(item);
                                     setShowRemove(true);
                                 }}>
@@ -181,18 +197,54 @@ const WidgetByCategory = (props: IProps) => {
                     dispatch(SEBrowserWidgetViewSlice.DBAction({ verb: 'POST', record }))
                  setShowAdd(false);
             }}
-            DisableConfirm={data.find(d => d.ID == (record?.ID ?? 0)) != null}
+            DisableConfirm={data.find(d => d.ID == (record?.ID ?? 0)) != null || record?.SortOrder == null}
             ConfirmShowToolTip={data.find(d => d.ID == (record?.ID ?? 0)) != null}
             ConfirmToolTipContent={<p><ReactIcons.CrossMark Color="var(--danger)" /> This widget is already in this tab.</p>}
             ShowX={true}
             ShowCancel={false}
             ConfirmText={'Save'}
         >
-            {record != null ?
-                <Select<PQBrowser.Types.IWidgetView> Record={record} Field={'ID'}
+            {record != null ? <>
+                <Select<IWidgetView> Record={record} Field={'ID'}
                     Label='Widget'
                     Setter={(record) => setRecord({ ...record, CategoryID: props.CategoryID, ID: parseInt(record.ID.toString()) })}
                     Options={allWidgets.map(o => ({ Value: o.ID.toString(), Label: o.Name }))}
+                />
+                <Input<IWidgetView>
+                    Type={'number'}
+                    Record={record}
+                    Field={'SortOrder'}
+                    Label='Sort Order'
+                    Feedback={'A numeric Sort Order value is required.'}
+                    Help={'Controls the order this widget is shown in within this PQ Browser tab. Lower numbers are shown first.'}
+                    Valid={() => record.SortOrder != null}
+                    Setter={setRecord}
+                />
+            </> : null}
+        </Modal>
+        <Modal
+            Title={'Edit ' + (editRecord?.Name ?? 'Widget')}
+            Show={editRecord != null}
+            CallBack={(c) => {
+                if (c)
+                    dispatch(SEBrowserWidgetViewSlice.DBAction({ verb: 'PATCH', record: editRecord }))
+                setEditRecord(null);
+            }}
+            DisableConfirm={editRecord?.SortOrder == null}
+            ShowX={true}
+            ShowCancel={false}
+            ConfirmText={'Save'}
+        >
+            {editRecord != null ?
+                <Input<IWidgetView>
+                    Type={'number'}
+                    Record={editRecord}
+                    Field={'SortOrder'}
+                    Label='Sort Order'
+                    Feedback={'A numeric Sort Order value is required.'}
+                    Help={'Controls the order this widget is shown in within this PQ Browser tab. Lower numbers are shown first.'}
+                    Valid={() => editRecord.SortOrder != null}
+                    Setter={setEditRecord}
                 /> : null}
         </Modal>
     </>
