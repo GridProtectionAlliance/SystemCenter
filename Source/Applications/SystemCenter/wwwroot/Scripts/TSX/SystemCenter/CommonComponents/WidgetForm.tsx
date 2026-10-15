@@ -48,6 +48,7 @@ export default function WidgetForm(props: IProps) {
     switch (props.Type) {
         case 'SEBrowser':
             allWidgets = useAppSelector(SEBrowserWidgetSlice.Data);
+            break;
         case 'PQDigest':
             allWidgets = useAppSelector(PQDigestWidgetSlice.Data);
     }
@@ -56,6 +57,7 @@ export default function WidgetForm(props: IProps) {
     switch (props.Type) {
         case 'SEBrowser':
             allWidgetStatus = useAppSelector(SEBrowserWidgetSlice.Status);
+            break;
         case 'PQDigest':
             allWidgetStatus = useAppSelector(PQDigestWidgetSlice.Status);
     }
@@ -65,7 +67,7 @@ export default function WidgetForm(props: IProps) {
 
     React.useEffect(() => {
         if (allWidgetStatus == 'uninitiated' || allWidgetStatus == 'changed')
-            dispatch(SEBrowserWidgetSlice.Fetch());
+            dispatch(props.Type == 'SEBrowser' ? SEBrowserWidgetSlice.Fetch() : PQDigestWidgetSlice.Fetch());
     }, [allWidgetStatus]);
 
     React.useEffect(() => {
@@ -81,7 +83,7 @@ export default function WidgetForm(props: IProps) {
             e = e.concat(settingsErrors);
             props.SetErrors(e);
         }
-    }, [props.Widget.Name, settingsErrors?.length ?? 0]);
+    }, [props.Widget.Name, settingsErrors?.length ?? 0, allWidgets]);
 
     React.useEffect(() => {
         if (AllWidgets.findIndex(widget => widget.Name === props.Widget.Type) < 0)
@@ -102,7 +104,7 @@ export default function WidgetForm(props: IProps) {
                 <Alert Class="alert-danger">
                     This Widget is not available. Please ensure a valid Type is selected.
                 </Alert> :
-                <WidgetSetting Settings={JSON.parse(props.Widget.Setting ?? "")}
+                <WidgetSetting Settings={props.Widget.Setting ? JSON.parse(props.Widget.Setting) : null}
                     SetSetting={(s) => props.StateSetter({ ...props.Widget, Setting: JSON.stringify(s) })}
                     Type={props.Widget.Type} SetErrors={(e) => setSettingsErrors(e)} />
             }

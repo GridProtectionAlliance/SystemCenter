@@ -26,7 +26,7 @@ import MeterReducer from './MeterSlice';
 import AssetReducer from './AssetSlice';
 import { GenericSlice } from '@gpa-gemstone/react-interactive'
 import { EventChannelSlice } from './EventChannelSlice';
-import { SystemCenter, OpenXDA, Application, PQBrowser } from '@gpa-gemstone/application-typings';
+import { SystemCenter, OpenXDA, Application } from '@gpa-gemstone/application-typings';
 import NoteSlice from './NoteSlice';
 import AdditionalUserFieldSlice from './AdditionalUserFieldSlice';
 import ConfigurationSlice from './ConfigurationSlice';
@@ -39,6 +39,7 @@ import { IApplicationRole } from '../User/Types';
 import UserSettingsReducer from './UserSettings';
 import { EventWidget } from '../../../../../EventWidgets/TSX/global';
 import { IAPIAccessKey } from '../APIAccessKeys/APIAccessKeys'
+import { IWidgetView } from '../SEBrowser/WidgetByCategory';
 
 declare var homePath: string;
 
@@ -99,7 +100,7 @@ export const PQDigestWidgetSlice = new GenericSlice<EventWidget.IWidgetView>("PQ
 export const PQDigestHomeScreenSlice = new GenericSlice<LocalXDA.IHomeScreenWidget>("PQDigestHomeScreenWidget", `${homePath}api/PQDigest/HomeScreenWidget`, "Name", true);
 
 
-export const SEBrowserWidgetViewSlice = new GenericSlice<PQBrowser.Types.IWidgetView>("SEBrowserWidgetView", `${homePath}api/SEbrowser/WidgetView`, "Name", true)
+export const SEBrowserWidgetViewSlice = new GenericSlice<IWidgetView>("SEBrowserWidgetView", `${homePath}api/SEbrowser/WidgetView`, "SortOrder", true)
 export const APIAccessKeySlice = new GenericSlice<IAPIAccessKey>('APIAccessKey', `${homePath}api/OpenXDA/APIAccessKey`, 'RegistrationKey');
 
 
