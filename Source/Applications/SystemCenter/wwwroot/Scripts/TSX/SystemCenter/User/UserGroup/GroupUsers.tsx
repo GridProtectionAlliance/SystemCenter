@@ -230,6 +230,7 @@ const GroupUser = (props: { Group: ISecurityGroup }) => {
                 </div>
             </div>
             <ControllerSelectPopup<Application.Types.iUserAccount>
+                PrimaryKey={'ID'}
                 Controller={RemoteUserAccountController}
                 Selection={groupUsers}
                 OnClose={(selected, conf) => {
