@@ -83,7 +83,7 @@ export default function WidgetForm(props: IProps) {
             e = e.concat(settingsErrors);
             props.SetErrors(e);
         }
-    }, [props.Widget.Name, settingsErrors?.length ?? 0]);
+    }, [props.Widget.Name, settingsErrors?.length ?? 0, allWidgets]);
 
     React.useEffect(() => {
         if (AllWidgets.findIndex(widget => widget.Name === props.Widget.Type) < 0)
