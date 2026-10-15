@@ -30,7 +30,6 @@ import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { LoadingIcon, Modal, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
 import { PQBrowser } from '@gpa-gemstone/application-typings';
 import { Input, Select } from '@gpa-gemstone/react-forms';
-import { IsInteger } from '@gpa-gemstone/helper-functions';
 
 //TODO: remove this interface and use interface from gemstone when new gemstone application-typing is published (check for it being used anywhere else too)
 export interface IWidgetView extends PQBrowser.Types.IWidgetView {
@@ -198,7 +197,7 @@ const WidgetByCategory = (props: IProps) => {
                     dispatch(SEBrowserWidgetViewSlice.DBAction({ verb: 'POST', record }))
                  setShowAdd(false);
             }}
-            DisableConfirm={data.find(d => d.ID == (record?.ID ?? 0)) != null || record?.SortOrder == null || !IsInteger(record.SortOrder)}
+            DisableConfirm={data.find(d => d.ID == (record?.ID ?? 0)) != null || record?.SortOrder == null}
             ConfirmShowToolTip={data.find(d => d.ID == (record?.ID ?? 0)) != null}
             ConfirmToolTipContent={<p><ReactIcons.CrossMark Color="var(--danger)" /> This widget is already in this tab.</p>}
             ShowX={true}
@@ -212,13 +211,13 @@ const WidgetByCategory = (props: IProps) => {
                     Options={allWidgets.map(o => ({ Value: o.ID.toString(), Label: o.Name }))}
                 />
                 <Input<IWidgetView>
-                    Type={'number'}
+                    Type={'integer'}
                     Record={record}
                     Field={'SortOrder'}
                     Label='Sort Order'
-                    Feedback={'Sort Order must be an integer.'}
+                    Feedback={'An integer Sort Order value is required.'}
                     Help={'Controls the order this widget is shown in within this PQ Browser tab. Lower numbers are shown first.'}
-                    Valid={() => record.SortOrder != null && IsInteger(record.SortOrder)}
+                    Valid={() => record.SortOrder != null}
                     Setter={setRecord}
                 />
             </> : null}
@@ -231,20 +230,20 @@ const WidgetByCategory = (props: IProps) => {
                     dispatch(SEBrowserWidgetViewSlice.DBAction({ verb: 'PATCH', record: editRecord }))
                 setEditRecord(null);
             }}
-            DisableConfirm={editRecord?.SortOrder == null || !IsInteger(editRecord.SortOrder)}
+            DisableConfirm={editRecord?.SortOrder == null}
             ShowX={true}
             ShowCancel={false}
             ConfirmText={'Save'}
         >
             {editRecord != null ?
                 <Input<IWidgetView>
-                    Type={'number'}
+                    Type={'integer'}
                     Record={editRecord}
                     Field={'SortOrder'}
                     Label='Sort Order'
-                    Feedback={'Sort Order must be an integer.'}
+                    Feedback={'An integer Sort Order value is required.'}
                     Help={'Controls the order this widget is shown in within this PQ Browser tab. Lower numbers are shown first.'}
-                    Valid={() => editRecord.SortOrder != null && IsInteger(editRecord.SortOrder)}
+                    Valid={() => editRecord.SortOrder != null}
                     Setter={setEditRecord}
                 /> : null}
         </Modal>
