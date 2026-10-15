@@ -35,7 +35,7 @@ declare type Tab = 'systemSettings' | 'remoteMeter' | 'remoteAsset'
 interface IProps { Roles: Array<Application.Types.SecurityRoleName>, ID: number, Tab: Tab }
 
 const tabs: IRecordTab<OpenXDA.Types.RemoteXDAInstance>[] = [
-    { Id: 'systemSettings', Label: "System Settings", Content: (record, setter, patch, clear, errors, setErrors, warnings) => <SystemSettingsTab SelectedRecord={record} SetSelectedRecord={setter} Patch={patch} ClearChanges={clear} Errors={errors} SetErrors={setErrors} Warnings={warnings} Roles={roles} /> },
+    { Id: 'systemSettings', Label: "System Settings", Content: (record, setter, patch, clear, errors, setErrors, warnings) => <SystemSettingsTab SelectedRecord={record} SetSelectedRecord={setter} Patch={patch} ClearChanges={clear} Errors={errors} SetErrors={setErrors} Warnings={warnings} /> },
     { Id: "remoteMeter", Label: "Remote Meter", Content: (rec) => <RemoteMeterTab ID={rec.ID} /> },
     { Id: "remoteAsset", Label: "Remote Asset", Content: (rec) => <RemoteAssetTab ID={rec.ID} /> }
 ]
