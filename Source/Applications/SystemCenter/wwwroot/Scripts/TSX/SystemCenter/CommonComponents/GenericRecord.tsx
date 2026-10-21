@@ -73,7 +73,7 @@ interface IProps<T> {
     /**
      * List of tabs to render with the record fetched in this component.
      */
-    Tabs: IRecordTab<T>[],
+    Tabs: IRecordTabs<T>,
     /**
      * Callback to determine whether or not user has permission to delete record.
      */
@@ -93,7 +93,12 @@ interface ITab {
     Id: string
 }
 
-export interface IRecordTab<T> extends ITab {
+export interface IRecordTabs<T> {
+    MainRecordTab: IMainRecordTab<T>
+    RelationTabs: IRelationTab<T>[]
+}
+
+export interface IMainRecordTab<T> extends ITab {
     Content: (
         record: T,
         setRecord: React.Dispatch<React.SetStateAction<T>>,
@@ -102,6 +107,14 @@ export interface IRecordTab<T> extends ITab {
         errors: string[],
         setErrors: React.Dispatch<React.SetStateAction<string[]>>,
         warnings: string[],
+        operationResults: OperationResult[],
+        setOperationResults: React.Dispatch<React.SetStateAction<OperationResult[]>>
+    ) => React.ReactNode
+}
+
+export interface IRelationTab<T> extends ITab {
+    Content: (
+        record: T,
         operationResults: OperationResult[],
         setOperationResults: React.Dispatch<React.SetStateAction<OperationResult[]>>
     ) => React.ReactNode
@@ -183,10 +196,11 @@ function GenericRecord<T>({
 
     const card = React.useMemo(() => {
         if (selectedRecord == null) return null
-        const i = Tabs.findIndex(t => t.Id === tab)
+        if (tab === Tabs.MainRecordTab.Id) return Tabs.MainRecordTab.Content(selectedRecord, setSelectedRecord, patch, clearChanges, errors, setErrors, warnings, operationResults, setOperationResults);
+        const i = Tabs.RelationTabs.findIndex(t => t.Id === tab)
         if (i < 0) return null
-        return Tabs[i].Content(selectedRecord, setSelectedRecord, patch, patchStatus, clearChanges, errors, setErrors, warnings, operationResults, setOperationResults);
-    }, [tab, Tabs, selectedRecord, setSelectedRecord, patch, patchStatus, clearChanges, errors, setErrors, warnings, operationResults, setOperationResults]);
+        return Tabs.RelationTabs[i].Content(selectedRecord, operationResults, setOperationResults);
+    }, [tab, Tabs, selectedRecord, setSelectedRecord, patch, clearChanges, errors, setErrors, warnings, operationResults, setOperationResults]);
 
     function deleteRecord() {
         if (!HasDeletePermission()) return
@@ -222,7 +236,10 @@ function GenericRecord<T>({
             </div>
             <hr />
 
-            <TabSelector CurrentTab={tab} SetTab={(t) => { setOperationResults([]); setAndSaveTab(t); }} Tabs={Tabs} />
+            <TabSelector
+                CurrentTab={tab}
+                SetTab={(t) => { setOperationResults([]); setAndSaveTab(t); }}
+                Tabs={[Tabs.MainRecordTab, ...Tabs.RelationTabs]} />
             {card}
             <Warning
                 Title={'Delete ' + (GetName(originalRecord))}

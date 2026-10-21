@@ -72,11 +72,11 @@ interface IProps<T> {
     /**
      * List of operation results to display to user.
      */
-    OperationResults: OperationResult[]
+    OperationResults: OperationResult[];
     /**
      * Setter for Operation Results
      */
-    SetOperationResults: React.Dispatch<React.SetStateAction<OperationResult[]>>
+    SetOperationResults: React.Dispatch<React.SetStateAction<OperationResult[]>>;
 }
 
 /**

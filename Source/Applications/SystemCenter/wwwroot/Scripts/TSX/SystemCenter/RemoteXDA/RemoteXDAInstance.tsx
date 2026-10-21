@@ -27,15 +27,15 @@ import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import SystemSettingsTab from './SystemSettingsTab'
 import RemoteAssetTab from './RemoteAssetTab'
 import RemoteMeterTab from './RemoteMeterTab';
-import GenericRecord, { IRecordTab } from '../CommonComponents/GenericRecord';
+import GenericRecord, { IRecordTabs } from '../CommonComponents/GenericRecord';
 
 declare var homePath: string;
 declare type Tab = 'systemSettings' | 'remoteMeter' | 'remoteAsset'
 
 interface IProps { Roles: Array<Application.Types.SecurityRoleName>, ID: number, Tab: Tab }
 
-const tabs: IRecordTab<OpenXDA.Types.RemoteXDAInstance>[] = [
-    {
+const tabs: IRecordTabs<OpenXDA.Types.RemoteXDAInstance> = {
+    MainRecordTab: {
         Id: 'systemSettings',
         Label: "System Settings",
         Content: (
@@ -60,10 +60,11 @@ const tabs: IRecordTab<OpenXDA.Types.RemoteXDAInstance>[] = [
                 SetOperationResults={setOperationResults}
             />
     },
+    RelationTabs: [
     {
         Id: "remoteMeter",
         Label: "Remote Meter",
-        Content: (rec, _a, _b, _c, _d, _e, _f, _g, operationResults, setOperationResults) => <RemoteMeterTab
+            Content: (rec, operationResults, setOperationResults) => <RemoteMeterTab
             ID={rec.ID}
             OperationResults={operationResults}
             SetOperationResults={setOperationResults}
@@ -72,15 +73,16 @@ const tabs: IRecordTab<OpenXDA.Types.RemoteXDAInstance>[] = [
     {
         Id: "remoteAsset",
         Label: "Remote Asset",
-        Content: (rec, _a, _b, _c, _d, _e, _f, _g, operationResults, setOperationResults) => <RemoteAssetTab
+            Content: (rec, operationResults, setOperationResults) => <RemoteAssetTab
             ID={rec.ID}
             OperationResults={operationResults}
             SetOperationResults={setOperationResults}
         />
     }
 ]
+}
 
-function RemoteXDAInstance({Roles, ID, Tab }: IProps) {
+function RemoteXDAInstance({ Roles, ID, Tab }: IProps) {
     return (
         <GenericRecord<OpenXDA.Types.RemoteXDAInstance>
             RecordID={ID}
