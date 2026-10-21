@@ -382,7 +382,7 @@ function GenericRelation<T>({
                                     SetOperationResults([...OperationResults, { RecordType: RecordType, Result: 'failure', OperationType: 'SAVE', Timestamp: moment().valueOf() }]);
                                 });
                         }
-                            setShowEdit(false);
+                        setShowEdit(false);
                     }}
                     DisableConfirm={editRecordErrors.length > 0}
                     ShowX={true}

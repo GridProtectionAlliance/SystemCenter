@@ -86,6 +86,10 @@ interface IProps<T> {
      * Initial tab to render, overriding locally stored tab.
      */
     InitialTab?: string
+    /**
+     * 
+     */  
+    KeyLabelDictionary?: {[K in keyof T]?: string}
 }
 
 interface ITab {
@@ -141,7 +145,8 @@ function GenericRecord<T>({
     Tabs,
     HasDeletePermission,
     HasPatchPermission,
-    InitialTab
+    InitialTab,
+    KeyLabelDictionary
 }: IProps<T>) {
     const [tab, setTab] = React.useState<string>(() => getTab(TabLocalStorage, DefaultTab, InitialTab));
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
@@ -163,7 +168,8 @@ function GenericRecord<T>({
         Object.keys(selectedRecord).forEach((key) => {
             if (!(key in (selectedRecord as object))) return
             const originalValue = originalRecord[key];
-            const warning = `Changes to ${key} will be lost.`;
+            const label = KeyLabelDictionary?.[key] ?? key;
+            const warning = `Changes to ${label} will be lost.`;
             if (originalValue != selectedRecord[key]) result.push(warning);
         })
         return result;

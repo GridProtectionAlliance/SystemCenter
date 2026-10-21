@@ -61,25 +61,25 @@ const tabs: IRecordTabs<OpenXDA.Types.RemoteXDAInstance> = {
             />
     },
     RelationTabs: [
-    {
-        Id: "remoteMeter",
-        Label: "Remote Meter",
+        {
+            Id: "remoteMeter",
+            Label: "Remote Meter",
             Content: (rec, operationResults, setOperationResults) => <RemoteMeterTab
-            ID={rec.ID}
-            OperationResults={operationResults}
-            SetOperationResults={setOperationResults}
-        />
-    },
-    {
-        Id: "remoteAsset",
-        Label: "Remote Asset",
+                ID={rec.ID}
+                OperationResults={operationResults}
+                SetOperationResults={setOperationResults}
+            />
+        },
+        {
+            Id: "remoteAsset",
+            Label: "Remote Asset",
             Content: (rec, operationResults, setOperationResults) => <RemoteAssetTab
-            ID={rec.ID}
-            OperationResults={operationResults}
-            SetOperationResults={setOperationResults}
-        />
-    }
-]
+                ID={rec.ID}
+                OperationResults={operationResults}
+                SetOperationResults={setOperationResults}
+            />
+        }
+    ]
 }
 
 function RemoteXDAInstance({ Roles, ID, Tab }: IProps) {
@@ -98,6 +98,13 @@ function RemoteXDAInstance({ Roles, ID, Tab }: IProps) {
             HasDeletePermission={() => Roles.includes('Administrator')}
             HasPatchPermission={() => Roles.includes('Administrator')}
             InitialTab={Tab}
+            KeyLabelDictionary={
+                {
+                    Address: "URL",
+                    RegistrationKey: "Registration Key",
+                    APIToken: "API Token"
+                }
+            }
         />
     )
 }
