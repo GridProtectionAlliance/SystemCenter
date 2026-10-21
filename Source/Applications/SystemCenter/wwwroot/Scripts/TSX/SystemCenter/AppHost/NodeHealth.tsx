@@ -106,6 +106,9 @@ const NodeHealth = (props: IProps) => {
             setOpenMICStatus(d)
             setStatus('idle')
         }).fail(() => {
+            setOpenMICStatus(item => {
+                return { Status: 'Error', Details: 'Network request for OpenMICStatus failed.', ...item }
+            })
             setStatus('error')
         })
 
