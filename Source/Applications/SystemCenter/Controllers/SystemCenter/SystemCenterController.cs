@@ -119,7 +119,20 @@ namespace SystemCenter.Controllers
     }
 
     [RoutePrefix("api/LSCVSAccount")]
-    public class LSCVSAccountController : ModelController<LSCVSAccount> { }
+    public class LSCVSAccountController : ModelController<LSCVSAccount> 
+    {
+        public override IHttpActionResult Patch([FromBody] LSCVSAccount record)
+        {
+            if (!User.IsInRole("Administrator")) return Unauthorized();
+            return base.Patch(record);
+        }
+
+        public override IHttpActionResult Delete(LSCVSAccount record)
+        {
+            if (!User.IsInRole("Administrator")) return Unauthorized();
+            return base.Delete(record);
+        }
+    }
 
     [RoutePrefix("api/OpenXDA/DBCleanup")]
     public class DBCleanupController : ModelController<DBCleanup>
