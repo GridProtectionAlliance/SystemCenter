@@ -168,7 +168,7 @@ const ConsoleWindow = (props: IProps) => {
                 <div style={{ flex: '1 1 0', minHeight: 0 }}>
                     <Console
                         Status={updateStatus}
-                        LastSuccess={lastUpdate != null ? moment(lastUpdate).format('MM/DD/YYYY HH:mm') : "N/A"}
+                        LastSuccess={lastUpdate != null ? moment(lastUpdate).format('MM/DD/YYYY HH:mm:ss') : "N/A"}
                         AutoScroll={true}
                     >
                         {messages.map((m, i) => {

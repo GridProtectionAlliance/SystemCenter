@@ -57,7 +57,6 @@ const NodeHealth = (props: IProps) => {
 
     React.useEffect(() => {
         if (props.ApplicationType === 'openMIC') {
-            setStatus('loading')
             const cleanup = GetOpenMICHealth()
             return cleanup
         }
@@ -93,6 +92,7 @@ const NodeHealth = (props: IProps) => {
     }, [props.ApplicationName]);
 
     const GetOpenMICHealth = () => {
+        setStatus('loading');
         const h = $.ajax({
             type: "GET",
             url: `${homePath}api/DeviceHealthReport/OpenMICStatus`,
@@ -125,7 +125,7 @@ const NodeHealth = (props: IProps) => {
 
     return (
         <div className="d-flex flex-column h-100" style={{ flex: 1 }}>
-            <Console Status={status} LastSuccess={lastSuccess != null ? moment(lastSuccess).format('MM/DD/YYYY HH:mm') : "N/A"}>
+            <Console Status={status} LastSuccess={lastSuccess != null ? moment(lastSuccess).format('MM/DD/YYYY HH:mm:ss') : "N/A"}>
             <span style={{ color: 'white' }}>{statInfo}</span>
             </Console>
         </div>
