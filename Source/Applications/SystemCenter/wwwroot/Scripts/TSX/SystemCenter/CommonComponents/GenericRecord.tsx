@@ -97,8 +97,7 @@ export interface IRecordTab<T> extends ITab {
     Content: (
         record: T,
         setRecord: React.Dispatch<React.SetStateAction<T>>,
-        patch: () => void,
-        patchStatus: Application.Types.Status,
+        patch: () => JQuery.jqXHR<any>,
         clearChanges: () => void,
         errors: string[],
         setErrors: React.Dispatch<React.SetStateAction<string[]>>,
@@ -170,7 +169,7 @@ function GenericRecord<T>({
     const patch = React.useCallback(() => {
         if (!HasPatchPermission()) return
         setPatchStatus('loading');
-        new GenericController<T>(ControllerPath, DefaultSort).DBAction("PATCH", selectedRecord)
+        return new GenericController<T>(ControllerPath, DefaultSort).DBAction("PATCH", selectedRecord)
             .done(() => {
                 setPatchStatus('idle');
                 refreshData(x => x + 1);
@@ -225,7 +224,14 @@ function GenericRecord<T>({
 
             <TabSelector CurrentTab={tab} SetTab={(t) => { setOperationResults([]); setAndSaveTab(t); }} Tabs={Tabs} />
             {card}
-            <Warning Title={'Delete ' + (GetName(originalRecord))} Show={showWarning} Message={`This will permanently delete this ${RecordType}.`} CallBack={(c) => { if (c) deleteRecord(); setShowWarning(false) }} />
+            <Warning
+                Title={'Delete ' + (GetName(originalRecord))}
+                Show={showWarning}
+                Message={`This will permanently delete this ${RecordType}.`}
+                CallBack={(c) => {
+                    if (c) deleteRecord();
+                    setShowWarning(false);
+                }} />
         </div>
     )
 }

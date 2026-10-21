@@ -27,7 +27,6 @@ import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
 import { OperationResult } from './ResultAlert';
 import AlertDisplay from './AlertDisplay';
-import moment from 'moment';
 
 interface IProps<T> {
     /**
@@ -69,11 +68,7 @@ interface IProps<T> {
     /**
      * Callback to patch the original record to reflect changes made on the selected record.
      */
-    Patch: () => void;
-    /**
-     * State of current Patch call.
-     */
-    PatchStatus: Application.Types.Status
+    Patch: () => JQuery.jqXHR<any>;
     /**
      * List of operation results to display to user.
      */
@@ -100,11 +95,11 @@ function GenericInfo<T,>({
     Warnings,
     ClearChanges,
     Patch,
-    PatchStatus,
     OperationResults,
     SetOperationResults
 }: React.PropsWithChildren<IProps<T>>) {
     const [hover, setHover] = React.useState<('None' | 'Clear' | 'Submit')>('None');
+    const [patchStatus, setPatchStatus] = React.useState<Application.Types.Status>('uninitiated');
 
     return (
         <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -125,13 +120,16 @@ function GenericInfo<T,>({
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-primary" + (Warnings.length == 0 || Errors.length > 0 || PatchStatus === 'loading' ? ' disabled' : '')} onClick={() => {
-                        if (Warnings.length > 0 && Errors.length == 0 && PatchStatus != 'loading') {
-                           Patch();
+                    <button className={"btn btn-primary" + (Warnings.length == 0 || Errors.length > 0 || patchStatus === 'loading' ? ' disabled' : '')} onClick={() => {
+                        if (Warnings.length > 0 && Errors.length == 0 && patchStatus != 'loading') {
+                            setPatchStatus('loading');
+                            Patch()
+                                .done(() => setPatchStatus('idle'))
+                                .fail(() => setPatchStatus('error'))
                         }
                     }}
                         onMouseEnter={() => setHover('Submit')} onMouseLeave={() => setHover('None')} data-tooltip={"Update"}
-                    >{PatchStatus === 'loading' ? <ReactIcons.SpiningIcon/> : "Save Changes"}
+                    >{patchStatus === 'loading' ? <ReactIcons.SpiningIcon/> : "Save Changes"}
                     </button>
                 </div>
                 <ToolTip Show={hover == 'Submit' && Errors.length > 0} Position={'top'} Target={"Update"}>

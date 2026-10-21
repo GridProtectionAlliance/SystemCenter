@@ -42,7 +42,6 @@ const tabs: IRecordTab<OpenXDA.Types.RemoteXDAInstance>[] = [
             record,
             setter,
             patch,
-            patchStatus,
             clear,
             errors,
             setErrors,
@@ -53,7 +52,6 @@ const tabs: IRecordTab<OpenXDA.Types.RemoteXDAInstance>[] = [
                 SelectedRecord={record}
                 SetSelectedRecord={setter}
                 Patch={patch}
-                PatchStatus={patchStatus}
                 ClearChanges={clear}
                 Errors={errors}
                 SetErrors={setErrors}

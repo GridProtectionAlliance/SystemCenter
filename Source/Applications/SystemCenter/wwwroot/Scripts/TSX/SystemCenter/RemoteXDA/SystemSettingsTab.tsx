@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA, Application } from '@gpa-gemstone/application-typings';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { RemoteXDAInstanceForm } from './RemoteXDAInstanceForm';
 import GenericInfo from '../CommonComponents/GenericInfo';
 import { SelectRoles } from '../Store/UserSettings'; 
@@ -37,8 +37,7 @@ interface IProps {
     SetErrors: React.Dispatch<React.SetStateAction<string[]>>
     Warnings: string[]
     ClearChanges: () => void
-    Patch: () => void
-    PatchStatus: Application.Types.Status
+    Patch: () => JQuery.jqXHR<any>
     OperationResults: OperationResult[]
     SetOperationResults: React.Dispatch<React.SetStateAction<OperationResult[]>>
 }
@@ -48,7 +47,7 @@ const SystemSettingsTab = (props: IProps) => {
     const roles = useAppSelector(SelectRoles);
 
     function hasPermissions(): boolean {
-        if (roles.indexOf('Administrator') < 0 || roles.indexOf('Engineer') < 0)
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0)
             return false;
         return true;
     }
@@ -65,7 +64,6 @@ const SystemSettingsTab = (props: IProps) => {
             Warnings={props.Warnings}
             ClearChanges={props.ClearChanges}
             Patch={props.Patch}
-            PatchStatus={props.PatchStatus}
             OperationResults={props.OperationResults}
             SetOperationResults={props.SetOperationResults }
         />

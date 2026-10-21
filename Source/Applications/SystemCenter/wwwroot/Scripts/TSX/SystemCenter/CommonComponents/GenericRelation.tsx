@@ -343,7 +343,10 @@ function GenericRelation<T>({
                     : null}
             </div>
             {DeleteColumn ?? false ?
-                <Warning Title={"Delete " + (selectedRecord != null ? GetName(selectedRecord) : RecordType)} Show={showDelete} Message={`Are you sure you want to delete the ${RecordType} for ` + (selectedRecord != null ? GetName(selectedRecord) : "this " + RecordType) + "?"}
+                <Warning
+                    Title={"Delete " + (selectedRecord != null ? GetName(selectedRecord) : RecordType)}
+                    Show={showDelete}
+                    Message={`Are you sure you want to delete the ${RecordType} for ` + (selectedRecord != null ? GetName(selectedRecord) : "this " + RecordType) + "?"}
                     CallBack={(conf) => {
                         if (conf) {
                             setDeleteStatus('loading');
@@ -357,11 +360,13 @@ function GenericRelation<T>({
                                     setDeleteStatus('error')
                                     SetOperationResults([...OperationResults, { RecordType: RecordType, Result: 'failure', OperationType: 'DELETE', Timestamp: moment().valueOf() }]);
                                 });
-                            setShowDelete(false);
                         }
+                        setShowDelete(false);
                     }} /> : null}
             {EditForm != null ?
-                <Modal Show={showEdit} Title={'Edit ' + (selectedRecord != null ? GetName(selectedRecord) : RecordType)}
+                <Modal
+                    Show={showEdit}
+                    Title={'Edit ' + (selectedRecord != null ? GetName(selectedRecord) : RecordType)}
                     ShowCancel={true}
                     CallBack={(conf) => {
                         if (conf) {
@@ -376,8 +381,8 @@ function GenericRelation<T>({
                                     setPatchStatus('error');
                                     SetOperationResults([...OperationResults, { RecordType: RecordType, Result: 'failure', OperationType: 'SAVE', Timestamp: moment().valueOf() }]);
                                 });
-                            setShowEdit(false);
                         }
+                            setShowEdit(false);
                     }}
                     DisableConfirm={editRecordErrors.length > 0}
                     ShowX={true}
