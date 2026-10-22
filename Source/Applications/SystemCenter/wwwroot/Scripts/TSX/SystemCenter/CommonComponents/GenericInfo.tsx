@@ -32,7 +32,7 @@ interface IProps<T> {
     /**
      * Forms to display within the tab.
      */
-    Forms: Array<(record: T, setter: React.Dispatch<React.SetStateAction<T>>, setErrors: React.Dispatch<React.SetStateAction<string[]>>) => React.ReactNode>
+    Forms: Array<(originalRecord: T, selectedRecord: T, setter: React.Dispatch<React.SetStateAction<T>>, setErrors: React.Dispatch<React.SetStateAction<string[]>>, disabled: boolean) => React.ReactNode>
     /**
      * Determine whether the user has permissions to edit the record.
      */
@@ -41,6 +41,10 @@ interface IProps<T> {
      * User-facing name for the record type.
      */
     RecordType: string
+    /**
+     * Copy of the record as it exists currently in the database.
+     */
+    OriginalRecord: T
     /**
      * Record to edit in the form and send as the new version of the model in a patch.
      */
@@ -68,7 +72,7 @@ interface IProps<T> {
     /**
      * Callback to patch the original record to reflect changes made on the selected record.
      */
-    Patch: () => JQuery.jqXHR<any>;
+    Patch: () => JQuery.jqXHR<any> | null;
     /**
      * List of operation results to display to user.
      */
@@ -88,6 +92,7 @@ function GenericInfo<T,>({
     Forms,
     HasPermissions,
     RecordType,
+    OriginalRecord,
     SelectedRecord,
     SetSelectedRecord,
     Errors,
@@ -114,7 +119,7 @@ function GenericInfo<T,>({
                 <AlertDisplay OperationResults={OperationResults} SetOperationResults={SetOperationResults} />
                 {
                     Forms.map((form) => {
-                        return form(SelectedRecord, SetSelectedRecord, SetErrors)
+                        return form(OriginalRecord, SelectedRecord, SetSelectedRecord, SetErrors, (patchStatus == 'loading'))
                     })
                 }
             </div>
@@ -122,14 +127,16 @@ function GenericInfo<T,>({
                 <div className="btn-group mr-2">
                     <button className={"btn btn-primary" + (Warnings.length == 0 || Errors.length > 0 || patchStatus === 'loading' ? ' disabled' : '')} onClick={() => {
                         if (Warnings.length > 0 && Errors.length == 0 && patchStatus != 'loading') {
-                            setPatchStatus('loading');
-                            Patch()
-                                .done(() => setPatchStatus('idle'))
-                                .fail(() => setPatchStatus('error'))
+                            const h = Patch();
+                            if (h != null) {
+                                setPatchStatus('loading');
+                                h.done(() => setPatchStatus('idle'))
+                                    .fail(() => setPatchStatus('error'))
+                            }
                         }
                     }}
                         onMouseEnter={() => setHover('Submit')} onMouseLeave={() => setHover('None')} data-tooltip={"Update"}
-                    >{patchStatus === 'loading' ? <ReactIcons.SpiningIcon/> : "Save Changes"}
+                    >{patchStatus === 'loading' ? <ReactIcons.SpiningIcon /> : "Save Changes"}
                     </button>
                 </div>
                 <ToolTip Show={hover == 'Submit' && Errors.length > 0} Position={'top'} Target={"Update"}>

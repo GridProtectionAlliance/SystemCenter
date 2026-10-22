@@ -87,7 +87,7 @@ interface IProps<T> {
      */
     InitialTab?: string
     /**
-     * 
+     * Defines labels for keys in record to use in user-facing messages.
      */  
     KeyLabelDictionary?: {[K in keyof T]?: string}
 }
@@ -104,9 +104,10 @@ export interface IRecordTabs<T> {
 
 export interface IMainRecordTab<T> extends ITab {
     Content: (
+        originalRecord: T,
         record: T,
         setRecord: React.Dispatch<React.SetStateAction<T>>,
-        patch: () => JQuery.jqXHR<any>,
+        patch: () => JQuery.jqXHR<any> | null,
         clearChanges: () => void,
         errors: string[],
         setErrors: React.Dispatch<React.SetStateAction<string[]>>,
@@ -154,7 +155,6 @@ function GenericRecord<T>({
     const [selectedRecord, setSelectedRecord] = React.useState<T | null>(null);
     const { Data: originalRecord, Status: originalRecordStatus } = useGetOne<T>(GetOnePath, RecordID, refreshCount);
     const [deleteStatus, setDeleteStatus] = React.useState<Application.Types.Status>('idle');
-    const [patchStatus, setPatchStatus] = React.useState<Application.Types.Status>('idle');
     const [errors, setErrors] = React.useState<string[]>([]);
     const [operationResults, setOperationResults] = React.useState<OperationResult[]>([]);
 
@@ -166,14 +166,14 @@ function GenericRecord<T>({
         const result: string[] = [];
         if (selectedRecord == null || originalRecord == null) return [];
         Object.keys(selectedRecord).forEach((key) => {
-            if (!(key in (selectedRecord as object))) return
+            if (!(key in (originalRecord as object))) return
             const originalValue = originalRecord[key];
             const label = KeyLabelDictionary?.[key] ?? key;
             const warning = `Changes to ${label} will be lost.`;
             if (originalValue != selectedRecord[key]) result.push(warning);
         })
         return result;
-    }, [originalRecord, selectedRecord])
+    }, [originalRecord, selectedRecord, KeyLabelDictionary])
 
     const setAndSaveTab = React.useCallback((tabID: string) => {
         const saved = getTab(TabLocalStorage, DefaultTab);
@@ -185,28 +185,25 @@ function GenericRecord<T>({
         setSelectedRecord(originalRecord);
     }, [originalRecord])
 
-    const patch = React.useCallback(() => {
-        if (!HasPatchPermission()) return
-        setPatchStatus('loading');
+    const patch: () => JQuery.jqXHR | null = React.useCallback(() => {
+        if (!HasPatchPermission()) return null;
         return new GenericController<T>(ControllerPath, DefaultSort).DBAction("PATCH", selectedRecord)
             .done(() => {
-                setPatchStatus('idle');
                 refreshData(x => x + 1);
                 setOperationResults((alerts) => [{ Result: 'success', RecordType: RecordType, OperationType: 'SAVE', Timestamp: moment().valueOf() }, ...alerts])
             })
             .fail(() => {
-                setPatchStatus('error');
                 setOperationResults((alerts) => [{ Result: 'failure', RecordType: RecordType, OperationType: 'SAVE', Timestamp: moment().valueOf() }, ...alerts]);
             })
-    }, [ControllerPath, DefaultSort, selectedRecord])
+    }, [ControllerPath, DefaultSort, selectedRecord, RecordType, HasPatchPermission])
 
     const card = React.useMemo(() => {
         if (selectedRecord == null) return null
-        if (tab === Tabs.MainRecordTab.Id) return Tabs.MainRecordTab.Content(selectedRecord, setSelectedRecord, patch, clearChanges, errors, setErrors, warnings, operationResults, setOperationResults);
+        if (tab === Tabs.MainRecordTab.Id) return Tabs.MainRecordTab.Content(originalRecord, selectedRecord, setSelectedRecord, patch, clearChanges, errors, setErrors, warnings, operationResults, setOperationResults);
         const i = Tabs.RelationTabs.findIndex(t => t.Id === tab)
         if (i < 0) return null
         return Tabs.RelationTabs[i].Content(selectedRecord, operationResults, setOperationResults);
-    }, [tab, Tabs, selectedRecord, setSelectedRecord, patch, clearChanges, errors, setErrors, warnings, operationResults, setOperationResults]);
+    }, [tab, Tabs, originalRecord, selectedRecord, setSelectedRecord, patch, clearChanges, errors, setErrors, warnings, operationResults, setOperationResults]);
 
     function deleteRecord() {
         if (!HasDeletePermission()) return
@@ -219,14 +216,12 @@ function GenericRecord<T>({
             })
     }
 
-    if (originalRecordStatus == 'uninitiated' || originalRecordStatus == 'loading')
-        return <LoadingScreen Show={true} />;
-
     if (originalRecordStatus == 'error')
         return <ServerErrorIcon Show={true} Label={"Error occurred while retrieving record."} />;
 
+
     if (originalRecord == null)
-        return null;
+        return <LoadingScreen Show={true} />;
 
     return (
         <div style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>

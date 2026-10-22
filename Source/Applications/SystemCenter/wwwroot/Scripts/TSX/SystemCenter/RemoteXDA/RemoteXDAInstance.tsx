@@ -34,11 +34,18 @@ declare type Tab = 'systemSettings' | 'remoteMeter' | 'remoteAsset'
 
 interface IProps { Roles: Array<Application.Types.SecurityRoleName>, ID: number, Tab: Tab }
 
+const KeyLabelDictionary = {
+    Address: "URL",
+    RegistrationKey: "Registration Key",
+    APIToken: "API Token"
+}
+
 const tabs: IRecordTabs<OpenXDA.Types.RemoteXDAInstance> = {
     MainRecordTab: {
         Id: 'systemSettings',
         Label: "System Settings",
         Content: (
+            originalRecord,
             record,
             setter,
             patch,
@@ -49,6 +56,7 @@ const tabs: IRecordTabs<OpenXDA.Types.RemoteXDAInstance> = {
             operationResults,
             setOperationResults
         ) => <SystemSettingsTab
+                OriginalRecord={originalRecord}
                 SelectedRecord={record}
                 SetSelectedRecord={setter}
                 Patch={patch}
@@ -98,13 +106,7 @@ function RemoteXDAInstance({ Roles, ID, Tab }: IProps) {
             HasDeletePermission={() => Roles.includes('Administrator')}
             HasPatchPermission={() => Roles.includes('Administrator')}
             InitialTab={Tab}
-            KeyLabelDictionary={
-                {
-                    Address: "URL",
-                    RegistrationKey: "Registration Key",
-                    APIToken: "API Token"
-                }
-            }
+            KeyLabelDictionary={KeyLabelDictionary}
         />
     )
 }

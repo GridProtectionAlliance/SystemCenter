@@ -95,6 +95,7 @@ const RemoteXDAInstanceMain: Application.Types.iByComponent = (props) => {
                         <p key={i}> <ReactIcons.CrossMark Color="var(--danger)" /> {t} </p>
                     )}>
                     <RemoteXDAInstanceForm
+                        Original={BlankRemoteXDAInstance}
                         BaseInstance={BlankRemoteXDAInstance}
                         SetInstance={setFormInstance}
                         SetErrors={setNewInstErrors}

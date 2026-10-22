@@ -31,13 +31,14 @@ import { useAppSelector } from '../hooks';
 import { OperationResult } from '../CommonComponents/ResultAlert'; 
 
 interface IProps {
+    OriginalRecord: OpenXDA.Types.RemoteXDAInstance
     SelectedRecord: OpenXDA.Types.RemoteXDAInstance
     SetSelectedRecord: React.Dispatch<React.SetStateAction<OpenXDA.Types.RemoteXDAInstance>>
     Errors: string[]
     SetErrors: React.Dispatch<React.SetStateAction<string[]>>
     Warnings: string[]
     ClearChanges: () => void
-    Patch: () => JQuery.jqXHR<any>
+    Patch: () => JQuery.jqXHR<any> | null
     OperationResults: OperationResult[]
     SetOperationResults: React.Dispatch<React.SetStateAction<OperationResult[]>>
 }
@@ -47,16 +48,17 @@ const SystemSettingsTab = (props: IProps) => {
     const roles = useAppSelector(SelectRoles);
 
     function hasPermissions(): boolean {
-        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0)
+        if (roles.indexOf('Administrator') < 0)
             return false;
         return true;
     }
 
     return (
         <GenericInfo<OpenXDA.Types.RemoteXDAInstance>
-            Forms={[(record, setter, setErrors) => <RemoteXDAInstanceForm BaseInstance={record} SetInstance={setter} SetErrors={setErrors} />]}
+            Forms={[(original, record, setter, setErrors, disabled) => <RemoteXDAInstanceForm Original={original} BaseInstance={record} SetInstance={setter} SetErrors={setErrors} Disable={disabled} />]}
             HasPermissions={hasPermissions}
             RecordType={'Remote XDA Instance'}
+            OriginalRecord={props.OriginalRecord }
             SelectedRecord={props.SelectedRecord}
             SetSelectedRecord={props.SetSelectedRecord}
             Errors={props.Errors}

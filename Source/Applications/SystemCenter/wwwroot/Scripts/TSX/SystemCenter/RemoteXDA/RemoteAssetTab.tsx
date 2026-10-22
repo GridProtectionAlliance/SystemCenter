@@ -37,7 +37,7 @@ import moment from 'moment';
 
 interface IProps { ID: number, OperationResults: OperationResult[], SetOperationResults: React.Dispatch<React.SetStateAction<OperationResult[]>> }
 
-const RemoteXDAAssetController = new GenericController<OpenXDA.Types.RemoteXDAAsset>(`${homePath}api/OpenXDA/RemoteXDAAsset`, "LocalAssetName", false);
+const RemoteXDAAssetController = new GenericController<OpenXDA.Types.RemoteXDAAsset>(`${homePath}api/OpenXDA/RemoteXDAAsset`, "LocalAssetName", true);
 
 const Columns: SC.IByCol<OpenXDA.Types.RemoteXDAAsset>[] = [
     { Field: "LocalAssetName", Label: "Local Name", Type: "string" },
@@ -94,9 +94,9 @@ const RemoteAssetTab = (props: IProps) => {
                 OnCloseFunction={(selected, conf) => {
                     setShowAddAssets(false);
                     setAssetList([]);
-                    if (!conf) return;
+                    if (!conf || selected.length === 0) return;
                     setPostStatus('loading')
-                    Promise.all(
+                    Promise.allSettled(
                         selected.map((asset) => {
                             let newRemote: OpenXDA.Types.RemoteXDAAsset = {
                                 ID: -1,
@@ -113,13 +113,17 @@ const RemoteAssetTab = (props: IProps) => {
                                 RemoteAssetKey: ""
                             }
                             return RemoteXDAAssetController.DBAction("POST", newRemote)
-                                .fail((error) => {
+                                .fail(() => {
                                     setPostStatus('error');
-                                    props.SetOperationResults([{ Result: 'failure', RecordType: "Remote XDA Asset", OperationType: "SAVE", Timestamp: moment().valueOf() }, ...props.OperationResults])
-                                });
+                                    props.SetOperationResults(opResults => [{ Result: 'failure', RecordType: "Remote XDA Asset", OperationType: "SAVE", Timestamp: moment().valueOf() }, ...opResults])
+                                })
                         })
-                    ).then(() => {
-                        if (postStatus === 'loading') setPostStatus('idle');
+                    ).then((results) => {
+                        const failed = results.some(r => r.status === 'rejected')
+                        if (!failed) {
+                            props.SetOperationResults(opResults => [{ Result: 'success', RecordType: "Remote XDA Asset", OperationType: "SAVE", Timestamp: moment().valueOf() }, ...opResults])
+                            setPostStatus('idle');
+                        }
                         refreshData(x => x + 1);
                     })
                 }} />

@@ -169,7 +169,9 @@ function GenericRelation<T>({
     const [deleteStatus, setDeleteStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [patchStatus, setPatchStatus] = React.useState<Application.Types.Status>('uninitiated');
 
-    const { Data: pagedData, Status: pagedStatus, RecordsPerPage: recordsPerPage, TotalPages: totalPages, TotalRecords: totalRecords } = usePagedSearch<T>(Controller, Filters, page, sortField, ascending, ParentID, refreshCount);
+    const filters = React.useMemo(() => Filters ?? [], [Filters])
+
+    const { Data: pagedData, Status: pagedStatus, RecordsPerPage: recordsPerPage, TotalPages: totalPages, TotalRecords: totalRecords } = usePagedSearch<T>(Controller, filters, page, sortField, ascending, ParentID, refreshCount);
 
     const getContent = React.useCallback((datum: SC.IColDatum<T>, col: SC.IByCol<T>) => {
         if (col?.Content != null) return col.Content(datum);
@@ -186,6 +188,7 @@ function GenericRelation<T>({
     }, [page, totalPages])
 
     React.useEffect(() => {
+        if (RefreshCount == 0) return // prevent initial double load
         refreshData(x => x + 1);
     }, [RefreshCount])
 
@@ -325,7 +328,7 @@ function GenericRelation<T>({
                     <>
                         <div className="add-new-meter">
                             <button
-                                className={"btn btn-info" + (HasPermissions() || AddStatus != 'loading' ? '' : ' disabled')}
+                                className={"btn btn-info" + (HasPermissions() && AddStatus != 'loading' ? '' : ' disabled')}
                                 type="submit" data-tooltip='AddRecord' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('')}
                                 onClick={(e) => {
                                     if (HasPermissions() && AddStatus != 'loading') {
@@ -354,11 +357,11 @@ function GenericRelation<T>({
                                 .done(() => {
                                     setDeleteStatus('idle');
                                     refreshData(x => x + 1);
-                                    SetOperationResults([...OperationResults, { RecordType: RecordType, Result: 'success', OperationType: 'DELETE', Timestamp: moment().valueOf() }]);
+                                    SetOperationResults(results => [{ RecordType: RecordType, Result: 'success', OperationType: 'DELETE', Timestamp: moment().valueOf() }, ...results]);
                                 })
                                 .fail(() => {
                                     setDeleteStatus('error')
-                                    SetOperationResults([...OperationResults, { RecordType: RecordType, Result: 'failure', OperationType: 'DELETE', Timestamp: moment().valueOf() }]);
+                                    SetOperationResults(results => [{ RecordType: RecordType, Result: 'failure', OperationType: 'DELETE', Timestamp: moment().valueOf() }, ...results]);
                                 });
                         }
                         setShowDelete(false);
@@ -375,11 +378,11 @@ function GenericRelation<T>({
                                 .done(() => {
                                     setPatchStatus('idle');
                                     refreshData(x => x + 1);
-                                    SetOperationResults([...OperationResults, { RecordType: RecordType, Result: 'success', OperationType: 'SAVE', Timestamp: moment().valueOf() }])
+                                    SetOperationResults(results => [{ RecordType: RecordType, Result: 'success', OperationType: 'SAVE', Timestamp: moment().valueOf() }, ...results])
                                 })
                                 .fail(() => {
                                     setPatchStatus('error');
-                                    SetOperationResults([...OperationResults, { RecordType: RecordType, Result: 'failure', OperationType: 'SAVE', Timestamp: moment().valueOf() }]);
+                                    SetOperationResults(results => [{ RecordType: RecordType, Result: 'failure', OperationType: 'SAVE', Timestamp: moment().valueOf() }, ...results]);
                                 });
                         }
                         setShowEdit(false);

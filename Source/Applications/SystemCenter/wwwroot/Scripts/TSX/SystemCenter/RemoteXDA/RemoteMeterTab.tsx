@@ -38,7 +38,7 @@ import moment from 'moment';
 
 interface IProps { ID: number, OperationResults: OperationResult[], SetOperationResults: React.Dispatch<React.SetStateAction<OperationResult[]>> }
 
-const RemoteMeterController = new GenericController<OpenXDA.Types.RemoteXDAMeter>(`${homePath}api/OpenXDA/RemoteXDAMeter`, "LocalMeterName", false);
+const RemoteMeterController = new GenericController<OpenXDA.Types.RemoteXDAMeter>(`${homePath}api/OpenXDA/RemoteXDAMeter`, "LocalMeterName", true);
 const MeterController = new GenericController<SystemCenter.Types.DetailedMeter>(`${homePath}api/OpenXDA/ByMeter`, "Name");
 
 const columns: SC.IByCol<OpenXDA.Types.RemoteXDAMeter>[] = [
@@ -69,7 +69,6 @@ const RemoteMeterTab = (props: IProps) => {
     const [refreshCount, refreshData] = React.useState<number>(0);
     const [searchResults, setSearchResults] = React.useState<OpenXDA.Types.RemoteXDAMeter[]>([]);
     const [assetCount, setAssetCount] = React.useState<number>(0);
-    const [showLoading, setShowLoading] = React.useState<boolean>(false);
     const [postStatus, setPostStatus] = React.useState<Application.Types.Status>('uninitiated');
 
     const roles = useAppSelector(SelectRoles);
@@ -176,9 +175,8 @@ const RemoteMeterTab = (props: IProps) => {
                     setMeterList([]);
                     if (!conf) return;
                     setPostStatus('loading');
-                    Promise.all(
+                    Promise.allSettled(
                         selected.map((meter) => {
-                            setShowLoading(true);
                             let newRemote: OpenXDA.Types.RemoteXDAMeter = {
                                 ID: -1,
                                 RemoteXDAInstanceID: props.ID,
@@ -198,18 +196,20 @@ const RemoteMeterTab = (props: IProps) => {
                             fetchAssetHandle.then((data: number) => {
                                 refreshData(x => x + 1);
                                 setAssetCount(data);
-                                setShowLoading(false);
                             })
                             return RemoteMeterController.DBAction("POST", newRemote)
-                                .fail((error) => {
+                                .fail(() => {
                                     setPostStatus('error');
-                                    props.SetOperationResults([{ Result: 'failure', RecordType: "Remote XDA Meter", OperationType: "SAVE", Timestamp: moment().valueOf() }, ...props.OperationResults])
+                                    props.SetOperationResults(opResults => [{ Result: 'failure', RecordType: "Remote XDA Meter", OperationType: "SAVE", Timestamp: moment().valueOf() }, ...opResults])
                                 })
                         })
-                    ).then(() => {
-                        if (postStatus != 'error') setPostStatus('idle');
+                    ).then((results) => {
+                        const failed = results.some(r => r.status === 'rejected')
+                        if (!failed) {
+                            props.SetOperationResults(opResults => [{ Result: 'success', RecordType: "Remote XDA Meter", OperationType: "SAVE", Timestamp: moment().valueOf() }, ...opResults])
+                            setPostStatus('idle');
+                        }
                         refreshData(x => x + 1);
-                        props.SetOperationResults([{ Result: 'success', RecordType: "Remote XDA Meter", OperationType: "SAVE", Timestamp: moment().valueOf() }, ...props.OperationResults])
                     })
                 }}
                 Show={showAddMeters}
