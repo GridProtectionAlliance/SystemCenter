@@ -55,20 +55,15 @@ function MDMKeys(props: IProps) {
 
     React.useEffect(() => {
         const e: string[] = [];
-        if (newLSCVSAccount.AccountID == null || newLSCVSAccount.AccountID.length === 0)
+        if (!Valid('AccountID', newLSCVSAccount))
             e.push('An Account ID is required.')
         setErrors(e);
         if (selectedLSCVSAccount == null) return
         const pe: string[] = [];
-        if (selectedLSCVSAccount.AccountID == null || selectedLSCVSAccount.AccountID.length === 0)
+        if (!Valid('AccountID', selectedLSCVSAccount))
             pe.push('An Account ID is required');
         setPatchErrors(pe);
     }, [newLSCVSAccount, selectedLSCVSAccount])
-
-    function Valid(field: keyof (SystemCenter.Types.LSCVSAccount), account: SystemCenter.Types.LSCVSAccount) {
-        if (field == 'AccountID')
-            return account.AccountID != null && account.AccountID.length > 0 && account.AccountID.length < 50;
-    }
 
     function hasPermissions(): boolean {
         if (roles.indexOf('Administrator') < 0)
@@ -217,4 +212,9 @@ function MDMKeys(props: IProps) {
     );
 }
 
-export default MDMKeys
+export default MDMKeys;
+
+function Valid(field: keyof (SystemCenter.Types.LSCVSAccount), account: SystemCenter.Types.LSCVSAccount) {
+    if (field == 'AccountID')
+        return account.AccountID != null && account.AccountID.length > 0 && account.AccountID.length < 50;
+}
