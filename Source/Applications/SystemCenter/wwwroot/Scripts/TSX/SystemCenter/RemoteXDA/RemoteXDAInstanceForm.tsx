@@ -43,9 +43,12 @@ const BlankRemoteXDAInstance: OpenXDA.Types.RemoteXDAInstance = {
 }
 
 interface IProps {
+    Original: OpenXDA.Types.RemoteXDAInstance,
     BaseInstance: OpenXDA.Types.RemoteXDAInstance,
     SetInstance: (instance: OpenXDA.Types.RemoteXDAInstance) => void,
-    SetErrors?: (e: string[]) => void, RenderPortalId?: string
+    SetErrors?: (e: string[]) => void,
+    RenderPortalId?: string,
+    Disable?: boolean
 }
 
 export default function RemoteXDAInstanceForm(props: IProps) {
@@ -70,6 +73,7 @@ export default function RemoteXDAInstanceForm(props: IProps) {
 
     const roles = useAppSelector(SelectRoles);
     const [hover, setHover] = React.useState<('submit' | 'none' | 'reset')>('none');
+    const disabled = props.Disable ?? false; // used to prevent changes, for instance, if a patch is currently in-flight.
 
     React.useEffect(() => {
         setFormInstance(props.BaseInstance)
@@ -81,7 +85,7 @@ export default function RemoteXDAInstanceForm(props: IProps) {
 
     React.useEffect(() => {
         let e = [];
-        const formModified = !_.isEqual(props.BaseInstance, formInstance);
+        const formModified = !_.isEqual(props.Original, formInstance);
 
         if (formModified && !hasPermissions())
             e.push("Your role does not have permission. Please contact your Administrator if you believe this to be in error.");
@@ -187,18 +191,18 @@ export default function RemoteXDAInstanceForm(props: IProps) {
                 <form>
                     <div className="row">
                         <div className="col-6">
-                            <Input<OpenXDA.Types.RemoteXDAInstance> Record={formInstance} Field={'Name'} Label={'Name'} Feedback={"A Name of less than 200 characters is required."} Valid={valid} Setter={setFormInstance} Disabled={!hasPermissions()} />
-                            <Input<OpenXDA.Types.RemoteXDAInstance> Record={formInstance} Field={'Address'} Label={'URL'} Feedback={"A URL of less than 200 characters is required."} Valid={valid} Setter={setFormInstance} Disabled={!hasPermissions()} />
+                            <Input<OpenXDA.Types.RemoteXDAInstance> Record={formInstance} Field={'Name'} Label={'Name'} Feedback={"A Name of less than 200 characters is required."} Valid={valid} Setter={setFormInstance} Disabled={!hasPermissions() || disabled} />
+                            <Input<OpenXDA.Types.RemoteXDAInstance> Record={formInstance} Field={'Address'} Label={'URL'} Feedback={"A URL of less than 200 characters is required."} Valid={valid} Setter={setFormInstance} Disabled={!hasPermissions() || disabled} />
                             <Input<OpenXDA.Types.RemoteXDAInstance> Record={formInstance} Field={'Frequency'} Label={'Frequency'} Feedback={"Frequency in a valid cron format is required."} Valid={valid} Setter={setFormInstance} Help={'In order of minutes, hours, day of the month, month, weekday. For example, a Frequency of every midnight would be * 0 * * *'}
-                                Disabled={!hasPermissions()} />
+                                Disabled={!hasPermissions() || disabled} />
                         </div>
                         <div className="col-6">
                             <Input<OpenXDA.Types.RemoteXDAInstance> Record={formInstance} Field='RegistrationKey' Label='Registration Key'
                                 Feedback="A Registration Key for the remote XDA instance is required. This key must be less than 50 characters."
-                                Valid={valid} Setter={setFormInstance} Disabled={!hasPermissions()} />
+                                Valid={valid} Setter={setFormInstance} Disabled={!hasPermissions() || disabled} />
                             <Input<OpenXDA.Types.RemoteXDAInstance> Record={formInstance} Field='APIToken' Label='API Token'
                                 Feedback="An API Token for the remote XDA instance is required. This token must be less than 50 characters."
-                                Valid={valid} Setter={setFormInstance} Disabled={!hasPermissions()} />
+                                Valid={valid} Setter={setFormInstance} Disabled={!hasPermissions() || disabled} />
                             {
                                 formInstance.ID > 0 ?
                                     <>
