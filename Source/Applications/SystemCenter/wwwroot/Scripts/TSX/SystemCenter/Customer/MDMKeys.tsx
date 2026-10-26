@@ -29,7 +29,6 @@ import { Table, Column } from "@gpa-gemstone/react-table";
 import React from "react";
 import { useAppSelector, useControllerFetch } from "../hooks";
 import { SelectRoles } from "../Store/UserSettings";
-import { select } from "d3-selection";
 
 interface IProps {CustomerID: number}
 
@@ -65,8 +64,13 @@ function MDMKeys(props: IProps) {
         setPatchErrors(pe);
     }, [newLSCVSAccount, selectedLSCVSAccount])
 
-    function hasPermissions(): boolean {
+    function hasEditDeletePermissions(): boolean {
         if (roles.indexOf('Administrator') < 0)
+            return false;
+        return true;
+    }
+    function hasAddPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0)
             return false;
         return true;
     }
@@ -120,9 +124,9 @@ function MDMKeys(props: IProps) {
                                 RowStyle={{ width: '10%' }}
                                 Content={({ item }) => (item ?
                                     <button
-                                        className={"btn btn-edit" + (hasPermissions() ? '' : ' disabled')}
+                                        className={"btn btn-edit" + (hasEditDeletePermissions() ? '' : ' disabled')}
                                         onClick={(e) => {
-                                            if (hasPermissions()) {
+                                            if (hasEditDeletePermissions()) {
                                                 e.preventDefault();
                                                 setSelectedLSCVSAccount(item);
                                                 setShowEdit(true);
@@ -140,9 +144,9 @@ function MDMKeys(props: IProps) {
                                 RowStyle={{ width: '10%' }}
                                 Content={({ item }) => (item ?
                                     <button
-                                        className={"btn btn-delete" + (hasPermissions() ? '' : ' disabled')}
+                                        className={"btn btn-delete" + (hasEditDeletePermissions() ? '' : ' disabled')}
                                         onClick={(e) => {
-                                            if (hasPermissions()) {
+                                            if (hasEditDeletePermissions()) {
                                                 e.preventDefault();
                                                 setSelectedLSCVSAccount(item);
                                                 setShowDelete(true);
@@ -157,10 +161,10 @@ function MDMKeys(props: IProps) {
                     </div>
                 </div>
                 <div className="card-footer">
-                    <button className={"btn btn-info" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='AddID'
-                        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (hasPermissions()) { setNewLSCVSAccount(emptyLSCVS); setShowAdd(true); } }}>Add Account ID</button>
+                    <button className={"btn btn-info" + (!hasAddPermissions() ? ' disabled' : '')} data-tooltip='AddID'
+                        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (hasAddPermissions()) { setNewLSCVSAccount(emptyLSCVS); setShowAdd(true); } }}>Add Account ID</button>
                 </div>
-                <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Target={"AddID"}>
+                <ToolTip Show={hover == 'Update' && !hasAddPermissions()} Position={'top'} Target={"AddID"}>
                     <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                 </ToolTip>
                 <Modal Title={'Add Account ID'}
@@ -188,7 +192,7 @@ function MDMKeys(props: IProps) {
                     Size={'lg'}
                     ShowX={true}
                     CallBack={(conf, isBtn) => {
-                        if (conf && patchErrors.length == 0 && hasPermissions())
+                        if (conf && patchErrors.length == 0 && hasEditDeletePermissions())
                             MDMKeyController.DBAction('PATCH', selectedLSCVSAccount).then(() => refreshData(x => x + 1));
                         setShowEdit(false);
                     }}
@@ -204,7 +208,7 @@ function MDMKeys(props: IProps) {
                 </Modal>
                 <Warning Title={"Delete MDM Key?"} Show={showDelete} Message={"Are you sure you want to delete the MDM Key?"}
                     CallBack={(conf) => {
-                        if (conf && hasPermissions()) MDMKeyController.DBAction('DELETE', selectedLSCVSAccount).then(() => refreshData(x => x+1));
+                        if (conf && hasEditDeletePermissions()) MDMKeyController.DBAction('DELETE', selectedLSCVSAccount).then(() => refreshData(x => x+1));
                         setShowDelete(false);
                     }} />
             </div>
