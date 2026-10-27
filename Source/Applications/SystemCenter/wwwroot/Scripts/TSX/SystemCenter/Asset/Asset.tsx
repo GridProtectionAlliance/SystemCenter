@@ -40,9 +40,12 @@ import { LoadingScreen, TabSelector, Warning } from '@gpa-gemstone/react-interac
 import SourceImpedanceWindow from '../AssetAttribute/SourceImpedanceWindow';
 import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
+import AssetGroupRelation from '../AssetGroups/AssetGroupRelation';
+import CustomerRelation from '../Customer/CustomerRelation';
+import { OperationResult } from '../CommonComponents/ResultAlert'; 
 
 declare var homePath: string;
-declare type Tab = 'notes' | 'assetInfo' | 'substations' | 'meters' | 'connections' | 'additionalFields' | 'extDB' | 'segments' | 'sourceImpedances' | 'channels';
+declare type Tab = 'notes' | 'assetInfo' | 'substations' | 'meters' | 'connections' | 'additionalFields' | 'extDB' | 'segments' | 'sourceImpedances' | 'channels' | 'assetGroups' | 'customers';
 
 interface IProps { AssetID: number, Tab: Tab }
 
@@ -54,6 +57,7 @@ function Asset(props: IProps) {
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
     const [loadDelete, setLoadDelete] = React.useState<boolean>(false);
     const [forceReload, setForceReload] = React.useState<boolean>(false);
+    const [operationResults, setOperationResults] = React.useState<OperationResult[]>([]);
     const roles = useAppSelector(SelectRoles);
 
     React.useEffect(() => {
@@ -144,6 +148,8 @@ function Asset(props: IProps) {
         { Id: "meters", Label: "Meters" },
         { Id: "channels", Label: "Channels" },
         { Id: "connections", Label: "Connections" },
+        { Id: "assetGroups", Label: "Asset Groups" },
+        { Id: "customers", Label: "Customers"}
     ];
 
     if (assetType == 'Line') {
@@ -171,7 +177,7 @@ function Asset(props: IProps) {
             </div>
             <hr />
 
-            <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
+            <TabSelector CurrentTab={tab} SetTab={(t: Tab) => { setTab(t); setOperationResults([]); }} Tabs={Tabs} />
             {tab === 'notes' ? <NoteWindow ID={asset.ID} Type='Asset' /> : null}
             {tab === 'assetInfo' ? <AssetInfoWindow Asset={asset} StateSetter={setAsset} />: null}
             {tab === 'additionalFields' ? <AdditionalFieldsWindow ID={asset.ID} Type={(assetType == null) ? "Asset" : assetType} Tab={tab} />: null}
@@ -180,7 +186,9 @@ function Asset(props: IProps) {
             {tab === "channels" ? <AssetChannelWindow Name={asset.AssetName} ID={asset.ID} />: null}
             {tab === 'connections' ? <AssetConnectionWindow Name={asset.AssetName} ID={asset.ID} TypeID={asset["AssetTypeID"]} />: null}
             {tab === 'sourceImpedances' ? <SourceImpedanceWindow ID={asset.ID} />: null}
-            {tab === 'segments' ? <LineSegmentWindow ID={asset.ID} LineKey={asset.AssetKey} LineName={asset.AssetName} OnChange={() => { setForceReload(x => !x) }} />: null}
+            {tab === 'segments' ? <LineSegmentWindow ID={asset.ID} LineKey={asset.AssetKey} LineName={asset.AssetName} OnChange={() => { setForceReload(x => !x) }} /> : null}
+            {tab === 'assetGroups' ? <AssetGroupRelation Record={asset} OperationResults={operationResults} SetOperationResults={setOperationResults} /> : null}
+            {tab === 'customers' ? <CustomerRelation Record={asset} OperationResults={operationResults} SetOperationResults={setOperationResults} /> : null }
 
             <Warning Message={'This will permanently delete this Asset and cannot be undone.'} Show={showDelete} Title={'Delete ' + (asset?.AssetName ?? 'Asset')} CallBack={(conf) => { if (conf) deleteAsset(); setShowDelete(false); }} />
             <LoadingScreen Show={loadDelete} />
