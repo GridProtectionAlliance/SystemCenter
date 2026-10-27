@@ -27,11 +27,6 @@ import { TextArea, ToolTip } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { ScheduledEmailType } from '../global';
 import { ScheduledEmailTypeSlice } from '../Store';
-import moment from 'moment';
-
-declare var homePath;
-declare var version;
-const momentDateTimeFormat = "MM/DD/YYYY HH:mm:ss.SSS";
 
 interface IProps { Record: ScheduledEmailType }
 
@@ -43,11 +38,8 @@ const TriggerWindow = (props: IProps) => {
     const [hasChanged, setHasChanged] = React.useState<boolean>(false);
     const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
 
-    const [triggerSQL, setTriggerSQL] = React.useState<string>(props.Record.TriggerEmailSQL);
-
     const [triggerStatus, setTriggerStatus] = React.useState<('idle' | 'loading' | 'valid' | 'invalid')>('idle')
     const [triggers, setTriggers] = React.useState<boolean>(false)
-    const [selectedDateTime, setSelectedDateTime] = React.useState<{ dateTime: string }>({ dateTime: moment.utc().format(momentDateTimeFormat) });
 
     React.useEffect(() => {
         setEmail(props.Record);
@@ -59,13 +51,6 @@ const TriggerWindow = (props: IProps) => {
        
         setHasChanged(!h);
     }, [props.Record, email])
-
-    React.useEffect(() => {
-        const handle = setTimeout(() => {
-            setEmail((e) => ({ ...e, TriggerEmailSQL: triggerSQL }))
-        }, 500);
-        return () => { if (handle !== null) clearTimeout(handle); };
-    }, [triggerSQL]);
 
     return (
         <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
@@ -95,10 +80,10 @@ const TriggerWindow = (props: IProps) => {
                             <div className="col">
                                 <div className="form-group">
                                     <TextArea
-                                        Record={props.Record}
+                                        Record={email}
                                         Help={'SQL query that returns 1 or 0 to indicate whether an email should be sent.'}
                                         Rows={10}
-                                        Setter={(evt) => { if (evt.TriggerEmailSQL !== '') setTriggerSQL(evt.TriggerEmailSQL); else setTriggerSQL(null) }}
+                                        Setter={(val) => setEmail(val)}
                                         Feedback={'Condition SQL must be a valid SQL statement returning 1 or 0.'}
                                         Field={'TriggerEmailSQL'}
                                         Label={'Condition SQL'}
@@ -114,7 +99,7 @@ const TriggerWindow = (props: IProps) => {
                                 type="submit"
                                 onClick={() => {
                                     if ((triggerStatus == 'valid' || triggerStatus == 'idle') && hasChanged)
-                                        dispatch(ScheduledEmailTypeSlice.DBAction({ verb: 'PATCH', record: email }));
+                                        dispatch(ScheduledEmailTypeSlice.DBAction({ verb: 'PATCH', record: email.TriggerEmailSQL != null ? email : {...email, TriggerEmailSQL: ""}}));
                                 }}
                                 data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
                         </div>
