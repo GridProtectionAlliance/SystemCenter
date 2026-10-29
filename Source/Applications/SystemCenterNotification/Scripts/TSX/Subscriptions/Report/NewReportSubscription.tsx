@@ -22,7 +22,8 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { ProgressBar } from '@gpa-gemstone/react-interactive';
+import { ProgressBar, GenericController } from '@gpa-gemstone/react-interactive';
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { ToolTip } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import ReportSelect from './ReportSelect';
@@ -39,6 +40,8 @@ declare var version;
 
 type Step = 'Selection' | 'Email' | 'Phone' | 'Carrier' | 'Success';
 
+const AssetGroupController = new GenericController<OpenXDA.Types.AssetGroup>(`${homePath}api/OpenXDA/AssetGroup`, "Name");
+
 const NewReportSubscription = (props: {}) => {
     const [currentStep, setCurrentStep] = React.useState<Step>('Selection')
 
@@ -46,7 +49,9 @@ const NewReportSubscription = (props: {}) => {
     const [hoverNext, setHoverNext] = React.useState<boolean>(false);
 
     const [emailTypeID, setEmailTypeID] = React.useState<number>(-1);
-    const [assetGroupID, setAssetGroupID] = React.useState<number[]>([]);
+    const [allAssetGroup, setAllAssetGroup] = React.useState<OpenXDA.Types.AssetGroup | null>(null);
+    const [allAssetStatus, setAllAssetStatus] = React.useState<Application.Types.Status>('uninitiated');
+
     const isText = useAppSelector((state) => (EmailTypeSlice.Datum(state, emailTypeID) == null ? false : EmailTypeSlice.Datum(state, emailTypeID).SMS));
 
     const carrierID = useAppSelector(UserInfoSlice.CellCarrierID);
@@ -64,12 +69,30 @@ const NewReportSubscription = (props: {}) => {
         { short: 'Success', long: 'Success', id: 'Success' }
     ];
 
+    // get all asset groups to find the "AllAssets" group, to use by default for reports until asset group filtering is implemented.
+    React.useEffect(() => {
+        setAllAssetStatus('loading');
+        const handle = AssetGroupController.Fetch()
+            .done((result: OpenXDA.Types.AssetGroup[]) => {
+                const maybeAllAssetGroup = result.find(ag => ag.Name === "AllAssets");
+                if (maybeAllAssetGroup != null) {
+                    setAllAssetGroup(maybeAllAssetGroup);
+                    setAllAssetStatus('idle');
+                }
+                else {
+                    setAllAssetStatus('error')
+                }
+            })
+            .fail(() => setAllAssetStatus('error'));
+        return () => {
+            if (handle != null && handle.abort != null) handle.abort()
+        }
+    }, [])
+
     React.useEffect(() => {
         const e = [];
         if (emailTypeID < 0 && currentStep == 'Selection')
             e.push('A Report must be selected.')
-        if (assetGroupID.length == 0 && currentStep == 'Selection')
-            e.push('At least 1 Asset Group must be selected.')
         if (currentStep == 'Email')
             e.push('Your email address needs to be confirmed')
         if (currentStep == 'Phone')
@@ -77,7 +100,7 @@ const NewReportSubscription = (props: {}) => {
         if (carrierID == null && currentStep == 'Carrier')
             e.push('A cell Carrier has to be selected.')
         setError(e);
-    }, [emailTypeID, assetGroupID, currentStep])
+    }, [emailTypeID, currentStep])
 
     function getHeader() {
         if (currentStep == 'Selection')
@@ -150,14 +173,14 @@ const NewReportSubscription = (props: {}) => {
                         <div className="row h-100">
                             {currentStep == 'Selection' ?
                                 <>
-                                    <AssetGroupSelection assetGroupID={assetGroupID} SetAssetGroupID={setAssetGroupID} /> 
+                                    {/**<AssetGroupSelection assetGroupID={assetGroupID} SetAssetGroupID={setAssetGroupID} /> - until asset group filtering is applied to reports, we'll have them subscribe to "AllAssets." */} 
                                     <ReportSelect scheduledEmailTypeID={emailTypeID} SetScheduledEmailTypeID={setEmailTypeID} />
                                 </>
                                 : null}
                             {currentStep == 'Email' ? <ConfirmEmail SetConfirmed={() => setCurrentStep('Success')} /> : null}
                             {currentStep == 'Carrier' ? <ConfirmPhoneCarrier /> : null}
                             {currentStep == 'Phone' ? <ConfirmPhone SetConfirmed={() => setCurrentStep('Success')} /> : null}
-                            {currentStep == 'Success' ? <Success assetGroupID={assetGroupID} emailTypeID={emailTypeID} /> : null}
+                            {currentStep == 'Success' ? <Success assetGroupID={allAssetGroup != null ? [allAssetGroup.ID] : [-1]} emailTypeID={emailTypeID} /> : null}
                         </div>
                     </div>
                     <div className="card-footer">
