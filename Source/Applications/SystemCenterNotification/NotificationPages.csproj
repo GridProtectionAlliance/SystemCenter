@@ -371,6 +371,7 @@
     <TypeScriptCompile Include="Scripts\TSX\EmailTypes\SentEmailTable.tsx" />
     <TypeScriptCompile Include="Scripts\TSX\EmailTypes\SentEmailTimeline.tsx" />
     <TypeScriptCompile Include="Scripts\TSX\Subscriptions\AddSubscription.tsx" />
+    <TypeScriptCompile Include="Scripts\TSX\Subscriptions\Report\ByAllSubscription.tsx" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

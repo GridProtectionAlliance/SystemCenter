@@ -51,7 +51,14 @@ const Success = (props: IProps) => {
                     Email: '',
                     UserAccountScheduledEmailID: 0,
                     EmailName: '',
-                    UserName: ''
+                    UserName: '',
+                    // any field below this was added and won't be referenced in the post.
+                    Approved: false,
+                    RequireApproval: false,
+                    FirstName: '',
+                    LastName: '',
+                    LastSent: '',
+                    Subject: ''
                 }
             }));
         });

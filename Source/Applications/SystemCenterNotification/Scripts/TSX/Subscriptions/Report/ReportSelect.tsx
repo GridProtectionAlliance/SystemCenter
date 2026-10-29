@@ -48,6 +48,7 @@ const emptyCategory = { ID: -1, Name: '', SelfSubscribe: false } as EmailCategor
 interface IProps {
     SetScheduledEmailTypeID: (id: number) => void,
     scheduledEmailTypeID: number
+    ShowSubscriptionOverride?: boolean
 }
 
 const ReportSelect = (props: IProps) => {
