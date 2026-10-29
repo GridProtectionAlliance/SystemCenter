@@ -358,7 +358,7 @@ namespace SystemCenter.Notifications.Controllers
         public override IHttpActionResult Delete(openXDA.Model.ActiveScheduledSubscription record)
         {
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
-                connection.ExecuteNonQuery("DELETE FROM UserAccountScheduledEmailType WHERE ID = {0}", record.ScheduledEmailTypeID);
+                connection.ExecuteNonQuery("DELETE FROM UserAccountScheduledEmailType WHERE ID = {0}", record.UserAccountScheduledEmailID);
 
             return Ok(1);
         }
