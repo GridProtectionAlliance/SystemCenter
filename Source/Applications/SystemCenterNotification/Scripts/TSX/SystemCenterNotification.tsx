@@ -37,6 +37,7 @@ import BySubscription from './Subscriptions/Event/BySubscription';
 import { UserInfoSlice } from './Store';
 import { useAppDispatch, useAppSelector } from './hooks';
 import ByAllSubscription from './Subscriptions/Event/ByAllSubscription';
+import ByAllReportSubscription from './Subscriptions/Report/ByAllSubscription';
 import EmailConfirmed from './Subscriptions/EmailConfirmed';
 import ByCellCarrier from './CellCarrier/ByCellCarrier';
 import ByUserInformation from './UserInformation/ByUserInformation';
@@ -75,7 +76,7 @@ const MainPage = (props: {}) => {
 
         handle.then((d: string) => { setAckSetting(d); })
 
-        return () => { if (handle != null && handle.abort != null) handle.abort();}
+        return () => { if (handle != null && handle.abort != null) handle.abort(); }
     }, [])
 
     function LoadAck() {
@@ -93,59 +94,61 @@ const MainPage = (props: {}) => {
 
     return (
         <>
-        <App
-            DefaultPath={'EventSubscribe'}
-            HomePath={homePath}
-            Version={version} Logo={homePath + 'Images/Notifications.png'}
-            UserRoles={roles}
-            AllowCollapsed={true}
-            OnSignOut={() => { window.location.href = "/Logout"; }}
+            <App
+                DefaultPath={'EventSubscribe'}
+                HomePath={homePath}
+                Version={version} Logo={homePath + 'Images/Notifications.png'}
+                UserRoles={roles}
+                AllowCollapsed={true}
+                OnSignOut={() => { window.location.href = "/Logout"; }}
             >
-            <Section Label='Subscribe'>
-                <Page Name='EventSubscribe' Label='Subscribe to Event' Icon={ReactIcons.AlertAdd} >
-                    <NewEventSubscription />
-                </Page>
-                <Page Name='ReportSubscribe' Label='Subscribe to Report' Icon={ReactIcons.ReportAdd} >
+                <Section Label='Subscribe'>
+                    <Page Name='EventSubscribe' Label='Subscribe to Event' Icon={ReactIcons.AlertAdd} >
+                        <NewEventSubscription />
+                    </Page>
+                    <Page Name='ReportSubscribe' Label='Subscribe to Report' Icon={ReactIcons.ReportAdd} >
                         <NewReportSubscription />
-                </Page>
-            </Section>
-            <Section Label='Subscriptions'>
-                <Page Name='MyEventSubscriptions' Label='My Subscriptions' Icon={ReactIcons.AlertPerson} >
-                    <BySubscription/>
-                </Page>
-                <Page Name='AllEventSubscriptions' Label='All Event Subscriptions' Icon={ReactIcons.AlertPeople} RequiredRoles={['Administrator']} >
-                    <ByAllSubscription />
-                </Page>
-                {/*TO DO: Add 'All Report Subscriptions' page*/}
-                <Page Name='ContactInfo' Label={'My Contact Info'} Icon={ReactIcons.PhoneSettings}>
-                    <ByUserInformation />
-                </Page>
-                </Section>
-            {isAdmin && (
-                <Section Label='System Settings'>
-                    <Page Name='Categories' Label='Email Categories' Icon={ReactIcons.Folder} RequiredRoles={['Administrator', 'Engineer']} OtherActivePages={['Category']} >
-                        <ByEmailCategory />
-                    </Page>
-                    <Page Name='Category/:id' RequiredRoles={['Administrator', 'Engineer']}>
-                        <EmailCategoryPage useParams={{ id: '1' }} />
-                    </Page>
-                    <Page Name='EventEmails' Label='Event Notifications' Icon={ReactIcons.Alert} RequiredRoles={['Administrator', 'Engineer']} OtherActivePages={['EventEmail']} >
-                        <ByEmailType />
-                    </Page>
-                    <Page Name='EventEmail/:id' RequiredRoles={['Administrator', 'Engineer']}>
-                        <EmailPage useParams={{ id: '1' }} />
-                    </Page>
-                    <Page Name='ReportEmails' Label='Reports' Icon={ReactIcons.Document} RequiredRoles={['Administrator', 'Engineer']}>
-                        <ByReport />
-                    </Page>
-                    <Page Name='ReportEmail/:id' RequiredRoles={['Administrator', 'Engineer']}>
-                        <ReportPage useParams={{ id: '1' }} />
-                    </Page>
-                    <Page Name='Carrier' Label={'Cell Carrier'} Icon={ReactIcons.Phone} RequiredRoles={['Administrator', 'Engineer']}>
-                        <ByCellCarrier />
                     </Page>
                 </Section>
-            )}
+                <Section Label='Subscriptions'>
+                    <Page Name='MyEventSubscriptions' Label='My Subscriptions' Icon={ReactIcons.AlertPerson} >
+                        <BySubscription />
+                    </Page>
+                    <Page Name='AllEventSubscriptions' Label='All Event Subscriptions' Icon={ReactIcons.AlertPeople} RequiredRoles={['Administrator']} >
+                        <ByAllSubscription />
+                    </Page>
+                    <Page Name='AllReportSubscriptions' Label="All Report Subscriptions" Icon={ReactIcons.AlertPeople} RequiredRoles={['Administrator']}>
+                        <ByAllReportSubscription />
+                    </Page>
+                    <Page Name='ContactInfo' Label={'My Contact Info'} Icon={ReactIcons.PhoneSettings}>
+                        <ByUserInformation />
+                    </Page>
+                </Section>
+                {isAdmin && (
+                    <Section Label='System Settings'>
+                        <Page Name='Categories' Label='Email Categories' Icon={ReactIcons.Folder} RequiredRoles={['Administrator', 'Engineer']} OtherActivePages={['Category']} >
+                            <ByEmailCategory />
+                        </Page>
+                        <Page Name='Category/:id' RequiredRoles={['Administrator', 'Engineer']}>
+                            <EmailCategoryPage useParams={{ id: '1' }} />
+                        </Page>
+                        <Page Name='EventEmails' Label='Event Notifications' Icon={ReactIcons.Alert} RequiredRoles={['Administrator', 'Engineer']} OtherActivePages={['EventEmail']} >
+                            <ByEmailType />
+                        </Page>
+                        <Page Name='EventEmail/:id' RequiredRoles={['Administrator', 'Engineer']}>
+                            <EmailPage useParams={{ id: '1' }} />
+                        </Page>
+                        <Page Name='ReportEmails' Label='Reports' Icon={ReactIcons.Document} RequiredRoles={['Administrator', 'Engineer']}>
+                            <ByReport />
+                        </Page>
+                        <Page Name='ReportEmail/:id' RequiredRoles={['Administrator', 'Engineer']}>
+                            <ReportPage useParams={{ id: '1' }} />
+                        </Page>
+                        <Page Name='Carrier' Label={'Cell Carrier'} Icon={ReactIcons.Phone} RequiredRoles={['Administrator', 'Engineer']}>
+                            <ByCellCarrier />
+                        </Page>
+                    </Section>
+                )}
                 <Page Name='ConfirmEmail/:code' >
                     <EmailConfirmed useParams={{ code: '0000' }} />
                 </Page>
