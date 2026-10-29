@@ -122,6 +122,10 @@ interface IProps<T> {
      * Status of network request to add new relation.
      */
     AddStatus: Application.Types.Status
+    /**
+     * Callback to trigger refreshes in the parent component when data is deleted or patched.
+     */
+    OnRefreshData?: () => void
 }
 
 /**
@@ -154,7 +158,8 @@ function GenericRelation<T>({
     PrimaryKey,
     OperationResults,
     SetOperationResults,
-    AddStatus
+    AddStatus,
+    OnRefreshData
 }: IProps<T>) {
     const [ascending, setAscending] = React.useState<boolean>(Controller.Ascending);
     const [sortField, setSortField] = React.useState<keyof T>(DefaultSort ?? Controller.DefaultSort);
@@ -358,6 +363,7 @@ function GenericRelation<T>({
                                     setDeleteStatus('idle');
                                     refreshData(x => x + 1);
                                     SetOperationResults(results => [{ RecordType: RecordType, Result: 'success', OperationType: 'DELETE', Timestamp: moment().valueOf() }, ...results]);
+                                    if (OnRefreshData != null) OnRefreshData();
                                 })
                                 .fail(() => {
                                     setDeleteStatus('error')
@@ -379,6 +385,7 @@ function GenericRelation<T>({
                                     setPatchStatus('idle');
                                     refreshData(x => x + 1);
                                     SetOperationResults(results => [{ RecordType: RecordType, Result: 'success', OperationType: 'SAVE', Timestamp: moment().valueOf() }, ...results])
+                                    if (OnRefreshData != null) OnRefreshData();
                                 })
                                 .fail(() => {
                                     setPatchStatus('error');
