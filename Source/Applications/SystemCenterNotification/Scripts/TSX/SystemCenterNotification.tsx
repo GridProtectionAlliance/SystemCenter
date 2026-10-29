@@ -47,6 +47,7 @@ import NewReportSubscription from './Subscriptions/Report/NewReportSubscription'
 import ByReport from './Report/ByReport';
 import ReportPage from './Report/ReportPage';
 import ByTrippedNode from './TrippedNodes/ByTrippedNode';
+import ByReportSubscription from './Subscriptions/Report/BySubscription';
 
 declare var homePath;
 declare var version;
@@ -111,8 +112,11 @@ const MainPage = (props: {}) => {
                     </Page>
                 </Section>
                 <Section Label='Subscriptions'>
-                    <Page Name='MyEventSubscriptions' Label='My Subscriptions' Icon={ReactIcons.AlertPerson} >
+                    <Page Name='MyEventSubscriptions' Label='My Event Subscriptions' Icon={ReactIcons.AlertPerson} >
                         <BySubscription />
+                    </Page>
+                    <Page Name='MyReportSubscriptions' Label='My Report Subscriptions' Icon={ReactIcons.AlertPerson} >
+                        <ByReportSubscription />
                     </Page>
                     <Page Name='AllEventSubscriptions' Label='All Event Subscriptions' Icon={ReactIcons.AlertPeople} RequiredRoles={['Administrator']} >
                         <ByAllSubscription />

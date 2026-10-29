@@ -102,6 +102,8 @@ const NewReportSubscription = (props: {}) => {
         setError(e);
     }, [emailTypeID, currentStep])
 
+    const allAssetsGroup: number[] = React.useMemo(() => allAssetGroup != null ? [allAssetGroup.ID] : [-1], [allAssetGroup])
+
     function getHeader() {
         if (currentStep == 'Selection')
             return "Step 1: Select A Report"
@@ -180,7 +182,7 @@ const NewReportSubscription = (props: {}) => {
                             {currentStep == 'Email' ? <ConfirmEmail SetConfirmed={() => setCurrentStep('Success')} /> : null}
                             {currentStep == 'Carrier' ? <ConfirmPhoneCarrier /> : null}
                             {currentStep == 'Phone' ? <ConfirmPhone SetConfirmed={() => setCurrentStep('Success')} /> : null}
-                            {currentStep == 'Success' ? <Success assetGroupID={allAssetGroup != null ? [allAssetGroup.ID] : [-1]} emailTypeID={emailTypeID} /> : null}
+                            {currentStep == 'Success' ? <Success assetGroupID={allAssetsGroup} emailTypeID={emailTypeID} /> : null}
                         </div>
                     </div>
                     <div className="card-footer">

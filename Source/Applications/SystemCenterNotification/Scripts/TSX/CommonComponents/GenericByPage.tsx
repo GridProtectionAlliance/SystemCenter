@@ -59,13 +59,29 @@ interface IProps<T extends U> {
      */
     ControllerPath: string
     /**
-     * 
+     * Default sort key for table.
      */
     DefaultSort: keyof T
+    /**
+     * Default ascending value for table.
+     */
     DefaultAscending: boolean
+    /**
+     * Search field for the quick search bar.
+     */
     DefaultSearchKey: keyof T
+    /**
+     * Columns to include in the table.
+     */
     Columns: IByCol<T>[]
+    /**
+     * Local address in browser application storage to store paging information.
+     */
     PagingID: string
+    /**
+     * Name for the record type.
+     */
+    RecordType: string
     /**
      * If a slice is provided, it will be set as changed when DBACtions are taken using a controller. Eventually this will be removed.
      */
@@ -83,6 +99,10 @@ interface IProps<T extends U> {
      * Allows parent component to trigger refresh.
      */
     RefreshCount?: number
+    /**
+     * Base filters that the user cannot remove.
+     */
+    BaseFilters?: Search.IFilter<T>[]
 }
 
 /**
@@ -100,6 +120,8 @@ const GenericByPage = <T extends U,>({
     OnDelete,
     Slice,
     RefreshCount,
+    RecordType,
+    BaseFilters,
     children
 }: React.PropsWithChildren<IProps<T>>) => {
     const dispatch = useAppDispatch();
@@ -117,11 +139,17 @@ const GenericByPage = <T extends U,>({
 
     const [selectedRecord, setSelectedRecord] = React.useState<T | null>(null);
     const [showRemoveWarning, setShowRemoveWarning] = React.useState<boolean>(false);
-        
+
+    const allFilters = React.useMemo(() => {
+        if (BaseFilters == null) return filters;
+        return [...filters, ...BaseFilters]
+    }, [filters, BaseFilters])
+
+
     // just going to write out this useEffect right now, we can move it into a hook later.
     React.useEffect(() => {
         setSearchStatus('loading');
-        const handle = new GenericController<T>(ControllerPath, sortField, ascending).PagedSearch(filters, sortField, ascending, page);
+        const handle = new GenericController<T>(ControllerPath, sortField, ascending).PagedSearch(allFilters, sortField, ascending, page);
         handle.done((response) => {
             setSearchStatus('idle');
             setData(JSON.parse(response.Data));
@@ -136,7 +164,7 @@ const GenericByPage = <T extends U,>({
         return () => {
             if (handle != null && handle.abort != null) handle.abort();
         }
-    }, [filters, sortField, ascending, page, refreshCount, RefreshCount])
+    }, [allFilters, sortField, ascending, page, refreshCount, RefreshCount])
 
 
     const getContent = React.useCallback((datum: IColDatum<T>, col: IByCol<T>) => {
@@ -162,7 +190,7 @@ const GenericByPage = <T extends U,>({
                 SetFilter={setFilters} Direction='left' Width='50%' Label='Search' StorageID={`${PagingID}/Filters`}
                 ShowLoading={searchStatus === 'loading'}
                 ResultNote={searchStatus === 'error' ?
-                    'Could not complete Search' : ('Displaying Record(s) ' + (totalRecords > 0 ? (recordsPerPage * page + 1) : 0) + ' - ' + (recordsPerPage * page + data.length)) + ' out of ' + totalRecords}
+                    'Could not complete Search' : (`Displaying ${RecordType}(s) ` + (totalRecords > 0 ? (recordsPerPage * page + 1) : 0) + ' - ' + (recordsPerPage * page + data.length)) + ' out of ' + totalRecords}
             >
                 {children}
                     </SearchBar>
@@ -233,7 +261,7 @@ const GenericByPage = <T extends U,>({
                     />
                 </div>
             </div>
-            <Warning Show={showRemoveWarning} Title={'Remove Subscription'} Message={`Are you sure you want to remove this subscription?`}
+            <Warning Show={showRemoveWarning} Title={`Remove ${RecordType}`} Message={`Are you sure you want to remove this ${RecordType}?`}
                 CallBack={(c) => {
                     setShowRemoveWarning(false);
                     if (c) {

@@ -22,8 +22,10 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import {  ActiveReportSubscriptionSlice, AssetGroupSlice, ScheduledEmailTypeSlice, UserInfoSlice } from '../../Store';
+import { ActiveReportSubscriptionSlice, UserInfoSlice, ScheduledEmailTypeSlice, AssetGroupSlice} from '../../Store';
+import { ActiveReportSubscription } from '../../global';
 import { useAppDispatch, useAppSelector } from '../../hooks';
+import { GenericController } from '@gpa-gemstone/react-interactive';
 
 declare var homePath;
 declare var version;
@@ -33,16 +35,19 @@ interface IProps {
     assetGroupID: number[]
 }
 
+const ActiveReportSubscriptionController = new GenericController<ActiveReportSubscription>(`${homePath}api/ActiveScheduleSubscription`, 'Email');
+
 const Success = (props: IProps) => {
     const dispatch = useAppDispatch();
     const email = useAppSelector((state) => ScheduledEmailTypeSlice.Datum(state, props.emailTypeID));
     const assetGrp = useAppSelector((state) => AssetGroupSlice.Data(state).filter(ag => props.assetGroupID.includes(ag.ID)));
     const userID = useAppSelector(UserInfoSlice.UserAccountID);
 
+    // TODO: when refactoring, this should be sent in the "Next" click, not as an effect on component mount.
     React.useEffect(() => {
-        props.assetGroupID.forEach((id) => {
-            dispatch(ActiveReportSubscriptionSlice.DBAction({
-                verb: 'POST', record: {
+        const handle = Promise.allSettled(props.assetGroupID.map((id) => 
+            ActiveReportSubscriptionController.DBAction(
+                'POST', {
                     ID: 0,
                     UserAccountID: userID,
                     ScheduledEmailTypeID: props.emailTypeID,
@@ -60,8 +65,9 @@ const Success = (props: IProps) => {
                     LastSent: '',
                     Subject: ''
                 }
-            }));
-        });
+            )
+        ));
+        dispatch(ActiveReportSubscriptionSlice.SetChanged());
     }, [props.assetGroupID, props.emailTypeID])
     
 

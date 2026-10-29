@@ -85,7 +85,7 @@ const ByAllSubscription = () => {
     }, [])
 
     function approve(id: number) {
-        const handle = $.ajax({
+        $.ajax({
             type: "GET",
             url: `${homePath}api/ActiveSubscription/Approve/${id}`,
             contentType: "application/json; charset=utf-8",
@@ -97,7 +97,7 @@ const ByAllSubscription = () => {
     }
 
     function approveAll() {
-        const handle = $.ajax({
+        $.ajax({
             type: "GET",
             url: `${homePath}api/ActiveSubscription/ApproveAll`,
             contentType: "application/json; charset=utf-8",
@@ -119,6 +119,7 @@ const ByAllSubscription = () => {
             PagingID={'ByAllReportSubscriptions'}
             OnDelete={(item) => ActiveReportSubscriptionController.DBAction("DELETE", item)}
             RefreshCount={refreshCount}
+            RecordType={'Report Subscription'}
         >
 
             <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
