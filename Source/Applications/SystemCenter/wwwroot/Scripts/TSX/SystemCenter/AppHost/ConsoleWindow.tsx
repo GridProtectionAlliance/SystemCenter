@@ -38,13 +38,6 @@ interface IConsoleMessage {
     Type: number
 }
 
-const remoteConsoleStyle = {
-    backgroundColor: 'black',
-    padding: 10,
-    fontSize: 10,
-    height: '100%'
-}
-
 const ConsoleWindow = (props: IProps) => {
     const cmdRef = React.useRef<string>('');
     const lastCmdRef = React.useRef<string>('');
@@ -55,7 +48,7 @@ const ConsoleWindow = (props: IProps) => {
     const [cmd, setCMD] = React.useState<string>('');
     const [lastCmd, setLastCmd] = React.useState<string>('');
     const [updateStatus, setUpdateStatus] = React.useState<Application.Types.Status>('uninitiated');
-    const [lastUpdate, setLastUpdate] = React.useState<number>(moment().valueOf());
+    const [lastUpdate, setLastUpdate] = React.useState<number | null>(null);
 
     React.useEffect(() => {
         setCMD('');
@@ -139,7 +132,6 @@ const ConsoleWindow = (props: IProps) => {
     }, [props.ConsoleURL]);
 
     const getResponse = React.useCallback(() => {
-        setLastUpdate(null);
         setUpdateStatus('loading');
         const h = $.ajax({
             type: "GET",

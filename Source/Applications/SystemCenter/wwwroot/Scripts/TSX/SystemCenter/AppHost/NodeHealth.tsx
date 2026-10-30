@@ -32,14 +32,6 @@ import StatusDetails from '../CommonComponents/StatusDetails';
 import { INamedStatusItem } from '../CommonComponents/StatusItem';
 import moment from 'moment';
 
-const statStyle: React.CSSProperties = {
-    fontSize: "1em",
-    display: 'inline-block',
-    overflow: 'auto',
-    whiteSpace: 'pre-wrap',
-    wordBreak: 'break-word'
-}
-
 export interface IProps {
     StatsURL: string,
     ApplicationName: string,
@@ -48,12 +40,41 @@ export interface IProps {
     Properties: { Name: string, Value: string }[]
 }
 
+const PollingInterval = 5000;
+
 const NodeHealth = (props: IProps) => {
 
     const [statInfo, setStatInfo] = React.useState<string>('');
     const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
     const [openMICStatus, setOpenMICStatus] = React.useState<INamedStatusItem>({ Name: 'openMIC', Status: 'Loading', Details: [] });
     const [lastSuccess, setLastSuccess] = React.useState<number | null>(null);
+
+    const GetOpenMICHealth = React.useCallback(() => {
+        setStatus('loading');
+        const h = $.ajax({
+            type: "GET",
+            url: `${homePath}api/DeviceHealthReport/OpenMICStatus`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true
+        });
+
+        h.done((d: INamedStatusItem) => {
+            setOpenMICStatus(d)
+            setStatus('idle')
+        }).fail(() => {
+            setOpenMICStatus(
+                { Name: 'openMIC', Status: 'Error', Details: [{ Status: "Error", Description: 'Network request for OpenMICStatus failed.' }] }
+            )
+            setStatus('error')
+        })
+
+        return function cleanup() {
+            if (h.abort != null)
+                h.abort();
+        }
+    }, [])
 
     React.useEffect(() => {
         if (props.ApplicationType === 'openMIC') {
@@ -80,43 +101,16 @@ const NodeHealth = (props: IProps) => {
                 // Regex remove wrapping quotes, carriage return, and format \\ to \
                 setStatInfo(stat.replace(/^\"+|\"+$/g, '').replace(/\\r\\n/g, '\n').replace(/\\\\/g, '\\'));
                 setLastSuccess(moment().valueOf());
-            }).fail((_a, _b, e) => {
+            }).fail(() => {
                 setStatus('error');
             });
-        }, 5000);
+        }, PollingInterval);
 
         return () => {
             clearInterval(intervalHandle);
             if (statHandle != null && statHandle.abort != null) statHandle.abort();
         };
-    }, [props.ApplicationName]);
-
-    const GetOpenMICHealth = () => {
-        setStatus('loading');
-        const h = $.ajax({
-            type: "GET",
-            url: `${homePath}api/DeviceHealthReport/OpenMICStatus`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: false,
-            async: true
-        });
-
-        h.done((d: INamedStatusItem) => {
-            setOpenMICStatus(d)
-            setStatus('idle')
-        }).fail(() => {
-            setOpenMICStatus(item => {
-                return { Status: 'Error', Details: 'Network request for OpenMICStatus failed.', ...item }
-            })
-            setStatus('error')
-        })
-
-        return function cleanup() {
-            if (h.abort != null)
-                h.abort();
-        }
-    }
+    }, [GetOpenMICHealth, props.StatsURL, props.ApplicationType]);
 
     if (props.ApplicationType === 'openMIC') {
         return (
@@ -129,7 +123,11 @@ const NodeHealth = (props: IProps) => {
     return (
         <div className="d-flex flex-column h-100" style={{ flex: 1 }}>
             <Console Status={status} LastSuccess={lastSuccess != null ? moment(lastSuccess).format('MM/DD/YYYY HH:mm:ss') : "N/A"}>
-            <span style={{ color: 'white' }}>{statInfo}</span>
+                <span style={{
+                    color: 'white',
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word'
+                }}>{statInfo}</span>
             </Console>
         </div>
     )
