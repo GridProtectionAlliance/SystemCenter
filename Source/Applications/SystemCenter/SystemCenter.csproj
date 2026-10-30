@@ -668,6 +668,7 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\PQDigest\ByHomeScreenWidget.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Node\ByNode.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Node\Node.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Node\NodeAttributes.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Node\NodeForm.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Node\NodeSettings.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\PQDigest\HomeScreenWidgetForm.tsx" />

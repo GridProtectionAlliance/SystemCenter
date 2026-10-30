@@ -22,6 +22,9 @@
 //******************************************************************************************************
 
 import * as React from 'react';
+import { Application } from '@gpa-gemstone/application-typings';
+import { Console, ConsoleLine } from '@gpa-gemstone/react-interactive';
+import moment from 'moment';
 export interface IMessage { Message: string, Type: number }
 
 export interface IProps {
@@ -35,23 +38,7 @@ interface IConsoleMessage {
     Type: number
 }
 
-const remoteConsoleStyle = {
-    backgroundColor: 'black',
-    padding: 10,
-    fontSize: 10,
-    height: '100%'
-}
-
-function getColor(type: number) {
-    if (type == 2)
-        return 'red';
-    if (type == 1)
-        return 'yellow';
-    return 'white';
-}
-
 const ConsoleWindow = (props: IProps) => {
-    const consoleDiv = React.useRef<HTMLPreElement>(null);
     const cmdRef = React.useRef<string>('');
     const lastCmdRef = React.useRef<string>('');
     const sessionIDRef = React.useRef<string>('');
@@ -60,9 +47,8 @@ const ConsoleWindow = (props: IProps) => {
     const [messages, setMessages] = React.useState<IConsoleMessage[]>([]);
     const [cmd, setCMD] = React.useState<string>('');
     const [lastCmd, setLastCmd] = React.useState<string>('');
-    const [autoScroll, setAutoScroll] = React.useState<boolean>(true);
-
-    const [lastUpdate, setLastUpdate] = React.useState<string | null>('');
+    const [updateStatus, setUpdateStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const [lastUpdate, setLastUpdate] = React.useState<number | null>(null);
 
     React.useEffect(() => {
         setCMD('');
@@ -75,15 +61,6 @@ const ConsoleWindow = (props: IProps) => {
             if (h !== null && h.abort != null) h.abort();
         };
     }, [props.ConsoleURL]);
-
-    React.useLayoutEffect(() => {
-        if (consoleDiv.current == null)
-            return;
-        if (!autoScroll)
-            return;
-        $(consoleDiv.current).scrollTop($(consoleDiv.current)[0].scrollHeight);
-    })
-
 
     React.useEffect(() => {
         if (sessionIDRef.current == null || sessionIDRef.current.length == 0 || props.ConsoleURL == null || props.ConsoleURL.length == 0)
@@ -155,7 +132,7 @@ const ConsoleWindow = (props: IProps) => {
     }, [props.ConsoleURL]);
 
     const getResponse = React.useCallback(() => {
-        setLastUpdate(null);
+        setUpdateStatus('loading');
         const h = $.ajax({
             type: "GET",
             url: `${props.ConsoleURL}/Retrieve/${sessionIDRef.current}`,
@@ -165,49 +142,34 @@ const ConsoleWindow = (props: IProps) => {
             async: true
         });
         h.then((d) => {
+            setUpdateStatus('idle');
             setMessages((m) => {
                 let u = [...m, ...d];
                 if (u.length > 100)
                     u = u.slice(-100);
                 return u;
             });
-            setLastUpdate(new Date().toLocaleTimeString());
-        }, (d) => { console.error(d); });
+            setLastUpdate(moment().valueOf());
+        }, (d) => { console.error(d); setUpdateStatus('error') });
         return h;
     }, [props.ConsoleURL]);
 
     return (
         <div className="row h-100">
-            <div className="col h-100">
-                <div className="row">
-                    <div className="col-6">
-                        <label className="small pull-left" >
-                            {lastUpdate !== null ? <small><em>Last update {lastUpdate}</em></small> :
-                                <small><em>Updating...</em></small>}
-                        </label>
-                    </div>
-                    <div className="col-6">
-                        <label className="small pull-right" style={{ display: autoScroll ? 'none' : undefined }} >
-                            <small><em>Scrolling paused during mouse interaction...</em></small>
-                        </label>
-                    </div>
-                </div>
-                <div className="row" style={{ flex: 1, overflow: "auto" }}>
-                    <div className="col">
-                        <div className="well" style={{ height: innerHeight - 400, display: 'flex', flexDirection: 'column' }}>
-                            <pre className="small" style={remoteConsoleStyle} ref={consoleDiv}
-                                onMouseEnter={() => setAutoScroll(false)}
-                                onMouseLeave={() => setAutoScroll(true)}
-                            >
-                                {messages.map((m) => <span style={{ color: getColor(m.Type) }} >
-                                    {m.Message}
-                                </span>)}
-                            </pre>
-                        </div>
-                    </div>
-                </div>
+            <div className="col h-100 d-flex flex-column">
+                <div style={{ flex: '1 1 0', minHeight: 0 }}>
+                    <Console
+                        Status={updateStatus}
+                        LastSuccess={lastUpdate != null ? moment(lastUpdate).format('MM/DD/YYYY HH:mm:ss') : "N/A"}
+                        AutoScroll={true}
+                    >
+                        {messages.map((m, i) => {
 
-                <div className="row my-2">
+                            return <ConsoleLine key={i} Message={m.Message} Level={getLevel(m.Type)} />;
+                        })}
+                    </Console>
+                </div>
+                <div className="row my-4">
                     <div className="col-10">
                         <div className="input-group">
                             <input type="text" className="form-control"
@@ -228,3 +190,11 @@ const ConsoleWindow = (props: IProps) => {
 
 
 export default ConsoleWindow;
+
+function getLevel(type: number) {
+    if (type == 2)
+        return 'Error';
+    if (type == 1)
+        return 'Warning';
+    return 'Normal';
+}
