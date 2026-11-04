@@ -220,6 +220,8 @@
     <Compile Include="Model\AppModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="App_Start\Startup.cs" />
+    <TypeScriptCompile Include="Scripts\TSX\CommonComponents\ResultAlert.tsx" />
+    <TypeScriptCompile Include="Scripts\TSX\CommonComponents\AlertDisplay.tsx" />
     <TypeScriptCompile Include="Scripts\TSX\constants.ts" />
     <Compile Include="ViewExtensions.cs" />
   </ItemGroup>
