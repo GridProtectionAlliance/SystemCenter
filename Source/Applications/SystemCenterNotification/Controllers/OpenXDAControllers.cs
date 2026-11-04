@@ -45,8 +45,8 @@ namespace SystemCenter.Notifications.Controllers
     [RoutePrefix("api/OpenXDA/EmailCategory")]
     public class EmailCategoryController : ModelController<EmailCategory> 
     { 
-        [HttpGet, Route("SubscribeDropdown/Report")]
-        public IHttpActionResult GetCategoriesReport() => GetCategories<ScheduledEmailType>(false);
+        [HttpGet, Route("SubscribeDropdown/Report/{Override:bool?}")]
+        public IHttpActionResult GetCategoriesReport([FromUri ]bool? Override) => GetCategories<ScheduledEmailType>(Override == true && User.IsInRole("Administrator"));
 
         [HttpGet, Route("SubscribeDropdown/Event/{Override:bool?}")]
         public IHttpActionResult GetCategoriesEvent(bool? Override) => GetCategories<EmailType>(Override == true && User.IsInRole("Administrator"));
