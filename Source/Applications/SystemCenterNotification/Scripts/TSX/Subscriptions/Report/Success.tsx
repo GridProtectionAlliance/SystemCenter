@@ -22,8 +22,10 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import {  ActiveReportSubscriptionSlice, AssetGroupSlice, ScheduledEmailTypeSlice, UserInfoSlice } from '../../Store';
+import { ActiveReportSubscriptionSlice, UserInfoSlice, ScheduledEmailTypeSlice, AssetGroupSlice} from '../../Store';
+import { ActiveReportSubscription } from '../../global';
 import { useAppDispatch, useAppSelector } from '../../hooks';
+import { GenericController } from '@gpa-gemstone/react-interactive';
 
 declare var homePath;
 declare var version;
@@ -33,27 +35,42 @@ interface IProps {
     assetGroupID: number[]
 }
 
+const ActiveReportSubscriptionController = new GenericController<ActiveReportSubscription>(`${homePath}api/ActiveScheduleSubscription`, 'Email');
+
 const Success = (props: IProps) => {
     const dispatch = useAppDispatch();
     const email = useAppSelector((state) => ScheduledEmailTypeSlice.Datum(state, props.emailTypeID));
     const assetGrp = useAppSelector((state) => AssetGroupSlice.Data(state).filter(ag => props.assetGroupID.includes(ag.ID)));
     const userID = useAppSelector(UserInfoSlice.UserAccountID);
 
+    // TODO: when refactoring, this should be sent in the "Next" click, not as an effect on component mount.
     React.useEffect(() => {
-        props.assetGroupID.forEach((id) => {
-            dispatch(ActiveReportSubscriptionSlice.DBAction({
-                verb: 'POST', record: {
-                    ID: 0,
-                    UserAccountID: userID,
-                    ScheduledEmailTypeID: props.emailTypeID,
-                    AssetGroup: id.toString(),
-                    Category: '',
-                    Email: '',
-                    UserAccountScheduledEmailID: 0,
-                    EmailName: '',
-                    UserName: ''
-                }
-            }));
+        Promise.allSettled(props.assetGroupID
+            .filter((id) => id > 0)
+            .map((id) => {
+            return ActiveReportSubscriptionController.DBAction(
+                'POST', {
+                ID: 0,
+                UserAccountID: userID,
+                ScheduledEmailTypeID: props.emailTypeID,
+                AssetGroup: id.toString(),
+                Category: '',
+                Email: '',
+                UserAccountScheduledEmailID: 0,
+                EmailName: '',
+                UserName: '',
+                // any field below this was added and won't be referenced in the post.
+                Approved: false,
+                RequireApproval: false,
+                FirstName: '',
+                LastName: '',
+                LastSent: '',
+                Subject: ''
+            }
+            )
+        }
+        )).then(() => {
+            dispatch(ActiveReportSubscriptionSlice.SetChanged());
         });
     }, [props.assetGroupID, props.emailTypeID])
     
