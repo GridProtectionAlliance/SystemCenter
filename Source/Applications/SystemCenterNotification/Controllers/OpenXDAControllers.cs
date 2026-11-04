@@ -301,7 +301,40 @@ namespace SystemCenter.Notifications.Controllers
     [RoutePrefix("api/ActiveScheduleSubscription")]
     public class ActiveScheduleSubscriptionsController : ModelController<openXDA.Model.ActiveScheduledSubscription>
     {
+        [HttpPost, Route("ApproveAll")]
+        public IHttpActionResult ApproveAll()
+        {
+            if (!PostAuthCheck())
+                return Unauthorized();
         
+            try
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    connection.ExecuteNonQuery("UPDATE UserAccountScheduledEmailType SET Approved = 1");
+                return Ok(1);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        [HttpPost, Route("Approve/{id:int}")]
+        public IHttpActionResult Approve(int id)
+        {
+            if (!PostAuthCheck())
+                return Unauthorized();
+            try
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    connection.ExecuteNonQuery("UPDATE UserAccountScheduledEmailType SET Approved = 1 WHERE ID = {0}", id);
+                return Ok(1);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
         public override IHttpActionResult Post([FromBody] JObject record)
         {
             try
