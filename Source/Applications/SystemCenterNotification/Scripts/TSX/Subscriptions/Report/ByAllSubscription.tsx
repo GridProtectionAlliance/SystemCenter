@@ -60,7 +60,7 @@ const ByAllSubscription = () => {
         {
             Field: "LastSent",
             Label: "Last Sent",
-            Type: "date",
+            Type: "datetime",
             Content: ({ item }) => item.LastSent != null && (!item.RequireApproval || item.Approved) ? moment(item.LastSent).format(TimeFormatting.DateToMinute) : "N/A"
         },
         { Label: "First", Field: "FirstName", Type: "string" },
