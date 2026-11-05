@@ -120,6 +120,12 @@ export interface ActiveReportSubscription {
     ScheduledEmailTypeID: number,
     UserName: string,
     Email: string
+    Approved: boolean,
+    Subject: string,
+    LastSent: string,
+    FirstName: string,
+    LastName: string,
+    RequireApproval: boolean
 }
 
 export interface IEventFilter {

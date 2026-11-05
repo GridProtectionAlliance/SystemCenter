@@ -48,6 +48,7 @@ const emptyCategory = { ID: -1, Name: '', SelfSubscribe: false } as EmailCategor
 interface IProps {
     SetScheduledEmailTypeID: (id: number) => void,
     scheduledEmailTypeID: number
+    ShowSubscriptionOverride?: boolean
 }
 
 const ReportSelect = (props: IProps) => {
@@ -67,7 +68,7 @@ const ReportSelect = (props: IProps) => {
         setEmailCategoryStatus('loading')
         const handle = $.ajax<EmailCategory[]>({
             type: "GET",
-            url: `${homePath}api/OpenXDA/EmailCategory/SubscribeDropdown/Report`,
+            url: `${homePath}api/OpenXDA/EmailCategory/SubscribeDropdown/Report/${props.ShowSubscriptionOverride ? "true" : "false"}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
@@ -78,7 +79,7 @@ const ReportSelect = (props: IProps) => {
         });
 
         return () => { if (handle?.abort != null) handle.abort(); }
-    }, []);
+    }, [props.ShowSubscriptionOverride]);
 
     React.useEffect(() => {
         if (emailCategories.length > 0) {
@@ -127,7 +128,7 @@ const ReportSelect = (props: IProps) => {
                 <div className="col">
                     <Select<ScheduledEmailType> Record={selectedReport} Field={'ID'} Label='Notification Template' Setter={(record) => setSelectedReport({ ...record, ID: typeof record.ID == 'string' ? parseInt(record.ID) : record.ID })}
                         Options={reportTypes
-                            .filter(e => e.ShowSubscription)
+                            .filter(e => props.ShowSubscriptionOverride ? true : e.ShowSubscription)
                             .map((e) => ({ Label: e.Name, Value: e.ID.toString() }))
                         } />
                 </div>
