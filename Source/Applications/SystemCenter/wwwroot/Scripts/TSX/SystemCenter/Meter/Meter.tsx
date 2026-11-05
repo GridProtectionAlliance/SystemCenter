@@ -202,8 +202,8 @@ function Meter(props: IProps) {
             {tab === 'dataMerge' ? dataMergeWindow : null}
             {tab === 'dataDelete' ? dataDeleteWindow : null}
             {tab === 'maintenance' ? <MeterMaintenanceWindow Meter={meter} /> : null}
-            {tab === 'assetGroups' ? <AssetGroupRelation Record={meter} OperationResults={operationResults} SetOperationResults={setOperationResults} /> : null}
-            {tab === 'customers' ? <CustomerRelation Record={meter} OperationResults={operationResults} SetOperationResults={setOperationResults} /> : null}
+            {tab === 'assetGroups' ? <AssetGroupRelation Record={meter} OperationResults={operationResults} SetOperationResults={setOperationResults} ParentType={'Meter'} /> : null}
+            {tab === 'customers' ? <CustomerRelation Record={meter} OperationResults={operationResults} SetOperationResults={setOperationResults} ParentType={'Meter'} /> : null}
 
             <Modal Title={'Advanced Options'} Show={showAdvanced} CallBack={() => setShowAdvanced(false)} ShowCancel={false} ShowConfirm={false} ShowX={true}>
                 <button className="btn btn-info btn-block" onClick={showDataRescueWindow}>Data Rescue</button>

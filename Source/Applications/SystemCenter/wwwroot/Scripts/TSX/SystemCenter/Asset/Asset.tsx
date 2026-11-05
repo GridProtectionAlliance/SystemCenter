@@ -187,8 +187,8 @@ function Asset(props: IProps) {
             {tab === 'connections' ? <AssetConnectionWindow Name={asset.AssetName} ID={asset.ID} TypeID={asset["AssetTypeID"]} />: null}
             {tab === 'sourceImpedances' ? <SourceImpedanceWindow ID={asset.ID} />: null}
             {tab === 'segments' ? <LineSegmentWindow ID={asset.ID} LineKey={asset.AssetKey} LineName={asset.AssetName} OnChange={() => { setForceReload(x => !x) }} /> : null}
-            {tab === 'assetGroups' ? <AssetGroupRelation Record={asset} OperationResults={operationResults} SetOperationResults={setOperationResults} /> : null}
-            {tab === 'customers' ? <CustomerRelation Record={asset} OperationResults={operationResults} SetOperationResults={setOperationResults} /> : null }
+            {tab === 'assetGroups' ? <AssetGroupRelation Record={asset} OperationResults={operationResults} SetOperationResults={setOperationResults} ParentType={'Asset'} /> : null}
+            {tab === 'customers' ? <CustomerRelation Record={asset} OperationResults={operationResults} SetOperationResults={setOperationResults} ParentType={'Asset'} /> : null }
 
             <Warning Message={'This will permanently delete this Asset and cannot be undone.'} Show={showDelete} Title={'Delete ' + (asset?.AssetName ?? 'Asset')} CallBack={(conf) => { if (conf) deleteAsset(); setShowDelete(false); }} />
             <LoadingScreen Show={loadDelete} />
