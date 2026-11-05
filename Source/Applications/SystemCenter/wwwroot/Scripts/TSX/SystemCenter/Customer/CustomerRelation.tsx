@@ -103,7 +103,7 @@ function CustomerRelationBase<R extends ICustomerRelation>(props: IProps & Custo
 
     return (
         <>
-            <LoadingScreen Show={props.DetailedRecordStatus === 'loading' || noSameFilter == null} />
+            <LoadingScreen Show={props.DetailedRecordStatus === 'loading' || relationStatus !== 'idle'} />
             <ServerErrorIcon Show={props.DetailedRecordStatus === 'error'} />
             {props.DetailedRecordStatus  === 'idle' ?
                 <GenericRelation<R>
@@ -134,7 +134,10 @@ function CustomerRelationBase<R extends ICustomerRelation>(props: IProps & Custo
                     Promise.allSettled(
                         selected.map((customer) => {
                             const newRecord = props.GetNewRecord(customer);
-                            if (newRecord[props.ParentField] === -1) return Promise.reject();
+                            if (newRecord[props.ParentField] === -1) {
+                                setAddStatus('error');
+                                return Promise.reject();
+                            }
                             return props.Controller.DBAction("POST", newRecord)
                                 .fail(() => {
                                     props.SetOperationResults((opres) => [{ OperationType: "SAVE", RecordType: `${props.ParentType} Customer Relation`, Result: "failure", Timestamp: moment().valueOf() }, ...opres])
@@ -145,7 +148,7 @@ function CustomerRelationBase<R extends ICustomerRelation>(props: IProps & Custo
                         .then((results) => {
                             const failed = results.some(r => r.status === 'rejected')
                             if (!failed) {
-                                props.SetOperationResults(opResults => [{ Result: 'success', RecordType: `Customer Relation`, OperationType: "SAVE", Timestamp: moment().valueOf() }, ...opResults])
+                                props.SetOperationResults(opResults => [{ Result: 'success', RecordType: `${props.ParentType} Customer Relation`, OperationType: "SAVE", Timestamp: moment().valueOf() }, ...opResults])
                                 setAddStatus('idle');
                             }
                             refreshData(x => x + 1);
