@@ -108,7 +108,7 @@ function AssetGroupRelationBase<R extends IAssetGroupRelation>(props: IProps & A
 
     return (
         <>
-            <LoadingScreen Show={assetGroupStatus === "loading" || noSameFilter == null} />
+            <LoadingScreen Show={assetGroupStatus === "loading" || relationStatus !== 'idle'} />
             <ServerErrorIcon Show={assetGroupStatus === "error"} />
             {assetGroupStatus === "idle" ?
                     <GenericRelation<R>
