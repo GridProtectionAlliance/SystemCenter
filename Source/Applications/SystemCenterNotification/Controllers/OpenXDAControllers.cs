@@ -292,8 +292,26 @@ namespace SystemCenter.Notifications.Controllers
         public override IHttpActionResult Delete(ActiveSubscription record)
         {
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
-                connection.ExecuteNonQuery("DELETE FROM UserAccountEmailType WHERE ID = {0}", record.UserAccountEmailID);
-            
+            {
+                Guid ownerID = connection.ExecuteScalar<Guid>("SELECT UserAccountID FROM UserAccountEmailType WHERE ID = {0}", record.UserAccountEmailID);
+                UserAccount account = new TableOperations<UserAccount>(connection).QueryRecordWhere("ID = {0}", ownerID);
+                string username = System.Web.HttpContext.Current.User.Identity.Name;
+                string usersid = UserInfo.UserNameToSID(username);
+
+                // if the user is an admin, they can remove anybody's subscription.
+                if (DeleteAuthCheck())
+                {
+                    connection.ExecuteNonQuery("DELETE FROM UserAccountEmailType WHERE ID = {0}", record.UserAccountEmailID);
+                }
+                else if (account.Name == usersid || account.Name == username) // allow users to remove their own subscription
+                {
+                    connection.ExecuteNonQuery("DELETE FROM UserAccountEmailType WHERE ID = {0}", record.UserAccountEmailID);
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+            }
             return Ok(1);
         }
     }
@@ -391,8 +409,26 @@ namespace SystemCenter.Notifications.Controllers
         public override IHttpActionResult Delete(openXDA.Model.ActiveScheduledSubscription record)
         {
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
-                connection.ExecuteNonQuery("DELETE FROM UserAccountScheduledEmailType WHERE ID = {0}", record.UserAccountScheduledEmailID);
+            {
+                Guid ownerID = connection.ExecuteScalar<Guid>("SELECT UserAccountID FROM UserAccountScheduledEmailType WHERE ID = {0}", record.UserAccountScheduledEmailID);
+                UserAccount account = new TableOperations<UserAccount>(connection).QueryRecordWhere("ID = {0}", ownerID);
+                string username = System.Web.HttpContext.Current.User.Identity.Name;
+                string usersid = UserInfo.UserNameToSID(username);
 
+                // if the user is an admin, they can remove anybody's subscription.
+                if (DeleteAuthCheck())
+                {
+                    connection.ExecuteNonQuery("DELETE FROM UserAccountScheduledEmailType WHERE ID = {0}", record.UserAccountScheduledEmailID);
+                }
+                else if (account.Name == usersid || account.Name == username) // allow users to remove their own subscription
+                {
+                    connection.ExecuteNonQuery("DELETE FROM UserAccountScheduledEmailType WHERE ID = {0}", record.UserAccountScheduledEmailID);
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+            }
             return Ok(1);
         }
     }

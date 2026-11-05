@@ -32,6 +32,8 @@ import UserSelect from './UserSelect';
 import { ActiveSubscription, ActiveReportSubscription } from '../global'
 import { ActiveSubscriptionSlice, ActiveReportSubscriptionSlice } from '../Store';
 import { useAppDispatch } from '../hooks';
+import { OperationResult } from '../CommonComponents/ResultAlert';
+import moment from 'moment';
 import * as $ from 'jquery';
 
 //import moment from 'moment';
@@ -76,6 +78,10 @@ interface IProps {
      * Refresh parent component when post is successful.
      */
     RefreshData?: React.Dispatch<React.SetStateAction<number>>
+    /**
+     * Setter for OperationResults in parent component.
+     */
+    SetOperationResults?: React.Dispatch<React.SetStateAction<OperationResult[]>>
 }
 
 const AddSubscription = ({
@@ -86,7 +92,8 @@ const AddSubscription = ({
     ShowSubscriptionOverride,
     SetPostStatus,
     SetAllAssetsStatus,
-    RefreshData
+    RefreshData,
+    SetOperationResults
 }: IProps) => {
     const dispatch = useAppDispatch(); // only used for setting changed slices until they can be removed.
 
@@ -134,7 +141,6 @@ const AddSubscription = ({
 
     function save() {
         let subscriptionsHandle: Promise<any>;
-        if (allAssetGroup == null) return Promise.resolve();
         SetPostStatus("loading");
         if (EmailType === 'Triggered') {
             subscriptionsHandle = Promise.allSettled(
@@ -167,6 +173,7 @@ const AddSubscription = ({
             })
         }
         else {
+            if (allAssetGroup == null) return Promise.resolve();
             subscriptionsHandle = Promise.allSettled( // until Asset Group filtering is implemented, this will only use AllAssets.
                 [
                     ActiveReportSubscriptionController.DBAction("POST", {
@@ -198,7 +205,7 @@ const AddSubscription = ({
                 })
         }
         return subscriptionsHandle.finally(() => {
-            setUserAccountID(null);
+            setUserAccountID(UserAccountID);
             setAssetGroupIDs([]);
             setEmailTypeID(null);
             setStep(UserAccountID != null ? "Email" : "User");
@@ -223,14 +230,26 @@ const AddSubscription = ({
                 CancelBtnClass={step == 'Email' ? 'btn-primary' : 'btn-success'}
                 ConfirmBtnClass={'btn-danger mr-auto'}
                 CallBack={(c, b) => {
-                    if (!b)
+                    if (!b) {
+                        setUserAccountID(UserAccountID);
+                        setAssetGroupIDs([]);
+                        setEmailTypeID(null);
+                        setStep(UserAccountID != null ? "Email" : "User");
                         OnClose();
+                    }
                     if (!c && b && step == 'User')
                         setStep('Email');
                     if (c && step == 'Email')
                         setStep('User');
                     if (!c && b && step == 'Email') {
-                        save().then(() => { if (RefreshData != null) RefreshData(x => x + 1) })
+                        save()
+                            .then(
+                                () => {
+                                    if (RefreshData != null) RefreshData(x => x + 1);
+                                    if (SetOperationResults != null) SetOperationResults(opres => [{ RecordType: `${EmailType === "Triggered" ? "Event" : "Report"} Subscription`, OperationType: "SAVE", Result: "success", Timestamp: moment().valueOf() }, ...opres])
+                                },
+                                () => { if (SetOperationResults != null) SetOperationResults(opres => [{ RecordType: `${EmailType === "Triggered" ? "Event" : "Report"} Subscription`, OperationType: "SAVE", Result: "failure", Timestamp: moment().valueOf()}, ...opres]) }
+                            )
                         OnClose()
                     }
                 }}
