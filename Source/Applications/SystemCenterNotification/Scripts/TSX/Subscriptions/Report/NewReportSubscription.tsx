@@ -65,7 +65,7 @@ const NewReportSubscription = (props: {}) => {
 
     const EmailSteps = [
         { short: 'Notification', long: 'Select Notification', id: 'Selection' },
-        { short: 'Email', long: 'Confirm Emailadress', id: 'Email' },
+        { short: 'Email', long: 'Confirm Email Address', id: 'Email' },
         { short: 'Success', long: 'Success', id: 'Success' }
     ];
 
