@@ -71,12 +71,12 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
     }
 
     function Delete() {
-        dispatch(ExternalDBTablesSlice.DBAction({ verb: 'DELETE', record }));
-        GoToExternalDB();
+        dispatch(ExternalDBTablesSlice.DBAction({ verb: 'DELETE', record }))
+            .then(() => GoToExternalDB());
     }
 
     function GoToExternalDB() {
-        navigate(homePath + SystemCenterURL.ExternalDatabaseDetails + record.ExtDBID);
+        navigate(homePath + SystemCenterURL.ExternalDatabaseDetails + `&ID=${record.ExtDBID}`);
     }
 
     if (record == null) return null;

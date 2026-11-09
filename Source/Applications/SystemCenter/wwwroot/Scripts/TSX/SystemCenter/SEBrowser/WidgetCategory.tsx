@@ -72,8 +72,8 @@ export default function WidgetCategory(props: IProps) {
     function deleteTab() {
         dispatch(WidgetCategorySlice.DBAction({
             verb: 'DELETE', record: category
-        }));
-        navigate(homePath + SystemCenterURL.PQBrowserTabByPage);
+        }))
+            .then(() => navigate(homePath + SystemCenterURL.PQBrowserTabByPage));
     }
 
     if (cStatus == 'uninitiated' || cStatus == 'loading')

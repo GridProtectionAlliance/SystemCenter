@@ -90,7 +90,13 @@ function ApplicationCategory(props: IProps) {
 
             <Warning Message={'This will permanently delete this Application Category and cannot be undone.'}
                 Show={showDelete} Title={'Delete ' + (applicationCategory?.Name ?? 'Application Category')}
-                CallBack={(conf) => { if (conf) dispatch(ApplicationCategorySlice.DBAction({ verb: 'DELETE', record: applicationCategory })); setShowDelete(false); navigate(homePath + SystemCenterURL.ApplicationCategoryByPage) }} />
+                CallBack={(conf) => {
+                    if (conf) dispatch(ApplicationCategorySlice.DBAction({ verb: 'DELETE', record: applicationCategory }))
+                        .then(() => {
+                            navigate(homePath + SystemCenterURL.ApplicationCategoryByPage);
+                        }); 
+                    setShowDelete(false);
+                }} />
             <LoadingScreen Show={loadDelete} />
             </div>
     )

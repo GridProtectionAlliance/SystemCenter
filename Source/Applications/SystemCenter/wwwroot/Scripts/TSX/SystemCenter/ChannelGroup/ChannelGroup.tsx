@@ -67,7 +67,7 @@ export default function ChannelGroup(props: IProps) {
 
     function Delete() {
         dispatch(ChannelGroupSlice.DBAction({ verb: 'DELETE', record }))
-        navigate(homePath + SystemCenterURL.ChannelGroupByPage);
+            .then(() => navigate(homePath + SystemCenterURL.ChannelGroupByPage));   
     }
 
     const Tabs = [

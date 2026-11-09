@@ -159,7 +159,7 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
     }, [assetConnections]);
 
     function returnToMeters() {
-        navigate(`${homePath}index.cshtml?name=Meters`);
+        navigate(homePath + SystemCenterURL.MeterByPage);
     }
 
     function getCurrentStep(): number {

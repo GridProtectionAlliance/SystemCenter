@@ -82,8 +82,8 @@ export default function Customer(props: IProps) {
     function deleteCustomer() {
         dispatch(CustomerSlice.DBAction({
             verb: 'DELETE', record: customer
-        }));
-        navigate(homePath + SystemCenterURL.CustomerByPage);
+        }))
+            .then(() => navigate(homePath + SystemCenterURL.CustomerByPage));
     }
 
     if (cStatus == 'uninitiated' || cStatus == 'loading')
