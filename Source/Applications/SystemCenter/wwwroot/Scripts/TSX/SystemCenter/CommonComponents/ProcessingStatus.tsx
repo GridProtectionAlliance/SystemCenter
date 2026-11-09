@@ -52,7 +52,7 @@ const ProcessingStatus = (props: IStatusProps) => {
         event.stopPropagation();
         if (!props.Interactive)
             return
-        navigate(homePath + SystemCenterURL.DataOperationFailures + `&FileGroupID=${props.DataFileID}`;
+        navigate(homePath + SystemCenterURL.DataOperationFailures + `&FileGroupID=${props.DataFileID}`);
     }, [props.Status, props.DataFileID, props.Interactive]);
 
     const visual = React.useMemo(() => {

@@ -81,8 +81,8 @@ export default function MATLABAnalytic(props: IProps) {
     }, [tab]);
 
     function Delete() {
-        dispatch(MATLABAnalyticSlice.DBAction({ verb: 'DELETE', record }));
-        navigate(homePath + SystemCenterURL.MATLABAnalyticByPage);
+        dispatch(MATLABAnalyticSlice.DBAction({ verb: 'DELETE', record }))
+            .then(() => navigate(homePath + SystemCenterURL.MATLABAnalyticByPage));
     }
 
     const Tabs = [

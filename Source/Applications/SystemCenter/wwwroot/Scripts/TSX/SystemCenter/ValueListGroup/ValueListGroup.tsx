@@ -66,7 +66,7 @@ export default function ValueListGroup(props: IProps) {
 
     function Delete() {
         dispatch(ValueListGroupSlice.DBAction({ verb: 'DELETE', record }))
-        navigate(homePath + SystemCenterURL.ValueListByPage);
+            .then(() => navigate(homePath + SystemCenterURL.ValueListByPage));
     }
 
     if (record == null) return null;

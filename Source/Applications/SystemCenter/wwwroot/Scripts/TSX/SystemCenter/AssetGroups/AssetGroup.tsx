@@ -75,8 +75,8 @@ function AssetGroup(props: IProps) {
     function deleteAssetGroup() {
         dispatch(AssetGroupSlice.DBAction({
             verb: 'DELETE', record: group
-        }));
-        navigate(SystemCenterURL.AssetGroupByPage);
+        }))
+            .then(() => navigate(homePath + SystemCenterURL.AssetGroupByPage));
     }
 
     if (gStatus == 'uninitiated')

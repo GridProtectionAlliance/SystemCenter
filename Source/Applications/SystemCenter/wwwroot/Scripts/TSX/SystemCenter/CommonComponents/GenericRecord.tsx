@@ -28,6 +28,7 @@ import { Application } from '@gpa-gemstone/application-typings';
 import { OperationResult } from './ResultAlert'
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import moment from 'moment';
+import { useNavigate } from 'react-router-dom';
 
 declare var homePath: string;
 
@@ -149,6 +150,7 @@ function GenericRecord<T>({
     InitialTab,
     KeyLabelDictionary
 }: IProps<T>) {
+    const navigate = useNavigate();
     const [tab, setTab] = React.useState<string>(() => getTab(TabLocalStorage, DefaultTab, InitialTab));
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
     const [refreshCount, refreshData] = React.useState<number>(0);
@@ -209,7 +211,7 @@ function GenericRecord<T>({
         if (!HasDeletePermission()) return
         setDeleteStatus('loading');
         new GenericController<T>(ControllerPath, DefaultSort).DBAction("DELETE", originalRecord)
-            .done(() => window.location.href = Redirect)
+            .done(() => navigate(Redirect))
             .fail(() => {
                 setDeleteStatus('error');
                 setOperationResults((alerts) => [{ Result: 'failure', RecordType: RecordType, OperationType: 'DELETE', Timestamp: moment().valueOf() }, ...alerts]);

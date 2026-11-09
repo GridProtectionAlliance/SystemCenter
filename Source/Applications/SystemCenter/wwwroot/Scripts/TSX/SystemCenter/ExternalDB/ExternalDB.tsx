@@ -74,8 +74,8 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
     }, [tab]);
 
     function Delete() {
-        dispatch(ExternalDatabasesSlice.DBAction({ verb: 'DELETE', record }));
-        navigate(homePath + SystemCenterURL.ExternalDatabaseByPage);
+        dispatch(ExternalDatabasesSlice.DBAction({ verb: 'DELETE', record }))
+            .then(() => navigate(homePath + SystemCenterURL.ExternalDatabaseByPage));
     }
 
     if (record == null) return null;

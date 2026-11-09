@@ -133,7 +133,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                             <Page Name={SystemCenterURL.UserStatistics } Label={"User Statistics"} />
                             <Page Name={SystemCenterURL.SSOApplications} Label={"SSO Applications"} />
                             <Page Name={SystemCenterURL.APIKeys} Label={"API Keys"} />
-                            <Page Name={SystemCenterURL.UserByPage} Label={"Users"} OtherActivePages={[SystemCenterURL.UserDetails]} />
+                            <Page Name={SystemCenterURL.UserByPage} Label={"Users"} OtherActivePages={[SystemCenterURL.UserDetails + '&']} /> {/** see 'asset details' from ampersand purpose.  */}
                             <Page Name={SystemCenterURL.UserGroupByPage} Label={"User Groups"} OtherActivePages={[SystemCenterURL.UserGroupDetails]} />
                         </Section>
                         <div className="col" style={{ width: '100%', height: '100%', padding: '0 0 0 0', overflow: 'hidden' }}>
