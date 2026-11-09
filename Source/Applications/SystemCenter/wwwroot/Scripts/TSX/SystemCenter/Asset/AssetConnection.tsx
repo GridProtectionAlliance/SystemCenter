@@ -32,6 +32,7 @@ import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { AssetConnectionTypeSlice } from '../Store/Store';
 import { SelectRoles } from '../Store/UserSettings';
+import { SystemCenterURL } from '../constants';
 
 interface AssetConnection {
     AssetRelationShipTypeID: number,
@@ -192,7 +193,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
 
 
     function handleSelect(item) {
-        navigate(`${homePath}index.cshtml?name=Asset&AssetID=${item.row.AssetID}`);
+        navigate(homePath + SystemCenterURL.AssetDetails + `&AssetID=${item.row.AssetID}`);
     }
 
     function hasPermissions(): boolean {

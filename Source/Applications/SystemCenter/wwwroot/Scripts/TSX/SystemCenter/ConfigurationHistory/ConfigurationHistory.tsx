@@ -31,6 +31,7 @@ import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
 import { ServerErrorIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
 import { ToolTip } from '@gpa-gemstone/react-forms';
+import { SystemCenterURL } from '../constants';
 
 declare var homePath: string;
 declare var ace: any;
@@ -132,7 +133,7 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
             cache: false,
             async: true
         }).done((data: OpenXDA.Types.MeterConfiguration) =>
-            navigate(`${homePath}index.cshtml?name=ConfigurationHistory&MeterKey=${props.MeterKey}&MeterConfigurationID=${data.ID}`)
+            navigate(homePath + SystemCenterURL.ConfigurationHistory + `&MeterKey=${props.MeterKey}&MeterConfigurationID=${data.ID}`)
         );
     }
 
@@ -173,7 +174,7 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
                 </div>
                 <div className="col-4 align-self-center">
                     <button className="btn btn-secondary pull-right" onClick={() =>
-                        navigate(`${homePath}index.cshtml?name=Meter&MeterID=${meterConfiguration.MeterID}`)
+                        navigate(homePath + SystemCenterURL.MeterDetails + `&MeterID=${meterConfiguration.MeterID}`)
                     }>Meter Details</button>
                 </div>
             </div>

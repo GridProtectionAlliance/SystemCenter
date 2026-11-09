@@ -25,7 +25,8 @@ import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { CreateGuid } from '@gpa-gemstone/helper-functions';
 import * as React from 'react';
 import { ToolTip } from '@gpa-gemstone/react-forms';
-
+import { useNavigate } from 'react-router-dom';
+import { SystemCenterURL } from '../constants';
 
 enum ProcessingStatusEnum {
     Unknown = 0,
@@ -43,6 +44,7 @@ interface IStatusProps {
 }
 
 const ProcessingStatus = (props: IStatusProps) => {
+    const navigate = useNavigate();
     const [hover, setHover] = React.useState<boolean>(false);
     const [guid, _setGuid] = React.useState<string>(CreateGuid());
    
@@ -50,7 +52,7 @@ const ProcessingStatus = (props: IStatusProps) => {
         event.stopPropagation();
         if (!props.Interactive)
             return
-        window.location.href = `${homePath}index.cshtml?name=DataOperationsFailures&FileGroupID=${props.DataFileID}`;
+        navigate(homePath + SystemCenterURL.DataOperationFailures + `&FileGroupID=${props.DataFileID}`;
     }, [props.Status, props.DataFileID, props.Interactive]);
 
     const visual = React.useMemo(() => {

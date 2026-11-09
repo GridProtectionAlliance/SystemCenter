@@ -31,6 +31,7 @@ import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 import GenericByPage from '../CommonComponents/GenericByPage';
 import { SystemCenter as SC } from '../global';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { SystemCenterURL } from '../constants';
 
 declare var homePath: string;
 
@@ -58,7 +59,7 @@ const ByCustomer: Application.Types.iByComponent = (props) => {
     const [showEXTModal, setShowExtModal] = React.useState<boolean>(false);
     const [refreshCount, refreshData] = React.useState<number>(0);
     function handleSelect(item) {
-        navigate(`${homePath}index.cshtml?name=Customer&CustomerID=${item.row.ID}`);
+        navigate(homePath + SystemCenterURL.CustomerDetails + `&CustomerID=${item.row.ID}`);
     }
 
     return (

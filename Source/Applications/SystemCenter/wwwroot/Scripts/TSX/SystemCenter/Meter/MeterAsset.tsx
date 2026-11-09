@@ -45,6 +45,7 @@ import { SelectRoles } from '../Store/UserSettings';
 import GenerationAttributes from '../AssetAttribute/Generation';
 import StationAuxAttributes from '../AssetAttribute/StationAux';
 import StationBatteryAttributes from '../AssetAttribute/StationBattery';
+import { SystemCenterURL } from '../constants';
 
 declare var homePath: string;
 
@@ -133,7 +134,7 @@ const MeterAssetWindow = (props: IProps) => {
     }
 
     function handleSelect(item) {
-            navigate(`${homePath}index.cshtml?name=Asset&AssetID=${item.row.ID}`);
+            navigate(homePath + SystemCenterURL.AssetDetails +`&AssetID=${item.row.ID}`);
     }
 
     return (

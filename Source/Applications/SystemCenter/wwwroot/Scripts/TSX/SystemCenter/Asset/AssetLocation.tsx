@@ -31,6 +31,7 @@ import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
 import { Modal } from '@gpa-gemstone/react-interactive';
 import { ToolTip } from '@gpa-gemstone/react-forms';
+import { SystemCenterURL } from '../constants';
 
 declare var homePath: string;
 
@@ -156,7 +157,7 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
     }
 
     function handleSelect(item) {
-        navigate(`${homePath}index.cshtml?name=Location&LocationID=${item.row.ID}`);
+        navigate(homePath + SystemCenterURL.LocationDetails +`&LocationID=${item.row.ID}`);
     }
 
     return (

@@ -123,7 +123,7 @@ const ByNode = (props: { Roles: Application.Types.SecurityRoleName[] }) => {
 
     // navigate to node info 
     function handleSelect(item) {
-        navigate(`${homePath}index.cshtml?name=Node&NodeID=${item.row.ID}`);
+        navigate(homePath + SystemCenterURL.TaskRunnerDetails + `&NodeID=${item.row.ID}`);
     }
 
     const defaultSearchcols: Search.IField<SC.Node>[] = [

@@ -27,7 +27,9 @@ import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ServerErrorIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
 import { useNavigate } from "react-router-dom";
+import { SystemCenterURL } from '../constants';
 import moment from 'moment';
+
 declare var homePath: string;
 const PagingID = 'MeterConfigHistPage';
 declare interface MeterConfiguration {
@@ -78,7 +80,7 @@ function MeterConfigurationHistoryWindow(props: { Meter: OpenXDA.Types.Meter }) 
         }).fail(() => setPageState('error'));
     };
     function handleSelect(item: MeterConfiguration) {
-        navigate(`${homePath}index.cshtml?name=ConfigurationHistory&MeterKey=${props.Meter.AssetKey}&MeterConfigurationID=${item.ID}`);
+        navigate(homePath + SystemCenterURL.ConfigurationHistory + `&MeterKey=${props.Meter.AssetKey}&MeterConfigurationID=${item.ID}`);
     }
 
     return (

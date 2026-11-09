@@ -34,6 +34,7 @@ import { ToolTip } from '@gpa-gemstone/react-forms';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
+import { SystemCenterURL } from '../constants';
 
 declare var homePath: string;
 
@@ -186,7 +187,7 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number }) {
                                     setSortField(d.colField);
                                 }
                             }}
-                            OnClick={(data) => { navigate(`${homePath}index.cshtml?name=AssetGroup&AssetGroupID=${data.row.ID}`); }}
+                            OnClick={(data) => { navigate(homePath + SystemCenterURL.AssetGroupDetails + `&AssetGroupID=${data.row.ID}`); }}
                             TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
                             TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                             TbodyStyle={{ display: 'block', width: '100%', overflowY: 'auto', flex: 1 }}
