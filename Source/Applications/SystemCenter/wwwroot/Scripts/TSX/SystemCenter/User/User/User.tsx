@@ -30,6 +30,7 @@ import AdditionalField from '../AdditionalUserFieldsWindow';
 import { IUserAccount } from '../Types';
 import { CheckBox } from '@gpa-gemstone/react-forms';
 import { useNavigate } from "react-router-dom";
+import { SystemCenterURL } from '../../constants';
 
 declare type Tab = 'userInfo' | 'permissions' | 'additionalFields'
 
@@ -126,7 +127,7 @@ function User(props: IProps) {
 					} Title={'Delete ' + (user?.AccountName ?? 'User')} Show={showWarning} CallBack={(c) => {
 					setShowWarning(false);
 					if (c) {
-						new GenericController<IUserAccount>(`${homePath}api/SystemCenter/UserAccount`, "DisplayName", true).DBAction('DELETE', user).then(() => navigate(`${homePath}index.cshtml?name=Users`))
+						new GenericController<IUserAccount>(`${homePath}api/SystemCenter/UserAccount`, "DisplayName", true).DBAction('DELETE', user).then(() => navigate(homePath + SystemCenterURL.UserByPage))
 					};
 				}
 			} />

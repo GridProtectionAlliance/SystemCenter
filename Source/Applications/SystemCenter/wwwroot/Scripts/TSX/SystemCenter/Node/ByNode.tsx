@@ -29,6 +29,7 @@ import { useNavigate } from "react-router-dom";
 import { SystemCenter as SC } from '../global'
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols'
 import NodeAttributes, { validNode, valid, IOpenXDANode, convertToXDANode } from './NodeAttributes'
+import { SystemCenterURL } from '../constants';
 
 interface INodeType {
     ID: number,
@@ -205,7 +206,7 @@ const ByNode = (props: { Roles: Application.Types.SecurityRoleName[] }) => {
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                         Content={({ item, field }) => {
-                            return item[field] === 'N/A' ? item[field] : <a href={`${homePath}index.cshtml?name=AppHost`} target='_blank'> <span className='badge badge-light'>{item[field]}</span></a> }}
+                            return item[field] === 'N/A' ? item[field] : <a href={homePath + SystemCenterURL.Nodes} target='_blank'> <span className='badge badge-light'>{item[field]}</span></a> }}
                     > Node
                     </Column>
                     <Column<SC.Node>
@@ -215,7 +216,7 @@ const ByNode = (props: { Roles: Application.Types.SecurityRoleName[] }) => {
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                         Content={({ item, field }) => {
-                            return item[field] === 'N/A' ? item[field] : <a href={`${homePath}index.cshtml?name=AppHost`} target='_blank'> <span className='badge badge-light'>{item[field]}</span></a>
+                            return item[field] === 'N/A' ? item[field] : <a href={homePath + SystemCenterURL.Nodes} target='_blank'> <span className='badge badge-light'>{item[field]}</span></a>
                         }}
                     > Assigned Nodes
                     </Column>

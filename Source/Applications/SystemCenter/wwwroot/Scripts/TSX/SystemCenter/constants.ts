@@ -43,7 +43,7 @@ export namespace SystemCenterURL {
     export const LocationDetails = "index.cshtml?name=Location";
 
     export const AssetByPage = "index.cshtml?name=Assets";
-    export const AssetDetails = "index.cshtml?name=Asset&";
+    export const AssetDetails = "index.cshtml?name=Asset";
 
     export const LineSegmentByPage = "index.cshtml?name=LineSegments";
     export const LineSegmentDetails = "index.cshtml?name=LineSegment";

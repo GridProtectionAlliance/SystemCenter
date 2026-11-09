@@ -29,6 +29,7 @@ import { Application } from '@gpa-gemstone/application-typings'
 import { SystemCenter as SC } from '../global'
 import { useNavigate } from 'react-router-dom';
 import { IOpenXDANode, convertToXDANode, IHostRegistration, INodeType } from './NodeAttributes'
+import { SystemCenterURL } from '../constants';
 
 
 declare var homePath: string;
@@ -62,7 +63,7 @@ export default function Node(props: IProps) {
         setDeleteStatus('loading');
         const controller = new GenericController<IOpenXDANode>(`${homePath}api/openXDA/Node`, 'ID')
         controller.DBAction('DELETE', convertToXDANode(node, nodeTypes, appHosts)).done(() => {
-            navigate(`${homePath}index.cshtml?name=TaskRunners`);
+            navigate(homePath + SystemCenterURL.TaskRunnerByPage);
         }).fail(() => {
             setDeleteStatus('error');
         });

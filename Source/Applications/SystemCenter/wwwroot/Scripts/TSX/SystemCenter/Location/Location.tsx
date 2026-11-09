@@ -34,6 +34,9 @@ import LocationImagesWindow from './LocationImages';
 import LocationDrawingsWindow from './LocationDrawings';
 import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
+import { useNavigate } from "react-router-dom";
+import { SystemCenterURL } from '../constants';
+
 
 declare var homePath: string;
 type Tab = 'notes' | 'locationInfo' | 'additionalFields' | 'meters' | 'assets' | 'extDB' | 'images' | 'drawings'
@@ -41,6 +44,7 @@ type Tab = 'notes' | 'locationInfo' | 'additionalFields' | 'meters' | 'assets' |
 interface IProps { LocationID: number, Tab: Tab }
 
 function Location(props: IProps) {
+    let navigate = useNavigate();
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
     const [loadDelete, setLoadDelete] = React.useState<boolean>(false);
     const [location, setLocation] = React.useState<OpenXDA.Types.Location>(null);
@@ -90,7 +94,7 @@ function Location(props: IProps) {
             async: true
         });
         handle.done(() => {
-            window.location.href = homePath + 'index.cshtml?name=Locations'
+            navigate(homePath + SystemCenterURL.LocationByPage);
         })
         handle.then((d) => setLoadDelete(false))
         return handle;

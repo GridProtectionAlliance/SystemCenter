@@ -34,6 +34,8 @@ import { Application, OpenXDA } from '@gpa-gemstone/application-typings'
 import MDMKeys from './MDMKeys';
 import CustomerAssetWindow from './CustomerAsset';
 import { SelectRoles } from '../Store/UserSettings';
+import { useNavigate } from 'react-router-dom';
+import { SystemCenterURL } from '../constants';
 
 declare var homePath: string;
 declare type Tab = 'info' | 'notes' | 'additionalFields' | 'meters' | 'assets' | 'mdm'
@@ -50,6 +52,7 @@ const Tabs = [
 ]
 
 export default function Customer(props: IProps) {
+    const navigate = useNavigate();
     const dispatch = useAppDispatch();
     const [tab, setTab] = React.useState(getTab());
     const customer = useAppSelector((state) => CustomerSlice.Datum(state, props.CustomerID)) as OpenXDA.Types.Customer;
@@ -80,7 +83,7 @@ export default function Customer(props: IProps) {
         dispatch(CustomerSlice.DBAction({
             verb: 'DELETE', record: customer
         }));
-        window.location.href = homePath + 'index.cshtml?name=PQViewCustomers'
+        navigate(homePath + SystemCenterURL.CustomerByPage);
     }
 
     if (cStatus == 'uninitiated' || cStatus == 'loading')

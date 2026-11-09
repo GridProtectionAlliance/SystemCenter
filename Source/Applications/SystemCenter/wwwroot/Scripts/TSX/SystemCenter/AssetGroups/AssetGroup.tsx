@@ -33,6 +33,8 @@ import { LoadingScreen, TabSelector, Warning } from '@gpa-gemstone/react-interac
 import { AssetGroupSlice } from '../Store/Store';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
+import { useNavigate } from 'react-router-dom';
+import { SystemCenterURL } from '../constants';
 
 
 declare var homePath: string;
@@ -41,6 +43,7 @@ declare type Tab = 'info' | 'meter' | 'asset' | 'assetgroup'
 interface IProps { AssetGroupID: number, Tab: Tab }
 
 function AssetGroup(props: IProps) {
+    let navigate = useNavigate();
     const dispatch = useAppDispatch();
     const [tab, setTab] = React.useState(getTab());
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
@@ -73,7 +76,7 @@ function AssetGroup(props: IProps) {
         dispatch(AssetGroupSlice.DBAction({
             verb: 'DELETE', record: group
         }));
-        window.location.href = homePath + 'index.cshtml?name=AssetGroups'
+        navigate(SystemCenterURL.AssetGroupByPage);
     }
 
     if (gStatus == 'uninitiated')

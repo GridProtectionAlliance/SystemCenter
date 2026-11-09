@@ -25,11 +25,13 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
+import { useNavigate } from 'react-router-dom';
 import ChannelGroupInfo from './ChannelGroupInfo';
 import ChannelGroupItems from './ChannelGroupItem';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { ChannelGroupSlice } from '../Store/Store';
 import { TabSelector, Warning } from '@gpa-gemstone/react-interactive';
+import { SystemCenterURL } from '../constants';
 
 declare var homePath: string;
 declare type Tab = 'info' | 'items'
@@ -37,6 +39,7 @@ declare type Tab = 'info' | 'items'
 interface IProps { GroupID: number, Tab: Tab }
 
 export default function ChannelGroup(props: IProps) {
+    const navigate = useNavigate();
     const dispatch = useAppDispatch();
     const record = useAppSelector((state) => ChannelGroupSlice.Datum(state, props.GroupID));
     const channelGroupStatus = useAppSelector(ChannelGroupSlice.Status);
@@ -64,7 +67,7 @@ export default function ChannelGroup(props: IProps) {
 
     function Delete() {
         dispatch(ChannelGroupSlice.DBAction({ verb: 'DELETE', record }))
-        window.location.href = homePath + 'index.cshtml?name=ChannelGroups';
+        navigate(homePath + SystemCenterURL.ChannelGroupByPage);
     }
 
     const Tabs = [
