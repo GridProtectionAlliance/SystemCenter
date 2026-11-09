@@ -160,7 +160,7 @@ const ByAllSubscription = () => {
             DefaultSearchKey={'EmailName'}
             Columns={Columns}
             PagingID={'ByAllReportSubscriptions'}
-            OnDelete={(item) => ActiveReportSubscriptionController.DBAction("DELETE", item)}
+            OnDelete={(item) => ActiveReportSubscriptionController.DBAction("DELETE", item).then(() => refreshData(x => x+1))}
             RefreshCount={refreshCount}
             RecordType={'Report Subscription'}
             OperationResults={operationResults}
