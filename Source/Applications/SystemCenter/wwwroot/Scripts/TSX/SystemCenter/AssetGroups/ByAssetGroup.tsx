@@ -33,6 +33,7 @@ import { AssetGroupSlice, ByMeterSlice } from '../Store/Store';
 import { DefaultSearch, DefaultSelects } from '@gpa-gemstone/common-pages';
 import { useAppDispatch, useAppSelector, useControllerFetch } from '../hooks';
 import AssetSelect from '../Asset/AssetSelect';
+import { SystemCenterURL } from '../constants';
 
 declare var homePath: string;
 
@@ -186,7 +187,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
             Promise.all([handle1,handle2, handle3]).then((x) => {
                 sessionStorage.clear();
                 dispatch(AssetGroupSlice.SetChanged())
-                navigate(`${homePath}index.cshtml?name=AssetGroup&AssetGroupID=${d.ID}`);
+                navigate(homePath + SystemCenterURL.AssetGroupDetails + `&AssetGroupID=${d.ID}`);
             }, (msg) => {
                 if (msg.status == 500)
                     alert(msg.responseJSON.ExceptionMessage)
@@ -199,7 +200,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
     }
 
     function handleSelect(item) {
-        navigate(`${homePath}index.cshtml?name=AssetGroup&AssetGroupID=${item.row.ID}`);
+        navigate(homePath + SystemCenterURL.AssetGroupDetails +`&AssetGroupID=${item.row.ID}`);
     }
 
     function valid(field: keyof (extendedAssetGroup)): boolean {

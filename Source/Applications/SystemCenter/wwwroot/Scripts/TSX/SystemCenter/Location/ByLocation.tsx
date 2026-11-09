@@ -34,6 +34,7 @@ import { Input, TextArea } from '@gpa-gemstone/react-forms';
 import { DefaultSearch } from '@gpa-gemstone/common-pages';
 import { ByLocationSlice } from '../Store/Store';
 import { useAppDispatch, useAppSelector } from '../hooks';
+import { SystemCenterURL } from '../constants';
 
 declare var homePath: string;
 
@@ -170,7 +171,7 @@ const ByLocation: Application.Types.iByComponent = (props) => {
     }
 
     function handleSelect(item) {
-        navigate(`${homePath}index.cshtml?name=Location&LocationID=${item.row.ID}`);
+        navigate(homePath + SystemCenterURL.LocationDetails + `&LocationID=${item.row.ID}`);
     }
 
     function valid(field: keyof (SystemCenter.Types.DetailedLocation)): boolean {

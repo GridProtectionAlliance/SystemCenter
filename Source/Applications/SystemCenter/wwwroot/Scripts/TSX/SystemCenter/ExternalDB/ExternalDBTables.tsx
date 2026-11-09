@@ -30,6 +30,7 @@ import ExternalDBTableForm from './ExternalDBTableForm';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { GenericController, Modal, Warning, Search } from '@gpa-gemstone/react-interactive';
+import { SystemCenterURL } from '../constants';
 
 export default function ExternalDBTables(props: { ID: number }) {
     let navigate = useNavigate();
@@ -96,7 +97,7 @@ export default function ExternalDBTables(props: { ID: number }) {
     }
 
     function handleSelect(item) {
-            navigate(`${homePath}index.cshtml?name=ExternalTable&ID=${item.row.ID}`);
+            navigate(homePath + SystemCenterURL.ExternalTableDetails + `&ID=${item.row.ID}`);
     }
 
     return (

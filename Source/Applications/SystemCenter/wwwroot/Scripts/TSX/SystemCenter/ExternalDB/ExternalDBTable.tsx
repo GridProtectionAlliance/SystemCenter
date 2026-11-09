@@ -30,11 +30,14 @@ import { ExternalDBTablesSlice } from '../Store/Store';
 import { TabSelector, Warning } from '@gpa-gemstone/react-interactive';
 import { SystemCenter as gemstoneSC } from '@gpa-gemstone/application-typings';
 import ExternalDBXdaFields from './ExternalXDAFields/ExternalDBXdaFields';
+import { useNavigate } from 'react-router-dom';
+import { SystemCenterURL } from '../constants';
 
 declare var homePath: string;
 declare type Tab = 'info' | 'fields' | 'xda';
 
 export default function ExternalDB(props: { ID: number, Tab: Tab }) {
+    const navigate = useNavigate();
     const dispatch = useAppDispatch();
 
     const record = useAppSelector((state) => ExternalDBTablesSlice.Datum(state, props.ID));
@@ -73,7 +76,7 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
     }
 
     function GoToExternalDB() {
-        window.location.href = homePath + 'index.cshtml?name=ExternalDB&ID=' + record.ExtDBID;
+        navigate(homePath + SystemCenterURL.ExternalDatabaseDetails + record.ExtDBID);
     }
 
     if (record == null) return null;

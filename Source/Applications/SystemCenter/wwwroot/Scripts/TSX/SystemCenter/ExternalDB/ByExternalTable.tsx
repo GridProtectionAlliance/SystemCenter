@@ -29,6 +29,7 @@ import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import ExternalDBTableForm from './ExternalDBTableForm';
 import { SystemCenter as SC } from '../global';
 import GenericByPage from '../CommonComponents/GenericByPage';
+import { SystemCenterURL } from '../constants';
 
 declare var homePath: string;
 const fieldCols: SC.IByCol<SystemCenter.Types.DetailedExtDBTables>[] = [
@@ -63,7 +64,7 @@ const ByExternalTable: Application.Types.iByComponent = (props) => {
     }, [record]);
 
     function handleSelect(item) {
-        navigate(`${homePath}index.cshtml?name=ExternalTable&ID=${item.row.ID}`);
+        navigate(homePath + SystemCenterURL.ExternalTableDetails + `&ID=${item.row.ID}`);
     }
 
     return (

@@ -27,10 +27,10 @@ import { useNavigate } from "react-router-dom";
 import { OpenXDA, Application } from '@gpa-gemstone/application-typings';
 import { Modal } from '@gpa-gemstone/react-interactive';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
-
 import MATLABAnalyticForm from './MATLABAnalyticForm';
 import GenericByPage from '../CommonComponents/GenericByPage';
 import EditionLockPage from '../CommonComponents/Restrictions/EditionLockPage';
+import { SystemCenterURL } from '../constants';
 
 const controllerPath = `${homePath}api/OpenXDA/MATLABAnalytic`;
 
@@ -66,7 +66,7 @@ const MATLABAnalytics: Application.Types.iByComponent = (props) => {
 
     function handleSelect(item) {
         if (props.Roles.indexOf('Administrator') != -1)
-            navigate(`${homePath}index.cshtml?name=MATLABAnalytic&AnalyticID=${item.row.ID}`);
+            navigate(homePath + SystemCenterURL.MATLABAnalyticDetails + `&AnalyticID=${item.row.ID}`);
     }
 
     return (

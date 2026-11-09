@@ -42,6 +42,7 @@ import GenerationAttributes from '../AssetAttribute/Generation';
 import StationAuxAttributes from '../AssetAttribute/StationAux';
 import StationBatteryAttributes from '../AssetAttribute/StationBattery';
 import { SelectRoles } from '../Store/UserSettings';
+import { SystemCenterURL } from '../constants';
 
 declare var homePath: string;
 const PagingID = 'LocationAssetPage';
@@ -217,7 +218,7 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
     }
 
     function handleSelect(item) {
-            navigate(`${homePath}index.cshtml?name=Asset&AssetID=${item.row.ID}`);
+            navigate(homePath + SystemCenterURL.AssetDetails + `&AssetID=${item.row.ID}`);
     }
 
     function GetDifferentAsset(assetID: number) {

@@ -31,6 +31,7 @@ import { Modal, GenericController } from '@gpa-gemstone/react-interactive';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import CategoryForm from './CategoryForm';
 import GenericByPage from '../CommonComponents/GenericByPage';
+import { SystemCenterURL } from '../constants';
 
 const emptyCategory: LocalXDA.IWidgetCategory = { ID: 0, Name: '', OrderBy: 0 };
 const fieldCols: SC.IByCol<LocalXDA.IWidgetCategory>[] = [
@@ -49,7 +50,7 @@ const ByWidgetCategory: Application.Types.iByComponent = (props) => {
     const [errors, setErrors] = React.useState<string[]>([]);
 
     const handleSelect = React.useCallback((item: { row: LocalXDA.IWidgetCategory }) => {
-        navigate(`${homePath}index.cshtml?name=SEBrowserTab&TabID=${item.row.ID}`);
+        navigate(homePath + SystemCenterURL.PQBrowserTabDetail + `&TabID=${item.row.ID}`);
     }, []);
 
     return (

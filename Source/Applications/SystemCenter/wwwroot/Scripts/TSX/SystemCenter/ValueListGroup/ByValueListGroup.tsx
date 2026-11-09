@@ -28,6 +28,7 @@ import { GenericController, Modal } from '@gpa-gemstone/react-interactive';
 import {SystemCenter as localSC } from '../global'
 import ValueListGroupForm from './ValueListGroupForm';
 import GenericByPage from '../CommonComponents/GenericByPage';
+import { SystemCenterURL } from '../constants';
 
 const controllerPath = `${homePath}api/ValueListGroup`;
 const ValueListGroupController = new GenericController<localSC.ValueListGroupView>(controllerPath, "ID", true);
@@ -46,7 +47,7 @@ const ValueListGroups: Application.Types.iByComponent = () => {
     const [record, setRecord] = React.useState<localSC.ValueListGroupView>(emptyRecord);
 
     function handleSelect(item) {
-        navigate(`${homePath}index.cshtml?name=ValueListGroup&GroupID=${item.row.ID}`);
+        navigate(homePath + SystemCenterURL.ValueListGroup +`&GroupID=${item.row.ID}`);
     }
 
     return (

@@ -30,6 +30,7 @@ import { useNavigate } from "react-router-dom";
 import { ISecurityGroup } from '../Types';
 import GroupForm from './GroupForm';
 import AppStatus from '../../CommonComponents/AppStatus';
+import { SystemCenterURL } from '../../constants'
 
 const defaultSearchcols: Search.IField<Application.Types.iSecurityGroup>[] = [
     { label: 'Name', key: 'DisplayName', type: 'string', isPivotField: false },
@@ -136,7 +137,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
                                 setSortField(d.colKey as keyof ISecurityGroup);
                             }
                         }}
-                        OnClick={(d) => navigate(`${homePath}index.cshtml?name=Group&GroupID=${d.row.ID}`)}
+                        OnClick={(d) => navigate(homePath + SystemCenterURL.UserGroupDetails + `&GroupID=${d.row.ID}`)}
                         TableStyle={{
                             padding: 0, width: '100%', height: '100%',
                             tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'

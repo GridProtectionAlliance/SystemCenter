@@ -30,6 +30,7 @@ import { IsCron } from '@gpa-gemstone/helper-functions';
 import ExternalDBForm from './ExternalDBForm';
 import { SystemCenter as SC } from '../global';
 import GenericByPage from '../CommonComponents/GenericByPage';
+import { SystemCenterURL } from '../constants';
 
 declare var homePath: string;
 const controllerPath = `${homePath}api/SystemCenter/ExternalDatabases`
@@ -65,7 +66,7 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
     }, [record]);
 
     function handleSelect(item) {
-        navigate(`${homePath}index.cshtml?name=ExternalDB&ID=${item.row.ID}`);
+        navigate(homePath + SystemCenterURL.ExternalDatabaseDetails + `&ID=${item.row.ID}`);
     }
 
     return <>

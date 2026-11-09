@@ -31,6 +31,7 @@ import { RemoteXDAInstanceForm, BlankRemoteXDAInstance } from './RemoteXDAInstan
 import GenericByPage from '../CommonComponents/GenericByPage';
 import EditionLockPage from '../CommonComponents/Restrictions/EditionLockPage';
 import { SystemCenter } from '../global';
+import { SystemCenterURL } from '../constants';
 
 declare var homePath: string;
 
@@ -49,7 +50,7 @@ const RemoteXDAInstanceMain: Application.Types.iByComponent = (props) => {
     const [newInstErrors, setNewInstErrors] = React.useState<string[]>([]);
 
     function handleSelect(item) {
-        navigate(`${homePath}index.cshtml?name=RemoteXDAInstance&ID=${item.row.ID}`);
+        navigate(homePath + SystemCenterURL.RemoteXDAInstanceDetails + `&ID=${item.row.ID}`);
     }
 
     return (
