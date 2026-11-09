@@ -31,11 +31,14 @@ import { LoadingScreen, Modal, TabSelector, Warning } from '@gpa-gemstone/react-
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { SystemCenter as SC } from '../global';
 import ExtDBTaskStatusModal from '../CommonComponents/ExtDBTaskStatusModal';
+import { useNavigate } from 'react-router-dom';
+import { SystemCenterURL } from '../constants';
 
 declare var homePath: string;
 declare type Tab = 'info' | 'tables';
 
 export default function ExternalDB(props: { ID: number, Tab: Tab }) {
+    const navigate = useNavigate();
     const dispatch = useAppDispatch();
 
     const record = useAppSelector((state) => ExternalDatabasesSlice.Datum(state, props.ID));
@@ -72,7 +75,7 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
 
     function Delete() {
         dispatch(ExternalDatabasesSlice.DBAction({ verb: 'DELETE', record }));
-        window.location.href = homePath + 'index.cshtml?name=ByExternalDB';
+        navigate(homePath + SystemCenterURL.ExternalDatabaseByPage);
     }
 
     if (record == null) return null;

@@ -27,8 +27,10 @@ import * as React from 'react';
 import MATLABAnalyticInfo from './MATLABAnalyticInfo';
 import MATLABAnalyticSQLSettings from './MATLABAnalyticSQLSetting';
 import { useAppSelector, useAppDispatch } from '../hooks';
+import { useNavigate } from 'react-router-dom';
 import { MATLABAnalyticSlice, MATLABAnalyticEventTypeSlice, MATLABAnalyticAssetTypeSlice } from '../Store/Store';
 import { TabSelector, Warning } from '@gpa-gemstone/react-interactive';
+import { SystemCenterURL } from '../constants';
 
 declare var homePath: string;
 declare type Tab = 'info' | 'settings'
@@ -36,6 +38,7 @@ declare type Tab = 'info' | 'settings'
 interface IProps { AnalyticID: number, Tab: Tab }
 
 export default function MATLABAnalytic(props: IProps) {
+    const navigate = useNavigate();
     const dispatch = useAppDispatch();
 
     const record = useAppSelector((state) => MATLABAnalyticSlice.Datum(state, props.AnalyticID));
@@ -79,7 +82,7 @@ export default function MATLABAnalytic(props: IProps) {
 
     function Delete() {
         dispatch(MATLABAnalyticSlice.DBAction({ verb: 'DELETE', record }));
-        window.location.href = homePath + 'index.cshtml?name=MATLABAnalytics';
+        navigate(homePath + SystemCenterURL.MATLABAnalyticByPage);
     }
 
     const Tabs = [

@@ -40,6 +40,7 @@ import { Warning, LoadingScreen, TabSelector, Modal } from '@gpa-gemstone/react-
 import DataRescueWindow from './Advanced/MeterDataRescue';
 import DataMergeWindow from './Advanced/MeterDataMerge';
 import DataDeleteWindow from './Advanced/MeterDataDelete';
+import { useNavigate } from "react-router-dom";
 import { CreateGuid } from '@gpa-gemstone/helper-functions';
 import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
@@ -47,12 +48,16 @@ import AssetGroupRelation from '../AssetGroups/AssetGroupRelation';
 import CustomerRelation from '../Customer/CustomerRelation';
 import { OperationResult } from '../CommonComponents/ResultAlert';
 
+import { SystemCenterURL } from '../constants';
+ 
 declare var homePath: string;
 declare type Tab = 'notes' | 'meterInfo' | 'additionalFields' | 'substation' | 'assets' | 'eventChannels' | 'trendChannels' | 'channelScaling' | 'configurationHistory' | 'extDB' | 'maintenance' | 'dataRescue' | 'dataMerge' | 'dataDelete' | 'assetGroups' | 'customers';
 
 interface IProps { MeterID: number, Tab: Tab }
 
 function Meter(props: IProps) {
+    let navigate = useNavigate();
+
     const [meter, setMeter] = React.useState<OpenXDA.Types.Meter>(null);
     const [tab, setTab] = React.useState(getTab());
     const [showAdvanced, setShowAdvanced] = React.useState<boolean>(false);
@@ -114,7 +119,7 @@ function Meter(props: IProps) {
             async: true
         });
         handle.done(() => {
-            window.location.href = homePath + 'index.cshtml?name=Meters'
+            navigate(homePath + SystemCenterURL.MeterByPage);
         })
         handle.then((d) => setLoadDelete(false))
         return handle;
@@ -136,7 +141,7 @@ function Meter(props: IProps) {
         // the user navigates to data merge
         const guid = CreateGuid();
         const returnToMeters = () => {
-            window.location.href = homePath + 'index.cshtml?name=Meters';
+            navigate(homePath + SystemCenterURL.MeterByPage);
         };
         const newWindow = () =>
             <DataMergeWindow key={guid} Meter={meter} OnMerge={returnToMeters} />;
@@ -150,7 +155,7 @@ function Meter(props: IProps) {
         // the user navigates to data delete
         const guid = CreateGuid();
         const returnToMeters = () => {
-            window.location.href = homePath + 'index.cshtml?name=Meters';
+            navigate(homePath + SystemCenterURL.MeterByPage);
         };
         const newWindow = () =>
             <DataDeleteWindow key={guid} Meter={meter} OnDelete={returnToMeters} />;

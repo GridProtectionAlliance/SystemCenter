@@ -88,7 +88,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                             <Page Name={SystemCenterURL.MeterByPage} Label={"Meters"}
                                 OtherActivePages={[SystemCenterURL.MeterDetails, SystemCenterURL.ConfigurationHistory, SystemCenterURL.NewMeterWizard]} />
                             <Page Name={SystemCenterURL.LocationByPage} Label={"Substations"} OtherActivePages={[SystemCenterURL.LocationDetails]} />
-                            <Page Name={SystemCenterURL.AssetByPage} Label={"Assets"} OtherActivePages={[SystemCenterURL.AssetDetails]} />
+                            <Page Name={SystemCenterURL.AssetByPage} Label={"Assets"} OtherActivePages={[SystemCenterURL.AssetDetails + "&"]} /> {/** ampersand prevents it from matching asset group pages. */ }
                             <Page Name={SystemCenterURL.LineSegmentByPage} Label={"Line Segments"} OtherActivePages={[SystemCenterURL.LineSegmentDetails]} />
                             <Page Name={SystemCenterURL.AssetGroupByPage} Label={"Asset Groups"} OtherActivePages={[SystemCenterURL.AssetGroupDetails]} />
                             <Page Name={SystemCenterURL.CustomerByPage} Label={"Customers"} OtherActivePages={[SystemCenterURL.CustomerDetails]} />

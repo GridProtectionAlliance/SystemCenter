@@ -23,12 +23,14 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
+import { useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { WidgetCategorySlice } from '../Store/Store';
 import { TabSelector, Warning } from '@gpa-gemstone/react-interactive';
 import { Application } from '@gpa-gemstone/application-typings'
 import CategoryInfo from './CategoryInfo';
 import WidgetByCategory from './WidgetByCategory';
+import { SystemCenterURL } from '../constants';
 
 declare var homePath: string;
 declare type Tab = 'info' | 'widgets'
@@ -42,6 +44,7 @@ const Tabs = [
 
 export default function WidgetCategory(props: IProps) {
     const dispatch = useAppDispatch();
+    const navigate = useNavigate();
     const [tab, setTab] = React.useState(getTab());
     const category = useAppSelector((state) => WidgetCategorySlice.Datum(state, props.TabID));
     const cStatus = useAppSelector(WidgetCategorySlice.Status) as Application.Types.Status;
@@ -70,7 +73,7 @@ export default function WidgetCategory(props: IProps) {
         dispatch(WidgetCategorySlice.DBAction({
             verb: 'DELETE', record: category
         }));
-        window.location.href = homePath + 'index.cshtml?name=SEBrowserTabs'
+        navigate(homePath + SystemCenterURL.PQBrowserTabByPage);
     }
 
     if (cStatus == 'uninitiated' || cStatus == 'loading')
