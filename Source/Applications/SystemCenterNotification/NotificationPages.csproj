@@ -220,6 +220,10 @@
     <Compile Include="Model\AppModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="App_Start\Startup.cs" />
+    <TypeScriptCompile Include="Scripts\TSX\CommonComponents\ResultAlert.tsx" />
+    <TypeScriptCompile Include="Scripts\TSX\CommonComponents\AlertDisplay.tsx" />
+    <TypeScriptCompile Include="Scripts\TSX\constants.ts" />
+    <TypeScriptCompile Include="Scripts\TSX\Subscriptions\Report\BySubscription.tsx" />
     <Compile Include="ViewExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -366,9 +370,12 @@
     <Content Include="Scripts\TSX\CommonComponents\TestEmailButton.tsx" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="Scripts\TSX\CommonComponents\GenericByPage.tsx" />
     <TypeScriptCompile Include="Scripts\TSX\EmailTypes\History.tsx" />
     <TypeScriptCompile Include="Scripts\TSX\EmailTypes\SentEmailTable.tsx" />
     <TypeScriptCompile Include="Scripts\TSX\EmailTypes\SentEmailTimeline.tsx" />
+    <TypeScriptCompile Include="Scripts\TSX\Subscriptions\AddSubscription.tsx" />
+    <TypeScriptCompile Include="Scripts\TSX\Subscriptions\Report\ByAllSubscription.tsx" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
