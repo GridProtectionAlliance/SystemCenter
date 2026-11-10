@@ -33,97 +33,196 @@ export namespace TimeFormatting {
 
 export namespace SystemCenterURL {
 
+    const Base = "index.cshtml?name=";
+
+    export namespace PageName {
+
+        // Monitors and Assets
+        export const Meters = "Meters"
+        export const Meter = "Meter"
+        export const NewMeterWizard = "NewMeterWizard"
+        export const ConfigurationHistory = "ConfigurationHistory"
+
+        export const Locations = "Locations"
+        export const Location = "Location"
+
+        export const Assets = "Assets"
+        export const Asset = "Asset"
+
+        export const LineSegments = "LineSegments"
+        export const LineSegment = "LineSegment"
+
+        export const AssetGroups = "AssetGroups"
+        export const AssetGroup = "AssetGroup"
+
+        export const Customers = "PQViewCustomers"
+        export const Customer = "Customer"
+
+        // File Processing
+        export const DeviceHealthReport = "DeviceHealthReport"
+        export const DeviceIssues = "DeviceIssuesPage"
+        export const DeviceContacts = "DeviceContacts"
+
+        export const DataFiles = "DataFiles";
+        export const DataOperationFailures = "DataOperationsFailures"
+        export const DataOperations = "DataOperations"
+        export const DataReaders = "DataReaders"
+
+        export const MATLABAnalytics = "MATLABAnalytics"
+        export const MATLABAnalytic = "MATLABAnalytic"
+
+        export const DatabaseCleanup = "DBCleanup"
+
+        // External Links
+        export const RemoteXDAInstances = "RemoteXDAInstanceMain"
+        export const RemoteXDAInstance = "RemoteXDAInstance"
+
+        export const ExternalDatabases = "ByExternalDB"
+        export const ExternalDatabase = "ExternalDB"
+
+        export const ExternalTables = "ByExternalTable"
+        export const ExternalTable = "ExternalTable"
+
+        // UI Configuration
+        export const EventTypes = "EventType"
+
+        export const ValueLists = "ValueLists"
+        export const ValueList = "ValueListGroup"
+
+        export const ChannelGroups = "ChannelGroups"
+        export const ChannelGroup = "ChannelGroup"
+
+        export const PQBrowserTabs = "SEBrowserTabs"
+        export const PQBrowserTab = "SEBrowserTab"
+
+        export const PQBrowserWidgets = "SEBrowserWidget"
+
+        export const PQBrowserDigest = "PQDigestHomePage"
+        export const PQBrowserDigestWidgets = "PQDigestWidget"
+
+        export const MagDurCurves = "MagDurCurves"
+
+        export const EventTags = "EventTags"
+
+        export const ApplicationCategories = "ByApplicationCategory"
+        export const ApplicationCategory = "ApplicationCategory"
+
+        // System Settings
+        export const Nodes = "AppHost"
+
+        export const TaskRunners = "TaskRunners"
+        export const TaskRunner = "Node"
+
+        export const Settings = "Settings"
+
+        export const AdditionalFields = "ByAdditionalField"
+
+        // Access
+        export const UserStatistics = "UserStatistics"
+
+        export const SSOApplications = "ApplicationNodes"
+
+        export const APIKeys = "APIAccessKey"
+
+        export const Users = "Users"
+        export const User = "User"
+
+        export const UserGroups = "Groups"
+        export const UserGroup = "Group"
+    }
+
     // Monitors and Assets
-    export const MeterByPage = "index.cshtml?name=Meters";
-    export const NewMeterWizard = `index.cshtml?name=NewMeterWizard`;
-    export const MeterDetails = `index.cshtml?name=Meter`;
-    export const ConfigurationHistory = "index.cshtml?name=ConfigurationHistory";
+    export const MeterByPage = Base + PageName.Meters;
+    export const MeterDetails = Base + PageName.Meter;
+    export const NewMeterWizard = Base + PageName.NewMeterWizard;
+    export const ConfigurationHistory = Base + PageName.ConfigurationHistory;
 
-    export const LocationByPage = "index.cshtml?name=Locations";
-    export const LocationDetails = "index.cshtml?name=Location";
+    export const LocationByPage = Base + PageName.Locations;
+    export const LocationDetails = Base + PageName.Location;
 
-    export const AssetByPage = "index.cshtml?name=Assets";
-    export const AssetDetails = "index.cshtml?name=Asset";
+    export const AssetByPage = Base + PageName.Assets;
+    export const AssetDetails = Base + PageName.Asset;
 
-    export const LineSegmentByPage = "index.cshtml?name=LineSegments";
-    export const LineSegmentDetails = "index.cshtml?name=LineSegment";
+    export const LineSegmentByPage = Base + PageName.LineSegments;
+    export const LineSegmentDetails = Base + PageName.LineSegment;
 
-    export const AssetGroupByPage = "index.cshtml?name=AssetGroups";
-    export const AssetGroupDetails = "index.cshtml?name=AssetGroup";
+    export const AssetGroupByPage = Base + PageName.AssetGroups;
+    export const AssetGroupDetails = Base + PageName.AssetGroup;
 
-    export const CustomerByPage = "index.cshtml?name=PQViewCustomers";
-    export const CustomerDetails = "index.cshtml?name=Customer";
+    export const CustomerByPage = Base + PageName.Customers;
+    export const CustomerDetails = Base + PageName.Customer;
 
     // File Processing
-    export const DeviceHealthReport = "index.cshtml?name=DeviceHealthReport";
-    export const DeviceIssuesPage = "index.cshtml?name=DeviceIssuesPage";
-    export const DeviceContacts = "index.cshtml?name=DeviceContacts";
+    export const DeviceHealthReport = Base + PageName.DeviceHealthReport;
+    export const DeviceIssuesPage = Base + PageName.DeviceIssues;
+    export const DeviceContacts = Base + PageName.DeviceContacts;
 
-    export const DataFiles = "index.cshtml?name=DataFiles";
-    export const DataOperationFailures = "index.cshtml?name=DataOperationsFailures";
+    export const DataFiles = Base + PageName.DataFiles;
+    export const DataOperationFailures = Base + PageName.DataOperationFailures;
 
-    export const DataOperations = "index.cshtml?name=DataOperations&System=OpenXDA"; // are any other "System" variables valid?
-    export const DataReaders = "index.cshtml?name=DataReaders&System=OpenXDA";
+    export const DataOperations = Base + PageName.DataOperations; // &System=OpenXDA // System parameter is unused.
+    export const DataReaders = Base + PageName.DataReaders; // &System=OpenXDA" // see above.
 
-    export const MATLABAnalyticByPage = "index.cshtml?name=MATLABAnalytics";
-    export const MATLABAnalyticDetails = "index.cshtml?name=MATLABAnalytic";
+    export const MATLABAnalyticByPage = Base + PageName.MATLABAnalytics;
+    export const MATLABAnalyticDetails = Base + PageName.MATLABAnalytic;
 
-    export const DatabaseCleanup = "index.cshtml?name=DBCleanup";
+    export const DatabaseCleanup = Base + PageName.DatabaseCleanup;
+
 
     // External Links
-    export const RemoteXDAInstanceByPage = "index.cshtml?name=RemoteXDAInstanceMain";
-    export const RemoteXDAInstanceDetails = "index.cshtml?name=RemoteXDAInstance";
+    export const RemoteXDAInstanceByPage = Base + PageName.RemoteXDAInstances;
+    export const RemoteXDAInstanceDetails = Base + PageName.RemoteXDAInstance;
 
-    export const ExternalDatabaseByPage = "index.cshtml?name=ByExternalDB";
-    export const ExternalDatabaseDetails = "index.cshtml?name=ExternalDB";
+    export const ExternalDatabaseByPage = Base + PageName.ExternalDatabases;
+    export const ExternalDatabaseDetails = Base + PageName.ExternalDatabase;
 
-    export const ExternalTableByPage = "index.cshtml?name=ByExternalTable";
-    export const ExternalTableDetails = "index.cshtml?name=ExternalTable";
+    export const ExternalTableByPage = Base + PageName.ExternalTables;
+    export const ExternalTableDetails = Base + PageName.ExternalTable;
 
     // UI Configuration
-    export const EventTypes = "index.cshtml?name=EventType";
+    export const EventTypes = Base + PageName.EventTypes;
 
-    export const ValueListByPage = "index.cshtml?name=ValueLists";
-    export const ValueListGroup = "index.cshtml?name=ValueListGroup";
+    export const ValueListByPage = Base + PageName.ValueLists;
+    export const ValueListGroup = Base + PageName.ValueList;
 
-    export const ChannelGroupByPage = "index.cshtml?name=ChannelGroups";
-    export const ChannelGroupDetail = "index.cshtml?name=ChannelGroup";
+    export const ChannelGroupByPage = Base + PageName.ChannelGroups;
+    export const ChannelGroupDetail = Base + PageName.ChannelGroup;
 
-    export const PQBrowserTabByPage = "index.cshtml?name=SEBrowserTabs";
-    export const PQBrowserTabDetail = "index.cshtml?name=SEBrowserTab";
+    export const PQBrowserTabByPage = Base + PageName.PQBrowserTabs;
+    export const PQBrowserTabDetail = Base + PageName.PQBrowserTab;
 
-    export const PQBrowserWidgets = "index.cshtml?name=SEBrowserWidget";
+    export const PQBrowserWidgets = Base + PageName.PQBrowserWidgets;
 
-    export const PQBrowserDigest = "index.cshtml?name=PQDigestHomePage";
-    export const PQBrowserDigestWidgets = "index.cshtml?name=PQDigestWidget";
+    export const PQBrowserDigest = Base + PageName.PQBrowserDigest;
+    export const PQBrowserDigestWidgets = Base + PageName.PQBrowserDigestWidgets;
 
-    export const MagDurCurves = "index.cshtml?name=MagDurCurves";
+    export const MagDurCurves = Base + PageName.MagDurCurves;
 
-    export const EventTags = "index.cshtml?name=EventTags";
+    export const EventTags = Base + PageName.EventTags;
 
-    export const ApplicationCategoryByPage = "index.cshtml?name=ByApplicationCategory";
-    export const ApplicationCategoryDetails = "index.cshtml?name=ApplicationCategory";
+    export const ApplicationCategoryByPage = Base + PageName.ApplicationCategories;
+    export const ApplicationCategoryDetails = Base + PageName.ApplicationCategory;
 
-    // SystemSettings
-    export const Nodes = "index.cshtml?name=AppHost";
+    // System Settings
+    export const Nodes = Base + PageName.Nodes;
 
-    export const TaskRunnerByPage = "index.cshtml?name=TaskRunners";
-    export const TaskRunnerDetails = "index.cshtml?name=Node";
+    export const TaskRunnerByPage = Base + PageName.TaskRunners;
+    export const TaskRunnerDetails = Base + PageName.TaskRunner;
 
-    export const Settings = "index.cshtml?name=Settings";
+    export const Settings = Base + PageName.Settings;
 
-    export const AdditionalFieldsByPage = "index.cshtml?name=ByAdditionalField";
+    export const AdditionalFieldsByPage = Base + PageName.AdditionalFields;
 
     // Access
-    export const UserStatistics = "index.cshtml?name=UserStatistics";
+    export const UserStatistics = Base + PageName.UserStatistics;
 
-    export const SSOApplications = "index.cshtml?name=ApplicationNodes";
+    export const SSOApplications = Base + PageName.SSOApplications;
 
-    export const APIKeys = "index.cshtml?name=APIAccessKey";
+    export const APIKeys = Base + PageName.APIKeys;
 
-    export const UserByPage = "index.cshtml?name=Users";
-    export const UserDetails = "index.cshtml?name=User";
+    export const UserByPage = Base + PageName.Users;
+    export const UserDetails = Base + PageName.User;
 
-    export const UserGroupByPage = "index.cshtml?name=Groups";
-    export const UserGroupDetails = "index.cshtml?name=Group";
+    export const UserGroupByPage = Base + PageName.UserGroups;
+    export const UserGroupDetails = Base + PageName.UserGroup;
 }
