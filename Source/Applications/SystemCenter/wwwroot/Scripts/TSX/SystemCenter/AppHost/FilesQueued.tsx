@@ -25,6 +25,7 @@ import * as React from 'react'
 import { useGetContainerPosition } from '@gpa-gemstone/helper-functions'
 import FilesQueuedGraph from './FilesQueuedGraph'
 import AnalysisTaskTable from './AnalysisTaskTable'
+import MeterAnalysis from './MeterAnalysis'
 
 const FilesQueued = () => {
     const rowRef = React.useRef<HTMLDivElement>(null);
@@ -41,7 +42,7 @@ const FilesQueued = () => {
                         />
                 </div>
                 <div className="row d-flex flex-column h-75" style={{ flex: '1 1 0%' }}>
-                    <AnalysisTaskTable />
+                    <AnalysisTaskTable /> 
                 </div>
             </div>            
         </div>
