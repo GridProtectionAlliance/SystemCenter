@@ -61,12 +61,12 @@ namespace SystemCenter.Controllers.OpenXDA
                     SELECT
                         MeterConfiguration.ID,
 	                    CAST(MeterConfiguration.RevisionMajor as varchar(max)) + '.'+  CAST(MeterConfiguration.RevisionMinor as varchar(max)) as Revision,
-	                    COUNT(FileGroup.ID) as FilesProcessed,
-	                    MAX(FileGroup.ProcessingEndTime) as LastProcessedTime
+	                    COUNT(DISTINCT FileGroupAnalysisJob.FileGroupID) as FilesProcessed,
+	                    MAX(FileGroupAnalysisJob.ProcessingEndTime) as LastProcessedTime
                     FROM
 	                    MeterConfiguration LEFT JOIN
-	                    FileGroupMeterConfiguration ON MeterConfiguration.ID = FileGroupMeterConfiguration.MeterConfigurationID LEFT JOIN
-	                    FileGroup ON FileGroupMeterConfiguration.FileGroupID = FileGroup.ID
+	                    FileGroupAnalysisJobMeterConfiguration ON MeterConfiguration.ID = FileGroupAnalysisJobMeterConfiguration.MeterConfigurationID LEFT JOIN
+	                    FileGroupAnalysisJob ON FileGroupAnalysisJobMeterConfiguration.FileGroupAnalysisJobID = FileGroupAnalysisJob.ID
                     WHERE
 	                    MeterConfiguration.MeterID = {{0}}
                     GROUP BY 
@@ -101,7 +101,7 @@ namespace SystemCenter.Controllers.OpenXDA
                     int totalRecords = connection.ExecuteScalar<int>($@"
                         SELECT COUNT(*)
                         FROM DataFile
-                        WHERE FileGroupID IN (SELECT FileGroupID FROM FileGroupMeterConfiguration WHERE MeterConfigurationID = {meterConfigurationID})
+                        WHERE FileGroupID IN (SELECT FileGroupID FROM FileGroupAnalysisJobMeterConfiguration INNER JOIN FileGroupAnalysisJob ON FileGroupAnalysisJob.ID = FileGroupAnalysisJobID WHERE MeterConfigurationID = {meterConfigurationID})
                     ");
                     int numberOfPages = (totalRecords + recordsPerPage - 1) / recordsPerPage;
                     if (numberOfPages == 0) numberOfPages = 1;
@@ -109,7 +109,7 @@ namespace SystemCenter.Controllers.OpenXDA
                     string orderByExpression = "ID";
 
                     RecordRestriction restriction = new RecordRestriction(
-                        "FileGroupID IN (SELECT FileGroupID FROM FileGroupMeterConfiguration WHERE MeterConfigurationID = {0})",
+                        "FileGroupID IN (SELECT FileGroupID FROM FileGroupAnalysisJobMeterConfiguration INNER JOIN FileGroupAnalysisJob ON FileGroupAnalysisJob.ID = FileGroupAnalysisJobID WHERE MeterConfigurationID = {0})",
                         meterConfigurationID
                     );
 
