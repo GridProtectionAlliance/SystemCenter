@@ -43,6 +43,8 @@ import CustomerAssetGroupPage from './CustomerAssetGroupPage';
 import LineSegmentWindow from '../AssetAttribute/LineSegmentWindow';
 import LocationDrawings from '../Meter/PropertyUI/LocationDrawings';
 import AdditionalFieldsPage from './AdditionalFieldsPage'
+import { SystemCenterURL } from '../constants';
+
 // Define Step Numbers
 const generalStep: number = 1;
 const locationStep: number = generalStep + 1;
@@ -157,7 +159,7 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
     }, [assetConnections]);
 
     function returnToMeters() {
-        navigate(`${homePath}index.cshtml?name=Meters`);
+        navigate(homePath + SystemCenterURL.MeterByPage);
     }
 
     function getCurrentStep(): number {
@@ -336,7 +338,7 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
     function openMeterDetails() {
         // Construct the URL with the meterID
         localStorage.setItem('Meter.InfoTab', 'meterInfo');
-        const url = `${homePath}index.cshtml?name=Meter&MeterID=${meterID}`;
+        const url = homePath + SystemCenterURL.MeterDetails + `&MeterID=${meterID}`;
         // Open the new URL in a new tab
         window.open(url, '_blank');
     }

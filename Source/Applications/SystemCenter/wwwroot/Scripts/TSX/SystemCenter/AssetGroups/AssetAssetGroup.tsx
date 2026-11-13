@@ -33,6 +33,7 @@ import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { useAppSelector } from '../hooks';
 import AssetSelect from '../Asset/AssetSelect';
 import { SelectRoles } from '../Store/UserSettings';
+import { SystemCenterURL } from '../constants';
 
 declare var homePath: string;
 
@@ -122,7 +123,7 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number }) {
     }
 
     function handleSelect(item) {
-        navigate(`${homePath}index.cshtml?name=Asset&AssetID=${item.row.ID}`);
+        navigate(homePath + SystemCenterURL.AssetDetails + `&AssetID=${item.row.ID}`);
     }
 
     return (

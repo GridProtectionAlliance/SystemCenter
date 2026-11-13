@@ -22,18 +22,13 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-import { BrowserRouter as Router, Route, NavLink, Routes, useLocation, useParams } from 'react-router-dom';
-import { createBrowserHistory } from "history"
-import { Application, SystemCenter as SCTypes } from '@gpa-gemstone/application-typings';
-import { Application as App, LoadingScreen, Page, Section } from '@gpa-gemstone/react-interactive';
-import { Provider } from 'react-redux';
-import store, { SystemCenterSettingSlice } from './Store/Store';
-import { useAppDispatch, useAppSelector } from './hooks';
+import { useLocation } from 'react-router-dom';
+import { LoadingScreen } from '@gpa-gemstone/react-interactive';
+import { useAppSelector } from './hooks';
 import ApplicationCategory from './ApplicationCategory/ApplicationCategory';
-import { Fetch as UserSettingsFetch, SelectRoles } from './Store/UserSettings';
-import ByMeter from './Meter/ByMeter';
+import { SelectRoles } from './Store/UserSettings';
 import * as queryString from 'querystring';
+import { SystemCenterURL } from './constants';
 
 declare var homePath: string;
 declare var controllerViewPath: string;
@@ -74,7 +69,6 @@ const Matcher: React.FunctionComponent = (props: {}) => {
     const ValueListGroup = React.lazy(() => import(/* webpackChunkName: "ValueListGroup" */ './ValueListGroup/ValueListGroup'));
     const ByChannelGroup = React.lazy(() => import(/* webpackChunkName: "ByChannelGroup" */ './ChannelGroup/ByChannelGroup'));
     const ChannelGroup = React.lazy(() => import(/* webpackChunkName: "ChannelGroup" */ './ChannelGroup/ChannelGroup'));
-    const DownloadedFiles = React.lazy(() => import(/* webpackChunkName: "DownloadedFiles" */ './DeviceHealthReport/DownloadedFiles'));
     const DeviceHealthReport = React.lazy(() => import(/* webpackChunkName: "DeviceHealthReport" */ './DeviceHealthReport/DeviceHealthReport'));
     const DeviceContacts = React.lazy(() => import(/* webpackChunkName: "DeviceContacts" */ './DeviceHealthReport/DeviceContacts'));
     const DeviceIssuesPage = React.lazy(() => import(/* webpackChunkName: "DeviceIssuesPage" */ './DeviceIssuesPage/DeviceIssuesPage'));
@@ -106,233 +100,232 @@ const Matcher: React.FunctionComponent = (props: {}) => {
     const params = queryString.parse(location.search.replace("?", ""), "&", "=");
 
     const routedComponent = React.useMemo(() => {
-        if (params['name'] == "Meter")
+        if (params['name'] == SystemCenterURL.PageName.Meter)
             return <Meter MeterID={parseInt(params.MeterID as string)} Tab={params.Tab as any} />
-        else if (params['name'] == "NewMeterWizard")
+        else if (params['name'] == SystemCenterURL.PageName.NewMeterWizard)
             return <NewMeterWizard IsEngineer={roles.indexOf('Administrator') >= 0 || roles.indexOf('Engineer') >= 0} />
-        else if (params['name'] == "ConfigurationHistory")
+        else if (params['name'] == SystemCenterURL.PageName.ConfigurationHistory)
             return <ConfigurationHistory MeterConfigurationID={parseInt(params.MeterConfigurationID as string)} MeterKey={params.MeterKey as string} />
-        else if (params['name'] == "Locations")
+        else if (params['name'] == SystemCenterURL.PageName.Locations)
             return <ByLocation Roles={roles} />
-        else if (params['name'] == "Location")
+        else if (params['name'] == SystemCenterURL.PageName.Location)
             return <Location LocationID={parseInt(params.LocationID as string)} Tab={params.Tab as any} />
-        else if (params['name'] == "Assets")
+        else if (params['name'] == SystemCenterURL.PageName.Assets)
             return <ByAsset Roles={roles} />
-        else if (params['name'] == "Asset" || params['name'] == "LineSegment")
+        else if (params['name'] == SystemCenterURL.PageName.Asset || params['name'] == SystemCenterURL.PageName.LineSegment)
             return <Asset AssetID={parseInt(params.AssetID as string)} Tab={params.Tab as any} />
-        else if (params['name'] == "AssetGroups")
+        else if (params['name'] == SystemCenterURL.PageName.AssetGroups)
             return <ByAssetGroup Roles={roles} />
-        else if (params['name'] == "AssetGroup")
+        else if (params['name'] == SystemCenterURL.PageName.AssetGroup)
             return <AssetGroup AssetGroupID={parseInt(params.AssetGroupID as string)} Tab={params.Tab as any} />
-        else if (params['name'] == "LineSegments")
+        else if (params['name'] == SystemCenterURL.PageName.LineSegments)
             return <ByLineSegment Roles={roles} />
-        else if (params['name'] == "PQViewCustomers")
+        else if (params['name'] == SystemCenterURL.PageName.Customers)
             return <ByCustomer Roles={roles} />
-        else if (params['name'] == "Customer")
+        else if (params['name'] == SystemCenterURL.PageName.Customer)
             return <Customer CustomerID={parseInt(params.CustomerID as string)} Tab={params.Tab as any} />
-        else if (params['name'] == "DeviceHealthReport")
-            return <DeviceHealthReport Roles={roles} />
-        else if (params['name'] == "DeviceIssuesPage")
-            return <DeviceIssuesPage MeterID={parseInt(params.MeterID as string)} Tab={params.Tab as any} OpenMICAcronym={params.OpenMICAcronym as string} />
-        else if (params['name'] == "DeviceContacts")
-            return <DeviceContacts ID={params.ID as string} Name={params.Name as string} Field={params.Field as 'TSC' | 'Sector'} />
-        else if (params['name'] == "DownloadedFiles")
-            return <DownloadedFiles MeterID={parseInt(params.MeterID as string)} MeterName={params.MeterName as string} />
 
-        else if (params['name'] == "DataFiles") {
+        else if (params['name'] == SystemCenterURL.PageName.DeviceHealthReport)
+            return <DeviceHealthReport Roles={roles} />
+        else if (params['name'] == SystemCenterURL.PageName.DeviceIssues)
+            return <DeviceIssuesPage MeterID={parseInt(params.MeterID as string)} Tab={params.Tab as any} OpenMICAcronym={params.OpenMICAcronym as string} />
+        else if (params['name'] == SystemCenterURL.PageName.DeviceContacts)
+            return <DeviceContacts ID={params.ID as string} Name={params.Name as string} Field={params.Field as 'TSC' | 'Sector'} />
+
+        else if (params['name'] == SystemCenterURL.PageName.DataFiles) {
             if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <DataFile Roles={roles} />
         }
-        else if (params['name'] == "DataOperationsFailures") {
+        else if (params['name'] == SystemCenterURL.PageName.DataOperationFailures) {
             if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0) return null;
             return <ByDataOperationsFailure FileGroupID={parseInt(params.FileGroupID as string)} />
         }
-        else if (params['name'] == "DataOperations") {
+        else if (params['name'] == SystemCenterURL.PageName.DataOperations) {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <DataOperations Roles={roles} />
         }
-        else if (params['name'] == "DataReaders") {
+        else if (params['name'] == SystemCenterURL.PageName.DataReaders) {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <DataReaders Roles={roles} />
         }
-        else if (params['name'] == "DBCleanup") {
+        else if (params['name'] == SystemCenterURL.PageName.DatabaseCleanup) {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <DBCleanup Roles={roles} />
         }
-        else if (params['name'] == "MATLABAnalytics") {
+        else if (params['name'] == SystemCenterURL.PageName.MATLABAnalytics) {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ByMATLABAnalytic Roles={roles} />
         }
-        else if (params['name'] == "MATLABAnalytic") {
+        else if (params['name'] == SystemCenterURL.PageName.MATLABAnalytic) {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <MATLABAnalytic AnalyticID={parseInt(params.AnalyticID as string)} Tab={params.Tab as any} />
         }
 
-        else if (params['name'] == "RemoteXDAInstanceMain") {
+        else if (params['name'] == SystemCenterURL.PageName.RemoteXDAInstances) {
             if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <RemoteXDAInstanceMain Roles={roles} />
         }
-        else if (params['name'] == "RemoteXDAInstance") {
+        else if (params['name'] == SystemCenterURL.PageName.RemoteXDAInstance) {
             if (roles.indexOf('Administrator') < 0 && roles.indexOf('Engineer') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <RemoteXDAInstance ID={parseInt(params.ID as string)} Roles={roles} Tab={params.Tab as any} />
         }
-        else if (params['name'] == "ByExternalDB") {
+        else if (params['name'] == SystemCenterURL.PageName.ExternalDatabases) {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ByExternalDB Roles={roles} />
         }
-        else if (params['name'] == "ExternalDB") {
+        else if (params['name'] == SystemCenterURL.PageName.ExternalDatabase) {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ExternalDB ID={parseInt(params.ID as string)} Tab={params.Tab as any} />
         }
-        else if (params['name'] == "ByExternalTable") {
+        else if (params['name'] == SystemCenterURL.PageName.ExternalTables) {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ByExternalTable Roles={roles} />
         }
-        else if (params['name'] == "ExternalTable") {
+        else if (params['name'] == SystemCenterURL.PageName.ExternalTable) {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ExternalDBTable ID={parseInt(params.ID as string)} Tab={params.Tab as any} />
         }
 
-        else if (params['name'] == "EventType") {
+        else if (params['name'] == SystemCenterURL.PageName.EventTypes) {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ByEventType Roles={roles} />
         }
-        else if (params['name'] == "ValueListGroup") {
+        else if (params['name'] == SystemCenterURL.PageName.ValueList) {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ValueListGroup GroupID={parseInt(params.GroupID as string)} Tab={params.Tab as any} />
         }
-        else if (params['name'] == "ValueLists") {
+        else if (params['name'] == SystemCenterURL.PageName.ValueLists) {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ByValueListGroup Roles={roles} />
         }
-        else if (params['name'] == "ChannelGroups") {
+        else if (params['name'] == SystemCenterURL.PageName.ChannelGroups) {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ByChannelGroup Roles={roles} />
         }
-        else if (params['name'] == "ChannelGroup") {
+        else if (params['name'] == SystemCenterURL.PageName.ChannelGroup) {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ChannelGroup GroupID={parseInt(params.GroupID as string)} Tab={params.Tab as any} />
         }
-        else if (params['name'] == "SEBrowserTabs") {
+        else if (params['name'] == SystemCenterURL.PageName.PQBrowserTabs) {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <BySEBrowserCategory Roles={roles} />
         }
-        else if (params['name'] == "SEBrowserTab") {
+        else if (params['name'] == SystemCenterURL.PageName.PQBrowserTab) {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <SEBrowserCategory TabID={parseInt(params.TabID as string)} Tab={params.Tab as any} />
         }
-        else if (params['name'] == "SEBrowserWidget") {
+        else if (params['name'] == SystemCenterURL.PageName.PQBrowserWidgets) {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <BySEBrowserWidget Roles={roles} />
         }
-        else if (params['name'] == "PQDigestWidget") {
+        else if (params['name'] == SystemCenterURL.PageName.PQBrowserDigestWidgets) {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ByPQDigestWidget Roles={roles} />
         }
-        else if (params['name'] == "PQDigestHomePage") {
+        else if (params['name'] == SystemCenterURL.PageName.PQBrowserDigest) {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ByPQDigestHomePage Roles={roles} />
         }
             
-        else if (params['name'] == "MagDurCurves") {
+        else if (params['name'] == SystemCenterURL.PageName.MagDurCurves) {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ByMagDurCurve Roles={roles} />
         }
-        else if (params['name'] == "EventTags") {
+        else if (params['name'] == SystemCenterURL.PageName.EventTags) {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ByEventTag Roles={roles} />
         }
-        else if (params['name'] == "ByApplicationCategory") {
+        else if (params['name'] == SystemCenterURL.PageName.ApplicationCategories) {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ByApplicationCategory Roles={roles} />
         }
-        else if (params['name'] == "ApplicationCategory") {
+        else if (params['name'] == SystemCenterURL.PageName.ApplicationCategory) {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ApplicationCategory ID={parseInt(params.ID as string)} Tab={params.Tab as any} />
         }
-        else if (params['name'] == "AppHost") {
+        else if (params['name'] == SystemCenterURL.PageName.Nodes) {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <AppHost Roles={roles} />
         }
-        else if (params['name'] == "TaskRunners") {
+        else if (params['name'] == SystemCenterURL.PageName.TaskRunners) {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ByNode Roles={roles} />
         }
-        else if (params['name'] == "Node") {
+        else if (params['name'] == SystemCenterURL.PageName.TaskRunner) {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <Node NodeID={parseInt(params.NodeID as string)} Tab={'info'} Roles={roles} />
         }
-        else if (params['name'] == "Settings") {
+        else if (params['name'] == SystemCenterURL.PageName.Settings) {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <BySettings Roles={roles} System={params.System as 'SystemCenter' | 'OpenXDA' | 'MiMD' | 'OpenSEE' | 'SEBrowser' | 'PQDigest'} />
         }
-        else if (params['name'] == "ByAdditionalField") {
+        else if (params['name'] == SystemCenterURL.PageName.AdditionalFields) {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ByAdditionalField Roles={roles} />
         }
 
-        else if (params['name'] == "UserStatistics") {
+        else if (params['name'] == SystemCenterURL.PageName.UserStatistics) {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <UserStatistics Roles={roles} />
         }
-        else if (params['name'] == "ApplicationNodes") {
+        else if (params['name'] == SystemCenterURL.PageName.SSOApplications) {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ByApplicationNode Roles={roles} />
         }
-        else if (params['name'] == "APIAccessKey") {
+        else if (params['name'] == SystemCenterURL.PageName.APIKeys) {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <APIAccessKey Roles={roles} />
         }
-        else if (params['name'] == "Users") {
+        else if (params['name'] == SystemCenterURL.PageName.Users) {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <ByUser Roles={roles} />
         }
-        else if (params['name'] == "User") {
+        else if (params['name'] == SystemCenterURL.PageName.User) {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <User UserID={params.UserAccountID as string} Tab={params.Tab as any} />
         }
-        else if (params['name'] == "Group") {
+        else if (params['name'] == SystemCenterURL.PageName.UserGroup) {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <UserGroup GroupID={params.GroupID as string} Tab={params.Tab as any} />
         }
-        else if (params['name'] == "Groups") {
+        else if (params['name'] == SystemCenterURL.PageName.UserGroups) {
             if (roles.indexOf('Administrator') < 0)
                 return <RoleAccessErrorPage Logo={`${homePath}Images/GiantLogo.png`} />
             return <BySecuritytGroup Roles={roles} />

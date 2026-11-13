@@ -33,6 +33,7 @@ import store, { SystemCenterSettingSlice } from './Store/Store';
 import { useAppDispatch, useAppSelector } from './hooks';
 import ApplicationCategory from './ApplicationCategory/ApplicationCategory';
 import { Fetch as UserSettingsFetch, SelectRoles } from './Store/UserSettings';
+import { SystemCenterURL } from './constants'
 import Matcher from './Matcher';
 
 declare var homePath: string;
@@ -84,60 +85,60 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                             <h5 style={{ alignSelf: 'center'}}>System Center</h5>
                         </Section>
                         <Section Label={"MONITORS AND ASSETS"} Style={{ marginLeft: "10px" }}>
-                            <Page Name={"index.cshtml?name=Meters"} Label={"Meters"}
-                                OtherActivePages={["index.cshtml?name=Meter", "index.cshtml?name=ConfigurationHistory", "index.cshtml?name=NewMeterWizard"]} />
-                            <Page Name={"index.cshtml?name=Locations"} Label={"Substations"} OtherActivePages={["index.cshtml?name=Location"]} />
-                            <Page Name={"index.cshtml?name=Assets"} Label={"Assets"} OtherActivePages={["index.cshtml?name=Asset&"]} />
-                            <Page Name={"index.cshtml?name=LineSegments"} Label={"Line Segments"} OtherActivePages={["index.cshtml?name=LineSegment"]} />
-                            <Page Name={"index.cshtml?name=AssetGroups"} Label={"Asset Groups"} OtherActivePages={["index.cshtml?name=AssetGroup"]} />
-                            <Page Name={"index.cshtml?name=PQViewCustomers"} Label={"Customers"} OtherActivePages={["index.cshtml?name=Customer"]} />
-                            <Page Name={"index.cshtml?name=DeviceHealthReport"} Label={"Device Health Report"} OtherActivePages={["index.cshtml?name=DeviceIssuesPage"]} />
+                            <Page Name={SystemCenterURL.MeterByPage} Label={"Meters"}
+                                OtherActivePages={[SystemCenterURL.MeterDetails, SystemCenterURL.ConfigurationHistory, SystemCenterURL.NewMeterWizard]} />
+                            <Page Name={SystemCenterURL.LocationByPage} Label={"Substations"} OtherActivePages={[SystemCenterURL.LocationDetails]} />
+                            <Page Name={SystemCenterURL.AssetByPage} Label={"Assets"} OtherActivePages={[SystemCenterURL.AssetDetails + "&"]} /> {/** ampersand prevents it from matching asset group pages. */ }
+                            <Page Name={SystemCenterURL.LineSegmentByPage} Label={"Line Segments"} OtherActivePages={[SystemCenterURL.LineSegmentDetails]} />
+                            <Page Name={SystemCenterURL.AssetGroupByPage} Label={"Asset Groups"} OtherActivePages={[SystemCenterURL.AssetGroupDetails]} />
+                            <Page Name={SystemCenterURL.CustomerByPage} Label={"Customers"} OtherActivePages={[SystemCenterURL.CustomerDetails]} />
+                            <Page Name={SystemCenterURL.DeviceHealthReport} Label={"Device Health Report"} OtherActivePages={[SystemCenterURL.DeviceIssuesPage, SystemCenterURL.DeviceContacts]} />
                         </Section>
                         <Section Label={"FILE PROCESSING"} Style={{ marginLeft: "10px" }} RequiredRoles={["Administrator", "Engineer"]}>
-                            <Page Name={"index.cshtml?name=DataFiles"} Label={"Data Files"} OtherActivePages={["index.cshtml?name=DataOperationsFailures"]} />
-                            <Page Name={"index.cshtml?name=DataOperations&System=OpenXDA"} Label={"Data Operations"} />
-                            <Page Name={"index.cshtml?name=DataReaders&System=OpenXDA"} Label={"Data Readers"} />
-                            <Page Name={"index.cshtml?name=MATLABAnalytics"} Label={"MATLAB Analytics"} />
-                            <Page Name={"index.cshtml?name=DBCleanup"} Label={"Database Cleanup"} />
+                            <Page Name={SystemCenterURL.DataFiles} Label={"Data Files"} OtherActivePages={[SystemCenterURL.DataOperationFailures]} />
+                            <Page Name={SystemCenterURL.DataOperations} Label={"Data Operations"} />
+                            <Page Name={SystemCenterURL.DataReaders} Label={"Data Readers"} />
+                            <Page Name={SystemCenterURL.MATLABAnalyticByPage} Label={"MATLAB Analytics"} OtherActivePages={[SystemCenterURL.MATLABAnalyticDetails]} />
+                            <Page Name={SystemCenterURL.DatabaseCleanup} Label={"Database Cleanup"} />
                         </Section>
                         <Section Label={"EXTERNAL LINKS"} Style={{ marginLeft: "10px" }} RequiredRoles={["Administrator", "Engineer"]}>
-                            <Page Name={"index.cshtml?name=RemoteXDAInstanceMain"} Label={"Remote openXDA Instances"} OtherActivePages={["index.cshtml?name=RemoteXDAInstance"]} />
-                            <Page Name={"index.cshtml?name=ByExternalDB"} Label={"External Databases"} OtherActivePages={["index.cshtml?name=ExternalDB"]} />
-                            <Page Name={"index.cshtml?name=ByExternalTable"} Label={"External Tables"} OtherActivePages={["index.cshtml?name=ExternalTable"]} />
+                            <Page Name={SystemCenterURL.RemoteXDAInstanceByPage} Label={"Remote openXDA Instances"} OtherActivePages={[SystemCenterURL.RemoteXDAInstanceDetails]} />
+                            <Page Name={SystemCenterURL.ExternalDatabaseByPage} Label={"External Databases"} OtherActivePages={[SystemCenterURL.ExternalDatabaseDetails]} />
+                            <Page Name={SystemCenterURL.ExternalTableByPage} Label={"External Tables"} OtherActivePages={[SystemCenterURL.ExternalTableDetails]} />
                         </Section>
                         <Section Label={"UI CONFIGURATION"} Style={{ marginLeft: "10px" }} RequiredRoles={["Administrator"]}>
-                            <Page Name={"index.cshtml?name=EventType"} Label={"Event Types"} />
-                            <Page Name={"index.cshtml?name=ValueLists"} Label={"Value Lists"} OtherActivePages={["index.cshtml?name=ValueListGroup"]} />
-                            <Page Name={"index.cshtml?name=ChannelGroups"} Label={"Channel Groups"} OtherActivePages={["index.cshtml?name=ChannelGroup"]} />
-                            <Page Name={"index.cshtml?name=SEBrowserTabs"} Label={"PQ Browser Tabs"} OtherActivePages={["index.cshtml?name=SEBrowserTab"]} />
-                            <Page Name={"index.cshtml?name=SEBrowserWidget"} Label={"PQ Browser Widgets"} />
-                            <Page Name={"index.cshtml?name=PQDigestHomePage"} Label={"PQ Digest Home"} />
-                            <Page Name={"index.cshtml?name=PQDigestWidget"} Label={"PQ Digest Widgets"} />
-                            <Page Name={"index.cshtml?name=MagDurCurves"} Label={"MagDur Curves"} />
-                            <Page Name={"index.cshtml?name=EventTags"} Label={"Event Tags"} />
-                            <Page Name={"index.cshtml?name=ByApplicationCategory"} Label={"Application Categories"} OtherActivePages={["index.cshtml?name=ApplicationCategory"]} />
+                            <Page Name={SystemCenterURL.EventTypes} Label={"Event Types"} />
+                            <Page Name={SystemCenterURL.ValueListByPage} Label={"Value Lists"} OtherActivePages={[SystemCenterURL.ValueListGroup]} />
+                            <Page Name={SystemCenterURL.ChannelGroupByPage} Label={"Channel Groups"} OtherActivePages={[SystemCenterURL.ChannelGroupDetail]} />
+                            <Page Name={SystemCenterURL.PQBrowserTabByPage} Label={"PQ Browser Tabs"} OtherActivePages={[SystemCenterURL.PQBrowserTabDetail]} />
+                            <Page Name={SystemCenterURL.PQBrowserWidgets} Label={"PQ Browser Widgets"} />
+                            <Page Name={SystemCenterURL.PQBrowserDigest} Label={"PQ Digest Home"} />
+                            <Page Name={SystemCenterURL.PQBrowserDigestWidgets} Label={"PQ Digest Widgets"} />
+                            <Page Name={SystemCenterURL.MagDurCurves} Label={"MagDur Curves"} />
+                            <Page Name={SystemCenterURL.EventTags} Label={"Event Tags"} />
+                            <Page Name={SystemCenterURL.ApplicationCategoryByPage} Label={"Application Categories"} OtherActivePages={[SystemCenterURL.ApplicationCategoryDetails]} />
                         </Section>
                         <Section Label={"SYSTEM SETTINGS"} Style={{ marginLeft: "10px" }} RequiredRoles={["Administrator"]}>
-                            <Page Name={"index.cshtml?name=AppHost"} Label={"Nodes"} />
-                            <Page Name={"index.cshtml?name=TaskRunners"} Label={"Task Runners"} />
-                            <Page Name={"index.cshtml?name=Settings&System=SystemCenter"} Label={"System Center"} />
-                            <Page Name={"index.cshtml?name=Settings&System=OpenXDA"} Label={"openXDA"} />
-                            <Page Name={"index.cshtml?name=Settings&System=SEBrowser"} Label={"PQ Browser"} />
-                            <Page Name={"index.cshtml?name=Settings&System=OpenSEE"} Label={"openSEE"} />
-                            <Page Name={"index.cshtml?name=Settings&System=MiMD"} Label={"miMD"} />
-                            <Page Name={"index.cshtml?name=Settings&System=PQDigest"} Label={"PQ Digest"} />
-                            <Page Name={"index.cshtml?name=ByAdditionalField"} Label={"Additional Fields"} />
+                            <Page Name={SystemCenterURL.Nodes} Label={"Nodes"} />
+                            <Page Name={SystemCenterURL.TaskRunnerByPage} Label={"Task Runners"} OtherActivePages={[SystemCenterURL.TaskRunnerDetails]} />
+                            <Page Name={SystemCenterURL.Settings + "&System=SystemCenter"} Label={"System Center"} />
+                            <Page Name={SystemCenterURL.Settings + "&System=OpenXDA"} Label={"openXDA"} />
+                            <Page Name={SystemCenterURL.Settings + "&System=SEBrowser"} Label={"PQ Browser"} />
+                            <Page Name={SystemCenterURL.Settings + "&System=OpenSEE"} Label={"openSEE"} />
+                            <Page Name={SystemCenterURL.Settings + "&System=MiMD"} Label={"miMD"} />
+                            <Page Name={SystemCenterURL.Settings + "&System=PQDigest"} Label={"PQ Digest"} />
+                            <Page Name={SystemCenterURL.AdditionalFieldsByPage} Label={"Additional Fields"} />
                         </Section>
                         <Section Label={"ACCESS"} Style={{ marginLeft: "10px" }} RequiredRoles={["Administrator"]}>
-                            <Page Name={"index.cshtml?name=UserStatistics"} Label={"User Statistics"} />
-                            <Page Name={"index.cshtml?name=ApplicationNodes"} Label={"SSO Applications"} />
-                            <Page Name={"index.cshtml?name=APIAccessKey"} Label={"API Keys"} />
-                            <Page Name={"index.cshtml?name=Users"} Label={"Users"} OtherActivePages={["index.cshtml?name=User&"]} />
-                            <Page Name={"index.cshtml?name=Groups"} Label={"User Groups"} OtherActivePages={["index.cshtml?name=Group"]} />
+                            <Page Name={SystemCenterURL.UserStatistics } Label={"User Statistics"} />
+                            <Page Name={SystemCenterURL.SSOApplications} Label={"SSO Applications"} />
+                            <Page Name={SystemCenterURL.APIKeys} Label={"API Keys"} />
+                            <Page Name={SystemCenterURL.UserByPage} Label={"Users"} OtherActivePages={[SystemCenterURL.UserDetails + '&']} /> {/** see 'asset details' from ampersand purpose.  */}
+                            <Page Name={SystemCenterURL.UserGroupByPage} Label={"User Groups"} OtherActivePages={[SystemCenterURL.UserGroupDetails]} />
                         </Section>
                         <div className="col" style={{ width: '100%', height: '100%', padding: '0 0 0 0', overflow: 'hidden' }}>
                             <Routes>
-                                <Route index element={<Navigate to={`${homePath}index.cshtml?name=Meters`} />} />
+                                <Route index element={<Navigate to={`${homePath}${SystemCenterURL.MeterByPage}`} />} />
                                 <Route path="/index.cshtml" element={<Matcher />} />
                             </Routes>
                         </div>

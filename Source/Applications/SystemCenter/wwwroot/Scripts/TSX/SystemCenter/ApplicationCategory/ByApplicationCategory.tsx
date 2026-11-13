@@ -31,6 +31,7 @@ import { ApplicationCategorySlice } from '../Store/Store';
 import { Input } from '@gpa-gemstone/react-forms';
 import { useNavigate } from "react-router-dom";
 import GenericByPage from '../CommonComponents/GenericByPage';
+import { SystemCenterURL } from '../constants';
 
 //TODO: remove this interface and use interface from gemstone when new gemstone application-typing is published (check for it being used anywhere else too)
 export interface ApplicationCategory {
@@ -85,7 +86,7 @@ const ByApplicationCategory: Application.Types.iByComponent = () => {
     }
 
     function handleSelect(item) {
-        navigate(`${homePath}index.cshtml?name=ApplicationCategory&ID=${item.row.ID}`);
+        navigate(homePath + SystemCenterURL.ApplicationCategoryDetails + `&ID=${item.row.ID}`);
     }
 
     return (

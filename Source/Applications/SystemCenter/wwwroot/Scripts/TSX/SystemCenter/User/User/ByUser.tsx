@@ -31,6 +31,7 @@ import { useNavigate } from "react-router-dom";
 import { IUserAccount } from '../Types';
 import moment from 'moment';
 import AppStatus from '../../CommonComponents/AppStatus';
+import { SystemCenterURL } from '../../constants';
 
 const defaultSearchcols: Search.IField<Application.Types.iUserAccount>[] = [
     { label: 'Username', key: 'DisplayName', type: 'string', isPivotField: false },
@@ -244,7 +245,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
                                 setSortField(d.colKey as keyof IUserAccount);
                             }
                         }}
-                        OnClick={(d) => navigate(`${homePath}index.cshtml?name=User&UserAccountID=${d.row.ID}`)}
+                        OnClick={(d) => navigate(homePath + SystemCenterURL.UserDetails +`&UserAccountID=${d.row.ID}`)}
                         TableStyle={{
                             padding: 0, width: '100%', height: '100%',
                             tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column', marginBottom: 0

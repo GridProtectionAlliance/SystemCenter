@@ -34,6 +34,7 @@ import { DefaultSelects } from '@gpa-gemstone/common-pages';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import { SelectRoles } from '../Store/UserSettings';
 import { useAppSelector } from '../hooks';
+import { SystemCenterURL } from '../constants';
 
 
 declare var homePath: string;
@@ -171,7 +172,7 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number }) {
     }
 
     function handleSelect(item) {
-        navigate(`${homePath}index.cshtml?name=Meter&MeterID=${item.row.ID}`);
+        navigate(homePath + SystemCenterURL.MeterDetails + `&MeterID=${item.row.ID}`);
     }
 
     return (
