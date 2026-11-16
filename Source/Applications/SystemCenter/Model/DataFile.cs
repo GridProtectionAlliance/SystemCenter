@@ -136,6 +136,30 @@ namespace SystemCenter.Model
         
     }
 
+    [CustomView(@"SELECT
+      Meter.ID,
+      Meter.Name,
+      COUNT(CASE WHEN AnalysisTask.Priority = 1 THEN AnalysisTask.ID END) AS EnumeratorCount,
+      COUNT(CASE WHEN AnalysisTask.Priority = 2 THEN AnalysisTask.ID END) AS NormalCount,
+      COUNT(CASE WHEN AnalysisTask.Priority = 3 THEN AnalysisTask.ID END) AS HighCount,
+      COUNT(CASE WHEN AnalysisTask.Priority = 4 THEN AnalysisTask.ID END) AS RequeueCount,
+      COUNT(AnalysisTask.ID) AS TotalCount
+      FROM Meter LEFT JOIN
+      AnalysisTask ON AnalysisTask.MeterID = Meter.ID
+      GROUP BY Meter.ID, Meter.Name")]
+    [AllowSearch]
+    public class MeterAnalysis
+    {
+        [PrimaryKey]
+        public int ID { get; set; }
+        public string Name { get; set; }
+        public int EnumeratorCount { get; set; }
+        public int NormalCount { get; set; }
+        public int HighCount { get; set; }
+        public int RequeueCount { get; set; }
+        public int TotalCount { get; set; }
+    }
+
     [RoutePrefix("api/OpenXDA/DataFile")]
     public class OpenXDADataFileController : ModelController<DataFile> {
         [Route("GetEvents/{id:int}"), HttpGet]
@@ -431,5 +455,6 @@ namespace SystemCenter.Model
         }
     }
 
-
+    [RoutePrefix("api/OpenXDA/MeterAnalysis")]
+    public class MeterAnalysisController : ModelController<MeterAnalysis> { }
 }

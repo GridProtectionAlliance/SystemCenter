@@ -591,6 +591,7 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\LineSegment\ByLineSegment.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AppHost\FilesProcessedGraph.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AppHost\FilesProcessedTable.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AppHost\MeterAnalysis.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AppHost\NodeConnections.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AppHost\NodeDetails.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AppHost\NodeHealth.tsx" />
@@ -633,6 +634,7 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\StatusGroup.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\StatusItem.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\AppStatus.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\constants.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDBTable.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDBTableFields.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDBTableForm.tsx" />

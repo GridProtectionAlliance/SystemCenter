@@ -95,6 +95,7 @@ export namespace SystemCenter {
         PercentFinished: number
         RecordsAffected: number
     }
+
 }
 
 // OpenXDA Models
@@ -223,6 +224,16 @@ export namespace OpenXDA {
         TimeInQueue: number,
         ProcessingTime: number,
         FileName: string
+    }
+
+    interface MeterAnalysis {
+        ID: number,
+        Name: string,
+        EnumeratorCount: number,
+        NormalCount: number,
+        HighCount: number,
+        RequeueCount: number
+        TotalCount: number
     }
 }
 
