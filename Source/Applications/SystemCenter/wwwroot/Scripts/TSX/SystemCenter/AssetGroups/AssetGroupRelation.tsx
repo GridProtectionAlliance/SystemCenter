@@ -133,7 +133,7 @@ function AssetGroupRelationBase<R extends IAssetGroupRelation>(props: IProps & A
                 PrimaryKey={"ID"}
                 Controller={AssetGroupController}
                 Show={showAdd}
-                Type={'single'}
+                Type={'multiple'}
                 Title={`Add ${props.ParentType} to Asset Group`}
                 OnClose={(selectedData, conf) => {
                     setShowAdd(false);

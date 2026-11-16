@@ -166,6 +166,7 @@ function CustomerRelationBase<R extends ICustomerRelation>(props: IProps & Custo
                 Title={`Add Customer to ${props.ParentType}`}
                 BaseFilters={noSameFilter}
                 PrimaryKey={'ID'}
+                Type={'multiple'}
             >
                 <Column<OpenXDA.Types.Customer>
                     Key={'Name'}
