@@ -26,7 +26,7 @@ import { GenericController, LoadingScreen, ServerErrorIcon, Search, SearchBar } 
 import { OpenXDA, Application } from '@gpa-gemstone/application-typings';
 import GenericRelation from '../CommonComponents/GenericRelation'
 import { SystemCenter as SC, OpenXDA as LocalXDA } from '../global';
-import { useControllerFetch, useAppSelector } from '../hooks'
+import { useAppSelector, useDBSearch } from '../hooks'
 import ControllerSelectPopup from '../CommonComponents/ControllerSelectPopup';
 import { Column } from '@gpa-gemstone/react-table';
 import { SelectRoles } from '../Store/UserSettings';
@@ -51,6 +51,7 @@ interface AssetGroupPost {
 interface IAssetGroupRelation {
     ID: number,
     AssetGroupID: number
+    Name: string
 }
 
 interface AssetGroupRelationBaseProps<R extends IAssetGroupRelation> {
@@ -60,13 +61,13 @@ interface AssetGroupRelationBaseProps<R extends IAssetGroupRelation> {
 }
 
 const BlankMeterAssetGroup: LocalXDA.MeterAssetGroup = { ID: -1, MeterID: -1, AssetGroupID: -1, Name: "", DisplayDashboard: true, MeterName: "", Location: "" }
-const BlankAssetAssetGroup: LocalXDA.AssetAssetGroup = { ID: -1, AssetID: -1, AssetGroupID: -1, Name: "", DisplayDashboard: true, AssetName: "", LongAssetName: "", AssetType: "", AssetLocation: ""}
+const BlankAssetAssetGroup: LocalXDA.AssetAssetGroup = { ID: -1, AssetID: -1, AssetGroupID: -1, Name: "", DisplayDashboard: true, AssetName: "", LongAssetName: "", AssetType: "", AssetLocation: "" }
 
 const MeterAssetGroupController = new GenericController<LocalXDA.MeterAssetGroup>(`${homePath}api/SystemCenter/AssetGroupMeter`, "ID");
 const AssetAssetGroupController = new GenericController<LocalXDA.AssetAssetGroup>(`${homePath}api/SystemCenter/AssetGroupAsset`, "ID");
 
 const AssetGroupController = new GenericController<OpenXDA.Types.AssetGroup>(`${homePath}api/OpenXDA/AssetGroup`, "Name");
-const AssetGroupSearchColumns: Search.IField<OpenXDA.Types.AssetGroup>[] = [ 
+const AssetGroupSearchColumns: Search.IField<OpenXDA.Types.AssetGroup>[] = [
     { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
     { label: 'Number of Meters', key: 'Meters', type: 'integer', isPivotField: false },
     { label: 'Number of Transmission Assets', key: 'Assets', type: 'integer', isPivotField: false },
@@ -80,13 +81,13 @@ function AssetGroupRelationBase<R extends IAssetGroupRelation>(props: IProps & A
     const [selectedAssetGroups, setSelectedAssetGroups] = React.useState<OpenXDA.Types.AssetGroup[]>([]);
     const [refreshCount, refreshData] = React.useState<number>(0);
     const [addStatus, setAddStatus] = React.useState<Application.Types.Status>('uninitiated');
-    const { Data: assetGroups, Status: assetGroupStatus } = useControllerFetch<OpenXDA.Types.AssetGroup>(AssetGroupController);
-    const { Data: relations, Status: relationStatus } = useControllerFetch<R>(props.Controller, undefined, undefined, undefined, refreshCount);
-    const relationColumns: SC.IByCol<R>[] = [
-        { Label: "Asset Group", Field: "AssetGroupID", Type: "number", Content: ({item}) => <p>{assetGroups.find(assetGroup => assetGroup.ID === item.AssetGroupID)?.Name ?? "Unnamed Asset Group"}</p> }
-    ];
+
     const relationFilters: Search.IFilter<R>[] = React.useMemo(() => [{ SearchText: props.Record.ID.toString(), FieldName: props.ParentField.toString(), Operator: "=", Type: "number", IsPivotColumn: false }], [props.Record, props.ParentField])
 
+    const { Data: relations, Status: relationStatus } = useDBSearch<R>(props.Controller, relationFilters, undefined, undefined, undefined, refreshCount);
+    const relationColumns: SC.IByCol<R>[] = [
+        { Label: "Asset Group", Field: "Name", Type: "string" }
+    ];
     const roles = useAppSelector(SelectRoles);
 
     function hasPermissions(): boolean {
@@ -98,38 +99,36 @@ function AssetGroupRelationBase<R extends IAssetGroupRelation>(props: IProps & A
     const noSameFilter: Search.IFilter<OpenXDA.Types.AssetGroup>[] = React.useMemo(() => {
         const filter = {
             FieldName: 'ID',
-            SearchText: relations.filter(ag => ag[props.ParentField] == props.Record.ID).map((r) => r.AssetGroupID).join(','),
+            SearchText: relations.map((r) => r.AssetGroupID).join(','),
             Operator: 'NOT IN' as Search.OperatorType,
             Type: 'string' as Search.FieldType,
             IsPivotColumn: false
         }
         return [filter];
-    }, [relations, props.Record, props.ParentField]);
+    }, [relations]);
 
     return (
         <>
-            <LoadingScreen Show={assetGroupStatus === "loading" || relationStatus !== 'idle'} />
-            <ServerErrorIcon Show={assetGroupStatus === "error"} />
-            {assetGroupStatus === "idle" ?
-                    <GenericRelation<R>
-                        PrimaryKey={"ID"}
-                        Controller={props.Controller}
-                        RecordType={"Asset Group Relation"}
-                        Columns={relationColumns}
-                        BlankRecord={props.BlankRecord}
-                        GetName={(record) => assetGroups.find(assetGroup => assetGroup.ID === record.AssetGroupID)?.Name ?? "Unnamed Asset Group"}
-                        DeleteColumn={true}
-                        IsEditable={(item) => true}
-                        AddNew={() => setShowAdd(true)}
-                        RefreshCount={refreshCount}
-                        Filters={relationFilters}
-                        HasPermissions={hasPermissions}
-                        OperationResults={props.OperationResults}
-                        SetOperationResults={props.SetOperationResults}
-                        AddStatus={addStatus}
-                        OnRefreshData={() => refreshData(x => x + 1)}
-                    /> 
-                : null}
+            <LoadingScreen Show={relationStatus === 'loading'} />
+            <ServerErrorIcon Show={relationStatus === 'error'} />
+            <GenericRelation<R>
+                PrimaryKey={"ID"}
+                Controller={props.Controller}
+                RecordType={"Asset Group Relation"}
+                Columns={relationColumns}
+                BlankRecord={props.BlankRecord}
+                GetName={(record) => record.Name}
+                DeleteColumn={true}
+                IsEditable={(item) => true}
+                AddNew={() => setShowAdd(true)}
+                RefreshCount={refreshCount}
+                Filters={relationFilters}
+                HasPermissions={hasPermissions}
+                OperationResults={props.OperationResults}
+                SetOperationResults={props.SetOperationResults}
+                AddStatus={addStatus}
+                OnRefreshData={() => refreshData(x => x + 1)}
+            />
             <ControllerSelectPopup<OpenXDA.Types.AssetGroup>
                 PrimaryKey={"ID"}
                 Controller={AssetGroupController}

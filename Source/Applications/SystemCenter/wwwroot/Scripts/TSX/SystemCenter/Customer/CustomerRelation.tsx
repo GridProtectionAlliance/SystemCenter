@@ -20,15 +20,16 @@
 //       Generated original version of source code.
 //
 //******************************************************************************************************
+
 import * as React from 'react';
-import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings'
 import GenericRelation from '../CommonComponents/GenericRelation';
 import { OpenXDA as LocalXDA, SystemCenter as SC } from '../global';
 import { GenericController, Search, SearchBar, LoadingScreen, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import ControllerSelectPopup from '../CommonComponents/ControllerSelectPopup';
 import { Column } from '@gpa-gemstone/react-table';
 import { SelectRoles } from '../Store/UserSettings';
-import { useAppSelector, useControllerFetch } from '../hooks';
+import { useAppSelector, useDBSearch } from '../hooks';
 import { OperationResult } from '../CommonComponents/ResultAlert';
 import moment from 'moment';
 
@@ -50,7 +51,6 @@ interface CustomerRelationBaseProps<R extends ICustomerRelation> {
     ParentField: keyof R,
     BlankRecord: R,
     GetNewRecord: (customer: OpenXDA.Types.Customer) => R
-    DetailedRecordStatus: Application.Types.Status
 }
 
 const CustomerController = new GenericController<OpenXDA.Types.Customer>(`${homePath}api/SystemCenter/Customer`, "Name", true);
@@ -75,13 +75,13 @@ function CustomerRelationBase<R extends ICustomerRelation>(props: IProps & Custo
     const [addStatus, setAddStatus] = React.useState<Application.Types.Status>('uninitiated');
     const roles = useAppSelector(SelectRoles);
 
-    const { Data: relations, Status: relationStatus } = useControllerFetch<R>(props.Controller, undefined, undefined, undefined, refreshCount);
     const relationFilters: Search.IFilter<R>[] = React.useMemo(() => [{ SearchText: props.Record.ID.toString(), FieldName: props.ParentField.toString(), Operator: "=", Type: "number", IsPivotColumn: false }], [props.Record, props.ParentField])
+    const { Data: relations, Status: relationStatus } = useDBSearch<R>(props.Controller, relationFilters, undefined, undefined, undefined, refreshCount);
 
     const noSameFilter: Search.IFilter<OpenXDA.Types.Customer>[] = React.useMemo(() => {
         const filter = {
             FieldName: 'ID',
-            SearchText: relations.filter(cr => cr[props.ParentField] == props.Record.ID).map((r) => r.CustomerID).join(','),
+            SearchText: relations.map((r) => r.CustomerID).join(','),
             Operator: 'NOT IN' as Search.OperatorType,
             Type: 'string' as Search.FieldType,
             IsPivotColumn: false
@@ -103,27 +103,26 @@ function CustomerRelationBase<R extends ICustomerRelation>(props: IProps & Custo
 
     return (
         <>
-            <LoadingScreen Show={props.DetailedRecordStatus === 'loading' || relationStatus !== 'idle'} />
-            <ServerErrorIcon Show={props.DetailedRecordStatus === 'error'} />
-            {props.DetailedRecordStatus  === 'idle' ?
-                <GenericRelation<R>
-                    PrimaryKey={"ID"}
-                    Controller={props.Controller}
-                    RecordType={'Customer Relation'}
-                    Columns={CustomerRelationColumns}
-                    GetName={() => ""}
-                    BlankRecord={props.BlankRecord}
-                    Filters={relationFilters}
-                    DeleteColumn={true}
-                    RefreshCount={refreshCount}
-                    AddNew={() => setShowAdd(true)}
-                    IsEditable={() => true}
-                    HasPermissions={hasPermissions}
-                    OperationResults={props.OperationResults}
-                    SetOperationResults={props.SetOperationResults}
-                    AddStatus={addStatus}
-                    OnRefreshData={() => refreshData(x => x + 1)}
-                /> : null}
+            <LoadingScreen Show={relationStatus === 'loading'} />
+            <ServerErrorIcon Show={relationStatus === 'error'} />
+            <GenericRelation<R>
+                PrimaryKey={"ID"}
+                Controller={props.Controller}
+                RecordType={`${props.ParentType} Customer Relation`}
+                Columns={CustomerRelationColumns}
+                GetName={() => ""}
+                BlankRecord={props.BlankRecord}
+                Filters={relationFilters}
+                DeleteColumn={true}
+                RefreshCount={refreshCount}
+                AddNew={() => setShowAdd(true)}
+                IsEditable={() => true}
+                HasPermissions={hasPermissions}
+                OperationResults={props.OperationResults}
+                SetOperationResults={props.SetOperationResults}
+                AddStatus={addStatus}
+                OnRefreshData={() => refreshData(x => x + 1)}
+            />
             <ControllerSelectPopup<OpenXDA.Types.Customer>
                 Controller={CustomerController}
                 OnClose={(selected, conf) => {
@@ -134,10 +133,6 @@ function CustomerRelationBase<R extends ICustomerRelation>(props: IProps & Custo
                     Promise.allSettled(
                         selected.map((customer) => {
                             const newRecord = props.GetNewRecord(customer);
-                            if (newRecord[props.ParentField] === -1) {
-                                setAddStatus('error');
-                                return Promise.reject();
-                            }
                             return props.Controller.DBAction("POST", newRecord)
                                 .fail(() => {
                                     props.SetOperationResults((opres) => [{ OperationType: "SAVE", RecordType: `${props.ParentType} Customer Relation`, Result: "failure", Timestamp: moment().valueOf() }, ...opres])
@@ -190,57 +185,22 @@ function CustomerRelationBase<R extends ICustomerRelation>(props: IProps & Custo
 }
 
 const CustomerRelation = (props: IProps) => {
-    const [detailedRecord, setDetailedRecord] = React.useState<SystemCenter.Types.DetailedMeter | SystemCenter.Types.DetailedAsset | null>(null)
-    const [detailedRecordStatus, setDetailedRecordStatus] = React.useState<Application.Types.Status>('uninitiated');
-
-    React.useEffect(() => {
-        const getUrl = props.ParentType === 'Meter' ? `${homePath}api/OpenXDA/ByMeter/One/${props.Record.ID}` : `${homePath}api/OpenXDA/ByAsset/One/${props.Record.ID}`
-        setDetailedRecordStatus('loading');
-        const handle = $.ajax({
-            type: "GET",
-            url: getUrl,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: true,
-            async: true
-        }).done((d) => {
-            setDetailedRecord(d);
-            setDetailedRecordStatus('idle');
-        }).fail(() => setDetailedRecordStatus('error'));
-
-        return () => { if (handle != null && handle.abort != null) return handle.abort() }
-
-    }, [props.Record, props.ParentType])
 
     const getNewCustomerMeter = React.useCallback((customer: OpenXDA.Types.Customer): LocalXDA.CustomerMeter => {
-        if (detailedRecord == null || detailedRecordStatus !== 'idle') return BlankCustomerMeter;
-        const detailedMeter = detailedRecord as SystemCenter.Types.DetailedMeter;
         return {
-            ID: -1,
+            ...BlankCustomerMeter,
             MeterID: props.Record.ID,
-            CustomerID: customer.ID,
-            CustomerKey: customer.CustomerKey,
-            CustomerName: customer.Name,
-            MeterKey: props.Record.AssetKey,
-            MeterLocation: detailedMeter.Location,
-            MeterName: detailedMeter.Name
+            CustomerID: customer.ID
         }
-    }, [detailedRecord, detailedRecordStatus, props.Record]);
+    }, [props.Record]);
 
     const getNewCustomerAsset = React.useCallback((customer: OpenXDA.Types.Customer): LocalXDA.CustomerAsset => {
-        if (detailedRecord == null || detailedRecordStatus !== 'idle') return BlankCustomerAsset;
-        const detailedAsset = detailedRecord as SystemCenter.Types.DetailedAsset;
         return {
-            ID: -1,
+            ...BlankCustomerAsset,
             AssetID: props.Record.ID,
-            CustomerID: customer.ID,
-            CustomerKey: customer.CustomerKey,
-            CustomerName: customer.Name,
-            AssetKey: props.Record.AssetKey,
-            AssetName: detailedAsset.AssetName,
-            AssetType: detailedAsset.AssetType
+            CustomerID: customer.ID
         }
-    }, [detailedRecord, detailedRecordStatus, props.Record]);
+    }, [props.Record]);
 
     return (
         props.ParentType === 'Meter'
@@ -250,7 +210,6 @@ const CustomerRelation = (props: IProps) => {
                 ParentField={'MeterID'}
                 BlankRecord={BlankCustomerMeter}
                 GetNewRecord={getNewCustomerMeter}
-                DetailedRecordStatus={detailedRecordStatus} 
             />
             : <CustomerRelationBase<LocalXDA.CustomerAsset>
                 {...props}
@@ -258,7 +217,6 @@ const CustomerRelation = (props: IProps) => {
                 ParentField={'AssetID'}
                 BlankRecord={BlankCustomerAsset}
                 GetNewRecord={getNewCustomerAsset}
-                DetailedRecordStatus={detailedRecordStatus} 
             />
     )
 

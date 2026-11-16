@@ -89,6 +89,37 @@ export function usePagedSearch<T,>(controller: GenericController<T>, filters: Se
     }
 }
 
+export function useDBSearch<T,>(controller: GenericController<T>, filters: Search.IFilter<T>[], sortField?: keyof T, ascending?: boolean, parentID?: string | number, refreshCount?: number) {
+
+    const [data, setData] = React.useState<T[]>([]);
+    const [status, setStatus] = React.useState<Application.Types.Status>('uninitiated');
+    const sortKey = sortField ?? controller.DefaultSort;
+    const asc = ascending ?? controller.Ascending;
+
+    const refetchData = React.useCallback(() => {
+        setStatus('loading');
+
+        const handle = controller.DBSearch(filters, sortKey, asc, parentID)
+            .done((data: T[]) => {
+                setData(data);
+                setStatus('idle');
+            })
+            .fail(() => setStatus('error'));
+
+        return () => { if (handle != null && handle.abort != null) handle.abort() }
+
+    }, [controller, filters, sortKey, asc, parentID])
+
+    React.useEffect(() => {
+        return refetchData();
+    }, [refetchData, refreshCount])
+
+    return {
+        Data: data,
+        Status: status,
+    }
+}
+
 export function useControllerFetch<T,>(controller: GenericController<T>, sortField?: keyof T, ascending?: boolean, parentID?: string|number, refreshCount?: number) {
 
     const fetchHandle = React.useRef<JQuery.jqXHR<T[]> | null>(null);
