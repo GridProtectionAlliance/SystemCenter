@@ -30,10 +30,10 @@ import { LoadingIcon, GenericController } from '@gpa-gemstone/react-interactive'
 import { ErrorBoundary } from '@gpa-gemstone/common-pages'
 
 
-const MeterAnalysisController = new GenericController<OpenXDA.MeterAnalysis>(`${homePath}api/OpenXDA/MeterAnalysis`, "Name", false);
+const MeterAnalysisController = new GenericController<OpenXDA.MeterAnalysis>(`${homePath}api/OpenXDA/MeterAnalysis`, "TotalCount", false);
 
 const AnalysisTaskTable = () => {
-    const [sortField, setSortField] = React.useState <keyof OpenXDA.MeterAnalysis>('Name')
+    const [sortField, setSortField] = React.useState <keyof OpenXDA.MeterAnalysis>('TotalCount')
     const [ascending, setAscending] = React.useState<boolean>(false)
     const [dataFile, setDataFile] = React.useState<OpenXDA.MeterAnalysis[]>([])
     const [totalPages, setTotalPages] = React.useState<number>(0)
@@ -90,42 +90,42 @@ const AnalysisTaskTable = () => {
                 >
                     <Column<OpenXDA.MeterAnalysis>
                         Key={'Name'}
-                        AllowSort={false}
+                        AllowSort={true}
                         Field={'Name'}
                     >
                         Meter
                     </Column>
                     <Column<OpenXDA.MeterAnalysis>
                         Key={'EnumeratorCount'}
-                        AllowSort={false}
+                        AllowSort={true}
                         Field={'EnumeratorCount'}
                     >
                         Enumerator
                     </Column>
                     <Column<OpenXDA.MeterAnalysis>
                         Key={'NormalCount'}
-                        AllowSort={false}
+                        AllowSort={true}
                         Field={'NormalCount'}
                     >
                         Normal
                     </Column>
                     <Column<OpenXDA.MeterAnalysis>
                         Key={'HighCount'}
-                        AllowSort={false}
+                        AllowSort={true}
                         Field={'HighCount'}
                     >
                         High
                     </Column>
                     <Column<OpenXDA.MeterAnalysis>
                         Key={'RequeueCount'}
-                        AllowSort={false}
+                        AllowSort={true}
                         Field={'RequeueCount'}
                     >
                         Requeue
                     </Column>
                     <Column<OpenXDA.MeterAnalysis>
                         Key={'TotalCount'}
-                        AllowSort={false}
+                        AllowSort={true}
                         Field={'TotalCount'}
                     >
                         # Total
