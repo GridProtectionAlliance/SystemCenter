@@ -100,35 +100,28 @@ const AnalysisTaskTable = () => {
                         AllowSort={false}
                         Field={'EnumeratorCount'}
                     >
-                        # Enumerator
-                    </Column>
-                    <Column<OpenXDA.MeterAnalysis>
-                        Key={'EnumeratorCount'}
-                        AllowSort={false}
-                        Field={'EnumeratorCount'}
-                    >
-                        # Enumerator
-                    </Column>
-                    <Column<OpenXDA.MeterAnalysis>
-                        Key={'HighCount'}
-                        AllowSort={false}
-                        Field={'HighCount'}
-                    >
-                        # High
+                        Enumerator
                     </Column>
                     <Column<OpenXDA.MeterAnalysis>
                         Key={'NormalCount'}
                         AllowSort={false}
                         Field={'NormalCount'}
                     >
-                        # Normal
+                        Normal
+                    </Column>
+                    <Column<OpenXDA.MeterAnalysis>
+                        Key={'HighCount'}
+                        AllowSort={false}
+                        Field={'HighCount'}
+                    >
+                        High
                     </Column>
                     <Column<OpenXDA.MeterAnalysis>
                         Key={'RequeueCount'}
                         AllowSort={false}
                         Field={'RequeueCount'}
                     >
-                        # Requeue
+                        Requeue
                     </Column>
                     <Column<OpenXDA.MeterAnalysis>
                         Key={'TotalCount'}

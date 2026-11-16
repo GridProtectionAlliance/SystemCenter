@@ -23,11 +23,13 @@
 
 import * as React from 'react'
 import { useGetContainerPosition } from '@gpa-gemstone/helper-functions'
+import { ToggleSwitch } from '@gpa-gemstone/react-forms'
 import FilesQueuedGraph from './FilesQueuedGraph'
 import AnalysisTaskTable from './AnalysisTaskTable'
 import MeterAnalysis from './MeterAnalysis'
 
 const FilesQueued = () => {
+    const [showMeterAnalysis, setShowMeterAnalysis] = React.useState<boolean>(false);
     const rowRef = React.useRef<HTMLDivElement>(null);
 
     const { offsetWidth, offsetHeight } = useGetContainerPosition(rowRef)
@@ -42,7 +44,17 @@ const FilesQueued = () => {
                         />
                 </div>
                 <div className="row d-flex flex-column h-75" style={{ flex: '1 1 0%' }}>
-                    <AnalysisTaskTable /> 
+                    <ToggleSwitch<{ UseMeterAnalysis: boolean }>
+                        Record={{ UseMeterAnalysis: showMeterAnalysis }}
+                        Field="UseMeterAnalysis"
+                        Label={"Group Tasks by Meter"}
+                        Setter={(rec) => setShowMeterAnalysis(rec.UseMeterAnalysis)}
+                    />
+                    {
+                        showMeterAnalysis
+                            ? <MeterAnalysis /> 
+                            : <AnalysisTaskTable /> 
+                    }
                 </div>
             </div>            
         </div>
