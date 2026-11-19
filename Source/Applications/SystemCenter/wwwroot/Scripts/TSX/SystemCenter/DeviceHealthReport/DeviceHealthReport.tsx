@@ -32,7 +32,8 @@ import { SystemCenterSettingSlice } from '../Store/Store';
 import moment from 'moment';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import AppStatus from '../CommonComponents/AppStatus';
-import { ToolTip } from '@gpa-gemstone/react-forms'
+import { ToolTip } from '@gpa-gemstone/react-forms';
+import { SystemCenterURL } from '../constants';
 
 interface IPagedResult {
     Data: string,
@@ -239,7 +240,7 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                             Field={'Name'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                            Content={({ item, field }) => <a href={`${homePath}index.cshtml?name=Meter&MeterID=${item.ID}&MeterName=${item.Name}`} target='_blank'>{item[field]}</a>}
+                            Content={({ item, field }) => <a href={homePath + SystemCenterURL.MeterDetails + `&MeterID=${item.ID}&MeterName=${item.Name}`} target='_blank'>{item[field]}</a>}
                         > Name
                         </Column>
                         <Column<SCGlobal.DeviceHealthReport>
@@ -298,7 +299,7 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                             Field={'TSC'}
                             HeaderStyle={{ width: 50 }}
                             RowStyle={{ width: 50 }}
-                            Content={({ item, field }) => <a href={`${homePath}index.cshtml?name=DeviceContacts&ID=${item.TSC}&Name=${item.TSC}&Field=TSC`} target='_blank'>{item[field]}</a>}
+                            Content={({ item, field }) => <a href={homePath + SystemCenterURL.DeviceContacts + `&ID=${item.TSC}&Name=${item.TSC}&Field=TSC`} target='_blank'>{item[field]}</a>}
                         > TSC
                         </Column>
                         <Column<SCGlobal.DeviceHealthReport>
@@ -307,7 +308,7 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                             Field={'Sector'}
                             HeaderStyle={{ width: '5%' }}
                             RowStyle={{ width: '5%' }}
-                            Content={({ item, field }) => <a href={`${homePath}index.cshtml?name=DeviceContacts&ID=${item.Sector}&Name=${item.Sector}&Field=Sector`} target='_blank'>{item[field]}</a>}
+                            Content={({ item, field }) => <a href={homePath + SystemCenterURL.DeviceContacts + `&ID=${item.Sector}&Name=${item.Sector}&Field=Sector`} target='_blank'>{item[field]}</a>}
                         > Sector
                         </Column>
                         <Column<SCGlobal.DeviceHealthReport>
@@ -337,7 +338,7 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                                 if (moment().diff(moment(item[field]), 'hours') > 4) className = 'info';
                                 if (moment().diff(moment(item[field]), 'hours') > 24) className = 'warning';
                                 else if (moment().diff(moment(item[field]), 'days') > 7) className = 'danger';
-                                return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=openmic&OpenMICAcronym=${item.OpenMIC}`} target='_blank'>
+                                return <a href={homePath + SystemCenterURL.DeviceIssuesPage + `&MeterID=${item.ID}&Tab=openmic&OpenMICAcronym=${item.OpenMIC}`} target='_blank'>
                                     <span className={`badge badge-pill badge-${className}`}>{moment(item[field]).format('MM/DD/YYYY HH:mm')}</span></a>
                             }}
                         > Last Succ Conn
@@ -411,17 +412,17 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                             Content={({ item, field, style }) => {
                                 if (item[field] == 'Error') {
                                     style.backgroundColor = 'palevioletred';
-                                    return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=openmic&OpenMICAcronym=${item.OpenMIC}`} target='_blank' ><ReactIcons.CrossMark Color="var(--danger)" /></a>;
+                                    return <a href={homePath + SystemCenterURL.DeviceIssuesPage + `&MeterID=${item.ID}&Tab=openmic&OpenMICAcronym=${item.OpenMIC}`} target='_blank' ><ReactIcons.CrossMark Color="var(--danger)" /></a>;
                                 }
                                 else if (item[field] == 'Warning') {
                                     style.backgroundColor = 'antiquewhite';
-                                    return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=openmic&OpenMICAcronym=${item.OpenMIC}`} target='_blank' ><ReactIcons.Warning Color="var(--warning)" /></a>;
+                                    return <a href={homePath + SystemCenterURL.DeviceIssuesPage + `&MeterID=${item.ID}&Tab=openmic&OpenMICAcronym=${item.OpenMIC}`} target='_blank' ><ReactIcons.Warning Color="var(--warning)" /></a>;
                                 }
                                 else if (item.LastGood == null && item.MICBadDays == null) {
-                                    return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=openmic&OpenMICAcronym=${item.OpenMIC}`} target='_blank' ><ReactIcons.QuestionMark Color="var(--secondary)" /></a>;
+                                    return <a href={homePath + SystemCenterURL.DeviceIssuesPage + `&MeterID=${item.ID}&Tab=openmic&OpenMICAcronym=${item.OpenMIC}`} target='_blank' ><ReactIcons.QuestionMark Color="var(--secondary)" /></a>;
                                 }
                                 else
-                                    return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=openmic&OpenMICAcronym=${item.OpenMIC}`} target='_blank'><ReactIcons.CheckMark Color="var(--success)" /></a>;
+                                    return <a href={homePath + SystemCenterURL.DeviceIssuesPage + `&MeterID=${item.ID}&Tab=openmic&OpenMICAcronym=${item.OpenMIC}`} target='_blank'><ReactIcons.CheckMark Color="var(--success)" /></a>;
                             }}
                         > MIC
                         </Column>
@@ -434,17 +435,17 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                             Content={({ item, field, style }) => {
                                 if (item[field] == 'Error') {
                                     style.backgroundColor = 'palevioletred';
-                                    return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=mimd&OpenMICAcronym=${item.OpenMIC}`} target='_blank' ><ReactIcons.CrossMark Color="var(--danger)" /></a>;
+                                    return <a href={homePath + SystemCenterURL.DeviceIssuesPage + `&MeterID=${item.ID}&Tab=mimd&OpenMICAcronym=${item.OpenMIC}`} target='_blank' ><ReactIcons.CrossMark Color="var(--danger)" /></a>;
                                 }
                                 else if (item[field] == 'Warning') {
                                     style.backgroundColor = 'antiquewhite';
-                                    return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=mimd&OpenMICAcronym=${item.OpenMIC}`} target='_blank' ><ReactIcons.Warning Color="var(--warning)" /></a>;
+                                    return <a href={homePath + SystemCenterURL.DeviceIssuesPage + `&MeterID=${item.ID}&Tab=mimd&OpenMICAcronym=${item.OpenMIC}`} target='_blank' ><ReactIcons.Warning Color="var(--warning)" /></a>;
                                 }
                                 else if (item.LastGood == null && item.MICBadDays == null) {
-                                    return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=mimd&OpenMICAcronym=${item.OpenMIC}`} target='_blank' ><ReactIcons.QuestionMark Color="var(--secondary)" /></a>;
+                                    return <a href={homePath + SystemCenterURL.DeviceIssuesPage + `&MeterID=${item.ID}&Tab=mimd&OpenMICAcronym=${item.OpenMIC}`} target='_blank' ><ReactIcons.QuestionMark Color="var(--secondary)" /></a>;
                                 }
                                 else
-                                    return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=mimd&OpenMICAcronym=${item.OpenMIC}`} target='_blank'><ReactIcons.CheckMark Color="var(--success)" /></a>;
+                                    return <a href={homePath + SystemCenterURL.DeviceIssuesPage + `&MeterID=${item.ID}&Tab=mimd&OpenMICAcronym=${item.OpenMIC}`} target='_blank'><ReactIcons.CheckMark Color="var(--success)" /></a>;
                             }}
                         > miMD
                         </Column>
@@ -457,14 +458,14 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                             Content={({ item, field, style }) => {
                                 if (item[field] == 'Error') {
                                     style.backgroundColor = 'palevioletred';
-                                    return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=xda&OpenMICAcronym=${item.OpenMIC}`} target='_blank' ><ReactIcons.CrossMark Color="var(--danger)" /></a>;
+                                    return <a href={homePath + SystemCenterURL.DeviceIssuesPage + `&MeterID=${item.ID}&Tab=xda&OpenMICAcronym=${item.OpenMIC}`} target='_blank' ><ReactIcons.CrossMark Color="var(--danger)" /></a>;
                                 }
                                 else if (item[field] == 'Warning') {
                                     style.backgroundColor = 'antiquewhite';
-                                    return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=xda&OpenMICAcronym=${item.OpenMIC}`} target='_blank' ><ReactIcons.Warning Color="var(--warning)" /></a>;
+                                    return <a href={homePath + SystemCenterURL.DeviceIssuesPage + `&MeterID=${item.ID}&Tab=xda&OpenMICAcronym=${item.OpenMIC}`} target='_blank' ><ReactIcons.Warning Color="var(--warning)" /></a>;
                                 }
                                 else
-                                    return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=xda&OpenMICAcronym=${item.OpenMIC}`} target='_blank'><ReactIcons.CheckMark Color="var(--success)" /></a>;
+                                    return <a href={homePath + SystemCenterURL.DeviceIssuesPage + `&MeterID=${item.ID}&Tab=xda&OpenMICAcronym=${item.OpenMIC}`} target='_blank'><ReactIcons.CheckMark Color="var(--success)" /></a>;
                             }}
                         > XDA
                         </Column>
@@ -477,14 +478,14 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                             Content={({ item, field, style }) => {
                                 if (item.DQStatus == 'Error') {
                                     style.backgroundColor = 'palevioletred';
-                                    return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=dq&OpenMICAcronym=${item.OpenMIC}`} target='_blank' ><ReactIcons.CrossMark Color="var(--danger)" /></a>;
+                                    return <a href={homePath + SystemCenterURL.DeviceIssuesPage + `&MeterID=${item.ID}&Tab=dq&OpenMICAcronym=${item.OpenMIC}`} target='_blank' ><ReactIcons.CrossMark Color="var(--danger)" /></a>;
                                 }
                                 else if (item.DQStatus == 'Warning') {
                                     style.backgroundColor = 'antiquewhite';
-                                    return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=dq&OpenMICAcronym=${item.OpenMIC}`} target='_blank' ><ReactIcons.Warning Color="var(--warning)" /></a>;
+                                    return <a href={homePath + SystemCenterURL.DeviceIssuesPage + `&MeterID=${item.ID}&Tab=dq&OpenMICAcronym=${item.OpenMIC}`} target='_blank' ><ReactIcons.Warning Color="var(--warning)" /></a>;
                                 }
                                 else
-                                    return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=dq&OpenMICAcronym=${item.OpenMIC}`} target='_blank'><ReactIcons.CheckMark Color="var(--success)" /></a>;
+                                    return <a href={homePath + SystemCenterURL.DeviceIssuesPage + `&MeterID=${item.ID}&Tab=dq&OpenMICAcronym=${item.OpenMIC}`} target='_blank'><ReactIcons.CheckMark Color="var(--success)" /></a>;
                             }}
                         > DQ
                         </Column>

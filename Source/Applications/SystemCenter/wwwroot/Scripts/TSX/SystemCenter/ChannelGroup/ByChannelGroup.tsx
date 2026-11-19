@@ -30,6 +30,7 @@ import { GenericController, Modal } from '@gpa-gemstone/react-interactive';
 import ChannelGroupForm from './ChannelGroupForm';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import GenericByPage from '../CommonComponents/GenericByPage';
+import { SystemCenterURL } from '../constants';
 
 const fieldCols: LocalSC.IByCol<LocalSC.ChannelGroupView>[] = [
     { Field: 'Name', Label: 'Name', Type: 'string', Width: '15%' },
@@ -50,7 +51,7 @@ const ChannelGroups: Application.Types.iByComponent = () => {
     const [refreshCount, refreshData] = React.useState<number>(0);
 
     function handleSelect(item) {
-        navigate(`${homePath}index.cshtml?name=ChannelGroup&GroupID=${item.row.ID}`);
+        navigate(homePath + SystemCenterURL.ChannelGroupDetail + `&GroupID=${item.row.ID}`);
     }
 
     return (

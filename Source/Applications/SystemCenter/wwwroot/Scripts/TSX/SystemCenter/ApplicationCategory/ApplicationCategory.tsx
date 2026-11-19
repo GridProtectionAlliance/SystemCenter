@@ -23,12 +23,14 @@
 import { ApplicationCategory } from '../ApplicationCategory/ByApplicationCategory';
 import * as React from 'react';
 import * as _ from 'lodash';
+import { useNavigate } from 'react-router-dom';
 import { LoadingScreen, TabSelector, Warning } from '@gpa-gemstone/react-interactive';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { ApplicationCategorySlice } from '../Store/Store';
 import { Application } from '@gpa-gemstone/application-typings';
 import ApplicationCategoryInfo from './ApplicationCategoryInfo';
 import Applications from './Applications';
+import { SystemCenterURL } from '../constants';
 
 declare var homePath: string;
 type Tab = 'appCatInfo' | 'applications'
@@ -36,6 +38,7 @@ type Tab = 'appCatInfo' | 'applications'
 interface IProps { ID: number, Tab: Tab }
 
 function ApplicationCategory(props: IProps) {
+    const navigate = useNavigate();
     const [tab, setTab] = React.useState(getTab());
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
     const [loadDelete, setLoadDelete] = React.useState<boolean>(false);
@@ -87,7 +90,13 @@ function ApplicationCategory(props: IProps) {
 
             <Warning Message={'This will permanently delete this Application Category and cannot be undone.'}
                 Show={showDelete} Title={'Delete ' + (applicationCategory?.Name ?? 'Application Category')}
-                CallBack={(conf) => { if (conf) dispatch(ApplicationCategorySlice.DBAction({ verb: 'DELETE', record: applicationCategory })); setShowDelete(false); window.location.href = homePath + 'index.cshtml?name=ByApplicationCategory' }} />
+                CallBack={(conf) => {
+                    if (conf) dispatch(ApplicationCategorySlice.DBAction({ verb: 'DELETE', record: applicationCategory }))
+                        .then(() => {
+                            navigate(homePath + SystemCenterURL.ApplicationCategoryByPage);
+                        }); 
+                    setShowDelete(false);
+                }} />
             <LoadingScreen Show={loadDelete} />
             </div>
     )

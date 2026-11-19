@@ -27,6 +27,8 @@ import { Application } from '@gpa-gemstone/application-typings';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
+import { useNavigate } from 'react-router-dom';
+import { SystemCenterURL } from '../constants';
 
 declare var homePath: string;
 
@@ -193,7 +195,7 @@ const AssetChannelWindow = (props: IProps) => {
                                 Field={'MeterName'}
                                 HeaderStyle={{ width: '15%' }}
                                 RowStyle={{ width: '15%' }}
-                                Content={(row) => <a href={`${homePath}index.cshtml?name=Meter&MeterID=${row.item.MeterID}&Tab=${row.item.Trend ? "trendChannels" : "eventChannels"}`} target='_blank'>{row.item.MeterName}</a>}
+                                Content={(row) => <a href={homePath + SystemCenterURL.MeterDetails + `&MeterID=${row.item.MeterID}&Tab=${row.item.Trend ? "trendChannels" : "eventChannels"}`} target='_blank'>{row.item.MeterName}</a>}
                             > Meter Name
                             </Column>
                             <Column<ChannelDetail>
@@ -203,7 +205,7 @@ const AssetChannelWindow = (props: IProps) => {
                                 HeaderStyle={{ width: '15%' }}
                                 RowStyle={{ width: '15%' }}
                                 Content={(row) => (row.item.AssetID !== props.ID ?
-                                    <a href={`${homePath}index.cshtml?name=Asset&AssetID=${row.item.AssetID}&Tab=channels`} target='_blank'>{row.item.AssetName}</a> :
+                                    <a href={homePath + SystemCenterURL.AssetDetails + `&AssetID=${row.item.AssetID}&Tab=channels`} target='_blank'>{row.item.AssetName}</a> :
                                     row.item.AssetName
                                 )}
                             > Asset Name

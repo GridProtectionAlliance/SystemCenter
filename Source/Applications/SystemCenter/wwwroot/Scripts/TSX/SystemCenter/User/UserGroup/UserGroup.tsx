@@ -29,6 +29,7 @@ import { ISecurityGroup } from '../Types';
 import GroupInfo from './Info';
 import GroupUser from './GroupUsers';
 import GroupPermission from './Permissions';
+import { SystemCenterURL } from '../../constants';
 
 declare type Tab = 'info' | 'users' | 'roles'
 
@@ -111,7 +112,7 @@ function UserGroup(props: IProps) {
 			<Warning Message={'This will permanently delete the User Group. Users in this Group will not be deleted, but may lose their roles. Are you sure you want to continue?'} Title={'Delete ' + (group?.DisplayName ?? 'User Group')} Show={showWarning} CallBack={(c) => {
 				setShowWarning(false);
 				if (c) {
-					new GenericController<ISecurityGroup>(`${homePath}api/SystemCenter/FullSecurityGroup`, "DisplayName").DBAction('DELETE', group).then(() => navigate(`${homePath}index.cshtml?name=Groups`));
+					new GenericController<ISecurityGroup>(`${homePath}api/SystemCenter/FullSecurityGroup`, "DisplayName").DBAction('DELETE', group).then(() => navigate(homePath + SystemCenterURL.UserGroupByPage));
 				}
 			}} />
 		</div>

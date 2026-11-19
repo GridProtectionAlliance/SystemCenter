@@ -28,6 +28,7 @@ import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-ty
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 import { Search, Modal, LoadingIcon, ServerErrorIcon, GenericController, SearchBar } from '@gpa-gemstone/react-interactive';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
+import { SystemCenterURL } from '../constants';
 
 declare var homePath: string;
 
@@ -102,7 +103,7 @@ const ByLineSegment: Application.Types.iByComponent = (props) => {
 
 
     const handleSelect = React.useCallback((ID: number) => {
-        navigate(`${homePath}index.cshtml?name=LineSegment&AssetID=${ID}`);
+        navigate(homePath + SystemCenterURL.LineSegmentDetails + `&AssetID=${ID}`);
     }, []);
 
     const getEnum = React.useCallback((setOptions, field) => {

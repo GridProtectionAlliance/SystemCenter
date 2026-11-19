@@ -28,6 +28,8 @@ import { ValueListGroupSlice } from '../Store/Store';
 import { ValueListGroupDelete } from './ValueListGroupDelete';
 import ValueListGroupInfo from './ValueListGroupInfo';
 import ValueListGroupItems from './ValueListGroupItem';
+import { useNavigate } from 'react-router-dom';
+import { SystemCenterURL } from '../constants';
 
 declare var homePath: string;
 declare type Tab = 'info' | 'items'
@@ -35,6 +37,7 @@ declare type Tab = 'info' | 'items'
 interface IProps { GroupID: number, Tab: Tab }
 
 export default function ValueListGroup(props: IProps) {
+    const navigate = useNavigate();
     const dispatch = useAppDispatch();
     const record = useAppSelector((state) => ValueListGroupSlice.Datum(state, props.GroupID));
     const valueListGroupStatus = useAppSelector(ValueListGroupSlice.Status);
@@ -63,7 +66,7 @@ export default function ValueListGroup(props: IProps) {
 
     function Delete() {
         dispatch(ValueListGroupSlice.DBAction({ verb: 'DELETE', record }))
-        window.location.href = homePath + 'index.cshtml?name=ValueLists';
+            .then(() => navigate(homePath + SystemCenterURL.ValueListByPage));
     }
 
     if (record == null) return null;
