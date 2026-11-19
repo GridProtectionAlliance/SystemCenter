@@ -446,6 +446,30 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/SystemCenter/AssetGroupMeter")]
     public class AssetGroupMeterController : ModelController<openXDA.Model.MeterAssetGroupView>
     {
+       
+        [HttpPost, Route("Add", Order = 1)] // override base class "Add" route
+        public override IHttpActionResult Post([FromBody] JObject record)
+        {
+            if (!PostAuthCheck())
+                return Unauthorized();
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                TableOperations<openXDA.Model.MeterAssetGroup> connectionTable = new TableOperations<openXDA.Model.MeterAssetGroup>(connection);
+                int[] groupIDs = record["GroupIDs"].ToObject<int[]>();
+                int meterID = record["ID"].ToObject<int>();
+                openXDA.Model.MeterAssetGroup newRecord = new openXDA.Model.MeterAssetGroup();
+                newRecord.MeterID = meterID;
+                int result = 0;
+                foreach (int groupID in groupIDs)
+                {
+                    newRecord.AssetGroupID = groupID;
+                    result += connectionTable.AddNewRecord(newRecord);
+                }
+                return Ok(result);
+            }
+        }
+
         [HttpPost, Route("PostGroupList")]
         public IHttpActionResult PostList([FromBody] JObject record)
         {
@@ -514,6 +538,30 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/SystemCenter/AssetGroupAsset")]
     public class AssetGroupAssetController : ModelController<openXDA.Model.AssetAssetGroupView>
     {
+
+        [HttpPost, Route("Add", Order = 1)] // override existing base class "Add"
+        public override IHttpActionResult Post([FromBody] JObject record)
+        {
+            if (!PostAuthCheck())
+                return Unauthorized();
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                TableOperations<openXDA.Model.AssetAssetGroup> connectionTable = new TableOperations<openXDA.Model.AssetAssetGroup>(connection);
+                int[] groupIDs = record["GroupIDs"].ToObject<int[]>();
+                int assetID = record["ID"].ToObject<int>();
+                openXDA.Model.AssetAssetGroup newRecord = new openXDA.Model.AssetAssetGroup();
+                newRecord.AssetID = assetID;
+                int result = 0;
+                foreach (int groupID in groupIDs)
+                {
+                    newRecord.AssetGroupID = groupID;
+                    result += connectionTable.AddNewRecord(newRecord);
+                }
+                return Ok(result);
+            }
+        }
+
         [HttpPost, Route("PostGroupList")]
         public IHttpActionResult PostList([FromBody] JObject record)
         {
