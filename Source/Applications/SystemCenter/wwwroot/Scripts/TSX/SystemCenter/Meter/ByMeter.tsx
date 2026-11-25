@@ -32,6 +32,7 @@ import { ByMeterSlice } from '../Store/Store';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { useNavigate } from "react-router-dom";
 import { Paging } from '@gpa-gemstone/react-table';
+import { SystemCenterURL } from '../constants';
 
 declare var homePath: string;
 
@@ -61,10 +62,10 @@ const ByMeter: Application.Types.iByComponent = (props) => {
     }, [cState]);
 
     function handleSelect(item) {
-        navigate(`${homePath}index.cshtml?name=Meter&MeterID=${item.row.ID}`);
+        navigate(`${homePath}${SystemCenterURL.MeterDetails}&MeterID=${item.row.ID}`);
     }
     function goNewMeterWizard() {
-        navigate(`${homePath}index.cshtml?name=NewMeterWizard`);
+        navigate(homePath + SystemCenterURL.NewMeterWizard);
     }
 
     function getAdditionalFields(setFields) {

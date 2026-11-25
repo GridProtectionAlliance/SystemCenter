@@ -42,6 +42,7 @@ import DERAttributes from '../AssetAttribute/DER';
 import GenerationAttributes from '../AssetAttribute/Generation';
 import StationAuxAttributes from '../AssetAttribute/StationAux';
 import StationBatteryAttributes from '../AssetAttribute/StationBattery';
+import { SystemCenterURL } from '../constants';
 
 
 
@@ -227,7 +228,7 @@ const ByAsset: Application.Types.iByComponent = (props) => {
 
 
     function handleSelect(ID: number) {
-        navigate(`${homePath}index.cshtml?name=Asset&AssetID=${ID}`);
+        navigate(homePath + SystemCenterURL.AssetDetails + `&AssetID=${ID}`);
     }
 
     function getEnum(setOptions, field) {

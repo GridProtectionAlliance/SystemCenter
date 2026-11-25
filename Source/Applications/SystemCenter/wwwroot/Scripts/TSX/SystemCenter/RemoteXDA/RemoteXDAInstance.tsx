@@ -28,6 +28,7 @@ import SystemSettingsTab from './SystemSettingsTab'
 import RemoteAssetTab from './RemoteAssetTab'
 import RemoteMeterTab from './RemoteMeterTab';
 import GenericRecord, { IRecordTabs } from '../CommonComponents/GenericRecord';
+import { SystemCenterURL } from '../constants';
 
 declare var homePath: string;
 declare type Tab = 'systemSettings' | 'remoteMeter' | 'remoteAsset'
@@ -99,7 +100,7 @@ function RemoteXDAInstance({ Roles, ID, Tab }: IProps) {
             ControllerPath={`${homePath}api/OpenXDA/remoteXDAInstance`}
             DefaultSort={"Name"}
             GetOnePath={`${homePath}api/OpenXDA/remoteXDAInstance/One/`}
-            Redirect={`${homePath}index.cshtml?name=RemoteXDAInstanceMain`}
+            Redirect={homePath + SystemCenterURL.RemoteXDAInstanceByPage}
             DefaultTab={"systemSettings"}
             GetName={(record) => record.Name}
             Tabs={tabs}

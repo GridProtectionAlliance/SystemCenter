@@ -43,6 +43,7 @@ import { SelectRoles } from '../Store/UserSettings';
 import AssetGroupRelation from '../AssetGroups/AssetGroupRelation';
 import CustomerRelation from '../Customer/CustomerRelation';
 import { OperationResult } from '../CommonComponents/ResultAlert'; 
+import { SystemCenterURL } from '../constants';
 
 declare var homePath: string;
 declare type Tab = 'notes' | 'assetInfo' | 'substations' | 'meters' | 'connections' | 'additionalFields' | 'extDB' | 'segments' | 'sourceImpedances' | 'channels' | 'assetGroups' | 'customers';
@@ -118,9 +119,9 @@ function Asset(props: IProps) {
         handle.done((msg) => {
             sessionStorage.clear();
             if (window.location.href.includes('LineSegment'))
-                navigate(`${homePath}index.cshtml?name=LineSegments`);
+                navigate(homePath + SystemCenterURL.LineSegmentByPage);
             else
-                navigate(`${homePath}index.cshtml?name=Assets`);
+                navigate(homePath + SystemCenterURL.AssetByPage);
         });
         handle.then((d) => setLoadDelete(false))
         return handle;

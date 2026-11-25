@@ -27,6 +27,7 @@ import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { Table, Column, Paging } from '@gpa-gemstone/react-table';
 import { ServerErrorIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
 import { useNavigate } from "react-router-dom";
+import { SystemCenterURL } from '../constants';
 
 declare var homePath: string;
 const PagingID = 'LocationMeterPage';
@@ -76,7 +77,7 @@ function LocationMeterWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
     }
 
     function handleSelect(item) {
-        navigate(`${homePath}index.cshtml?name=Meter&MeterID=${item.row.ID}`);
+        navigate(homePath + SystemCenterURL.MeterDetails + `&MeterID=${item.row.ID}`);
     }
 
     return (

@@ -32,6 +32,7 @@ import { Search } from '@gpa-gemstone/react-interactive';
 import { ToolTip } from '@gpa-gemstone/react-forms';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
+import { SystemCenterURL } from '../constants';
 
 declare var homePath: string;
 
@@ -105,7 +106,7 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
     }
 
     function handleSelect(item) {
-        navigate(`${homePath}index.cshtml?name=Meter&MeterID=${item.row.ID}`);
+        navigate(homePath + SystemCenterURL.MeterDetails + `&MeterID=${item.row.ID}`);
     }
 
     function getEnum(setOptions, field) {
